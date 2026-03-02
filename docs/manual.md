@@ -12,6 +12,12 @@ Brainstorm → Plan → Work → Review → Compound
 
 Each step builds on the previous one. Over time, the knowledge captured in `docs/solutions/` makes future work faster and more consistent.
 
+## Getting Started
+
+1. **Install**: Clone this repo and link it to your project — see [README.md](../README.md) for the full installation steps.
+2. **Configure**: Run the `cg-skill-setup` skill in Copilot Chat (type `@workspace` and reference the skill, or load it directly) to create your `compound-gpid.local.md` config file.
+3. **Start working**: Once configured, use `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build.
+
 ## Key Concepts
 
 ### Prompts
@@ -67,7 +73,7 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 |--------|---------|--------|--------|
 | **What they are** | Workflow commands | Specialized reviewers | Reference knowledge |
 | **How you use them** | Type `/cg-brainstorm` in chat | Dispatched by `/cg-review` | Referenced by prompts/agents |
-| **Interactive?** | No — follow the workflow | No — automated | No — passive reference |
+| **Interactive?** | No — follow the workflow | No — automated | No (passive by design; can be referenced directly) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
 | **Produce output?** | Yes (docs, code, reviews) | Yes (review findings) | No (consumed by others) |
@@ -118,7 +124,7 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 
 ### Initial Setup
 
-Run `/cg-setup` in Copilot Chat. This creates `compound-gpid.local.md` with your preferences:
+Load the `cg-skill-setup` skill in Copilot Chat — this is a **skill**, not a slash-command prompt. It creates `compound-gpid.local.md` with your preferences:
 
 - **Language**: R, Python, or both
 - **Project type**: Package, analysis, dashboard, API, tool

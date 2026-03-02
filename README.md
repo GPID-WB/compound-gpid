@@ -2,7 +2,7 @@
 > **⚠️ WORK IN PROGRESS — DO NOT USE IN PRODUCTION**
 >
 > This project is under active development and is not yet ready for use.
-> APIs, prompts, and conventions may change without notice.
+> Prompts, agents, skills, and conventions may change without notice.
 > This banner will be removed when the system is stable.
 
 # Compound GPID
@@ -38,13 +38,9 @@ This creates a **junction** (no elevated privileges required on most Windows 10/
 
 ### Step 3: Run setup
 
-In Copilot Chat, type:
+In Copilot Chat, load the `cg-skill-setup` skill. This is a **skill**, not a slash-command prompt — reference it directly in chat.
 
-```
-/cg-setup
-```
-
-This will ask you about your preferred language, project type, and review depth, then write a `compound-gpid.local.md` config file in your project root.
+It will ask you about your preferred language, project type, and review depth, then write a `compound-gpid.local.md` config file in your project root.
 
 ### Step 4: Add to `.gitignore`
 
