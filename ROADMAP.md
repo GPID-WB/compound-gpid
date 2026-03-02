@@ -4,14 +4,14 @@
 
 Focus: Coding best practices, testing, documentation, version control.
 
-- [x] Core workflow prompts (brainstorm, plan, work, review, compound)
-- [x] 8 review agents + learnings researcher
-- [x] R best practices skill (`data.table`, `ggplot2`, `testthat`, roxygen2, `renv`)
-- [x] Python best practices skill (PEP 8, pytest, type hints, polars, `uv`/`poetry`)
-- [x] Git workflow skill
-- [x] Brainstorming skill
-- [x] Compound docs skill (knowledge capture)
-- [x] Setup skill with review depth tiers
+- [x] Core workflow prompts (cg-brainstorm, cg-plan, cg-work, cg-review, cg-compound)
+- [x] 8 review agents + learnings researcher (all prefixed `cg-`)
+- [x] R best practices skill (`cg-skill-r-best-practices`)
+- [x] Python best practices skill (`cg-skill-python-best-practices`)
+- [x] Git workflow skill (`cg-skill-git-workflow`)
+- [x] Brainstorming skill (`cg-skill-brainstorming`)
+- [x] Compound docs skill (`cg-skill-compound-docs`)
+- [x] Setup skill (`cg-skill-setup`) with review depth tiers
 - [x] Team-wide coding standards via `copilot-instructions.md`
 
 ## Phase 2: Analytical Quality

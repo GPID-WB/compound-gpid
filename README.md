@@ -1,3 +1,10 @@
+> [!CAUTION]
+> **⚠️ WORK IN PROGRESS — DO NOT USE IN PRODUCTION**
+>
+> This project is under active development and is not yet ready for use.
+> APIs, prompts, and conventions may change without notice.
+> This banner will be removed when the system is stable.
+
 # Compound GPID
 
 A compound engineering plugin for data science teams using VS Code/Positron with GitHub Copilot. Inspired by the [Compound Engineering Philosophy](https://every.to/guides/compound-engineering).
@@ -34,7 +41,7 @@ This creates a **junction** (no elevated privileges required on most Windows 10/
 In Copilot Chat, type:
 
 ```
-/setup
+/cg-setup
 ```
 
 This will ask you about your preferred language, project type, and review depth, then write a `compound-gpid.local.md` config file in your project root.
@@ -56,43 +63,43 @@ Brainstorm → Plan → Work → Review → Compound
 
 | Step | Prompt | Model | Purpose |
 |------|--------|-------|---------|
-| **Brainstorm** | `/brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
-| **Plan** | `/plan` | Claude Opus 4.6 | Research + structured implementation plan |
-| **Work** | `/work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
-| **Review** | `/review` | Mixed (see below) | Multi-agent code review with P1/P2/P3 findings |
-| **Compound** | `/compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
+| **Brainstorm** | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
+| **Plan** | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
+| **Work** | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
+| **Review** | `/cg-review` | Mixed (see below) | Multi-agent code review with P1/P2/P3 findings |
+| **Compound** | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 
 ### Review Agents
 
 | Agent | Focus | Model |
 |-------|-------|-------|
-| `code-quality` | Style, linting, DRY, naming | Haiku 4.5 |
-| `testing` | Coverage, edge cases, test quality | Haiku 4.5 |
-| `documentation` | roxygen2/docstrings, README | Haiku 4.5 |
-| `version-control` | Commit hygiene, branching, secrets | Haiku 4.5 |
-| `reproducibility` | Lockfiles, paths, seeds | Haiku 4.5 |
-| `performance` | Vectorization, memory, algorithms | Sonnet 4.6 |
-| `architecture` | Structure, modularity, dependencies | Sonnet 4.6 |
-| `data-quality` | Validation, types, missing values | Sonnet 4.6 |
+| `cg-code-quality` | Style, linting, DRY, naming | Haiku 4.5 |
+| `cg-testing` | Coverage, edge cases, test quality | Haiku 4.5 |
+| `cg-documentation` | roxygen2/docstrings, README | Haiku 4.5 |
+| `cg-version-control` | Commit hygiene, branching, secrets | Haiku 4.5 |
+| `cg-reproducibility` | Lockfiles, paths, seeds | Haiku 4.5 |
+| `cg-performance` | Vectorization, memory, algorithms | Sonnet 4.6 |
+| `cg-architecture` | Structure, modularity, dependencies | Sonnet 4.6 |
+| `cg-data-quality` | Validation, types, missing values | Sonnet 4.6 |
 
 ### Review Depth Tiers
 
 | Tier | Agents | When to use |
 |------|--------|-------------|
-| **Light** | `code-quality` + `testing` | Quick fixes, small changes |
+| **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, small changes |
 | **Standard** | All 8 review agents | Default for most work |
-| **Thorough** | All 8 + `learnings-researcher` | Major features, refactors |
+| **Thorough** | All 8 + `cg-learnings-researcher` | Major features, refactors |
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `setup` | Configure language, project type, review depth |
-| `r-best-practices` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv` |
-| `python-best-practices` | PEP 8, pytest, type hints, polars, `uv`/`poetry` |
-| `git-workflow` | Branching, commits, PR templates, `.gitignore` |
-| `brainstorming` | Requirement elicitation and decision capture |
-| `compound-docs` | Knowledge capture and categorization system |
+| `cg-skill-setup` | Configure language, project type, review depth |
+| `cg-skill-r-best-practices` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv` |
+| `cg-skill-python-best-practices` | PEP 8, pytest, type hints, polars, `uv`/`poetry` |
+| `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
+| `cg-skill-brainstorming` | Requirement elicitation and decision capture |
+| `cg-skill-compound-docs` | Knowledge capture and categorization system |
 
 ## Directory Structure (in your project)
 
@@ -103,9 +110,9 @@ your-project/
 ├── .github/                  → junction to compound-gpid/.github/
 ├── compound-gpid.local.md    # Your project config (gitignored)
 └── docs/
-    ├── brainstorms/          # /brainstorm outputs
-    ├── plans/                # /plan outputs
-    └── solutions/            # /compound outputs
+    ├── brainstorms/          # /cg-brainstorm outputs
+    ├── plans/                # /cg-plan outputs
+    └── solutions/            # /cg-compound outputs
         ├── build-errors/
         ├── performance-issues/
         ├── testing-patterns/
@@ -117,6 +124,10 @@ your-project/
 ## Phase 2 Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for planned future capabilities.
+
+## Documentation
+
+See the [User Manual](docs/manual.md) for detailed usage instructions, including the differences between prompts, agents, and skills.
 
 ## License
 
