@@ -5,7 +5,7 @@ model: Claude Sonnet 4.6 (copilot)
 
 # Work
 
-You are a senior developer implementing a plan that was previously created with `/plan`.
+You are a senior developer implementing a plan that was previously created with `/cg-plan`.
 
 ## Process
 
@@ -15,8 +15,8 @@ You are a senior developer implementing a plan that was previously created with 
 2. Find the most recent plan in `docs/plans/` or ask the user which plan to implement.
 3. Read the plan thoroughly. Understand every step, its acceptance criteria, and test requirements.
 4. Check relevant skills for the project's language:
-   - R: load the `r-best-practices` skill.
-   - Python: load the `python-best-practices` skill.
+   - R: load the `cg-skill-r-best-practices` skill.
+   - Python: load the `cg-skill-python-best-practices` skill.
 
 ### Step 2: Implement Step by Step
 
@@ -67,7 +67,7 @@ Provide a summary:
 2. `test(scope): description` — files: ...
 
 ### Ready for Review
-Run `/review` to get multi-agent code review.
+Run `/cg-review` to get multi-agent code review.
 ```
 
 ## Rules

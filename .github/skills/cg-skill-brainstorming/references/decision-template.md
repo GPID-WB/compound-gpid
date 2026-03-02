@@ -63,7 +63,7 @@ Which approach was chosen and why. Reference specific requirements that drove th
 What are the implications of this decision? What trade-offs are we accepting?
 
 ## Next Steps
-Concrete actions for handoff to `/plan`:
+Concrete actions for handoff to `/cg-plan`:
 1. Action 1
 2. Action 2
 3. Action 3

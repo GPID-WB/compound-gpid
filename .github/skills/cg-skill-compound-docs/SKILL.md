@@ -1,15 +1,15 @@
 ---
-name: compound-docs
+name: cg-skill-compound-docs
 description: "Knowledge capture system. Categorizes solved problems, tags with metadata, and links related findings for team reuse."
 ---
 
 # Compound Docs
 
-The compound docs skill powers the `/compound` prompt — the step that makes every solved problem a reusable asset.
+The compound docs skill powers the `/cg-compound` prompt — the step that makes every solved problem a reusable asset.
 
 ## How It Works
 
-When you solve a non-trivial problem, `/compound` captures it as a structured document in `docs/solutions/[category]/` with YAML frontmatter for discoverability. Over time, this builds a searchable knowledge base that the `learnings-researcher` agent queries before starting new work.
+When you solve a non-trivial problem, `/cg-compound` captures it as a structured document in `docs/solutions/[category]/` with YAML frontmatter for discoverability. Over time, this builds a searchable knowledge base that the `cg-learnings-researcher` agent queries before starting new work.
 
 ## Categories
 

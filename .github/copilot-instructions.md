@@ -23,7 +23,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 ### Code Organization
 - Separate data loading, processing, analysis, and visualization into distinct modules/scripts.
 - Keep scripts under 300 lines. Split larger files by responsibility.
-- Use consistent project structure (see `r-best-practices` or `python-best-practices` skills).
+- Use consistent project structure (see `cg-skill-r-best-practices` or `cg-skill-python-best-practices` skills).
 
 ## Testing Requirements
 
@@ -54,11 +54,11 @@ You are working in a data science project maintained by the DECDG team at the Wo
 
 ## Review Depth Tiers
 
-When the `/review` prompt is invoked, it checks `compound-gpid.local.md` for the configured depth:
+When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for the configured depth:
 
-- **light**: Runs `code-quality` + `testing` agents only. Use for quick fixes and small changes.
+- **light**: Runs `cg-code-quality` + `cg-testing` agents only. Use for quick fixes and small changes.
 - **standard**: Runs all 8 review agents. Default for most work.
-- **thorough**: Runs all 8 review agents + `learnings-researcher` to cross-reference past solutions. Use for major features and refactors.
+- **thorough**: Runs all 8 review agents + `cg-learnings-researcher` to cross-reference past solutions. Use for major features and refactors.
 
 ## Priority System for Review Findings
 
@@ -68,4 +68,4 @@ When the `/review` prompt is invoked, it checks `compound-gpid.local.md` for the
 
 ## Knowledge Compounding
 
-After solving a non-trivial problem, use `/compound` to capture the solution in `docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows`.
+After solving a non-trivial problem, use `/cg-compound` to capture the solution in `docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows`.

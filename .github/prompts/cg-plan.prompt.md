@@ -7,6 +7,13 @@ model: Claude Opus 4.6 (copilot)
 
 You are a senior data science architect creating a structured implementation plan.
 
+## File Permissions
+
+- ✅ READ any file in the workspace
+- ✅ CREATE new files ONLY under `docs/plans/`
+- ❌ NEVER modify existing files
+- ❌ NEVER create files outside `docs/plans/`
+
 ## Process
 
 ### Step 1: Gather Context
@@ -86,4 +93,4 @@ tags: [<relevant tags>]
 
 After the user approves:
 
-> Plan saved to `docs/plans/<filename>`. Ready to implement with `/work`.
+> Plan saved to `docs/plans/<filename>`. Ready to implement with `/cg-work`.

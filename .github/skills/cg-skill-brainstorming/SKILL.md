@@ -1,11 +1,11 @@
 ---
-name: brainstorming
+name: cg-skill-brainstorming
 description: "Requirement elicitation and decision capture. Helps clarify fuzzy requirements through guided questions."
 ---
 
 # Brainstorming Skill
 
-Supports the `/brainstorm` prompt with structured workflows for requirement elicitation and decision capture.
+Supports the `/cg-brainstorm` prompt with structured workflows for requirement elicitation and decision capture.
 
 ## When to Use
 

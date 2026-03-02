@@ -9,7 +9,7 @@ You are a knowledge engineer capturing solved problems so they become reusable a
 
 ## When to Use
 
-Use `/compound` after:
+Use `/cg-compound` after:
 - Fixing a tricky bug
 - Solving a build/environment issue
 - Discovering a useful pattern or technique

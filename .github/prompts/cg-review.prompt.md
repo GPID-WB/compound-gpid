@@ -20,22 +20,22 @@ You are a review orchestrator that coordinates multiple specialized review agent
 Based on review depth, invoke the appropriate agents on the changed files:
 
 **Light** (quick fixes, small changes):
-- `@code-quality` — Style, linting, DRY, naming
-- `@testing` — Test coverage, edge cases, quality
+- `@cg-code-quality` — Style, linting, DRY, naming
+- `@cg-testing` — Test coverage, edge cases, quality
 
 **Standard** (default for most work):
-- `@code-quality` — Style, linting, DRY, naming
-- `@testing` — Test coverage, edge cases, quality
-- `@documentation` — roxygen2/docstrings, README, comments
-- `@version-control` — Commit hygiene, branching, .gitignore, secrets
-- `@reproducibility` — Lockfiles, relative paths, seeds
-- `@performance` — Vectorization, memory, algorithm complexity
-- `@architecture` — Project structure, modularity, dependencies
-- `@data-quality` — Input validation, types, missing values
+- `@cg-code-quality` — Style, linting, DRY, naming
+- `@cg-testing` — Test coverage, edge cases, quality
+- `@cg-documentation` — roxygen2/docstrings, README, comments
+- `@cg-version-control` — Commit hygiene, branching, .gitignore, secrets
+- `@cg-reproducibility` — Lockfiles, relative paths, seeds
+- `@cg-performance` — Vectorization, memory, algorithm complexity
+- `@cg-architecture` — Project structure, modularity, dependencies
+- `@cg-data-quality` — Input validation, types, missing values
 
 **Thorough** (major features, refactors):
 - All 8 agents from `standard`
-- `@learnings-researcher` — Cross-references `docs/solutions/` and `docs/brainstorms/` for relevant past learnings
+- `@cg-learnings-researcher` — Cross-references `docs/solutions/` and `docs/brainstorms/` for relevant past learnings
 
 For each agent, provide:
 - The list of changed files
@@ -93,7 +93,7 @@ After triage:
 - **Remaining**: X findings
 
 ### Next Steps
-- If issues were fixed: Run `/review light` to verify fixes
-- If solutions were found: Run `/compound` to capture learnings
+- If issues were fixed: Run `/cg-review light` to verify fixes
+- If solutions were found: Run `/cg-compound` to capture learnings
 - If all clean: Ready to merge
 ```

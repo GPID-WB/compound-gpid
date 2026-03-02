@@ -1,5 +1,5 @@
 ---
-name: setup
+name: cg-skill-setup
 description: "Configure Compound GPID for your project. Sets language preferences, project type, and review depth."
 ---
 
@@ -110,14 +110,14 @@ docs/
 **Review Depth**: <review-depth>
 
 ### Available Commands
-- `/brainstorm` — Clarify fuzzy requirements
-- `/plan` — Create an implementation plan
-- `/work` — Implement a plan step by step
-- `/review` — Run multi-agent code review
-- `/compound` — Capture a solved problem
+- `/cg-brainstorm` — Clarify fuzzy requirements
+- `/cg-plan` — Create an implementation plan
+- `/cg-work` — Implement a plan step by step
+- `/cg-review` — Run multi-agent code review
+- `/cg-compound` — Capture a solved problem
 
 ### Next Steps
-- Start with `/brainstorm` if requirements are fuzzy
-- Start with `/plan` if you know what to build
-- Jump to `/work` if the plan already exists
+- Start with `/cg-brainstorm` if requirements are fuzzy
+- Start with `/cg-plan` if you know what to build
+- Jump to `/cg-work` if the plan already exists
 ```

@@ -1,5 +1,5 @@
 ---
-name: python-best-practices
+name: cg-skill-python-best-practices
 description: "Best practices for Python development with polars, numpy, pytest, type hints, and uv/poetry."
 ---
 

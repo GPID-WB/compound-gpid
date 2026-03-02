@@ -1,5 +1,5 @@
 ---
-name: git-workflow
+name: cg-skill-git-workflow
 description: "Git workflow conventions: branching strategy, commit messages, PR templates, and .gitignore patterns for data science projects."
 ---
 

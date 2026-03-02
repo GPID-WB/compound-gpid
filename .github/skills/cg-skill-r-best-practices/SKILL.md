@@ -1,5 +1,5 @@
 ---
-name: r-best-practices
+name: cg-skill-r-best-practices
 description: "Best practices for R development with data.table, ggplot2, testthat, roxygen2, and renv."
 ---
 
