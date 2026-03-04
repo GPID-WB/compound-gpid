@@ -1,9 +1,21 @@
 # scripts/link.ps1
 # Links the current project to the global Compound GPID installation by creating
-# a directory junction from .github/ to the shared compound-gpid/.github/.
+# per-subdirectory junctions inside .github/ for the managed Compound GPID
+# directories (prompts/, skills/, agents/, instructions/) and copying
+# copilot-instructions.md with a management marker.
 #
 # Run this from your project root:
 #   cg-link
+#
+# Key behaviours:
+#   - Creates .github/ as a real directory if it does not exist.
+#   - Adds junctions only for CG-managed subdirectories, leaving all existing
+#     .github/ content (workflows, templates, CODEOWNERS, etc.) untouched.
+#   - Copies copilot-instructions.md with a <!-- compound-gpid:managed --> marker.
+#     Removes the marker to take ownership of the file and prevent cg-update
+#     from overwriting it.
+#   - Runs cg-update first to ensure the global clone is up to date.
+#   - Gitignores only the CG-managed items, not the entire .github/ folder.
 #
 # Requirements:
 #   - Compound GPID must be installed at $env:USERPROFILE\.compound-gpid
@@ -13,9 +25,18 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # --- Configuration ---
-$CompoundGpidDir = Join-Path $env:USERPROFILE ".compound-gpid"
-$SourceGithub    = Join-Path $CompoundGpidDir ".github"
-$TargetJunction  = Join-Path (Get-Location) ".github"
+$CompoundGpidDir  = Join-Path $env:USERPROFILE ".compound-gpid"
+$SourceGithub     = Join-Path $CompoundGpidDir ".github"
+$ProjectRoot      = Get-Location
+$TargetGithubDir  = Join-Path $ProjectRoot ".github"
+
+# Subdirectories managed by Compound GPID (each gets its own junction)
+$ManagedDirs = @("prompts", "skills", "agents", "instructions")
+
+# The management marker that marks copilot-instructions.md as CG-owned
+$CopilotInstructionsMarker  = "<!-- compound-gpid:managed -->"
+$CopilotInstructionsSource  = Join-Path $SourceGithub "copilot-instructions.md"
+$CopilotInstructionsDest    = Join-Path $TargetGithubDir "copilot-instructions.md"
 
 # --- Validate global install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
@@ -34,87 +55,169 @@ if (-not (Test-Path $SourceGithub)) {
     exit 1
 }
 
-# --- Check current state of .github in this project ---
-$existing = Get-Item -Path $TargetJunction -ErrorAction SilentlyContinue
-
-if ($existing) {
-    if ($existing.LinkType -eq "Junction") {
-        # Check if it already points to compound-gpid
-        if ($existing.Target -like "*compound-gpid*") {
-            Write-Host "Already linked to Compound GPID. Nothing to do." -ForegroundColor Green
-            exit 0
-        } else {
-            # Junction points somewhere else - warn and offer to relink
-            Write-Warning ".github/ is already a junction pointing to: $($existing.Target)"
-            $answer = Read-Host "Relink it to Compound GPID instead? [y/N]"
-            if ($answer -notmatch "^[Yy]$") {
-                Write-Host "Aborted." -ForegroundColor Yellow
-                exit 0
-            }
-            # Remove the existing junction (does NOT delete the target directory)
-            Remove-Item -Path $TargetJunction -Force
-        }
-    } else {
-        # Regular directory - offer to back it up before creating junction
-        Write-Warning ".github/ exists as a regular directory in this project."
-        Write-Warning "It will be renamed to .github.bak before linking."
-        $answer = Read-Host "Back up .github/ to .github.bak and proceed? [y/N]"
-        if ($answer -notmatch "^[Yy]$") {
-            Write-Host "Aborted. Your .github/ directory is unchanged." -ForegroundColor Yellow
-            exit 0
-        }
-        $backupPath = Join-Path (Get-Location) ".github.bak"
-        if (Test-Path $backupPath) {
-            Write-Error ".github.bak already exists. Remove or rename it first, then re-run cg-link."
-            exit 1
-        }
-        Rename-Item -Path $TargetJunction -NewName ".github.bak"
-        Write-Host "Backed up .github/ to .github.bak" -ForegroundColor Cyan
-    }
+# --- Step 1: Update the global clone before linking ---
+# This ensures the user always links against the latest version.
+# If offline or the pull fails, we warn and continue with the current version.
+Write-Host ""
+Write-Host "Updating Compound GPID..." -ForegroundColor Cyan
+# Set flag so update.ps1 skips the copilot-instructions.md refresh -
+# link.ps1 handles that refresh itself in Step 4 to avoid doing it twice.
+$env:CG_INTERNAL_CALL = "1"
+try {
+    & "$CompoundGpidDir\scripts\update.ps1"
+} catch {
+    Write-Warning "Could not update Compound GPID (offline?): $_"
+    Write-Warning "Continuing with the current version."
+} finally {
+    Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
 }
 
-# --- Create the junction ---
-# New-Item -ItemType Junction creates a junction without requiring admin rights
-# (Developer Mode or standard user junctions on Win10+)
-try {
-    New-Item -ItemType Junction -Path $TargetJunction -Target $SourceGithub | Out-Null
-} catch {
-    Write-Error @"
-Failed to create junction: $_
+Write-Host ""
+Write-Host "Compound GPID - Link" -ForegroundColor Cyan
+Write-Host "====================" -ForegroundColor Cyan
+Write-Host ""
+
+# --- Step 2: Handle .github/ directory in this project ---
+$githubItem = Get-Item -Path $TargetGithubDir -ErrorAction SilentlyContinue
+
+if ($githubItem -and $githubItem.LinkType -eq "Junction") {
+    # Legacy: .github/ itself is a whole-directory junction (old cg-link behaviour).
+    # Remove the junction and replace it with a real directory so we can insert
+    # per-subdirectory junctions alongside any existing user content.
+    Write-Host ".github/ is a legacy Compound GPID junction - migrating to per-subdirectory junctions..." -ForegroundColor Yellow
+    # Remove-Item on a junction removes only the link, not the target contents
+    Remove-Item -Path $TargetGithubDir -Force
+    New-Item -ItemType Directory -Path $TargetGithubDir -Force | Out-Null
+    Write-Host "  Migrated: .github/ is now a real directory." -ForegroundColor DarkGray
+} elseif (-not $githubItem) {
+    # .github/ does not exist - create it as a real directory
+    New-Item -ItemType Directory -Path $TargetGithubDir -Force | Out-Null
+    Write-Host "Created .github/ directory." -ForegroundColor DarkGray
+}
+# If .github/ already exists as a real directory, leave it untouched.
+
+# --- Step 3: Create per-subdirectory junctions ---
+Write-Host "Linking managed directories..." -ForegroundColor DarkGray
+
+foreach ($dir in $ManagedDirs) {
+    $junctionPath = Join-Path $TargetGithubDir $dir
+    $junctionTarget = Join-Path $SourceGithub $dir
+
+    # Verify the source exists
+    if (-not (Test-Path $junctionTarget)) {
+        Write-Warning "  Source not found, skipping: $junctionTarget"
+        continue
+    }
+
+    $existing = Get-Item -Path $junctionPath -ErrorAction SilentlyContinue
+
+    if ($existing) {
+        if ($existing.LinkType -eq "Junction") {
+            # Already a junction - check if it points to this compound-gpid install
+            # .Target is string[] in PS 5.1 - join before comparing
+            if (($existing.Target -join '') -like "*compound-gpid*") {
+                Write-Host "  $dir/ - already linked" -ForegroundColor DarkGray
+                continue
+            } else {
+                # Junction points somewhere unexpected - ask to relink
+                Write-Warning "  $dir/ is a junction pointing to: $($existing.Target)"
+                $answer = Read-Host "  Relink $dir/ to Compound GPID instead? [y/N]"
+                if ($answer -notmatch "^[Yy]$") {
+                    Write-Host "  Skipping $dir/" -ForegroundColor Yellow
+                    continue
+                }
+                Remove-Item -Path $junctionPath -Force
+            }
+        } else {
+            # Real directory exists with the same name - cannot create junction
+            Write-Error @"
+A real directory .github/$dir/ already exists in this project.
+Compound GPID cannot create a junction here without risking data loss.
+
+To resolve: rename or remove .github/$dir/ manually, then re-run cg-link.
+"@
+            exit 1
+        }
+    }
+
+    # Create the junction
+    try {
+        New-Item -ItemType Junction -Path $junctionPath -Value $junctionTarget | Out-Null
+        Write-Host "  $dir/ - linked" -ForegroundColor DarkGray
+    } catch {
+        Write-Error @"
+Failed to create junction for $dir/: $_
 
 If you see an access error, enable Developer Mode:
   Settings > System > For developers > Developer Mode (On)
 
 Then re-run: cg-link
 "@
-    exit 1
+        exit 1
+    }
 }
 
-# --- Verify the junction works by checking for a known file ---
-$checkPath = Join-Path $TargetJunction "prompts\cg-setup.prompt.md"
-if (-not (Test-Path $checkPath)) {
-    Write-Warning "Junction created, but verification failed - prompts not visible at expected path."
-    Write-Warning "Expected: $checkPath"
-} else {
-    Write-Host "Junction verified." -ForegroundColor DarkGray
-}
+# --- Step 4: Copy copilot-instructions.md with management marker ---
+Write-Host "Linking copilot-instructions.md..." -ForegroundColor DarkGray
 
-# --- Add .github and .github.bak to .gitignore ---
-# .github  - junction to external repo, must not be committed
-# .github.bak - backup created by cg-link, should not be committed either
-$gitignorePath = Join-Path (Get-Location) ".gitignore"
-
-if (Test-Path $gitignorePath) {
-    $content = Get-Content $gitignorePath -Raw
-    # Only add if not already present (check for the entry as a whole line)
-    if ($content -notmatch "(?m)^\s*\.github\s*$") {
-        Add-Content -Path $gitignorePath -Value "`n# Compound GPID (junction + backup - neither should be committed)`n.github`n.github.bak"
-        Write-Host "Added .github and .github.bak to .gitignore" -ForegroundColor DarkGray
+if (Test-Path $CopilotInstructionsDest) {
+    $existingContent = Get-Content $CopilotInstructionsDest -Raw -ErrorAction SilentlyContinue
+    if ($existingContent -and $existingContent -match [regex]::Escape($CopilotInstructionsMarker)) {
+        # Marker present - this is a CG-managed copy, overwrite with latest
+        $sourceContent = Get-Content $CopilotInstructionsSource -Raw
+        Set-Content -Path $CopilotInstructionsDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
+        Write-Host "  copilot-instructions.md - updated" -ForegroundColor DarkGray
+    } else {
+        # No marker - user has taken ownership of this file, leave it alone
+        Write-Host "  copilot-instructions.md - user-managed (marker absent), skipping" -ForegroundColor Yellow
+        Write-Host "  To restore CG management, delete the file and re-run cg-link." -ForegroundColor DarkGray
     }
 } else {
-    # Create a minimal .gitignore if none exists
-    Set-Content -Path $gitignorePath -Value "# Compound GPID (junction + backup - neither should be committed)`n.github`n.github.bak`n"
-    Write-Host "Created .gitignore with .github and .github.bak entries" -ForegroundColor DarkGray
+    # File does not exist - copy with marker
+    $sourceContent = Get-Content $CopilotInstructionsSource -Raw
+    Set-Content -Path $CopilotInstructionsDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
+    Write-Host "  copilot-instructions.md - copied" -ForegroundColor DarkGray
+}
+
+# --- Step 5: Update .gitignore with CG-specific entries only ---
+# We gitignore only the CG-managed items so the user's own .github/ content
+# (workflows, templates, CODEOWNERS, etc.) remains tracked by git.
+#
+# Strategy: idempotent remove-then-rewrite of the CG block (same pattern as
+# install.ps1 profile block) so repeated cg-link runs and version upgrades
+# never produce duplicate section headers.
+$gitignorePath = Join-Path $ProjectRoot ".gitignore"
+
+$cgGitignoreMarker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+$cgGitignoreEntries = @(
+    ".github/prompts/",
+    ".github/skills/",
+    ".github/agents/",
+    ".github/instructions/",
+    ".github/copilot-instructions.md"
+)
+$cgGitignoreBlock = $cgGitignoreMarker + "`n" + ($cgGitignoreEntries -join "`n") + "`n"
+
+if (Test-Path $gitignorePath) {
+    $giContent = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
+    if (-not $giContent) { $giContent = "" }
+
+    # Remove any existing CG block before rewriting - handles version upgrades cleanly
+    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", "").TrimEnd()
+    $separator  = if ($giUpdated.Length -gt 0) { "`n`n" } else { "" }
+    Set-Content -Path $gitignorePath -Value ($giUpdated + $separator + $cgGitignoreBlock)
+    Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
+} else {
+    Set-Content -Path $gitignorePath -Value $cgGitignoreBlock
+    Write-Host "Created .gitignore with CG entries" -ForegroundColor DarkGray
+}
+
+# --- Step 6: Verify a known file is accessible ---
+$checkPath = Join-Path $TargetGithubDir "prompts\cg-setup.prompt.md"
+if (-not (Test-Path $checkPath)) {
+    Write-Warning "Verification failed - prompts not visible at expected path: $checkPath"
+} else {
+    Write-Host "Junctions verified." -ForegroundColor DarkGray
 }
 
 # --- Success ---
@@ -122,6 +225,12 @@ Write-Host ""
 Write-Host "Linked!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Compound GPID prompts are now available in this project."
+Write-Host ""
+Write-Host "IMPORTANT:" -ForegroundColor Yellow
+Write-Host "  The following directories are managed by Compound GPID." -ForegroundColor Yellow
+Write-Host "  Do not edit files inside them - changes will be lost on cg-update." -ForegroundColor Yellow
+Write-Host "  Managed: .github/prompts/  .github/skills/  .github/agents/  .github/instructions/" -ForegroundColor Yellow
+Write-Host ""
 Write-Host "Open VS Code and run in Copilot Chat:"
 Write-Host "  /cg-setup" -ForegroundColor Cyan
 Write-Host ""

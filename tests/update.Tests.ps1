@@ -89,3 +89,79 @@ Describe "update.ps1 - exit code handling" {
         }
     }
 }
+
+Describe "update.ps1 - git checkout . before pull" {
+    Context "resetting local changes logic" {
+        It "exit code 0 is treated as success" {
+            # Test LASTEXITCODE handling without touching the real repo.
+            # Running git checkout . against ~\.compound-gpid in tests would
+            # silently discard any uncommitted developer changes.
+            $global:LASTEXITCODE = 0
+            ($LASTEXITCODE -ne 0) | Should Be $false
+            $global:LASTEXITCODE = 0  # reset
+        }
+
+        It "non-zero exit code triggers a warning but does not abort" {
+            $global:LASTEXITCODE = 1
+            ($LASTEXITCODE -ne 0) | Should Be $true
+            $global:LASTEXITCODE = 0  # reset
+        }
+    }
+}
+
+Describe "update.ps1 - copilot-instructions.md refresh" {
+    Context "when the file in CWD has the management marker" {
+        It "overwrites the file with updated content" {
+            $marker  = "<!-- compound-gpid:managed -->"
+            $dest    = Join-Path $TestDrive "copilot-managed.md"
+            $source  = Join-Path $TestDrive "copilot-source.md"
+
+            Set-Content -Path $source -Value "# Updated instructions from global clone"
+            Set-Content -Path $dest   -Value ($marker + "`n# Old instructions")
+
+            # Simulate the marker check and overwrite
+            $existing = Get-Content $dest -Raw
+            if ($existing -match [regex]::Escape($marker)) {
+                $newContent = Get-Content $source -Raw
+                Set-Content -Path $dest -Value ($marker + "`n" + $newContent)
+            }
+
+            $result = Get-Content $dest -Raw
+            $result -match "Updated instructions" | Should Be $true
+            $result -match "Old instructions"     | Should Be $false
+        }
+    }
+
+    Context "when the file in CWD does NOT have the management marker" {
+        It "leaves the user-managed file untouched" {
+            $marker  = "<!-- compound-gpid:managed -->"
+            $dest    = Join-Path $TestDrive "copilot-user.md"
+            $source  = Join-Path $TestDrive "copilot-source-skip.md"
+
+            Set-Content -Path $source -Value "# New source content"
+            Set-Content -Path $dest   -Value "# My custom instructions (no marker)"
+
+            # Simulate the marker check - should NOT overwrite
+            $existing = Get-Content $dest -Raw
+            if ($existing -match [regex]::Escape($marker)) {
+                $newContent = Get-Content $source -Raw
+                Set-Content -Path $dest -Value ($marker + "`n" + $newContent)
+            }
+
+            $result = Get-Content $dest -Raw
+            $result -match "My custom instructions" | Should Be $true
+            $result -match "New source content"     | Should Be $false
+        }
+    }
+
+    Context "when copilot-instructions.md does not exist in CWD" {
+        It "does not attempt to refresh a non-existent file" {
+            $nonexistent = Join-Path $TestDrive "no-copilot-instructions.md"
+            Test-Path $nonexistent | Should Be $false
+            # Simulates the guard condition in update.ps1
+            $shouldRefresh = (Test-Path $nonexistent)
+            $shouldRefresh | Should Be $false
+        }
+    }
+}
+

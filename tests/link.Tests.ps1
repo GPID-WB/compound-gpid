@@ -232,17 +232,20 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     }
 
     Context "when .gitignore already has all CG entries" {
-        It "does not add duplicate entries" {
-            $gi = Join-Path $TestDrive "dup-gi.gitignore"
-            Set-Content -Path $gi -Value ".github/prompts/`n.github/skills/"
+        It "does not add duplicate entries when run twice (remove-then-rewrite)" {
+            $gi      = Join-Path $TestDrive "dup-gi.gitignore"
+            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $entries = @(".github/prompts/", ".github/skills/")
+            $block   = $marker + "`n" + ($entries -join "`n") + "`n"
 
-            $lines = Get-Content $gi
-            foreach ($entry in @(".github/prompts/", ".github/skills/")) {
-                $alreadyPresent = $lines | Where-Object { $_ -eq $entry }
-                if (-not $alreadyPresent) {
-                    Add-Content -Path $gi -Value $entry
-                }
-            }
+            # First run
+            Set-Content -Path $gi -Value $block
+
+            # Second run: remove-then-rewrite (the new idempotent strategy)
+            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", ""
+            $existing = $existing.TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $block)
 
             $after = Get-Content $gi
             ($after | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1

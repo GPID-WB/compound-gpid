@@ -55,7 +55,7 @@ New-Item -ItemType Directory -Path $tempTarget -Force | Out-Null
 
 $junctionOk = $false
 try {
-    New-Item -ItemType Junction -Path $tempJunction -Target $tempTarget -ErrorAction Stop | Out-Null
+    New-Item -ItemType Junction -Path $tempJunction -Value $tempTarget -ErrorAction Stop | Out-Null
     $junctionOk = $true
 } catch {
     # Junction creation failed - likely Developer Mode is off
@@ -70,7 +70,8 @@ if (-not $junctionOk) {
 
 Directory junction creation failed on this machine.
 
-Compound GPID uses junctions to link projects to the shared .github/ folder.
+Compound GPID uses junctions to link managed subdirectories (prompts/, skills/,
+agents/, instructions/) inside your project's .github/ to the shared installation.
 To enable them, turn on Developer Mode:
   Settings > System > For developers > Developer Mode (set to ON)
 
