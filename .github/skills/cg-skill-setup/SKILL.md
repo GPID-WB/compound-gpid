@@ -5,9 +5,41 @@ description: "Configure Compound GPID for your project. Sets language preference
 
 # Compound GPID Setup
 
+> **Note**: This skill provides reference configuration knowledge consumed by prompts and agents.
+> For interactive project setup, use the `/cg-setup` prompt in Copilot Chat instead.
+
 Interactive setup to configure this project for the Compound GPID workflow.
 
+## Installation Model
+
+Compound GPID uses a **global clone + per-project junction** model on Windows:
+
+1. **Global install** (once per machine): The repo is cloned to `%USERPROFILE%\.compound-gpid`.
+   Running `install.ps1` registers `cg-link`, `cg-unlink`, and `cg-update` as PowerShell functions.
+
+2. **Per-project link** (once per project): Running `cg-link` from a project root creates a
+   directory junction from `.github/` in the project to `%USERPROFILE%\.compound-gpid\.github/`.
+   This makes all prompts, agents, and skills visible to VS Code and Copilot.
+
+3. **Updates** (as needed): Running `cg-update` from anywhere runs `git pull` in the global clone.
+   Because all projects point to the same shared directory via junctions, the update is
+   instantly visible in every linked project — no per-project update step required.
+
+4. **Per-project config**: Running `/cg-setup` in Copilot Chat creates `compound-gpid.local.md`
+   with language, project type, and review depth preferences, and scaffolds the `docs/` structure.
+
+### Key path conventions
+
+| Path | Purpose |
+|------|---------|
+| `%USERPROFILE%\.compound-gpid` | Global clone of this repo |
+| `<project>/.github` | Junction pointing to `%USERPROFILE%\.compound-gpid\.github` |
+| `<project>/compound-gpid.local.md` | Project-specific config (gitignored) |
+| `<project>/docs/` | Brainstorms, plans, and captured solutions |
+
 ## Process
+
+## Configuration Workflow
 
 ### Step 1: Check Existing Config
 

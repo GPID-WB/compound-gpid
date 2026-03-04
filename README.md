@@ -17,37 +17,57 @@ This plugin implements the **Brainstorm → Plan → Work → Review → Compoun
 
 ## Installation
 
-Each team member clones this repo independently, then creates a **directory junction** in their project to link it.
-
-### Step 1: Clone the repo
+### Step 1: Clone (one-time per machine)
 
 ```powershell
-git clone https://github.com/your-org/compound-gpid.git "C:\tools\compound-gpid"
+git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compound-gpid"
 ```
 
-### Step 2: Link to your project
-
-From your project root (run as Administrator or with Developer Mode enabled):
+### Step 2: Install (one-time per machine)
 
 ```powershell
-# Remove existing .github if present (back up first!)
-mklink /J ".github" "C:\tools\compound-gpid\.github"
+& "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates a **junction** (no elevated privileges required on most Windows 10/11 systems with Developer Mode) that makes `compound-gpid/.github/` appear as your project's `.github/` directory.
+This registers the `cg-link`, `cg-unlink`, and `cg-update` commands in your PowerShell profile.
 
-### Step 3: Run setup
+> **After install**: restart your terminal or run `. $PROFILE` for the commands to take effect.
 
-In Copilot Chat, load the `cg-skill-setup` skill. This is a **skill**, not a slash-command prompt — reference it directly in chat.
+> **Execution policy**: if PowerShell blocks the script, run:
+> `powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.compound-gpid\install.ps1"`
 
-It will ask you about your preferred language, project type, and review depth, then write a `compound-gpid.local.md` config file in your project root.
+### Step 3: Link your project (once per project)
 
-### Step 4: Add to `.gitignore`
+From your project root:
 
-```gitignore
-# Compound GPID local config (user-specific)
-compound-gpid.local.md
+```powershell
+cg-link
 ```
+
+This creates a **directory junction** from `.github/` in your project to the shared `%USERPROFILE%\.compound-gpid\.github\`, making all prompts, agents, and skills visible to VS Code. It also adds `.github` to your `.gitignore` automatically.
+
+> **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
+> Settings → System → For developers → Developer Mode (On)
+
+### Step 4: Configure your project
+
+Open your project in VS Code and run in Copilot Chat:
+
+```
+/cg-setup
+```
+
+This configures language preferences, project type, and review depth, and scaffolds the `docs/` directory.
+
+## Updating
+
+From any terminal:
+
+```powershell
+cg-update
+```
+
+This runs `git pull` in the global clone. Because all projects share the same `.github/` folder via junctions, updates are instantly visible in every linked project — no per-project update step needed.
 
 ## Workflow
 
@@ -58,8 +78,7 @@ Brainstorm → Plan → Work → Review → Compound
 ```
 
 | Step | Prompt | Model | Purpose |
-|------|--------|-------|---------|
-| **Brainstorm** | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
+|------|--------|-------|---------|| **Setup** | `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects || **Brainstorm** | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | **Plan** | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | **Work** | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | **Review** | `/cg-review` | Mixed (see below) | Multi-agent code review with P1/P2/P3 findings |
@@ -86,6 +105,14 @@ Brainstorm → Plan → Work → Review → Compound
 | **Standard** | All 8 review agents | Default for most work |
 | **Thorough** | All 8 + `cg-learnings-researcher` | Major features, refactors |
 
+## PowerShell Commands
+
+| Command | Where to run | Purpose |
+|---------|-------------|--------|
+| `cg-link` | Project root | Create `.github` junction — enables all Copilot prompts in this project |
+| `cg-unlink` | Project root | Remove `.github` junction (restores backup if one was made) |
+| `cg-update` | Anywhere | Pull latest Compound GPID updates (applies to all linked projects) |
+
 ## Skills
 
 | Skill | Description |
@@ -103,7 +130,7 @@ After using the plugin, your project will accumulate:
 
 ```
 your-project/
-├── .github/                  → junction to compound-gpid/.github/
+├── .github               → junction to %USERPROFILE%\.compound-gpid\.github\
 ├── compound-gpid.local.md    # Your project config (gitignored)
 └── docs/
     ├── brainstorms/          # /cg-brainstorm outputs

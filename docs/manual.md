@@ -14,9 +14,10 @@ Each step builds on the previous one. Over time, the knowledge captured in `docs
 
 ## Getting Started
 
-1. **Install**: Clone this repo and link it to your project — see [README.md](../README.md) for the full installation steps.
-2. **Configure**: Run the `cg-skill-setup` skill in Copilot Chat (type `@workspace` and reference the skill, or load it directly) to create your `compound-gpid.local.md` config file.
-3. **Start working**: Once configured, use `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build.
+1. **Install** (once per machine): Clone the repo and run `install.ps1` — see [README.md](../README.md) for the exact commands. This registers `cg-link`, `cg-update`, and `cg-unlink` in your PowerShell profile.
+2. **Link** (once per project): From your project root in a terminal, run `cg-link`. This creates the `.github` junction that makes all Copilot prompts available.
+3. **Configure** (once per project): Open your project in VS Code and run `/cg-setup` in Copilot Chat. This creates your `compound-gpid.local.md` config file and scaffolds the `docs/` structure.
+4. **Start working**: Use `/cg-brainstorm` if requirements are fuzzy, `/cg-plan` if you know what to build, or `/cg-work` if a plan already exists.
 
 ## Key Concepts
 
@@ -25,8 +26,7 @@ Each step builds on the previous one. Over time, the knowledge captured in `docs
 Prompts are **top-level workflow commands** you invoke in Copilot Chat. They orchestrate multi-step processes and produce outputs (documents, code, reviews).
 
 | Prompt | Purpose |
-|--------|---------|
-| `/cg-brainstorm` | Clarify fuzzy requirements through guided Q&A |
+|--------|---------|| `/cg-setup` | Configure project (new) or load context (returning) || `/cg-brainstorm` | Clarify fuzzy requirements through guided Q&A |
 | `/cg-plan` | Research the codebase and create a structured implementation plan |
 | `/cg-work` | Implement a plan step by step, with tests and documentation |
 | `/cg-review` | Run multi-agent code review with prioritized findings |
@@ -72,7 +72,7 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 | Aspect | Prompts | Agents | Skills |
 |--------|---------|--------|--------|
 | **What they are** | Workflow commands | Specialized reviewers | Reference knowledge |
-| **How you use them** | Type `/cg-brainstorm` in chat | Dispatched by `/cg-review` | Referenced by prompts/agents |
+| **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. in chat | Dispatched by `/cg-review` | Referenced by prompts/agents |
 | **Interactive?** | No — follow the workflow | No — automated | No (passive by design; can be referenced directly) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
@@ -124,11 +124,13 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 
 ### Initial Setup
 
-Load the `cg-skill-setup` skill in Copilot Chat — this is a **skill**, not a slash-command prompt. It creates `compound-gpid.local.md` with your preferences:
+Run `/cg-setup` in Copilot Chat (after running `cg-link` in your terminal to create the junction). The prompt will ask you three questions:
 
 - **Language**: R, Python, or both
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
+
+It then creates `compound-gpid.local.md` and scaffolds the `docs/` directory.
 
 ### Review Depth Tiers
 
@@ -137,6 +139,24 @@ Load the `cg-skill-setup` skill in Copilot Chat — this is a **skill**, not a s
 | **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, small changes |
 | **Standard** | All 8 agents | Most work (default) |
 | **Thorough** | All 8 + `cg-learnings-researcher` | Major features, refactors |
+
+## PowerShell Commands
+
+These commands are registered in your PowerShell profile by `install.ps1` and are available from any terminal after installation.
+
+| Command | Where to run | Purpose |
+|---------|-------------|--------|
+| `cg-link` | Project root | Create `.github` junction — enables all Copilot prompts |
+| `cg-unlink` | Project root | Remove `.github` junction (restores backup if one was made) |
+| `cg-update` | Anywhere | Pull latest Compound GPID updates |
+
+`cg-link` also automatically adds `.github` to the project's `.gitignore`, since the junction points to an external repo and should not be committed.
+
+## Updating Compound GPID
+
+Run `cg-update` from any terminal. This does a `git pull` in the global clone at `%USERPROFILE%\.compound-gpid`. Because all linked projects share the same `.github/` directory via junctions, the update is instantly visible in every project — no per-project update step is needed.
+
+To check what changed: `cg-update` shows the commit log of new commits when an update is available.
 
 ## Naming Conventions
 
