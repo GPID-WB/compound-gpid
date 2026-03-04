@@ -10,7 +10,7 @@
 #   3. Registers cg-link, cg-unlink, cg-update as functions in your
 #      PowerShell profile so they are available from any terminal.
 #
-# This script is idempotent — running it again updates the profile block
+# This script is idempotent - running it again updates the profile block
 # without creating duplicates.
 
 Set-StrictMode -Version Latest
@@ -21,7 +21,7 @@ $ErrorActionPreference = "Stop"
 $CompoundGpidDir = $PSScriptRoot
 
 Write-Host ""
-Write-Host "Compound GPID — Install" -ForegroundColor Cyan
+Write-Host "Compound GPID - Install" -ForegroundColor Cyan
 Write-Host "========================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -46,7 +46,7 @@ Write-Host "  Found: $gitVersion" -ForegroundColor DarkGray
 # -----------------------------------------------------------------------
 Write-Host "Testing junction capability..." -ForegroundColor DarkGray
 
-# Use a GUID for uniqueness — $$ is not a PID in PowerShell (it's the last token)
+# Use a GUID for uniqueness - $$ is not a PID in PowerShell (it's the last token)
 $tempTarget   = Join-Path $env:TEMP "cg-gpid-junction-target-$([System.Guid]::NewGuid().ToString('N'))"
 $tempJunction = Join-Path $env:TEMP "cg-gpid-junction-test-$([System.Guid]::NewGuid().ToString('N'))"
 
@@ -58,7 +58,7 @@ try {
     New-Item -ItemType Junction -Path $tempJunction -Target $tempTarget -ErrorAction Stop | Out-Null
     $junctionOk = $true
 } catch {
-    # Junction creation failed — likely Developer Mode is off
+    # Junction creation failed - likely Developer Mode is off
 }
 
 # Clean up temp files regardless of outcome
@@ -76,7 +76,7 @@ To enable them, turn on Developer Mode:
 
 Then re-run this script.
 "@
-    # Don't exit — profile functions can still be registered so the user
+    # Don't exit - profile functions can still be registered so the user
     # is ready to go as soon as they enable Developer Mode.
     Write-Host "  Continuing install (profile functions will be registered)..." -ForegroundColor Yellow
 } else {
@@ -100,7 +100,7 @@ if (-not $profileContent) { $profileContent = "" }
 
 # Idempotency: only add the block if it isn't already there
 if ($profileContent -match "Compound GPID") {
-    Write-Host "  Profile already contains Compound GPID functions — updating..." -ForegroundColor DarkGray
+    Write-Host "  Profile already contains Compound GPID functions - updating..." -ForegroundColor DarkGray
 
     # Remove the existing block so we can replace it with the latest version.
     # This handles the case where the block content changes between versions.
@@ -110,11 +110,11 @@ if ($profileContent -match "Compound GPID") {
 }
 
 # The profile functions use $env:USERPROFILE which is resolved at call time,
-# not at write time — so the path stays correct across machines and user renames.
+# not at write time - so the path stays correct across machines and user renames.
 # Single-quote here-string prevents variable expansion during the write.
 $profileBlock = @'
 
-# --- Compound GPID (managed by install.ps1 — do not edit manually) ---
+# --- Compound GPID (managed by install.ps1 - do not edit manually) ---
 function cg-link   { & "$env:USERPROFILE\.compound-gpid\scripts\link.ps1"   @args }
 function cg-unlink { & "$env:USERPROFILE\.compound-gpid\scripts\unlink.ps1" @args }
 function cg-update { & "$env:USERPROFILE\.compound-gpid\scripts\update.ps1" @args }

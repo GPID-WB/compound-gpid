@@ -44,7 +44,7 @@ if ($existing) {
             Write-Host "Already linked to Compound GPID. Nothing to do." -ForegroundColor Green
             exit 0
         } else {
-            # Junction points somewhere else — warn and offer to relink
+            # Junction points somewhere else - warn and offer to relink
             Write-Warning ".github/ is already a junction pointing to: $($existing.Target)"
             $answer = Read-Host "Relink it to Compound GPID instead? [y/N]"
             if ($answer -notmatch "^[Yy]$") {
@@ -55,7 +55,7 @@ if ($existing) {
             Remove-Item -Path $TargetJunction -Force
         }
     } else {
-        # Regular directory — offer to back it up before creating junction
+        # Regular directory - offer to back it up before creating junction
         Write-Warning ".github/ exists as a regular directory in this project."
         Write-Warning "It will be renamed to .github.bak before linking."
         $answer = Read-Host "Back up .github/ to .github.bak and proceed? [y/N]"
@@ -93,27 +93,27 @@ Then re-run: cg-link
 # --- Verify the junction works by checking for a known file ---
 $checkPath = Join-Path $TargetJunction "prompts\cg-setup.prompt.md"
 if (-not (Test-Path $checkPath)) {
-    Write-Warning "Junction created, but verification failed — prompts not visible at expected path."
+    Write-Warning "Junction created, but verification failed - prompts not visible at expected path."
     Write-Warning "Expected: $checkPath"
 } else {
     Write-Host "Junction verified." -ForegroundColor DarkGray
 }
 
 # --- Add .github and .github.bak to .gitignore ---
-# .github  — junction to external repo, must not be committed
-# .github.bak — backup created by cg-link, should not be committed either
+# .github  - junction to external repo, must not be committed
+# .github.bak - backup created by cg-link, should not be committed either
 $gitignorePath = Join-Path (Get-Location) ".gitignore"
 
 if (Test-Path $gitignorePath) {
     $content = Get-Content $gitignorePath -Raw
     # Only add if not already present (check for the entry as a whole line)
     if ($content -notmatch "(?m)^\s*\.github\s*$") {
-        Add-Content -Path $gitignorePath -Value "`n# Compound GPID (junction + backup — neither should be committed)`n.github`n.github.bak"
+        Add-Content -Path $gitignorePath -Value "`n# Compound GPID (junction + backup - neither should be committed)`n.github`n.github.bak"
         Write-Host "Added .github and .github.bak to .gitignore" -ForegroundColor DarkGray
     }
 } else {
     # Create a minimal .gitignore if none exists
-    Set-Content -Path $gitignorePath -Value "# Compound GPID (junction + backup — neither should be committed)`n.github`n.github.bak`n"
+    Set-Content -Path $gitignorePath -Value "# Compound GPID (junction + backup - neither should be committed)`n.github`n.github.bak`n"
     Write-Host "Created .gitignore with .github and .github.bak entries" -ForegroundColor DarkGray
 }
 
