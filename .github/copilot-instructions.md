@@ -7,7 +7,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - Check `compound-gpid.local.md` in the project root for the user's preferred language(s).
 - Default: R and Python are both acceptable. Ask the user if unclear.
 - R style: `data.table` for data manipulation, `ggplot2` for visualization.
-- Python style: polars/numpy for data, seaborn/plotnine for visualization.
+- Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
 
 ## Coding Standards
 
