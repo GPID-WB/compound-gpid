@@ -99,21 +99,22 @@ if (-not (Test-Path $checkPath)) {
     Write-Host "Junction verified." -ForegroundColor DarkGray
 }
 
-# --- Add .github to .gitignore (because it's a junction to an external repo) ---
+# --- Add .github and .github.bak to .gitignore ---
+# .github  — junction to external repo, must not be committed
+# .github.bak — backup created by cg-link, should not be committed either
 $gitignorePath = Join-Path (Get-Location) ".gitignore"
-$junctionEntry = ".github"
 
 if (Test-Path $gitignorePath) {
     $content = Get-Content $gitignorePath -Raw
     # Only add if not already present (check for the entry as a whole line)
     if ($content -notmatch "(?m)^\s*\.github\s*$") {
-        Add-Content -Path $gitignorePath -Value "`n# Compound GPID junction (points to global install, not project-specific)`n.github"
-        Write-Host "Added .github to .gitignore" -ForegroundColor DarkGray
+        Add-Content -Path $gitignorePath -Value "`n# Compound GPID (junction + backup — neither should be committed)`n.github`n.github.bak"
+        Write-Host "Added .github and .github.bak to .gitignore" -ForegroundColor DarkGray
     }
 } else {
     # Create a minimal .gitignore if none exists
-    Set-Content -Path $gitignorePath -Value "# Compound GPID junction (points to global install, not project-specific)`n.github`n"
-    Write-Host "Created .gitignore with .github entry" -ForegroundColor DarkGray
+    Set-Content -Path $gitignorePath -Value "# Compound GPID (junction + backup — neither should be committed)`n.github`n.github.bak`n"
+    Write-Host "Created .gitignore with .github and .github.bak entries" -ForegroundColor DarkGray
 }
 
 # --- Success ---

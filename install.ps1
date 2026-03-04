@@ -46,8 +46,9 @@ Write-Host "  Found: $gitVersion" -ForegroundColor DarkGray
 # -----------------------------------------------------------------------
 Write-Host "Testing junction capability..." -ForegroundColor DarkGray
 
-$tempTarget  = Join-Path $env:TEMP "cg-gpid-junction-target-$$"
-$tempJunction = Join-Path $env:TEMP "cg-gpid-junction-test-$$"
+# Use a GUID for uniqueness — $$ is not a PID in PowerShell (it's the last token)
+$tempTarget   = Join-Path $env:TEMP "cg-gpid-junction-target-$([System.Guid]::NewGuid().ToString('N'))"
+$tempJunction = Join-Path $env:TEMP "cg-gpid-junction-test-$([System.Guid]::NewGuid().ToString('N'))"
 
 # Create a temporary target directory to link to
 New-Item -ItemType Directory -Path $tempTarget -Force | Out-Null

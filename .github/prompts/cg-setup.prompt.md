@@ -154,6 +154,23 @@ compound-gpid.local.md
 
 Read `compound-gpid.local.md` and report the current settings (language, project type, review depth).
 
+#### B1.5. Scaffold any missing `docs/` directories
+
+Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
+without touching existing files. This handles projects that were set up before the `docs/` structure existed,
+or where individual subdirectories were deleted.
+
+```
+docs/brainstorms/
+docs/plans/
+docs/solutions/build-errors/
+docs/solutions/data-quality/
+docs/solutions/environment-issues/
+docs/solutions/git-workflows/
+docs/solutions/performance-issues/
+docs/solutions/testing-patterns/
+```
+
 #### B2. Scan existing work
 
 Scan the following directories and collect the titles and dates from the YAML frontmatter (or filename) of each file:

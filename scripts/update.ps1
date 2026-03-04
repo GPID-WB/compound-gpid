@@ -39,7 +39,11 @@ try {
 
     # --ff-only ensures we never end up in a merge conflict state
     # If the remote has diverged (shouldn't happen on main), it fails cleanly
-    $pullOutput = git pull --ff-only 2>&1
+    # Write directly to terminal so any git messages (auth errors, etc.) are visible
+    git pull --ff-only
+    if ($LASTEXITCODE -ne 0) {
+        throw "git pull failed with exit code $LASTEXITCODE"
+    }
 
     $after = git rev-parse --short HEAD 2>$null
 
