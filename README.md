@@ -80,7 +80,9 @@ Brainstorm → Plan → Work → Review → Compound
 ```
 
 | Step | Prompt | Model | Purpose |
-|------|--------|-------|---------|| **Setup** | `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects || **Brainstorm** | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
+|------|--------|-------|---------|
+| **Setup** | `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects |
+| **Brainstorm** | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | **Plan** | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | **Work** | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | **Review** | `/cg-review` | Mixed (see below) | Multi-agent code review with P1/P2/P3 findings |
