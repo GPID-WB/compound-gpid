@@ -110,5 +110,6 @@ up automatically after each test.
 ## Related
 
 - [Prompt file permission guardrails](2026-03-02-prompt-file-permission-guardrails.md) — another testing-patterns entry from this project
+- [Pester $TestDrive follows junction links, freezing VS Code](2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md) — a separate Pester 3.4 hazard when tests create directory junctions
 - Pester documentation: <https://pester.dev/docs/v3/quick-start> (v3 docs)
 - Microsoft blog: [Pester 5 upgrade guide](https://pester.dev/docs/migrations/v3-to-v4)
