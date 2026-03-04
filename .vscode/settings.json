@@ -1,0 +1,14 @@
+{
+    // Use legacy CodeLens buttons ("Run Tests" / "Debug Tests" inline above each Describe block)
+    // instead of the VS Code Testing API integration.
+    //
+    // WHY: The Testing API integration (useLegacyCodeLens: false) auto-discovers tests by
+    // executing *.Tests.ps1 files on every workspace open. These tests create directory
+    // junctions in $TestDrive, and Pester 3.4's $TestDrive cleanup uses
+    // Remove-Item -Recurse -Force, which on Windows follows junction links and can hang
+    // the PowerShell Language Server — freezing VS Code.
+    //
+    // With useLegacyCodeLens: true, tests ONLY run when you explicitly click "Run Tests"
+    // in the editor or invoke Invoke-Pester from the terminal.
+    "powershell.pester.useLegacyCodeLens": true
+}

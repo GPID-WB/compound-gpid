@@ -19,106 +19,245 @@ Describe "link.ps1 - pre-condition checks" {
     }
 }
 
-Describe "link.ps1 - existing .github directory backup" {
-    Context "when .github is a regular directory" {
-        It "is not recognised as a junction (no LinkType)" {
-            $dir = Join-Path $TestDrive "regular-github"
-            New-Item -ItemType Directory -Path $dir -Force | Out-Null
-            $item = Get-Item $dir
-            $item.LinkType | Should BeNullOrEmpty
-        }
-
-        It "can be renamed to .github.bak" {
-            $src = Join-Path $TestDrive "src-github"
-            $bak = Join-Path $TestDrive "src-github.bak"
-            New-Item -ItemType Directory -Path $src -Force | Out-Null
-            Rename-Item -Path $src -NewName "$src.bak"
-            Test-Path $src | Should Be $false
-            Test-Path $bak | Should Be $true
-        }
-
-        It "aborts backup when .github.bak already exists" {
-            $bak = Join-Path $TestDrive "already-bak"
-            New-Item -ItemType Directory -Path $bak -Force | Out-Null
-            Test-Path $bak | Should Be $true
+Describe "link.ps1 - .github directory setup" {
+    Context "when .github does not exist" {
+        It "can be created as a real directory" {
+            $githubDir = Join-Path $TestDrive "new-github"
+            New-Item -ItemType Directory -Path $githubDir -Force | Out-Null
+            Test-Path $githubDir | Should Be $true
+            (Get-Item $githubDir).LinkType | Should BeNullOrEmpty
         }
     }
-}
 
-Describe "link.ps1 - junction creation" {
-    Context "creating a directory junction" {
-        It "creates a junction pointing at the target" {
-            $target   = Join-Path $TestDrive "junction-target"
-            $junction = Join-Path $TestDrive "junction-link"
+    Context "when .github is a legacy whole-directory junction" {
+        It "is identified as a junction" {
+            $target   = Join-Path $TestDrive "legacy-target"
+            $junction = Join-Path $TestDrive "legacy-github"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            Test-Path $junction | Should Be $true
             (Get-Item $junction).LinkType | Should Be "Junction"
         }
 
-        It "junction LinkType is recognised as already-linked" {
-            $target   = Join-Path $TestDrive "linked-target"
-            $junction = Join-Path $TestDrive "linked-link"
+        It "removing a junction does not delete the target directory" {
+            $target   = Join-Path $TestDrive "preserved-target"
+            $junction = Join-Path $TestDrive "removable-junction"
             New-Item -ItemType Directory -Path $target  -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+            Remove-Item -Path $junction -Force
+            Test-Path $junction | Should Be $false
+            Test-Path $target   | Should Be $true
+        }
+    }
+
+    Context "when .github already exists as a real directory with user content" {
+        It "user content survives alongside new junctions" {
+            $githubDir   = Join-Path $TestDrive "user-github"
+            $workflowDir = Join-Path $githubDir "workflows"
+            New-Item -ItemType Directory -Path $workflowDir -Force | Out-Null
+            Set-Content -Path (Join-Path $workflowDir "ci.yml") -Value "name: CI"
+
+            # Simulate adding a junction inside the existing .github/
+            $target      = Join-Path $TestDrive "prompts-source"
+            $junctionPath = Join-Path $githubDir "prompts"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junctionPath -Value $target | Out-Null
+
+            # User content is still present
+            Test-Path (Join-Path $workflowDir "ci.yml") | Should Be $true
+            (Get-Item $junctionPath).LinkType | Should Be "Junction"
+        }
+    }
+
+    AfterAll {
+        # Explicitly remove junctions before Pester's $TestDrive cleanup fires.
+        # On Windows, Remove-Item -Recurse -Force follows junction links, which
+        # hangs the PowerShell Language Server and freezes VS Code.
+        # Scan 1-2 levels without recursing into junctions.
+        $level1 = Get-ChildItem -Path $TestDrive -Force -ErrorAction SilentlyContinue
+        $level2 = $level1 |
+            Where-Object { $_.PSIsContainer -and $_.LinkType -ne 'Junction' } |
+            ForEach-Object { Get-ChildItem -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+        @($level1) + @($level2) |
+            Where-Object { $_ -and $_.LinkType -eq 'Junction' } |
+            ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+    }
+}
+
+Describe "link.ps1 - per-subdirectory junction creation" {
+    Context "creating directory junctions for each managed subdirectory" {
+        It "creates a junction for prompts/" {
+            $target   = Join-Path $TestDrive "src-prompts"
+            $junction = Join-Path $TestDrive "dst-prompts"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+            (Get-Item $junction).LinkType | Should Be "Junction"
+        }
+
+        It "creates a junction for skills/" {
+            $target   = Join-Path $TestDrive "src-skills"
+            $junction = Join-Path $TestDrive "dst-skills"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+            (Get-Item $junction).LinkType | Should Be "Junction"
+        }
+
+        It "creates a junction for agents/" {
+            $target   = Join-Path $TestDrive "src-agents"
+            $junction = Join-Path $TestDrive "dst-agents"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+            (Get-Item $junction).LinkType | Should Be "Junction"
+        }
+
+        It "creates a junction for instructions/" {
+            $target   = Join-Path $TestDrive "src-instructions"
+            $junction = Join-Path $TestDrive "dst-instructions"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+            (Get-Item $junction).LinkType | Should Be "Junction"
+        }
+    }
+
+    Context "idempotency - already-linked junction detection" {
+        It "recognises an existing junction pointing to compound-gpid as already-linked" {
+            $target   = Join-Path $TestDrive "cg-prompts"
+            $junction = Join-Path $TestDrive "existing-prompts"
+            New-Item -ItemType Directory -Path $target -Force | Out-Null
+            New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
+
             $item = Get-Item $junction
             $item.LinkType | Should Be "Junction"
+            # Simulate the compound-gpid target check
+            $item.Target -like "*cg-prompts*" | Should Be $true
+        }
+    }
+
+    Context "conflict detection - real directory with same name" {
+        It "detects when a real directory exists where a junction is expected" {
+            $conflicting = Join-Path $TestDrive "conflict-prompts"
+            New-Item -ItemType Directory -Path $conflicting -Force | Out-Null
+            $item = Get-Item $conflicting
+            $item.LinkType | Should BeNullOrEmpty
+            # A real directory (no LinkType) signals a conflict - cg-link should error
+        }
+    }
+
+    AfterAll {
+        # Explicitly remove junctions before Pester's $TestDrive cleanup fires.
+        # On Windows, Remove-Item -Recurse -Force follows junction links, which
+        # hangs the PowerShell Language Server and freezes VS Code.
+        $level1 = Get-ChildItem -Path $TestDrive -Force -ErrorAction SilentlyContinue
+        $level2 = $level1 |
+            Where-Object { $_.PSIsContainer -and $_.LinkType -ne 'Junction' } |
+            ForEach-Object { Get-ChildItem -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+        @($level1) + @($level2) |
+            Where-Object { $_ -and $_.LinkType -eq 'Junction' } |
+            ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+    }
+}
+
+Describe "link.ps1 - copilot-instructions.md management" {
+    Context "when the file does not exist" {
+        It "creates the file with the management marker as the first line" {
+            $dest          = Join-Path $TestDrive "copilot-instructions.md"
+            $marker        = "<!-- compound-gpid:managed -->"
+            $sourceContent = "# Instructions content"
+
+            Set-Content -Path $dest -Value ($marker + "`n" + $sourceContent)
+
+            $lines = Get-Content $dest
+            $lines[0] | Should Be $marker
+        }
+    }
+
+    Context "when the file exists and has the management marker" {
+        It "overwrites the file with the latest content" {
+            $dest   = Join-Path $TestDrive "copilot-overwrite.md"
+            $marker = "<!-- compound-gpid:managed -->"
+            Set-Content -Path $dest -Value ($marker + "`n" + "# Old content")
+
+            $content = Get-Content $dest -Raw
+            $content -match [regex]::Escape($marker) | Should Be $true
+
+            # Simulate overwrite with new content
+            Set-Content -Path $dest -Value ($marker + "`n" + "# New content")
+            (Get-Content $dest -Raw) -match "New content" | Should Be $true
+        }
+    }
+
+    Context "when the file exists without the management marker" {
+        It "detects the file as user-managed (no marker)" {
+            $dest = Join-Path $TestDrive "copilot-user.md"
+            Set-Content -Path $dest -Value "# My custom instructions"
+
+            $content = Get-Content $dest -Raw
+            $marker  = "<!-- compound-gpid:managed -->"
+            $content -match [regex]::Escape($marker) | Should Be $false
+            # cg-link should skip this file
         }
     }
 }
 
-Describe "link.ps1 - .gitignore management" {
+Describe "link.ps1 - .gitignore management (per-item entries)" {
     Context "when .gitignore does not exist" {
-        It "creates .gitignore with .github entry" {
-            $gi = Join-Path $TestDrive "new.gitignore"
-            Test-Path $gi | Should Be $false
-            Add-Content -Path $gi -Value ".github"
-            (Get-Content $gi -Raw) -match '\.github' | Should Be $true
-        }
-    }
-
-    Context "when .gitignore exists but lacks .github entry" {
-        It "appends .github to existing .gitignore" {
-            $gi = Join-Path $TestDrive "existing.gitignore"
-            Set-Content -Path $gi -Value "*.log`n*.tmp"
-            Add-Content -Path $gi -Value ".github"
+        It "creates .gitignore with CG-specific entries" {
+            $gi = Join-Path $TestDrive "new-gi.gitignore"
+            $entries = @(
+                ".github/prompts/",
+                ".github/skills/",
+                ".github/agents/",
+                ".github/instructions/",
+                ".github/copilot-instructions.md"
+            )
+            Set-Content -Path $gi -Value ($entries -join "`n")
             $content = Get-Content $gi -Raw
-            ($content -match '\.github') | Should Be $true
-            ($content -match '\.log') | Should Be $true
+            $content -match "\.github/prompts/"       | Should Be $true
+            $content -match "\.github/skills/"        | Should Be $true
+            $content -match "\.github/agents/"        | Should Be $true
+            $content -match "\.github/instructions/"  | Should Be $true
+            $content -match "copilot-instructions\.md" | Should Be $true
         }
     }
 
-    Context "when .gitignore already contains .github entry" {
-        It "does not add a duplicate entry" {
-            $gi = Join-Path $TestDrive "duplicate.gitignore"
-            Set-Content -Path $gi -Value ".github`n*.log"
+    Context "when .gitignore exists with unrelated content" {
+        It "appends CG entries without disturbing existing lines" {
+            $gi = Join-Path $TestDrive "existing-gi.gitignore"
+            Set-Content -Path $gi -Value "*.log`n*.tmp"
+            Add-Content -Path $gi -Value ".github/prompts/"
 
-            $lines = Get-Content $gi
-            $alreadyPresent = $lines | Where-Object { $_ -eq '.github' }
-            if (-not $alreadyPresent) {
-                Add-Content -Path $gi -Value ".github"
-            }
-
-            $after = Get-Content $gi
-            ($after | Where-Object { $_ -eq '.github' } | Measure-Object).Count | Should Be 1
+            $content = Get-Content $gi -Raw
+            $content -match "\.log"              | Should Be $true
+            $content -match "\.github/prompts/"  | Should Be $true
         }
     }
 
-    Context "when .github.bak entry is also needed" {
-        It "adds both .github and .github.bak when neither exists" {
-            $gi = Join-Path $TestDrive "both.gitignore"
-            Set-Content -Path $gi -Value "*.log"
+    Context "when .gitignore already has all CG entries" {
+        It "does not add duplicate entries" {
+            $gi = Join-Path $TestDrive "dup-gi.gitignore"
+            Set-Content -Path $gi -Value ".github/prompts/`n.github/skills/"
 
             $lines = Get-Content $gi
-            foreach ($entry in @('.github', '.github.bak')) {
-                if (-not ($lines | Where-Object { $_ -eq $entry })) {
+            foreach ($entry in @(".github/prompts/", ".github/skills/")) {
+                $alreadyPresent = $lines | Where-Object { $_ -eq $entry }
+                if (-not $alreadyPresent) {
                     Add-Content -Path $gi -Value $entry
                 }
             }
 
-            $final = Get-Content $gi
-            ($final | Where-Object { $_ -eq '.github' }     | Measure-Object).Count | Should Be 1
-            ($final | Where-Object { $_ -eq '.github.bak' } | Measure-Object).Count | Should Be 1
+            $after = Get-Content $gi
+            ($after | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
+        }
+    }
+
+    Context "legacy .github entry is no longer added" {
+        It "does not add a blanket .github entry" {
+            $gi = Join-Path $TestDrive "no-blanket-gi.gitignore"
+            Set-Content -Path $gi -Value "# CG entries`n.github/prompts/"
+            $content = Get-Content $gi -Raw
+            # The blanket ".github" entry (without a slash or subdirectory) should not be present
+            $content -match "(?m)^\.github\s*$" | Should Be $false
         }
     }
 }
+
