@@ -44,10 +44,12 @@ From your project root:
 cg-link
 ```
 
-This creates a **directory junction** from `.github/` in your project to the shared `%USERPROFILE%\.compound-gpid\.github\`, making all prompts, agents, and skills visible to VS Code. It also adds `.github` to your `.gitignore` automatically.
+This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and copies `copilot-instructions.md` with a management marker. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
 
 > **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
 > Settings → System → For developers → Developer Mode (On)
+
+> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID — do not edit them directly. To customise `copilot-instructions.md`, remove the `<!-- compound-gpid:managed -->` marker at the top of the file; `cg-update` will then leave your version untouched.
 
 ### Step 4: Configure your project
 
@@ -67,7 +69,7 @@ From any terminal:
 cg-update
 ```
 
-This runs `git pull` in the global clone. Because all projects share the same `.github/` folder via junctions, updates are instantly visible in every linked project — no per-project update step needed.
+This resets any accidental local changes (`git checkout .`) and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project. If the current directory is a linked project and `copilot-instructions.md` has the management marker, it is also refreshed from the latest source.
 
 ## Workflow
 
@@ -109,9 +111,9 @@ Brainstorm → Plan → Work → Review → Compound
 
 | Command | Where to run | Purpose |
 |---------|-------------|--------|
-| `cg-link` | Project root | Create `.github` junction — enables all Copilot prompts in this project |
-| `cg-unlink` | Project root | Remove `.github` junction (restores backup if one was made) |
-| `cg-update` | Anywhere | Pull latest Compound GPID updates (applies to all linked projects) |
+| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` — enables all Copilot prompts in this project |
+| `cg-unlink` | Project root | Remove CG-managed junctions (existing `.github/` content is preserved) |
+| `cg-update` | Anywhere | Reset accidental changes and pull latest updates (applies to all linked projects) |
 
 ## Skills
 
@@ -130,7 +132,13 @@ After using the plugin, your project will accumulate:
 
 ```
 your-project/
-├── .github               → junction to %USERPROFILE%\.compound-gpid\.github\
+├── .github/
+│   ├── prompts/              → junction to %USERPROFILE%\.compound-gpid\.github\prompts\
+│   ├── skills/               → junction to %USERPROFILE%\.compound-gpid\.github\skills\
+│   ├── agents/               → junction to %USERPROFILE%\.compound-gpid\.github\agents\
+│   ├── instructions/         → junction to %USERPROFILE%\.compound-gpid\.github\instructions\
+│   ├── copilot-instructions.md  # copied from global clone (managed marker)
+│   └── workflows/            # your own GitHub Actions (untouched by cg-link)
 ├── compound-gpid.local.md    # Your project config (gitignored)
 └── docs/
     ├── brainstorms/          # /cg-brainstorm outputs
