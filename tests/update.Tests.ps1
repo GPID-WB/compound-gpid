@@ -165,3 +165,243 @@ Describe "update.ps1 - copilot-instructions.md refresh" {
     }
 }
 
+Describe "update.ps1 - docs to .cg-docs migration" {
+    Context "migrating docs/brainstorms to .cg-docs/brainstorms" {
+        It "moves docs/brainstorms to .cg-docs/brainstorms when source exists" {
+            $root = Join-Path $TestDrive "migrate-brainstorms"
+            New-Item -ItemType Directory -Path "$root\docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\brainstorms\2025-01-01-test.md" -Force | Out-Null
+
+            # Simulate migration logic
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            Test-Path "$root\.cg-docs\brainstorms\2025-01-01-test.md" | Should Be $true
+            Test-Path "$root\docs\brainstorms" | Should Be $false
+        }
+    }
+
+    Context "migrating docs/plans to .cg-docs/plans" {
+        It "moves docs/plans to .cg-docs/plans when source exists" {
+            $root = Join-Path $TestDrive "migrate-plans"
+            New-Item -ItemType Directory -Path "$root\docs\plans" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\plans\2025-01-01-plan.md" -Force | Out-Null
+
+            $src = "$root\docs\plans"
+            $dst = "$root\.cg-docs\plans"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            Test-Path "$root\.cg-docs\plans\2025-01-01-plan.md" | Should Be $true
+            Test-Path "$root\docs\plans" | Should Be $false
+        }
+    }
+
+    Context "migrating docs/solutions to .cg-docs/solutions" {
+        It "moves docs/solutions to .cg-docs/solutions when source exists" {
+            $root = Join-Path $TestDrive "migrate-solutions"
+            New-Item -ItemType Directory -Path "$root\docs\solutions\build-errors" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\solutions\build-errors\fix.md" -Force | Out-Null
+
+            $src = "$root\docs\solutions"
+            $dst = "$root\.cg-docs\solutions"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            Test-Path "$root\.cg-docs\solutions\build-errors\fix.md" | Should Be $true
+            Test-Path "$root\docs\solutions" | Should Be $false
+        }
+    }
+
+    Context "skipping migration when source does not exist" {
+        It "does not create .cg-docs/brainstorms when docs/brainstorms is absent" {
+            $root = Join-Path $TestDrive "migrate-skip"
+            New-Item -ItemType Directory -Path $root -Force | Out-Null
+
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            Test-Path $dst | Should Be $false
+        }
+    }
+
+    Context "merge behaviour when target already exists" {
+        It "moves individual files when .cg-docs/brainstorms already exists" {
+            $root = Join-Path $TestDrive "migrate-merge"
+            New-Item -ItemType Directory -Path "$root\docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType Directory -Path "$root\.cg-docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\brainstorms\new-file.md" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\.cg-docs\brainstorms\existing-file.md" -Force | Out-Null
+
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if (Test-Path $src) {
+                if (-not (Test-Path $dst)) {
+                    New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                    Move-Item -Path $src -Destination $dst
+                } else {
+                    # Merge: move individual files
+                    Get-ChildItem -Path $src | ForEach-Object {
+                        $target = Join-Path $dst $_.Name
+                        if (-not (Test-Path $target)) {
+                            Move-Item -Path $_.FullName -Destination $target
+                        }
+                    }
+                    # Remove source if now empty
+                    $remaining = Get-ChildItem -Path $src
+                    if ($null -eq $remaining -or $remaining.Count -eq 0) {
+                        Remove-Item -Path $src -Force
+                    }
+                }
+            }
+
+            Test-Path "$root\.cg-docs\brainstorms\existing-file.md" | Should Be $true
+            Test-Path "$root\.cg-docs\brainstorms\new-file.md"      | Should Be $true
+            Test-Path "$root\docs\brainstorms"                       | Should Be $false
+        }
+    }
+
+    Context "preserving other docs/ content" {
+        It "does not remove docs/manual.md when migrating docs/brainstorms" {
+            $root = Join-Path $TestDrive "migrate-preserve"
+            New-Item -ItemType Directory -Path "$root\docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\manual.md" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\brainstorms\note.md" -Force | Out-Null
+
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            Test-Path "$root\docs\manual.md"            | Should Be $true
+            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should Be $true
+        }
+    }
+
+    Context "idempotency" {
+        It "skips migration when .cg-docs/brainstorms already exists and docs/brainstorms is gone" {
+            $root = Join-Path $TestDrive "migrate-idempotent"
+            New-Item -ItemType Directory -Path "$root\.cg-docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\.cg-docs\brainstorms\note.md" -Force | Out-Null
+            # docs/brainstorms does not exist — nothing to migrate
+
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            # Destination unchanged
+            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should Be $true
+        }
+    }
+
+    Context "empty docs/ cleanup after migration" {
+        It "removes docs/ when all cg subdirectories have been migrated and docs/ is empty" {
+            $root = Join-Path $TestDrive "migrate-cleanup"
+            New-Item -ItemType Directory -Path "$root\docs\brainstorms" -Force | Out-Null
+
+            # Migrate brainstorms
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            # Simulate cleanup: remove docs/ if empty
+            $docsDir = "$root\docs"
+            if (Test-Path $docsDir) {
+                $remaining = Get-ChildItem -Path $docsDir
+                if ($null -eq $remaining -or $remaining.Count -eq 0) {
+                    Remove-Item -Path $docsDir -Force -Recurse
+                }
+            }
+
+            Test-Path "$root\docs" | Should Be $false
+            Test-Path "$root\.cg-docs\brainstorms" | Should Be $true
+        }
+
+        It "keeps docs/ when non-cg files remain (e.g. manual.md)" {
+            $root = Join-Path $TestDrive "migrate-cleanup-keep"
+            New-Item -ItemType Directory -Path "$root\docs\brainstorms" -Force | Out-Null
+            New-Item -ItemType File -Path "$root\docs\manual.md" -Force | Out-Null
+
+            # Migrate brainstorms
+            $src = "$root\docs\brainstorms"
+            $dst = "$root\.cg-docs\brainstorms"
+            if ((Test-Path $src) -and -not (Test-Path $dst)) {
+                New-Item -ItemType Directory -Path (Split-Path $dst) -Force | Out-Null
+                Move-Item -Path $src -Destination $dst
+            }
+
+            # Simulate cleanup: remove docs/ only if empty
+            $docsDir = "$root\docs"
+            if (Test-Path $docsDir) {
+                $remaining = Get-ChildItem -Path $docsDir
+                if ($null -eq $remaining -or $remaining.Count -eq 0) {
+                    Remove-Item -Path $docsDir -Force -Recurse
+                }
+            }
+
+            Test-Path "$root\docs"          | Should Be $true
+            Test-Path "$root\docs\manual.md" | Should Be $true
+        }
+    }
+
+    Context "schema version stamping" {
+        It "writes cg-schema-version to compound-gpid.local.md when the field exists" {
+            $root = Join-Path $TestDrive "schema-stamp"
+            New-Item -ItemType Directory -Path $root -Force | Out-Null
+            $localMd = "$root\compound-gpid.local.md"
+            Set-Content -Path $localMd -Value "# Compound GPID`ncg-schema-version: `"`""
+
+            $schemaVersion = "2026-03-05-cg-docs"
+
+            # Simulate stamping logic
+            $content = [System.IO.File]::ReadAllText($localMd)
+            if ($content -match 'cg-schema-version:') {
+                $updated = $content -replace '(?m)^(cg-schema-version:\s*).*$', ("cg-schema-version: `"" + $schemaVersion + "`"")
+                [System.IO.File]::WriteAllText($localMd, $updated)
+            }
+
+            $result = [System.IO.File]::ReadAllText($localMd)
+            $result -match [regex]::Escape("cg-schema-version: `"$schemaVersion`"") | Should Be $true
+        }
+
+        It "does not modify compound-gpid.local.md when the field is absent" {
+            $root = Join-Path $TestDrive "schema-stamp-absent"
+            New-Item -ItemType Directory -Path $root -Force | Out-Null
+            $localMd = "$root\compound-gpid.local.md"
+            $original = "# Custom config without schema field`ncg-language: R"
+            Set-Content -Path $localMd -Value $original
+
+            $schemaVersion = "2026-03-05-cg-docs"
+
+            $content = [System.IO.File]::ReadAllText($localMd)
+            if ($content -match 'cg-schema-version:') {
+                $updated = $content -replace '(?m)^(cg-schema-version:\s*).*$', ("cg-schema-version: `"" + $schemaVersion + "`"")
+                [System.IO.File]::WriteAllText($localMd, $updated)
+            }
+
+            $result = [System.IO.File]::ReadAllText($localMd)
+            $result -match [regex]::Escape($schemaVersion) | Should Be $false
+        }
+    }
+}
+
