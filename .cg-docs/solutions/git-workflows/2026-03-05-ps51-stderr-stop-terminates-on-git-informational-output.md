@@ -40,23 +40,22 @@ differently.
 
 ## Solution
 
-Use `2>$null` specifically for native commands that:
-- Are used as cleanup/best-effort (failure is non-critical), AND
-- Write informational messages to stderr on success, AND
-- Are followed immediately by a `$LASTEXITCODE` check that catches real failures
+`2>$null` alone is **not sufficient** in all PS5.1 host configurations — some
+hosts still promote native stderr to a terminating error even with the redirect.
+The bullet-proof fix is to combine `2>$null` with a `try/catch`:
 
 ```powershell
-# CORRECT — suppresses PS5.1 stderr-to-error promotion; LASTEXITCODE still
-# detects real failures (non-zero exit code)
-git checkout . 2>$null
+# CORRECT — immune to PS5.1 stderr-to-error promotion in all host configurations
+try { git checkout . 2>$null } catch { <# informational stderr — ignore #> }
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
 }
 ```
 
-Do NOT apply `2>$null` to commands where stderr diagnostics matter for
-understanding failures (e.g., `git pull`, `git push`). For those, let git
-write to the terminal unimpeded so the user sees the full diagnostic.
+The `try/catch` ensures that even if PS5.1 promotes the stderr to a terminating
+error, it is caught and discarded at the local level rather than propagating to
+the outer `catch` block. `$LASTEXITCODE` is still checked immediately after for
+real failures (non-zero exit code).
 
 ## Prevention
 
@@ -65,7 +64,7 @@ The rule "don't swallow stderr" has an important exception in PS5.1 scripts:
 | Situation | Correct approach |
 |-----------|-----------------|
 | Command succeeds silently (no informational stderr) | No redirect needed |
-| Command writes informational stderr on success + you only care about exit code | `2>$null` + `$LASTEXITCODE` check |
+| Command writes informational stderr on success + you only care about exit code | `try { cmd 2>$null } catch {}` + `$LASTEXITCODE` check |
 | Command failure diagnostics matter to the user | No redirect — let git speak |
 | Capturing output for processing | `$x = cmd 2>&1` — but always display or use `$x` |
 
