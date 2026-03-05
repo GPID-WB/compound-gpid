@@ -188,13 +188,14 @@ if (Test-Path $CopilotInstructionsDest) {
 # never produce duplicate section headers.
 $gitignorePath = Join-Path $ProjectRoot ".gitignore"
 
-$cgGitignoreMarker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+$cgGitignoreMarker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
 $cgGitignoreEntries = @(
     ".github/prompts/",
     ".github/skills/",
     ".github/agents/",
     ".github/instructions/",
-    ".github/copilot-instructions.md"
+    ".github/copilot-instructions.md",
+    ".cg-docs/"
 )
 $cgGitignoreBlock = $cgGitignoreMarker + "`n" + ($cgGitignoreEntries -join "`n") + "`n"
 

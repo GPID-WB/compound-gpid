@@ -8,6 +8,13 @@
 # refreshes the copy in the current working directory if the management marker
 # is present. Remove the marker to opt out of auto-refresh.
 #
+# Structural migrations (folder moves, config field additions) are applied to
+# the current working directory when it is a linked project. This enables a
+# two-tier update model:
+#   - Non-structural: prompt/skill/agent changes propagate instantly via junctions.
+#   - Structural: folder-structure changes are migration-gated per project and
+#     applied when cg-update is run from that project's root.
+#
 # Run from anywhere:
 #   cg-update
 
@@ -101,6 +108,108 @@ if (-not $env:CG_INTERNAL_CALL -and
         $sourceContent = Get-Content $cgCopilotSrc -Raw
         Set-Content -Path $cwdCopilotDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
         Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray
+    }
+}
+
+Write-Host ""
+# --- Structural migration: docs/ → .cg-docs/ ---
+# Applies only when run from a linked project. Migrates docs/brainstorms/,
+# docs/plans/, docs/solutions/ to .cg-docs/ if they still exist at the old path.
+# Idempotent: safe to run multiple times across multiple projects.
+if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
+    $cwdRoot      = Get-Location
+    $cgDocsDir    = Join-Path $cwdRoot ".cg-docs"
+    $dirsToMigrate = @("brainstorms", "plans", "solutions")
+    $migrated     = @()
+
+    foreach ($dir in $dirsToMigrate) {
+        $oldPath = Join-Path $cwdRoot "docs\$dir"
+        $newPath = Join-Path $cgDocsDir $dir
+
+        if (Test-Path $oldPath) {
+            # Create .cg-docs/ if it doesn't exist yet
+            if (-not (Test-Path $cgDocsDir)) {
+                New-Item -ItemType Directory -Path $cgDocsDir -Force | Out-Null
+            }
+
+            if (-not (Test-Path $newPath)) {
+                # Simple case: target doesn't exist — just move
+                Move-Item -Path $oldPath -Destination $newPath
+                $migrated += $dir
+                Write-Host "  Migrated: docs/$dir/ → .cg-docs/$dir/" -ForegroundColor DarkGray
+            } else {
+                # Target already exists — merge file by file, skip conflicts
+                $conflicts = 0
+                Get-ChildItem -Path $oldPath -Recurse -File | ForEach-Object {
+                    $rel  = $_.FullName.Substring($oldPath.Length + 1)
+                    $dest = Join-Path $newPath $rel
+                    $destDir = Split-Path $dest -Parent
+                    if (-not (Test-Path $destDir)) {
+                        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                    }
+                    if (-not (Test-Path $dest)) {
+                        Move-Item -Path $_.FullName -Destination $dest
+                    } else {
+                        $conflicts++
+                        Write-Warning "  Skipped (already exists): $rel"
+                    }
+                }
+                # Remove old dir if now empty
+                if (-not (Get-ChildItem -Path $oldPath -Recurse -File)) {
+                    Remove-Item -Path $oldPath -Recurse -Force
+                }
+                $migrated += $dir
+                if ($conflicts -gt 0) {
+                    Write-Host "  Merged: docs/$dir/ → .cg-docs/$dir/ ($conflicts files skipped - already exist)" -ForegroundColor Yellow
+                } else {
+                    Write-Host "  Migrated: docs/$dir/ → .cg-docs/$dir/" -ForegroundColor DarkGray
+                }
+            }
+        }
+    }
+
+    # Clean up empty docs/ directory if all CG subdirs moved and nothing else remains
+    $oldDocsDir = Join-Path $cwdRoot "docs"
+    if ((Test-Path $oldDocsDir) -and $migrated.Count -gt 0) {
+        $remaining = Get-ChildItem -Path $oldDocsDir -ErrorAction SilentlyContinue
+        if (-not $remaining) {
+            Remove-Item -Path $oldDocsDir -Force
+            Write-Host "  Removed empty docs/ directory." -ForegroundColor DarkGray
+        }
+    }
+
+    if ($migrated.Count -gt 0) {
+        Write-Host ""
+        Write-Host "Structural migration complete: knowledge base moved to .cg-docs/" -ForegroundColor Green
+        Write-Host ""
+    }
+
+    # --- Schema version: stamp compound-gpid.local.md ---
+    # Read current SCHEMA_VERSION from the global install
+    $schemaVersionFile  = Join-Path $CompoundGpidDir "SCHEMA_VERSION"
+    $cwdLocalConfig     = Join-Path $cwdRoot "compound-gpid.local.md"
+
+    if ((Test-Path $schemaVersionFile) -and (Test-Path $cwdLocalConfig)) {
+        $currentSchema  = (Get-Content $schemaVersionFile -Raw).Trim()
+        $localConfig    = Get-Content $cwdLocalConfig -Raw
+
+        if ($localConfig -match 'cg-schema-version:\s*"([^"]*)"') {
+            $projectSchema = $Matches[1]
+        } else {
+            $projectSchema = ""
+        }
+
+        if ($projectSchema -ne $currentSchema) {
+            if ($localConfig -match 'cg-schema-version:') {
+                # Update existing field
+                $localConfig = $localConfig -replace 'cg-schema-version:\s*"[^"]*"', "cg-schema-version: `"$currentSchema`""
+            } else {
+                # Add field after the last --- in frontmatter
+                $localConfig = $localConfig -replace '(---\s*\r?\n# Compound)', "cg-schema-version: `"$currentSchema`"`n---`n# Compound"
+            }
+            Set-Content -Path $cwdLocalConfig -Value $localConfig -NoNewline
+            Write-Host "Schema version stamped: $currentSchema" -ForegroundColor DarkGray
+        }
     }
 }
 
