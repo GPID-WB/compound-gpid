@@ -77,6 +77,8 @@ This resets any accidental local changes (`git checkout .`) and then pulls the l
 
 ```
 Brainstorm → Plan → Work → Review → Compound
+          ↑
+       Resume  (re-enter an interrupted session at any step)
 ```
 
 | Step | Prompt | Model | Purpose |
@@ -87,6 +89,7 @@ Brainstorm → Plan → Work → Review → Compound
 | **Work** | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | **Review** | `/cg-review` | Mixed (see below) | Multi-agent code review with P1/P2/P3 findings |
 | **Compound** | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
+| **Resume** | `/cg-resume` | Claude Sonnet 4.6 | Load context and pick up interrupted work |
 
 ### Review Agents
 
@@ -142,7 +145,7 @@ your-project/
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
 ├── compound-gpid.local.md    # Your project config (gitignored)
-└── docs/
+└── .cg-docs/                 # Compound GPID knowledge base (gitignored)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     └── solutions/            # /cg-compound outputs

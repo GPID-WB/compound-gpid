@@ -10,7 +10,7 @@ Compound GPID is a structured AI-assisted workflow for data science projects. It
 Brainstorm → Plan → Work → Review → Compound
 ```
 
-Each step builds on the previous one. Over time, the knowledge captured in `docs/solutions/` makes future work faster and more consistent.
+Each step builds on the previous one. Over time, the knowledge captured in `.cg-docs/solutions/` makes future work faster and more consistent.
 
 ## Getting Started
 
@@ -26,11 +26,14 @@ Each step builds on the previous one. Over time, the knowledge captured in `docs
 Prompts are **top-level workflow commands** you invoke in Copilot Chat. They orchestrate multi-step processes and produce outputs (documents, code, reviews).
 
 | Prompt | Purpose |
-|--------|---------|| `/cg-setup` | Configure project (new) or load context (returning) || `/cg-brainstorm` | Clarify fuzzy requirements through guided Q&A |
+|--------|---------|
+| `/cg-setup` | Configure project (new) or load context (returning) |
+| `/cg-brainstorm` | Clarify fuzzy requirements through guided Q&A |
 | `/cg-plan` | Research the codebase and create a structured implementation plan |
 | `/cg-work` | Implement a plan step by step, with tests and documentation |
 | `/cg-review` | Run multi-agent code review with prioritized findings |
 | `/cg-compound` | Capture a solved problem as reusable knowledge |
+| `/cg-resume` | Load context from an interrupted session and continue work |
 
 **Prompts are NOT meant to be used interactively.** You invoke a prompt, answer its questions when asked, and let it run to completion. Do not try to steer or micromanage the process — the prompt has a defined workflow it follows.
 
@@ -84,9 +87,9 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 
 **When**: Requirements are fuzzy, you're not sure what to build, or multiple approaches are possible.
 
-**What happens**: The prompt scans your project, then asks you clarifying questions one at a time. After gathering context, it proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `docs/brainstorms/`.
+**What happens**: The prompt scans your project, then asks you clarifying questions one at a time. After gathering context, it proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`.
 
-**Output**: `docs/brainstorms/YYYY-MM-DD-<title>.md`
+**Output**: `.cg-docs/brainstorms/YYYY-MM-DD-<title>.md`
 
 ### 2. Plan (`/cg-plan`)
 
@@ -94,7 +97,7 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 
 **What happens**: The prompt reads any relevant brainstorm, researches your codebase, and creates a step-by-step implementation plan with files to create/modify, tests to write, and acceptance criteria.
 
-**Output**: `docs/plans/YYYY-MM-DD-<title>.md`
+**Output**: `.cg-docs/plans/YYYY-MM-DD-<title>.md`
 
 ### 3. Work (`/cg-work`)
 
@@ -118,7 +121,15 @@ Skills are **reference knowledge** that prompts and agents draw on. They contain
 
 **What happens**: The prompt captures the problem, root cause, solution, and prevention strategy as a structured document. This feeds the `cg-learnings-researcher` agent in future thorough reviews.
 
-**Output**: `docs/solutions/<category>/YYYY-MM-DD-<title>.md`
+**Output**: `.cg-docs/solutions/<category>/YYYY-MM-DD-<title>.md`
+
+### 6. Resume (`/cg-resume`)
+
+**When**: At the start of a session when you have interrupted work — an active plan, a decided-but-unplanned brainstorm, or staged/unstaged git changes.
+
+**What happens**: The prompt first checks that your schema version is up to date (if not, it instructs you to run `cg-update`). It then scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided brainstorms without a plan, and inspects `git status`/`git log` for in-progress code changes. It presents a structured summary and suggests the most logical next action with numbered options.
+
+**Output**: A structured context summary and a suggested continuation path.
 
 ## Configuration
 
@@ -130,7 +141,7 @@ Run `/cg-setup` in Copilot Chat (after running `cg-link` in your terminal to cre
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
 
-It then creates `compound-gpid.local.md` and scaffolds the `docs/` directory.
+It then creates `compound-gpid.local.md` and scaffolds the `.cg-docs/` directory.
 
 ### Review Depth Tiers
 
@@ -175,7 +186,8 @@ All components use a `cg-` prefix to distinguish them from other Copilot prompts
 │   ├── cg-plan.prompt.md
 │   ├── cg-work.prompt.md
 │   ├── cg-review.prompt.md
-│   └── cg-compound.prompt.md
+│   ├── cg-compound.prompt.md
+│   └── cg-resume.prompt.md
 ├── agents/               # Specialized reviewers
 │   ├── cg-architecture.agent.md
 │   ├── cg-code-quality.agent.md
@@ -202,7 +214,7 @@ All components use a `cg-` prefix to distinguish them from other Copilot prompts
 ## Output Locations
 
 ```
-docs/
+.cg-docs/
 ├── brainstorms/          # /cg-brainstorm outputs
 ├── plans/                # /cg-plan outputs
 └── solutions/            # /cg-compound outputs
