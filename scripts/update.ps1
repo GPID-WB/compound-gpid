@@ -56,12 +56,11 @@ try {
     # This handles the case where a user inadvertently edited a file through a
     # junction - git checkout discards uncommitted changes in the global clone.
     #
-    # 2>$null is intentional here: git checkout . writes "Updated N paths from the
-    # index" to stderr even on success. With $ErrorActionPreference = "Stop",
-    # PowerShell 5.1 promotes native-command stderr into a terminating error.
-    # We suppress that stderr-to-error promotion; $LASTEXITCODE still captures
-    # real failures (non-zero exit codes) immediately below.
-    git checkout . 2>$null
+    # PS5.1 with ErrorActionPreference=Stop can promote native stderr to a
+    # terminating error even with 2>$null in some host configurations. Wrapping
+    # in try/catch makes this bullet-proof: we never want a best-effort cleanup
+    # step to abort the update. LASTEXITCODE is still checked for real failures.
+    try { git checkout . 2>$null } catch { <# informational stderr — ignore #> }
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
     }
