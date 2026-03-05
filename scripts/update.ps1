@@ -55,7 +55,13 @@ try {
     # Reset any accidental local changes before pulling.
     # This handles the case where a user inadvertently edited a file through a
     # junction - git checkout discards uncommitted changes in the global clone.
-    git checkout .
+    #
+    # 2>$null is intentional here: git checkout . writes "Updated N paths from the
+    # index" to stderr even on success. With $ErrorActionPreference = "Stop",
+    # PowerShell 5.1 promotes native-command stderr into a terminating error.
+    # We suppress that stderr-to-error promotion; $LASTEXITCODE still captures
+    # real failures (non-zero exit codes) immediately below.
+    git checkout . 2>$null
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
     }
