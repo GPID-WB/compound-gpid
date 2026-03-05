@@ -55,7 +55,7 @@ try {
     # Reset any accidental local changes before pulling.
     # This handles the case where a user inadvertently edited a file through a
     # junction - git checkout discards uncommitted changes in the global clone.
-    git checkout . 2>$null
+    git checkout .
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
     }

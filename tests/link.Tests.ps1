@@ -234,15 +234,15 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     Context "when .gitignore already has all CG entries" {
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
-            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-            $entries = @(".github/prompts/", ".github/skills/")
+            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
+            $entries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
             $block   = $marker + "`n" + ($entries -join "`n") + "`n"
 
             # First run
             Set-Content -Path $gi -Value $block
 
-            # Second run: remove-then-rewrite (the new idempotent strategy)
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", ""
+            # Second run: remove-then-rewrite with broadened regex that matches any non-empty body line
+            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
             $existing = $existing.TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $block)
@@ -250,6 +250,30 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $after = Get-Content $gi
             ($after | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
             ($after | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does not orphan .cg-docs/ when block includes both .github/ and .cg-docs/ entries" {
+            $gi      = Join-Path $TestDrive "cg-docs-orphan.gitignore"
+            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
+            # Simulate a .gitignore written by an older cg-link that only had .github/ entries
+            $oldBlock = $marker + "`n.github/prompts/`n.github/skills/`n"
+            Set-Content -Path $gi -Value $oldBlock
+
+            # New run: upgraded block now includes .cg-docs/
+            $newEntries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
+            $newBlock   = $marker + "`n" + ($newEntries -join "`n") + "`n"
+
+            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
+            $existing = $existing.TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # .cg-docs/ must appear exactly once
+            ($lines | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
+            # No orphan .github/ lines outside the block
+            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
         }
     }
 

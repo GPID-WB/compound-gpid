@@ -204,7 +204,9 @@ if (Test-Path $gitignorePath) {
     if (-not $giContent) { $giContent = "" }
 
     # Remove any existing CG block before rewriting - handles version upgrades cleanly
-    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", "").TrimEnd()
+    # Pattern matches any non-empty body lines (not just .github/ prefixed ones), so
+    # entries like .cg-docs/ are also removed and not left as orphans on upgrade.
+    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", "").TrimEnd()
     $separator  = if ($giUpdated.Length -gt 0) { "`n`n" } else { "" }
     Set-Content -Path $gitignorePath -Value ($giUpdated + $separator + $cgGitignoreBlock)
     Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
