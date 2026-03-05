@@ -87,3 +87,4 @@ if ($LASTEXITCODE -ne 0) { ... }
 ## Related
 
 - [PowerShell `$$` is not PID](../build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md) — sibling P1 fix from the same review session
+- [PS5.1 ErrorActionPreference=Stop terminates on git informational stderr](./2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md) — the complementary exception: `2>$null` IS correct for commands that write informational messages to stderr on success
