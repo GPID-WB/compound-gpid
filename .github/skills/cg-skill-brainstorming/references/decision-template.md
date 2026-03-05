@@ -1,6 +1,6 @@
 # Decision Document Template
 
-Use this template when saving brainstorm decisions to `docs/brainstorms/`.
+Use this template when saving brainstorm decisions to `.cg-docs/brainstorms/`.
 
 ## Filename Convention
 

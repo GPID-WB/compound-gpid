@@ -68,4 +68,4 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 ## Knowledge Compounding
 
-After solving a non-trivial problem, use `/cg-compound` to capture the solution in `docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows`.
+After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows`.

@@ -10,9 +10,9 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may create new files ONLY under `docs/brainstorms/`.
+- You may create new files ONLY under `.cg-docs/brainstorms/`.
 - You must NOT modify any existing files.
-- You must NOT create files outside `docs/brainstorms/`.
+- You must NOT create files outside `.cg-docs/brainstorms/`.
 
 ## Process
 
@@ -51,7 +51,7 @@ For each approach, include:
 
 ### Step 4: Capture Decision
 
-Once the user selects an approach, save the brainstorm to `docs/brainstorms/`:
+Once the user selects an approach, save the brainstorm to `.cg-docs/brainstorms/`:
 
 **Filename**: `YYYY-MM-DD-<brief-title>.md`
 
@@ -92,4 +92,4 @@ tags: [<relevant tags>]
 
 After saving, suggest:
 
-> Brainstorm captured in `docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
+> Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.

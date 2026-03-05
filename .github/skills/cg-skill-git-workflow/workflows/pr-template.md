@@ -48,6 +48,6 @@ Save this as `.github/PULL_REQUEST_TEMPLATE.md` in your project:
 
 <!-- Link related issues, PRs, brainstorms, or plans -->
 - Closes #
-- Plan: `docs/plans/...`
-- Brainstorm: `docs/brainstorms/...`
+- Plan: `.cg-docs/plans/...`
+- Brainstorm: `.cg-docs/brainstorms/...`
 ```

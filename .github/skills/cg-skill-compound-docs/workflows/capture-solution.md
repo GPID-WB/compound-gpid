@@ -39,14 +39,14 @@ Capture a solution when:
 - Note the language (R, Python, both)
 
 ### 6. Cross-Reference
-- Search `docs/solutions/` for related existing solutions
+- Search `.cg-docs/solutions/` for related existing solutions
 - Add links between related solutions
 - If the solution reveals a broader pattern, consider updating instructions
 
 ## File Location
 
 ```
-docs/solutions/<category>/YYYY-MM-DD-brief-description.md
+.cg-docs/solutions/<category>/YYYY-MM-DD-brief-description.md
 ```
 
 ## Quality Checklist

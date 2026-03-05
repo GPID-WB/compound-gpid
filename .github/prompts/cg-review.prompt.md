@@ -35,12 +35,17 @@ Based on review depth, invoke the appropriate agents on the changed files:
 
 **Thorough** (major features, refactors):
 - All 8 agents from `standard`
-- `@cg-learnings-researcher` — Cross-references `docs/solutions/` and `docs/brainstorms/` for relevant past learnings
+- `@cg-learnings-researcher` — Cross-references `.cg-docs/solutions/` and `.cg-docs/brainstorms/` for relevant past learnings
 
 For each agent, provide:
 - The list of changed files
 - The project language (from `compound-gpid.local.md`)
 - Any relevant context from the plan
+
+**R Package check (all depth levels)**: Regardless of review depth, if the project contains `DESCRIPTION` + either `NAMESPACE` or an `R/` directory (signals an R package), check whether `.cg-docs/` is listed in `.Rbuildignore`. If `.cg-docs/` exists but is absent from `.Rbuildignore`, add this as a **P2** finding under `@cg-code-quality`:
+> **[cg-code-quality]** `.Rbuildignore` — `.cg-docs/` is not excluded from the R package build.
+> **Why**: `.cg-docs/` contains local knowledge artifacts that should not be bundled into the installed package.
+> **Fix**: Add `^\.cg-docs$` to `.Rbuildignore`.
 
 ### Step 3: Collect and Prioritize Findings
 

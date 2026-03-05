@@ -12,7 +12,7 @@ Search the knowledge base before:
 
 ### 1. Check Relevant Category
 
-Start by scanning the most relevant `docs/solutions/` subdirectory:
+Start by scanning the most relevant `.cg-docs/solutions/` subdirectory:
 
 | If you're dealing with... | Check |
 |--------------------------|-------|
@@ -43,14 +43,14 @@ Search by:
 
 ### 3. Check Brainstorms
 
-`docs/brainstorms/` contains past architectural decisions. Relevant when:
+`.cg-docs/brainstorms/` contains past architectural decisions. Relevant when:
 - Making similar design choices
 - Revisiting a decision that might need updating
 - Understanding why something was built a certain way
 
 ### 4. Check Plans
 
-`docs/plans/` contains past implementation plans. Relevant when:
+`.cg-docs/plans/` contains past implementation plans. Relevant when:
 - Building something similar to a past feature
 - Looking for testing strategies used before
 - Understanding the intended design of existing code

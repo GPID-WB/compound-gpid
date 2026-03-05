@@ -10,19 +10,19 @@ You are a senior data science architect creating a structured implementation pla
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may create new files ONLY under `docs/plans/`.
+- You may create new files ONLY under `.cg-docs/plans/`.
 - You must NOT modify any existing files.
-- You must NOT create files outside `docs/plans/`.
+- You must NOT create files outside `.cg-docs/plans/`.
 
 ## Process
 
 ### Step 1: Gather Context
 
 1. Read `compound-gpid.local.md` for project config (language, project type, review depth).
-2. Read any relevant brainstorm in `docs/brainstorms/` if one exists for this feature.
+2. Read any relevant brainstorm in `.cg-docs/brainstorms/` if one exists for this feature.
 3. Scan the project directory structure.
 4. Read relevant existing source files to understand current patterns and conventions.
-5. Check `docs/solutions/` for past learnings related to this work.
+5. Check `.cg-docs/solutions/` for past learnings related to this work.
 
 ### Step 2: Research
 
@@ -85,7 +85,7 @@ tags: [<relevant tags>]
 
 ### Step 4: Save and Validate
 
-1. Save the plan to `docs/plans/YYYY-MM-DD-<brief-title>.md`.
+1. Save the plan to `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md`.
 2. Present the plan to the user for review.
 3. Ask if any steps need adjustment before proceeding.
 
@@ -93,4 +93,4 @@ tags: [<relevant tags>]
 
 After the user approves:
 
-> Plan saved to `docs/plans/<filename>`. Ready to implement with `/cg-work`.
+> Plan saved to `.cg-docs/plans/<filename>`. Ready to implement with `/cg-work`.

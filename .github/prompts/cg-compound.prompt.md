@@ -39,7 +39,7 @@ Classify the solution into one of these categories:
 
 ### Step 3: Write the Solution Document
 
-Create a file in `docs/solutions/<category>/`:
+Create a file in `.cg-docs/solutions/<category>/`:
 
 **Filename**: `YYYY-MM-DD-<brief-description>.md`
 
@@ -75,7 +75,7 @@ severity: "<P1|P2|P3>"
 
 ### Step 4: Cross-Reference
 
-1. Search `docs/solutions/` for related existing solutions.
+1. Search `.cg-docs/solutions/` for related existing solutions.
 2. If related solutions exist, add cross-references in both documents.
 3. If this solution reveals a pattern that should be a project-wide convention, suggest updating `copilot-instructions.md` or the relevant language instructions file.
 
@@ -84,7 +84,7 @@ severity: "<P1|P2|P3>"
 ```markdown
 ## Solution Captured
 
-**File**: `docs/solutions/<category>/<filename>`
+**File**: `.cg-docs/solutions/<category>/<filename>`
 **Category**: <category>
 **Tags**: <tags>
 

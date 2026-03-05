@@ -6,10 +6,10 @@ You are configuring Compound GPID for this project. You help the user set langua
 
 - You may read any file in the workspace.
 - You may create or overwrite `compound-gpid.local.md` in the project root.
-- You may create new files and directories under `docs/`.
-- You may append lines to `.gitignore`.
+- You may create new files and directories under `.cg-docs/`.
+- You may append lines to `.gitignore` and `.Rbuildignore`.
 - You must not modify any other existing file.
-- You must not create files outside the project root or `docs/`.
+- You must not create files outside the project root or `.cg-docs/`.
 
 ## Process
 
@@ -72,6 +72,7 @@ language: "<r|python|both|other>"
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"
+cg-schema-version: ""
 ---
 
 # Compound GPID — Project Config
@@ -86,12 +87,12 @@ This file configures Compound GPID for this project. It is gitignored and local 
 <Any additional project-specific notes the user mentioned>
 ```
 
-#### A4. Scaffold `docs/` structure
+#### A4. Scaffold `.cg-docs/` structure
 
 Create the following directories and `.gitkeep` files if they do not already exist:
 
 ```
-docs/
+.cg-docs/
 ├── brainstorms/
 │   └── .gitkeep
 ├── plans/
@@ -111,6 +112,18 @@ docs/
         └── .gitkeep
 ```
 
+#### A4.5. Update `.Rbuildignore` (R packages only)
+
+If the user selected **Package** as project type AND the language is **R** or **Both**:
+
+Check if `.Rbuildignore` exists. If it does not, create it. Append the following line if it is not already present:
+
+```
+^\.cg-docs$
+```
+
+This prevents `.cg-docs/` from being included in the built R package.
+
 #### A5. Update `.gitignore`
 
 Check if `.gitignore` exists. If it does not, create it. Append the following lines if they are not already present:
@@ -118,6 +131,8 @@ Check if `.gitignore` exists. If it does not, create it. Append the following li
 ```gitignore
 # Compound GPID local config (user-specific, never commit)
 compound-gpid.local.md
+# Compound GPID knowledge base (local thinking artifacts, typically not committed)
+.cg-docs/
 ```
 
 #### A6. Print Setup Complete
@@ -130,6 +145,7 @@ compound-gpid.local.md
 **Review Depth**: <review-depth>
 
 ### Available Commands (in Copilot Chat)
+- `/cg-resume`     — Load context and pick up interrupted work
 - `/cg-brainstorm` — Clarify fuzzy requirements through guided Q&A
 - `/cg-plan`       — Research the codebase and create an implementation plan
 - `/cg-work`       — Implement a plan step by step
@@ -154,30 +170,36 @@ compound-gpid.local.md
 
 Read `compound-gpid.local.md` and report the current settings (language, project type, review depth).
 
-#### B1.5. Scaffold any missing `docs/` directories
+#### B1.5. Scaffold any missing `.cg-docs/` directories
 
 Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
-without touching existing files. This handles projects that were set up before the `docs/` structure existed,
+without touching existing files. This handles projects that were set up before the `.cg-docs/` structure existed,
 or where individual subdirectories were deleted.
 
 ```
-docs/brainstorms/
-docs/plans/
-docs/solutions/build-errors/
-docs/solutions/data-quality/
-docs/solutions/environment-issues/
-docs/solutions/git-workflows/
-docs/solutions/performance-issues/
-docs/solutions/testing-patterns/
+.cg-docs/brainstorms/
+.cg-docs/plans/
+.cg-docs/solutions/build-errors/
+.cg-docs/solutions/data-quality/
+.cg-docs/solutions/environment-issues/
+.cg-docs/solutions/git-workflows/
+.cg-docs/solutions/performance-issues/
+.cg-docs/solutions/testing-patterns/
 ```
+
+#### B1.6. Schema version check
+
+Check if `compound-gpid.local.md` contains a `cg-schema-version` field. If the field is missing or empty, add a note:
+
+> "This project may need a structural migration. Run `cg-update` from this project's root to apply any pending migrations."
 
 #### B2. Scan existing work
 
 Scan the following directories and collect the titles and dates from the YAML frontmatter (or filename) of each file:
 
-- `docs/brainstorms/` — list each brainstorm with date and title
-- `docs/plans/` — list each plan with date, title, and status
-- `docs/solutions/` — list each solution by category, date, and title
+- `.cg-docs/brainstorms/` — list each brainstorm with date and title
+- `.cg-docs/plans/` — list each plan with date, title, and status
+- `.cg-docs/solutions/` — list each solution by category, date, and title
 
 #### B3. Present context summary
 

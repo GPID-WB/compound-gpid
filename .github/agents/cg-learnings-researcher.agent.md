@@ -1,5 +1,5 @@
 ---
-description: "Searches docs/solutions/ and docs/brainstorms/ for relevant past learnings before starting new work. Used in thorough reviews."
+description: "Searches .cg-docs/solutions/ and .cg-docs/brainstorms/ for relevant past learnings before starting new work. Used in thorough reviews."
 model: Claude Haiku 4.5 (copilot)
 ---
 
@@ -17,7 +17,7 @@ Before starting new work or during thorough reviews, search the project's accumu
 
 Search these directories in order:
 
-1. **`docs/solutions/`** — Previously solved problems, categorized by type:
+1. **`.cg-docs/solutions/`** — Previously solved problems, categorized by type:
    - `build-errors/` — Build and installation fixes
    - `performance-issues/` — Optimization solutions
    - `testing-patterns/` — Testing strategies and patterns
@@ -25,14 +25,14 @@ Search these directories in order:
    - `environment-issues/` — Environment and dependency fixes
    - `git-workflows/` — Git operation solutions
 
-2. **`docs/brainstorms/`** — Past requirement discussions and architectural decisions
+2. **`.cg-docs/brainstorms/`** — Past requirement discussions and architectural decisions
 
-3. **`docs/plans/`** — Previous implementation plans (for pattern reuse)
+3. **`.cg-docs/plans/`** — Previous implementation plans (for pattern reuse)
 
 ## Search Strategy
 
 1. **Keyword match**: Search for file names and YAML frontmatter tags related to the current task.
-2. **Category match**: Look in the most relevant `docs/solutions/` subcategory.
+2. **Category match**: Look in the most relevant `.cg-docs/solutions/` subcategory.
 3. **Language match**: Filter by the `language` field in YAML frontmatter (R, Python, both).
 4. **Recency**: Prefer recent solutions but don't ignore older ones.
 
@@ -42,12 +42,12 @@ Search these directories in order:
 ## Related Learnings
 
 ### Directly Relevant
-1. **[docs/solutions/category/file.md]** — <title>
+1. **[.cg-docs/solutions/category/file.md]** — <title>
    **Relevance**: <why this applies>
    **Key takeaway**: <one-sentence summary>
 
 ### Potentially Related
-1. **[docs/brainstorms/file.md]** — <title>
+1. **[.cg-docs/brainstorms/file.md]** — <title>
    **Relevance**: <why this might apply>
 
 ### Patterns to Follow

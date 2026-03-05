@@ -12,7 +12,7 @@ You are a senior developer implementing a plan that was previously created with 
 ### Step 1: Load the Plan
 
 1. Read `compound-gpid.local.md` for project config (language, project type).
-2. Find the most recent plan in `docs/plans/` or ask the user which plan to implement.
+2. Find the most recent plan in `.cg-docs/plans/` or ask the user which plan to implement.
 3. Read the plan thoroughly. Understand every step, its acceptance criteria, and test requirements.
 4. Check relevant skills for the project's language:
    - R: load the `cg-skill-r-best-practices` skill.

@@ -9,18 +9,18 @@ The compound docs skill powers the `/cg-compound` prompt — the step that makes
 
 ## How It Works
 
-When you solve a non-trivial problem, `/cg-compound` captures it as a structured document in `docs/solutions/[category]/` with YAML frontmatter for discoverability. Over time, this builds a searchable knowledge base that the `cg-learnings-researcher` agent queries before starting new work.
+When you solve a non-trivial problem, `/cg-compound` captures it as a structured document in `.cg-docs/solutions/[category]/` with YAML frontmatter for discoverability. Over time, this builds a searchable knowledge base that the `cg-learnings-researcher` agent queries before starting new work.
 
 ## Categories
 
 | Category | Directory | Use When |
 |----------|-----------|----------|
-| Build Errors | `docs/solutions/build-errors/` | Build failures, compilation, package installation |
-| Performance Issues | `docs/solutions/performance-issues/` | Slow code, memory, optimization |
-| Testing Patterns | `docs/solutions/testing-patterns/` | Testing strategies, fixtures, mocking |
-| Data Quality | `docs/solutions/data-quality/` | Validation, cleaning, type handling |
-| Environment Issues | `docs/solutions/environment-issues/` | R/Python environment, dependencies |
-| Git Workflows | `docs/solutions/git-workflows/` | Git operations, branching, CI/CD |
+| Build Errors | `.cg-docs/solutions/build-errors/` | Build failures, compilation, package installation |
+| Performance Issues | `.cg-docs/solutions/performance-issues/` | Slow code, memory, optimization |
+| Testing Patterns | `.cg-docs/solutions/testing-patterns/` | Testing strategies, fixtures, mocking |
+| Data Quality | `.cg-docs/solutions/data-quality/` | Validation, cleaning, type handling |
+| Environment Issues | `.cg-docs/solutions/environment-issues/` | R/Python environment, dependencies |
+| Git Workflows | `.cg-docs/solutions/git-workflows/` | Git operations, branching, CI/CD |
 
 ## Workflows
 
