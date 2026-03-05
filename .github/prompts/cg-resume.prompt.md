@@ -1,7 +1,6 @@
-````prompt
 ---
 description: "Load context and resume interrupted work. Use at the start of a session to pick up where you left off."
-model: Claude Sonnet 4.6 (copilot)
+model: Claude Haiku 4.5 (copilot)
 ---
 
 # Resume
@@ -117,4 +116,5 @@ Ask:
 > 4. Start something new — `/cg-brainstorm`
 
 Adapt the options to what's actually available. If only one option applies, just suggest it directly.
-````
+
+
