@@ -110,14 +110,24 @@ foreach ($script in $scripts) {
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
 
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
-$currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
-if (-not $currentPath) { $currentPath = "" }
-if ($currentPath -notlike "*$binDir*") {
-    $newPath = if ($currentPath.Length -gt 0) { "$currentPath;$binDir" } else { $binDir }
-    [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
-    Write-Host "  Added to PATH: $binDir" -ForegroundColor DarkGray
-} else {
-    Write-Host "  Already on PATH: $binDir" -ForegroundColor DarkGray
+# Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
+# is blocked by Constrained Language Mode on enterprise machines.
+$pathAdded = $false
+try {
+    $currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
+        Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
+    $currentPath = if ($currentPath) { $currentPath.Trim() } else { "" }
+    if ($currentPath -notlike "*$binDir*") {
+        $newPath = if ($currentPath.Length -gt 0) { "$currentPath;$binDir" } else { $binDir }
+        reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f | Out-Null
+        Write-Host "  Added to PATH: $binDir" -ForegroundColor DarkGray
+    } else {
+        Write-Host "  Already on PATH: $binDir" -ForegroundColor DarkGray
+    }
+    $pathAdded = $true
+} catch {
+    Write-Warning "  Could not update PATH via reg.exe: $_"
+    Write-Warning "  Add manually: reg add `"HKCU\Environment`" /v PATH /t REG_EXPAND_SZ /d `"<your-current-path>;$binDir`" /f"
 }
 
 # Clean up old $PROFILE block from previous installs (upgrade path).
