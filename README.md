@@ -17,6 +17,8 @@ This plugin implements the **Brainstorm → Plan → Work → Review → Compoun
 
 ## Installation
 
+> **Upgrading from a previous version?** If you have an existing installation at `$env:USERPROFILE\.compound-gpid` (the old default path), **uninstall it first** before following the steps below. See [Removing an old installation](docs/manual.md#removing-an-old-installation-from-envuserprofilecompound-gpid) in the User Manual.
+
 ### Step 1: Clone (one-time per machine)
 
 ```powershell

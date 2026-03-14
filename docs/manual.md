@@ -14,6 +14,8 @@ Each step builds on the previous one. Over time, the knowledge captured in `.cg-
 
 ## Getting Started
 
+> **Upgrading from a previous version?** If you have an existing installation at `$env:USERPROFILE\.compound-gpid` (the old default path), **uninstall it first** — see [Removing an old installation](#removing-an-old-installation-from-envuserprofilecompound-gpid) below before continuing.
+
 1. **Install** (once per machine): Clone the repo to `C:\WBG\.compound-gpid` and run `install.ps1` — see [README.md](../README.md) for the exact commands. This creates `cg-link`, `cg-update`, and `cg-unlink` as batch wrappers on your PATH.
 2. **Link** (once per project): From your project root in a terminal, run `cg-link`. This creates the `.github` junction that makes all Copilot prompts available.
 3. **Configure** (once per project): Open your project in VS Code and run `/cg-setup` in Copilot Chat. This creates your `compound-gpid.local.md` config file and scaffolds the `docs/` structure.
