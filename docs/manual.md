@@ -278,11 +278,16 @@ Set-Content $PROFILE $p.TrimEnd()
 ```
 
 **Step 2 — Remove the old `bin\` directory from PATH** (if it was added):
+
+> **Note**: `[Environment]::GetEnvironmentVariable` is blocked by Constrained Language Mode. Use `reg.exe` instead — it works in all language modes.
+
 ```powershell
 $oldBin = "$env:USERPROFILE\.compound-gpid\bin"
-$path   = [Environment]::GetEnvironmentVariable('PATH', 'User')
-$newPath = ($path -split ';' | Where-Object { $_ -ne $oldBin }) -join ';'
-[Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
+$currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
+    Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
+$newPath = ($currentPath.Trim() -split ';' |
+    Where-Object { $_ -and $_ -ne $oldBin }) -join ';'
+reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
 ```
 
 **Step 3 — Delete the old clone**:
