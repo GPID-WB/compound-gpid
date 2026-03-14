@@ -14,7 +14,7 @@ Each step builds on the previous one. Over time, the knowledge captured in `.cg-
 
 ## Getting Started
 
-1. **Install** (once per machine): Clone the repo and run `install.ps1` — see [README.md](../README.md) for the exact commands. This registers `cg-link`, `cg-update`, and `cg-unlink` in your PowerShell profile.
+1. **Install** (once per machine): Clone the repo to `C:\WBG\.compound-gpid` and run `install.ps1` — see [README.md](../README.md) for the exact commands. This creates `cg-link`, `cg-update`, and `cg-unlink` as batch wrappers on your PATH.
 2. **Link** (once per project): From your project root in a terminal, run `cg-link`. This creates the `.github` junction that makes all Copilot prompts available.
 3. **Configure** (once per project): Open your project in VS Code and run `/cg-setup` in Copilot Chat. This creates your `compound-gpid.local.md` config file and scaffolds the `docs/` structure.
 4. **Start working**: Use `/cg-brainstorm` if requirements are fuzzy, `/cg-plan` if you know what to build, or `/cg-work` if a plan already exists.
@@ -165,7 +165,7 @@ These commands are registered in your PowerShell profile by `install.ps1` and ar
 
 ## Updating Compound GPID
 
-Run `cg-update` from any terminal. This does a `git pull` in the global clone at `%USERPROFILE%\.compound-gpid`. Because all linked projects share the same `.github/` directory via junctions, the update is instantly visible in every project — no per-project update step is needed.
+Run `cg-update` from any terminal. This does a `git pull` in the global clone at `C:\WBG\.compound-gpid`. Because all linked projects share the same `.github/` directory via junctions, the update is instantly visible in every project — no per-project update step is needed.
 
 To check what changed: `cg-update` shows the commit log of new commits when an update is available.
 
@@ -210,6 +210,61 @@ All components use a `cg-` prefix to distinguish them from other Copilot prompts
 │   └── r.instructions.md
 └── copilot-instructions.md  # Global project instructions
 ```
+
+## Troubleshooting
+
+### `cg-update` fails with "Updated 0 paths from the index"
+
+**Symptom**:
+```
+cg-update
+Checking for updates...
+update.ps1 : Update failed: Updated 0 paths from the index
+```
+
+**Cause**: The global clone at `C:\WBG\.compound-gpid` has an old version of `update.ps1` that crashes on PowerShell 5.1 before it can pull the fix.
+
+**Fix — run these two commands once in any terminal**:
+```powershell
+git -C "C:\WBG\.compound-gpid" checkout . 2>$null  # suppress stderr (PS5.1 stderr-to-error promotion)
+git -C "C:\WBG\.compound-gpid" pull --ff-only
+```
+
+This manually updates the global clone. After that, `cg-update` works normally from all projects — no further action needed.
+
+> **If `pull --ff-only` fails** with `fatal: Not possible to fast-forward`, the global clone has an unexpected local commit. Fix it with:
+> ```powershell
+> git -C "C:\WBG\.compound-gpid" reset --hard origin/main
+> ```
+
+**Then run `cg-update` from each linked project** to apply the structural migration (consolidates knowledge docs from `docs/` to `.cg-docs/`, required for `/cg-compound` and solution lookups to work correctly):
+```powershell
+cg-update  # run from your project root
+```
+
+If the issue persists, open a [GitHub Issue](https://github.com/GPID-WB/compound-gpid/issues).
+
+### `. $PROFILE` fails with "Cannot dot-source" error (Constrained Language Mode)
+
+**Symptom**:
+```
+. $PROFILE
+Microsoft.PowerShell_profile.ps1 : Cannot dot-source this command because it was defined in a different language mode.
+```
+
+**Cause**: Your organization enforces Constrained Language Mode (CLM) via AppLocker or Windows Defender Application Control. OneDrive has redirected your Documents folder to a path CLM treats as untrusted, blocking profile dot-sourcing.
+
+**Fix**: Re-install using the current approach (batch wrappers on PATH — no profile manipulation):
+```powershell
+# Clone to C:\WBG (if not already there)
+git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
+
+# Run the installer
+& "C:\WBG\.compound-gpid\install.ps1"
+
+# Restart your terminal
+```
+The installer automatically removes any old `$PROFILE` block from previous installs.
 
 ## Output Locations
 

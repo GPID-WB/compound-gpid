@@ -20,21 +20,21 @@ This plugin implements the **Brainstorm → Plan → Work → Review → Compoun
 ### Step 1: Clone (one-time per machine)
 
 ```powershell
-git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compound-gpid"
+git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
 ```
 
 ### Step 2: Install (one-time per machine)
 
 ```powershell
-& "$env:USERPROFILE\.compound-gpid\install.ps1"
+& "C:\WBG\.compound-gpid\install.ps1"
 ```
 
-This registers the `cg-link`, `cg-unlink`, and `cg-update` commands in your PowerShell profile.
+This creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers in `C:\WBG\.compound-gpid\bin\` and adds that directory to your PATH.
 
-> **After install**: restart your terminal or run `. $PROFILE` for the commands to take effect.
+> **After install**: restart your terminal for the PATH change to take effect.
 
 > **Execution policy**: if PowerShell blocks the script, run:
-> `powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.compound-gpid\install.ps1"`
+> `powershell -ExecutionPolicy Bypass -File "C:\WBG\.compound-gpid\install.ps1"`
 
 ### Step 3: Link your project (once per project)
 
@@ -138,10 +138,10 @@ After using the plugin, your project will accumulate:
 ```
 your-project/
 ├── .github/
-│   ├── prompts/              → junction to %USERPROFILE%\.compound-gpid\.github\prompts\
-│   ├── skills/               → junction to %USERPROFILE%\.compound-gpid\.github\skills\
-│   ├── agents/               → junction to %USERPROFILE%\.compound-gpid\.github\agents\
-│   ├── instructions/         → junction to %USERPROFILE%\.compound-gpid\.github\instructions\
+│   ├── prompts/              → junction to C:\WBG\.compound-gpid\.github\prompts\
+│   ├── skills/               → junction to C:\WBG\.compound-gpid\.github\skills\
+│   ├── agents/               → junction to C:\WBG\.compound-gpid\.github\agents\
+│   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
 ├── compound-gpid.local.md    # Your project config (gitignored)
@@ -157,32 +157,7 @@ your-project/
         └── git-workflows/
 ```
 
-## Troubleshooting
-
-### `cg-update` fails with "Updated 0 paths from the index"
-
-**Symptom**:
-```
-cg-update
-Checking for updates...
-update.ps1 : Update failed: Updated 0 paths from the index
-```
-
-**Cause**: The global clone at `%USERPROFILE%\.compound-gpid` has an old version of `update.ps1` that crashes on PowerShell 5.1 before it can pull the fix.
-
-**Fix — run these two commands once in any terminal**:
-```powershell
-git -C "$env:USERPROFILE\.compound-gpid" checkout . 2>$null
-git -C "$env:USERPROFILE\.compound-gpid" pull --ff-only
-```
-
-This manually updates the global clone. After that, `cg-update` works normally from all projects — no further action needed.
-
-**Then run `cg-update` from each linked project** to apply the structural migration (moves `docs/brainstorms/`, `docs/plans/`, `docs/solutions/` to `.cg-docs/`):
-```powershell
-cd <your-project-root>
-cg-update
-```
+> For troubleshooting and known issues, see the [User Manual](docs/manual.md#troubleshooting).
 
 ## Phase 2 Roadmap
 
