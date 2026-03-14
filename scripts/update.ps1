@@ -21,7 +21,9 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$CompoundGpidDir = Join-Path $env:USERPROFILE ".compound-gpid"
+# Resolve the install location relative to this script's own directory
+# (scripts/ -> parent = compound-gpid root). Works with any install path.
+$CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 # The management marker that identifies a CG-managed copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
@@ -29,11 +31,12 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error @"
-Compound GPID is not installed at: $CompoundGpidDir
+Compound GPID installation directory not found at: $CompoundGpidDir
 
-Run the installer first:
-  git clone https://github.com/GPID-WB/compound-gpid.git "$CompoundGpidDir"
-  & "$CompoundGpidDir\install.ps1"
+This script expects to run from within a Compound GPID installation.
+Clone the repo and run the installer:
+  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
+  & "C:\WBG\.compound-gpid\install.ps1"
 "@
     exit 1
 }

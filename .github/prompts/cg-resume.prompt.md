@@ -26,7 +26,7 @@ Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
 ### Step 2: Schema Version Check
 
-Read `SCHEMA_VERSION` from the global Compound GPID install at `%USERPROFILE%\.compound-gpid\SCHEMA_VERSION`.
+Read `SCHEMA_VERSION` from the global Compound GPID install at `C:\WBG\.compound-gpid\SCHEMA_VERSION`.
 
 If the file does not exist, skip this check (old install — will be handled by `cg-update`).
 

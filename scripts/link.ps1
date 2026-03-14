@@ -18,14 +18,16 @@
 #   - Gitignores only the CG-managed items, not the entire .github/ folder.
 #
 # Requirements:
-#   - Compound GPID must be installed at $env:USERPROFILE\.compound-gpid
+#   - Compound GPID must be installed (default: C:\WBG\.compound-gpid)
 #   - Developer Mode enabled OR directory junctions available (default on Win10/11)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # --- Configuration ---
-$CompoundGpidDir  = Join-Path $env:USERPROFILE ".compound-gpid"
+# Resolve the install location relative to this script's own directory
+# (scripts/ -> parent = compound-gpid root). Works with any install path.
+$CompoundGpidDir  = Split-Path $PSScriptRoot -Parent
 $SourceGithub     = Join-Path $CompoundGpidDir ".github"
 $ProjectRoot      = Get-Location
 $TargetGithubDir  = Join-Path $ProjectRoot ".github"
@@ -41,11 +43,12 @@ $CopilotInstructionsDest    = Join-Path $TargetGithubDir "copilot-instructions.m
 # --- Validate global install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error @"
-Compound GPID is not installed at: $CompoundGpidDir
+Compound GPID installation directory not found at: $CompoundGpidDir
 
-Run the installer first:
-  git clone https://github.com/GPID-WB/compound-gpid.git "$CompoundGpidDir"
-  & "$CompoundGpidDir\install.ps1"
+This script expects to run from within a Compound GPID installation.
+Clone the repo and run the installer:
+  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
+  & "C:\WBG\.compound-gpid\install.ps1"
 "@
     exit 1
 }

@@ -20,55 +20,93 @@ Describe "install.ps1 - Git check" {
     }
 }
 
-Describe "install.ps1 - Profile idempotency" {
-    Context "when profile does not exist" {
-        It "New-Item creates the profile file" {
-            $testProfile = Join-Path $TestDrive "test_profile.ps1"
-            Test-Path $testProfile | Should Be $false
-            New-Item -Path $testProfile -ItemType File -Force | Out-Null
-            Test-Path $testProfile | Should Be $true
+Describe "install.ps1 - .cmd wrapper creation" {
+    Context "wrapper content" {
+        It "each wrapper contains the powershell.exe invocation with -NoProfile" {
+            foreach ($script in @("link", "unlink", "update")) {
+                $content = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\$script.ps1`" %*`r`n"
+                ($content -match 'powershell\.exe') | Should Be $true
+                ($content -match 'NoProfile')       | Should Be $true
+                ($content -match "$script\.ps1")    | Should Be $true
+            }
+        }
+
+        It "wrapper uses %~dp0 for self-relative path resolution" {
+            $content = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\link.ps1`" %*`r`n"
+            ($content -match '%~dp0') | Should Be $true
         }
     }
 
-    Context "when profile already contains Compound GPID block" {
-        It "replace regex removes the existing block" {
-            $testProfile = Join-Path $TestDrive "profile_with_block.ps1"
-            $existingBlock = "# --- Compound GPID ---`nfunction cg-link { }`n# --- End Compound GPID ---"
-            Set-Content -Path $testProfile -Value $existingBlock
+    Context "creating wrappers on disk" {
+        It "writes all three .cmd files to the bin directory" {
+            $binDir = Join-Path $TestDrive "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
 
-            $content = Get-Content -Path $testProfile -Raw
-            $updated = $content -replace '(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?', ''
-            $updated = $updated.TrimEnd()
+            foreach ($script in @("link", "unlink", "update")) {
+                $cmdPath = Join-Path $binDir "cg-$script.cmd"
+                $content  = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\$script.ps1`" %*`r`n"
+                Set-Content -Path $cmdPath -Value $content -NoNewline
+            }
 
-            ($updated -match 'Compound GPID') | Should Be $false
+            Test-Path (Join-Path $binDir "cg-link.cmd")   | Should Be $true
+            Test-Path (Join-Path $binDir "cg-unlink.cmd") | Should Be $true
+            Test-Path (Join-Path $binDir "cg-update.cmd") | Should Be $true
+        }
+    }
+}
+
+Describe "install.ps1 - PATH manipulation" {
+    Context "detecting PATH state" {
+        It "detects when bin dir is not yet on PATH" {
+            $currentPath = "C:\Windows\system32;C:\Windows"
+            $binDir      = "C:\WBG\.compound-gpid\bin"
+            ($currentPath -notlike "*$binDir*") | Should Be $true
         }
 
-        It "after removing old block and appending new one, exactly one opening marker exists" {
-            $testProfile = Join-Path $TestDrive "profile_replace.ps1"
-            $existing = "# --- Compound GPID ---`nfunction cg-link { }`n# --- End Compound GPID ---"
-            Set-Content -Path $testProfile -Value $existing
-
-            $content = Get-Content -Path $testProfile -Raw
-            $updated = ($content -replace '(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?', '').TrimEnd()
-            $newBlock = "`n# --- Compound GPID ---`nfunction cg-link { }`n# --- End Compound GPID ---"
-            Set-Content -Path $testProfile -Value ($updated + $newBlock)
-
-            $final = Get-Content -Path $testProfile -Raw
-            ($final | Select-String '# --- Compound GPID ---' -AllMatches).Matches.Count | Should Be 1
+        It "detects when bin dir is already on PATH (idempotency)" {
+            $binDir      = "C:\WBG\.compound-gpid\bin"
+            $currentPath = "C:\Windows\system32;$binDir;C:\Windows"
+            ($currentPath -notlike "*$binDir*") | Should Be $false
         }
     }
 
-    Context "when profile has no existing block" {
-        It "appends Compound GPID block without removing existing content" {
-            $testProfile = Join-Path $TestDrive "profile_fresh.ps1"
-            Set-Content -Path $testProfile -Value "# My existing profile`nWrite-Host 'Hello'"
+    Context "building the new PATH value" {
+        It "appends bin dir to an existing PATH with a semicolon separator" {
+            $existing = "C:\Windows\system32"
+            $binDir   = "C:\WBG\.compound-gpid\bin"
+            $newPath  = if ($existing.Length -gt 0) { "$existing;$binDir" } else { $binDir }
+            $newPath | Should Be "C:\Windows\system32;C:\WBG\.compound-gpid\bin"
+        }
 
-            $block = "`n# --- Compound GPID ---`n# --- End Compound GPID ---"
-            Add-Content -Path $testProfile -Value $block
+        It "handles empty PATH without a leading semicolon" {
+            $existing = ""
+            $binDir   = "C:\WBG\.compound-gpid\bin"
+            $newPath  = if ($existing.Length -gt 0) { "$existing;$binDir" } else { $binDir }
+            $newPath | Should Be "C:\WBG\.compound-gpid\bin"
+        }
+    }
+}
 
-            $after = Get-Content -Path $testProfile -Raw
-            ($after -match 'My existing profile') | Should Be $true
-            ($after -match 'Compound GPID') | Should Be $true
+Describe "install.ps1 - old profile cleanup" {
+    Context "when profile contains an old Compound GPID block" {
+        It "removes the block but preserves surrounding content" {
+            $testProfile = Join-Path $TestDrive "profile_with_old_block.ps1"
+            $content = "# existing content`n# --- Compound GPID (managed by install.ps1 - do not edit manually) ---`nfunction cg-link { }`n# --- End Compound GPID ---`n# more content"
+            Set-Content -Path $testProfile -Value $content
+
+            $raw     = Get-Content $testProfile -Raw
+            $cleaned = ($raw -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "").TrimEnd()
+
+            ($cleaned -match "# --- Compound GPID") | Should Be $false
+            ($cleaned -match "# existing content")   | Should Be $true
+            ($cleaned -match "# more content")        | Should Be $true
+        }
+    }
+
+    Context "when profile has no Compound GPID block" {
+        It "detects no cleanup is needed" {
+            $content = "# My personal profile`nWrite-Host 'Hello'"
+            ($content -match "Compound GPID") | Should Be $false
         }
     }
 }

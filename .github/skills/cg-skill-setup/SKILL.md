@@ -14,11 +14,12 @@ Interactive setup to configure this project for the Compound GPID workflow.
 
 Compound GPID uses a **global clone + per-project junction** model on Windows:
 
-1. **Global install** (once per machine): The repo is cloned to `%USERPROFILE%\.compound-gpid`.
-   Running `install.ps1` registers `cg-link`, `cg-unlink`, and `cg-update` as PowerShell functions.
+1. **Global install** (once per machine): The repo is cloned to `C:\WBG\.compound-gpid`.
+   Running `install.ps1` creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers
+   in `C:\WBG\.compound-gpid\bin\` and adds that directory to the user's PATH.
 
 2. **Per-project link** (once per project): Running `cg-link` from a project root creates a
-   directory junction from `.github/` in the project to `%USERPROFILE%\.compound-gpid\.github/`.
+   directory junction from `.github/` in the project to `C:\WBG\.compound-gpid\.github/`.
    This makes all prompts, agents, and skills visible to VS Code and Copilot.
 
 3. **Updates** (as needed): Running `cg-update` from anywhere runs `git pull` in the global clone.
@@ -32,8 +33,8 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 
 | Path | Purpose |
 |------|---------|
-| `%USERPROFILE%\.compound-gpid` | Global clone of this repo |
-| `<project>/.github` | Junction pointing to `%USERPROFILE%\.compound-gpid\.github` |
+| `C:\WBG\.compound-gpid` | Global clone of this repo |
+| `<project>/.github` | Junction pointing to `C:\WBG\.compound-gpid\.github` |
 | `<project>/compound-gpid.local.md` | Project-specific config (gitignored) |
 | `<project>/docs/` | Brainstorms, plans, and captured solutions |
 
