@@ -84,7 +84,7 @@ your-project/
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
 ├── compound-gpid.local.md    # Your project config (gitignored)
-└── .cg-docs/                 # Compound GPID knowledge base (gitignored)
+└── .cg-docs/                 # Compound GPID knowledge base (committed — institutional memory)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     └── solutions/            # /cg-compound outputs
