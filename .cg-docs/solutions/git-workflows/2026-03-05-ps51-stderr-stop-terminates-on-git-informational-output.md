@@ -80,12 +80,15 @@ the script will fail before `git pull` can retrieve the fix. Recovery requires
 manually updating the global clone once:
 
 ```powershell
-git -C "$env:USERPROFILE\.compound-gpid" checkout . 2>$null
-git -C "$env:USERPROFILE\.compound-gpid" pull --ff-only
+git -C "C:\WBG\.compound-gpid" checkout . 2>$null  # suppress stderr (PS5.1 stderr-to-error promotion)
+git -C "C:\WBG\.compound-gpid" pull --ff-only
 ```
+
+See `docs/manual.md#troubleshooting` for the full recovery procedure including the `--ff-only` fallback.
 
 After that, `cg-update` works normally from all projects.
 
 ## Related
 
 - [git stderr swallowed by 2>&1 redirect](./2026-03-04-git-pull-stderr-swallowed-by-redirect.md) — the complementary rule: don't suppress stderr for commands where diagnostics matter
+- [Regression test for try/catch guard in CLM environment](../../solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md) — how to write a Pester regression test for this fix when the script cannot be executed directly

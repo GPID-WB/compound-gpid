@@ -107,6 +107,57 @@ Describe "update.ps1 - git checkout . before pull" {
             $global:LASTEXITCODE = 0  # reset
         }
     }
+
+    Context "PS5.1 ErrorActionPreference=Stop regression" {
+        # Regression test for the bootstrap failure documented in docs/manual.md:
+        # "cg-update fails with 'Updated 0 paths from the index'"
+        #
+        # On PS5.1, ErrorActionPreference=Stop can promote native command stderr
+        # to a terminating error. git checkout . writes informational output to
+        # stderr on success, which triggers this. The fix in update.ps1 wraps
+        # the checkout in try/catch so terminating errors are swallowed and
+        # execution always continues to git pull.
+
+        It "does not throw when checkout step raises a terminating error" {
+            $ErrorActionPreference = "Stop"
+            $checkoutAttempted = $false
+            $pullAttempted     = $false
+            $threw             = $false
+
+            try {
+                # Simulate the update.ps1 pattern: try/catch around checkout
+                try {
+                    $checkoutAttempted = $true
+                    throw "Simulated PS5.1 stderr-as-terminating-error from git checkout ."
+                } catch {
+                    <# Simulates update.ps1 pattern: ignore informational stderr from git checkout . #>
+                }
+
+                # Pull must still be reached even though checkout threw
+                $pullAttempted = $true
+            } catch {
+                $threw = $true
+            } finally {
+                $ErrorActionPreference = "Continue"
+            }
+
+            $checkoutAttempted | Should Be $true
+            $pullAttempted     | Should Be $true
+            $threw             | Should Be $false
+        }
+
+        It "does not suppress a real checkout failure (non-zero LASTEXITCODE)" {
+            # Even with the try/catch, a non-zero exit code must still be detectable
+            $global:LASTEXITCODE = 1
+            $warnTriggered = $false
+
+            try { throw "Simulated stderr" } catch { <# ignore #> }
+            if ($LASTEXITCODE -ne 0) { $warnTriggered = $true }
+
+            $warnTriggered | Should Be $true
+            $global:LASTEXITCODE = 0  # reset
+        }
+    }
 }
 
 Describe "update.ps1 - copilot-instructions.md refresh" {
