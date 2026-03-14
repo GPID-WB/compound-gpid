@@ -1,8 +1,8 @@
 # install.ps1
 # One-time setup for Compound GPID.
-# Run this after cloning the repo (recommended path: C:\WBG\.compound-gpid):
-#
-#   & "C:\WBG\.compound-gpid\install.ps1"
+# Run this after cloning the repo. Choose your install path:
+#   - Local machine (OneDrive): & "C:\WBG\.compound-gpid\install.ps1"
+#   - Remote server (no OneDrive): & "$env:USERPROFILE\.compound-gpid\install.ps1"
 #
 # What this does:
 #   1. Verifies Git is available.
@@ -157,16 +157,19 @@ Write-Host ""
 Write-Host "  Location : $CompoundGpidDir"
 Write-Host "  Commands : $binDir"
 Write-Host ""
-Write-Host "IMPORTANT: Restart your terminal to pick up the PATH change." -ForegroundColor Yellow
+Write-Host "IMPORTANT: Restart VS Code / Positron and your terminal." -ForegroundColor Yellow
+Write-Host "  The PATH change only takes effect in new processes." -ForegroundColor Yellow
+Write-Host "  Copilot will not pick up changes until VS Code / Positron is restarted." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Available commands (after restarting terminal):"
+Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
 Write-Host ""
 Write-Host "Quick start:"
-Write-Host "  1. Restart your terminal"
+Write-Host "  1. Restart VS Code / Positron and your terminal"
 Write-Host "  2. cd to your project folder"
 Write-Host "  3. Run: cg-link"
-Write-Host "  4. Open VS Code and run in Copilot Chat: /cg-setup"
+Write-Host "  4. Restart VS Code / Positron again so Copilot picks up the linked prompts"
+Write-Host "  5. Open VS Code / Positron and run in Copilot Chat: /cg-setup"
 Write-Host ""

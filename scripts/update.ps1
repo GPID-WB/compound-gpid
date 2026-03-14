@@ -34,9 +34,11 @@ if (-not (Test-Path $CompoundGpidDir)) {
 Compound GPID installation directory not found at: $CompoundGpidDir
 
 This script expects to run from within a Compound GPID installation.
-Clone the repo and run the installer:
-  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
-  & "C:\WBG\.compound-gpid\install.ps1"
+See docs/installation.md for setup instructions and path guidance.
+  # Local machine (OneDrive):  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
+  # Remote server:             git clone https://github.com/GPID-WB/compound-gpid.git "`$env:USERPROFILE\.compound-gpid"
+  # Then run: & "<your-path>\install.ps1"
+  # (Adding a new environment? Update this message and the matching one in scripts/link.ps1)
 "@
     exit 1
 }

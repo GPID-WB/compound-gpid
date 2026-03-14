@@ -15,19 +15,22 @@ Checking for updates...
 update.ps1 : Update failed: Updated 0 paths from the index
 ```
 
-**Cause**: The global clone at `C:\WBG\.compound-gpid` has an old version of `update.ps1` that crashes on PowerShell 5.1 before it can pull the fix.
+**Cause**: The global clone has an old version of `update.ps1` that crashes on PowerShell 5.1 before it can pull the fix.
 
-**Fix â€” run these two commands once in any terminal**:
+**Fix — run these two commands once in any terminal** (substitute your install path: `C:\WBG\.compound-gpid` or `$env:USERPROFILE\.compound-gpid`):
 ```powershell
-git -C "C:\WBG\.compound-gpid" checkout . 2>$null  # suppress stderr (PS5.1 stderr-to-error promotion)
-git -C "C:\WBG\.compound-gpid" pull --ff-only
+# Uncomment your install path:
+$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
+# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
+git -C $cg checkout . 2>$null              # suppress stderr (PS5.1 stderr-to-error promotion)
+git -C $cg pull --ff-only
 ```
 
 This manually updates the global clone. After that, `cg-update` works normally from all projects.
 
 > **If `pull --ff-only` fails** with `fatal: Not possible to fast-forward`, the global clone has an unexpected local commit. Fix it with:
 > ```powershell
-> git -C "C:\WBG\.compound-gpid" reset --hard origin/main
+> git -C $cg reset --hard origin/main
 > ```
 
 **Then run `cg-update` from each linked project** to apply any structural migrations:
@@ -51,22 +54,24 @@ Microsoft.PowerShell_profile.ps1 : Cannot dot-source this command because it was
 
 **Fix**: Re-install using the current approach (batch wrappers on PATH â€” no profile manipulation):
 ```powershell
-# Clone to C:\WBG (if not already there)
+# Clone to your chosen path (see Installation > Choose your install path)
 git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
 
 # Run the installer
 & "C:\WBG\.compound-gpid\install.ps1"
 
-# Restart your terminal
+# Restart VS Code / Positron and your terminal
 ```
 
 The installer automatically removes any old `$PROFILE` block from previous installs.
 
 ---
 
-## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path)
+## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path — local OneDrive machines only)
 
-If you previously installed to `$env:USERPROFILE\.compound-gpid`, you must clean that up before the new install works correctly. See the **[Upgrading from an old installation](installation.md#upgrading-from-an-old-installation)** section on the Installation page for the full four-step process.
+> **Remote server users**: `$env:USERPROFILE\.compound-gpid` is the correct path on a remote server — no migration needed. Just re-run `install.ps1`.
+
+If you are on a **local OneDrive machine** and previously installed to `$env:USERPROFILE\.compound-gpid`, you must migrate to `C:\WBG\.compound-gpid`. See the **[Upgrading from an old installation](installation.md#upgrading-from-an-old-installation)** section on the Installation page for the full four-step process.
 
 ---
 
