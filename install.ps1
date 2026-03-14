@@ -104,7 +104,7 @@ if (-not (Test-Path $binDir)) {
 $scripts = @("link", "unlink", "update")
 foreach ($script in $scripts) {
     $cmdPath = Join-Path $binDir "cg-$script.cmd"
-    $content  = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0..\scripts\$script.ps1\" %*`r`n"
+    $content  = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\$script.ps1`" %*`r`n"
     Set-Content -Path $cmdPath -Value $content -NoNewline
 }
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
