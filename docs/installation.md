@@ -1,0 +1,109 @@
+﻿# Installation
+
+This page covers installing Compound GPID on a new machine, linking it to a project, and upgrading from an older version.
+
+> **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
+
+---
+
+## Step 1 â€” Clone (once per machine)
+
+```powershell
+git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
+```
+
+## Step 2 â€” Install (once per machine)
+
+```powershell
+& "C:\WBG\.compound-gpid\install.ps1"
+```
+
+This creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers in `C:\WBG\.compound-gpid\bin\` and adds that directory to your PATH.
+
+> **After install**: restart your terminal for the PATH change to take effect.
+
+> **Execution policy**: if PowerShell blocks the script, run:
+> `powershell -ExecutionPolicy Bypass -File "C:\WBG\.compound-gpid\install.ps1"`
+
+## Step 3 â€” Link your project (once per project)
+
+From your project root:
+
+```powershell
+cg-link
+```
+
+This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and copies `copilot-instructions.md` with a management marker. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
+
+> **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
+> Settings â†’ System â†’ For developers â†’ Developer Mode â†’ On
+
+> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID â€” do not edit them directly. To customise `copilot-instructions.md`, remove the `<!-- compound-gpid:managed -->` marker at the top of the file; `cg-update` will then leave your version untouched.
+
+## Step 4 â€” Configure your project (once per project)
+
+Open your project in VS Code and run in Copilot Chat:
+
+```
+/cg-setup
+```
+
+This configures language preferences, project type, and review depth, and scaffolds the `.cg-docs/` directory.
+
+---
+
+## Updating
+
+From any terminal:
+
+```powershell
+cg-update
+```
+
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project â€” no per-project update step is needed.
+
+---
+
+## Upgrading from an old installation
+
+> **If you have an existing installation at `$env:USERPROFILE\.compound-gpid`** (the old default path from versions prior to 0.0.2), **you must uninstall it before installing the new version.** Skipping this step will leave a stale PATH entry and potentially a stale PowerShell profile block that conflicts with the new install.
+
+Follow the steps below **before** running Step 1 above.
+
+### Step A â€” Remove the old `$PROFILE` block
+
+Run `install.ps1` from the new location (Step 2) â€” it will remove the old profile block automatically. If you want to clean it up manually first:
+
+```powershell
+$p = Get-Content $PROFILE -Raw
+$p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", ""
+Set-Content $PROFILE $p.TrimEnd()
+```
+
+### Step B â€” Remove the old `bin\` directory from PATH
+
+> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead â€” it works in all language modes.
+
+```powershell
+$oldBin = "$env:USERPROFILE\.compound-gpid\bin"
+$currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
+    Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
+$newPath = ($currentPath.Trim() -split ';' |
+    Where-Object { $_ -and $_ -ne $oldBin }) -join ';'
+reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
+```
+
+### Step C â€” Delete the old clone
+
+```powershell
+Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
+```
+
+### Step D â€” Restart your terminal
+
+Restart your terminal to pick up the PATH change, then proceed with Steps 1â€“4 above.
+
+---
+
+> **Having trouble?** Check the [Troubleshooting](troubleshooting.md) page for known issues and fixes.
+
