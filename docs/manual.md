@@ -266,6 +266,34 @@ git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
 ```
 The installer automatically removes any old `$PROFILE` block from previous installs.
 
+### Removing an old installation from `$env:USERPROFILE\.compound-gpid`
+
+If you previously cloned to `$env:USERPROFILE\.compound-gpid` (the old default path), clean it up after migrating to `C:\WBG\.compound-gpid`:
+
+**Step 1 — Remove the old `$PROFILE` block** (if `install.ps1` hasn't already done this automatically):
+```powershell
+$p = Get-Content $PROFILE -Raw
+$p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", ""
+Set-Content $PROFILE $p.TrimEnd()
+```
+
+**Step 2 — Remove the old `bin\` directory from PATH** (if it was added):
+```powershell
+$oldBin = "$env:USERPROFILE\.compound-gpid\bin"
+$path   = [Environment]::GetEnvironmentVariable('PATH', 'User')
+$newPath = ($path -split ';' | Where-Object { $_ -ne $oldBin }) -join ';'
+[Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
+```
+
+**Step 3 — Delete the old clone**:
+```powershell
+Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
+```
+
+**Step 4 — Restart your terminal** to pick up the PATH change.
+
+> If you already ran `install.ps1` from `C:\WBG\.compound-gpid`, Step 1 was done automatically. You only need Steps 2–4.
+
 ## Output Locations
 
 ```
