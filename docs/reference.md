@@ -10,7 +10,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
-| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` â€” enables all Copilot prompts in this project |
+| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` - enables all Copilot prompts in this project |
 | `cg-unlink` | Project root | Remove CG-managed junctions (existing `.github/` content is preserved) |
 | `cg-update` | Anywhere | Reset accidental changes and pull latest updates (applies to all linked projects) |
 
@@ -76,24 +76,24 @@ After linking and configuring, your project will contain:
 
 ```
 your-project/
-â”œâ”€â”€ .github/
-â”‚   â”œâ”€â”€ prompts/              â†’ junction to C:\WBG\.compound-gpid\.github\prompts\
-â”‚   â”œâ”€â”€ skills/               â†’ junction to C:\WBG\.compound-gpid\.github\skills\
-â”‚   â”œâ”€â”€ agents/               â†’ junction to C:\WBG\.compound-gpid\.github\agents\
-â”‚   â”œâ”€â”€ instructions/         â†’ junction to C:\WBG\.compound-gpid\.github\instructions\
-â”‚   â”œâ”€â”€ copilot-instructions.md  # copied from global clone (managed marker)
-â”‚   â””â”€â”€ workflows/            # your own GitHub Actions (untouched by cg-link)
-â”œâ”€â”€ compound-gpid.local.md    # Your project config (gitignored)
-â””â”€â”€ .cg-docs/                 # Compound GPID knowledge base (gitignored)
-    â”œâ”€â”€ brainstorms/          # /cg-brainstorm outputs
-    â”œâ”€â”€ plans/                # /cg-plan outputs
-    â””â”€â”€ solutions/            # /cg-compound outputs
-        â”œâ”€â”€ build-errors/
-        â”œâ”€â”€ performance-issues/
-        â”œâ”€â”€ testing-patterns/
-        â”œâ”€â”€ data-quality/
-        â”œâ”€â”€ environment-issues/
-        â””â”€â”€ git-workflows/
+├── .github/
+│   ├── prompts/              → junction to C:\WBG\.compound-gpid\.github\prompts\
+│   ├── skills/               → junction to C:\WBG\.compound-gpid\.github\skills\
+│   ├── agents/               → junction to C:\WBG\.compound-gpid\.github\agents\
+│   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
+│   ├── copilot-instructions.md  # copied from global clone (managed marker)
+│   └── workflows/            # your own GitHub Actions (untouched by cg-link)
+├── compound-gpid.local.md    # Your project config (gitignored)
+└── .cg-docs/                 # Compound GPID knowledge base (gitignored)
+    ├── brainstorms/          # /cg-brainstorm outputs
+    ├── plans/                # /cg-plan outputs
+    └── solutions/            # /cg-compound outputs
+        ├── build-errors/
+        ├── performance-issues/
+        ├── testing-patterns/
+        ├── data-quality/
+        ├── environment-issues/
+        └── git-workflows/
 ```
 
 ---

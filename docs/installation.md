@@ -27,7 +27,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
 git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compound-gpid"
 ```
 
-## Step 2 â€” Install (once per machine)
+## Step 2 - Install (once per machine)
 
 **Local machine (OneDrive):**
 ```powershell
@@ -48,7 +48,7 @@ This creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers in the `b
 > **Execution policy**: if PowerShell blocks the script, run:
 > `powershell -ExecutionPolicy Bypass -File "<your-install-path>\install.ps1"`
 
-## Step 3 â€” Link your project (once per project)
+## Step 3 - Link your project (once per project)
 
 From your project root:
 
@@ -63,11 +63,11 @@ This creates **per-subdirectory junctions** inside `.github/` for the Compound G
 > Without a restart, `/cg-setup` and other prompts will not be available.
 
 > **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
-> Settings â†’ System â†’ For developers â†’ Developer Mode â†’ On
+> Settings → System → For developers → Developer Mode → On
 
-> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID â€” do not edit them directly. To customise `copilot-instructions.md`, remove the `<!-- compound-gpid:managed -->` marker at the top of the file; `cg-update` will then leave your version untouched.
+> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID - do not edit them directly. To customise `copilot-instructions.md`, remove the `<!-- compound-gpid:managed -->` marker at the top of the file; `cg-update` will then leave your version untouched.
 
-## Step 4 â€” Configure your project (once per project)
+## Step 4 - Configure your project (once per project)
 
 Open your project in VS Code and run in Copilot Chat:
 
@@ -87,7 +87,7 @@ From any terminal:
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project â€” no per-project update step is needed.
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project - no per-project update step is needed.
 
 ---
 
@@ -99,9 +99,9 @@ This resets any accidental local changes and then pulls the latest version. Beca
 
 Follow the steps below **before** running Step 1 above.
 
-### Step A â€” Remove the old `$PROFILE` block
+### Step A - Remove the old `$PROFILE` block
 
-Run `install.ps1` from the new location (Step 2) â€” it will remove the old profile block automatically. If you want to clean it up manually first:
+Run `install.ps1` from the new location (Step 2) - it will remove the old profile block automatically. If you want to clean it up manually first:
 
 ```powershell
 $p = Get-Content $PROFILE -Raw
@@ -109,9 +109,9 @@ $p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", 
 Set-Content $PROFILE $p.TrimEnd()
 ```
 
-### Step B â€” Remove the old `bin\` directory from PATH
+### Step B - Remove the old `bin\` directory from PATH
 
-> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead â€” it works in all language modes.
+> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead - it works in all language modes.
 
 ```powershell
 $oldBin = "$env:USERPROFILE\.compound-gpid\bin"
@@ -122,7 +122,7 @@ $newPath = ($currentPath.Trim() -split ';' |
 reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
 ```
 
-### Step C â€” Delete the old clone
+### Step C - Delete the old clone
 
 ```powershell
 Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
