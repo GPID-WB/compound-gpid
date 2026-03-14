@@ -23,16 +23,14 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 
 ## Documentation
 
-**→ [Read the full documentation in the Wiki](https://github.com/GPID-WB/compound-gpid/wiki)**
+**→ [Read the full documentation in `docs/`](docs/manual.md)**
 
-| Wiki Page | Contents |
-|-----------|---------|
-| [Installation](https://github.com/GPID-WB/compound-gpid/wiki/Installation) | Install, link, configure, and upgrade from an old version |
-| [Workflow](https://github.com/GPID-WB/compound-gpid/wiki/Workflow) | The Brainstorm → Plan → Work → Review → Compound loop |
-| [Reference](https://github.com/GPID-WB/compound-gpid/wiki/Reference) | Commands, agents, skills, configuration, file structure |
-| [Troubleshooting](https://github.com/GPID-WB/compound-gpid/wiki/Troubleshooting) | Known issues and step-by-step fixes |
-
-> The wiki is the primary documentation. The `docs/` folder in this repo mirrors the same content for offline reference.
+| Page | Contents |
+|------|----------|
+| [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
+| [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
+| [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
+| [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
 
 ## License
 

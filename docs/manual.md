@@ -1,6 +1,6 @@
-﻿# Compound GPID  Documentation
+﻿# Compound GPID — Documentation
 
-> **Primary documentation is in the [GitHub Wiki](https://github.com/GPID-WB/compound-gpid/wiki).** The files in this `docs/` folder mirror the wiki content for offline reference and are kept in sync with each release.
+All documentation lives here in `docs/`. Start with [Installation](installation.md) if you are new, or pick a page from the table below.
 
 ## Pages
 
