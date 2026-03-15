@@ -13,9 +13,9 @@ Focus: Coding best practices, testing, documentation, version control, system st
 - [x] Compound docs skill (`cg-skill-compound-docs`)
 - [x] Setup skill (`cg-skill-setup`) with review depth tiers
 - [x] Team-wide coding standards via `copilot-instructions.md`
-- [ ] Migrate knowledge folder from `docs/` → `.cg-docs/` to avoid project namespace collisions
-- [ ] `/cg-resume` prompt — pick up interrupted work by scanning in-progress plans and recent git history
-- [ ] Structural schema versioning — track `cg-schema-version` per project so `cg-update` knows which migrations to apply
+- [x] Migrate knowledge folder from `docs/` → `.cg-docs/` to avoid project namespace collisions
+- [x] `/cg-resume` prompt — pick up interrupted work by scanning in-progress plans and recent git history
+- [x] Structural schema versioning — track `cg-schema-version` per project so `cg-update` knows which migrations to apply
 
 ## Phase 2: Analytical Quality
 
