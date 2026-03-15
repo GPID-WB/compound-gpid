@@ -9,12 +9,12 @@ This page explains the Compound GPID workflow loop and how to use each step.
 ## The Loop
 
 ```
-Brainstorm â†’ Plan â†’ Work â†’ Review â†’ Compound
-          â†‘
+Brainstorm → Plan → Work → Review → Compound
+          ↑
        Resume  (re-enter an interrupted session at any step)
 ```
 
-All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** â€” invoke a prompt, answer its questions when asked, and let it run to completion.
+All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** - invoke a prompt, answer its questions when asked, and let it run to completion.
 
 ---
 
@@ -24,7 +24,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: Requirements are fuzzy, you're not sure what to build, or multiple approaches are possible.
 
-**What happens**: The prompt scans your project, asks clarifying questions one at a time, and proposes 2â€“3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`.
+**What happens**: The prompt scans your project, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`.
 
 **Output**: `.cg-docs/brainstorms/YYYY-MM-DD-<title>.md`
 
@@ -44,7 +44,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After a plan exists.
 
-**What happens**: The prompt loads the most recent plan and implements it step by step â€” writing code, tests, and documentation. It checks against acceptance criteria and suggests commit messages.
+**What happens**: The prompt loads the most recent plan and implements it step by step - writing code, tests, and documentation. It checks against acceptance criteria and suggests commit messages.
 
 **Output**: Code, tests, documentation changes.
 
@@ -92,7 +92,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 |--------|---------|--------|--------|
 | **What they are** | Workflow commands | Specialized reviewers | Reference knowledge |
 | **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. | Dispatched by `/cg-review` | Referenced by prompts/agents |
-| **Interactive?** | No â€” follow the workflow | No â€” automated | No (passive by design) |
+| **Interactive?** | No - follow the workflow | No - automated | No (passive by design) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
 | **Produce output?** | Yes (docs, code, reviews) | Yes (review findings) | No (consumed by others) |

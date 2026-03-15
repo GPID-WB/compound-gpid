@@ -52,7 +52,7 @@ Microsoft.PowerShell_profile.ps1 : Cannot dot-source this command because it was
 
 **Cause**: Your organization enforces Constrained Language Mode (CLM) via AppLocker or Windows Defender Application Control. OneDrive has redirected your Documents folder to a path CLM treats as untrusted, blocking profile dot-sourcing.
 
-**Fix**: Re-install using the current approach (batch wrappers on PATH â€” no profile manipulation):
+**Fix**: Re-install using the current approach (batch wrappers on PATH - no profile manipulation):
 ```powershell
 # Clone to your chosen path (see Installation > Choose your install path)
 git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
@@ -80,7 +80,7 @@ If you are on a **local OneDrive machine** and previously installed to `$env:USE
 **Cause**: Windows requires Developer Mode to create directory junctions without admin rights on some configurations.
 
 **Fix**: Enable Developer Mode:
-Settings â†’ System â†’ For developers â†’ Developer Mode â†’ On
+Settings → System → For developers → Developer Mode → On
 
 Then retry `cg-link` from your project root.
 
