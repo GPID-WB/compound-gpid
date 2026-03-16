@@ -10,8 +10,8 @@ This page explains the Compound GPID workflow loop and how to use each step.
 
 ```
 Brainstorm → Plan → Work → Review → Compound
-          ↑
-       Resume  (re-enter an interrupted session at any step)
+          ↑          ↑
+       Resume     Fix Bug  (enter at any stage when a bug is found)
 ```
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** - invoke a prompt, answer its questions when asked, and let it run to completion.
@@ -50,7 +50,17 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-### 4. Review (`/cg-review`)
+### 4. Fix Bug (`/cg-fixbug`)
+
+**When**: After identifying a bug — during work, review, or standalone.
+
+**What happens**: The prompt walks through five steps: intake (describe the bug and search past bugs), reproduce (write a failing test — hard stop until confirmed), diagnose (root-cause hypothesis), fix (implement and verify — hard stop until confirmed), and document (write a verified bug report).
+
+**Output**: `.cg-docs/solutions/bugs/YYYY-MM-DD-<title>.md`
+
+---
+
+### 5. Review (`/cg-review`)
 
 **When**: After implementing changes.
 
@@ -66,7 +76,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-### 5. Compound (`/cg-compound`)
+### 6. Compound (`/cg-compound`)
 
 **When**: After solving a non-trivial problem.
 
@@ -76,7 +86,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-### 6. Resume (`/cg-resume`)
+### 7. Resume (`/cg-resume`)
 
 **When**: At the start of a session when you have interrupted work.
 

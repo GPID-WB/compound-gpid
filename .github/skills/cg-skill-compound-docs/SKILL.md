@@ -16,6 +16,7 @@ When you solve a non-trivial problem, `/cg-compound` captures it as a structured
 | Category | Directory | Use When |
 |----------|-----------|----------|
 | Build Errors | `.cg-docs/solutions/build-errors/` | Build failures, compilation, package installation |
+| Bugs | `.cg-docs/solutions/bugs/` | Bug reproduction, diagnosis, fix verification |
 | Performance Issues | `.cg-docs/solutions/performance-issues/` | Slow code, memory, optimization |
 | Testing Patterns | `.cg-docs/solutions/testing-patterns/` | Testing strategies, fixtures, mocking |
 | Data Quality | `.cg-docs/solutions/data-quality/` | Validation, cleaning, type handling |

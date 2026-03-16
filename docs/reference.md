@@ -24,6 +24,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
+| `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify, document |
 | `/cg-review` | Mixed | Multi-agent code review with P1/P2/P3 findings |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Sonnet 4.6 | Load context and pick up interrupted work |
@@ -89,6 +90,7 @@ your-project/
     ├── plans/                # /cg-plan outputs
     └── solutions/            # /cg-compound outputs
         ├── build-errors/
+        ├── bugs/
         ├── performance-issues/
         ├── testing-patterns/
         ├── data-quality/
