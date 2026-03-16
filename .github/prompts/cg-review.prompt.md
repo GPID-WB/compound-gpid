@@ -100,5 +100,6 @@ After triage:
 ### Next Steps
 - If issues were fixed: Run `/cg-review light` to verify fixes
 - If solutions were found: Run `/cg-compound` to capture learnings
+- If this review surfaced a bug that was fixed: Run `/cg-fixbug` to document it with a verified test
 - If all clean: Ready to merge
 ```

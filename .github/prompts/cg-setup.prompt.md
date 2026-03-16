@@ -100,6 +100,8 @@ Create the following directories and `.gitkeep` files if they do not already exi
 └── solutions/
     ├── build-errors/
     │   └── .gitkeep
+    ├── bugs/
+    │   └── .gitkeep
     ├── data-quality/
     │   └── .gitkeep
     ├── environment-issues/
@@ -149,6 +151,7 @@ compound-gpid.local.md
 - `/cg-brainstorm` — Clarify fuzzy requirements through guided Q&A
 - `/cg-plan`       — Research the codebase and create an implementation plan
 - `/cg-work`       — Implement a plan step by step
+- `/cg-fixbug`     — Structured bug-fix: reproduce, diagnose, fix, verify, document
 - `/cg-review`     — Run multi-agent code review
 - `/cg-compound`   — Capture a solved problem as reusable knowledge
 
@@ -180,6 +183,7 @@ or where individual subdirectories were deleted.
 .cg-docs/brainstorms/
 .cg-docs/plans/
 .cg-docs/solutions/build-errors/
+.cg-docs/solutions/bugs/
 .cg-docs/solutions/data-quality/
 .cg-docs/solutions/environment-issues/
 .cg-docs/solutions/git-workflows/
@@ -222,6 +226,7 @@ Present a structured summary to orient Copilot and the user:
 - ...
 
 **Captured Solutions** (<count> across <N> categories):
+- bugs: <count>
 - build-errors: <count>
 - data-quality: <count>
 - environment-issues: <count>

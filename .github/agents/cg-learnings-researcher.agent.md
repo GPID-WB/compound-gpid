@@ -19,6 +19,7 @@ Search these directories in order:
 
 1. **`.cg-docs/solutions/`** — Previously solved problems, categorized by type:
    - `build-errors/` — Build and installation fixes
+   - `bugs/` — Bug reproductions, diagnoses, and verified fixes
    - `performance-issues/` — Optimization solutions
    - `testing-patterns/` — Testing strategies and patterns
    - `data-quality/` — Data validation and cleaning solutions

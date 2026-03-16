@@ -30,6 +30,7 @@ Classify the solution into one of these categories:
 
 | Category | Use When |
 |----------|----------|
+| `bugs` | Bug reproductions, diagnoses, and verified fixes (prefer `/cg-fixbug` for full arc) |
 | `build-errors` | Build failures, compilation issues, package installation problems |
 | `performance-issues` | Slow code, memory problems, optimization techniques |
 | `testing-patterns` | Testing strategies, fixture patterns, mocking approaches |
