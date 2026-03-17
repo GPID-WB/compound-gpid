@@ -1,6 +1,6 @@
 ---
 name: cg-skill-python-best-practices
-description: "Best practices for Python development on the GPID technical team. Covers polars for data manipulation, FastAPI and pydantic for APIs, pytest for testing, loguru for logging, type hints, async patterns, performance profiling, and uv for environment management. ALWAYS load this skill when writing, reviewing, or debugging Python code — includes package selection guidance, anti-patterns, and API development conventions. Consumed by the cg-code-quality, cg-performance, and cg-architecture agents whenever .py files are present."
+description: "Best practices for Python development on the GPID technical team. Covers polars for data manipulation (never pandas for new code), FastAPI and pydantic for REST APIs, pytest for testing, loguru for structured logging, type hints, async patterns, performance profiling with memray and cProfile, and uv for environment management. ALWAYS load this skill when: (1) any .py file is open or being created, (2) the code contains print() or import logging — both must be replaced with loguru, (3) polars .apply() or .map_elements() is used — replace with native expressions, (4) a FastAPI endpoint, pydantic model, or async function is being written. Includes package selection guidance (when to use polars vs numpy, plotnine vs seaborn, FastAPI vs Flask), anti-patterns catalog, and API development conventions. Consumed by cg-code-quality, cg-performance, and cg-architecture agents on .py files."
 ---
 
 # Python Best Practices

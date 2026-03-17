@@ -294,7 +294,9 @@ combined = pl.concat(frames, how="diagonal_relaxed").collect()
 
 ## Performance Profiling
 
-Profile before optimizing. Intuition is wrong; measurement is right.
+**Profile before optimizing.** Intuition is wrong; measurement is right.
+Run `memray` or `cProfile` before making any performance change.
+Only then look at expressions vs .map_elements().
 
 ```python
 import time
