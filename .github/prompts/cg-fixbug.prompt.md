@@ -38,7 +38,7 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
 ### Step 2: Reproduce — HARD STOP
 
 1. Write a failing test that demonstrates the bug.
-   - R: use `testthat`. Python: use `pytest`. PowerShell: use Pester.
+   - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements in a validation do-file. PowerShell: use Pester.
    - The test **must fail on the current code** before any fix is applied.
    - Place the test in the appropriate test file or create a new one.
 
@@ -71,6 +71,7 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
 1. Implement the fix based on the confirmed diagnosis. Follow project conventions:
    - R: follow `.github/instructions/r.instructions.md` style.
    - Python: follow `.github/instructions/python.instructions.md` style.
+   - Stata: follow `.github/instructions/stata.instructions.md` style and load `cg-skill-stata-core`.
 
 2. **STOP. Tell the user exactly this:**
 
@@ -94,7 +95,7 @@ date: YYYY-MM-DD
 title: "<descriptive title>"
 category: "bugs"
 type: "bug"
-language: "<R|Python|both>"
+language: "<R|Python|Stata|both>"
 tags: [<searchable tags>]
 root-cause: "<one-line root cause>"
 severity: "<P1|P2|P3>"

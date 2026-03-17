@@ -20,7 +20,7 @@ When you solve a non-trivial problem, `/cg-compound` captures it as a structured
 | Performance Issues | `.cg-docs/solutions/performance-issues/` | Slow code, memory, optimization |
 | Testing Patterns | `.cg-docs/solutions/testing-patterns/` | Testing strategies, fixtures, mocking |
 | Data Quality | `.cg-docs/solutions/data-quality/` | Validation, cleaning, type handling |
-| Environment Issues | `.cg-docs/solutions/environment-issues/` | R/Python environment, dependencies |
+| Environment Issues | `.cg-docs/solutions/environment-issues/` | R/Python/Stata environment, dependencies |
 | Git Workflows | `.cg-docs/solutions/git-workflows/` | Git operations, branching, CI/CD |
 
 ## Workflows

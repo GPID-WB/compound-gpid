@@ -13,6 +13,8 @@ Focus: Coding best practices, testing, documentation, version control, system st
 - [x] Compound docs skill (`cg-skill-compound-docs`)
 - [x] Setup skill (`cg-skill-setup`) with review depth tiers
 - [x] Team-wide coding standards via `copilot-instructions.md`
+- [x] Stata core skill (`cg-skill-stata-core`) with macro system, program scoping, data management, and reproducibility
+- [x] Trilingual R/Python/Stata support across all agents and prompts
 - [x] Migrate knowledge folder from `docs/` → `.cg-docs/` to avoid project namespace collisions
 - [x] `/cg-resume` prompt — pick up interrupted work by scanning in-progress plans and recent git history
 - [x] Structural schema versioning — track `cg-schema-version` per project so `cg-update` knows which migrations to apply
@@ -50,6 +52,7 @@ Focus: Development economics domain expertise.
 
 - [ ] Survey methodology skill (sampling, weights, design effects)
 - [ ] Poverty measurement skill (poverty lines, PPP, inequality indices)
+- [ ] Stata research skill (`cg-skill-stata-research`) — survey econometrics, welfare aggregates, poverty measurement, PPP conversion
 - [ ] Spatial analysis skill (geographic data, mapping, spatial joins)
 - [ ] Microdata handling skill (anonymization, harmonization)
 - [ ] World Bank data API skill (WDI, microdata catalog)

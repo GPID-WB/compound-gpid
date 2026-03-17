@@ -5,9 +5,10 @@ You are working in a data science project maintained by the DECDG team at the Wo
 ## Language Preferences
 
 - Check `compound-gpid.local.md` in the project root for the user's preferred language(s).
-- Default: R and Python are both acceptable. Ask the user if unclear.
+- Default: R, Python, and Stata are all acceptable. Ask the user if unclear.
 - R style: `data.table` for data manipulation, `ggplot2` for visualization.
 - Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
+- Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-core` when writing or reviewing `.do`/`.ado` files.
 
 ## Coding Standards
 
@@ -23,19 +24,19 @@ You are working in a data science project maintained by the DECDG team at the Wo
 ### Code Organization
 - Separate data loading, processing, analysis, and visualization into distinct modules/scripts.
 - Keep scripts under 300 lines. Split larger files by responsibility.
-- Use consistent project structure (see `cg-skill-r-best-practices` or `cg-skill-python-best-practices` skills).
+- Use consistent project structure (see `cg-skill-r-best-practices`, `cg-skill-python-best-practices`, or `cg-skill-stata-core` skills).
 
 ## Testing Requirements
 
 - All functions must have corresponding tests.
-- R: use `testthat`. Python: use `pytest`.
+- R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
 - Tests should cover: normal cases, edge cases, error conditions.
 - Test data should be minimal and self-contained (no dependency on external files).
 - Aim for meaningful coverage, not 100% line coverage.
 
 ## Documentation Standards
 
-- Every function must have documentation (roxygen2 for R, docstrings for Python).
+- Every function must have documentation (roxygen2 for R, docstrings for Python, `*!` version comments and header blocks for Stata `.ado` files).
 - Document parameters, return values, and provide at least one example.
 - Every project must have a README.md explaining: purpose, setup, usage, data sources.
 - Complex logic should have inline comments explaining *why*, not *what*.
@@ -50,7 +51,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - **Branching**: Use feature branches off `main`. Name them `type/short-description`.
   - Example: `feat/poverty-decomposition`, `fix/missing-weights`
 - **Never commit**: data files (unless small reference data), credentials, API keys, `.Rhistory`, `__pycache__`, `.DS_Store`.
-- **Always commit**: lockfiles (`renv.lock`, `poetry.lock`, `uv.lock`), configuration files, documentation.
+- **Always commit**: lockfiles (`renv.lock`, `poetry.lock`, `uv.lock`), `code/ado/` (Stata package cache via `repado`), configuration files, documentation.
 
 ## Review Depth Tiers
 

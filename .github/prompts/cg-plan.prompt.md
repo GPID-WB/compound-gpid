@@ -43,7 +43,7 @@ date: YYYY-MM-DD
 title: "<descriptive title>"
 status: active
 brainstorm: "<link to brainstorm if applicable>"
-language: "<R|Python|both>"
+language: "<R|Python|Stata|both>"
 estimated-effort: "<small|medium|large>"
 tags: [<relevant tags>]
 ---
@@ -71,7 +71,7 @@ tags: [<relevant tags>]
 <Overall testing approach, what kinds of tests, edge cases to cover>
 
 ## Documentation Checklist
-- [ ] Function documentation (roxygen2/docstrings)
+- [ ] Function documentation (roxygen2/docstrings/do-file headers)
 - [ ] README updates
 - [ ] Inline comments for complex logic
 - [ ] Usage examples

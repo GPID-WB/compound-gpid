@@ -37,9 +37,9 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 |-------|-------|-------|
 | `cg-code-quality` | Style, linting, DRY, naming | Haiku 4.5 |
 | `cg-testing` | Coverage, edge cases, test quality | Haiku 4.5 |
-| `cg-documentation` | roxygen2/docstrings, README, comments | Haiku 4.5 |
+| `cg-documentation` | roxygen2/docstrings/do-file headers, README, comments | Haiku 4.5 |
 | `cg-version-control` | Commit hygiene, branching, secrets | Haiku 4.5 |
-| `cg-reproducibility` | Lockfiles, relative paths, seeds | Haiku 4.5 |
+| `cg-reproducibility` | Lockfiles, relative paths, seeds, repkit | Haiku 4.5 |
 | `cg-performance` | Vectorization, memory, algorithm complexity | Sonnet 4.6 |
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
@@ -54,6 +54,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-skill-setup` | Project configuration wizard |
 | `cg-skill-r-best-practices` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv` |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
+| `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns, do-file conventions |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
