@@ -54,7 +54,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-skill-setup` | Project configuration wizard |
 | `cg-skill-r-best-practices` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv` |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
-| `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns |
+| `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns, do-file conventions |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |

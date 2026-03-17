@@ -31,14 +31,14 @@ applyTo: "**/*.do,**/*.ado"
 
 - Every do-file starts with `version 17` (or appropriate version), `set more off`, and `clear all`.
 - Use `repado` to pin package versions into a project-local `code/ado/` folder.
+- Set `set seed` before any random process (`bootstrap`, `simulate`, `sample`, `splitsample`).
 - Run `reprun` before every merge request to detect non-reproducible results.
 - Run `lint` on all do-files. Use `///` for continuation lines, never `#delimit ;`.
-- Set `set seed` before any random process (`bootstrap`, `simulate`, `sample`, `splitsample`).
 
 ## Do-file Organization
 
 - Every do-file has a standard header block: project, filename, date, author, purpose, inputs, outputs.
-- Open a log at the start: `capture log close` then `log using "file.log", replace text`.
+- Open a log at the start: `capture log close` then `` log using `"${gpid_root}/output/logs/${dofile_name}.log"', replace text `` (use a global-rooted path, not a bare filename).
 - Use section delimiters: `* ---- 1. Section name -----`.
 - Keep do-files under 300 lines. Split by responsibility.
 - Master do-file contains zero analysis code — only globals, `repado`, and `do` calls.

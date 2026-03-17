@@ -70,13 +70,13 @@ replace welfare = welfare * ppp_factor
 * RIGHT — document units before and after every transformation
 * welfare is currently: monthly per-capita consumption, LCU nominal
 replace welfare = welfare * 12
-// welfare is now: annual per-capita consumption, LCU nominal
+* welfare is now: annual per-capita consumption, LCU nominal
 
 replace welfare = welfare / cpi_2017
-// welfare is now: annual per-capita consumption, LCU 2017 real
+* welfare is now: annual per-capita consumption, LCU 2017 real
 
 replace welfare = welfare / ppp_2017
-// welfare is now: annual per-capita consumption, 2017 PPP USD
+* welfare is now: annual per-capita consumption, 2017 PPP USD
 ```
 
 **Rule:** Every `replace` that transforms units must have a before/after
@@ -132,8 +132,8 @@ drop _merge
 
 * When unmatched observations are intentional and expected
 merge 1:1 hhid using "data/supplemental.dta", keep(1 3) nogenerate
-// keep(1 3) documents that master-only observations are intentionally kept
-// nogenerate avoids creating _merge when you've already decided what to keep
+* keep(1 3) documents that master-only observations are intentionally kept
+* nogenerate avoids creating _merge when you've already decided what to keep
 ```
 
 ---
@@ -181,7 +181,7 @@ local pov_line    2.15
 local survey_year 2022
 
 * The only acceptable global: root paths, in master.do only
-// master.do:
+* master.do:
 global gpid_root "C:/WBG/gpid-analysis"
 global gpid_data "${gpid_root}/data"
 ```
@@ -226,7 +226,7 @@ log using "output/analysis.log", append    // add to existing log (for increment
 * Best practice: close any open log first
 capture log close
 log using "output/analysis.log", replace text
-// ... do-file body ...
+* ... do-file body ...
 log close
 ```
 
@@ -256,7 +256,7 @@ foreach v of varlist welfare urban education region {
 
 foreach year in 2010 2015 2018 2022 {
     use "data/hh_`year'.dta", clear
-    // ...
+    * ...
 }
 
 * forvalues IS correct for sequential integer loops
