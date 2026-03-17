@@ -164,7 +164,9 @@ class YearRangeRequest(BaseModel):
 
 ```python
 # src/gpid_api/routers/poverty.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, status
 from loguru import logger
 
 from gpid_api.dependencies import get_ppp_data, require_api_key
@@ -189,25 +191,14 @@ async def estimate_poverty(
     """Compute headcount ratio, poverty gap, and severity for a country-year."""
     logger.info("Poverty estimate request", country=request.country, year=request.year)
 
-    try:
-        result = poverty_calc.compute_fgt(
-            country=request.country,
-            year=request.year,
-            poverty_line=request.poverty_line,
-            ppp_data=ppp_data,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e),
-        )
-    except LookupError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        )
+    # Let domain exceptions propagate to app-level exception handlers (see §8)
+    result = poverty_calc.compute_fgt(
+        country=request.country,
+        year=request.year,
+        poverty_line=request.poverty_line,
+        ppp_data=ppp_data,
+    )
 
-    from uuid import uuid4
     return PovertyResponse(data=result, request_id=str(uuid4()))
 
 
@@ -222,7 +213,7 @@ async def list_countries() -> list[str]:
 
 ```python
 # src/gpid_api/dependencies.py
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import APIKeyHeader
 
 from gpid_api.config import settings

@@ -225,7 +225,10 @@ def suppress_logging():
 ## Async Endpoint Testing
 
 For async FastAPI endpoints, configure `pytest-asyncio` and use
-`httpx.AsyncClient` for a proper async test transport:
+`httpx.AsyncClient` with `httpx.ASGITransport` for a proper async test transport.
+
+> **Requirement**: `pytest-asyncio>=0.23` must be installed as a dev dependency
+> (see [Project Setup](project-setup.md)) and `asyncio_mode = "auto"` set in `pyproject.toml`.
 
 In `pyproject.toml`:
 ```toml
@@ -242,7 +245,10 @@ from your_api.main import create_app
 @pytest.fixture
 async def async_client():
     app = create_app()
-    async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app),
+        base_url="http://test",
+    ) as client:
         yield client
 
 
