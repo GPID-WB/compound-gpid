@@ -107,11 +107,24 @@ line-length = 88
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes (undefined names, unused imports)
+    "I",    # isort (import ordering)
+    "W",    # pycodestyle warnings
+    "UP",   # pyupgrade (rewrites to modern Python syntax — can be surprising)
+    "B",    # flake8-bugbear (opinionated anti-patterns)
+    "SIM",  # flake8-simplify
+]
 ignore = ["E501"]  # line length handled by formatter
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"   # upgrade to "strict" for published packages
+include = ["src"]
 ```
 
 ## pyproject.toml — FastAPI Project
@@ -142,6 +155,51 @@ dev = [
 testpaths = ["tests"]
 asyncio_mode = "auto"        # required for async tests
 addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "W",    # pycodestyle warnings
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+include = ["src"]
+```
+
+---
+
+## Lockfile and Reproducibility
+
+**Always commit `uv.lock` to version control.** This ensures every team member
+and CI pipeline uses identical package versions. Never add `uv.lock` to
+`.gitignore`.
+
+For stochastic analyses, set random seeds explicitly to ensure reproducibility:
+
+```python
+import random
+import numpy as np
+
+# Set at the entry point of each analysis script
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)   # legacy API; prefer Generator for new code:
+rng = np.random.default_rng(SEED)
 ```
 
 ---
@@ -165,6 +223,9 @@ uv add --dev pytest pytest-asyncio
 
 # Sync environment (installs from uv.lock)
 uv sync
+
+# In CI/CD — use --frozen to prevent accidental lockfile updates
+uv sync --frozen
 
 # Run commands within the venv
 uv run pytest
@@ -190,6 +251,7 @@ build/
 # Virtual environments
 .venv/
 venv/
+# DO NOT ignore uv.lock — commit it for reproducibility
 
 # IDE
 .vscode/

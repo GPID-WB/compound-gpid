@@ -265,6 +265,36 @@ def compute_poverty_rate(
     if df.height < 100:
         raise InsufficientSampleError(n=df.height, minimum=100)
 
+    # Check weight quality — null or non-positive weights silently corrupt the rate
+    null_weights = df[weight_col].null_count()
+    if null_weights > 0:
+        raise DataQualityError(
+            f"Weight column {weight_col!r} contains {null_weights} null values",
+            n_failing=null_weights,
+        )
+    if not (df[weight_col] > 0).all():
+        n_bad = (df[weight_col] <= 0).sum()
+        raise DataQualityError(
+            f"Weight column {weight_col!r} has non-positive values",
+            n_failing=n_bad,
+        )
+
+    # Drop null welfare rows explicitly before computing
+    # null welfare ≠ zero consumption; silently excluding from numerator but not
+    # denominator would understate the poverty rate
+    n_null_welfare = df[welfare_col].null_count()
+    if n_null_welfare > 0:
+        dropped_weight_share = (
+            df.filter(pl.col(welfare_col).is_null())[weight_col].sum()
+            / df[weight_col].sum()
+        )
+        logger.warning(
+            "Dropping null welfare rows before poverty computation",
+            n_dropped=n_null_welfare,
+            dropped_weight_share=round(dropped_weight_share, 4),
+        )
+        df = df.drop_nulls(subset=[welfare_col])
+
     # Compute
     poor = df.filter(pl.col(welfare_col) < poverty_line)
     rate = poor[weight_col].sum() / df[weight_col].sum()
@@ -328,7 +358,7 @@ def timed(fn):
         start = time.perf_counter()
         result = fn(*args, **kwargs)
         elapsed = time.perf_counter() - start
-        logger.debug(f"{fn.__name__} completed", elapsed_ms=round(elapsed * 1000, 1))
+        logger.debug("function completed", name=fn.__name__, elapsed_ms=round(elapsed * 1000, 1))
         return result
 
     return wrapper

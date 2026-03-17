@@ -7,6 +7,8 @@
 | Read CSV | `pl.read_csv("file.csv")` |
 | Read Parquet | `pl.read_parquet("file.parquet")` |
 | Lazy read | `pl.scan_csv("file.csv")` |
+| Write CSV | `df.write_csv("file.csv")` |
+| Write Parquet | `df.write_parquet("file.parquet")` |
 | Select columns | `df.select("a", "b")` |
 | Filter rows | `df.filter(pl.col("x") > 5)` |
 | Add column | `df.with_columns(pl.col("x").alias("y"))` |
@@ -15,8 +17,13 @@
 | Sort | `df.sort("col", descending=True)` |
 | Group + agg | `df.group_by("g").agg(pl.col("x").mean())` |
 | Unique rows | `df.unique(subset=["key"])` |
+| Sample rows | `df.sample(n=100)` or `df.sample(fraction=0.1)` |
+| Head / tail | `df.head(10)` / `df.tail(10)` |
+| Explode lists | `df.explode("list_col")` |
+| Unnest struct | `df.unnest("struct_col")` |
 | Row count | `df.height` or `len(df)` |
 | Column count | `df.width` |
+| Dimensions | `df.shape` |
 | Schema | `df.schema` |
 | Print plan | `lf.explain()` |
 | Collect lazy | `lf.collect()` |
@@ -115,4 +122,31 @@ from polars.testing import assert_frame_equal
 
 assert_frame_equal(result, expected)
 assert_frame_equal(result, expected, check_row_order=False)  # order-agnostic
+```
+
+---
+
+## NumPy Interoperability
+
+Use at boundaries with libraries that require numpy (statsmodels, sklearn, etc.).
+Keep conversions localized; stay in polars for everything else.
+
+```python
+import numpy as np
+import polars as pl
+import numpy.typing as npt
+
+# polars Series → numpy array
+series = pl.Series("x", [1.0, 2.0, 3.0])
+arr: npt.NDArray[np.float64] = series.to_numpy()
+
+# numpy array → polars Series
+arr = np.array([1.0, 2.0, 3.0])
+series = pl.Series("x", arr)
+
+# polars DataFrame column → numpy (for linalg, sklearn, etc.)
+X: npt.NDArray[np.float64] = df.select(["income", "age", "weight"]).to_numpy()
+
+# numpy array → polars DataFrame
+df = pl.from_numpy(X, schema=["income", "age", "weight"])
 ```

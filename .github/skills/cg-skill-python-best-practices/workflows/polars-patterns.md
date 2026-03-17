@@ -181,6 +181,66 @@ df.filter(pl.col("income").is_not_null())
 null_report = df.select(pl.all().null_count())
 ```
 
+> **WARNING — never use `fill_null(0)` on welfare or income columns.**
+> Null welfare means *data is missing*, not zero consumption. Filling with `0`
+> creates spurious extreme-poor households and directly inflates poverty rates.
+> Instead, drop nulls explicitly before poverty computation and log the weight share lost:
+>
+> ```python
+> n_null = df["welfare"].null_count()
+> if n_null > 0:
+>     lost_weight_share = (
+>         df.filter(pl.col("welfare").is_null())["weight"].sum()
+>         / df["weight"].sum()
+>     )
+>     logger.warning("Dropping null welfare", n=n_null, weight_share=round(lost_weight_share, 4))
+> df = df.drop_nulls(subset=["welfare"])
+> ```
+
+---
+
+## Schema Validation
+
+Always validate column presence and dtypes before processing. A `year` column
+read as `String` instead of `Int32` silently produces empty filter results
+or broken joins — no error is raised.
+
+```python
+# Define expected schema as a module-level constant
+SURVEY_SCHEMA: dict[str, pl.DataType] = {
+    "welfare": pl.Float64,
+    "weight":  pl.Float64,
+    "year":    pl.Int32,
+    "country": pl.String,
+}
+
+
+def validate_schema(df: pl.DataFrame, expected: dict[str, pl.DataType]) -> None:
+    """Validate DataFrame columns and dtypes. Raise on any mismatch."""
+    missing = [col for col in expected if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+    mismatches = {
+        col: {"expected": str(expected[col]), "got": str(df[col].dtype)}
+        for col in expected
+        if col in df.columns and df[col].dtype != expected[col]
+    }
+    if mismatches:
+        raise TypeError(f"Schema dtype mismatch: {mismatches}")
+
+
+# Enforce dtype consistency at read time — prevents cross-dataset join failures
+SCHEMA_OVERRIDES: dict[str, pl.DataType] = {
+    "year":    pl.Int32,
+    "welfare": pl.Float64,
+    "weight":  pl.Float64,
+    "country": pl.String,
+}
+
+df = pl.read_parquet("data.parquet", schema_overrides=SCHEMA_OVERRIDES)
+lf = pl.scan_csv("data.csv", schema_overrides=SCHEMA_OVERRIDES)
+```
+
 ---
 
 ## Lazy Evaluation — When and How
@@ -211,7 +271,23 @@ result = (
     pl.scan_parquet("data/raw/*.parquet")
     .filter(pl.col("year") == 2022)
     .sink_parquet("data/processed/2022.parquet")  # never fully in RAM
+    # ⚠️  sink_parquet uses the streaming engine — not all ops are supported.
+    # If you get errors, use .collect(streaming=True) as a fallback:
+    # .collect(streaming=True)   # chunk-based processing, returns a DataFrame
 )
+
+# ⚠️  Glob scan assumes all matched files share the same schema.
+# GPID survey files often differ across years (new columns, renames).
+# For heterogeneous schemas, use diagonal concat:
+import glob
+frames = [pl.scan_parquet(f) for f in glob.glob("data/*.parquet")]
+combined = pl.concat(frames, how="diagonal_relaxed").collect()
+# "diagonal_relaxed" fills missing columns with nulls and casts mismatched types gracefully.
+
+# Decision guide:
+# .collect()                — results fit in RAM; fully supported; simplest
+# .collect(streaming=True)  — large data, need a DataFrame result; chunk-based
+# .sink_parquet()           — output goes directly to disk; zero peak RAM overhead
 ```
 
 ---
@@ -232,8 +308,9 @@ print(f"Elapsed: {elapsed:.3f}s  Rows: {result.height:,}")
 
 # Lazy plan inspection — see what polars will execute
 lf = pl.scan_parquet("data/*.parquet").filter(...).select(...)
-print(lf.explain())          # human-readable plan
-print(lf.explain(optimized=True))  # after polars optimization
+print(lf.explain(optimized=False))  # unoptimized plan — what you wrote
+print(lf.explain(optimized=True))   # optimized plan — what polars will execute
+# Note: optimized=True is the default since polars ≥ 0.19
 ```
 
 ```bash

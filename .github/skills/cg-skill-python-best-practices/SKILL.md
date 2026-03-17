@@ -1,6 +1,6 @@
 ---
 name: cg-skill-python-best-practices
-description: "Best practices for Python development on the GPID technical team. Covers polars for data manipulation, FastAPI and pydantic for APIs, pytest for testing, loguru for logging, type hints, async patterns, performance profiling, and uv/poetry for environment management. ALWAYS load this skill when writing, reviewing, or debugging Python code — includes package selection guidance, anti-patterns, and API development conventions."
+description: "Best practices for Python development on the GPID technical team. Covers polars for data manipulation, FastAPI and pydantic for APIs, pytest for testing, loguru for logging, type hints, async patterns, performance profiling, and uv for environment management. ALWAYS load this skill when writing, reviewing, or debugging Python code — includes package selection guidance, anti-patterns, and API development conventions. Consumed by the cg-code-quality, cg-performance, and cg-architecture agents whenever .py files are present."
 ---
 
 # Python Best Practices
@@ -25,7 +25,7 @@ spectrum: data pipelines, REST APIs, Shiny-equivalent dashboards, and reusable p
 | Error handling | Custom exceptions + `loguru` | Typed errors, never bare `except:` |
 | Profiling | `cProfile` / `memray` | Profile before optimizing |
 | Environment | `uv` (preferred) | `uv add`, `uv.lock`, `uv run` |
-| Type safety | Type hints + `pyright` | All public signatures annotated |
+| Type safety | Type hints + `pyright` | All public signatures annotated; use `str \| None` (3.10+), `Annotated` for pydantic |
 
 ## When to Use Which Tool
 
@@ -59,7 +59,7 @@ guide. Quick rules:
 ## When to Load This Skill
 
 Load whenever:
-- Any `.py` file is open or being created
+- Any `.py` or `.ipynb` file is open or being created
 - Writing or reviewing FastAPI routes, pydantic models, or async functions
 - Building data pipelines with polars
 - Setting up a new Python project (package, API, analysis)

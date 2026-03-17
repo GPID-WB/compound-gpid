@@ -137,6 +137,27 @@ class PovertyResponse(BaseModel):
     request_id: str
 ```
 
+For cross-field validation (e.g., `start_year <= end_year`), use `@model_validator`:
+
+```python
+from pydantic import BaseModel, Field, model_validator
+from typing import Annotated, Self
+
+
+class YearRangeRequest(BaseModel):
+    start_year: Annotated[int, Field(ge=1990, le=2030)]
+    end_year:   Annotated[int, Field(ge=1990, le=2030)]
+    country:    Annotated[str, Field(min_length=3, max_length=3)]
+
+    @model_validator(mode="after")
+    def check_year_range(self) -> Self:
+        if self.start_year > self.end_year:
+            raise ValueError(
+                f"start_year ({self.start_year}) must be <= end_year ({self.end_year})"
+            )
+        return self
+```
+
 ---
 
 ## 4. Router Organization
@@ -186,7 +207,8 @@ async def estimate_poverty(
             detail=str(e),
         )
 
-    return PovertyResponse(data=result, request_id="...")
+    from uuid import uuid4
+    return PovertyResponse(data=result, request_id=str(uuid4()))
 
 
 @router.get("/countries", summary="List available countries")
@@ -264,7 +286,18 @@ the event loop with CPU-bound or synchronous I/O operations.
 ```python
 import asyncio
 import httpx
-from fastapi import APIRouter
+from contextlib import asynccontextmanager
+from fastapi import APIRouter, FastAPI, Request
+from loguru import logger
+
+
+# Create the shared HTTP client once in lifespan — never once per request
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.http_client = httpx.AsyncClient(timeout=10.0)
+    yield
+    await app.state.http_client.aclose()
+
 
 router = APIRouter()
 
@@ -277,24 +310,24 @@ def get_data_sync():
     return {"data": "..."}
 
 
-# RIGHT — async endpoint, non-blocking
+# RIGHT — async endpoint, non-blocking; reuses shared client from app.state
 @router.get("/data")
-async def get_data():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("https://api.external.org/data")
+async def get_data(request: Request):
+    client: httpx.AsyncClient = request.app.state.http_client
+    response = await client.get("https://api.external.org/data")
     return response.json()
 
 
 # Concurrent external calls — fetch multiple things in parallel
 @router.get("/combined")
-async def get_combined(country: str, year: int):
-    async with httpx.AsyncClient() as client:
-        poverty_task   = client.get(f"/poverty?country={country}&year={year}")
-        inequality_task = client.get(f"/inequality?country={country}&year={year}")
+async def get_combined(country: str, year: int, request: Request):
+    client: httpx.AsyncClient = request.app.state.http_client
+    base = "https://internal-api.gpid.org"
 
-        poverty_resp, inequality_resp = await asyncio.gather(
-            poverty_task, inequality_task
-        )
+    poverty_resp, inequality_resp = await asyncio.gather(
+        client.get(f"{base}/poverty?country={country}&year={year}"),
+        client.get(f"{base}/inequality?country={country}&year={year}"),
+    )
 
     return {
         "poverty":    poverty_resp.json(),
@@ -302,52 +335,63 @@ async def get_combined(country: str, year: int):
     }
 
 
-# CPU-bound work — offload to thread pool to avoid blocking event loop
-import asyncio
+# Blocking I/O in a sync function — offload to thread pool
 from fastapi.concurrency import run_in_threadpool
+
+
+@router.get("/read")
+async def read_file():
+    # run_in_threadpool is for blocking I/O only (file reads, sync DB calls)
+    # It releases the event loop during the wait — but does NOT bypass the GIL
+    from pathlib import Path
+    data = await run_in_threadpool(Path("large_file.csv").read_text)
+    return {"lines": data.count("\n")}
+
+
+# CPU-bound work — use ProcessPoolExecutor (bypasses GIL via separate processes)
+# run_in_threadpool is WRONG for CPU-bound work: threads still share the GIL
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
+
+_process_pool = ProcessPoolExecutor()   # create once at module level, reuse
 
 
 @router.post("/compute-heavy")
 async def compute_heavy(request: HeavyRequest):
-    # run_in_threadpool runs blocking code in a thread without blocking the loop
-    result = await run_in_threadpool(heavy_cpu_computation, request.data)
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(_process_pool, heavy_cpu_computation, request.data)
     return {"result": result}
+    # NOTE: for sustained heavy workloads, prefer a task queue (Celery, RQ)
+    # over in-process ProcessPoolExecutor — better crash isolation and scalability
 ```
 
 ---
 
 ## 8. Error Handling
 
-Define a custom exception hierarchy. Never raise bare `HTTPException` from
-service layer code — that couples business logic to HTTP.
+Define a custom exception hierarchy in `exceptions.py`. Never raise bare
+`HTTPException` from service layer code — that couples business logic to HTTP.
 
-```python
-# src/gpid_api/exceptions.py
-class GPIDError(Exception):
-    """Base exception for all GPID API errors."""
-
-class CountryNotFoundError(GPIDError):
-    """Raised when a country code is not in the reference data."""
-
-class YearOutOfRangeError(GPIDError):
-    """Raised when requested year has no survey data."""
-
-class InsufficientDataError(GPIDError):
-    """Raised when sample size is too small for reliable estimates."""
-```
+The canonical hierarchy is defined in `AppError` — see
+[Logging and Errors](logging-and-errors.md#2-custom-exceptions) for the full
+exception class definitions. Register HTTP mappings in `main.py`:
 
 ```python
 # Register exception handlers in main.py
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from gpid_api.exceptions import CountryNotFoundError, YearOutOfRangeError
+from your_package.exceptions import DataNotFoundError, DataQualityError, InsufficientSampleError
 
-@app.exception_handler(CountryNotFoundError)
-async def country_not_found_handler(request: Request, exc: CountryNotFoundError):
+@app.exception_handler(DataNotFoundError)
+async def data_not_found_handler(request: Request, exc: DataNotFoundError):
     return JSONResponse(status_code=404, content={"detail": str(exc)})
 
-@app.exception_handler(YearOutOfRangeError)
-async def year_out_of_range_handler(request: Request, exc: YearOutOfRangeError):
+@app.exception_handler(DataQualityError)
+async def data_quality_handler(request: Request, exc: DataQualityError):
+    return JSONResponse(status_code=422, content={"detail": str(exc)})
+
+@app.exception_handler(InsufficientSampleError)
+async def insufficient_sample_handler(request: Request, exc: InsufficientSampleError):
     return JSONResponse(status_code=422, content={"detail": str(exc)})
 ```
 

@@ -7,4 +7,25 @@ Thumbs.db
 
 # IDE
 .idea/
-.tmp/*
+.tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# Testing & profiling
+.pytest_cache/
+.coverage
+htmlcov/
+*.prof
+
+# Secrets — never commit
+.env
+*.env.local

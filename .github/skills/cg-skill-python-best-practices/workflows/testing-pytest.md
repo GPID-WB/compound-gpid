@@ -60,7 +60,7 @@ def sample_data():
 def empty_data():
     """Create empty DataFrame with expected schema."""
     return pl.DataFrame(
-        schema={"id": pl.Int64, "income": pl.Float64, "region": pl.Utf8}
+        schema={"id": pl.Int64, "income": pl.Float64, "region": pl.String}
     )
 
 
@@ -200,4 +200,91 @@ pytest -k "test_aggregation"  # Run by name pattern
 pytest -v --tb=long           # Verbose with full tracebacks
 pytest --cov=src --cov-report=html   # With coverage report
 uv run pytest                 # Via uv
+```
+
+---
+
+## Suppressing loguru in Tests
+
+Prevent loguru from emitting output during test runs. Add once to `conftest.py`:
+
+```python
+# conftest.py
+import pytest
+from loguru import logger
+
+@pytest.fixture(autouse=True)
+def suppress_logging():
+    """Suppress loguru output during tests."""
+    logger.remove()
+    yield
+```
+
+---
+
+## Async Endpoint Testing
+
+For async FastAPI endpoints, configure `pytest-asyncio` and use
+`httpx.AsyncClient` for a proper async test transport:
+
+In `pyproject.toml`:
+```toml
+[tool.pytest.ini_options]
+asyncio_mode = "auto"   # required for async tests
+```
+
+```python
+import httpx
+import pytest
+from your_api.main import create_app
+
+
+@pytest.fixture
+async def async_client():
+    app = create_app()
+    async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+        yield client
+
+
+async def test_async_endpoint(async_client):
+    response = await async_client.post(
+        "/poverty/estimate",
+        json={"country": "ETH", "year": 2022},
+        headers={"X-API-Key": "test-key"},
+    )
+    assert response.status_code == 200
+```
+
+---
+
+## Mocking Dependencies
+
+### Mocking external HTTP calls with `httpx.MockTransport`
+
+```python
+import httpx
+
+
+def mock_handler(request: httpx.Request) -> httpx.Response:
+    return httpx.Response(200, json={"ETH": 1.23})
+
+
+def test_compute_with_mock_ppp():
+    transport = httpx.MockTransport(mock_handler)
+    client = httpx.Client(transport=transport)
+    result = poverty_calc.compute_fgt(country="ETH", ppp_client=client)
+    assert result["headcount_ratio"] >= 0
+```
+
+### Patching functions with `pytest-mock`
+
+```python
+def test_service_calls_db_once(mocker):
+    mock_load = mocker.patch("myapp.services.load_from_database")
+    mock_load.return_value = pl.DataFrame({"welfare": [1.0, 3.0], "weight": [1.0, 1.0]})
+
+    result = compute_poverty_rate_for_country("ETH", 2022)
+
+    mock_load.assert_called_once_with("ETH", 2022)
+    assert 0 <= result <= 1
 ```

@@ -10,13 +10,14 @@ Copilot-generated Python output.
 | Anti-Pattern | Problem | Fix |
 |-------------|---------|-----|
 | `.apply()` / `.map_elements()` in polars | Python loop under the hood — 10-100× slower | Use native expressions: `pl.col()`, `pl.when()` |
-| `.to_pandas()` for simple operations | Unnecessary round-trip, loses lazy evaluation | Stay in polars |
+| `.to_pandas()` for simple operations | Unnecessary round-trip, loses lazy evaluation | Stay in polars. **Exception**: visualization libraries (`seaborn`, `matplotlib`) require pandas input — `df.to_pandas()` at the visualization boundary is acceptable. |
 | Iterating over DataFrame rows (`iter_rows`) | O(n) Python loop | Use vectorized expressions |
 | Growing list then `pl.from_records()` | O(n²) reallocation | Use `pl.concat()` with a list of frames |
 | Collecting inside a loop | Executes plan on every iteration | Build lazy plan first, collect once |
 | Chaining multiple `.with_columns()` calls | Multiple passes over data | Combine into one `.with_columns()` with multiple expressions |
 | `pandas` for new code | Missing polars performance, lazy eval | Use `polars` for all new tabular work |
 | Forgetting `validate=` on joins | Silent row multiplication from m:m joins | Always use `validate="m:1"` or `"1:1"` when cardinality is known |
+| `fill_null(0)` on welfare/income columns | Creates spurious zero-welfare households, inflates poverty rates | Drop nulls and log weight share lost |
 
 ---
 
@@ -45,10 +46,11 @@ Copilot-generated Python output.
 | Anti-Pattern | Problem | Fix |
 |-------------|---------|-----|
 | `time.sleep()` in async function | Blocks event loop — all other requests freeze | Use `await asyncio.sleep()` |
-| Sync I/O in async endpoint | Blocks event loop during file/DB read | Use `await run_in_threadpool(sync_fn)` |
+| Sync I/O in async endpoint | Blocks event loop during file/DB read | Use `await run_in_threadpool(sync_fn)` (releases event loop during I/O wait) |
+| `run_in_threadpool` for CPU-bound work | GIL is NOT released for pure Python CPU computation — threads serialize on the GIL | Use `ProcessPoolExecutor` via `loop.run_in_executor()` (separate process, bypasses GIL) |
 | Creating `httpx.Client` (sync) in async route | Wrong client type | Use `httpx.AsyncClient` with `async with` |
 | `asyncio.run()` inside async function | Nested event loops error | Just `await` the coroutine directly |
-| `async def` on CPU-bound functions | Doesn't help — Python GIL still applies | Use `run_in_threadpool` or `ProcessPoolExecutor` |
+| `async def` on CPU-bound functions | Python GIL prevents threads from running in parallel; CPU work still serializes | Use `run_in_executor(ProcessPoolExecutor())` or a task queue (Celery, RQ) |
 | New `AsyncClient` per request | Connection overhead on every call | Create once in lifespan, reuse via `app.state` |
 | Not awaiting coroutines | Coroutine created but never executed | Always `await` async calls |
 
