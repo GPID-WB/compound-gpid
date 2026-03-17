@@ -35,7 +35,7 @@ Classify the solution into one of these categories:
 | `performance-issues` | Slow code, memory problems, optimization techniques |
 | `testing-patterns` | Testing strategies, fixture patterns, mocking approaches |
 | `data-quality` | Data validation, cleaning patterns, type handling |
-| `environment-issues` | R/Python environment, dependencies, version conflicts |
+| `environment-issues` | R/Python/Stata environment, dependencies, version conflicts |
 | `git-workflows` | Git operations, branching, merge conflicts, CI/CD |
 
 ### Step 3: Write the Solution Document
@@ -50,7 +50,7 @@ Create a file in `.cg-docs/solutions/<category>/`:
 date: YYYY-MM-DD
 title: "<descriptive title>"
 category: "<category>"
-language: "<R|Python|both>"
+language: "<R|Python|Stata|both>"
 tags: [<searchable tags>]
 root-cause: "<brief root cause>"
 severity: "<P1|P2|P3>"

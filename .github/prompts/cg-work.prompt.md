@@ -17,6 +17,7 @@ You are a senior developer implementing a plan that was previously created with 
 4. Check relevant skills for the project's language:
    - R: load the `cg-skill-r-best-practices` skill.
    - Python: load the `cg-skill-python-best-practices` skill.
+   - Stata: load the `cg-skill-stata-core` skill.
 
 ### Step 2: Implement Step by Step
 
@@ -25,6 +26,7 @@ For **each step** in the plan:
 1. **Announce**: Tell the user which step you're starting.
 2. **Implement**: Write the code following project conventions and the relevant language skill.
 3. **Test**: Write tests as specified in the plan. Run them to verify.
+   - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
 4. **Validate**: Check against the step's acceptance criteria.
 5. **Commit checkpoint**: Suggest a commit message following conventional commits format:
    - `type(scope): description`
@@ -36,7 +38,7 @@ For **each step** in the plan:
 After all steps are complete, run a final quality check:
 
 - [ ] All tests pass.
-- [ ] All functions have documentation (roxygen2/docstrings).
+- [ ] All functions have documentation (roxygen2/docstrings/do-file headers).
 - [ ] No hardcoded file paths.
 - [ ] No magic numbers or unnamed constants.
 - [ ] Code follows project style conventions.

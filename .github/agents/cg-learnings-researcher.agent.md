@@ -34,7 +34,7 @@ Search these directories in order:
 
 1. **Keyword match**: Search for file names and YAML frontmatter tags related to the current task.
 2. **Category match**: Look in the most relevant `.cg-docs/solutions/` subcategory.
-3. **Language match**: Filter by the `language` field in YAML frontmatter (R, Python, both).
+3. **Language match**: Filter by the `language` field in YAML frontmatter (R, Python, Stata, both, all).
 4. **Recency**: Prefer recent solutions but don't ignore older ones.
 
 ## Output Format

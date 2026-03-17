@@ -26,7 +26,7 @@ Based on review depth, invoke the appropriate agents on the changed files:
 **Standard** (default for most work):
 - `@cg-code-quality` — Style, linting, DRY, naming
 - `@cg-testing` — Test coverage, edge cases, quality
-- `@cg-documentation` — roxygen2/docstrings, README, comments
+- `@cg-documentation` — roxygen2/docstrings/do-file headers, README, comments
 - `@cg-version-control` — Commit hygiene, branching, .gitignore, secrets
 - `@cg-reproducibility` — Lockfiles, relative paths, seeds
 - `@cg-performance` — Vectorization, memory, algorithm complexity
@@ -46,6 +46,8 @@ For each agent, provide:
 > **[cg-code-quality]** `.Rbuildignore` — `.cg-docs/` is not excluded from the R package build.
 > **Why**: `.cg-docs/` contains local knowledge artifacts that should not be bundled into the installed package.
 > **Fix**: Add `^\.cg-docs$` to `.Rbuildignore`.
+
+**Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-core` before reviewing those files. Apply the anti-patterns from the skill's references when evaluating Stata code.
 
 ### Step 3: Collect and Prioritize Findings
 

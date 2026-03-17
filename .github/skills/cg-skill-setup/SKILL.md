@@ -55,8 +55,10 @@ Check if `compound-gpid.local.md` already exists in the project root.
 > What is your preferred programming language for this project?
 > 1. **R** (data.table + ggplot2)
 > 2. **Python** (polars/numpy + plotnine/seaborn)
-> 3. **Both** (R and Python)
-> 4. **Other** (specify)
+> 3. **Stata** (local macros + repkit for reproducibility)
+> 4. **Both** (R and Python)
+> 5. **All** (R, Python, and Stata)
+> 6. **Other** (specify)
 
 **Question 2: Project Type**
 
@@ -81,7 +83,7 @@ Create `compound-gpid.local.md` in the project root with the following format:
 
 ```markdown
 ---
-language: "<r|python|both|other>"
+language: "<r|python|stata|both|all|other>"
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"

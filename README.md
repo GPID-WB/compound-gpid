@@ -16,7 +16,7 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review → Compound** loop that does more than produce code — it produces *knowledge*. Every solved problem is captured as a structured document and fed back into future reviews, so your team compounds its expertise with every task.
 
 **Key benefits:**
-- **Consistency** — coding standards, tests, and documentation are enforced on every PR, for both R and Python.
+- **Consistency** — coding standards, tests, and documentation are enforced on every PR, for R, Python, and Stata.
 - **Compounding returns** — the `cg-learnings-researcher` agent cross-references past solutions so the team never solves the same problem twice.
 - **Zero friction** — one global clone, directory junctions, and three shell commands (`cg-link`, `cg-unlink`, `cg-update`) wire everything into VS Code / Positron automatically.
 - **Team-wide** — update once, every linked project gets the new version instantly.
