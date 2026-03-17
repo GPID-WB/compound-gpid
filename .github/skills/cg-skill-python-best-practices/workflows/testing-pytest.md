@@ -60,7 +60,7 @@ def sample_data():
 def empty_data():
     """Create empty DataFrame with expected schema."""
     return pl.DataFrame(
-        schema={"id": pl.Int64, "income": pl.Float64, "region": pl.Utf8}
+        schema={"id": pl.Int64, "income": pl.Float64, "region": pl.String}
     )
 
 
@@ -125,7 +125,50 @@ def test_transformation():
     assert_frame_equal(result, expected)
 ```
 
-## Edge Cases to Test
+## Testing FastAPI Endpoints
+
+```python
+# conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from your_api.main import create_app
+
+@pytest.fixture(scope="session")
+def client():
+    app = create_app()
+    with TestClient(app) as c:
+        yield c
+
+@pytest.fixture
+def auth_headers():
+    return {"X-API-Key": "test-key"}
+```
+
+```python
+# test_routes.py
+from fastapi import status
+
+def test_health_returns_200(client):
+    response = client.get("/health")
+    assert response.status_code == status.HTTP_200_OK
+
+def test_endpoint_requires_auth(client):
+    response = client.post("/poverty/estimate", json={...})
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+def test_valid_request_returns_expected_shape(client, auth_headers):
+    response = client.post(
+        "/poverty/estimate",
+        json={"country": "ETH", "year": 2022},
+        headers=auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    body = response.json()
+    assert "data" in body
+    assert 0 <= body["data"]["headcount_ratio"] <= 1
+```
+
+## Edge Cases to Always Test
 
 ```python
 def test_empty_dataframe(empty_data):
@@ -155,5 +198,99 @@ pytest                        # Run all tests
 pytest tests/test_module.py   # Run specific file
 pytest -k "test_aggregation"  # Run by name pattern
 pytest -v --tb=long           # Verbose with full tracebacks
-pytest --cov=src              # With coverage
+pytest --cov=src --cov-report=html   # With coverage report
+uv run pytest                 # Via uv
+```
+
+---
+
+## Suppressing loguru in Tests
+
+Prevent loguru from emitting output during test runs. Add once to `conftest.py`:
+
+```python
+# conftest.py
+import pytest
+from loguru import logger
+
+@pytest.fixture(autouse=True)
+def suppress_logging():
+    """Suppress loguru output during tests."""
+    logger.remove()
+    yield
+```
+
+---
+
+## Async Endpoint Testing
+
+For async FastAPI endpoints, configure `pytest-asyncio` and use
+`httpx.AsyncClient` with `httpx.ASGITransport` for a proper async test transport.
+
+> **Requirement**: `pytest-asyncio>=0.23` must be installed as a dev dependency
+> (see [Project Setup](project-setup.md)) and `asyncio_mode = "auto"` set in `pyproject.toml`.
+
+In `pyproject.toml`:
+```toml
+[tool.pytest.ini_options]
+asyncio_mode = "auto"   # required for async tests
+```
+
+```python
+import httpx
+import pytest
+from your_api.main import create_app
+
+
+@pytest.fixture
+async def async_client():
+    app = create_app()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app),
+        base_url="http://test",
+    ) as client:
+        yield client
+
+
+async def test_async_endpoint(async_client):
+    response = await async_client.post(
+        "/poverty/estimate",
+        json={"country": "ETH", "year": 2022},
+        headers={"X-API-Key": "test-key"},
+    )
+    assert response.status_code == 200
+```
+
+---
+
+## Mocking Dependencies
+
+### Mocking external HTTP calls with `httpx.MockTransport`
+
+```python
+import httpx
+
+
+def mock_handler(request: httpx.Request) -> httpx.Response:
+    return httpx.Response(200, json={"ETH": 1.23})
+
+
+def test_compute_with_mock_ppp():
+    transport = httpx.MockTransport(mock_handler)
+    client = httpx.Client(transport=transport)
+    result = poverty_calc.compute_fgt(country="ETH", ppp_client=client)
+    assert result["headcount_ratio"] >= 0
+```
+
+### Patching functions with `pytest-mock`
+
+```python
+def test_service_calls_db_once(mocker):
+    mock_load = mocker.patch("myapp.services.load_from_database")
+    mock_load.return_value = pl.DataFrame({"welfare": [1.0, 3.0], "weight": [1.0, 1.0]})
+
+    result = compute_poverty_rate_for_country("ETH", 2022)
+
+    mock_load.assert_called_once_with("ETH", 2022)
+    assert 0 <= result <= 1
 ```
