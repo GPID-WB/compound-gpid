@@ -125,7 +125,50 @@ def test_transformation():
     assert_frame_equal(result, expected)
 ```
 
-## Edge Cases to Test
+## Testing FastAPI Endpoints
+
+```python
+# conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from your_api.main import create_app
+
+@pytest.fixture(scope="session")
+def client():
+    app = create_app()
+    with TestClient(app) as c:
+        yield c
+
+@pytest.fixture
+def auth_headers():
+    return {"X-API-Key": "test-key"}
+```
+
+```python
+# test_routes.py
+from fastapi import status
+
+def test_health_returns_200(client):
+    response = client.get("/health")
+    assert response.status_code == status.HTTP_200_OK
+
+def test_endpoint_requires_auth(client):
+    response = client.post("/poverty/estimate", json={...})
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+def test_valid_request_returns_expected_shape(client, auth_headers):
+    response = client.post(
+        "/poverty/estimate",
+        json={"country": "ETH", "year": 2022},
+        headers=auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    body = response.json()
+    assert "data" in body
+    assert 0 <= body["data"]["headcount_ratio"] <= 1
+```
+
+## Edge Cases to Always Test
 
 ```python
 def test_empty_dataframe(empty_data):
@@ -155,5 +198,6 @@ pytest                        # Run all tests
 pytest tests/test_module.py   # Run specific file
 pytest -k "test_aggregation"  # Run by name pattern
 pytest -v --tb=long           # Verbose with full tracebacks
-pytest --cov=src              # With coverage
+pytest --cov=src --cov-report=html   # With coverage report
+uv run pytest                 # Via uv
 ```
