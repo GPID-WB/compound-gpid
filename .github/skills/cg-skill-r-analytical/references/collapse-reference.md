@@ -42,7 +42,15 @@ set_collapse(na.rm = TRUE, sort = TRUE, nthreads = 4)
 
 ## Fast Statistical Functions
 
-All accept the same signature: `f*(x, g = NULL, w = NULL, TRA = NULL, na.rm = .op[["na.rm"]])`
+All Fast Statistical Functions share the same canonical signature:
+
+```r
+FUN(x, g = NULL, w = NULL, TRA = NULL, na.rm = .op[["na.rm"]], use.g.names = TRUE, ...)
+```
+
+Where `FUN` is any of: `fsum`, `fprod`, `fmean`, `fmedian`, `fmode`, `fvar`, `fsd`, `fmin`, `fmax`, `fnth`, `ffirst`, `flast`, `fnobs`, `fndistinct`.
+
+- `use.g.names = TRUE` — when aggregating and `g` is a single vector, adds group labels as names to the result. Set to `FALSE` to suppress names for programmatic use.
 
 | Function | Purpose | Example |
 |----------|---------|---------|
@@ -63,10 +71,36 @@ All accept the same signature: `f*(x, g = NULL, w = NULL, TRA = NULL, na.rm = .o
 
 - `g` — grouping: a vector, list of vectors, or `GRP` object
 - `w` — weights: a numeric vector
-- `TRA` — transform instead of aggregate: `"replace"`, `"-"` (center), `"/"` (scale), `"%"` (percentage), `"%%"` (modulus), `"+"`, `"*"`, `"replace_fill"`
+- `TRA` — transform instead of aggregate (10 types, see TRA table below)
 - `na.rm` — default `TRUE` in collapse (unlike base R)
+- `use.g.names` — add group labels as names when aggregating (default `TRUE`)
 
 ### TRA: Grouped Replace and Sweep
+
+The `TRA` argument performs in-place transformation instead of aggregation. Available on all Fast Statistical Functions. There are 10 transformation types:
+
+| Code | Name | Operation |
+|------|------|-----------|
+| `"replace_fill"` | Replace (fill) | Replace all values with group statistic (incl. NA) |
+| `"replace"` | Replace | Replace non-NA values with group statistic |
+| `"-"` | Subtract | Center: `x - stat` |
+| `"-+"` | Subtract-add | Subtract group stat, add overall stat |
+| `"/"` | Divide | Scale: `x / stat` |
+| `"%"` | Percentage | `x / stat * 100` |
+| `"+"` | Add | `x + stat` |
+| `"*"` | Multiply | `x * stat` |
+| `"%%"` | Modulus | `x %% stat` |
+| `"-%%"` | Subtract modulus | `x - (x %% stat)` |
+
+`TRA()` can also be called as a standalone function:
+
+```r
+# Standalone TRA: sweep precomputed statistics back
+group_means <- fmean(dt$welfare, g = dt$region)
+TRA(dt$welfare, group_means, FUN = "-", g = dt$region)  # Center using precomputed means
+```
+
+Common patterns via Fast Statistical Functions:
 
 ```r
 # Replace each value with its group mean (like Stata's egen mean)
@@ -80,6 +114,9 @@ fsum(dt$welfare, g = dt$region, TRA = "%")
 
 # Scale by group standard deviation
 fsd(dt$welfare, g = dt$region, TRA = "/")
+
+# Subtract group mean, add back overall mean (preserves level)
+fmean(dt$welfare, g = dt$region, TRA = "-+")
 ```
 
 ## Aggregation with collap()
@@ -159,18 +196,52 @@ W(pdt, cols = "welfare")       # Within (demean by panel id)
 B(pdt, cols = "welfare")       # Between (panel id means)
 ```
 
-## Grouping
+## Grouping and GRP Objects
+
+GRP objects are collapse's efficient grouping metadata. They store precomputed information so multiple operations reuse the same grouping without recomputation.
+
+### Creating GRP Objects
 
 ```r
-# Pre-compute grouping for repeated use (faster than passing raw vectors)
+# From formula (most common)
 g <- GRP(dt, ~ region + year)
 
-# Use with any fast function
+# From vectors
+g <- GRP(dt$region)                      # Single vector
+g <- GRP(list(dt$region, dt$year))       # Multiple vectors
+
+# From a dplyr grouped_df
+grp <- GRP(dplyr::group_by(dt, region)) # Extracts grouping from grouped_df
+
+# Control sorting: sort = FALSE uses hashing (faster for many groups)
+g <- GRP(dt, ~ region, sort = FALSE)
+```
+
+### GRP Object Structure
+
+A GRP object is a list with 9 elements:
+
+| Element | Name | Content |
+|---------|------|---------|
+| 1 | `N.groups` | Number of groups (integer) |
+| 2 | `group.id` | Integer vector mapping each row to its group |
+| 3 | `group.sizes` | Integer vector of group sizes |
+| 4 | `groups` | Data frame of unique group combinations |
+| 5 | `group.vars` | Character vector of grouping variable names |
+| 6 | `ordered` | Logical vector: sorted? |
+| 7 | `order` | Ordering vector (or `NULL` if unsorted) |
+| 8 | `group.starts` | Integer vector of first row in each group |
+| 9 | `call` | The call that created the GRP object |
+
+### Using GRP Objects
+
+```r
+# Use with any Fast Statistical Function (grouping computed once, reused many times)
 fmean(dt$welfare, g = g, w = dt$weight)
 fsd(dt$welfare, g = g, w = dt$weight)
 fnobs(dt$welfare, g = g)
 
-# Pipe-style grouping (returns grouped data frame, collapse functions auto-detect)
+# Pipe-style grouping via fgroup_by (attaches GRP to data frame as attribute)
 dt |> fgroup_by(region, year) |> fmean(w = weight)
 dt |> fgroup_by(region) |> fsummarise(
   mean_welf = fmean(welfare, w = weight),
@@ -286,21 +357,55 @@ dt$welfare %-=% fmean(dt$welfare)   # Subtract scalar in-place
 dt$welfare %/=% fsd(dt$welfare)     # Divide in-place
 ```
 
-## Class-Agnostic Dispatch
+## Object Type System and Class-Agnostic Dispatch
 
-All Fast Statistical Functions use S3 dispatch and work on vectors, matrices, data frames, and data.tables without conversion:
+To collapse's R and C code, there are 3 principal object types:
+
+1. **Atomic vectors** — numeric, integer, character, logical vectors
+2. **Matrices** — 2D atomic objects with `dim` attribute
+3. **Lists** — generally assumed to be data frames (including data.table, tibble)
+
+Most data manipulation functions (`fmutate()`, `fselect()`, `fsubset()`, etc.) only support lists/data frames. Statistical functions (all Fast Statistical Functions like `fmean()`) support all 3 types.
+
+### S3 Method Dispatch
+
+Fast Statistical Functions dispatch to 4 methods:
+
+| Method | Used for |
+|--------|----------|
+| `.default` | Atomic vectors |
+| `.matrix` | Matrices |
+| `.data.frame` | Data frames, data.tables |
+| `.list` (hidden) | Lists → dispatches to `.data.frame` |
+
+The `.grouped_df` method additionally handles `dplyr::group_by()` output.
 
 ```r
 # Same function, different inputs — collapse handles each optimally
-fmean(dt$welfare)               # Numeric vector → scalar
-fmean(as.matrix(dt[, 3:6]))    # Matrix → row of column means
-fmean(dt)                       # data.frame/data.table → column means
+fmean(dt$welfare)               # .default → scalar
+fmean(as.matrix(dt[, 3:6]))    # .matrix → named vector of column means
+fmean(dt)                       # .data.frame → named vector of column means
+fmean(grouped_df)               # .grouped_df → data.frame of group means
 
 # Grouping works the same way on all types
 fmean(dt, g = dt$region)       # Returns data.frame/data.table of group means
 ```
 
-**Attribute preservation**: collapse preserves all attributes (names, class, labels, etc.) unless the operation changes the object's dimensions or internal type (`typeof()`). Risky operations that change dimensions return a plain vector/matrix instead of preserving the input class.
+### Attribute Preservation Rules
+
+collapse preserves attributes and classes of R objects **unless** preservation would risk yielding something wrong or useless. The key rule:
+
+- **Dimension-preserving operations** (e.g., `fscale(x)`, `fmutate(data, across(a:c, log))`) — all attributes fully preserved via shallow copy of the attribute list.
+- **Dimension-changing operations** (e.g., aggregation reducing rows, or operations changing `typeof()`) — attributes may be dropped or adjusted to reflect the new structure.
+
+Shallow copy means the attribute list pointer is copied, not the attributes themselves — this is memory-efficient. You can do this manually with:
+
+```r
+copyAttrib(target, source)       # Copy all attributes
+copyMostAttrib(target, source)   # Copy all except names, dim, dimnames
+setAttrib(x, attributes)         # Set attribute list directly (by reference)
+setattrib(x, attributes)         # Same, alias
+```
 
 ## Using collapse Inside data.table
 
