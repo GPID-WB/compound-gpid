@@ -15,7 +15,7 @@ You are a senior developer implementing a plan that was previously created with 
 2. Find the most recent plan in `.cg-docs/plans/` or ask the user which plan to implement.
 3. Read the plan thoroughly. Understand every step, its acceptance criteria, and test requirements.
 4. Check relevant skills for the project's language:
-   - R: load the `cg-skill-r-technical` skill and the `cg-skill-r-analytical` skill.
+   - R: load `cg-skill-r-technical` for package/infrastructure work (data.table, APIs, Shiny, pipelines), `cg-skill-r-analytical` for statistical/econometric/analytical work (survey analysis, fixest, poverty measurement, WB visualizations). Load both if the plan covers mixed work or if unsure.
    - Python: load the `cg-skill-python-best-practices` skill.
    - Stata: load the `cg-skill-stata-core` skill.
 
