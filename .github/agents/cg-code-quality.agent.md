@@ -41,7 +41,7 @@ For each file under review:
 - `print()` / `cat()` statements left from debugging
 
 ### 5. Language-Specific Idioms
-- **R**: Using `ifelse()` instead of `fifelse()`/`fcase()`, not using `:=` for data.table assignment, `T`/`F` shortcuts, using base `aggregate()`/`tapply()` instead of `collapse` functions (`fmean`, `fsum`, `collap`), using `set_collapse(mask = ...)` instead of explicit f-prefixed names
+- **R**: Using `ifelse()` instead of `fifelse()`/`fcase()`, not using `:=` for data.table assignment, `T`/`F` shortcuts, using base `aggregate()`/`tapply()` instead of `collapse` functions (`fmean`, `fsum`, `collap`), using `set_collapse(mask = ...)` instead of explicit f-prefixed names. Load `cg-skill-r-analytical` for statistical/welfare/econometric work or `cg-skill-r-technical` for package/Shiny/targets/plumber work (load both if mixed) before reviewing any `.R` file.
 - **Python**: Using `+` for string concatenation instead of f-strings, not using comprehensions where appropriate, bare `except:` clauses
 - **Stata**: Using `global` where `local` suffices, missing compound quotes on `tempfile` paths, `=` instead of `==` in `if` conditions, `forvalues` for non-sequential lists, missing `_merge` checks after `merge`. Load `cg-skill-stata-core` and consult its anti-patterns reference for all `.do`/`.ado` files.
 

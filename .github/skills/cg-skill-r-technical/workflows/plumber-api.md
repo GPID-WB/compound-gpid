@@ -1,28 +1,44 @@
-# Plumber APIs
+# Build REST APIs in R with `plumber`. Use `collapse` for fast computation inside endpoints.
 
-Build REST APIs in R with `plumber`. Use `collapse` for fast computation inside endpoints.
+## Startup: Load Data Once
 
-## Programmatic Router
+Load reference datasets at startup (global scope) and use keyed lookup inside handlers. Never read data on every request.
 
 ```r
 library(plumber)
 library(collapse)
 library(data.table)
 
+# Load once at startup — shared across all requests
+poverty_data <- load_all_poverty_data()
+setkey(poverty_data, country_code, year)
+```
+
+## Programmatic Router
+
+```r
 pr() |>
   pr_get("/health", function() {
     list(status = "ok", timestamp = Sys.time())
   }) |>
   pr_get("/poverty/:country_code/:year", function(country_code, year, res) {
-    year <- as.integer(year)
     if (!grepl("^[A-Z]{3}$", country_code)) {
       res$status <- 400L
       return(list(error = "Invalid country code"))
     }
-    dt <- load_poverty_data(country_code, year)
+    year <- as.integer(year)
+    if (is.na(year) || year < 1990 || year > 2030) {
+      res$status <- 400L
+      return(list(error = "Invalid year"))
+    }
+    dt <- poverty_data[.(country_code, year)]   # O(log n) key lookup
     if (fnrow(dt) == 0) {
       res$status <- 404L
       return(list(error = "No data found"))
+    }
+    if (anyNA(dt$welfare) || anyNA(dt$weight) || any(dt$weight <= 0)) {
+      res$status <- 500L
+      return(list(error = "Data integrity error"))
     }
     list(country = country_code, year = year,
          mean_welfare = fmean(dt$welfare, w = dt$weight),
@@ -79,6 +95,8 @@ auth_filter <- function(req, res) {
 
 ```r
 cors_filter <- function(req, res) {
+  # For internal/authenticated APIs, replace "*" with a specific allow-list:
+  # res$setHeader("Access-Control-Allow-Origin", "https://your-app.worldbank.org")
   res$setHeader("Access-Control-Allow-Origin", "*")
   res$setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
   if (req$REQUEST_METHOD == "OPTIONS") { res$status <- 200L; return(list()) }

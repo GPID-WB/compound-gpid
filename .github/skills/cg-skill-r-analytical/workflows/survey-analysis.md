@@ -12,6 +12,8 @@ In Stata, you `svyset` once and `svy:` everything. With collapse, there is no de
 
 ## Point Estimates with collapse
 
+> **NA handling**: collapse defaults to `na.rm = TRUE` — NA welfare values are silently excluded. Before any aggregation, validate: `stopifnot(!anyNA(dt$welfare), !anyNA(dt$weight), all(dt$weight > 0))`. Analysts reading only this file must apply these guards explicitly — they are not automatic.
+
 ### Weighted Means
 
 ```r
@@ -62,10 +64,8 @@ fmedian(dt$welfare, w = dt$weight)
 # Weighted 25th percentile by region
 fnth(dt$welfare, 0.25, g = dt$region, w = dt$weight)
 
-# Decile thresholds
-vapply(seq(0.1, 0.9, 0.1), function(p) {
-  fnth(dt$welfare, p, w = dt$weight)
-}, numeric(1))
+# Decile thresholds in a single sorted pass (preferred over 9 separate fnth calls)
+fquantile(dt$welfare, probs = seq(0.1, 0.9, 0.1), w = dt$weight)
 ```
 
 ## Standard Errors Under Complex Survey Designs
@@ -154,15 +154,20 @@ result <- survey_mean_se(
 # estimate       se ci_lower ci_upper
 #   0.2530   0.0124   0.2287   0.2773
 
-# By region: apply to each subset
+# By region: key on region first for O(log n + n_r) lookup instead of O(n) full-scan per region
+setkey(dt, region)
 regions <- funique(dt$region)
 region_results <- rbindlist(lapply(regions, function(r) {
-  idx <- dt$region == r
+  sub <- dt[.(r)]
+  if (fnrow(sub) == 0) {
+    warning("Region '", r, "' has 0 observations — skipped")
+    return(NULL)
+  }
   res <- survey_mean_se(
-    x       = as.numeric(dt$welfare[idx] < 2.15),
-    w       = dt$weight[idx],
-    psu     = dt$psu[idx],
-    stratum = dt$stratum[idx]
+    x       = as.numeric(sub$welfare < 2.15),
+    w       = sub$weight,
+    psu     = sub$psu,
+    stratum = sub$stratum
   )
   data.table(region = r, t(res))
 }))
@@ -239,6 +244,8 @@ dt_all <- rbindlist(lapply(c(2015, 2018, 2021), function(yr) {
   d[, year := yr]
   d
 }))
+# Validate schema after stacking: column names must be consistent across vintages
+stopifnot(all(c("welfare", "weight", "year") %in% names(dt_all)))
 
 # Poverty trends: weighted headcount by year
 dt_all[, poor := welfare < 2.15]

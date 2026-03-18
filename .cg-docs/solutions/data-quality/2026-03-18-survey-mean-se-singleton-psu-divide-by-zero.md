@@ -68,4 +68,4 @@ survey_mean_se <- function(x, w, psu, stratum) {
 ## Related
 
 - `cg-skill-r-analytical/workflows/survey-analysis.md` — canonical `survey_mean_se()` helper with this guard applied
-- `2026-03-17-null-welfare-silently-biases-poverty-rate.md` — related silent data quality failure in welfare measurement
+- `cg-skill-r-analytical/references/r-analytical-anti-patterns.md` — "Computing FGT or Gini without validating welfare and weights first" anti-pattern

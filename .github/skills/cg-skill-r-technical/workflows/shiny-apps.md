@@ -40,7 +40,13 @@ mod_poverty_chart_server <- function(id, data) {
 - `bindCache()` to cache expensive renders by input values
 - `bindEvent()` to control when reactives fire
 - `reactlog::reactlog_enable()` for debugging reactive chains
-- Load data once in a reactive, not inside every render function
+- **Static reference data** — load once at app startup in global scope (runs once, shared across all sessions):
+  ```r
+  # At the top of app.R (global scope)
+  welfare_dt <- fread("data/welfare.parquet")
+  setkey(welfare_dt, country, year)
+  ```
+  Reserve `reactive()` / `reactiveVal()` for data that varies by session or user input. Never re-read a static dataset inside a `reactive()` on every request.
 
 ## Testing Modules
 

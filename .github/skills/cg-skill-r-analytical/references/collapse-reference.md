@@ -60,6 +60,7 @@ Where `FUN` is any of: `fsum`, `fprod`, `fmean`, `fmedian`, `fmode`, `fvar`, `fs
 | `fvar()` | Weighted variance | `fvar(dt$welfare, g = dt$region, w = dt$weight)` |
 | `fsd()` | Weighted std deviation | `fsd(dt$welfare, g = dt$region, w = dt$weight)` |
 | `fnth()` | Weighted n-th quantile | `fnth(dt$welfare, 0.25, g = dt$region, w = dt$weight)` |
+| `fquantile()` | Multiple weighted quantiles (single sorted pass) | `fquantile(dt$welfare, probs = seq(0.1, 0.9, 0.1), w = dt$weight)` |
 | `fmin()` / `fmax()` | Grouped min/max | `fmin(dt$welfare, g = dt$region)` |
 | `ffirst()` / `flast()` | Grouped first/last | `ffirst(dt$welfare, g = dt$region)` |
 | `fnobs()` | Observation count | `fnobs(dt$welfare, g = dt$region)` |

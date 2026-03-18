@@ -14,6 +14,10 @@ library(targets)
 library(tarchetypes)
 tar_source("R/")
 
+# Always run tar_make() from the project root (where _targets.R lives).
+# Use here::here() inside target functions for portable paths across machines:
+#   load_survey <- function(path) as.data.table(haven::read_dta(here::here(path)))
+
 list(
   tar_target(raw_data, load_survey("data/raw/survey.dta")),
   tar_target(clean_data, clean_survey(raw_data)),

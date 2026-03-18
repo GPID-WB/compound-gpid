@@ -43,7 +43,9 @@ No masking — always use explicit `f`-prefixed function names from collapse.
 
 - [Anti-Patterns](references/r-technical-anti-patterns.md) — Common mistakes in technical R code
 - [Testing with testthat](references/testing-testthat.md) — Test structure, assertions, fixtures
+- [renv Reference](references/renv-reference.md) — Dependency isolation, snapshot/restore, lockfile conventions
 
 ---
 
 > For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `cg-skill-r-analytical`.
+> For the full collapse API (global options, `set_collapse`, `use.g.names`, all 10 TRA types, GRP structure, attribute preservation), see `cg-skill-r-analytical/references/collapse-reference.md`.

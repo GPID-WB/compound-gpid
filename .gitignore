@@ -35,6 +35,7 @@ htmlcov/
 # Stata
 *.smcl
 *.gph
+*.log
 
 # Secrets — never commit
 .env

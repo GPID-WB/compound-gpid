@@ -19,6 +19,11 @@ Every welfare variable name must encode its unit. This is a safety mechanism, no
 dt[, welfare := consumption / hhsize]
 
 # RIGHT — unit is explicit
+# Validate deflators before applying them (zero or NA corrupts all welfare values)
+stopifnot(
+  !anyNA(dt$cpi_deflator), all(dt$cpi_deflator > 0),
+  !anyNA(dt$ppp_factor),   all(dt$ppp_factor   > 0)
+)
 dt[, welf_pc_lcu_nom := consumption_lcu_nom / hhsize]
 dt[, welf_pc_lcu_real := welf_pc_lcu_nom / cpi_deflator]
 dt[, welf_pc_ppp := welf_pc_lcu_real / ppp_factor]
@@ -48,7 +53,11 @@ The Foster-Greer-Thorbecke (FGT) family. All computed with survey weights using 
 
 > **NA handling**: collapse defaults to `na.rm = TRUE` — NA welfare values are silently excluded from all aggregations. Before any FGT block, validate that your welfare and weight columns are complete:
 > ```r
-> stopifnot(!anyNA(dt$welf_pc_ppp_day), !anyNA(dt$weight), all(dt$weight > 0))
+> stopifnot(
+>   !anyNA(dt$welf_pc_ppp_day), !anyNA(dt$weight),
+>   all(dt$weight > 0),
+>   all(dt$welf_pc_ppp_day > 0)  # negative/zero welfare inflates FGT(1) beyond 1
+> )
 > ```
 > If NAs are expected (e.g., item non-response), document the exclusion explicitly before computing.
 
@@ -124,13 +133,14 @@ fgt <- c(
   fgt2 = fmean(dt$gap_sq, w = dt$weight)
 )
 
-# Point estimates by region
+# Point estimates by region (pre-compute GRP to avoid 4 redundant grouping passes)
+g_region <- GRP(dt, ~ region)
 fgt_region <- data.table(
-  region = funique(dt$region),
-  fgt0   = fmean(dt$poor, g = dt$region, w = dt$weight),
-  fgt1   = fmean(dt$gap, g = dt$region, w = dt$weight),
-  fgt2   = fmean(dt$gap_sq, g = dt$region, w = dt$weight),
-  n      = fnobs(dt$poor, g = dt$region)
+  region = g_region$groups$region,
+  fgt0   = fmean(dt$poor,   g = g_region, w = dt$weight),
+  fgt1   = fmean(dt$gap,    g = g_region, w = dt$weight),
+  fgt2   = fmean(dt$gap_sq, g = g_region, w = dt$weight),
+  n      = fnobs(dt$poor,   g = g_region)
 )
 
 # SEs using the helper from survey-analysis.md
@@ -181,9 +191,26 @@ test_that("weighted_gini() warns and drops NA welfare", {
     "1 observation.*dropped"
   )
 })
-```
 
-## Multiple Poverty Lines
+test_that("FGT handles single observation", {
+  dt <- data.table(welfare = 1.5, weight = 1)
+  dt[, gap := fifelse(welfare < 2.15, (2.15 - welfare) / 2.15, 0)]
+  expect_equal(fmean(dt$gap, w = dt$weight), (2.15 - 1.5) / 2.15, tolerance = 1e-10)
+})
+
+test_that("FGT is 1 when all are poor", {
+  dt <- data.table(welfare = c(0.5, 1, 1.5), weight = c(1, 1, 1))
+  expect_equal(fmean(dt$welfare < 2.15, w = dt$weight), 1.0)
+})
+
+test_that("FGT is 0 when none are poor", {
+  dt <- data.table(welfare = c(3, 4, 5), weight = c(1, 1, 1))
+  expect_equal(fmean(dt$welfare < 2.15, w = dt$weight), 0.0)
+})
+
+test_that("weighted_gini() returns 0 for perfect equality", {
+
+> Run the pre-checks from the FGT section above before this block (`stopifnot(!anyNA(dt$welf_pc_ppp_day), all(dt$welf_pc_ppp_day > 0), !anyNA(dt$weight), all(dt$weight > 0))`).
 
 GPID reports at three international poverty lines. Compute all in one pass:
 
@@ -246,6 +273,8 @@ gini_by_region <- dt[, .(gini = weighted_gini(welf_pc_ppp_day, weight)),
 ```
 
 ## Welfare Shares by Decile
+
+> Run the pre-checks from the FGT section above before this block (`stopifnot(!anyNA(dt$welf_pc_ppp_day), all(dt$welf_pc_ppp_day > 0), !anyNA(dt$weight), all(dt$weight > 0))`).
 
 ```r
 # Assign weighted deciles using collapse

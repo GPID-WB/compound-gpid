@@ -42,15 +42,15 @@ test_that("weighted mean matches expected value", {
   dt <- data.table(y = c(1, 2, 3), w = c(1, 2, 1))
   result <- fmean(dt$y, w = dt$w)
   # (1*1 + 2*2 + 3*1) / (1+2+1) = 8/4 = 2
-  expect_equal(result, 2.0)
+  expect_equal(result, 2.0, tolerance = 1e-10)
 })
 
 test_that("collap aggregation produces correct groups", {
   dt <- data.table(g = c("a", "a", "b"), y = c(10, 20, 30), w = c(1, 1, 1))
   result <- collap(dt, ~ g, fmean, w = ~ w, cols = "y")
   expect_equal(nrow(result), 2)
-  expect_equal(result[g == "a"]$y, 15)
-  expect_equal(result[g == "b"]$y, 30)
+  expect_equal(result[g == "a"]$y, 15, tolerance = 1e-10)
+  expect_equal(result[g == "b"]$y, 30, tolerance = 1e-10)
 })
 
 test_that("fwithin centers to zero within groups", {
@@ -144,6 +144,36 @@ test_that("errors on invalid input", {
 
 ## Testing Plumber Endpoints
 
+First, define the `make_req()` helper in `tests/testthat/helper.R` (loaded automatically by testthat before all tests):
+
+```r
+# tests/testthat/helper.R
+make_req <- function(method, path, query = list(), body = NULL) {
+  query_string <- if (length(query) > 0) {
+    paste(names(query), query, sep = "=", collapse = "&")
+  } else {
+    ""
+  }
+
+  body_str <- if (!is.null(body)) jsonlite::toJSON(body, auto_unbox = TRUE) else ""
+
+  plumber::PlumberRequest$new(
+    req = list(
+      REQUEST_METHOD = method,
+      PATH_INFO      = path,
+      QUERY_STRING   = query_string,
+      HTTP_HOST      = "localhost",
+      CONTENT_TYPE   = "application/json",
+      rook.input     = list(read_lines = function(...) body_str)
+    )
+  )
+}
+```
+
+> **Why `rook.input`?** Plumber reads POST bodies via the rook interface. A naive helper that hardcodes `QUERY_STRING = ""` and omits `rook.input` will silently pass wrong tests (body is ignored).
+
+Then in test files:
+
 ```r
 test_that("GET /health returns ok", {
   pr <- plumber::pr("plumber.R")
@@ -157,6 +187,18 @@ test_that("GET /poverty returns 400 for bad country code", {
   pr <- plumber::pr("plumber.R")
   res <- pr$call(make_req("GET", "/poverty/INVALID/2023"))
   expect_equal(res$status, 400L)
+})
+
+test_that("GET /stats with query parameters", {
+  pr  <- plumber::pr("plumber.R")
+  res <- pr$call(make_req("GET", "/stats", query = list(country = "NGA", year = "2023")))
+  expect_equal(res$status, 200L)
+})
+
+test_that("POST /estimates accepts JSON body", {
+  pr  <- plumber::pr("plumber.R")
+  res <- pr$call(make_req("POST", "/estimates", body = list(country = "NGA", year = 2023)))
+  expect_equal(res$status, 200L)
 })
 ```
 
@@ -178,7 +220,8 @@ test_that("API client handles success", {
 
 ```r
 # tests/testthat/helper.R (loaded automatically)
-make_test_survey <- function(n = 100) {
+make_test_survey <- function(n = 100, seed = 42) {
+  if (!is.null(seed)) set.seed(seed)
   data.table(
     id = seq_len(n), welfare = rlnorm(n, 2, 1),
     weight = runif(n, 0.5, 2), region = sample(c("A", "B"), n, TRUE),

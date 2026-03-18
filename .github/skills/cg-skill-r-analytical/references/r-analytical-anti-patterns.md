@@ -51,6 +51,33 @@ survey_mean_se(dt$welfare, w = dt$weight, psu = dt$psu, stratum = dt$stratum)
 
 ## Welfare Measurement Anti-Patterns
 
+### Computing FGT or Gini without validating welfare and weights first
+
+**Problem:** Running poverty/inequality calculations without pre-checking for NA, zero, or negative welfare values. collapse's default `na.rm = TRUE` silently drops NA rows and computes statistics over fewer observations without warning.
+
+**Wrong:**
+```r
+# No validation — NA welfare silently excluded; negative welfare inflates FGT(1)
+dt[, gap := fifelse(welf_pc_ppp_day < 2.15, (2.15 - welf_pc_ppp_day) / 2.15, 0)]
+fgt1 <- fmean(dt$gap, w = dt$weight)
+```
+
+**Right:**
+```r
+# Always validate before FGT/Gini
+stopifnot(
+  !anyNA(dt$welf_pc_ppp_day), !anyNA(dt$weight),
+  all(dt$weight > 0),
+  all(dt$welf_pc_ppp_day > 0)  # negative welfare inflates FGT(1) beyond 1
+)
+dt[, gap := fifelse(welf_pc_ppp_day < 2.15, (2.15 - welf_pc_ppp_day) / 2.15, 0)]
+fgt1 <- fmean(dt$gap, w = dt$weight)
+```
+
+**Why it matters:** A survey with 5% missing welfare silently computes poverty over 95% of the population as if it were 100%. Negative welfare is physically impossible and produces FGT gap values above 1. Both are P1 data corruption risks. See the [collapse na.rm solution](.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md) for the full failure modes.
+
+---
+
 ### Averaging the poverty gap only among the poor
 
 **Problem:** Computing FGT(1) as the average gap among poor households instead of the entire population.
@@ -88,6 +115,8 @@ dt[, poor := welfare_2017ppp < 2.15]
 ---
 
 ### Aggregate-then-merge instead of using TRA
+
+> See also the same pattern in [r-technical-anti-patterns.md](../../cg-skill-r-technical/references/r-technical-anti-patterns.md) for non-welfare contexts.
 
 **Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
 
@@ -129,6 +158,8 @@ fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 
 ### Using set_collapse(mask = ...) to hide function names
 
+> See also the same pattern in [r-technical-anti-patterns.md](../../cg-skill-r-technical/references/r-technical-anti-patterns.md).
+
 **Problem:** Masking base R functions with collapse equivalents makes code unreadable for team members who don't know about the masking.
 
 **Wrong:**
@@ -146,7 +177,7 @@ dt |> fsubset(year > 2010) |> ftransform(log_y = log(y))
 
 ---
 
-### Forgetting qDT() after fgroup_by pipe operations
+### Forgetting qDT() after fgroup_by pipe
 
 **Problem:** `fgroup_by() |> fmean()` on a data.table returns a non-overallocated data.table. Using `:=` on it triggers a warning.
 

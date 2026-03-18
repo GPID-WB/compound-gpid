@@ -29,6 +29,8 @@ dt[, .(mean_welf = fmean(welfare, w = weight)), by = region]
 
 ### Using set_collapse(mask = ...) to hide function names
 
+> See also the same pattern in [r-analytical-anti-patterns.md](../../../cg-skill-r-analytical/references/r-analytical-anti-patterns.md).
+
 **Problem:** Masking base R functions makes code unreadable for team members.
 
 **Wrong:**
@@ -143,6 +145,8 @@ result[, new := 1]
 ---
 
 ### Aggregate-then-merge instead of using TRA
+
+> See also the same pattern in [r-analytical-anti-patterns.md](../../../cg-skill-r-analytical/references/r-analytical-anti-patterns.md) for the welfare/survey-statistics framing (statistical accuracy, not just performance).
 
 **Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
 

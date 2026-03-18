@@ -5,7 +5,7 @@ category: "data-quality"
 language: "R"
 tags: [collapse, na.rm, global-options, set_collapse, welfare-measurement, silent-errors]
 root-cause: "collapse defaults na.rm = TRUE via a global option system, opposite of base R's FALSE; changing it globally breaks all welfare patterns silently"
-severity: "P2"
+severity: "P1"
 ---
 
 # collapse na.rm Global Option: Default TRUE, Opposite of Base R

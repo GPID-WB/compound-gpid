@@ -2,6 +2,8 @@
 
 `data.table` for manipulation (filtering, joins, reshaping, `:=`). `collapse` for statistical computing (grouped/weighted stats, transformations, aggregation). They work seamlessly together — collapse functions operate directly on data.table objects.
 
+> **Full collapse API**: For global options (`set_collapse`), the complete Fast Statistical Function signatures, all 10 TRA types, GRP object structure, and attribute preservation rules, see [`cg-skill-r-analytical/references/collapse-reference.md`](../../cg-skill-r-analytical/references/collapse-reference.md).
+
 ## When to Use Which
 
 | Operation | Tool | Example |
@@ -21,9 +23,9 @@
 ## data.table Core: DT[i, j, by]
 
 ```r
-dt[age > 30]                                      # Filter
-dt[, .(mean_inc = mean(income)), by = region]     # Aggregate (base R)
-dt[, log_income := log(income)]                   # Add column
+dt[age > 30]                                                    # Filter
+dt[, .(mean_inc = mean(income)), by = region]                   # Aggregate (base R mean — EDA only; use fmean() for GPID work)
+dt[, log_income := log(income)]                                 # Add column
 dt[age > 65, elderly := TRUE]                     # Conditional assignment
 dt[, temp_col := NULL]                            # Remove column
 ```
@@ -135,7 +137,8 @@ settransformv(dt, c("welfare", "income"), log)    # Apply to multiple columns
 ## .SD and .SDcols
 
 ```r
-# Apply function to multiple columns
+# Apply function to multiple columns — use collap() for weighted multi-column aggregation (preferred)
+# Prefer: collap(dt, ~ region, fmean, w = ~ weight, cols = c("welfare", "income"))
 dt[, lapply(.SD, fmean, w = weight), .SDcols = c("welfare", "income"), by = region]
 
 # First/last row per group
