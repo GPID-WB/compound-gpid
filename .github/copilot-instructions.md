@@ -6,8 +6,8 @@ You are working in a data science project maintained by the DECDG team at the Wo
 
 - Check `compound-gpid.local.md` in the project root for the user's preferred language(s).
 - Default: R, Python, and Stata are all acceptable. Ask the user if unclear.
-- R style: `data.table` for data manipulation, `ggplot2` for visualization.
-  - **Two R skills**: R work is covered by two skills. `cg-skill-r-technical` covers package/infrastructure work (data.table, plumber, shiny, targets, renv). `cg-skill-r-analytical` covers statistical/econometric work (survey analysis, fixest, modelsummary, wbplot, welfare measurement). Load the appropriate skill based on work type; load both for mixed work.
+- R style: `collapse` for statistics/aggregation, `data.table` for data manipulation, `ggplot2` for visualization. Preference hierarchy: collapse > data.table > tidyverse.
+  - **Two R skills**: R work is covered by two skills. `cg-skill-r-technical` covers package/infrastructure work (collapse, data.table, plumber, shiny, targets, renv). `cg-skill-r-analytical` covers statistical/econometric work (collapse, data.table, fixest, modelsummary, wbplot, welfare measurement). Load the appropriate skill based on work type; load both for mixed work.
 - Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
 - Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-core` when writing or reviewing `.do`/`.ado` files.
 

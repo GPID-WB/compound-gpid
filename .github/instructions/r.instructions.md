@@ -4,6 +4,25 @@ applyTo: "**/*.R,**/*.r,**/*.Rmd"
 
 # R Coding Standards
 
+## Package Preference Hierarchy
+
+1. **collapse** — for all grouped, weighted, and statistical computations
+2. **data.table** — for data manipulation, filtering, joins, reshaping, column creation
+3. **tidyverse** — only as fallback when collapse and data.table cannot do the job
+
+## collapse
+
+- Use `collapse` for grouped and weighted statistics (`fmean`, `fsum`, `fmedian`, `fvar`, `fsd`, `fnth`).
+- Use `collap()` for multi-function aggregation with native weight support.
+- Use `fwithin()`, `fbetween()`, `fscale()` for group centering/scaling.
+- Use `flag()`, `fdiff()`, `fgrowth()` for panel/time-series operations.
+- Use `qsu()`, `descr()`, `qtab()` for quick summary statistics.
+- Use `GRP()` to pre-compute grouping objects when reusing groups across multiple calls.
+- Use `join()` for simple merges; prefer `data.table` `X[Y, on=]` for complex joins.
+- Use `pivot()` for simple reshaping; prefer `data.table` `melt`/`dcast` for complex cases.
+- **Never** use `set_collapse(mask = ...)`. Always use explicit `f`-prefixed function names.
+- `collapse` and `data.table` are fully interoperable: collapse functions operate directly on data.table objects.
+
 ## data.table
 
 - Use `data.table` as the primary data manipulation framework.
