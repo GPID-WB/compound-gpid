@@ -24,7 +24,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 ### Code Organization
 - Separate data loading, processing, analysis, and visualization into distinct modules/scripts.
 - Keep scripts under 300 lines. Split larger files by responsibility.
-- Use consistent project structure (see `cg-skill-r-best-practices`, `cg-skill-python-best-practices`, or `cg-skill-stata-core` skills).
+- Use consistent project structure (see `cg-skill-r-technical`, `cg-skill-r-analytical`, `cg-skill-python-best-practices`, or `cg-skill-stata-core` skills).
 
 ## Testing Requirements
 

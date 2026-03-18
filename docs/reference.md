@@ -52,7 +52,8 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | Skill | Contents |
 |-------|---------|
 | `cg-skill-setup` | Project configuration wizard |
-| `cg-skill-r-best-practices` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv` |
+| `cg-skill-r-technical` | `data.table`, `ggplot2`, `testthat`, roxygen2, `renv`, package dev, `plumber`, `shiny`, `targets` |
+| `cg-skill-r-analytical` | `haven`, `srvyr`/`survey`, `fixest`, `modelsummary`, `ggplot2`+`wbplot`, welfare measurement |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
 | `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns, do-file conventions |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
