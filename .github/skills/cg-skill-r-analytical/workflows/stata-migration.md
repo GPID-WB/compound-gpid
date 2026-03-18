@@ -1,12 +1,13 @@
 # Stata Migration
 
-Patterns for reading Stata files, handling labels, and avoiding the traps that catch economists migrating from Stata to R.
+Patterns for reading Stata files, handling labels, and avoiding the traps that catch economists migrating from Stata to R. Data stays in data.table; statistical computing uses collapse.
 
 ## Reading .dta Files with haven
 
 ```r
 library(haven)
 library(data.table)
+library(collapse)
 
 # Read a Stata .dta file into a data.table
 dt <- as.data.table(read_dta("data/survey_2023.dta"))
@@ -19,10 +20,6 @@ dt <- as.data.table(read_dta("data/survey_2023.dta"))
 When you read a .dta file, numeric columns with value labels become `haven_labelled` vectors. They look like numbers but carry label metadata.
 
 ```r
-# After reading a .dta file, check what you have
-dt <- as.data.table(read_dta("data/survey.dta"))
-
-# This column looks numeric but has labels attached
 class(dt$urban)
 # [1] "haven_labelled" "vctrs_vcl"      "double"
 
@@ -33,35 +30,28 @@ print_labels(dt$urban)
 #     1 Urban
 
 # The values are still numeric — math works
-mean(dt$urban)  # proportion urban
+fmean(dt$urban, w = dt$weight)  # weighted proportion urban (collapse)
 ```
 
-### Stata comparison
-
-In Stata, `encode` and value labels are seamless — you never think about them. In R, you must decide: do you want the numeric values or the label text?
+**Note:** collapse functions work on `haven_labelled` vectors — they treat them as numeric. But it's cleaner to strip labels explicitly for variables you'll compute with.
 
 ## The as_factor() Trap
 
-`as_factor()` converts labelled vectors to R factors using the label text. This is often what you want for categorical variables, but it silently destroys numeric information.
+`as_factor()` converts labelled vectors to R factors using the label text. This silently destroys numeric information.
 
 ```r
 # DANGER: as_factor() on a variable you need as numeric
 dt[, urban_factor := as_factor(urban)]
-mean(dt$urban_factor)
-# Warning: argument is not numeric or logical: returning NA
+fmean(dt$urban_factor)  # Error or NA — can't average a factor
 
 # SAFE: as_factor() on a genuinely categorical variable
 dt[, region_name := as_factor(region)]
-table(dt$region_name)
-# East Asia    Europe    LAC    MENA    South Asia    SSA
-#     1204      892    1567     443          2103   3201
+qtab(dt$region_name)  # collapse cross-tabulation
 ```
 
-**Rule:** Use `as_factor()` only for variables you will treat as categories (region, education level, survey round). Never use it on variables you will use in calculations (urban dummy, income quintile as numeric).
+**Rule:** Use `as_factor()` only for variables you will treat as categories. Never for variables entering calculations.
 
 ## zap_labels() — When You Want Plain Numbers
-
-When you want clean numeric vectors without any Stata metadata:
 
 ```r
 # Remove labels from specific columns
@@ -72,14 +62,10 @@ dt[, weight := zap_labels(weight)]
 dt <- as.data.table(zap_labels(read_dta("data/survey.dta")))
 ```
 
-**When to use zap_labels():** When the column is purely numeric and you don't need the label metadata. This is the safest approach for welfare aggregates, weights, continuous variables, and any column entering a regression.
-
-## Common Reading Patterns
-
-### Read and immediately clean labels
+## Common Reading Pattern
 
 ```r
-# Pattern: read, convert categories, strip labels from numerics
+# Read, convert categories, strip labels from numerics
 dt <- as.data.table(read_dta("data/hh_survey.dta"))
 
 # Convert categorical variables to factors
@@ -89,67 +75,48 @@ dt[, (cat_vars) := lapply(.SD, as_factor), .SDcols = cat_vars]
 # Strip labels from numeric variables
 num_vars <- c("welfare", "weight", "hhsize", "age")
 dt[, (num_vars) := lapply(.SD, zap_labels), .SDcols = num_vars]
+
+# Quick weighted summary with collapse
+qsu(dt, cols = num_vars, w = ~ weight)
 ```
-
-### Read specific columns only
-
-```r
-# haven doesn't support column selection directly — read then subset
-dt <- as.data.table(read_dta("data/large_survey.dta"))
-dt <- dt[, .(hhid, welfare, weight, region, year)]
-```
-
-**Stata comparison:** This is like `use var1 var2 using "file.dta"`. R reads the whole file first, then subsets. For very large .dta files, consider converting to .parquet or .fst for faster I/O.
 
 ## Round-Tripping Back to Stata
-
-When you need to send data back to Stata colleagues:
 
 ```r
 # Write a data.table back to .dta
 write_dta(dt, "output/cleaned_data.dta")
 
-# Preserve variable labels if you set them
+# Preserve variable labels
 attr(dt$welfare, "label") <- "Per capita consumption (2017 PPP USD)"
-attr(dt$weight, "label") <- "Household survey weight"
 write_dta(dt, "output/cleaned_data.dta")
 ```
-
-### Limitations of write_dta()
-
-- Factor variables are written as labelled numeric (Stata value labels)
-- Character strings longer than 2045 characters are truncated
-- Date/time handling differs between R and Stata — always verify dates round-trip correctly
-- data.table columns with class `IDate` or `POSIXct` should be converted before writing
 
 ## Variable Label Utilities
 
 ```r
-# Get variable label (what Stata shows as "Variable label" in describe)
-var_label(dt$welfare)
-# [1] "Per capita daily consumption"
+var_label(dt$welfare)           # Get variable label
+var_label(dt$welfare) <- "text" # Set variable label
+var_label(dt)                   # All labels as named list
+val_labels(dt$region)           # Value labels for a labelled vector
 
-# Set variable labels
-var_label(dt$welfare) <- "Per capita consumption (2017 PPP USD)"
-
-# Get all variable labels as a named list
-var_label(dt)
-
-# Get value labels for a labelled vector
-val_labels(dt$region)
+# collapse also reads labels: namlab() shows names + labels
+namlab(dt)
 ```
 
 ## Stata-to-R Translation Quick Reference
 
-| Stata | R (data.table + haven) | Notes |
-|-------|----------------------|-------|
+| Stata | R (data.table + haven + collapse) | Notes |
+|-------|----------------------------------|-------|
 | `use "file.dta"` | `dt <- as.data.table(read_dta("file.dta"))` | |
-| `use var1 var2 using "file.dta"` | Read full, then `dt[, .(var1, var2)]` | |
 | `save "file.dta", replace` | `write_dta(dt, "file.dta")` | |
-| `describe` | `str(dt)` or `var_label(dt)` | |
-| `codebook var` | `summary(dt$var)` + `val_labels(dt$var)` | |
-| `tab var` | `table(as_factor(dt$var))` | |
-| `decode var, gen(var_str)` | `dt[, var_str := as_factor(var)]` | |
-| `encode var, gen(var_num)` | `dt[, var_num := as.integer(as_factor(var))]` | |
-| `label list` | `val_labels(dt$var)` | Per variable |
-| `label define` | `val_labels(dt$var) <- c(...)` | |
+| `describe` | `str(dt)` or `namlab(dt)` | `namlab` from collapse |
+| `summarize var [aw=wt]` | `qsu(dt, cols = "var", w = ~ wt)` | collapse |
+| `tab var [aw=wt]` | `qtab(dt$var, w = dt$wt)` | collapse |
+| `collapse (mean) y [aw=wt], by(g)` | `collap(dt, ~ g, fmean, w = ~ wt, cols = "y")` | collapse |
+| `egen mean = mean(y), by(g)` | `fmean(dt$y, g = dt$g, TRA = "replace")` | collapse TRA |
+| `bysort g: egen sd = sd(y)` | `fsd(dt$y, g = dt$g, TRA = "replace")` | collapse TRA |
+| `xtset id year` | `pdt <- findex_by(dt, id, year)` | collapse panel |
+| `L.y` | `flag(pdt$y, 1)` or `L(pdt, 1)` | collapse lag |
+| `D.y` | `fdiff(pdt$y)` or `D(pdt)` | collapse diff |
+| `decode var, gen(var_str)` | `dt[, var_str := as_factor(var)]` | haven |
+| `label list` | `val_labels(dt$var)` | haven |

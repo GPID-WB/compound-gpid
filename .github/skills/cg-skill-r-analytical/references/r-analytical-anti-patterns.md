@@ -1,98 +1,51 @@
 # Analytical R Anti-Patterns
 
-Common mistakes in analytical R code. Each entry: what the mistake is, why it matters, what goes wrong, and what to do instead.
-
-**Sections:** [Survey Analysis](#survey-analysis-anti-patterns) · [Welfare Measurement](#welfare-measurement-anti-patterns) · [haven / Stata Migration](#haven--stata-migration-anti-patterns) · [Visualization](#visualization-anti-patterns) · [Econometrics](#econometrics-anti-patterns) · [Inequality](#inequality-anti-patterns)
+Common mistakes in analytical R code. The team hierarchy is collapse > data.table > tidyverse. Each entry: what the mistake is, why it matters, wrong example, right example.
 
 ---
 
-## Survey Analysis Anti-Patterns
+## Tool Hierarchy Anti-Patterns
 
-### Bypassing the survey design for "quick" calculations
+### Using base R or tidyverse for weighted statistics when collapse is available
 
-**Problem:** Computing weighted statistics directly on the data.table instead of through the survey design object. The point estimate may be correct, but standard errors, confidence intervals, and p-values will be wrong because clustering and stratification are ignored.
+**Problem:** Computing weighted means with `weighted.mean()`, `dplyr::summarise()`, or manual formulas instead of collapse. These are slower and don't support grouping natively.
 
 **Wrong:**
 ```r
-# "I'll just use weighted.mean, it's faster"
-dt[, weighted.mean(welfare, weight), by = region]
+dt[, weighted.mean(welfare, weight), by = region]  # base R, no SE support
+dt %>% group_by(region) %>% summarise(m = weighted.mean(welfare, weight))  # slow
 ```
 
 **Right:**
 ```r
-svy |>
-  group_by(region) |>
-  summarise(mean_welfare = survey_mean(welfare, vartype = "ci"))
+fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse: fastest, explicit
 ```
 
-**Why it matters:** A poverty headcount of 25.3% ± 0.8pp vs 25.3% ± 2.1pp changes whether a trend is statistically significant. Published numbers with wrong standard errors undermine the credibility of all GPID statistics.
+**Why it matters:** collapse functions are 10-100x faster and have consistent `f*(x, g, w)` signatures that make code readable and auditable.
 
 ---
 
-### Redeclaring the survey design in different places
+### Using srvyr for simple weighted statistics
 
-**Problem:** Creating multiple survey design objects with slightly different specifications (different weights, strata, or PSU variables) at different points in the analysis. Results become internally inconsistent.
-
-**Wrong:**
-```r
-# In one script:
-svy1 <- dt |> as_survey_design(ids = psu, strata = strat, weights = wt)
-
-# In another script, slightly different:
-svy2 <- dt |> as_survey_design(ids = cluster, strata = stratum, weights = weight)
-```
-
-**Right:**
-```r
-# Declare ONCE, at the top of the analysis, and pass svy to all functions
-svy <- dt |>
-  as_survey_design(ids = psu, strata = stratum, weights = weight, nest = TRUE)
-
-# Everything downstream uses this single object
-```
-
-**Why it matters:** If `svy1` and `svy2` use different variable names (which might even be the same column), you cannot tell whether differences in results are real or due to design mismatch.
-
----
-
-### Subsetting data instead of filtering the design
-
-**Problem:** Filtering the raw data and re-creating a survey design for a subpopulation. This changes the variance estimation because it treats the subset as the full sample.
+**Problem:** Declaring a full survey design object just to compute a weighted mean. `srvyr` adds overhead (design declaration, method dispatch) that's unnecessary for point estimates.
 
 **Wrong:**
 ```r
-dt_urban <- dt[urban == 1]
-svy_urban <- dt_urban |>
-  as_survey_design(ids = psu, strata = stratum, weights = weight)
+svy <- dt |> as_survey_design(ids = psu, strata = stratum, weights = weight)
+svy |> group_by(region) |> summarise(mean_welfare = survey_mean(welfare))
 ```
 
-**Right:**
+**Right (point estimates):**
 ```r
-svy_urban <- svy |> filter(urban == 1)
+fmean(dt$welfare, g = dt$region, w = dt$weight)
 ```
 
-**Why it matters:** Variance estimation in complex surveys depends on the full sample structure. Subsetting the data and re-declaring the design produces overconfident standard errors for subpopulations.
-
----
-
-### Omitting nest = TRUE when PSU IDs are not globally unique
-
-**Problem:** Creating a survey design without `nest = TRUE` when PSU IDs are only unique within strata, not globally. `srvyr`/`survey` will treat PSU "101" in stratum A and PSU "101" in stratum B as the same cluster.
-
-**Wrong:**
+**Right (when you need design-based SEs):**
 ```r
-svy <- dt |>
-  as_survey_design(ids = psu, strata = stratum, weights = weight)
-# PSU IDs repeat across strata — design is mis-specified
+survey_mean_se(dt$welfare, w = dt$weight, psu = dt$psu, stratum = dt$stratum)
 ```
 
-**Right:**
-```r
-svy <- dt |>
-  as_survey_design(ids = psu, strata = stratum, weights = weight, nest = TRUE)
-```
-
-**Why it matters:** GPID surveys frequently reuse PSU IDs across strata. Without `nest = TRUE`, degrees of freedom are pooled incorrectly across strata, standard errors are underestimated, and confidence intervals are too narrow — with no warning or error. The poverty headcount may look correct while the uncertainty around it is wrong.
+**Why it matters:** `srvyr` is a fallback for complex SE estimation, not the default tool. Use collapse for everything you can, fall back to srvyr only when needed.
 
 ---
 
@@ -100,66 +53,111 @@ svy <- dt |>
 
 ### Averaging the poverty gap only among the poor
 
-**Problem:** Computing FGT(1) as the average gap among poor households instead of averaging over the entire population. This gives the "income gap ratio" (a different statistic), not the FGT poverty gap.
+**Problem:** Computing FGT(1) as the average gap among poor households instead of the entire population.
 
 **Wrong:**
 ```r
-svy |>
-  filter(welfare < poverty_line) |>
-  summarise(fgt1 = survey_mean((poverty_line - welfare) / poverty_line))
+fmean(dt[poor == TRUE]$gap, w = dt[poor == TRUE]$weight)
 ```
 
 **Right:**
 ```r
-svy |>
-  mutate(gap = ifelse(welfare < poverty_line,
-                      (poverty_line - welfare) / poverty_line, 0)) |>
-  summarise(fgt1 = survey_mean(gap))
+fmean(dt$gap, w = dt$weight)  # gap is 0 for non-poor
 ```
 
-**Why it matters:** The FGT poverty gap for a country might be 0.05 (correct) vs 0.20 (wrong). The wrong number is 4x larger and tells a completely different story about poverty depth.
+**Why it matters:** The wrong number can be 4x larger. This is the most common FGT error.
 
 ---
 
 ### Losing track of PPP units
 
-**Problem:** Applying a poverty line denominated in one PPP vintage to welfare data in a different vintage, or comparing welfare in local currency to a PPP poverty line.
+**Problem:** Applying a poverty line in one PPP vintage to welfare data in a different vintage.
 
 **Wrong:**
 ```r
-# welfare is in 2011 PPP, but $2.15 is a 2017 PPP line
-dt[, poor := welfare_2011ppp < 2.15]
+dt[, poor := welfare_2011ppp < 2.15]  # $2.15 is 2017 PPP
 ```
 
 **Right:**
 ```r
-# Ensure both are in the same PPP vintage
 dt[, poor := welfare_2017ppp < 2.15]
 ```
-
-**Why it matters:** PPP conversion factors differ substantially between vintages. 2011 and 2017 PPP factors can differ by 20-30% for some countries. Using the wrong vintage produces poverty rates that are off by double-digit percentage points.
 
 ---
 
 ### Using unweighted means for published statistics
 
-**Problem:** Reporting `mean()` instead of survey-weighted means in tables or charts that will appear in publications.
-
 **Wrong:**
 ```r
-# For a table in a report
-dt[, .(mean_welfare = mean(welfare)), by = region]
+dt[, .(mean_welfare = mean(welfare)), by = region]  # unweighted
 ```
 
 **Right:**
 ```r
-svy |>
-  group_by(region) |>
-  summarise(mean_welfare = survey_mean(welfare, vartype = "ci")) |>
-  as.data.table()
+fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 ```
 
-**Why it matters:** Unweighted means do not represent the population. A region with oversampled rural areas will show lower mean welfare than the true population mean. This is not a minor issue — it can reverse regional rankings.
+---
+
+## collapse Anti-Patterns
+
+### Using set_collapse(mask = ...) to hide function names
+
+**Problem:** Masking base R functions with collapse equivalents makes code unreadable for team members who don't know about the masking.
+
+**Wrong:**
+```r
+set_collapse(mask = "manip")  # Now subset() is fsubset(), transform() is ftransform()
+dt |> subset(year > 2010) |> transform(log_y = log(y))
+```
+
+**Right:**
+```r
+dt |> fsubset(year > 2010) |> ftransform(log_y = log(y))
+```
+
+**Why it matters:** Explicit `f`-prefixed names tell every reader exactly which function is running.
+
+---
+
+### Forgetting qDT() after fgroup_by pipe operations
+
+**Problem:** `fgroup_by() |> fmean()` on a data.table returns a non-overallocated data.table. Using `:=` on it triggers a warning.
+
+**Wrong:**
+```r
+result <- dt |> fgroup_by(region) |> fmean(w = weight)
+result[, new_col := 1]  # Warning about overallocation
+```
+
+**Right:**
+```r
+result <- dt |> fgroup_by(region) |> fmean(w = weight) |> qDT()
+result[, new_col := 1]  # Works cleanly
+```
+
+---
+
+### Not pre-computing GRP objects for repeated grouped operations
+
+**Problem:** Passing raw grouping vectors to multiple collapse functions. Each call recomputes the grouping.
+
+**Wrong:**
+```r
+fmean(dt$welfare, g = dt$region, w = dt$weight)
+fsd(dt$welfare, g = dt$region, w = dt$weight)
+fnobs(dt$welfare, g = dt$region)
+# Grouping computed 3 times
+```
+
+**Right:**
+```r
+g <- GRP(dt, ~ region)
+fmean(dt$welfare, g = g, w = dt$weight)
+fsd(dt$welfare, g = g, w = dt$weight)
+fnobs(dt$welfare, g = g)
+# Grouping computed once, reused 3 times
+```
 
 ---
 
@@ -167,47 +165,17 @@ svy |>
 
 ### Using as_factor() on numeric variables
 
-**Problem:** Converting a labelled numeric variable (like an urban/rural dummy) to a factor, then trying to use it in calculations.
-
 **Wrong:**
 ```r
 dt[, urban := as_factor(urban)]
-dt[, mean(urban)]  # NA — can't average a factor
+fmean(dt$urban)  # Error — can't average a factor
 ```
 
 **Right:**
 ```r
-# For calculations: strip labels
-dt[, urban := zap_labels(urban)]
-
-# For tabulation: convert to factor
-dt[, urban_label := as_factor(urban)]
+dt[, urban := zap_labels(urban)]  # For calculations
+dt[, urban_label := as_factor(urban)]  # For tabulation
 ```
-
-**Why it matters:** Silently converts a numeric dummy to a character factor. Downstream calculations fail or produce NA without warning in some contexts.
-
----
-
-### Ignoring Stata label metadata entirely
-
-**Problem:** Using `zap_labels()` on everything and losing the documentation that Stata labels provide. Two months later, nobody knows what `educ == 3` means.
-
-**Wrong:**
-```r
-dt <- as.data.table(zap_labels(read_dta("survey.dta")))
-# What is education level 3? Who knows.
-```
-
-**Right:**
-```r
-dt <- as.data.table(read_dta("survey.dta"))
-# Keep a reference of what the codes mean
-educ_labels <- val_labels(dt$education)
-# Then zap for computation
-dt[, education := zap_labels(education)]
-```
-
-**Why it matters:** Label metadata is the data dictionary. Discarding it forces everyone to look up variable definitions in the original survey documentation every time.
 
 ---
 
@@ -215,34 +183,25 @@ dt[, education := zap_labels(education)]
 
 ### Using theme_minimal() instead of theme_wb()
 
-**Problem:** Producing charts with default ggplot2 or theme_minimal() styling for GPID publications.
-
 **Wrong:**
 ```r
-ggplot(dt, aes(x = year, y = headcount)) +
-  geom_line() +
-  theme_minimal()
+ggplot(dt, aes(x = year, y = headcount)) + geom_line() + theme_minimal()
 ```
 
 **Right:**
 ```r
 ggplot(dt, aes(x = year, y = headcount)) +
-  geom_line(lineend = "round") +
-  theme_wb(chartType = "line")
+  geom_line(lineend = "round") + theme_wb(chartType = "line")
 ```
-
-**Why it matters:** Institutional publications require consistent branding. Charts that don't match the World Bank style stand out in reports and presentations, and signal a lack of attention to quality.
 
 ---
 
 ### Forgetting lineend = "round" and width = 0.66
 
-**Problem:** Using ggplot2 defaults for line endings and bar widths instead of wbplot conventions.
-
 **Wrong:**
 ```r
-geom_line()                    # butt lineend (default)
-geom_bar(stat = "identity")   # width = 0.9 (default)
+geom_line()                    # butt lineend
+geom_bar(stat = "identity")   # width = 0.9
 ```
 
 **Right:**
@@ -251,37 +210,25 @@ geom_line(lineend = "round")
 geom_bar(stat = "identity", width = 0.66)
 ```
 
-**Why it matters:** wbplot does not override these defaults. You must set them manually on every chart.
-
-*For the complete wbplot quick-reference checklist, see [Things to Remember](../workflows/visualization.md#things-to-remember) in the visualization workflow.*
-
 ---
 
 ## Econometrics Anti-Patterns
 
 ### Forgetting to cluster standard errors
 
-**Problem:** Running fixed effects regressions without clustering, producing standard errors that are too small.
-
 **Wrong:**
 ```r
 m <- feols(log_welfare ~ education + age | region + year, data = dt)
-# Default: iid standard errors
 ```
 
 **Right:**
 ```r
-m <- feols(log_welfare ~ education + age | region + year,
-           vcov = ~psu, data = dt)
+m <- feols(log_welfare ~ education + age | region + year, vcov = ~psu, data = dt)
 ```
-
-**Why it matters:** Unclustered standard errors with panel or grouped data are biased downward, often dramatically. Coefficients appear significant when they are not.
 
 ---
 
 ### Using standard TWFE for staggered treatment
-
-**Problem:** Estimating a two-way fixed effects model when treatment rolls out at different times across units. The standard TWFE estimator is biased under treatment effect heterogeneity.
 
 **Wrong:**
 ```r
@@ -292,38 +239,3 @@ m <- feols(outcome ~ treated | unit + year, data = dt)
 ```r
 m <- feols(outcome ~ sunab(first_treated, year) | unit + year, data = dt)
 ```
-
-**Why it matters:** The TWFE estimate can be wrong in sign when treatment effects vary across cohorts. This has been demonstrated in econometrics literature (Goodman-Bacon 2021, Sun & Abraham 2021) and is not a theoretical curiosity — it affects real estimates.
-
----
-
-## Inequality Anti-Patterns
-
-### Computing Gini without a survey-aware package
-
-**Problem:** Using `ineq::Gini()` or a hand-rolled weighted formula that ignores survey design. The point estimate may be close, but standard errors are wrong or unavailable.
-
-**Wrong:**
-```r
-library(ineq)
-# Ignores sampling weights and clustering entirely
-ineq::Gini(dt$welfare)
-```
-
-**Right:**
-```r
-library(convey)
-# Wrap the survey design once, then use convey for all inequality statistics
-svy_convey <- convey_prep(svy)
-
-# Design-correct Gini with standard error
-svygini(~welfare, svy_convey)
-```
-
-**Why it matters:** `ineq::Gini()` ignores sampling weights and clustering. Even a weighted Gini calculated outside the survey design underestimates the standard error. For GPID publications, inequality statistics must use `convey` to produce design-correct inference. A Gini of 0.42 ± 0.01 vs 0.42 ± 0.04 changes whether regional differences are statistically meaningful.
-
----
-
-## See Also
-
-General R programming anti-patterns (`T/F` vs `TRUE/FALSE`, `seq_along`, `sapply` vs. `vapply`, vector-growing in loops) apply equally to analytical code. See [Technical R Anti-Patterns](../../cg-skill-r-technical/references/r-technical-anti-patterns.md) for a full list.

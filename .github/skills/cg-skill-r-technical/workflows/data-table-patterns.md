@@ -1,182 +1,150 @@
-# data.table Patterns
+# data.table + collapse Patterns
 
-## Core Syntax: `DT[i, j, by]`
+`data.table` for manipulation (filtering, joins, reshaping, `:=`). `collapse` for statistical computing (grouped/weighted stats, transformations, aggregation). They work seamlessly together — collapse functions operate directly on data.table objects.
+
+## When to Use Which
+
+| Operation | Tool | Example |
+|-----------|------|---------|
+| Row filtering | data.table | `dt[age > 30]` |
+| Column creation | data.table | `dt[, new := expr]` |
+| Joins | data.table | `Y[X, on = "key"]` |
+| Reshaping | data.table / collapse | `melt()` / `pivot()` |
+| Conditional logic | data.table | `fifelse()`, `fcase()` |
+| I/O | data.table | `fread()`, `fwrite()` |
+| Weighted mean/sum/sd | collapse | `fmean(x, g, w)` |
+| Aggregation | collapse | `collap(dt, ~ g, fmean, w = ~ w)` |
+| Group centering/scaling | collapse | `fwithin()`, `fscale()` |
+| Lags/diffs/growth | collapse | `flag()`, `fdiff()`, `fgrowth()` |
+| Summary stats | collapse | `qsu()`, `descr()` |
+
+## data.table Core: DT[i, j, by]
 
 ```r
-# Filter rows (i)
-dt[age > 30]
-dt[country == "USA"]
-
-# Select/compute columns (j)
-dt[, .(mean_income = mean(income), n = .N)]
-dt[, .(col1, col2)]
-
-# Group by
-dt[, .(mean_income = mean(income)), by = region]
-dt[, .(mean_income = mean(income)), by = .(region, year)]
+dt[age > 30]                                      # Filter
+dt[, .(mean_inc = mean(income)), by = region]     # Aggregate (base R)
+dt[, log_income := log(income)]                   # Add column
+dt[age > 65, elderly := TRUE]                     # Conditional assignment
+dt[, temp_col := NULL]                            # Remove column
 ```
 
-## Assignment by Reference (`:=`)
+## collapse Inside data.table
+
+collapse functions work directly in `dt[, j, by]`:
 
 ```r
-# Add/modify columns in place
-dt[, log_income := log(income)]
-dt[, c("col_a", "col_b") := .(fun_a(x), fun_b(y))]
+# collapse for statistical computing in j
+dt[, .(mean_welf = fmean(welfare, w = weight),
+       sd_welf   = fsd(welfare, w = weight),
+       med_welf  = fmedian(welfare, w = weight),
+       n         = fnobs(welfare)),
+   by = region]
 
-# Conditional assignment
-dt[age > 65, elderly := TRUE]
+# collapse for column creation
+dt[, welfare_centered := fwithin(welfare, region, weight)]
+dt[, welfare_scaled := fscale(welfare, region, weight)]
+dt[, welfare_pct := fsum(welfare, region, TRA = "%")]
+dt[, welfare_lag := flag(welfare, 1, country)]  # lag within country
 
-# Remove columns
-dt[, temp_col := NULL]
+# collapse for row-level operations
+dt[, region_mean := fmean(welfare, region, weight, TRA = "replace")]
+```
+
+## Aggregation: collap() vs dt[, j, by]
+
+```r
+# data.table aggregation (base R functions)
+dt[, .(mean_w = mean(welfare), n = .N), by = region]
+
+# collapse aggregation (faster, native weight support)
+collap(dt, ~ region, fmean, w = ~ weight, cols = c("welfare", "income"))
+
+# collapse multi-function aggregation
+collap(dt, ~ region, list(fmean, fsd, fnobs), w = ~ weight, cols = "welfare")
+
+# collapse custom aggregation
+collap(dt, ~ region,
+       custom = list(fmean = "welfare", fsum_uw = "hhsize"),
+       w = ~ weight)
 ```
 
 ## Joins
 
 ```r
-# Left join
-result <- Y[X, on = "key"]          # X left join Y
-result <- X[Y, on = "key", nomatch = 0]  # inner join
+# data.table joins (primary tool for joins)
+result <- Y[X, on = "key"]              # Left join
+result <- X[Y, on = "key", nomatch = 0] # Inner join
+X[Y, on = .(id, year)]                  # Multi-column
+X[!Y, on = "key"]                       # Anti join
+X[Y, on = "date", roll = TRUE]          # Rolling join
 
-# Multi-column join
-X[Y, on = .(id, year)]
-
-# Non-equi join
-X[Y, on = .(id, date >= start_date, date <= end_date)]
-
-# Rolling join
-X[Y, on = "date", roll = TRUE]      # LOCF
-X[Y, on = "date", roll = -Inf]      # NOCB
-
-# Anti join (rows in X not in Y)
-X[!Y, on = "key"]
-
-# Semi join (rows in X that have a match in Y, but keep X columns only)
-X[unique(Y[, .(key)]), on = "key", nomatch = 0]
-
-# Update join (add columns from Y to X in place)
-X[Y, on = "key", new_col := i.value]
+# collapse join (simpler syntax, verbose output)
+join(X, Y, on = "key", how = "left")
+join(X, Y, on = c("id" = "key"), how = "inner", verbose = TRUE)
 ```
 
-## .SD and .SDcols
+## Reshaping
 
 ```r
-# Apply function to multiple columns
-dt[, lapply(.SD, mean), .SDcols = c("col1", "col2", "col3")]
+# data.table reshape
+melt(dt, id.vars = "id", measure.vars = c("y2020", "y2021"),
+     variable.name = "year", value.name = "value")
+dcast(dt, id ~ year, value.var = "income")
 
-# Apply function by group
-dt[, lapply(.SD, mean), by = region, .SDcols = is.numeric]
-
-# First/last row per group
-dt[, .SD[1], by = group]
-dt[, .SD[.N], by = group]
-
-# Select columns by pattern
-dt[, lapply(.SD, as.character), .SDcols = patterns("^income_")]
+# collapse pivot (simpler for common cases)
+pivot(dt, ids = "id", values = c("y2020", "y2021"), how = "longer",
+      names = list(variable = "year", value = "value"))
+pivot(dt, ids = "id", values = "income", names = "year", how = "wider")
 ```
-
-## Special Symbols
-
-| Symbol | Meaning | Example |
-|--------|---------|---------|
-| `.N` | Number of rows (in group) | `dt[, .N, by = group]` |
-| `.SD` | Subset of Data (all columns) | `dt[, lapply(.SD, mean)]` |
-| `.SDcols` | Columns for .SD | `dt[, lapply(.SD, mean), .SDcols = cols]` |
-| `.GRP` | Group number | `dt[, grp_id := .GRP, by = group]` |
-| `.BY` | Current group value | `dt[, f(.BY), by = group]` |
-| `.I` | Row indices | `dt[, .I[1], by = group]` |
-| `:=` | Assign by reference | `dt[, new := x * 2]` |
 
 ## Performance Patterns
 
 ```r
-# Set key for fast lookups
+# data.table: setkey for fast lookups
 setkey(dt, id)
-dt[.(target_id)]            # Binary search
+dt[.(target_id)]
 
-# Set index for secondary lookups
-setindex(dt, region)
-
-# Use fifelse/fcase instead of ifelse
-dt[, category := fifelse(income > 50000, "high", "low")]
+# data.table: fast conditional
 dt[, category := fcase(
   income > 100000, "high",
   income > 50000,  "medium",
   default = "low"
 )]
 
-# Use set() in loops
-for (j in cols) {
-  set(dt, j = j, value = normalize(dt[[j]]))
-}
+# collapse: pre-compute grouping for repeated use
+g <- GRP(dt, ~ region + year)
+fmean(dt$welfare, g = g, w = dt$weight)
+fsd(dt$welfare, g = g, w = dt$weight)
 
-# Read only needed columns
+# data.table: read only needed columns
 dt <- fread("file.csv", select = c("id", "income", "region"))
 ```
 
-## Reshaping
+## Assignment by Reference
 
 ```r
-# Wide to long
-melt(dt, id.vars = "id", measure.vars = c("year_2020", "year_2021"),
-     variable.name = "year", value.name = "value")
+dt[, log_income := log(income)]                   # data.table :=
+dt[, c("a", "b") := .(fun_a(x), fun_b(y))]      # Multiple columns
 
-# Long to wide
-dcast(dt, id ~ year, value.var = "income")
-
-# Multiple value columns
-dcast(dt, id ~ year, value.var = c("income", "expenditure"))
-
-# Multiple measure patterns (e.g., income_2020, income_2021, exp_2020, exp_2021)
-melt(dt, id.vars = "id",
-     measure.vars = patterns("^income_", "^exp_"),
-     variable.name = "year",
-     value.name = c("income", "expenditure"))
+# collapse settransform (also modifies in place)
+settransform(dt, log_income = log(income))
+settransformv(dt, c("welfare", "income"), log)    # Apply to multiple columns
 ```
 
-## Chaining
+## .SD and .SDcols
 
 ```r
-# Chain operations
-dt[age > 30
-  ][, .(mean_income = mean(income)), by = region
-  ][order(-mean_income)]
+# Apply function to multiple columns
+dt[, lapply(.SD, fmean, w = weight), .SDcols = c("welfare", "income"), by = region]
+
+# First/last row per group
+dt[, .SD[1], by = group]
 ```
 
-## Environment Variables and Scope
+## Quick Conversion
 
 ```r
-# Using variables programmatically with get() and environment variables
-col_name <- "income"
-dt[, mean(get(col_name))]
-
-# Multiple columns programmatically
-cols <- c("income", "expenditure")
-dt[, lapply(.SD, mean), .SDcols = cols]
-
-# Dynamic column creation
-new_name <- "log_income"
-dt[, (new_name) := log(income)]
-
-# Multiple dynamic columns
-new_names <- paste0("log_", cols)
-dt[, (new_names) := lapply(.SD, log), .SDcols = cols]
-```
-
-## I/O
-
-```r
-# Read CSV (fast)
-dt <- fread("file.csv")
-
-# Read with column selection
-dt <- fread("file.csv", select = c("id", "income", "region"))
-
-# Read with type specification
-dt <- fread("file.csv", colClasses = c(id = "character", year = "integer"))
-
-# Write CSV
-fwrite(dt, "output.csv")
-
-# Write with options
-fwrite(dt, "output.csv", na = "", bom = TRUE)  # bom for Excel compatibility
+qDT(x)    # Anything to data.table (fast, minimal checks)
+qDF(x)    # To data.frame
+qM(x)     # To matrix
 ```

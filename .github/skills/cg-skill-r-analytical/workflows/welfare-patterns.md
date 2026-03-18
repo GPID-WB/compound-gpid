@@ -1,311 +1,269 @@
 # Welfare and Poverty Patterns
 
-This is the highest-risk area for AI-assisted code in GPID. Copilot frequently generates poverty and inequality code that looks correct but silently produces wrong numbers — wrong weights, wrong units, wrong formula. Every pattern here exists because the mistake has been made before, or because Copilot is known to get it wrong.
+This is the highest-risk area for AI-assisted code in GPID. Copilot frequently generates poverty and inequality code that looks correct but silently produces wrong numbers — wrong weights, wrong units, wrong formula. Every pattern here uses `collapse` for speed and explicitness, with `data.table` for manipulation.
 
 ## PPP Adjustment Pipeline
 
-Poverty measurement requires tracking monetary units through every transformation. The pipeline is:
+Poverty measurement requires tracking monetary units through every transformation:
 
 ```
 LCU nominal → LCU real → PPP USD
 ```
 
-Each step has a specific deflator or conversion factor. Losing track of which unit a variable is in is the single most common source of wrong poverty numbers.
-
 ### The Unit Tracking Rule
 
-Every welfare variable name should encode its unit. This is not optional style — it is a safety mechanism.
+Every welfare variable name must encode its unit. This is a safety mechanism, not style.
 
 ```r
-# WRONG — what unit is "welfare" in? Nobody knows.
+# WRONG — what unit is "welfare" in?
 dt[, welfare := consumption / hhsize]
 
-# RIGHT — unit is explicit in the variable name
-dt[, welfare_lcu_nominal := consumption_lcu_nominal / hhsize]
-dt[, welfare_lcu_real := welfare_lcu_nominal / cpi_deflator]
-dt[, welfare_ppp := welfare_lcu_real / ppp_factor]
-```
-
-### Full PPP Conversion
-
-```r
-# Step 1: Per capita (if not already)
-dt[, welf_pc_lcu_nom := total_consumption / hhsize]
-
-# Step 2: Deflate to base year prices (real LCU)
-# cpi_deflator = CPI_current_year / CPI_base_year
+# RIGHT — unit is explicit
+dt[, welf_pc_lcu_nom := consumption_lcu_nom / hhsize]
 dt[, welf_pc_lcu_real := welf_pc_lcu_nom / cpi_deflator]
-
-# Step 3: Convert to PPP dollars
-# ppp_factor = PPP conversion factor (LCU per international dollar)
 dt[, welf_pc_ppp := welf_pc_lcu_real / ppp_factor]
-
-# Step 4: Convert to daily (if annual)
 dt[, welf_pc_ppp_day := welf_pc_ppp / 365]
 ```
 
 ### Common PPP Mistakes
 
-**Applying PPP before deflating:**
 ```r
-# WRONG — PPP factors are for a specific base year
-dt[, welfare_ppp := welfare_lcu_nominal / ppp_factor]
+# WRONG — PPP before deflating
+dt[, welfare_ppp := welfare_lcu_nom / ppp_factor]
 
-# RIGHT — deflate to the PPP base year first
-dt[, welfare_lcu_real := welfare_lcu_nominal / cpi_deflator]
+# RIGHT — deflate to base year, then PPP
+dt[, welfare_lcu_real := welfare_lcu_nom / cpi_deflator]
 dt[, welfare_ppp := welfare_lcu_real / ppp_factor]
-```
 
-**Mixing PPP vintages:**
-```r
-# WRONG — 2011 PPP factor applied to 2017 PPP poverty line
+# WRONG — mixing PPP vintages
 dt[, poor := welfare_2011ppp < 2.15]  # $2.15 is a 2017 PPP line
 
-# RIGHT — same PPP vintage throughout
+# RIGHT — same vintage
 dt[, poor := welfare_2017ppp < 2.15]
 ```
 
-**Dividing when you should multiply (or vice versa):**
-```r
-# The PPP factor converts FROM local currency TO PPP dollars
-# So you DIVIDE by the PPP factor
-dt[, welfare_ppp := welfare_lcu_real / ppp_factor]
+## FGT Poverty Indices with collapse
 
-# Copilot sometimes generates multiplication — always verify direction
-```
-
-## FGT Poverty Indices
-
-The Foster-Greer-Thorbecke (FGT) family of poverty measures. All three must be computed with survey weights.
+The Foster-Greer-Thorbecke (FGT) family. All computed with survey weights using `collapse`.
 
 ### FGT(0) — Headcount Ratio
 
-The share of the population below the poverty line.
-
 ```r
-# Using srvyr (preferred — correct standard errors)
-headcount <- svy |>
-  summarise(
-    fgt0 = survey_mean(welf_pc_ppp_day < poverty_line, vartype = "ci")
-  )
+poverty_line <- 2.15
 
-# Manual computation with data.table (point estimate only — no correct SEs)
-# Use only for quick checks, never for published numbers
-dt[, weighted.mean(welf_pc_ppp_day < poverty_line, w = weight)]
+# National headcount
+fgt0 <- fmean(dt$welf_pc_ppp_day < poverty_line, w = dt$weight)
+
+# By region
+fgt0_region <- fmean(dt$welf_pc_ppp_day < poverty_line,
+                     g = dt$region, w = dt$weight)
 ```
 
 ### FGT(1) — Poverty Gap
 
-The average depth of poverty across the population (how far below the line, on average).
+Average normalized gap over the ENTIRE population. Non-poor contribute 0.
 
 ```r
-# Compute the normalized gap for each household
-svy <- svy |>
-  mutate(
-    gap = ifelse(welf_pc_ppp_day < poverty_line,
-                 (poverty_line - welf_pc_ppp_day) / poverty_line,
-                 0)
-  )
+# Compute gap (0 for non-poor)
+dt[, gap := fifelse(welf_pc_ppp_day < poverty_line,
+                    (poverty_line - welf_pc_ppp_day) / poverty_line,
+                    0)]
 
-# FGT(1)
-poverty_gap <- svy |>
-  summarise(
-    fgt1 = survey_mean(gap, vartype = "ci")
-  )
+# National FGT(1)
+fgt1 <- fmean(dt$gap, w = dt$weight)
+
+# By region
+fgt1_region <- fmean(dt$gap, g = dt$region, w = dt$weight)
 ```
 
-**Critical:** The gap is `(z - y) / z` for the poor and `0` for the non-poor, then averaged over the ENTIRE population (not just the poor). Copilot frequently averages only over the poor, which gives the wrong number.
+**Critical:** The gap is averaged over ALL households (not just the poor). Copilot frequently filters to poor only, which gives the Income Gap Ratio — a different statistic.
 
 ```r
-# WRONG — averages gap only among the poor
-wrong_fgt1 <- svy |>
-  filter(welf_pc_ppp_day < poverty_line) |>
-  summarise(fgt1 = survey_mean(gap))
+# WRONG — averages only among the poor (Income Gap Ratio, not FGT(1))
+wrong <- fmean(dt[welf_pc_ppp_day < poverty_line]$gap, w = dt[welf_pc_ppp_day < poverty_line]$weight)
 
-# RIGHT — averages gap over entire population (non-poor contribute 0)
-right_fgt1 <- svy |>
-  summarise(fgt1 = survey_mean(gap))
+# RIGHT — averages over entire population
+right <- fmean(dt$gap, w = dt$weight)
 ```
 
 ### FGT(2) — Poverty Severity
 
-The squared poverty gap — gives more weight to those further below the line.
-
 ```r
-svy <- svy |>
-  mutate(
-    gap_sq = ifelse(welf_pc_ppp_day < poverty_line,
-                    ((poverty_line - welf_pc_ppp_day) / poverty_line)^2,
-                    0)
-  )
+dt[, gap_sq := fifelse(welf_pc_ppp_day < poverty_line,
+                       ((poverty_line - welf_pc_ppp_day) / poverty_line)^2,
+                       0)]
 
-severity <- svy |>
-  summarise(
-    fgt2 = survey_mean(gap_sq, vartype = "ci")
-  )
+fgt2 <- fmean(dt$gap_sq, w = dt$weight)
+fgt2_region <- fmean(dt$gap_sq, g = dt$region, w = dt$weight)
 ```
 
-### Complete FGT Computation
+### Complete FGT with SEs
 
 ```r
-# All three FGT indices in one block
-poverty_line <- 2.15  # $2.15/day, 2017 PPP
+poverty_line <- 2.15
 
-svy <- svy |>
-  mutate(
-    poor     = welf_pc_ppp_day < poverty_line,
-    gap      = ifelse(poor, (poverty_line - welf_pc_ppp_day) / poverty_line, 0),
-    gap_sq   = gap^2
-  )
+# Variables
+dt[, `:=`(
+  poor   = welf_pc_ppp_day < poverty_line,
+  gap    = fifelse(welf_pc_ppp_day < poverty_line,
+                   (poverty_line - welf_pc_ppp_day) / poverty_line, 0),
+  gap_sq = fifelse(welf_pc_ppp_day < poverty_line,
+                   ((poverty_line - welf_pc_ppp_day) / poverty_line)^2, 0)
+)]
 
-fgt_results <- svy |>
-  summarise(
-    fgt0 = survey_mean(poor, vartype = c("se", "ci")),
-    fgt1 = survey_mean(gap, vartype = c("se", "ci")),
-    fgt2 = survey_mean(gap_sq, vartype = c("se", "ci"))
-  )
+# Point estimates (national)
+fgt <- c(
+  fgt0 = fmean(dt$poor, w = dt$weight),
+  fgt1 = fmean(dt$gap, w = dt$weight),
+  fgt2 = fmean(dt$gap_sq, w = dt$weight)
+)
 
-# FGT by region
-fgt_by_region <- svy |>
-  group_by(region) |>
-  summarise(
-    fgt0 = survey_mean(poor, vartype = "ci"),
-    fgt1 = survey_mean(gap, vartype = "ci"),
-    fgt2 = survey_mean(gap_sq, vartype = "ci"),
-    n    = unweighted(n())
-  ) |>
-  as.data.table()
+# Point estimates by region
+fgt_region <- data.table(
+  region = funique(dt$region),
+  fgt0   = fmean(dt$poor, g = dt$region, w = dt$weight),
+  fgt1   = fmean(dt$gap, g = dt$region, w = dt$weight),
+  fgt2   = fmean(dt$gap_sq, g = dt$region, w = dt$weight),
+  n      = fnobs(dt$poor, g = dt$region)
+)
+
+# SEs using the helper from survey-analysis.md
+fgt0_with_se <- survey_mean_se(
+  x = as.numeric(dt$poor), w = dt$weight,
+  psu = dt$psu, stratum = dt$stratum
+)
+fgt1_with_se <- survey_mean_se(
+  x = dt$gap, w = dt$weight,
+  psu = dt$psu, stratum = dt$stratum
+)
 ```
 
-## Weighted vs Unweighted: When Each Is Appropriate
+## Multiple Poverty Lines
 
-| Statistic | Weighted? | Why |
-|-----------|-----------|-----|
-| National poverty rate | Yes | Represents the population |
-| Regional poverty rate | Yes | Represents regional population |
-| Mean welfare | Yes | Population-representative estimate |
-| Regression coefficient | Depends | Yes for descriptive; debatable for causal |
-| Sample size | No | Count of observations, not people |
-| Data quality checks | No | Checking the survey data itself |
-| Correlation for EDA | Usually no | Exploring data structure |
-
-**The default for GPID published statistics is always weighted.** Unweighted analysis is for diagnostics and data exploration, not for numbers that appear in reports.
+GPID reports at three international poverty lines. Compute all in one pass:
 
 ```r
-# Population-representative mean (for reports)
-svy |> summarise(mean_welfare = survey_mean(welf_pc_ppp_day))
+dt[, `:=`(
+  poor_215 = welf_pc_ppp_day < 2.15,
+  poor_365 = welf_pc_ppp_day < 3.65,
+  poor_685 = welf_pc_ppp_day < 6.85,
+  gap_215  = fifelse(welf_pc_ppp_day < 2.15, (2.15 - welf_pc_ppp_day) / 2.15, 0),
+  gap_365  = fifelse(welf_pc_ppp_day < 3.65, (3.65 - welf_pc_ppp_day) / 3.65, 0),
+  gap_685  = fifelse(welf_pc_ppp_day < 6.85, (6.85 - welf_pc_ppp_day) / 6.85, 0)
+)]
 
-# Unweighted mean (for data quality checks only)
-dt[, mean(welf_pc_ppp_day, na.rm = TRUE)]
-
-# Sample size (always unweighted)
-dt[, .N]
-dt[, .N, by = region]
+# All headcounts at once using collap
+poverty_cols <- c("poor_215", "poor_365", "poor_685",
+                  "gap_215", "gap_365", "gap_685")
+collap(dt, ~ region, fmean, w = ~ weight, cols = poverty_cols)
 ```
 
-## Gini Coefficient
+## Gini Coefficient with collapse
 
-The Gini coefficient measures inequality on a 0-1 scale (0 = perfect equality, 1 = perfect inequality).
+Weighted Gini using collapse primitives for speed:
 
 ```r
-# Weighted Gini using the survey design
-# The acid package or manual computation is needed — srvyr doesn't have a built-in Gini
-
-# Manual weighted Gini computation
-compute_gini <- function(welfare, weight) {
+#' Weighted Gini coefficient using collapse
+#'
+#' @param y Numeric vector (welfare)
+#' @param w Numeric vector (weights)
+#' @return Scalar Gini coefficient (0 = perfect equality, 1 = perfect inequality)
+weighted_gini <- function(y, w) {
   # Sort by welfare
-  ord <- order(welfare)
-  w <- weight[ord]
-  y <- welfare[ord]
+  ord <- radixorder(y)
+  ys  <- y[ord]
+  ws  <- w[ord]
 
-  # Cumulative weight shares
-  cum_w <- cumsum(w) / sum(w)
-  # Cumulative welfare shares
-  cum_wy <- cumsum(w * y) / sum(w * y)
+  # Cumulative shares (using collapse::fcumsum for speed on large vectors)
+  cum_w  <- fcumsum(ws) / fsum(ws)
+  cum_wy <- fcumsum(ws * ys) / fsum(ws * ys)
 
-  # Gini = 1 - 2 * area under Lorenz curve
-  # Trapezoidal approximation
-  n <- length(y)
-  gini <- 1 - sum((cum_w[2:n] - cum_w[1:(n-1)]) *
-                   (cum_wy[2:n] + cum_wy[1:(n-1)]))
-
-  return(gini)
+  # Trapezoidal Lorenz area
+  n <- length(ys)
+  lorenz_area <- fsum((cum_w[2:n] - cum_w[1:(n-1)]) *
+                      (cum_wy[2:n] + cum_wy[1:(n-1)])) / 2
+  gini <- 1 - 2 * lorenz_area
+  gini
 }
 
-# Apply to data
-gini_national <- dt[, compute_gini(welf_pc_ppp_day, weight)]
+# National Gini
+gini_national <- weighted_gini(dt$welf_pc_ppp_day, dt$weight)
 
 # Gini by region
-gini_by_region <- dt[, .(gini = compute_gini(welf_pc_ppp_day, weight)),
+gini_by_region <- dt[, .(gini = weighted_gini(welf_pc_ppp_day, weight)),
                      by = region]
 ```
 
 ## Welfare Shares by Decile
 
 ```r
-# Compute weighted decile assignments
-dt[, decile := {
-  cum_wt <- cumsum(weight[order(welf_pc_ppp_day)]) / sum(weight)
-  # Assign deciles based on cumulative weight
-  cuts <- findInterval(cum_wt, seq(0, 1, 0.1)) + 1L
-  cuts[cuts > 10L] <- 10L
-  # Map back to original order
-  result <- integer(.N)
-  result[order(welf_pc_ppp_day)] <- cuts
-  result
-}]
+# Assign weighted deciles using collapse
+dt_sorted <- dt[radixorder(welf_pc_ppp_day)]
+dt_sorted[, cum_wt := fcumsum(weight) / fsum(weight)]
+dt_sorted[, decile := fcase(
+  cum_wt <= 0.1, 1L,
+  cum_wt <= 0.2, 2L,
+  cum_wt <= 0.3, 3L,
+  cum_wt <= 0.4, 4L,
+  cum_wt <= 0.5, 5L,
+  cum_wt <= 0.6, 6L,
+  cum_wt <= 0.7, 7L,
+  cum_wt <= 0.8, 8L,
+  cum_wt <= 0.9, 9L,
+  default = 10L
+)]
 
-# Compute welfare share by decile
-decile_shares <- dt[, .(
-  total_welfare = sum(welf_pc_ppp_day * weight),
-  pop_share     = sum(weight)
+# Welfare share by decile
+decile_shares <- dt_sorted[, .(
+  total_welfare = fsum(welf_pc_ppp_day * weight),
+  pop_share     = fsum(weight)
 ), by = decile]
-
-decile_shares[, welfare_share := total_welfare / sum(total_welfare)]
-decile_shares[, pop_pct := pop_share / sum(pop_share)]
+decile_shares[, welfare_share := total_welfare / fsum(total_welfare)]
 setorder(decile_shares, decile)
 ```
 
-## Multiple Poverty Lines
-
-GPID typically reports at three international poverty lines. Compute all three in one pass:
+## Fast Descriptive Statistics
 
 ```r
-poverty_lines <- c(
-  extreme = 2.15,   # International Poverty Line
-  lower   = 3.65,   # Lower-middle income class
-  upper   = 6.85    # Upper-middle income class
-)
+# Quick weighted summary of welfare
+qsu(dt, cols = "welf_pc_ppp_day", w = ~ weight)
 
-svy <- svy |>
-  mutate(
-    poor_215 = welf_pc_ppp_day < 2.15,
-    poor_365 = welf_pc_ppp_day < 3.65,
-    poor_685 = welf_pc_ppp_day < 6.85,
-    gap_215  = ifelse(poor_215, (2.15 - welf_pc_ppp_day) / 2.15, 0),
-    gap_365  = ifelse(poor_365, (3.65 - welf_pc_ppp_day) / 3.65, 0),
-    gap_685  = ifelse(poor_685, (6.85 - welf_pc_ppp_day) / 6.85, 0)
-  )
+# By region with higher moments
+qsu(dt, ~ region, cols = "welf_pc_ppp_day", w = ~ weight, higher = TRUE)
 
-multi_line <- svy |>
-  summarise(
-    fgt0_215 = survey_mean(poor_215, vartype = "ci"),
-    fgt0_365 = survey_mean(poor_365, vartype = "ci"),
-    fgt0_685 = survey_mean(poor_685, vartype = "ci"),
-    fgt1_215 = survey_mean(gap_215, vartype = "ci"),
-    fgt1_365 = survey_mean(gap_365, vartype = "ci"),
-    fgt1_685 = survey_mean(gap_685, vartype = "ci")
-  )
+# Weighted pairwise correlations
+pwcor(dt[, .(welf_pc_ppp_day, income, hhsize)], w = dt$weight, P = TRUE)
+
+# Detailed statistical description
+descr(dt[, .(welf_pc_ppp_day, income, hhsize)], w = dt$weight)
+```
+
+## Poverty Trends with Panel Operations
+
+```r
+# Index the panel (country-year)
+pdt <- findex_by(dt_all, country, year)
+
+# Year-over-year change in poverty headcount
+D(pdt, cols = "headcount")   # First difference
+
+# Growth rate of mean welfare
+G(pdt, cols = "mean_welfare")
+
+# Within-country demeaning (for fixed effects analysis)
+W(pdt, cols = "headcount")
+
+# Lags for dynamic analysis
+L(pdt, 1:2, cols = "headcount")
 ```
 
 ## Verification Checklist
 
 Before publishing any poverty or inequality number:
 
-1. **Unit check:** What unit is the welfare variable in? Is it daily PPP? Annual LCU? Document it.
-2. **Weight check:** Is the statistic weighted? Should it be? Are you using the correct weight variable (household weight vs individual weight)?
+1. **Unit check:** What unit is the welfare variable in? Is it daily PPP? Annual LCU?
+2. **Weight check:** Is the statistic weighted? Are you using `w = weight` in every collapse function call?
 3. **Population check:** Are FGT indices averaged over the ENTIRE population (including non-poor)?
 4. **PPP vintage check:** Is the poverty line in the same PPP vintage as the welfare variable?
-5. **Design check:** Is the survey design declared and propagated through all computations?
-6. **Reasonableness check:** Does the number make sense? Is the poverty rate between 0 and 1? Is the Gini between 0 and 1? Is the headcount at $2.15 lower than at $6.85?
-7. **Cross-check:** Can you reproduce the number with a different method or in Stata?
+5. **Reasonableness check:** Is poverty at $2.15 lower than at $6.85? Is Gini between 0 and 1?
+6. **Cross-check:** Can you reproduce the number in Stata? If not, investigate before publishing.

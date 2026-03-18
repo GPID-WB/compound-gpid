@@ -1,18 +1,24 @@
 ---
 name: cg-skill-r-technical
-description: "R patterns for technical work: data.table, ggplot2, testthat, roxygen2, package development, plumber APIs, Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management."
+description: "R patterns for technical work: collapse for fast statistical computing, data.table for manipulation, testthat, roxygen2, package development, plumber APIs, Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management. Preference hierarchy: collapse > data.table > tidyverse."
 ---
 
 # R Technical Practices
 
-Reference skill for technical R development in the GPID team. Covers the full stack for building R packages, REST APIs, Shiny applications, and data pipelines — the infrastructure the analytical team depends on.
+Reference skill for technical R development in the GPID team. Covers the full stack for building R packages, REST APIs, Shiny applications, and data pipelines. The team's preferred tool hierarchy:
 
-*For analytical work (survey analysis, econometrics, welfare measurement, ggplot2 + wbplot), see [`cg-skill-r-analytical`](../cg-skill-r-analytical/SKILL.md).*
+1. **collapse** — for all grouped, weighted, and statistical computations
+2. **data.table** — for data manipulation, filtering, joins, reshaping, column creation
+3. **tidyverse** — only as fallback when collapse and data.table cannot do the job
+
+No masking — always use explicit `f`-prefixed function names from collapse.
 
 ## Quick Reference
 
 | Task | Package | Key Pattern |
 |------|---------|-------------|
+| Grouped/weighted stats | `collapse` | `fmean(x, g, w)`, `fsum()`, `collap()` |
+| Transformations | `collapse` | `fwithin()`, `fbetween()`, `fscale()`, `TRA()` |
 | Data manipulation | `data.table` | `DT[i, j, by]` syntax, `:=` for in-place ops |
 | Testing | `testthat` | `test_that()` + `expect_*()`, edition 3 |
 | Documentation | `roxygen2` | `@param`, `@return`, `@export`, `@examples` |
@@ -24,34 +30,15 @@ Reference skill for technical R development in the GPID team. Covers the full st
 | Fast installs | `pak` | `pak::pkg_install()` for development |
 | Reproducibility | `renv` | `renv::init()`, `renv::snapshot()`, lockfiles |
 
-*For ggplot2 and World Bank visualization standards (`wbplot`, `theme_wb()`, `WBCOLORS`), load `cg-skill-r-analytical`.*
-
 ## Workflows
 
-- [Project Setup](workflows/project-setup.md) — Analysis project layout, renv, .Rprofile
-- [data.table Patterns](workflows/data-table-patterns.md) — Core data manipulation
-- [Package Development](workflows/package-development.md) — roxygen2, usethis, devtools, renv
+- [data.table + collapse Patterns](workflows/data-table-patterns.md) — Data manipulation and statistical computing
+- [Package Development](workflows/package-development.md) — roxygen2, usethis, devtools, renv, pak
 - [Plumber APIs](workflows/plumber-api.md) — REST endpoints, middleware, OpenAPI
 - [Shiny Apps](workflows/shiny-apps.md) — Modules, reactivity, deployment
 - [Targets Pipelines](workflows/targets-pipelines.md) — Reproducible pipelines, dynamic branching
-- [Testing with testthat](workflows/testing-testthat.md) — Test structure, assertions, fixtures
 
 ## References
 
 - [Anti-Patterns](references/r-technical-anti-patterns.md) — Common mistakes in technical R code
-- [Package Decisions](references/r-package-decisions.md) — When to use which package
-
-## When to Load This Skill
-
-Load `cg-skill-r-technical` when working on:
-- Data manipulation with `data.table` (`:=`, `DT[i, j, by]`, joins, reshaping)
-- R package development (roxygen2, devtools, `R CMD check`, NAMESPACE)
-- REST APIs with `plumber` (endpoints, middleware, OpenAPI spec)
-- Shiny web applications (modules, reactivity, deployment)
-- Reproducible pipelines with `targets` (dependency tracking, dynamic branching)
-- HTTP clients with `httr2` (pagination, authentication, retry)
-- Writing tests with `testthat` (fixtures, expectations, edition 3)
-- Environment management with `renv` or `pak`
-- Standard analysis project setup and infrastructure
-
-For survey analysis, econometrics, wbplot visualizations, and welfare measurement, load `cg-skill-r-analytical` instead (or in addition for mixed work).
+- [Testing with testthat](references/testing-testthat.md) — Test structure, assertions, fixtures
