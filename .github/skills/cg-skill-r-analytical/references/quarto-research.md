@@ -1,141 +1,251 @@
 # Quarto for Research
 
-## Project Setup
+Quarto for analytical output: parametrized reports, cross-referencing figures and tables, and rendering to multiple formats (HTML, Word, PDF).
 
-```bash
-# Create new Quarto project
-quarto create project default my-report
-
-# Install R Quarto package
-install.packages("quarto")
-```
-
-## Standard YAML Header (WB Report Style)
+## Basic Document Structure
 
 ```yaml
 ---
 title: "Poverty Trends in Sub-Saharan Africa"
-subtitle: "Evidence from GPID Microdata, 2000–2022"
-author:
-  - name: "First Last"
-    affiliation: "World Bank, DECDG"
+author: "GPID Team"
 date: today
-date-format: "MMMM D, YYYY"
+format:
+  html:
+    toc: true
+    code-fold: true
+  docx:
+    reference-doc: template.docx
+  pdf:
+    documentclass: article
+---
+```
+
+## Inline R Code
+
+Embed computed values directly in text so they update automatically when data changes:
+
+```markdown
+The poverty headcount in 2023 was `r sprintf("%.1f%%", headcount_2023 * 100)`,
+down from `r sprintf("%.1f%%", headcount_2020 * 100)` in 2020. This represents
+a decline of `r sprintf("%.1f", (headcount_2020 - headcount_2023) * 100)`
+percentage points over three years.
+```
+
+This renders as: "The poverty headcount in 2023 was 24.3%, down from 27.1% in 2020..."
+
+**Why this matters:** Hardcoded numbers in text get out of sync with tables and figures when data is updated. Inline R eliminates this class of error.
+
+## Figure Cross-References
+
+Label figures and reference them in text. Labels must start with `#fig-`.
+
+````markdown
+```{r}
+#| label: fig-poverty-trends
+#| fig-cap: "Poverty headcount at $2.15/day (2017 PPP), by region"
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(poverty_dt, aes(x = year, y = headcount, color = region)) +
+  geom_line(linewidth = 1, lineend = "round") +
+  scale_color_wb_d() +
+  theme_wb(chartType = "line")
+```
+
+As shown in @fig-poverty-trends, poverty has declined across all regions
+since 2000, with the fastest progress in East Asia.
+````
+
+The `@fig-poverty-trends` reference automatically becomes "Figure 1" (or whatever the number is) in the rendered output.
+
+## Table Cross-References
+
+Label tables with `#tbl-` prefix:
+
+````markdown
+```{r}
+#| label: tbl-summary-stats
+#| tbl-cap: "Summary statistics by region"
+
+library(modelsummary)
+datasummary(
+  welfare + income + hhsize ~ region * (Mean + SD + N),
+  data = dt,
+  output = "default"
+)
+```
+
+@tbl-summary-stats presents the descriptive statistics for our sample.
+````
+
+## Parametrized Reports
+
+Run the same analysis for different countries, years, or poverty lines by passing parameters.
+
+### YAML Header with Parameters
+
+```yaml
+---
+title: "Poverty Brief: `r params$country`"
+format: docx
+params:
+  country: "Nigeria"
+  year: 2023
+  poverty_line: 2.15
+---
+```
+
+### Using Parameters in Code
+
+````markdown
+```{r}
+dt <- load_survey(params$country, params$year)
+svy <- dt |>
+  as_survey_design(ids = psu, strata = stratum, weights = weight, nest = TRUE)
+
+headcount <- svy |>
+  summarise(fgt0 = survey_mean(welfare < params$poverty_line, vartype = "ci"))
+```
+
+In `r params$year`, `r params$country` had a poverty headcount of
+`r sprintf("%.1f%%", headcount$fgt0 * 100)` at the
+$`r params$poverty_line`/day poverty line.
+````
+
+### Rendering Programmatically
+
+```r
+# Render a single country brief
+quarto::quarto_render(
+  input       = "poverty_brief.qmd",
+  execute_params = list(country = "Nigeria", year = 2023, poverty_line = 2.15),
+  output_file = "output/briefs/poverty_brief_NGA_2023.docx"
+)
+
+# Batch render for multiple countries
+countries <- c("Nigeria", "India", "Ethiopia", "Tanzania")
+
+for (ctry in countries) {
+  quarto::quarto_render(
+    input       = "poverty_brief.qmd",
+    execute_params = list(country = ctry, year = 2023, poverty_line = 2.15),
+    output_file = sprintf("output/briefs/poverty_brief_%s_2023.docx", ctry)
+  )
+}
+```
+
+## Output Formats
+
+### HTML (for sharing and exploration)
+
+```yaml
 format:
   html:
     toc: true
     toc-depth: 3
-    code-fold: true
+    code-fold: true       # Collapse code blocks
+    code-summary: "Show code"
+    self-contained: true  # Single HTML file, no dependencies
+```
+
+### Word (for institutional review)
+
+```yaml
+format:
   docx:
-    reference-doc: "template/wb-template.docx"
+    toc: true
+    reference-doc: templates/wb_template.docx  # WB branding
+```
+
+### PDF (for final publication)
+
+```yaml
+format:
   pdf:
     documentclass: article
-execute:
-  echo: false
-  warning: false
-  cache: true
----
+    papersize: letter
+    geometry:
+      - margin=1in
+    fontsize: 11pt
 ```
 
-## Parametrized Reports
+### Multiple Formats at Once
 
 ```yaml
-# In YAML header
-params:
-  country: "BRA"
-  year: 2022
-  poverty_line: 2.15
+format:
+  html:
+    toc: true
+  docx:
+    toc: true
+  pdf:
+    documentclass: article
 ```
 
-```r
-# In code chunks — access via params$
-dt_country <- dt[country == params$country & year == params$year]
-poverty_rate <- weighted.mean(dt_country$poor, dt_country$wgt)
+Render a specific format: `quarto::quarto_render("report.qmd", output_format = "docx")`
+
+## Code Chunk Options
+
+Common chunk options for GPID reports:
+
+````markdown
+```{r}
+#| label: fig-my-plot
+#| fig-cap: "Caption text"
+#| fig-width: 10
+#| fig-height: 6
+#| echo: false        # Hide code in output
+#| warning: false     # Suppress warnings
+#| message: false     # Suppress messages
 ```
+````
 
-```r
-# Render for multiple countries
-countries <- c("BRA", "IND", "NGA")
-purrr::walk(countries, function(cty) {
-  quarto::quarto_render(
-    "report.qmd",
-    output_file = paste0("output/report_", cty, ".html"),
-    execute_params = list(country = cty)
-  )
-})
-```
+For reproducibility, set a seed in the setup chunk:
 
-## Cross-References
+````markdown
+```{r}
+#| label: setup
+#| include: false
 
-```markdown
-See @fig-poverty-trend for the time series and @tbl-summary for summary statistics.
-
-![Poverty headcount ratio, 2000–2022](){#fig-poverty-trend}
-
-: Summary Statistics {#tbl-summary}
-```
-
-```r
-# R chunks — label with fig- or tbl- prefix for cross-ref
-#| label: fig-poverty-trend
-#| fig-cap: "Poverty headcount ratio, 2000–2022"
-plot_poverty_trend(dt)
-```
-
-## Tables
-
-```r
-# Publication tables with modelsummary (model results)
-msummary(models, output = "kableExtra")
-
-# Summary statistics with datasummary
+library(data.table)
+library(srvyr)
+library(fixest)
+library(ggplot2)
+library(wbplot)
 library(modelsummary)
-datasummary_skim(dt[, .(consumption_ppp, poor, hh_size, educ)],
-                 output = "kableExtra")
 
-# Custom kableExtra tables
-library(kableExtra)
-kbl(summary_dt, digits = 3, booktabs = TRUE) |>
-  kable_styling(latex_options = "hold_position") |>
-  add_header_above(c(" " = 1, "Poverty Measures" = 3))
+set.seed(42)
 ```
+````
 
-## Caching Strategy
-
-```yaml
-execute:
-  cache: true      # Cache computation by default
-```
-
-```r
-# Force re-run expensive chunk
-#| cache: false
-load_data()        # Always re-read data
-
-# Cache a specific chunk
-#| cache: true
-#| cache-vars: model_results   # only invalidate on these vars
-model_results <- run_model(dt)
-```
-
-## Inline Code
-
-```markdown
-The poverty rate in `r params$country` is `r scales::percent(poverty_rate, 0.1)`.
-```
-
-## Project Structure
+## Project Organization for Quarto Reports
 
 ```
-my-report/
-├── report.qmd          # Main document
-├── _quarto.yml         # Project config
-├── params/
-│   └── countries.yml   # Parameter sets for batch rendering
+project/
+├── report.qmd              # Main report
+├── appendix.qmd            # Supplementary analysis
+├── _quarto.yml             # Project-level config (optional)
 ├── R/
-│   ├── load_data.R
-│   └── analysis.R
-├── template/
-│   └── wb-template.docx
-└── output/             # Rendered reports
+│   ├── 01_load_data.R      # Data loading functions
+│   ├── 02_clean_data.R     # Cleaning functions
+│   └── 03_analysis.R       # Analysis functions
+├── data/
+│   └── raw/
+├── output/
+│   ├── figures/
+│   └── tables/
+└── templates/
+    └── wb_template.docx
 ```
+
+Source analysis functions from R scripts:
+
+````markdown
+```{r}
+#| label: setup
+#| include: false
+
+source("R/01_load_data.R")
+source("R/02_clean_data.R")
+source("R/03_analysis.R")
+```
+````

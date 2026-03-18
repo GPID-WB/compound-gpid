@@ -97,29 +97,6 @@ clean_income <- function(dt, income_var, ppp = 1) {
 }
 ```
 
-## Error Handling with rlang + cli
-
-```r
-# Preferred error/warning pattern
-my_function <- function(dt, col) {
-  if (!is.data.table(dt)) {
-    cli::cli_abort("{.arg dt} must be a {.cls data.table}, not {.cls {class(dt)}}.")
-  }
-  if (!col %in% names(dt)) {
-    cli::cli_abort("Column {.val {col}} not found in {.arg dt}.")
-  }
-}
-
-# Try-catch pattern
-result <- rlang::try_fetch(
-  risky_operation(),
-  error = function(e) {
-    cli::cli_warn("Operation failed: {conditionMessage(e)}")
-    NULL
-  }
-)
-```
-
 ## Development Workflow
 
 ```r
@@ -138,22 +115,122 @@ devtools::test()          # Run all tests
 devtools::install()       # Install the package
 ```
 
-## renv Workflow
+## pak vs renv — When to Use Each
+
+### pak: Fast Development Installs
+
+Use `pak` for day-to-day package installation during development. It resolves dependencies faster than `install.packages()` and handles GitHub packages cleanly.
 
 ```r
-renv::init()       # Initialize renv for the project
-renv::snapshot()   # Save current package state to renv.lock
-renv::restore()    # Restore packages from renv.lock
-renv::status()     # Check if renv.lock is in sync
+# Install from CRAN
+pak::pkg_install("data.table")
+
+# Install from GitHub
+pak::pkg_install("worldbank/wbplot")
+
+# Install multiple packages
+pak::pkg_install(c("fixest", "modelsummary", "srvyr"))
+
+# Install with all dependencies
+pak::pkg_install("shiny", dependencies = TRUE)
+
+# Check if a package is installed
+pak::pkg_status("data.table")
 ```
 
-Commit `renv.lock` to git. Do NOT commit `renv/library/`.
+### renv: Project-Level Reproducibility
 
-## .Rbuildignore Patterns
+Use `renv` for locking down the exact package versions in a project. This ensures anyone cloning the repo gets the same versions you used.
 
 ```r
-# Add entries to .Rbuildignore
-usethis::use_build_ignore("^\.cg-docs$")
-usethis::use_build_ignore("^compound-gpid\.local\.md$")
-usethis::use_build_ignore("^\.github$")
+# Initialize renv for the project (creates renv.lock)
+renv::init()
+
+# After installing/updating packages, save the state
+renv::snapshot()
+
+# Restore packages from lockfile (on a new machine or after clone)
+renv::restore()
+
+# Check if lockfile matches current state
+renv::status()
+
+# Update a specific package and re-lock
+pak::pkg_install("data.table")
+renv::snapshot()
+```
+
+### Why You Need Both
+
+- **pak** is for speed during development: install, upgrade, try things out
+- **renv** is for reproducibility in production: lock versions, share with team
+- Typical workflow: use `pak::pkg_install()` to add packages, then `renv::snapshot()` to lock the state
+
+```r
+# Development: try out a new package
+pak::pkg_install("arrow")
+
+# Happy with it? Lock it down
+renv::snapshot()
+
+# Colleague clones the repo and restores exact versions
+renv::restore()
+```
+
+### What to Commit
+
+- **Commit:** `renv.lock` (the lockfile — this IS the reproducibility)
+- **Commit:** `renv/activate.R` (the bootstrap script)
+- **Do NOT commit:** `renv/library/` (add to `.gitignore`)
+
+## Documentation Sites
+
+### pkgdown
+
+For R packages, `pkgdown` generates a documentation website from your existing roxygen2 docs, vignettes, and README:
+
+```r
+usethis::use_pkgdown()
+pkgdown::build_site()
+```
+
+### Quarto for Package Vignettes
+
+You can use Quarto `.qmd` files as package vignettes:
+
+```yaml
+---
+title: "Getting Started with packagename"
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+```
+
+### Quarto for Multi-Page Documentation Sites
+
+For documentation that goes beyond a single package (team guides, API docs):
+
+```yaml
+# _quarto.yml
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "GPID Tools Documentation"
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "API Reference"
+        href: api.qmd
+      - text: "User Guide"
+        href: guide.qmd
+
+format:
+  html:
+    toc: true
+    theme: cosmo
 ```

@@ -1,60 +1,403 @@
-# Common R Anti-Patterns — Technical
+# Technical R Anti-Patterns
+
+Common mistakes in technical R development. Each entry: what the mistake is, why it matters, what goes wrong, and what to do instead.
+
+---
 
 ## data.table Anti-Patterns
 
-| Anti-Pattern | Problem | Fix |
-|-------------|---------|-----|
-| `ifelse()` on data.table | Slow, coerces types | Use `fifelse()` or `fcase()` |
-| `for` loop over rows | Extremely slow | Use vectorized `:=` or `set()` |
-| `dt$col <- value` | Creates copy, breaks reference semantics | Use `dt[, col := value]` |
-| `apply(dt, 1, fun)` | Converts to matrix, slow | Vectorize or use `dt[, fun(.SD), by = .I]` |
-| Repeated `dt[condition]` | Multiple passes | Combine into one `dt[condition, j, by]` |
-| Not using keys for joins | Hash join instead of binary search | `setkey()` on join columns |
-| `copy()` everywhere | Wastes memory | Only copy when truly needed |
-| `dt[, .SD, .SDcols = all_cols]` | Loads full dataset | Specify only needed columns in `.SDcols` |
-| `rbindlist()` inside a loop | O(n²) reallocation | Pre-collect a list, then `rbindlist(list_of_dts)` |
+### Using ifelse() on data.table columns
 
-## General R Anti-Patterns
+**Problem:** `ifelse()` is slow and coerces types unpredictably (e.g., drops Date class). `data.table` provides `fifelse()` and `fcase()` which are faster and type-stable.
 
-| Anti-Pattern | Problem | Fix |
-|-------------|---------|-----|
-| `T` / `F` | Can be overwritten by user | Always use `TRUE` / `FALSE` |
-| `1:length(x)` | Fails when `length(x) == 0` | Use `seq_along(x)` |
-| `sapply()` | Unpredictable return type | Use `vapply()` or `lapply()` |
-| Nested `if/else` chains | Hard to read | Use `fcase()` or early returns |
-| `library()` inside functions | Side effect, pollutes namespace | Use `::` or `@importFrom` |
-| Growing vectors in loops | O(n²) reallocation | Pre-allocate or use `lapply()` |
-| `setwd()` | Non-reproducible, affects global state | Use `here::here()` or relative paths |
-| `rm(list = ls())` | Not reproducible — hides state | Use clean R sessions instead |
-| `options(stringsAsFactors)` | Global side effect | Handle per-call; data.table never coerces |
-| Suppressing all warnings | Hides real problems | Address root cause |
-| `source()` in package `R/` files | Breaks package loading | Use `DESCRIPTION` imports |
+**Wrong:**
+```r
+dt[, category := ifelse(income > 50000, "high", "low")]
+```
+
+**Right:**
+```r
+dt[, category := fifelse(income > 50000, "high", "low")]
+dt[, category := fcase(
+  income > 100000, "high",
+  income > 50000,  "medium",
+  default = "low"
+)]
+```
+
+**Why it matters:** `ifelse()` on a million-row data.table is measurably slower. More importantly, it can silently convert Date columns to numeric, which causes downstream errors that are hard to trace.
+
+---
+
+### Using dt$col <- value instead of := 
+
+**Problem:** `$<-` triggers a copy of the entire data.table, breaking reference semantics and wasting memory.
+
+**Wrong:**
+```r
+dt$new_col <- dt$old_col * 2
+```
+
+**Right:**
+```r
+dt[, new_col := old_col * 2]
+```
+
+**Why it matters:** On a 10GB data.table, `$<-` allocates another 10GB for the copy. In production pipelines, this causes out-of-memory crashes.
+
+---
+
+### Row-wise operations with for loops or apply
+
+**Problem:** Iterating over rows in R is extremely slow. `apply(dt, 1, fun)` converts the data.table to a matrix first, which coerces all columns to the same type.
+
+**Wrong:**
+```r
+for (i in 1:nrow(dt)) {
+  dt[i, result := some_function(dt[i, col1], dt[i, col2])]
+}
+```
+
+**Right:**
+```r
+dt[, result := some_function(col1, col2)]  # vectorize the function
+# Or if truly row-wise:
+dt[, result := mapply(some_function, col1, col2)]
+```
+
+**Why it matters:** A row-wise for loop on 1 million rows takes minutes. The vectorized version takes milliseconds.
+
+---
 
 ## Package Development Anti-Patterns
 
-| Anti-Pattern | Problem | Fix |
-|-------------|---------|-----|
-| Editing `man/` files directly | Overwritten by roxygen2 | Edit `R/` source only |
-| Editing `NAMESPACE` manually | Overwritten by `devtools::document()` | Use `@export`, `@importFrom` |
-| Committing `renv/library/` | Large binary files, OS-specific | Only commit `renv.lock` |
-| No `.Rbuildignore` for `.cg-docs/` | Knowledge artifacts bundled in package | Add `^\.cg-docs$` to `.Rbuildignore` |
-| `devtools::install()` in CI | Installs from local state | Use `devtools::check()` + CRAN-like install |
-| Hard-coded paths in tests | Fails on other machines | Use `withr::local_tempdir()` / `testthat::test_path()` |
+### Using library() inside package functions
 
-## API (Plumber) Anti-Patterns
+**Problem:** `library()` attaches the entire package namespace, which can mask functions from other packages. Inside a package, use `::` or `@importFrom`.
 
-| Anti-Pattern | Problem | Fix |
-|-------------|---------|-----|
-| No input validation | Crashes on bad input; security risk | Validate all parameters; return 400 on invalid input |
-| Business logic in endpoint file | Untestable | Extract to `handlers.R`, test handlers directly |
-| Secrets in source code | Security vulnerability | Use `Sys.getenv()` and `.Renviron` |
-| No error handling | 500 with stack trace exposed | `tryCatch()` around risky operations |
+**Wrong:**
+```r
+#' @export
+compute_stats <- function(dt) {
+  library(data.table)  # Side effect! Attaches data.table globally
+  dt[, mean(value)]
+}
+```
+
+**Right:**
+```r
+#' @importFrom data.table data.table
+#' @export
+compute_stats <- function(dt) {
+  dt[, mean(value)]
+}
+```
+
+**Why it matters:** `library()` inside a function changes the user's search path — they didn't ask for that. It also makes the package fail `R CMD check`.
+
+---
+
+### Editing NAMESPACE manually
+
+**Problem:** `NAMESPACE` is generated by `roxygen2` from your `@import` and `@export` tags. Manual edits are overwritten on the next `devtools::document()`.
+
+**Wrong:**
+```
+# NAMESPACE (edited by hand)
+export(my_function)
+import(data.table)
+```
+
+**Right:**
+```r
+# In your R file:
+#' @export
+#' @importFrom data.table data.table setDT
+my_function <- function(...) { ... }
+```
+
+Then run `devtools::document()` to regenerate NAMESPACE.
+
+**Why it matters:** Hand-edited NAMESPACE files silently become inconsistent with the actual code. Exports disappear, imports break, and `R CMD check` fails with cryptic errors.
+
+---
+
+### Not using .Rbuildignore
+
+**Problem:** Files like `.cg-docs/`, `data/raw/`, notebooks, and dev scripts get included in the built package, bloating the tarball and potentially leaking sensitive data.
+
+**Wrong:**
+```
+packagename/
+├── R/
+├── data/raw/sensitive_survey.dta  # 500MB file in the package!
+├── notebooks/exploration.Rmd
+└── .cg-docs/                      # Internal docs in the package
+```
+
+**Right:**
+```
+# .Rbuildignore
+^\.cg-docs$
+^data/raw$
+^notebooks$
+^.*\.Rmd$
+```
+
+**Why it matters:** A 500MB data file in the package tarball makes installation impossible on Connect and takes forever to download.
+
+---
+
+## Plumber API Anti-Patterns
+
+### No input validation on endpoints
+
+**Problem:** Path and query parameters arrive as strings. Without explicit type conversion and validation, you get cryptic errors deep in business logic.
+
+**Wrong:**
+```r
+#* @get /poverty/<country>/<year>
+function(country, year) {
+  dt <- load_data(country, year)  # year is a string, not integer
+  dt[year == year]                # comparing character to integer — 0 rows
+}
+```
+
+**Right:**
+```r
+#* @get /poverty/<country>/<year>
+function(country, year, res) {
+  if (!grepl("^[A-Z]{3}$", country)) {
+    res$status <- 400L
+    return(list(error = "Invalid country code"))
+  }
+  year <- as.integer(year)
+  if (is.na(year) || year < 1990 || year > 2030) {
+    res$status <- 400L
+    return(list(error = "Invalid year"))
+  }
+  load_data(country, year)
+}
+```
+
+**Why it matters:** Unvalidated inputs cause 500 errors with unhelpful stack traces. Users of the API have no idea what they did wrong.
+
+---
+
+### No error handler on the router
+
+**Problem:** Without `pr_set_error()`, plumber returns raw R error messages to the client, potentially exposing internal paths, database credentials, or data structures.
+
+**Wrong:**
+```r
+pr("plumber.R") |> pr_run(port = 8080)
+# Errors return: "Error in file(con, 'r'): cannot open file '/home/user/secret/data.csv'"
+```
+
+**Right:**
+```r
+pr("plumber.R") |>
+  pr_set_error(function(req, res, err) {
+    message("API Error: ", conditionMessage(err))  # log internally
+    res$status <- 500L
+    list(error = "Internal error", message = "Something went wrong")
+  }) |>
+  pr_run(port = 8080)
+```
+
+**Why it matters:** Exposing internal error details is a security risk and makes your API look unprofessional.
+
+---
 
 ## Shiny Anti-Patterns
 
-| Anti-Pattern | Problem | Fix |
-|-------------|---------|-----|
-| Logic in `server()` directly | Bloats server, untestable | Extract to modules and plain functions |
-| Forgetting `req()` | Downstream errors on NULL input | `req(input$x)` at start of reactive |
-| `reactive()` that returns nothing | Should be `observe()` | Use `observe()` for side effects |
-| `<<-` inside Shiny | Breaks reactive graph | Use `reactiveValues()` or module returns |
+### Not using modules
+
+**Problem:** All UI IDs share a global namespace. As the app grows, ID collisions cause silent bugs where the wrong output updates.
+
+**Wrong:**
+```r
+ui <- fluidPage(
+  selectInput("region", "Region", choices = regions),
+  plotOutput("chart"),
+  selectInput("region", "Region", choices = regions),  # ID collision!
+  plotOutput("chart")                                    # ID collision!
+)
+```
+
+**Right:**
+```r
+ui <- fluidPage(
+  mod_chart_ui("chart1"),
+  mod_chart_ui("chart2")
+)
+```
+
+**Why it matters:** A single ID collision can make the wrong chart respond to the wrong filter. In a dashboard showing poverty data, this means the wrong numbers for the wrong country — exactly the kind of silent error that damages institutional credibility.
+
+---
+
+### Loading data inside renderPlot/renderTable
+
+**Problem:** Every time the reactive invalidates, the data is re-read from disk. On a 500MB file, this makes the app unusable.
+
+**Wrong:**
+```r
+output$chart <- renderPlot({
+  dt <- fread("big_file.csv")  # reads 500MB on every click
+  ggplot(dt[region == input$region], ...)
+})
+```
+
+**Right:**
+```r
+raw_data <- reactive({ fread("big_file.csv") })
+
+output$chart <- renderPlot({
+  ggplot(raw_data()[region == input$region], ...)
+}) |> bindCache(input$region)
+```
+
+**Why it matters:** Loading data inside render functions makes the app unusably slow. Users click a dropdown and wait 30 seconds for a chart that should appear instantly.
+
+---
+
+## Pipeline Anti-Patterns
+
+### Numbered scripts instead of targets
+
+**Problem:** `01_load.R`, `02_clean.R`, `03_analyze.R` — no dependency tracking, no skip logic, no way to know what's stale.
+
+**Wrong:**
+```r
+source("01_load.R")
+source("02_clean.R")   # Did 01 change? Who knows.
+source("03_analyze.R") # Is this using the latest clean data? Maybe.
+```
+
+**Right:**
+```r
+# _targets.R
+list(
+  tar_target(raw, load_data()),
+  tar_target(clean, clean_data(raw)),
+  tar_target(results, analyze(clean))
+)
+# tar_make() only re-runs what changed
+```
+
+**Why it matters:** In a pipeline that takes 45 minutes, re-running everything after a one-line change wastes the team's time. Worse, forgetting to re-run a step means publishing results based on stale data.
+
+---
+
+## Environment Anti-Patterns
+
+### Using install.packages() without renv
+
+**Problem:** `install.packages()` installs to the global library. When two projects need different versions of the same package, one breaks.
+
+**Wrong:**
+```r
+install.packages("data.table")  # global install, affects all projects
+```
+
+**Right:**
+```r
+# Project-level isolation
+renv::init()
+pak::pkg_install("data.table")
+renv::snapshot()
+```
+
+**Why it matters:** A global package update for Project A breaks Project B, which depended on the old version. This is especially dangerous for packages like `haven` or `survey` where behavior changes between versions.
+
+---
+
+## General R Anti-Patterns
+
+### Using T/F instead of TRUE/FALSE
+
+**Problem:** `T` and `F` are variables that can be overwritten. `TRUE` and `FALSE` are reserved keywords.
+
+**Wrong:**
+```r
+dt[, is_valid := fifelse(value > 0, T, F)]
+```
+
+**Right:**
+```r
+dt[, is_valid := fifelse(value > 0, TRUE, FALSE)]
+```
+
+**Why it matters:** `T <- 0` is valid R. After that, every `T` in your code means `0`. This is rare but catastrophic when it happens.
+
+---
+
+### Using 1:length(x) instead of seq_along(x)
+
+**Problem:** When `x` is empty, `1:length(x)` becomes `1:0` which is `c(1, 0)` — a two-element vector, not empty. This causes for loops to execute when they shouldn't.
+
+**Wrong:**
+```r
+for (i in 1:length(results)) { process(results[[i]]) }
+# If results is empty: iterates over c(1, 0) — error
+```
+
+**Right:**
+```r
+for (i in seq_along(results)) { process(results[[i]]) }
+# If results is empty: iterates over integer(0) — skips correctly
+```
+
+**Why it matters:** This bug only manifests with empty inputs. Tests with non-empty data pass. The first time the pipeline runs on a country with no data, it crashes.
+
+---
+
+### Using sapply() instead of vapply()
+
+**Problem:** `sapply()` guesses the return type. With zero-length input, it returns an empty list instead of the expected vector.
+
+**Wrong:**
+```r
+means <- sapply(dt_list, function(x) mean(x$welfare))
+# Returns a list if dt_list is empty, a vector if not
+```
+
+**Right:**
+```r
+means <- vapply(dt_list, function(x) mean(x$welfare), numeric(1))
+# Always returns a numeric vector, errors if type doesn't match
+```
+
+**Why it matters:** Code that works in testing (non-empty input) breaks in production (empty input) because the return type silently changes.
+
+---
+
+### Growing vectors in a loop
+
+**Problem:** Appending to a vector inside a loop causes R to reallocate memory on every iteration — O(n²) performance.
+
+**Wrong:**
+```r
+results <- c()
+for (f in files) {
+  dt <- fread(f)
+  results <- c(results, mean(dt$welfare))  # copies entire vector each time
+}
+```
+
+**Right:**
+```r
+results <- vapply(files, function(f) {
+  dt <- fread(f)
+  mean(dt$welfare)
+}, numeric(1))
+
+# Or pre-allocate:
+results <- numeric(length(files))
+for (i in seq_along(files)) {
+  results[i] <- mean(fread(files[i])$welfare)
+}
+```
+
+**Why it matters:** With 1000 files, the wrong version takes ~100x longer than the right version due to repeated memory allocation.
