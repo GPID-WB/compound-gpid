@@ -73,7 +73,7 @@ ui <- fluidPage(
   titlePanel("GPID Poverty Dashboard"),
   sidebarLayout(
     sidebarPanel(
-      mod_poverty_chart_ui("poverty")
+      mod_filters_ui("filters")   # different module, different ID
     ),
     mainPanel(
       mod_poverty_chart_ui("poverty"),

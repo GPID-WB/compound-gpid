@@ -5,13 +5,17 @@
 ## wbplot Setup
 
 ```r
-# Install wbplot from GitHub (one-time)
+# Install wbplot from the World Bank's GitHub repository (one-time)
+# Requires GitHub credentials (PAT with public repo access)
 # pak::pkg_install("worldbank/wbplot")
+# If using remotes: remotes::install_github("worldbank/wbplot")
 
 library(ggplot2)
 library(wbplot)
 library(data.table)
 ```
+
+> **Note:** `wbplot` is not on CRAN. If `pak::pkg_install("worldbank/wbplot")` fails with a 401 or rate-limit error, set a GitHub PAT: `Sys.setenv(GITHUB_PAT = "your_token")` or store it in `.Renviron` as `GITHUB_PAT=your_token`.
 
 ## theme_wb() — The World Bank Theme
 
@@ -279,3 +283,5 @@ ggplot(summary_dt, aes(x = year, y = mean_welfare, color = region)) +
 - Always `theme_wb()` — never `theme_minimal()` for GPID output
 - Source line in `caption`, not `subtitle`
 - Use `WBCOLORS$colorName` for single-color fills, `scale_*_wb_d()` for mapped aesthetics
+
+*For detailed Problem/Wrong/Right explanations and rationale behind each rule, see [Visualization Anti-Patterns](../references/r-analytical-anti-patterns.md#visualization-anti-patterns).*

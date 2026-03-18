@@ -2,6 +2,10 @@
 
 Common mistakes in technical R development. Each entry: what the mistake is, why it matters, what goes wrong, and what to do instead.
 
+**Sections:** [data.table](#data.table-anti-patterns) · [Package Development](#package-development-anti-patterns) · [Plumber API](#plumber-api-anti-patterns) · [Shiny](#shiny-anti-patterns) · [Pipelines](#pipeline-anti-patterns) · [Environment](#environment-anti-patterns)
+
+*General R programming anti-patterns (`T/F`, `seq_along`, `sapply` vs. `vapply`, vector-growing in loops) apply equally to analytical code — see [Analytical R Anti-Patterns](../../cg-skill-r-analytical/references/r-analytical-anti-patterns.md#see-also).*
+
 ---
 
 ## data.table Anti-Patterns
@@ -152,14 +156,14 @@ packagename/
 
 ### No input validation on endpoints
 
-**Problem:** Path and query parameters arrive as strings. Without explicit type conversion and validation, you get cryptic errors deep in business logic.
+**Problem:** Path and query parameters arrive as strings. Without explicit type conversion and validation, you get cryptic errors deep in business logic. A second hazard: if a column in `dt` shares its name with a function argument, data.table's `[i]` expression will resolve to the column on both sides of `==`, silently returning all rows instead of the filtered set.
 
 **Wrong:**
 ```r
 #* @get /poverty/<country>/<year>
 function(country, year) {
   dt <- load_data(country, year)  # year is a string, not integer
-  dt[year == year]                # comparing character to integer — 0 rows
+  dt[year == year]  # column 'year' shadows function arg — returns ALL rows, not filtered
 }
 ```
 

@@ -51,13 +51,17 @@ summary(m1, vcov = ~psu + year)
 
 ### Stata comparison
 
-```
-* Stata equivalent
-reghdfe log_welfare education age, absorb(region year) vce(cluster psu)
-reghdfe log_welfare education age, absorb(region year) vce(cluster psu year)
-```
+| Stata | fixest |
+|-------|--------|
+| `reghdfe y x, absorb(fe) vce(cluster v)` | `feols(y ~ x \| fe, vcov = ~v, data = dt)` |
+| `reghdfe y x, absorb(fe) vce(cluster v1 v2)` | `feols(y ~ x \| fe, vcov = ~v1 + v2, data = dt)` |
 
-A major advantage of fixest: you can change the variance-covariance structure after estimation without re-running the model. This lets you quickly compare how clustering choices affect inference.
+A major advantage of fixest: you can change the variance-covariance structure after estimation without re-running the model:
+
+```r
+summary(m1, vcov = ~region)
+summary(m1, vcov = ~psu + year)
+```
 
 ## Interactions and Factor Variables with i()
 

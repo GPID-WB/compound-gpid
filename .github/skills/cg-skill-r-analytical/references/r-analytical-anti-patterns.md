@@ -73,6 +73,27 @@ svy_urban <- svy |> filter(urban == 1)
 
 ---
 
+### Omitting nest = TRUE when PSU IDs are not globally unique
+
+**Problem:** Creating a survey design without `nest = TRUE` when PSU IDs are only unique within strata, not globally. `srvyr`/`survey` will treat PSU "101" in stratum A and PSU "101" in stratum B as the same cluster.
+
+**Wrong:**
+```r
+svy <- dt |>
+  as_survey_design(ids = psu, strata = stratum, weights = weight)
+# PSU IDs repeat across strata — design is mis-specified
+```
+
+**Right:**
+```r
+svy <- dt |>
+  as_survey_design(ids = psu, strata = stratum, weights = weight, nest = TRUE)
+```
+
+**Why it matters:** GPID surveys frequently reuse PSU IDs across strata. Without `nest = TRUE`, degrees of freedom are pooled incorrectly across strata, standard errors are underestimated, and confidence intervals are too narrow — with no warning or error. The poverty headcount may look correct while the uncertainty around it is wrong.
+
+---
+
 ## Welfare Measurement Anti-Patterns
 
 ### Averaging the poverty gap only among the poor
@@ -230,6 +251,8 @@ geom_bar(stat = "identity", width = 0.66)
 
 **Why it matters:** wbplot does not override these defaults. You must set them manually on every chart.
 
+*For the complete wbplot quick-reference checklist, see [Things to Remember](../workflows/visualization.md#things-to-remember) in the visualization workflow.*
+
 ---
 
 ## Econometrics Anti-Patterns
@@ -269,3 +292,36 @@ m <- feols(outcome ~ sunab(first_treated, year) | unit + year, data = dt)
 ```
 
 **Why it matters:** The TWFE estimate can be wrong in sign when treatment effects vary across cohorts. This has been demonstrated in econometrics literature (Goodman-Bacon 2021, Sun & Abraham 2021) and is not a theoretical curiosity — it affects real estimates.
+
+---
+
+## Inequality Anti-Patterns
+
+### Computing Gini without a survey-aware package
+
+**Problem:** Using `ineq::Gini()` or a hand-rolled weighted formula that ignores survey design. The point estimate may be close, but standard errors are wrong or unavailable.
+
+**Wrong:**
+```r
+library(ineq)
+# Ignores sampling weights and clustering entirely
+ineq::Gini(dt$welfare)
+```
+
+**Right:**
+```r
+library(convey)
+# Wrap the survey design once, then use convey for all inequality statistics
+svy_convey <- convey_prep(svy)
+
+# Design-correct Gini with standard error
+svygini(~welfare, svy_convey)
+```
+
+**Why it matters:** `ineq::Gini()` ignores sampling weights and clustering. Even a weighted Gini calculated outside the survey design underestimates the standard error. For GPID publications, inequality statistics must use `convey` to produce design-correct inference. A Gini of 0.42 ± 0.01 vs 0.42 ± 0.04 changes whether regional differences are statistically meaningful.
+
+---
+
+## See Also
+
+General R programming anti-patterns (`T/F` vs `TRUE/FALSE`, `seq_along`, `sapply` vs. `vapply`, vector-growing in loops) apply equally to analytical code. See [Technical R Anti-Patterns](../../cg-skill-r-technical/references/r-technical-anti-patterns.md) for a full list.
