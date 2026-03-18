@@ -2,6 +2,8 @@
 
 Common mistakes in analytical R code. Each entry: what the mistake is, why it matters, what goes wrong, and what to do instead.
 
+**Sections:** [Survey Analysis](#survey-analysis-anti-patterns) · [Welfare Measurement](#welfare-measurement-anti-patterns) · [haven / Stata Migration](#haven--stata-migration-anti-patterns) · [Visualization](#visualization-anti-patterns) · [Econometrics](#econometrics-anti-patterns) · [Inequality](#inequality-anti-patterns)
+
 ---
 
 ## Survey Analysis Anti-Patterns

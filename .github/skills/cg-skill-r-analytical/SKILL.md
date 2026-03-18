@@ -28,11 +28,11 @@ Reference skill for analytical R work in the GPID team. Oriented toward senior e
 - [Econometrics](workflows/econometrics.md) — fixest, modelsummary, output tables
 - [Visualization](workflows/visualization.md) — ggplot2 + wbplot conventions
 - [Welfare Patterns](workflows/welfare-patterns.md) — FGT, PPP, inequality (GPID-specific)
+- [Quarto for Research](workflows/quarto-research.md) — Parametrized reports, cross-references
 
 ## References
 
 - [Anti-Patterns](references/r-analytical-anti-patterns.md) — Common mistakes in analytical R code
-- [Quarto for Research](workflows/quarto-research.md) — Parametrized reports, cross-references
 
 ## When to Load This Skill
 

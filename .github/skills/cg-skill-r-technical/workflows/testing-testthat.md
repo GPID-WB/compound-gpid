@@ -166,6 +166,34 @@ Snapshots are stored in `tests/testthat/_snaps/`. Review changes with `testthat:
 
 ## Testing Plumber Endpoints
 
+Add a `make_req()` helper to `tests/testthat/helper.R` (loaded automatically by testthat):
+
+```r
+# tests/testthat/helper.R
+make_req <- function(method, path, query = list(), body = NULL) {
+  query_string <- if (length(query) > 0) {
+    paste(names(query), query, sep = "=", collapse = "&")
+  } else {
+    ""
+  }
+
+  body_str <- if (!is.null(body)) jsonlite::toJSON(body, auto_unbox = TRUE) else ""
+
+  plumber::PlumberRequest$new(
+    req = list(
+      REQUEST_METHOD = method,
+      PATH_INFO      = path,
+      QUERY_STRING   = query_string,
+      HTTP_HOST      = "localhost",
+      CONTENT_TYPE   = "application/json",
+      rook.input     = list(read_lines = function(...) body_str)
+    )
+  )
+}
+```
+
+Then use it in tests:
+
 ```r
 test_that("GET /health returns status ok", {
   pr <- plumber::pr("plumber.R")
@@ -253,6 +281,53 @@ test_that("poverty computation returns valid results", {
   expect_true(result$fgt1 >= 0 && result$fgt1 <= result$fgt0)
 })
 ```
+
+## Testing Anti-Patterns
+
+### Test with no assertions
+
+**Wrong:**
+```r
+test_that("function runs", {
+  result <- my_function(data)  # No check — this test ALWAYS passes, even if my_function() errors or returns garbage
+})
+```
+
+**Right:**
+```r
+test_that("function returns non-empty data.table", {
+  result <- my_function(data)
+  expect_s3_class(result, "data.table")
+  expect_gt(nrow(result), 0)
+})
+```
+
+### Test that checks implementation detail, not behaviour
+
+**Wrong:**
+```r
+test_that("function calls fread internally", {
+  # Testing that an internal function is called — fragile
+  mockery::expect_called(fread, 1)
+})
+```
+
+**Right:** Test observable outputs (return value, file written, error raised), not which internal function was used.
+
+### Order-dependent tests
+
+**Wrong:**
+```r
+# test-analysis.R expects test-cleaning.R to have run first and set dt_global
+test_that("step 2 works", {
+  result <- step2(dt_global)  # dt_global set by a previous test
+  ...
+})
+```
+
+**Right:** Each test creates its own data in the Arrange phase. Use `helper.R` fixtures for shared setup.
+
+---
 
 ## Running Tests
 
