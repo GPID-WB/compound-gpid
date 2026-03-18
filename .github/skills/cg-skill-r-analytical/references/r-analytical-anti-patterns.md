@@ -74,7 +74,7 @@ dt[, gap := fifelse(welf_pc_ppp_day < 2.15, (2.15 - welf_pc_ppp_day) / 2.15, 0)]
 fgt1 <- fmean(dt$gap, w = dt$weight)
 ```
 
-**Why it matters:** A survey with 5% missing welfare silently computes poverty over 95% of the population as if it were 100%. Negative welfare is physically impossible and produces FGT gap values above 1. Both are P1 data corruption risks. See the [collapse na.rm solution](.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md) for the full failure modes.
+**Why it matters:** A survey with 5% missing welfare silently computes poverty over 95% of the population as if it were 100%. Negative welfare is physically impossible and produces FGT gap values above 1. Both are P1 data corruption risks. See the [collapse na.rm solution](../../../../.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md) for the full failure modes.
 
 ---
 

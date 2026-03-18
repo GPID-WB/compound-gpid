@@ -207,10 +207,11 @@ test_that("FGT is 0 when none are poor", {
   dt <- data.table(welfare = c(3, 4, 5), weight = c(1, 1, 1))
   expect_equal(fmean(dt$welfare < 2.15, w = dt$weight), 0.0)
 })
-
-test_that("weighted_gini() returns 0 for perfect equality", {
+```
 
 > Run the pre-checks from the FGT section above before this block (`stopifnot(!anyNA(dt$welf_pc_ppp_day), all(dt$welf_pc_ppp_day > 0), !anyNA(dt$weight), all(dt$weight > 0))`).
+
+## Multiple Poverty Lines
 
 GPID reports at three international poverty lines. Compute all in one pass:
 
