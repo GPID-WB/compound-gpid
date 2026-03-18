@@ -41,7 +41,8 @@ applyTo: "**/*.R,**/*.r,**/*.Rmd"
 - Use `ggplot2` for all visualizations.
 - Build plots layer by layer: `ggplot() + geom_*() + scale_*() + labs() + theme()`.
 - Always label axes and provide a title with `labs()`.
-- Use `theme_minimal()` or a consistent custom theme across the project.
+- For published outputs, prefer `wbplot` theme functions (`theme_wb()`, `scale_color_wb_d()`) over generic themes. See `cg-skill-r-analytical` visualization workflow for full guidance.
+- For exploratory work, use `theme_minimal()` or a consistent custom theme.
 - Use `ggsave()` for saving plots. Specify width, height, and dpi.
 - For color scales, prefer colorblind-friendly palettes (e.g., `viridis`, `scale_color_brewer()`).
 - Avoid `qplot()`.

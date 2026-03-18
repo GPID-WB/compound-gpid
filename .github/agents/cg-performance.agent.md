@@ -30,7 +30,7 @@ You are a performance specialist for R, Python, and Stata data science projects,
 - Are keys set on frequently joined/filtered columns? (`setkey()`, `setindex()`)
 - Is `:=` used for in-place modification (avoiding unnecessary copies)?
 - Are `.SD` operations limited with `.SDcols` to avoid processing unnecessary columns?
-- Is `GForce` being leveraged (using `mean`, `sum`, etc. directly in `j`)?
+  - When collapse is not used: is data.table GForce at least triggered (using `mean`, `sum`, `.N` directly in `j`) instead of a slower loop? GForce is acceptable for unweighted EDA; use `fmean`/`fsum` with `w=` for any published statistic.
 - Are `fifelse()` and `fcase()` used instead of `ifelse()`?
 - Is `set()` used for loop-based column modifications?
 - Are unnecessary `copy()` calls avoided?

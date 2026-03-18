@@ -55,6 +55,11 @@ Both `collapse` and `data.table` are class-agnostic and interoperable: collapse 
 
 ## References
 
-- [collapse Quick Reference](references/collapse-reference.md) — Fast statistical functions, aggregation, transformations
+- [collapse Quick Reference](references/collapse-reference.md) — Fast statistical functions, aggregation, transformations, global options
 - [Anti-Patterns](references/r-analytical-anti-patterns.md) — Common mistakes in analytical R code
 - [Quarto for Research](references/quarto-research.md) — Parametrized reports, cross-references
+
+---
+
+> For infrastructure workflows (package development, Shiny, targets, httr2), use `cg-skill-r-technical`.
+> For testthat patterns including collapse output testing, see `cg-skill-r-technical/references/testing-testthat.md`.

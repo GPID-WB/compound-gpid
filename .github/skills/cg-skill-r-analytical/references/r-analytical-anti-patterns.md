@@ -83,6 +83,32 @@ dt[, poor := welfare_2011ppp < 2.15]  # $2.15 is 2017 PPP
 dt[, poor := welfare_2017ppp < 2.15]
 ```
 
+**Why it matters:** PPP unit mismatches produce poverty rates that are silently wrong. See [Welfare Patterns](../workflows/welfare-patterns.md) for the full unit-tracking naming convention — every welfare variable name must encode its unit (e.g., `welf_pc_ppp_day`).
+
+---
+
+### Aggregate-then-merge instead of using TRA
+
+**Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
+
+**Wrong:**
+```r
+# Two passes + merge to demean within groups
+group_means <- dt[, .(mean_w = fmean(welfare, w = weight)), by = region]
+dt <- group_means[dt, on = "region"]
+dt[, welfare_centered := welfare - mean_w]
+```
+
+**Right:**
+```r
+# One call with TRA
+dt[, welfare_centered := fmean(welfare, g = region, w = weight, TRA = "-")]
+# Or equivalently:
+dt[, welfare_centered := fwithin(welfare, region, weight)]
+```
+
+**Why it matters:** The one-call version avoids a full merge and is 2-3x faster on large surveys. The `TRA` argument is available on all Fast Statistical Functions.
+
 ---
 
 ### Using unweighted means for published statistics

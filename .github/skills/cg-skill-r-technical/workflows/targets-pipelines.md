@@ -60,3 +60,19 @@ tar_target(country_poverty, compute_poverty(country_data), pattern = map(country
 ```gitignore
 _targets/
 ```
+
+## Reproducibility: renv + targets
+
+Commit both `renv.lock` and the `_targets/` store (or at minimum its metadata) to ensure the full pipeline is reproducible across machines:
+
+```r
+# After adding/removing packages:
+renv::snapshot()
+
+# targets respects the active renv environment automatically.
+# Run tar_make() from a session where renv is active (renv::restore() first if needed).
+renv::restore()  # ensure locked environment
+tar_make()       # pipeline runs with pinned package versions
+```
+
+Always commit `renv.lock` together with any change to `_targets.R`.

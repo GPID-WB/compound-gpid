@@ -53,7 +53,8 @@ dt[, region_mean := fmean(welfare, region, weight, TRA = "replace")]
 ## Aggregation: collap() vs dt[, j, by]
 
 ```r
-# data.table aggregation (base R functions)
+# data.table aggregation (base R mean — unweighted, for EDA/diagnostics only)
+# For GPID published work: use fmean(x, g, w = weight) instead
 dt[, .(mean_w = mean(welfare), n = .N), by = region]
 
 # collapse aggregation (faster, native weight support)

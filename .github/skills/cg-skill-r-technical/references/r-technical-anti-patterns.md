@@ -142,6 +142,28 @@ result[, new := 1]
 
 ---
 
+### Aggregate-then-merge instead of using TRA
+
+**Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
+
+**Wrong:**
+```r
+# Two passes + merge to add group means back
+group_means <- dt[, .(mean_x = fmean(x)), by = group]
+dt <- group_means[dt, on = "group"]
+dt[, x_centered := x - mean_x]
+```
+
+**Right:**
+```r
+# One call with TRA
+dt[, x_centered := fmean(x, g = group, TRA = "-")]
+```
+
+**Why it matters:** `TRA` eliminates the merge entirely — one C call instead of aggregate + key-join + `:=`. Available on all Fast Statistical Functions.
+
+---
+
 ## Package Development Anti-Patterns
 
 ### Using library() inside package functions

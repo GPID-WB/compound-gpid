@@ -2,9 +2,47 @@
 
 `collapse` is the team's primary tool for statistical computing. It provides fast C/C++-based grouped and weighted operations that work directly on data.table objects. Always use explicit `f`-prefixed names — never use `set_collapse(mask = ...)`.
 
+## Global Options
+
+collapse uses an internal options environment (`.op`) that all Fast Statistical Functions read from. The most important option is `na.rm`:
+
+```r
+# All f* functions default to na.rm = .op[["na.rm"]] — TRUE by default
+fmean(c(1, 2, NA, 4))          # Returns 2.333... (NA skipped)
+
+# Change the global default for the whole session
+set_collapse(na.rm = FALSE)
+fmean(c(1, 2, NA, 4))          # Returns NA (NA propagates, like base R)
+
+# Override per call
+fmean(c(1, 2, NA, 4), na.rm = TRUE)   # Returns 2.333...
+fmean(c(1, 2, NA, 4), na.rm = FALSE)  # Returns NA
+
+# Restore default
+set_collapse(na.rm = TRUE)
+```
+
+**Warning for welfare work**: All FGT, Gini, and weighted mean patterns in these skills assume `na.rm = TRUE` (the default). If you call `set_collapse(na.rm = FALSE)`, those patterns will silently return `NA` instead of estimates. Do not change the global `na.rm` setting in scripts that contain welfare calculations.
+
+Other useful global options:
+
+```r
+# View all current options
+get_collapse()
+
+# Set multiple options at once
+set_collapse(na.rm = TRUE, sort = TRUE, nthreads = 4)
+
+# Common options:
+# na.rm     — default NA handling for all f* functions (default TRUE)
+# sort      — whether grouped results are sorted by group (default TRUE)
+# nthreads  — number of OpenMP threads for parallel computation (default 1)
+# digits    — rounding digits for print methods (default 4)
+```
+
 ## Fast Statistical Functions
 
-All accept the same signature: `f*(x, g = NULL, w = NULL, TRA = NULL, na.rm = TRUE)`
+All accept the same signature: `f*(x, g = NULL, w = NULL, TRA = NULL, na.rm = .op[["na.rm"]])`
 
 | Function | Purpose | Example |
 |----------|---------|---------|
@@ -18,6 +56,7 @@ All accept the same signature: `f*(x, g = NULL, w = NULL, TRA = NULL, na.rm = TR
 | `ffirst()` / `flast()` | Grouped first/last | `ffirst(dt$welfare, g = dt$region)` |
 | `fnobs()` | Observation count | `fnobs(dt$welfare, g = dt$region)` |
 | `fndistinct()` | Distinct value count | `fndistinct(dt$region)` |
+| `fprod()` | Grouped product | `fprod(dt$growth_factor, g = dt$region)` |
 | `fmode()` | Weighted mode | `fmode(dt$sector, g = dt$region, w = dt$weight)` |
 
 ### Key Arguments
@@ -166,6 +205,102 @@ qDF(x)    # Convert to data.frame
 qM(x)     # Convert to matrix
 qTBL(x)   # Convert to tibble
 ```
+
+## Data Manipulation Functions
+
+collapse provides `f`-prefixed equivalents of base R data manipulation operations. These preserve object attributes and classes throughout.
+
+```r
+# Column selection (NSE — no quotes needed)
+fselect(dt, region, welfare, weight)
+fselect(dt, 1:5)           # By position
+get_vars(dt, "welfare")    # Standard evaluation
+num_vars(dt)               # All numeric columns
+cat_vars(dt)               # All categorical/character columns
+
+# Row subsetting (faster than dt[condition])
+fsubset(dt, region == "EAP" & year > 2010)
+fsubset(dt, welfare > 0, region, welfare, weight)  # Subset rows + select cols
+
+# Column transformation (simultaneous evaluation — all RHS evaluated before assignment)
+ftransform(dt, log_welfare = log(welfare), poor = welfare < 2.15)
+
+# Sequential mutation (each expression can reference the previous)
+fmutate(dt,
+  welf_log = log(welfare),
+  welf_log2 = welf_log^2   # Can reference welf_log immediately
+)
+
+# In-place transformation (reference semantics, no copy)
+settransform(dt, log_welfare = log(welfare))
+# Equivalent shorthand:
+dt %=% list(log_welfare = log(welfare))
+
+# Renaming
+frename(dt, welf = welfare, wt = weight)
+setrename(dt, welf = welfare)  # In-place
+```
+
+### Difference: ftransform vs fmutate
+
+| | `ftransform()` | `fmutate()` |
+|--|--|--|
+| Evaluation | All RHS at once (like `transform()`) | Sequential (like `dplyr::mutate()`) |
+| Reference new cols | Cannot reference new cols in same call | Can reference cols created in same call |
+| Use when | Multiple independent columns | Chain of derived columns |
+
+## Aggregation with collap() for Mixed Data
+
+`collap()` handles numeric and categorical columns differently via `catFUN`:
+
+```r
+# Default: fmean for numeric, fmode for categorical
+collap(dt, ~ region, fmean, catFUN = fmode, w = ~ weight)
+
+# Explicit control
+collap(dt, ~ region,
+       FUN    = list(fmean, fsd),    # For numeric columns
+       catFUN = fmode,               # For character/factor columns
+       w      = ~ weight)
+
+# Select only numeric columns (skip categorical)
+collap(dt, ~ region, fmean, w = ~ weight, cols = is.numeric)
+```
+
+## Row/Column Sweeping Operators
+
+For element-wise sweeping operations across rows or columns of a matrix/data frame:
+
+```r
+# Column-wise sweeping (subtract column means from each row)
+X %c-% fmean(X)             # Equivalent to sweep(X, 2, fmean(X), "-")
+X %c/% fsd(X)               # Divide each column by its sd
+X %c*% weights              # Multiply each column by a vector
+
+# Row-wise sweeping (subtract row totals from each column)
+X %r-% rowSums(X)           # Subtract row sums from each column
+X %r/% rowMeans(X)          # Divide each row by its mean
+
+# In-place arithmetic
+dt$welfare %-=% fmean(dt$welfare)   # Subtract scalar in-place
+dt$welfare %/=% fsd(dt$welfare)     # Divide in-place
+```
+
+## Class-Agnostic Dispatch
+
+All Fast Statistical Functions use S3 dispatch and work on vectors, matrices, data frames, and data.tables without conversion:
+
+```r
+# Same function, different inputs — collapse handles each optimally
+fmean(dt$welfare)               # Numeric vector → scalar
+fmean(as.matrix(dt[, 3:6]))    # Matrix → row of column means
+fmean(dt)                       # data.frame/data.table → column means
+
+# Grouping works the same way on all types
+fmean(dt, g = dt$region)       # Returns data.frame/data.table of group means
+```
+
+**Attribute preservation**: collapse preserves all attributes (names, class, labels, etc.) unless the operation changes the object's dimensions or internal type (`typeof()`). Risky operations that change dimensions return a plain vector/matrix instead of preserving the input class.
 
 ## Using collapse Inside data.table
 

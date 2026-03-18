@@ -37,8 +37,13 @@ No masking — always use explicit `f`-prefixed function names from collapse.
 - [Plumber APIs](workflows/plumber-api.md) — REST endpoints, middleware, OpenAPI
 - [Shiny Apps](workflows/shiny-apps.md) — Modules, reactivity, deployment
 - [Targets Pipelines](workflows/targets-pipelines.md) — Reproducible pipelines, dynamic branching
+- [HTTP Clients](workflows/http-clients.md) — httr2: authentication, retry, pagination, parallel requests
 
 ## References
 
 - [Anti-Patterns](references/r-technical-anti-patterns.md) — Common mistakes in technical R code
 - [Testing with testthat](references/testing-testthat.md) — Test structure, assertions, fixtures
+
+---
+
+> For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `cg-skill-r-analytical`.

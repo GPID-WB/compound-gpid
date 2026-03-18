@@ -93,6 +93,14 @@ Where `e_hk` is the sum of linearized scores in PSU k of stratum h, and `ē_h` i
 #' @param stratum Integer/factor vector (stratification variable)
 #' @return Named numeric vector: estimate, se, ci_lower, ci_upper
 survey_mean_se <- function(x, w, psu, stratum) {
+  n <- length(x)
+  stopifnot(
+    is.numeric(x), is.numeric(w),
+    !anyNA(x), !anyNA(w), !anyNA(psu), !anyNA(stratum),
+    length(w) == n, length(psu) == n, length(stratum) == n,
+    all(w > 0)
+  )
+
   # Point estimate: weighted mean
   theta <- fmean(x, w = w)
 
@@ -108,28 +116,19 @@ survey_mean_se <- function(x, w, psu, stratum) {
   z_psu <- fsum(z, g = psu_id)
   strat_of_psu <- ffirst(stratum, g = psu_id)
 
-  # Number of PSUs per stratum
-  n_h <- fnobs(z_psu, g = strat_of_psu)
-
-  # Variance of PSU totals within each stratum
-  # v_h = n_h/(n_h-1) * Σ_k (z_hk - z̄_h)² = n_h/(n_h-1) * (n_h-1) * var(z_hk)
-  #      = n_h * var(z_hk)
-  # But we need the sum of squared deviations, not the variance
-  z_psu_mean <- fbetween(z_psu, g = strat_of_psu)  # group means, expanded
-  ssq_by_stratum <- fsum((z_psu - z_psu_mean)^2, g = strat_of_psu)
-
-  # Get unique stratum-level values
-  strat_unique <- funique(strat_of_psu)
-  n_h_unique <- fnobs(z_psu, g = strat_of_psu)
-  n_h_unique <- fsum(rep(1L, length(z_psu)), g = strat_of_psu)
-
   # Degrees of freedom adjustment: n_h / (n_h - 1)
-  # Use collap for clean stratum-level computation
   psu_dt <- data.table(z_psu = z_psu, stratum = strat_of_psu)
   strat_stats <- psu_dt[, .(
     n_psu = .N,
     ssq   = fsum((z_psu - fmean(z_psu))^2)
   ), by = stratum]
+
+  # Guard: Taylor linearization requires >= 2 PSUs per stratum
+  singleton_strata <- strat_stats[n_psu < 2, stratum]
+  if (length(singleton_strata) > 0)
+    stop("Certainty strata (1 PSU) cannot use Taylor linearization: ",
+         paste(singleton_strata, collapse = ", "),
+         "\n  Consider collapsing with adjacent strata or using a replicate weight method.")
 
   # V(θ̂) = (1/N²) * Σ_h [n_h/(n_h-1)] * ssq_h
   strat_stats[, v_h := (n_psu / (n_psu - 1)) * ssq]

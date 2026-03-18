@@ -46,6 +46,12 @@ dt[, poor := welfare_2017ppp < 2.15]
 
 The Foster-Greer-Thorbecke (FGT) family. All computed with survey weights using `collapse`.
 
+> **NA handling**: collapse defaults to `na.rm = TRUE` — NA welfare values are silently excluded from all aggregations. Before any FGT block, validate that your welfare and weight columns are complete:
+> ```r
+> stopifnot(!anyNA(dt$welf_pc_ppp_day), !anyNA(dt$weight), all(dt$weight > 0))
+> ```
+> If NAs are expected (e.g., item non-response), document the exclusion explicitly before computing.
+
 ### FGT(0) — Headcount Ratio
 
 ```r
@@ -138,6 +144,45 @@ fgt1_with_se <- survey_mean_se(
 )
 ```
 
+### Verification Tests
+
+FGT and Gini are highest-risk for silent errors. Always have tests for these functions:
+
+```r
+library(testthat)
+library(collapse)
+library(data.table)
+
+test_that("FGT denominator covers entire population (not just poor)", {
+  dt <- data.table(
+    welfare = c(1, 1.5, 2, 3, 5),
+    weight  = c(1, 1, 1, 1, 1)
+  )
+  poverty_line <- 2.15
+  dt[, gap := fifelse(welfare < poverty_line,
+                      (poverty_line - welfare) / poverty_line, 0)]
+  fgt1 <- fmean(dt$gap, w = dt$weight)
+  # 3 of 5 are poor; gaps: 1.15/2.15, 0.65/2.15, 0.15/2.15, 0, 0 → mean ≈ 0.182
+  expect_equal(fgt1, fmean(c(1.15, 0.65, 0.15, 0, 0) / 2.15), tolerance = 1e-10)
+})
+
+test_that("weighted_gini() returns 0 for perfect equality", {
+  expect_equal(weighted_gini(c(10, 10, 10), c(1, 1, 1)), 0, tolerance = 1e-10)
+})
+
+test_that("weighted_gini() returns value in [0, 1]", {
+  g <- weighted_gini(c(1, 5, 10, 50), c(1, 1, 1, 1))
+  expect_true(g >= 0 && g <= 1)
+})
+
+test_that("weighted_gini() warns and drops NA welfare", {
+  expect_warning(
+    weighted_gini(c(10, NA, 30), c(1, 1, 1)),
+    "1 observation.*dropped"
+  )
+})
+```
+
 ## Multiple Poverty Lines
 
 GPID reports at three international poverty lines. Compute all in one pass:
@@ -169,6 +214,12 @@ Weighted Gini using collapse primitives for speed:
 #' @param w Numeric vector (weights)
 #' @return Scalar Gini coefficient (0 = perfect equality, 1 = perfect inequality)
 weighted_gini <- function(y, w) {
+  # Remove NA and non-positive weights before computation
+  keep <- !is.na(y) & !is.na(w) & w > 0
+  if (any(!keep))
+    warning(sum(!keep), " observation(s) dropped (NA welfare or non-positive weight)")
+  y <- y[keep]
+  w <- w[keep]
   # Sort by welfare
   ord <- radixorder(y)
   ys  <- y[ord]

@@ -26,6 +26,16 @@ venv/
 htmlcov/
 *.prof
 
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Renviron
+
+# Stata
+*.smcl
+*.gph
+
 # Secrets — never commit
 .env
 *.env.local
