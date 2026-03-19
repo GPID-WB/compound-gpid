@@ -47,6 +47,11 @@ For each agent, provide:
 > **Why**: `.cg-docs/` contains local knowledge artifacts that should not be bundled into the installed package.
 > **Fix**: Add `^\.cg-docs$` to `.Rbuildignore`.
 
+**R skill check (all depth levels)**: Regardless of review depth, if any `.R`, `.r`, or `.Rmd` files are in the changed file set, each review agent must load the appropriate R skill before reviewing those files:
+- Statistical/analytical work (welfare, survey, econometrics, visualization) → load `cg-skill-r-analytical`
+- Package/infrastructure work (package dev, Shiny, targets, plumber, httr2) → load `cg-skill-r-technical`
+- Mixed or unclear → load both
+
 **Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-core` before reviewing those files. Apply the anti-patterns from the skill's references when evaluating Stata code.
 
 ### Step 3: Collect and Prioritize Findings

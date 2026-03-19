@@ -38,7 +38,7 @@ Ask each question and wait for the answer before asking the next.
 
 > What is your preferred programming language for this project?
 >
-> 1. **R** (data.table + ggplot2)
+> 1. **R** (collapse + data.table + ggplot2)
 > 2. **Python** (polars/numpy + plotnine/seaborn)
 > 3. **Stata** (local macros + repkit for reproducibility)
 > 4. **Both** (R and Python)

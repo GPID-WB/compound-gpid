@@ -6,7 +6,8 @@ Focus: Coding best practices, testing, documentation, version control, system st
 
 - [x] Core workflow prompts (cg-brainstorm, cg-plan, cg-work, cg-review, cg-compound)
 - [x] 8 review agents + learnings researcher (all prefixed `cg-`)
-- [x] R best practices skill (`cg-skill-r-best-practices`)
+- [x] R technical skill (`cg-skill-r-technical`) — collapse, data.table, testthat, roxygen2, package dev, plumber, shiny, targets
+- [x] R analytical skill (`cg-skill-r-analytical`) — collapse, data.table, haven, fixest, modelsummary, ggplot2+wbplot, welfare measurement
 - [x] Python best practices skill (`cg-skill-python-best-practices`)
 - [x] Git workflow skill (`cg-skill-git-workflow`)
 - [x] Brainstorming skill (`cg-skill-brainstorming`)
