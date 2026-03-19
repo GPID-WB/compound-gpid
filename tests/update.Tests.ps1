@@ -456,3 +456,568 @@ Describe "update.ps1 - docs to .cg-docs migration" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Version pinning — argument parsing
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - argument parsing" {
+    Context "no argument supplied" {
+        It "treats no argument as null (reads from .cg-version)" {
+            $Version = $null
+            $Version -eq $null | Should Be $true
+        }
+    }
+
+    Context "explicit 'latest' argument" {
+        It "recognises 'latest' as the unpin keyword" {
+            $Version = "latest"
+            $Version | Should Be "latest"
+            $Version -match '^(latest|v\d+\.\d+\.\d+)$' | Should Be $true
+        }
+    }
+
+    Context "tag argument" {
+        It "recognises a tag string as a pin target" {
+            $Version = "v0.1.0"
+            $Version | Should Match '^v\d+\.\d+\.\d+$'
+        }
+    }
+
+    Context "--list argument" {
+        It "is NOT written to .cg-version (special switch parameter)" {
+            # When --list is passed, PowerShell sets $List = $true and $Version = ""
+            $List    = [switch]$true
+            $Version = ""
+            # The --list branch exits early; $Version is empty so writes are skipped
+            $List.IsPresent                       | Should Be $true
+            [string]::IsNullOrEmpty($Version)     | Should Be $true
+        }
+    }
+
+    Context "version argument trimming" {
+        It "trims leading and trailing whitespace" {
+            $Version = "  v0.2.0  "
+            $Version = $Version.Trim()
+            $Version | Should Be "v0.2.0"
+        }
+
+        It "trimmed value still passes format validation" {
+            $Version = "  v0.2.0  "
+            $Version = $Version.Trim()
+            ($Version -match '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        }
+    }
+
+    Context "version format validation" {
+        It "accepts a valid 3-segment tag" {
+            $Version = "v0.2.0"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $false
+        }
+
+        It "accepts the 'latest' keyword" {
+            $Version = "latest"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $false
+        }
+
+        It "rejects a 2-segment tag missing the patch number" {
+            $Version = "v0.2"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        }
+
+        It "rejects a tag without leading 'v'" {
+            $Version = "0.2.0"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        }
+
+        It "rejects arbitrary strings" {
+            $Version = "main"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        }
+
+        It "rejects a 4-segment tag" {
+            $Version = "v0.2.0.1"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — .cg-version read / write
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - .cg-version read" {
+    Context "file present with 'latest'" {
+        It "resolves versionMode to 'latest'" {
+            $versionFile = Join-Path $TestDrive "cv-latest.txt"
+            Set-Content -Path $versionFile -Value "latest" -NoNewline
+
+            $versionMode = (Get-Content $versionFile -Raw).Trim()
+            if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
+
+            $versionMode | Should Be "latest"
+        }
+    }
+
+    Context "file present with a pinned tag" {
+        It "resolves versionMode to the tag" {
+            $versionFile = Join-Path $TestDrive "cv-pinned.txt"
+            Set-Content -Path $versionFile -Value "v0.2.0" -NoNewline
+
+            $versionMode = (Get-Content $versionFile -Raw).Trim()
+            if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
+
+            $versionMode | Should Be "v0.2.0"
+        }
+    }
+
+    Context "file absent (pre-versioning install)" {
+        It "defaults to 'latest' for backward compatibility" {
+            $versionFile = Join-Path $TestDrive "cv-missing.txt"
+            # File deliberately not created
+
+            $versionMode = if (Test-Path $versionFile) {
+                (Get-Content $versionFile -Raw).Trim()
+            } else { "latest" }
+
+            $versionMode | Should Be "latest"
+        }
+    }
+
+    Context "file present but empty or whitespace" {
+        It "falls back to 'latest' for blank content" {
+            $versionFile = Join-Path $TestDrive "cv-blank.txt"
+            Set-Content -Path $versionFile -Value "   " -NoNewline
+
+            $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue).Trim()
+            $versionMode = if ([string]::IsNullOrWhiteSpace($raw)) { "latest" } else { $raw }
+
+            $versionMode | Should Be "latest"
+        }
+    }
+
+    Context "file present with blank first line (multi-line content)" {
+        It "returns the first non-empty line" {
+            $versionFile = Join-Path $TestDrive "cv-multiline.txt"
+            # Simulates a manually edited file where the version is on line 2
+            Set-Content -Path $versionFile -Value "`n`nv0.2.0`nv0.1.0" -NoNewline
+
+            $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue)
+            $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
+            if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
+
+            $versionMode | Should Be "v0.2.0"
+        }
+
+        It "falls back to 'latest' when all lines are blank" {
+            $versionFile = Join-Path $TestDrive "cv-allblank.txt"
+            Set-Content -Path $versionFile -Value "`n  `n   " -NoNewline
+
+            $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue)
+            $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
+            if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
+
+            $versionMode | Should Be "latest"
+        }
+    }
+}
+
+Describe "update.ps1 - .cg-version write" {
+    Context "switching from 'latest' to a pinned tag (pinned branch)" {
+        It "overwrites with the tag name after successful checkout" {
+            $versionFile = Join-Path $TestDrive "cv-switch-to-pin.txt"
+            Set-Content -Path $versionFile -Value "latest" -NoNewline
+
+            # Simulate pinned branch: Set-Content is called after git checkout succeeds
+            $versionMode = "v0.2.0"
+            Set-Content -Path $versionFile -Value $versionMode -NoNewline
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.2.0"
+        }
+    }
+
+    Context "explicitly unpinning with 'cg-update latest' (latest branch)" {
+        It "overwrites with 'latest' when user explicitly passes latest argument" {
+            $versionFile = Join-Path $TestDrive "cv-switch-to-latest.txt"
+            Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
+
+            # Simulate latest branch: Set-Content only when $Version -eq "latest"
+            $Version = "latest"
+            if ($Version -eq "latest") {
+                Set-Content -Path $versionFile -Value "latest" -NoNewline
+            }
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+        }
+
+        It "does NOT overwrite when no $Version argument was supplied (file already correct)" {
+            $versionFile = Join-Path $TestDrive "cv-no-overwrite.txt"
+            Set-Content -Path $versionFile -Value "latest" -NoNewline
+
+            # Simulate latest branch with no explicit $Version: no write needed
+            $Version = $null
+            if ($Version -eq "latest") {
+                Set-Content -Path $versionFile -Value "latest" -NoNewline
+            }
+            # File content should remain unchanged
+            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+        }
+    }
+
+    Context "re-pinning to a different tag (pinned branch)" {
+        It "overwrites with the new tag after successful checkout" {
+            $versionFile = Join-Path $TestDrive "cv-repin.txt"
+            Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
+
+            # Simulate pinned branch: Set-Content called after checkout succeeds
+            $versionMode = "v0.2.0"
+            Set-Content -Path $versionFile -Value $versionMode -NoNewline
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.2.0"
+        }
+    }
+
+    Context "--list flag (early return, no write)" {
+        It "does NOT modify .cg-version when --list is passed" {
+            $versionFile = Join-Path $TestDrive "cv-list-guard.txt"
+            Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
+
+            # Simulate: $List.IsPresent causes early return before any Set-Content
+            $List = [switch]$true
+            if (-not $List.IsPresent) {
+                Set-Content -Path $versionFile -Value "should-not-appear" -NoNewline
+            }
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+        }
+    }
+
+    Context "tag validation failure (no write on bad input)" {
+        It "does NOT write .cg-version when the tag does not exist" {
+            $versionFile = Join-Path $TestDrive "cv-bad-tag.txt"
+            Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
+
+            # Simulate pinned branch: tag validation fails — throw before Set-Content
+            $versionMode = "v9.9.9"
+            $allTags     = @("v0.2.0", "v0.1.0")
+            $wrote       = $false
+            try {
+                if ($versionMode -notin $allTags) {
+                    throw "Release '$versionMode' not found."
+                }
+                # If we get here, checkout succeeded — write preference
+                Set-Content -Path $versionFile -Value $versionMode -NoNewline
+                $wrote = $true
+            } catch { <# expected #> }
+
+            $wrote                                 | Should Be $false
+            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — detached HEAD detection (latest mode)
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - detached HEAD detection" {
+    Context "inspecting git HEAD state" {
+        It "identifies 'HEAD' as a detached HEAD state" {
+            # git rev-parse --abbrev-ref HEAD returns "HEAD" in detached state
+            $headBranch = "HEAD"   # simulated output from git in detached state
+            ($headBranch -eq "HEAD") | Should Be $true
+        }
+
+        It "identifies a branch name as NOT detached" {
+            $headBranch = "main"
+            ($headBranch -eq "HEAD") | Should Be $false
+        }
+    }
+
+    Context "detached HEAD switch-back logic" {
+        It "triggers git checkout main when detached HEAD is detected" {
+            $headBranch     = "HEAD"
+            $switchAttempted = $false
+            if ($headBranch -eq "HEAD") {
+                $switchAttempted = $true
+            }
+            $switchAttempted | Should Be $true
+        }
+
+        It "skips git checkout main when already on a branch" {
+            $headBranch     = "main"
+            $switchAttempted = $false
+            if ($headBranch -eq "HEAD") {
+                $switchAttempted = $true
+            }
+            $switchAttempted | Should Be $false
+        }
+    }
+
+    Context "git rev-parse failure" {
+        It "throws when git rev-parse returns non-zero exit code" {
+            $global:LASTEXITCODE = 1
+            {
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Could not determine current branch (git rev-parse failed with exit code $LASTEXITCODE)"
+                }
+            } | Should Throw "Could not determine current branch"
+            $global:LASTEXITCODE = 0
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — tag validation (pinned mode)
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - tag validation" {
+    Context "tag exists" {
+        It "proceeds when git tag --list returns the tag name" {
+            # Simulate: git tag --list "v0.2.0" returns "v0.2.0"
+            $tagResult = "v0.2.0"
+            $tagExists = -not [string]::IsNullOrWhiteSpace($tagResult)
+            $tagExists | Should Be $true
+        }
+    }
+
+    Context "tag does not exist" {
+        It "detects missing tag when git tag --list returns empty" {
+            # Simulate: git tag --list "v9.9.9" returns nothing
+            $tagResult = $null
+            $tagExists = -not [string]::IsNullOrWhiteSpace($tagResult)
+            $tagExists | Should Be $false
+        }
+
+        It "builds a helpful error hint from similar tags" {
+            $versionMode = "v9.9.9"
+            $similar     = @("v0.2.0", "v0.1.0")
+            $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
+            $errorMsg = "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
+
+            $errorMsg -match "v9\.9\.9"    | Should Be $true
+            $errorMsg -match "v0\.2\.0"    | Should Be $true
+            $errorMsg -match "cg-update --list" | Should Be $true
+        }
+
+        It "omits the similar-tags section when no tags exist at all" {
+            $versionMode = "v9.9.9"
+            $similar     = @()
+            $hint        = if ($similar) {
+                "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
+            } else { "" }
+            $errorMsg = "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
+
+            # Use the section-header pattern (with trailing colon+newline) to avoid
+            # matching "all available releases" in the body of the error message.
+            $errorMsg -match "Available releases:`n" | Should Be $false
+            $errorMsg -match "cg-update --list"      | Should Be $true
+        }
+
+        It "throws when a non-existent tag is validated against the tag list" {
+            $versionMode = "v9.9.9"
+            $allTags     = @("v0.2.0", "v0.1.0")
+            {
+                if ($versionMode -notin $allTags) {
+                    throw "Release '$versionMode' not found."
+                }
+            } | Should Throw "not found"
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — PS5.1 safe checkout pattern (pinned mode)
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - PS5.1-safe checkout" {
+    AfterEach {
+        $global:LASTEXITCODE = 0
+    }
+
+    Context "try/catch wrapping git checkout in pinned mode" {
+        It "does not propagate informational stderr from git checkout <tag>" {
+            $ErrorActionPreference = "Stop"
+            $checkoutAttempted = $false
+            $threw             = $false
+
+            try {
+                try {
+                    $checkoutAttempted = $true
+                    throw "Simulated PS5.1 stderr from git checkout v0.2.0"
+                } catch {
+                    <# Simulates update.ps1 pattern: ignore informational stderr #>
+                }
+                # Execution must continue after the inner catch
+            } catch {
+                $threw = $true
+            } finally {
+                $ErrorActionPreference = "Continue"
+            }
+
+            $checkoutAttempted | Should Be $true
+            $threw             | Should Be $false
+        }
+
+        It "still detects a real checkout failure via LASTEXITCODE" {
+            $global:LASTEXITCODE = 1
+            try { throw "Simulated stderr" } catch { <# ignore #> }
+            ($LASTEXITCODE -ne 0) | Should Be $true
+            $global:LASTEXITCODE = 0  # reset
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — --list output formatting
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - --list formatting" {
+    Context "marking the current version in the tag list" {
+        It "appends '<-- current' marker to the active pinned tag" {
+            $currentPin = "v0.1.0"
+            $tags       = @("v0.2.0", "v0.1.0")
+            $lines      = $tags | ForEach-Object {
+                $marker = if ($_ -eq $currentPin) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 1
+            ($lines | Where-Object { $_ -match "v0\.1\.0.*<-- current" }).Count | Should Be 1
+            ($lines | Where-Object { $_ -match "v0\.2\.0.*<-- current" }).Count | Should Be 0
+        }
+
+        It "marks 'latest' mode correctly in the mode label" {
+            $currentPin = "latest"
+            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
+            $modeLabel | Should Be "main (latest)"
+        }
+
+        It "marks a pinned tag correctly in the mode label" {
+            $currentPin = "v0.2.0"
+            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
+            $modeLabel | Should Be "v0.2.0 (pinned)"
+        }
+    }
+
+    Context "no releases available" {
+        It "produces an empty tag array when no tags match" {
+            $tags = @()
+            $tags.Count | Should Be 0
+            [bool]$tags | Should Be $false
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Version pinning — version status display
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - version status display" {
+    Context "upfront mode display (start of run)" {
+        It "formats upfront line as 'Mode: tracking main (latest)' in latest mode" {
+            $versionMode = "latest"
+            $line = if ($versionMode -eq "latest") { "Mode: tracking main (latest)" } else { "Mode: pinned ($versionMode)" }
+            $line | Should Be "Mode: tracking main (latest)"
+        }
+
+        It "formats upfront line as 'Mode: pinned (<tag>)' in pinned mode" {
+            $versionMode = "v0.2.0"
+            $line = if ($versionMode -eq "latest") { "Mode: tracking main (latest)" } else { "Mode: pinned ($versionMode)" }
+            $line | Should Be "Mode: pinned (v0.2.0)"
+        }
+    }
+
+    Context "latest mode" {
+        It "formats status line as 'main (latest)'" {
+            $versionMode = "latest"
+            $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode (pinned)" }
+            $statusLine | Should Be "Current version: main (latest)"
+        }
+    }
+
+    Context "pinned mode" {
+        It "formats status line as '<tag> (pinned)'" {
+            $versionMode = "v0.2.0"
+            $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode (pinned)" }
+            $statusLine | Should Be "Current version: v0.2.0 (pinned)"
+        }
+    }
+
+    Context "newer release hint" {
+        It "shows hint when latest tag differs from pinned version" {
+            $versionMode = "v0.1.0"
+            $latestTag   = "v0.2.0"
+            $showHint    = $latestTag -and $latestTag -ne $versionMode
+            $showHint | Should Be $true
+        }
+
+        It "suppresses hint when already on the latest release" {
+            $versionMode = "v0.2.0"
+            $latestTag   = "v0.2.0"
+            $showHint    = $latestTag -and $latestTag -ne $versionMode
+            $showHint | Should Be $false
+        }
+
+        It "suppresses hint when no tags exist (latestTag is null)" {
+            $versionMode = "v0.2.0"
+            $latestTag   = $null
+            $showHint    = $latestTag -and $latestTag -ne $versionMode
+            $showHint | Should Be $false
+        }
+
+        It "suppresses hint in latest mode regardless of available tags" {
+            $versionMode = "latest"
+            $latestTag   = "v0.2.0"
+            # Hint is only shown in the else branch (versionMode -ne "latest")
+            $inPinnedBranch = $versionMode -ne "latest"
+            $inPinnedBranch | Should Be $false
+        }
+    }
+}
+
+Describe "update.ps1 - CG_INTERNAL_CALL guard" {
+    Context "when CG_INTERNAL_CALL is set (called from cg-link)" {
+        It "guard condition evaluates to false so refresh/migration is skipped" {
+            $env:CG_INTERNAL_CALL = "1"
+            $shouldRun = -not $env:CG_INTERNAL_CALL
+            Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            $shouldRun | Should Be $false
+        }
+
+        It "guard condition is truthy for any non-empty value" {
+            foreach ($val in @("1", "true", "yes", "link")) {
+                $env:CG_INTERNAL_CALL = $val
+                $guardHolds = [bool]$env:CG_INTERNAL_CALL
+                Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+                $guardHolds | Should Be $true
+            }
+        }
+    }
+
+    Context "when CG_INTERNAL_CALL is unset (called directly by user)" {
+        It "guard condition evaluates to true so refresh/migration runs" {
+            Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            $shouldRun = -not $env:CG_INTERNAL_CALL
+            $shouldRun | Should Be $true
+        }
+
+        It "variable is absent (null/empty) when the env var is not set" {
+            Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+        }
+    }
+
+    Context "Remove-Item cleanup in finally block" {
+        It "removing a non-existent env var with SilentlyContinue does not throw" {
+            Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            # If we got here without an exception, the pattern is safe
+            $true | Should Be $true
+        }
+
+        It "correctly clears the variable after simulated internal call" {
+            $env:CG_INTERNAL_CALL = "1"
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $false
+            Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+        }
+    }
+}

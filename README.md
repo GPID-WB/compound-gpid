@@ -20,6 +20,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Compounding returns** — the `cg-learnings-researcher` agent cross-references past solutions so the team never solves the same problem twice.
 - **Zero friction** — one global clone, directory junctions, and three shell commands (`cg-link`, `cg-unlink`, `cg-update`) wire everything into VS Code / Positron automatically.
 - **Team-wide** — update once, every linked project gets the new version instantly.
+- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.
 
 ## Documentation
 
@@ -27,7 +28,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 
 | Page | Contents |
 |------|----------|
-| [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
+| [Installation](docs/installation.md) | Install, link, configure, upgrade, and version pinning |
 | [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |

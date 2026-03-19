@@ -9,9 +9,11 @@
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
 #      so cg-link, cg-unlink, cg-update are available from any terminal.
+#   4. Initializes .cg-version with "latest" (if not already set).
 #
 # This script is idempotent - running it again updates the wrappers
-# and PATH entry without creating duplicates.
+# and PATH entry without creating duplicates. An existing .cg-version
+# preference is preserved on upgrade.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -61,9 +63,13 @@ try {
     # Junction creation failed - likely Developer Mode is off
 }
 
-# Clean up temp files regardless of outcome
-if (Test-Path $tempJunction) { Remove-Item -Path $tempJunction -Force }
-if (Test-Path $tempTarget)   { Remove-Item -Path $tempTarget -Force -Recurse }
+# Clean up temp files regardless of outcome.
+# Junction must be removed before the target so Windows can release the handle.
+try {
+    if (Test-Path $tempJunction) { Remove-Item -Path $tempJunction -Force }
+} finally {
+    if (Test-Path $tempTarget) { Remove-Item -Path $tempTarget -Force -Recurse }
+}
 
 if (-not $junctionOk) {
     Write-Warning @"
@@ -149,6 +155,22 @@ if (Test-Path $PROFILE -ErrorAction SilentlyContinue) {
 Write-Host "  Registered: cg-link, cg-unlink, cg-update" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
+# Step 4: Initialize .cg-version
+# -----------------------------------------------------------------------
+# Stores the user's version preference ("latest" or a tag like "v0.2.0").
+# Created on first install only — upgrade runs leave the existing value
+# untouched so the user's pinned version is preserved.
+Write-Host "Initializing version preference..." -ForegroundColor DarkGray
+$versionFile = Join-Path $CompoundGpidDir ".cg-version"
+if (-not (Test-Path $versionFile)) {
+    Set-Content -Path $versionFile -Value "latest" -NoNewline
+    Write-Host "  Created .cg-version: latest" -ForegroundColor DarkGray
+} else {
+    $existing = (Get-Content $versionFile -Raw).Trim()
+    Write-Host "  Existing .cg-version preserved: $existing" -ForegroundColor DarkGray
+}
+
+# -----------------------------------------------------------------------
 # Success
 # -----------------------------------------------------------------------
 Write-Host ""
@@ -165,6 +187,9 @@ Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
+Write-Host "  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)"
+Write-Host "  cg-update latest     -- Unpin and return to tracking main"
+Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host ""
 Write-Host "Quick start:"
 Write-Host "  1. Restart VS Code / Positron and your terminal"

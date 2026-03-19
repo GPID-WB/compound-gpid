@@ -12,7 +12,25 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 |---------|-------------|---------|
 | `cg-link` | Project root | Create per-subdirectory junctions in `.github/` - enables all Copilot prompts in this project |
 | `cg-unlink` | Project root | Remove CG-managed junctions (existing `.github/` content is preserved) |
-| `cg-update` | Anywhere | Reset accidental changes and pull latest updates (applies to all linked projects) |
+| `cg-update` | Anywhere | Update to latest (or stay on pinned version). Accepts optional version argument — see Version Management below. |
+| `cg-update <version>` | Anywhere | Pin to a specific release tag, e.g. `cg-update v0.2.0` |
+| `cg-update latest` | Anywhere | Unpin and return to tracking main |
+| `cg-update --list` | Anywhere | Browse available GitHub Releases |
+
+---
+
+## Version Management
+
+Compound GPID supports pinning to specific [GitHub Releases](https://github.com/GPID-WB/compound-gpid/releases) so you can choose between stability and bleeding-edge.
+
+| Command | Effect | Persists? |
+|---------|--------|-----------|
+| `cg-update` | Use current preference (default: latest) | — |
+| `cg-update v0.2.0` | Pin to release `v0.2.0` | Yes — writes to `.cg-version` |
+| `cg-update latest` | Unpin and track `main` | Yes — writes to `.cg-version` |
+| `cg-update --list` | Browse available releases | No |
+
+**How it works:** the version preference is stored per-machine in `.cg-version` inside your global install directory. This file is gitignored. Pinned users see a yellow hint when a newer release is available at the end of every `cg-update` run.
 
 ---
 

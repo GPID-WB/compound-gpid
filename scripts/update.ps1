@@ -1,5 +1,5 @@
 # scripts/update.ps1
-# Updates the global Compound GPID installation by running git pull.
+# Updates the global Compound GPID installation.
 # Because all projects use per-subdirectory junctions to the same shared
 # .github/ subdirectories, this single command propagates changes to every
 # linked project's prompts/, skills/, agents/, and instructions/ immediately.
@@ -15,8 +15,23 @@
 #   - Structural: folder-structure changes are migration-gated per project and
 #     applied when cg-update is run from that project's root.
 #
+# Version pinning: users can pin to a specific GitHub Release (git tag) or
+# return to tracking main at any time. The preference is stored per-user in
+# .cg-version inside the global install directory.
+#
 # Run from anywhere:
-#   cg-update
+#   cg-update               -- use current version preference (default: latest)
+#   cg-update v0.2.0        -- pin to a specific release
+#   cg-update latest        -- unpin and track main
+#   cg-update --list        -- browse available releases
+
+param(
+    # Optional version argument: a tag (e.g. v0.2.0) or "latest" to unpin.
+    # If omitted, the preference stored in .cg-version is used (default: latest).
+    [string]$Version,
+    # Display available releases and exit without updating.
+    [switch]$List
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -27,6 +42,10 @@ $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 # The management marker that identifies a CG-managed copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
+
+# File that stores the user's version preference inside the global install directory.
+# Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
+$VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
@@ -49,50 +68,197 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
+# --- Trim and validate the $Version argument ---
+# Trim whitespace so " v0.2.0 " is treated identically to "v0.2.0".
+if ($Version) { $Version = $Version.Trim() }
+
+# Guard against garbage input early with a clear error (after trimming).
+# Accepted: empty/null (read from file), "latest" (unpin), or a tag like "v0.2.0".
+if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') {
+    Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0', 'latest', or use --list to browse."
+    exit 1
+}
+
+# --- Resolve version mode ---
+# User-supplied argument takes priority; fall back to .cg-version; default to latest.
+# NOTE: The file write (Set-Content) is intentionally deferred to after successful
+# tag validation and checkout in the pinned-mode branch — never written on error.
+if ($Version) {
+    $versionMode = $Version
+} elseif (Test-Path $VersionFile) {
+    # Read first non-empty line and trim to guard against manual multi-line edits
+    $raw = (Get-Content $VersionFile -Raw -ErrorAction SilentlyContinue)
+    $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
+    if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
+} else {
+    # .cg-version absent — backward compat with pre-versioning installs
+    $versionMode = "latest"
+}
+
+# Captured inside the pinned-mode branch; used at the end for the "newer release" hint.
+$latestTag = $null
+
 Push-Location $CompoundGpidDir
 
 try {
-    # Capture the commit hash before updating so we can show what changed
-    $before = git rev-parse --short HEAD 2>$null
+    # --- Handle --list: show available releases and exit ---
+    if ($List.IsPresent) {
+        Write-Host ""
+        Write-Host "Fetching available releases..." -ForegroundColor Cyan
+        try { git fetch --tags 2>$null } catch { <# informational stderr — ignore #> }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "git fetch --tags failed (exit $LASTEXITCODE) — showing cached tag data. Check your network connection."
+        }
 
-    Write-Host "Checking for updates..." -ForegroundColor Cyan
+        $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
 
-    # Reset any accidental local changes before pulling.
-    # This handles the case where a user inadvertently edited a file through a
-    # junction - git checkout discards uncommitted changes in the global clone.
-    #
-    # PS5.1 with ErrorActionPreference=Stop can promote native stderr to a
-    # terminating error even with 2>$null in some host configurations. Wrapping
-    # in try/catch makes this bullet-proof: we never want a best-effort cleanup
-    # step to abort the update. LASTEXITCODE is still checked for real failures.
-    try { git checkout . 2>$null } catch { <# informational stderr — ignore #> }
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
+        # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
+        $currentPin = $versionMode
+
+        $modeLabel = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
+
+        Write-Host ""
+        Write-Host "Available releases:" -ForegroundColor Cyan
+        if ($tags) {
+            foreach ($tag in $tags) {
+                $marker = if ($tag -eq $currentPin) { "  <-- current" } else { "" }
+                Write-Host "  $tag$marker"
+            }
+        } else {
+            Write-Host "  No releases found." -ForegroundColor DarkGray
+            Write-Host "  See: https://github.com/GPID-WB/compound-gpid/releases" -ForegroundColor DarkGray
+        }
+
+        Write-Host ""
+        Write-Host "Current: $modeLabel" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "  cg-update <version>  -- pin to a specific release" -ForegroundColor DarkGray
+        Write-Host "  cg-update latest     -- unpin and track main" -ForegroundColor DarkGray
+        Write-Host ""
+        exit 0
     }
 
-    # --ff-only ensures we never end up in a merge conflict state.
-    # If the remote has diverged (shouldn't happen on main), it fails cleanly.
-    # Write directly to terminal so any git messages (auth errors, etc.) are visible.
-    git pull --ff-only
-    if ($LASTEXITCODE -ne 0) {
-        throw "git pull failed with exit code $LASTEXITCODE"
+    # --- Show active mode upfront so users know what's happening ---
+    if ($versionMode -eq "latest") {
+        Write-Host "Mode: tracking main (latest)" -ForegroundColor DarkGray
+    } else {
+        Write-Host "Mode: pinned ($versionMode)" -ForegroundColor DarkGray
     }
 
-    $after = git rev-parse --short HEAD 2>$null
+    if ($versionMode -eq "latest") {
+        # ---- Latest mode: track main HEAD ----
+        # git fetch --tags not needed here; git pull handles all remote sync.
+        # Tags stay current after any pinned-mode or --list run that fetched them.
 
-    if ($before -ne $after) {
+        # Persist the "latest" preference when the user explicitly unpins with
+        # 'cg-update latest'. Safe to write before git ops: "latest" is always valid.
+        if ($Version -eq "latest") {
+            Set-Content -Path $VersionFile -Value "latest" -NoNewline
+        }
+
+        # If previously pinned to a tag (detached HEAD), switch back to main first.
+        # git rev-parse --abbrev-ref HEAD returns "HEAD" in detached HEAD state.
+        $headBranch = (git rev-parse --abbrev-ref HEAD 2>$null)
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not determine current branch (git rev-parse failed with exit code $LASTEXITCODE)"
+        }
+        if ($headBranch -eq "HEAD") {
+            Write-Host "Switching from pinned version back to main..." -ForegroundColor DarkGray
+            try { git checkout main 2>$null } catch { <# informational stderr — ignore #> }
+            if ($LASTEXITCODE -ne 0) {
+                throw "git checkout main failed with exit code $LASTEXITCODE"
+            }
+        }
+
+        # Capture the commit hash before updating so we can show what changed
+        $before = git rev-parse --short HEAD 2>$null
+
+        Write-Host "Checking for updates..." -ForegroundColor Cyan
+
+        # Reset any accidental local changes before pulling.
+        # This handles the case where a user inadvertently edited a file through a
+        # junction - git checkout discards uncommitted changes in the global clone.
+        #
+        # PS5.1 with ErrorActionPreference=Stop can promote native stderr to a
+        # terminating error even with 2>$null in some host configurations. Wrapping
+        # in try/catch makes this bullet-proof: we never want a best-effort cleanup
+        # step to abort the update. LASTEXITCODE is still checked for real failures.
+        try { git checkout . 2>$null } catch { <# informational stderr — ignore #> }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
+        }
+
+        # --ff-only ensures we never end up in a merge conflict state.
+        # If the remote has diverged (shouldn't happen on main), it fails cleanly.
+        # Write directly to terminal so any git messages (auth errors, etc.) are visible.
+        git pull --ff-only
+        if ($LASTEXITCODE -ne 0) {
+            throw "git pull failed with exit code $LASTEXITCODE"
+        }
+
+        $after = git rev-parse --short HEAD 2>$null
+
+        if ($before -ne $after) {
+            Write-Host ""
+            Write-Host "Updated: $before -> $after" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "Changes:" -ForegroundColor Cyan
+            # Show one-line log of new commits
+            git log --oneline "$before..$after"
+            Write-Host ""
+            Write-Host "Managed subdirectories (prompts/, skills/, agents/, instructions/) are" -ForegroundColor DarkGray
+            Write-Host "updated in all linked projects immediately via junctions." -ForegroundColor DarkGray
+        } else {
+            Write-Host "Already up to date." -ForegroundColor Green
+        }
+
+    } else {
+        # ---- Pinned mode: checkout a specific tag (detached HEAD) ----
+
+        Write-Host "Checking out $versionMode..." -ForegroundColor Cyan
+
+        # Fetch tags first so tag metadata is current before validation.
+        # Fault-tolerant: network failure just means we work with cached tag data.
+        try { git fetch --tags 2>$null } catch { <# informational stderr — ignore #> }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
+        }
+
+        # Capture all tags once; derive both latestTag and tagExists from the same list.
+        $allTags   = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        $latestTag = $allTags | Select-Object -First 1
+
+        # Validate the tag exists before attempting checkout or persisting preference.
+        $tagExists = $versionMode -in $allTags
+        if (-not $tagExists) {
+            $similar = $allTags | Select-Object -First 5
+            $hint    = if ($similar) {
+                "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
+            } else { "" }
+            throw "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
+        }
+
+        # Checkout the tag. Detached HEAD is expected and normal for pinned mode.
+        # Use the PS5.1-safe try/catch + 2>$null pattern to avoid stderr promotion.
+        try { git checkout $versionMode 2>$null } catch { <# informational stderr — ignore #> }
+        if ($LASTEXITCODE -ne 0) {
+            throw "git checkout $versionMode failed with exit code $LASTEXITCODE"
+        }
+
+        # Persist the version preference only after successful checkout.
+        # Writing before validation could leave .cg-version permanently corrupted
+        # if the tag doesn't exist or checkout fails.
+        Set-Content -Path $VersionFile -Value $versionMode -NoNewline
+
         Write-Host ""
-        Write-Host "Updated: $before -> $after" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "Changes:" -ForegroundColor Cyan
-        # Show one-line log of new commits
-        git log --oneline "$before..$after"
+        Write-Host "Pinned to $versionMode." -ForegroundColor Green
         Write-Host ""
         Write-Host "Managed subdirectories (prompts/, skills/, agents/, instructions/) are" -ForegroundColor DarkGray
         Write-Host "updated in all linked projects immediately via junctions." -ForegroundColor DarkGray
-    } else {
-        Write-Host "Already up to date." -ForegroundColor Green
+        Write-Host ""
+        Write-Host "Run: cg-update latest   to return to tracking main." -ForegroundColor DarkGray
     }
+
 } catch {
     Write-Error "Update failed: $_"
     exit 1
@@ -220,6 +386,22 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
             Set-Content -Path $cwdLocalConfig -Value $localConfig -NoNewline
             Write-Host "Schema version stamped: $currentSchema" -ForegroundColor DarkGray
         }
+    }
+}
+
+# --- Version status display ---
+# Show the current version state at the end of every successful update run.
+Write-Host ""
+if ($versionMode -eq "latest") {
+    Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
+} else {
+    Write-Host "Current version: $versionMode (pinned)" -ForegroundColor DarkGray
+    Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
+    # Hint when a newer release is available (only if we have fresh tag data)
+    if ($latestTag -and $latestTag -ne $versionMode) {
+        Write-Host ""
+        Write-Host "Newer release available: $latestTag" -ForegroundColor Yellow
+        Write-Host "Run: cg-update $latestTag" -ForegroundColor Yellow
     }
 }
 

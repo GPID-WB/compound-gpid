@@ -77,6 +77,13 @@ try {
     Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
 }
 
+# Show which version is active after the update so the user knows what they're linking.
+$versionFile = Join-Path $CompoundGpidDir ".cg-version"
+$activeVersion = if (Test-Path $versionFile) { (Get-Content $versionFile -Raw).Trim() } else { "latest" }
+if ([string]::IsNullOrWhiteSpace($activeVersion)) { $activeVersion = "latest" }
+$versionLabel = if ($activeVersion -eq "latest") { "tracking main (latest)" } else { "$activeVersion (pinned)" }
+Write-Host "  Version: $versionLabel" -ForegroundColor DarkGray
+
 Write-Host ""
 Write-Host "Compound GPID - Link" -ForegroundColor Cyan
 Write-Host "====================" -ForegroundColor Cyan

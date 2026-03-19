@@ -1,6 +1,9 @@
 # Compound GPID local config (user-specific, never committed)
 compound-gpid.local.md
 
+# User's version preference (per-machine, never committed)
+.cg-version
+
 # OS
 .DS_Store
 Thumbs.db

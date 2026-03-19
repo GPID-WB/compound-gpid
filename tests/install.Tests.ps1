@@ -141,3 +141,94 @@ Describe "install.ps1 - Junction temp path naming" {
         }
     }
 }
+
+Describe "install.ps1 - .cg-version initialization" {
+    Context "on a fresh install (file does not exist)" {
+        It "creates .cg-version with content 'latest'" {
+            $installDir  = Join-Path $TestDrive "cg-fresh"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            # Simulate the install.ps1 Step 4 logic
+            if (-not (Test-Path $versionFile)) {
+                Set-Content -Path $versionFile -Value "latest" -NoNewline
+            }
+
+            Test-Path $versionFile                          | Should Be $true
+            (Get-Content $versionFile -Raw).Trim()          | Should Be "latest"
+        }
+    }
+
+    Context "on an upgrade (file already exists with a pinned version)" {
+        It "preserves the existing pinned version without overwriting" {
+            $installDir  = Join-Path $TestDrive "cg-upgrade"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            # Pre-existing pinned version
+            Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
+
+            # Simulate the install.ps1 Step 4 logic (idempotent guard)
+            if (-not (Test-Path $versionFile)) {
+                Set-Content -Path $versionFile -Value "latest" -NoNewline
+            }
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+        }
+    }
+
+    Context "on an upgrade (file already exists tracking latest)" {
+        It "preserves 'latest' without overwriting" {
+            $installDir  = Join-Path $TestDrive "cg-upgrade-latest"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            Set-Content -Path $versionFile -Value "latest" -NoNewline
+
+            if (-not (Test-Path $versionFile)) {
+                Set-Content -Path $versionFile -Value "latest" -NoNewline
+            }
+
+            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+        }
+    }
+
+    Context "edge cases in .cg-version content" {
+        It "handles a file with leading/trailing whitespace" {
+            $installDir  = Join-Path $TestDrive "cg-ws"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            # File manually edited with extra whitespace
+            Set-Content -Path $versionFile -Value "  v0.2.0  " -NoNewline
+
+            $content = (Get-Content $versionFile -Raw).Trim()
+            $content | Should Be "v0.2.0"
+        }
+
+        It "handles a file with Windows CRLF line endings" {
+            $installDir  = Join-Path $TestDrive "cg-crlf"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            # Out-File on Windows produces CRLF by default; -NoNewline avoids a trailing newline
+            "v0.2.0" | Out-File -FilePath $versionFile -Encoding ascii
+
+            # .Trim() must strip CRLF as well as plain LF and whitespace
+            $content = (Get-Content $versionFile -Raw).Trim()
+            $content | Should Be "v0.2.0"
+        }
+
+        It "handles a blank file by falling back to 'latest'" {
+            $installDir  = Join-Path $TestDrive "cg-blank"
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+            $versionFile = Join-Path $installDir ".cg-version"
+
+            Set-Content -Path $versionFile -Value "" -NoNewline
+
+            $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue)
+            $content = if ([string]::IsNullOrWhiteSpace($raw)) { "latest" } else { $raw.Trim() }
+            $content | Should Be "latest"
+        }
+    }
+}

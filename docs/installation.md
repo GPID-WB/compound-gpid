@@ -39,7 +39,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compou
 & "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers in the `bin\` subdirectory of your install location and adds that directory to your PATH.
+This creates `cg-link`, `cg-unlink`, and `cg-update` as batch wrappers in the `bin\` subdirectory of your install location and adds that directory to your PATH. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available.
 
 > ⚠️ **IMPORTANT — After install, restart both your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes — `cg-link` will not be found until the terminal is restarted.
@@ -88,6 +88,42 @@ cg-update
 ```
 
 This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project - no per-project update step is needed.
+
+---
+
+## Version Pinning
+
+By default `cg-update` tracks `main` and always pulls the latest commit. If you need stability (or want to try a beta), you can pin to a specific [GitHub Release](https://github.com/GPID-WB/compound-gpid/releases).
+
+> **`latest` is a keyword**, not a version number. It means "track `main` and always pull the newest commit" — it does **not** refer to the newest numbered release. To see numbered releases, run `cg-update --list`.
+
+### Browse available releases
+
+```powershell
+cg-update --list
+```
+
+Fetches the latest tag list and displays it with your current version marked.
+
+### Pin to a specific release
+
+```powershell
+cg-update v0.2.0
+```
+
+Checks out that release tag and writes `v0.2.0` to `.cg-version` in your install directory. Subsequent bare `cg-update` calls stay on this version.
+
+### Return to tracking main
+
+```powershell
+cg-update latest
+```
+
+Unpins and resumes pulling `main` on every `cg-update` call.
+
+> **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory (`C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`). This file is gitignored and never committed — each machine keeps its own preference independently.
+
+> **Pinned users see a hint** when a newer release is available: `cg-update` will show `Newer release available: v0.3.0` at the end of its output. This is informational only — no action is required unless you want to upgrade.
 
 ---
 

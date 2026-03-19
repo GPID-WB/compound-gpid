@@ -6,6 +6,26 @@ Known issues and step-by-step fixes for Compound GPID.
 
 ---
 
+## `.cg-version` missing or corrupted
+
+**Symptom**: `cg-update` fails with an error about an invalid version, or unexpectedly pins to an unrecognised value.
+
+**Cause**: The `.cg-version` file in your install directory was manually edited, truncated, or written incorrectly.
+
+**Fix**: Delete the file and run `cg-update`. It defaults to `latest` (tracking `main`) when the file is absent.
+
+```powershell
+# Uncomment your install path:
+$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
+# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
+Remove-Item (Join-Path $cg ".cg-version") -ErrorAction SilentlyContinue
+cg-update
+```
+
+After this, `cg-update` runs in `latest` mode. To re-pin, run `cg-update v0.2.0` (or your desired tag).
+
+---
+
 ## `cg-update` fails with "Updated 0 paths from the index"
 
 **Symptom**:
