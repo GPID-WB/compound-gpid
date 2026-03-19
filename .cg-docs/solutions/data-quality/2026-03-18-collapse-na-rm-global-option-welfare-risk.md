@@ -87,3 +87,4 @@ fmean(x, na.rm = FALSE)
 - `cg-skill-r-analytical/references/collapse-reference.md` — Global Options section
 - `cg-skill-r-analytical/workflows/welfare-patterns.md` — NA callout and `stopifnot` guard before FGT
 - `2026-03-17-null-welfare-silently-biases-poverty-rate.md` — related silent failure from null welfare values
+- [Zero/negative welfare inflates FGT beyond 1](./2026-03-18-zero-negative-welfare-inflates-fgt-beyond-1.md) — companion: non-NA but invalid welfare values
