@@ -10,5 +10,11 @@
     //
     // With useLegacyCodeLens: true, tests ONLY run when you explicitly click "Run Tests"
     // in the editor or invoke Invoke-Pester from the terminal.
-    "powershell.pester.useLegacyCodeLens": true
+    "powershell.pester.useLegacyCodeLens": true,
+    // Enable /cg-release slash command discovery from repo root.
+    // .github/prompts/ is junctioned to user projects; root-only prompts must be discoverable here.
+    "chat.promptFilesLocations": {
+        ".github/prompts": true,
+        ".": true
+    }
 }
