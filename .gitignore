@@ -43,3 +43,7 @@ htmlcov/
 # Secrets — never commit
 .env
 *.env.local
+
+# Release automation (ephemeral — GitHub Release is the source of truth)
+RELEASE_NOTES.md
+release-result.txt
