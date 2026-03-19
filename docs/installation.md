@@ -123,7 +123,7 @@ Unpins and resumes pulling `main` on every `cg-update` call.
 
 > **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory (`C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`). This file is gitignored and never committed — each machine keeps its own preference independently.
 
-> **Pinned users see a hint** when a newer release is available: `cg-update` will show `Newer release available: v0.3.0` at the end of its output. This is informational only — no action is required unless you want to upgrade.
+> **Full details on version management**: see the dedicated [Version Management](versioning.md) page for command output examples, when to use each mode, multi-machine scenarios, and troubleshooting.
 
 ---
 

@@ -28,7 +28,8 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 
 | Page | Contents |
 |------|----------|
-| [Installation](docs/installation.md) | Install, link, configure, upgrade, and version pinning |
+| [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
+| [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |

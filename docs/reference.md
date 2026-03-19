@@ -32,6 +32,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 **How it works:** the version preference is stored per-machine in `.cg-version` inside your global install directory. This file is gitignored. Pinned users see a yellow hint when a newer release is available at the end of every `cg-update` run.
 
+> **Full details**: see the [Version Management](versioning.md) page.
+
 ---
 
 ## Copilot Chat Prompts
