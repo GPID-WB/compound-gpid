@@ -271,3 +271,55 @@ forvalues year = 2010/2022 {   // 2010, 2011, ..., 2022
 
 **Quick rule:** if the list is sequential integers with no gaps, use
 `forvalues`. Everything else: `foreach`.
+
+---
+
+## 11. `*` Comment Used Mid-Line (Silent Code Breakage)
+
+**Problem:** Copilot mixes `*` and `//` comments freely, placing `*` after
+code on the same line. In Stata, `*` marks a comment **only at the very
+beginning of a line** (column 1, possibly preceded by whitespace). Mid-line,
+`*` is the multiplication operator. Copilot does not know this distinction
+because most languages treat their comment character uniformly.
+
+```stata
+* WRONG — Stata reads `*` as multiplication, not a comment
+replace welfare = welfare / cpi_2017  * deflate to real terms
+generate ln_inc = log(income)  * log-transform income
+local pov_line = 2.15  * international poverty line
+
+* What Stata actually parses:
+*   replace welfare = welfare / cpi_2017 * deflate   →  welfare / (cpi_2017 * deflate)
+*   generate ln_inc = log(income) * log              →  log(income) * log  (undefined variable)
+*   local pov_line = 2.15 * international            →  2.15 * international (undefined)
+
+* RIGHT — use // for inline comments (works anywhere on a line)
+replace welfare = welfare / cpi_2017   // deflate to real terms
+generate ln_inc = log(income)          // log-transform income
+local pov_line = 2.15                  // international poverty line
+
+* RIGHT — * is valid ONLY as a full-line comment at the start of a line
+* This entire line is a comment
+    * This is also valid — leading whitespace is OK
+```
+
+**The three comment syntaxes in Stata:**
+
+| Syntax | Where it works | Use for |
+|--------|---------------|---------|
+| `*` | Start of line only | Section delimiters: `* ---- 1. Load data ----` |
+| `//` | Anywhere on a line | Inline comments after code; single-line comments |
+| `/* ... */` | Anywhere, can span lines | Block comments, disabling code blocks |
+
+**Rule:** Use `//` as the default comment character for all new code.
+Reserve `*` exclusively for full-line section delimiter comments
+(e.g., `* ---- 1. Section name -----`). Never place `*` after code
+on the same line — Stata will interpret it as multiplication.
+
+**Why this matters for GPID work:** A comment like
+`replace welfare = welfare * 12  * annualize` silently computes
+`welfare * 12 * annualize` where `annualize` is an undefined variable,
+producing all-missing welfare values with no error message. In poverty
+measurement, this destroys the entire analysis silently. the right comment syntax is:
+`replace welfare = welfare * 12  // annualize`. 
+

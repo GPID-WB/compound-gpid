@@ -27,6 +27,7 @@ Reference skill for Stata development in the GPID team at the World Bank. Copilo
 | `reprun` | Run before every merge/submission to detect non-reproducible results | [Reproducibility](workflows/reproducibility.md) |
 | `lint` | Run on all do-files; use `autofix` for safe corrections | [Reproducibility](workflows/reproducibility.md) |
 | `set seed` | Required before any bootstrap, simulate, or sample command | [Reproducibility](workflows/reproducibility.md) |
+| Comments | Use `//` for all inline comments; `*` is valid only at the start of a line — mid-line `*` is multiplication | [Anti-Patterns](references/stata-anti-patterns.md) |
 
 ---
 
@@ -39,7 +40,7 @@ Reference skill for Stata development in the GPID team at the World Bank. Copilo
 
 ## References
 
-- [Anti-Patterns](references/stata-anti-patterns.md) — 10 patterns Copilot generates incorrectly; consult before reviewing any Stata output
+- [Anti-Patterns](references/stata-anti-patterns.md) — 11 patterns Copilot generates incorrectly; consult before reviewing any Stata output
 - [Do-file Conventions](references/do-file-conventions.md) — Standard header, file organization, naming conventions, master do-file rules
 
 ---

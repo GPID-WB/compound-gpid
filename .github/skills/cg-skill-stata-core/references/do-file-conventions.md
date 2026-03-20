@@ -62,7 +62,41 @@ log using `"${gpid_root}/output/logs/${dofile_name}.log"', replace text
 
 ---
 
-## 3. Section Delimiters
+## 3. Comment Syntax
+
+Stata has three comment syntaxes. They are NOT interchangeable.
+
+| Syntax | Valid position | Behavior |
+|--------|---------------|----------|
+| `*` | Start of line only | Everything after `*` to end of line is ignored |
+| `//` | Anywhere on a line | Everything after `//` to end of line is ignored |
+| `/* ... */` | Anywhere, spans lines | Block comment — everything between delimiters is ignored |
+
+**Critical rule:** `*` placed after code on the same line is multiplication,
+not a comment. This is the single most common Copilot-generated Stata bug.
+```stata
+// WRONG — Stata reads * as multiplication
+replace welfare = welfare / cpi  * deflate to real
+//                               ^^^^^^^^^^^^^^^^^ this is multiplication
+
+// RIGHT — use // for inline comments
+replace welfare = welfare / cpi   // deflate to real
+
+// * is valid only as a full-line comment
+* This whole line is a comment
+    * Leading whitespace is OK
+```
+
+**Convention for GPID do-files:**
+- Use `*` only for section delimiter lines: `* ---- 1. Section name -----`
+- Use `//` for all inline comments (after code on the same line)
+- Use `//` for explanatory comments within code blocks
+- Use `/* ... */` for disabling blocks of code or multi-line header comments
+
+
+---
+
+## 4. Section Delimiters
 
 Use consistent section markers throughout. Makes do-files navigable and
 makes log output readable.
@@ -98,7 +132,7 @@ save `"${gpid_data}/intermediate/03_welfare.dta"', replace
 
 ---
 
-## 4. Do-file Organization — Standard Section Order
+## 5. Do-file Organization — Standard Section Order
 
 1. **Header** (as above)
 2. **Setup block** (`version`, `set more off`, `repado`, `set seed`, log open)
@@ -112,7 +146,7 @@ intermediate states mid-section.
 
 ---
 
-## 5. Naming Conventions
+## 6. Naming Conventions
 
 ### Variables
 
@@ -153,7 +187,7 @@ program define gpid_ppp_convert
 
 ---
 
-## 6. Master Do-file Structure
+## 7. Master Do-file Structure
 
 The master do-file is the only entry point for running the full analysis.
 It must be runnable in one click with no manual intervention.
@@ -212,7 +246,7 @@ log close
 
 ---
 
-## 7. `program define` File Conventions (`.ado` files)
+## 8. `program define` File Conventions (`.ado` files)
 
 When writing reusable programs for the team:
 
@@ -244,7 +278,7 @@ The `*!` version comment is parsed by `which` and `ado describe` — always incl
 
 ---
 
-## 8. Continuation Lines
+## 9. Continuation Lines
 
 Long commands use `///` (not `#delimit ;`). Three spaces of indentation per
 continuation level.

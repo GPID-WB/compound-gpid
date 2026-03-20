@@ -13,6 +13,14 @@ applyTo: "**/*.do,**/*.ado"
 - Name globals with a project prefix to avoid collisions: `$gpid_root`, not `$root`.
 - Globals belong only in master do-files. Subordinate do-files define only locals.
 
+## Comments
+
+- Use `//` as the default comment style for both full-line and inline comments.
+- `*` is valid ONLY at the start of a line. Mid-line, `*` is the multiplication operator — NOT a comment. This is the #1 Copilot-generated Stata bug.
+- Reserve `*` exclusively for section delimiter lines: `* ---- 1. Section name -----`.
+- Use `/* ... */` for block comments and header blocks.
+- Never place `*` after code on the same line.
+
 ## Program Scoping
 
 - Declare return type explicitly: `rclass` for programs returning `r()` results, `eclass` for estimation commands. Plain programs return nothing.
