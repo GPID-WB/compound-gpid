@@ -14,10 +14,16 @@ must be reproducible — generated from code, not manual editing.
 // Store models (from Phase 3)
 estimates clear
 quietly reghdfe y treat, absorb(id year) cluster(id)
+quietly summarize y if e(sample)
+estadd scalar ymean = r(mean)    // store dep var mean for Table 1 row
 estimates store m1
 quietly reghdfe y treat x1 x2, absorb(id year) cluster(id)
+quietly summarize y if e(sample)
+estadd scalar ymean = r(mean)
 estimates store m2
 quietly reghdfe y treat x1 x2 x3, absorb(id year) cluster(id)
+quietly summarize y if e(sample)
+estadd scalar ymean = r(mean)
 estimates store m3
 
 // LaTeX table

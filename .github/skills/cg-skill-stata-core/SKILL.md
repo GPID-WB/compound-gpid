@@ -7,7 +7,7 @@ description: "Core Stata language patterns for the GPID team. Covers the macro s
 
 Reference skill for Stata development in the GPID team at the World Bank. Copilot's default Stata output is dangerous: it produces syntactically valid code that runs without errors but yields silently wrong results — wrong macro scoping, dropped stored results, non-reproducible sort orders. This skill corrects the most common failure patterns and enforces the conventions required for official poverty and inequality statistics.
 
-**This skill covers language fundamentals.** For survey econometrics, welfare aggregates, and poverty measurement patterns, see `cg-skill-stata-research` (when available).
+**This skill covers language fundamentals.** For survey econometrics, welfare aggregates, and poverty measurement patterns, see `cg-skill-stata-research`.
 
 ---
 

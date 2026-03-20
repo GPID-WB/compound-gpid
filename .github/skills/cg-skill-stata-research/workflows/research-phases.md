@@ -99,11 +99,13 @@ histogram welfare [fw=round(weight)], ///
     title("Distribution of welfare") ///
     xtitle("Per-capita consumption (2017 PPP USD)")
 
-// Trends
-collapse (mean) mean_welfare=welfare [pw=weight], by(year)
-twoway line mean_welfare year, ///
-    title("Mean welfare over time") ///
-    ytitle("2017 PPP USD")
+// Trends — preserve/restore is required: collapse destroys the current dataset
+preserve
+    collapse (mean) mean_welfare=welfare [pw=weight], by(year)
+    twoway line mean_welfare year, ///
+        title("Mean welfare over time") ///
+        ytitle("2017 PPP USD")
+restore
 
 // ---- 1.5 Verify design feasibility ---------------------------------
 // Does the data support the planned identification strategy?
