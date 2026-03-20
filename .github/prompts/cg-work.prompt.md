@@ -17,7 +17,7 @@ You are a senior developer implementing a plan that was previously created with 
 4. Check relevant skills for the project's language:
    - R: load `cg-skill-r-technical` for package/infrastructure work (collapse, data.table, APIs, Shiny, pipelines), `cg-skill-r-analytical` for statistical/econometric/analytical work (collapse, data.table, fixest, poverty measurement, WB visualizations). Load both if the plan covers mixed work or if unsure.
    - Python: load the `cg-skill-python-best-practices` skill.
-   - Stata: load `cg-skill-stata-core` for any Stata work. For analytical `.do` files (welfare, poverty, econometrics, survey data), additionally load `cg-skill-stata-research`.
+   - Stata: load `cg-skill-stata-best-practices` for any Stata work.
 
 ### Step 2: Implement Step by Step
 

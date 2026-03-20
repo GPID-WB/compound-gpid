@@ -203,6 +203,48 @@ repadolog
 
 ---
 
+## `repkit` — Package Utility Command
+
+`repkit` is the utility command provided by the package itself. Its primary
+purpose is to make `which repkit` work, so reproducible code can check whether
+repkit is installed before calling its other commands.
+
+```stata
+cap which repkit
+if _rc == 111 {
+    display as error "{pstd}repkit is not installed. " ///
+        "Click {stata ssc install repkit} to install it.{p_end}"
+    exit 111
+}
+```
+
+Place this check at the top of any master do-file that uses `repado`, `reproot`,
+`reprun`, `repscan`, or `lint`.
+
+---
+
+## `reproot_setup` — Configure Root Path Environment
+
+`reproot_setup` is an interactive utility to create or update the
+`reproot-env.yaml` file in your home directory. Run this **once per computer**
+before using `reproot` on any project.
+
+```stata
+reproot_setup
+```
+
+The command opens a dialog that guides you through:
+1. Specifying parent folders where your project roots live
+2. Setting the recursion depth for the folder search
+3. Listing folder names to skip (e.g., `.git`)
+
+The resulting `~/reproot-env.yaml` is machine-specific and gitignored — all
+projects on that machine share it so no per-project setup is needed.
+
+**Manual alternative**: create `~/reproot-env.yaml` directly (see `reproot` Setup below).
+
+---
+
 ## `reproot` — Dynamic Root Paths
 
 ### The Problem
@@ -296,7 +338,7 @@ reprun "path/to/analysis.do" using "path/to/report"
 * More detail — shows all lines with changes, not just mismatches
 reprun "path/to/analysis.do", verbose
 
-* Less detail — show only RNG-seed or sort-order flagged lines
+* Less detail — show only seed/sort RNG lines that both change AND mismatch between runs (data checksum excluded)
 reprun "path/to/analysis.do", compact
 ```
 
@@ -311,16 +353,18 @@ The output table has three tracked states per line:
 |--------|---------------|
 | Seed RNG State | Random number generator state — changes when `runiform()`, `rnormal()`, etc. are called |
 | Sort Order RNG | Internal sort randomness — changes when data is sorted by a non-unique key |
-| Data Checksum | `datasignature` of the dataset — changes when any variable values change |
+| Data Checksum | CSV-based data snapshot — changes when any variable values change between runs |
 
 - **DIFF**: value differs between Run 1 and Run 2 → reproducibility failure
 - **Change + OK!**: value changed within the run but matches between runs → informational only
 
 ```
 Example output (failure on line 3):
-| Line # | Seed RNG State        | Sort Order RNG | Data Checksum         |
-|--------+-----------+-----------+----------------+-----------+-----------+
-| 3      | Change  Change  DIFF  |                | Change  Change  DIFF  |
+| Line # | Seed RNG State                    | Sort Order RNG                    | Data Checksum                     |
+|--------+-----------+-----------+-------+-----------+-----------+-------+-----------+-----------+-------|
+|        | Run 1     | Run 2     | Match | Run 1     | Run 2     | Match | Run 1     | Run 2     | Match |
+|--------+-----------+-----------+-------+-----------+-----------+-------+-----------+-----------+-------|
+| 3      | Change    | Change    | DIFF  |           |           |       | Change    | Change    | DIFF  |
 ```
 
 ### Common Causes of Failure and Fixes

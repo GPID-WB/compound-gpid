@@ -468,3 +468,70 @@ ineqdeco income if !missing(income) [pw=weight]
 assert !missing(income) if in_sample == 1
 ineqdeco income if in_sample == 1 [pw=weight]
 ```
+
+### 6.16 `bysort` Without a Secondary Sort Variable
+
+When `bysort` is used for order-sensitive operations (row numbering, cumulative
+sums, lags) and the by-variable does not uniquely identify observations, Stata
+breaks ties in an arbitrary and non-deterministic order. Results differ between
+runs and across machines — `reprun` will flag this as a reproducibility failure.
+
+```stata
+* WRONG — sort order within hhid is arbitrary when multiple years exist
+bysort hhid: gen obs_n = _n
+
+* WRONG — cumulative sum depends on arbitrary observation order
+bysort hhid: gen cum_income = sum(income)
+
+* RIGHT — always add a secondary sort variable in parentheses
+bysort hhid (year): gen obs_n = _n            // deterministic: earlier years first
+bysort hhid (year): gen cum_income = sum(income)  // reproducible cumulative sum
+
+* RIGHT — multiple secondary sort variables when needed
+bysort country_code year (hhid member_id): gen seq = _n
+```
+
+**Test:** run `reprun` on any do-file that uses `bysort`. A "Sort Order RNG
+DIFF" in the output means at least one `bysort` lacks a secondary sort.
+
+---
+
+## 7. Random Number Seeds
+
+Any command that uses Stata's random number generator (RNG) — `runiform()`,
+`rnormal()`, `bootstrap`, `simulate`, `sample`, `splitsample`, `drawnorm`,
+`permute` — produces different results on every run unless the seed is explicitly
+set beforehand.
+
+```stata
+* WRONG — different results every run
+gen assignment = runiform() < 0.5
+bootstrap, reps(500): regress y x
+sample 10
+
+* RIGHT — set seed before any random process
+set seed 20240301              // date-based seeds are readable and memorable
+gen assignment = runiform() < 0.5
+
+set seed 20240301
+bootstrap, reps(500): regress y x
+
+set seed 20240301
+sample 10
+```
+
+```stata
+* In a loop — reset the seed at the start of the full loop, not inside it
+set seed 99999
+forvalues i = 1/100 {
+    simulate, reps(200): regress y x
+    // resetting inside the loop makes each rep's draw depend on iteration count
+}
+```
+
+**Rules:**
+- Set `set seed <integer>` immediately before the first random call in each do-file
+- Use a memorable, documented seed value (e.g., a date in YYYYMMDD format)
+- Never reset the seed inside a loop — this breaks the independence of draws
+- Run `repscan` to locate all random commands in a do-file
+- Run `reprun` to confirm the do-file is fully deterministic between runs

@@ -88,5 +88,5 @@ assert "`income_lbl'" == "Monthly per-capita income (LCU)", ///
 ## Related
 
 - [Fragile matrix indexing for regression results](./2026-03-19-fragile-matrix-indexing-regression-results-stata.md) — related Copilot correctness error
-- `cg-skill-stata-core`: Macro System workflow — extended macro functions
-- `cg-skill-stata-research`: Research Anti-Patterns — label validation pattern
+- `cg-skill-stata-best-practices`: `references/programming-basics.md` — extended macro functions
+- `cg-skill-stata-best-practices`: `references/coding-principles.md` — anti-patterns and label validation patterns

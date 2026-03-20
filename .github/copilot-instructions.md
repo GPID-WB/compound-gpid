@@ -9,8 +9,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - R style: `collapse` for statistics/aggregation, `data.table` for data manipulation, `ggplot2` for visualization. Preference hierarchy: collapse > data.table > tidyverse.
   - **Two R skills**: R work is covered by two skills. `cg-skill-r-technical` covers package/infrastructure work (collapse, data.table, plumber, shiny, targets, renv). `cg-skill-r-analytical` covers statistical/econometric work (collapse, data.table, fixest, modelsummary, wbplot, welfare measurement). Load the appropriate skill based on work type; load both for mixed work.
 - Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
-- Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-core` when writing or reviewing `.do`/`.ado` files.
-  - **Two Stata skills**: Stata work is covered by two skills. `cg-skill-stata-core` covers language fundamentals (macro system, program scoping, data management, repkit). `cg-skill-stata-research` covers analytical methodology (phased research workflow, survey design, poverty measurement, causal inference, publication output). Load `cg-skill-stata-core` for all Stata work; additionally load `cg-skill-stata-research` for analytical do-files.
+- Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-best-practices` when writing or reviewing `.do`/`.ado` files.
 
 ## Coding Standards
 
@@ -26,7 +25,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 ### Code Organization
 - Separate data loading, processing, analysis, and visualization into distinct modules/scripts.
 - Keep scripts under 300 lines. Split larger files by responsibility.
-- Use consistent project structure (see `cg-skill-r-technical`, `cg-skill-r-analytical`, `cg-skill-python-best-practices`, `cg-skill-stata-core`, or `cg-skill-stata-research` skills).
+- Use consistent project structure (see `cg-skill-r-technical`, `cg-skill-r-analytical`, `cg-skill-python-best-practices`, or `cg-skill-stata-best-practices` skills).
 
 ## Testing Requirements
 

@@ -85,5 +85,5 @@ local fgt0 = b[1, colnumb(b, "poor")]   // colnumb() is name-safe
 ## Related
 
 - [Stata survey SE singleton PSU divide-by-zero](../data-quality/2026-03-18-survey-mean-se-singleton-psu-divide-by-zero.md) — related SE extraction issue
-- `cg-skill-stata-core`: Program Scoping workflow — stored results lifetime
-- `cg-skill-stata-research`: Survey & Poverty workflow — FGT extraction patterns
+- `cg-skill-stata-best-practices`: `references/programming-basics.md` — stored results lifetime
+- `cg-skill-stata-best-practices`: `references/coding-principles.md` — stored results disappearance pattern (§3)

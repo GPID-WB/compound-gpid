@@ -1,14 +1,17 @@
 ---
-name: stata
+name: cg-skill-stata-best-practices
 description: >
-  Comprehensive Stata reference for writing correct .do files, data management,
-  econometrics, causal inference, graphics, Mata programming, and 20 community
+  Comprehensive Stata best-practices reference for writing correct .do files.
+  Covers universal coding principles (compound quotes, macro expansion traps,
+  stored results, survey subpopulations, clustering), data management,
+  econometrics, causal inference, graphics, Mata programming, reproducibility
+  tools (repkit: repado, reprun, reproot, lint, repscan), and 21 community
   packages (reghdfe, estout, did, rdrobust, etc.). Covers syntax, options,
-  gotchas, and idiomatic patterns. Use this skill whenever the user asks you to
-  write, debug, or explain Stata code.
+  gotchas, and idiomatic patterns. ALWAYS load this skill when writing,
+  reviewing, or debugging any Stata code.
 ---
 
-# Stata Skill
+# Stata Best-Practices Skill
 
 You have access to comprehensive Stata reference files. **Do not load all files.**
 Read only the 1-3 files relevant to the user's current task using the routing table below.
@@ -287,9 +290,13 @@ Read only the files relevant to the user's task. Paths are relative to this SKIL
 | `references/workflow-best-practices.md` | Project structure, master do-files, version control, debugging, common mistakes |
 | `references/external-tools-integration.md` | Python via `python:`, R via `rsource`, shell commands, Git |
 
-### Community Packages
-| File | What It Does |
+### Best Practices & Reproducibility
+| File | When to Read |
 |------|-------------|
+| `references/coding-principles.md` | Reviewing any Stata code for correctness; compound quotes; macro expansion traps; stored results; survey subpopulations; clustering; `bysort` secondary sort; `set seed` for reproducibility; anti-patterns checklist |
+| `packages/repkit.md` | Using `repado` to pin packages, `reprun` for reproducibility checks, `reproot` for dynamic root paths, `lint` for code style enforcement, `repscan` for non-reproducible command detection |
+
+### Community Packages
 | `packages/reghdfe.md` | High-dimensional fixed effects OLS (absorbs multiple FE sets efficiently) |
 | `packages/estout.md` | `esttab`/`estout`: publication-quality regression tables |
 | `packages/outreg2.md` | Alternative regression table exporter (Word, Excel, TeX) |
