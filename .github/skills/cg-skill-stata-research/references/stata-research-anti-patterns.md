@@ -232,11 +232,12 @@ currency units, which is meaningless without PPP conversion.
 bysort country: summarize welfare
 
 // RIGHT — all cross-country comparisons in PPP terms
-// Ensure welfare is in 2017 PPP USD before any cross-country operation
+// Ensure welfare is in 2021 PPP USD before any cross-country operation
+bysort country: summarize welfare_ppp
+
 // Check the variable label contains "PPP" as a convention guard
 local welfare_lbl : variable label welfare_ppp
-assert regexm("`welfare_lbl'", "PPP"), message("welfare_ppp label must contain 'PPP' — check unit labelling")
-bysort country: summarize welfare_ppp
+assert regexm("`welfare_lbl'", "PPP")
 ```
 
 ---
