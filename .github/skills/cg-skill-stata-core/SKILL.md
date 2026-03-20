@@ -17,7 +17,7 @@ Reference skill for Stata development in the GPID team at the World Bank. Copilo
 |-------|----------|--------|
 | `local` vs `global` | Prefer `local`; globals leak across do-files and break reproducibility | [Macro System](workflows/macro-system.md) |
 | Compound quotes | Use `` `"`macroname'"' `` whenever macro may contain spaces, quotes, or dynamic content | [Macro System](workflows/macro-system.md) |
-| Macro expansion | Variables without quotes expand at assignment time; quoted strings do not — know the difference | [Macro System](workflows/macro-system.md) |
+| Macro expansion | Variables without quotes expand at assignment time; quoted strings do not; make sure you know the difference | [Macro System](workflows/macro-system.md) |
 | Program return type | Declare `rclass` or `eclass` explicitly; plain programs return nothing | [Program Scoping](workflows/program-scoping.md) |
 | Stored results | Save `r()` and `e()` results to locals *immediately* after the command — the next command wipes them | [Program Scoping](workflows/program-scoping.md) |
 | Temp objects | Use `tempvar`, `tempname`, `tempfile` — never invent `_temp_` names manually | [Data Management](workflows/data-management.md) |

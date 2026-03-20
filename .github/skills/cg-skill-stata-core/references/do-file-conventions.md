@@ -68,8 +68,8 @@ Stata has three comment syntaxes. They are NOT interchangeable.
 
 | Syntax | Valid position | Behavior |
 |--------|---------------|----------|
+| `//` | Anywhere on a line | Everything after `//` to end of line is ignored (default comment style) |
 | `*` | Start of line only | Everything after `*` to end of line is ignored |
-| `//` | Anywhere on a line | Everything after `//` to end of line is ignored |
 | `/* ... */` | Anywhere, spans lines | Block comment — everything between delimiters is ignored |
 
 **Critical rule:** `*` placed after code on the same line is multiplication,
@@ -88,11 +88,14 @@ replace welfare = welfare / cpi   // deflate to real
 ```
 
 **Convention for GPID do-files:**
-- Use `*` only for section delimiter lines: `* ---- 1. Section name -----`
+- Use `//` as default comment style, even at the start of a line
 - Use `//` for all inline comments (after code on the same line)
 - Use `//` for explanatory comments within code blocks
+- Use `//` for comments inside MATA code
+- Use `*` only for section delimiter lines: `* ---- 1. Section name -----`
+- do NOT Use `*` in MATA
 - Use `/* ... */` for disabling blocks of code or multi-line header comments
-
+- do NOT use `/* ... */` in MATA — it is not supported; use `//` instead
 
 ---
 
@@ -142,7 +145,7 @@ save `"${gpid_data}/intermediate/03_welfare.dta"', replace
 6. **Log close** (`log close`)
 
 Never mix data loading and processing in the same section. Never save
-intermediate states mid-section.
+intermediate states mid-section unless it is a tempfile.
 
 ---
 
@@ -159,6 +162,8 @@ ln_welfare          // log transformation (ln_ prefix)
 welfare_pc_ppp      // with currency/deflation suffix
 d_welfare           // first difference (d_ prefix)
 ```
+Follow the same logic for any other variable. 
+
 
 Never use:
 - CamelCase: `WelfarePc` ← wrong
@@ -256,6 +261,7 @@ When writing reusable programs for the team:
 *! Version 1.0.0  2025-03-01  [name]
 *! Version 1.1.0  2025-06-15  [name]  Added strata/cluster SE option
 
+cap program drop gpid_fgt     // make sure it loads correctly. 
 program define gpid_fgt, rclass
     version 17
     

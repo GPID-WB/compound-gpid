@@ -14,15 +14,15 @@ results without erroring. Copilot generates `=` when it means `==` in
 
 ```stata
 * WRONG — this is an assignment expression, not a test
-generate flag = 1 if income = 0
-keep if country = "ETH"
+generate flag = 1 if (income = 0)
+keep if (country = "ETH")
 
 * RIGHT
-generate flag = 1 if income == 0
-keep if country == "ETH"
+generate flag = 1 if (income == 0)
+keep if (country == "ETH")
 ```
 
-**Why it matters:** In some Stata contexts `if income = 0` evaluates as the
+**Why it matters:** In some Stata contexts `if (income = 0)` evaluates as the
 scalar value 0 (false) for all observations, silently producing all-missing
 or all-zero results instead of a conditional.
 
@@ -58,7 +58,7 @@ codebook country_code year
 ## 3. `replace` Without a Units Comment
 
 **Problem:** Copilot generates unit-transforming `replace` commands with no
-documentation of what units the variable is in before and after. In welfare
+documentation of what units the variable is in before and after. For instance, in welfare
 analysis (monthly vs annual, local currency vs PPP USD), this is catastrophic.
 
 ```stata
@@ -70,12 +70,15 @@ replace welfare = welfare * ppp_factor
 * RIGHT — document units before and after every transformation
 * welfare is currently: monthly per-capita consumption, LCU nominal
 replace welfare = welfare * 12
+label variable welfare "Annual per-capita consumption, LCU nominal"
 * welfare is now: annual per-capita consumption, LCU nominal
 
 replace welfare = welfare / cpi_2017
+label variable welfare "Annual per-capita consumption, LCU 2017 real"
 * welfare is now: annual per-capita consumption, LCU 2017 real
 
 replace welfare = welfare / ppp_2017
+label variable welfare "Annual per-capita consumption, 2017 PPP USD"
 * welfare is now: annual per-capita consumption, 2017 PPP USD
 ```
 
@@ -98,15 +101,22 @@ forvalues i = 1/100 {
 }
 
 * RIGHT — suppress output inside loops; display only what you intend
-forvalues i = 1/100 {
-    quietly summarize welfare_`i'
+quietly forvalues i = 1/100 {
+    summarize welfare_`i'
     local mean_`i' = r(mean)
     
-    quietly regress welfare_`i' urban age education
+    regress welfare_`i' urban age education
     local r2_`i' = e(r2)
 }
-
 display "Completed 100 regressions"
+
+* RIGHT - use noisily explicitly when you want to see output from a specific iteration during debugging
+quietly foreach var of varlist welfare_1 welfare_50 welfare_100 {
+    summarize `var'
+    local mean_`var' = r(mean)
+    noisily regress `var' urban age education // only display out for this command
+}
+
 ```
 
 **Exceptions:** Use `noisily` explicitly when you want to see output from a
@@ -147,13 +157,19 @@ missing entirely. Copilot never flags this.
 
 ```stata
 * This can lose labels silently
-append using "data/hh_2022.dta"
+append using "data/hh_2020.dta"
+
+* store labels in locals using a loop
+local varlist welfare survey_yr country
+foreach v of varlist `varlist' {
+    local label_`v' : variable label `v'
+}
 
 * RIGHT — explicitly set labels after appending when label consistency matters
 append using "data/hh_2022.dta"
-label variable welfare    "Monthly per-capita welfare (2017 PPP USD)"
-label variable survey_yr  "Survey reference year"
-label variable country    "ISO3 country code"
+foreach v of varlist `varlist' {
+    label variable `v' `"`label_`v''"'
+}
 
 * Check what happened to labels
 describe welfare survey_yr country
@@ -184,6 +200,19 @@ local survey_year 2022
 * master.do:
 global gpid_root "C:/WBG/gpid-analysis"
 global gpid_data "${gpid_root}/data"
+
+* set it up for multiple users with different directory structures
+if "`c(username)'" == "wb987765" {
+    global gpid_root "C:/WBG/gpid-analysis"
+} 
+else if ("`c(username)'" == "wb123456") {
+    global gpid_root "D:/Projects/gpid-analysis"
+} 
+else {
+    display as error "Unknown user — set gpid_root global manually"
+}
+
+
 ```
 
 ---
@@ -322,4 +351,31 @@ on the same line — Stata will interpret it as multiplication.
 producing all-missing welfare values with no error message. In poverty
 measurement, this destroys the entire analysis silently. the right comment syntax is:
 `replace welfare = welfare * 12  // annualize`. 
+
+---
+
+## 12. `else` and `else if` in the same line as the preceding block
+**Problem:** Copilot generates `else` and `else if` on the same line as the closing brace of the preceding block. Stata does not allow this — it requires `else` to be on a new line. Copilot does not know this because most languages allow `else` on the same line.
+
+```stata
+* WRONG — Stata requires else to be on a new line
+if (x > 0) {
+    display "Positive"
+} else if (x < 0) {
+    display "Negative"
+} else {
+    display "Zero"
+}
+
+* RIGHT — else must be on a new line
+if (x > 0) {
+    display "Positive"
+}
+else if (x < 0) {
+    display "Negative"
+}
+else {
+    display "Zero"
+}
+```
 

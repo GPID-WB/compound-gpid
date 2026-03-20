@@ -8,6 +8,9 @@ applyTo: "**/*.do,**/*.ado"
 > reproducibility patterns. Load `cg-skill-stata-research` for survey econometrics, welfare measurement,
 > and causal inference. This file is a condensed rule-reference for common standards.
 
+## MCP Stata connection
+- Make sure you have the MCP Stata connection set up and working. If not, notify the user. If you do, make sure you use it to test everything you do. 
+
 ## Macro System
 
 - Prefer `local` macros over `global`. Globals persist across do-files and break reproducibility.
@@ -42,6 +45,21 @@ applyTo: "**/*.do,**/*.ado"
 ## Reproducibility
 
 - Every do-file starts with `version 17` (or appropriate version), `set more off`, and `clear all`.
+- Make use of `repkit` Stata package for reproducibility by adding it `cap which repkit` into the main do-file. If not, warn the user and suggest to install it from SSC with `ssc install repkit`. 
+- if `repkit` is inatalled, the following are availbale: 
+
+| Command | Description |
+| --- | --- |
+| [repado](https://worldbank.github.io/repkit/reference/repado.html) | Command used to manage a project's dependencies of commands installed from external sources such as SSC. This command provides a way to make sure that all team members as well as future reproducers of the projects code use the exact same version of all command dependencies. |
+| [repadolog](https://worldbank.github.io/repkit/reference/repadolog.html) | Outputs a report of the commands installed in the current PLUS folder. |
+| [repkit](https://worldbank.github.io/repkit/reference/repkit.html) | Command named the same as the package. Most important purpose is that this command makes the code `which repkit` work. |
+| [reproot](https://worldbank.github.io/repkit/reference/reproot.html) | This command allows teams to dynamically set root-paths with no manual user-specific set-up, in both single-rooted and multi-rooted projects. |
+| [reproot_setup](https://worldbank.github.io/repkit/reference/reproot_setup.html) | This command helps setting up the environment setting file used in `reproot` |
+| [reprun](https://worldbank.github.io/repkit/reference/reprun.html) | This command is used to automate reproducibility checks by running a do-file or a set of do-files and compare all state values (RNG-value, datasignature etc.) between the two runs. This command is currently only release as a beta-version. |
+| [repscan](https://worldbank.github.io/repkit/reference/repscan.html) | Scans a do-file and flags the use of commands that may cause issues with the reproducibility of results. |
+| [lint](https://worldbank.github.io/repkit/reference/lint.html) | `lint` is an opinionated detector that attempts to improve the readability and organization of Stata do files. The command is written based on the good coding practices of the Development Impact Evaluation Unit at The World Bank. |
+
+
 - Use `repado` to pin package versions into a project-local `code/ado/` folder.
 - Set `set seed` before any random process (`bootstrap`, `simulate`, `sample`, `splitsample`).
 - Run `reprun` before every merge request to detect non-reproducible results.
