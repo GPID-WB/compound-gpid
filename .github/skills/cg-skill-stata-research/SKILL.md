@@ -44,58 +44,7 @@ look correct but are wrong. These are highlights; see
 [Research Anti-Patterns](references/stata-research-anti-patterns.md) for the
 complete list.
 
-### Survey Weights Must Propagate Everywhere
-```stata
-// WRONG — unweighted mean on survey data
-summarize welfare
-local mean = r(mean)
 
-// RIGHT — survey-weighted estimation
-svyset psu [pw=weight], strata(stratum)
-svy: mean welfare
-```
-If the dataset has survey weights, **every** statistical command must use `svy:`
-or explicit weight syntax. An unweighted `summarize` on survey data is always
-wrong in GPID work.
-
-### PPP Conversion Order Matters
-```stata
-// WRONG — PPP before spatial deflation
-replace welfare = welfare / ppp_2017
-replace welfare = welfare / spatial_index
-
-// RIGHT — spatial deflation first, then PPP
-// welfare is: monthly per-capita, LCU nominal
-replace welfare = welfare / spatial_index
-// welfare is now: monthly per-capita, LCU nominal, spatially deflated
-replace welfare = welfare / ppp_2017
-// welfare is now: monthly per-capita, 2017 PPP USD
-```
-
-### Poverty Lines Must Match Welfare Units
-```stata
-// WRONG — welfare is daily, poverty line is monthly
-local pov_line = 2.15 * 30.4167   // $2.15/day in monthly terms
-count if welfare < `pov_line'
-
-// RIGHT — convert welfare to daily, or poverty line to same periodicity
-// welfare is: monthly per-capita, 2017 PPP USD
-local daily_welfare = welfare / 30.4167
-local pov_line = 2.15               // $2.15/day, 2017 PPP
-gen poor = (`daily_welfare' < `pov_line') if !missing(welfare)
-```
-
-### Staggered DiD Requires Modern Estimators
-```stata
-// WRONG — TWFE with staggered treatment timing
-reghdfe y treated_post, absorb(id year) cluster(id)
-// Produces negative weights, biased ATT estimates
-
-// RIGHT — Callaway & Sant'Anna
-csdid y, ivar(id) time(year) gvar(first_treat) notyet
-csdid_estat event
-csdid_plot
-```
 
 ---
 
