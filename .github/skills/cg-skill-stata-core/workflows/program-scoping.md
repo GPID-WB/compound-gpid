@@ -51,23 +51,41 @@ Use this for: summary statistics, data quality checks, any program that
 computes scalars or matrices the caller needs.
 
 ### `eclass` — results stored in `e()`
-
 ```stata
-program define estimate_poverty, eclass
-    syntax varlist [if] [in], pline(real) [vce(string)]
-    
-    // ... estimation logic ...
-    
-    // Post coefficient matrix and variance-covariance matrix
-    ereturn post b V, esample(sample_flag)
-    ereturn scalar pline = `pline'
-    ereturn local  cmd   "estimate_poverty"
+program define myestimate, eclass
+    syntax varlist(fv min=2) [if] [in] [, vce(string) ]
+
+    // First variable is dependent, rest are independent
+    local depvar    : word 1 of `varlist'
+    local indepvars : list varlist - depvar
+
+    if "`vce'" == "" local vce "robust"
+
+    // Run the regression quietly
+    quietly regress `depvar' `indepvars' `if' `in', vce(`vce')
+
+    // Save what we need — ereturn post clears all prior e() results
+    tempvar touse
+    quietly gen byte `touse' = e(sample)
+    matrix b  = e(b)
+    matrix V  = e(V)
+    local  N  = e(N)
+    local  r2 = e(r2)
+
+    // Post coefficient matrix, VCE, and estimation sample
+    ereturn post b V, esample(`touse')
+    ereturn scalar N     = `N'
+    ereturn scalar r2    = `r2'
+    ereturn local  cmd     "myestimate"
+    ereturn local  depvar  "`depvar'"
 end
 
-// Calling code:
-estimate_poverty welfare [pw=weight], pline(2.15)
-ereturn list       // inspect stored results
-matrix list e(b)   // examine coefficient matrix
+// --- Usage with sysuse auto ---
+sysuse auto, clear
+myestimate price mpg weight i.foreign, vce(robust)
+ereturn list
+matrix list e(b)
+matrix list e(V)
 ```
 
 Use this for: custom estimation commands that should work with `esttab`,
@@ -177,7 +195,7 @@ program define gpid_summarize, rclass
     // `detail'   — "detail" if specified, empty string otherwise
     // `povline'  — the real number (2.15 if not specified)
     
-    if "`byvar'" != "" {
+    if ("`byvar'" != "") {
         quietly bysort `byvar': summarize `varlist' `if' `in' [`weight'`exp']
     }
     else {
@@ -189,23 +207,6 @@ program define gpid_summarize, rclass
     return scalar povline = `povline'
 end
 ```
-
-**Common `syntax` patterns for GPID programs:**
-
-```stata
-* Required variable + required option
-syntax varname, pline(real)
-
-* Optional variable list + optional if/in + optional weight
-syntax [varlist(numeric)] [if] [in] [aweight pweight]
-
-* Multiple options with defaults
-syntax varname, [ Year(integer 2022) PPP(real 1.0) Verbose ]
-
-* Using/saving file paths
-syntax anything [using/], [ replace ]
-```
-
 ---
 
 ## 5. `ereturn post` — Correct Pattern for Estimation Programs

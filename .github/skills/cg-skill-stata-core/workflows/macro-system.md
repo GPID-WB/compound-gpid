@@ -105,43 +105,44 @@ notes: Data source: `"`ctry_name'"' 2022 survey
 
 ---
 
-## 3. Macro Expansion Order — The Invisible Bug
+## 3. Stata expands macros eagerly at definition time
 
-Stata expands macros when a line is *executed*, not when it is *defined* — but
-only for bare references. Quoted strings at definition time do **not** expand the
-macros inside them in the way you might expect.
+When one macro references another, the inner macro is resolved
+**immediately** — the result is a frozen string, not a live reference.
+If the source macro changes later, the derived macro does not update.
 
 ```stata
-* WRONG — `i' is NOT expanded at assignment time inside double quotes
-local i 3
-local varname "variable`i'"
-display "`varname'"
-// Prints: variable3  — this actually WORKS, counter to expectation
-
-* The real trap: macro inside a macro at definition
+* --- THE TRAP: eager expansion freezes the value at definition ---
 local suffix "_pc"
-local welfare "cons`suffix'"     // `suffix' IS expanded here — result: cons_pc
+local varname "cons`suffix'"    // `suffix' expands NOW → varname = "cons_pc"
 
-* BUT this fails:
+display "`varname'"             // Prints: cons_pc  ✓
+
+* Now change the source macro:
+local suffix "_ppp"
+display "`varname'"             // Prints: cons_pc  ✗
+                                // NOT "cons_ppp" — the old expansion is baked in
+
+* --- WHERE THIS BITES: a loop that changes the inner macro ---
 local welfare "cons"
-local full_name "`welfare'`suffix'"  // Both expand correctly at execution time
-display "`full_name'"   // Prints: cons_pc — correct
+local fullvar "`welfare'_pc"    // Expands NOW → fullvar = "cons_pc"
 
-* Where expansion genuinely fails: extended macro functions
-local i 3
-local var_`i' "variable three"   // Creates a macro named var_3
-display "`var_3'"                 // Prints: variable three — correct
-display "`var_`i''"               // WRONG — nested expansion is not supported this way
+foreach w in cons income {
+    display "`fullvar'"         // Prints "cons_pc" EVERY iteration
+                                // It never becomes "income_pc"
+}
 
-* RIGHT — use intermediate local for nested expansion
-local i 3
-local varname "var_`i'"          // first expand i -> var_3
-display "``varname''"            // then expand var_3 -> "variable three"
+* --- THE FIX: rebuild the derived macro inside the loop ---
+foreach w in cons income {
+    local fullvar "`w'_pc"      // Re-expand on each iteration
+    display "`fullvar'"         // Prints: cons_pc, then income_pc  ✓
+}
 ```
 
-**The double-macro expansion pattern** (`` ``macroname'' ``) is powerful but
-easy to get wrong. Test all nested macro references with `display` before using
-them in production code.
+The rule: **a macro stores a string, not a formula.** Any backtick
+references inside it are resolved once, at the moment the `local`
+(or `global`) command runs. If you need the reference to stay
+"live," you must redefine the macro after every change to its inputs.
 
 ---
 
@@ -165,28 +166,64 @@ macro list _locals
 macro list _globals
 
 * Check if a local is empty
-if "`mymacro'" == "" {
+if `"`mymacro'"' == `""' {
     display as error "mymacro is empty — check assignment"
     exit 198
 }
 ```
 
 **Defensive pattern for program arguments:**
-
 ```stata
 program define myprog
-    args welfare_var year_var
-    
-    // Verify args were passed
-    if "`welfare_var'" == "" {
-        display as error "welfare_var required"
+    syntax varlist(min=1 max=1) , Countries(string) [ Year(integer 2017) ]
+
+    local welfare_var : word 1 of `varlist'
+
+    // --- Validate and normalize countries() ---
+    local clean_countries ""
+    foreach cc of local countries {
+        // Each code must be exactly 3 characters
+        if length("`cc'") != 3 {
+            display as error "Invalid ISO3 code: `cc' (must be exactly 3 characters)"
+            exit 198
+        }
+        // Reject if it contains non-alpha characters
+        if !regexm("`cc'", "^[a-zA-Z]+$") {
+            display as error "Invalid ISO3 code: `cc' (must contain only letters)"
+            exit 198
+        }
+        // Convert to uppercase
+        local cc = upper("`cc'")
+        local clean_countries "`clean_countries' `cc'"
+    }
+    local clean_countries = strtrim("`clean_countries'")
+
+    // Must have at least one country
+    if "`clean_countries'" == "" {
+        display as error "countries() must include at least one ISO3 code"
         exit 198
     }
-    
-    display "Processing: welfare=`welfare_var', year=`year_var'"
+
+    // --- Validate year ---
+    if `year' < 1990 | `year' > 2030 {
+        display as error "year(`year') out of plausible range [1990, 2030]"
+        exit 198
+    }
+
+    display "Processing: welfare=`welfare_var', year=`year'"
+    display "Countries: `clean_countries'"
     // ... rest of program
 end
+
+// Usage:
+myprog consumption, countries(col per arg) year(2022)
+// Internally works with: COL PER ARG
 ```
+
+`syntax` handles the structural parsing — required vs. optional,
+types, defaults — but anything domain-specific (valid code length,
+character restrictions, case normalization, plausible ranges) must
+be validated manually after parsing.
 
 ---
 
