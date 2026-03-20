@@ -256,13 +256,29 @@ graph export "${gpid_out}/figures/welfare_density.pdf", replace
 
 ## 6. Replication Package Checklist
 
-Before finalizing outputs, verify:
+Before finalizing outputs, run `reprun` on the master do-file to verify
+reproducibility:
+
+```stata
+reprun "${gpid_root}/code/master.do"
+// Two runs must produce identical outputs. If it fails, check for:
+//   - missing `set seed` before bootstrap/simulate/sample
+//   - `bysort` without secondary sort variable
+//   - date/time functions in computed variables
+// Run repscan for quick diagnosis: repscan "${gpid_root}/code/", recursive
+```
+
+Then verify:
 
 - [ ] Master do-file runs entire analysis from raw data to final outputs
 - [ ] All paths use global macros (single root in `00_master.do`)
 - [ ] All output files are named to match paper/report elements (Table 1 = `table1.tex`)
-- [ ] `version 17` set at top; `set seed` documented for all random processes
+- [ ] `repado` initialized; community packages pinned in `code/ado/` and committed to git
+- [ ] `version 17` set at top of every do-file; `set more off` and `clear all` present
+- [ ] `set seed` documented for all random processes (`bootstrap`, `simulate`, `sample`)
 - [ ] `reprun` passes — two runs produce identical outputs
+- [ ] `repscan` run; no unexplained non-deterministic commands
+- [ ] `lint` passes or `autofix` applied to all do-files
 - [ ] README documents: software version, package requirements, execution order
 - [ ] All intermediate datasets saved (not just final)
 - [ ] Log files generated for every do-file

@@ -54,7 +54,7 @@ Focus: Development economics domain expertise.
 
 - [ ] Survey methodology skill (sampling, weights, design effects)
 - [ ] Poverty measurement skill (poverty lines, PPP, inequality indices)
-- [x] Stata research skill (`cg-skill-stata-research`) — survey econometrics, welfare aggregates, poverty measurement, PPP conversion
+- [x] Stata research skill (`cg-skill-stata-research`) — survey econometrics, welfare aggregates, poverty measurement, PPP conversion *(delivered in Phase 1)*
 - [ ] Spatial analysis skill (geographic data, mapping, spatial joins)
 - [ ] Microdata handling skill (anonymization, harmonization)
 - [ ] World Bank data API skill (WDI, microdata catalog)

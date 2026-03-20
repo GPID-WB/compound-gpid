@@ -4,6 +4,10 @@ applyTo: "**/*.do,**/*.ado"
 
 # Stata Coding Standards
 
+> **Full guidance**: Load `cg-skill-stata-core` for macro system, program scoping, data management, and
+> reproducibility patterns. Load `cg-skill-stata-research` for survey econometrics, welfare measurement,
+> and causal inference. This file is a condensed rule-reference for common standards.
+
 ## Macro System
 
 - Prefer `local` macros over `global`. Globals persist across do-files and break reproducibility.
@@ -71,7 +75,7 @@ applyTo: "**/*.do,**/*.ado"
 
 ## Documentation
 
-- Every `.ado` file starts with `*!` version comments parsed by `which`.
+- Every distributed `.ado` file (community package or reusable team library) starts with `*!` version comments parsed by `which`.
 - Use the standard do-file header block for all production do-files.
 - Document units before and after every `replace` that transforms units.
 - Complex logic should have inline comments explaining *why*, not *what*.

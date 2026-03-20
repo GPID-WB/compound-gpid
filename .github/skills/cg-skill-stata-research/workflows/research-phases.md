@@ -13,6 +13,16 @@ decides. (Adapted from Cunningham's AI workflow for empirical research.)
 
 ## Phase 0: Research Design
 
+**Reproducibility prerequisites (set up before Phase 0):**
+```stata
+version 17
+set more off
+clear all
+macro drop _all
+repado using "${gpid_root}/code/ado"   // pin all community packages
+// set seed YYYYMMDD                   // add once you know which random ops this project uses
+```
+
 **Goal:** Establish the identification strategy before touching data.
 
 **What to do:**
@@ -95,13 +105,16 @@ centile welfare, centile(1 5 95 99)
 
 // ---- 1.4 Key relationships (visual) --------------------------------
 // Distributions
-histogram welfare [fw=round(weight)], ///
+// Use [aw=weight] for continuous survey weights in histogram
+histogram welfare [aw=weight], ///
     title("Distribution of welfare") ///
     xtitle("Per-capita consumption (2017 PPP USD)")
 
 // Trends — preserve/restore is required: collapse destroys the current dataset
+// For large datasets, gcollapse (gtools) is 10-100x faster with identical syntax
 preserve
     collapse (mean) mean_welfare=welfare [pw=weight], by(year)
+    // Alternative for large surveys: gcollapse (mean) mean_welfare=welfare [pw=weight], by(year)
     twoway line mean_welfare year, ///
         title("Mean welfare over time") ///
         ytitle("2017 PPP USD")
@@ -254,7 +267,9 @@ quietly reghdfe ln_welfare treatment hh_size educ_head is_urban, ///
 estimates store r3_altcluster
 
 // Wild cluster bootstrap (if few clusters)
-// boottest treatment, cluster(district_id) reps(999) seed(20240301)
+// Requires set seed before running
+// set seed 20240301
+// boottest treatment, cluster(district_id) reps(999)
 
 // ---- 4.3 Subgroup analysis -----------------------------------------
 foreach group in urban rural male_head female_head {

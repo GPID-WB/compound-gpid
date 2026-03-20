@@ -1,6 +1,6 @@
 ---
 name: cg-skill-stata-research
-description: "Research methodology and analytical patterns for GPID Stata work. Enforces a phased workflow (Design → Data → Specification → Analysis → Robustness → Output) with explicit pause points. Covers survey design (svyset, svy:, complex sampling), poverty and welfare measurement (FGT, PPP conversion, inequality decomposition), causal inference (DiD, RD, matching, IV), and publication-ready output (esttab, coefplot, putexcel). ALWAYS load this skill alongside cg-skill-stata-core when working on analytical .do files — poverty statistics, econometric analysis, survey-based research, or any work producing results for reports, papers, or official World Bank products."
+description: "Research methodology and analytical patterns for GPID Stata work. Enforces a 6-phase workflow (Phases 0–5: Design → Data → Specification → Analysis → Robustness → Output) with explicit pause points. Covers survey design (svyset, svy:, complex sampling), poverty and welfare measurement (FGT, PPP conversion, inequality decomposition), causal inference (DiD, RD, matching, IV), and publication-ready output (esttab, coefplot, putexcel). ALWAYS load this skill alongside cg-skill-stata-core when working on analytical .do files — poverty statistics, econometric analysis, survey-based research, or any work producing results for reports, papers, or official World Bank products."
 ---
 
 # Stata Research Patterns
@@ -40,8 +40,9 @@ documented artifact before the next phase begins.
 ## Critical Analytical Gotchas
 
 These are methodological errors, not syntax errors. They produce results that
-look correct but are wrong. Consult the full list in
-[Research Anti-Patterns](references/stata-research-anti-patterns.md).
+look correct but are wrong. These are highlights; see
+[Research Anti-Patterns](references/stata-research-anti-patterns.md) for the
+complete list.
 
 ### Survey Weights Must Propagate Everywhere
 ```stata
@@ -118,7 +119,7 @@ this SKILL.md file.
 ### Reference
 | File | When to Read |
 |------|-------------|
-| [Research Anti-Patterns](references/stata-research-anti-patterns.md) | Reviewing any analytical Stata code; checking for methodological errors |
+| [Research Anti-Patterns](references/stata-research-anti-patterns.md) | Auditing existing code for suspicious results; cross-checking welfare or poverty calculations |
 | [Community Packages](references/community-packages.md) | Need syntax for `reghdfe`, `estout`, `csdid`, `rdrobust`, `psmatch2`, `coefplot`, or other packages |
 
 ---

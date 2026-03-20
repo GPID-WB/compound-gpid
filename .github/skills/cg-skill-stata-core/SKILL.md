@@ -49,7 +49,7 @@ Reference skill for Stata development in the GPID team at the World Bank. Copilo
 
 Load this skill whenever:
 - Any `.do` or `.ado` file is open or being created
-- The user mentions: Stata, macros, `local`, `global`, `program define`, `preserve`, `svyset`, `merge`, `reshape`, `tempvar`, `tempfile`
+- The user mentions: Stata, macros, `local`, `global`, `program define`, `preserve`, `merge`, `reshape`, `tempvar`, `tempfile`
 - Writing loops (`forvalues`, `foreach`) in Stata
 - Writing programs that return results (`rclass`, `eclass`)
 - Reviewing Stata code for correctness or reproducibility

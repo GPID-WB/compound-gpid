@@ -88,8 +88,10 @@ svy, subpop(is_urban): mean welfare
 
 The `if` qualifier restricts the sample *before* variance estimation, which
 changes the effective design. `subpop()` keeps the full design but estimates
-only for the subgroup. The difference can be large — 20-30% differences in
-standard errors are common.
+only for the subgroup. Using `if` typically understates standard errors because
+it discards PSUs and strata with no observations in the subgroup, reducing
+apparent design variance. The bias is design-dependent; differences of 20–30%
+or more are plausible in clustered samples with small subgroups.
 
 ### Common Survey Commands
 
@@ -190,9 +192,9 @@ label values poor poor_lbl
 // Survey-weighted headcount
 svyset psu [pw=weight], strata(stratum)
 svy: proportion poor
-// Store the result
-local headcount = e(b)[1,2]   // proportion in "Poor" category
-local hc_se    = sqrt(e(V)[2,2])
+// Store the result — use named coefficient for clarity and robustness
+local headcount = _b[1.poor]         // 1.poor = proportion in "Poor" category
+local hc_se    = _se[1.poor]         // standard error
 
 // ---- Poverty gap (FGT 1) ------------------------------------------
 generate gap = max(0, (`pov_line' - welfare_pc) / `pov_line') ///
@@ -215,20 +217,22 @@ local lines "2.15 3.65 6.85"
 foreach z of local lines {
     local z_label = subinstr("`z'", ".", "", .)
     generate poor_`z_label' = (welfare_pc < `z') if !missing(welfare_pc)
-    label variable poor_`z_label' "Poor ($`z'/day)"
+    label variable poor_`z_label' "Poor ($`z'/day, 2017 PPP)"    // include PPP year
 }
 
 // Headcounts at all three lines
 svy: proportion poor_215 poor_365 poor_685
 ```
 
-### Shared Prosperity
+### Shared Prosperity (Bottom 40% Mean)
 
-The shared prosperity indicator measures income growth of the bottom 40%
-relative to the overall population.
+The shared prosperity indicator tracks income/consumption growth of the bottom
+40% relative to the overall population over time. This section computes the
+necessary single-period mean; combine two periods to produce a growth rate.
 
 ```stata
-// Bottom 40% mean
+// Bottom 40% mean — single cross-section
+// Combine two survey years to compute annualised growth for the indicator
 _pctile welfare_pc [pw=weight], percentiles(40)
 local p40 = r(r1)
 svy, subpop(if welfare_pc <= `p40'): mean welfare_pc
@@ -237,6 +241,9 @@ local b40_mean = e(b)[1,1]
 // Overall mean
 svy: mean welfare_pc
 local overall_mean = e(b)[1,1]
+
+// Growth rate (requires two periods: compute b40_mean and overall_mean for each)
+// local sp_premium = (`b40_mean_t1' / `b40_mean_t0')^(1/`n_years') - 1
 ```
 
 ---

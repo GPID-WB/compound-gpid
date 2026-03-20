@@ -4,6 +4,9 @@ Methodological errors Copilot generates in analytical code. These are not
 syntax errors — the code runs without warnings but produces wrong conclusions.
 Consult this file when reviewing any analytical Stata output.
 
+**Start here:** Anti-patterns #1, #2, #3, and #4 below are so critical they
+are also highlighted in the main [SKILL.md](../SKILL.md). Review those first.
+
 ---
 
 ## 1. Unweighted Statistics on Survey Data
@@ -230,7 +233,9 @@ bysort country: summarize welfare
 
 // RIGHT — all cross-country comparisons in PPP terms
 // Ensure welfare is in 2017 PPP USD before any cross-country operation
-assert labelled(welfare, "2017 PPP") | labelled(welfare, "PPP")
+// Check the variable label contains "PPP" as a convention guard
+local welfare_lbl : variable label welfare_ppp
+assert regexm("`welfare_lbl'", "PPP"), message("welfare_ppp label must contain 'PPP' — check unit labelling")
 bysort country: summarize welfare_ppp
 ```
 
@@ -249,6 +254,8 @@ Before accepting any analytical result, verify:
 | Cluster level matches design | `vce(cluster ...)` | At or above treatment assignment level |
 | First stage checked (IV) | `estat firststage` | F > 23 |
 | Overlap checked (matching) | Histogram of propensity scores | Support in both groups |
+| Subpop used for subgroup analysis | `svy, subpop():` not `svy: ... if` | No `if` qualifier on any `svy:` command |
+| Inequality measures exclude missing | `ineqdeco var if !missing(var)` | Explicit `if !missing()` restriction |
 | Pre-trends tested (DiD) | Event study plot | No significant pre-treatment effects |
 | Modern DiD used (staggered) | `csdid` or equivalent | Not plain TWFE |
 | Specifications committed before estimation | Phase 2 memo | Written and approved |

@@ -32,7 +32,8 @@ regress y i.treated##i.post controls, cluster(id)
 
 **Do NOT use classic TWFE with staggered adoption.** TWFE produces biased
 estimates with heterogeneous treatment effects and staggered timing
-(Goodman-Bacon 2021, Sun & Abraham 2021).
+(Goodman-Bacon 2021, *Journal of Econometrics*; Sun & Abraham 2021,
+*Journal of Econometrics*).
 
 ```stata
 // ---- Diagnostic: Bacon decomposition --------------------------------
