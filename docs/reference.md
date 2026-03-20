@@ -77,6 +77,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-skill-r-analytical` | **Analysis patterns**: `collapse`, `data.table`, `haven`, `fixest`, `modelsummary`, `ggplot2`+`wbplot`, welfare/poverty measurement. Preference hierarchy: collapse > data.table > tidyverse. |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
 | `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns, do-file conventions |
+| `cg-skill-stata-research` | Phased research workflow (Design→Data→Specification→Analysis→Robustness→Output), survey design (`svyset`, `svy:`), poverty/welfare measurement (FGT, PPP), causal inference (DiD, RD, matching, IV), publication-ready output (`esttab`, `coefplot`), research anti-patterns |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |

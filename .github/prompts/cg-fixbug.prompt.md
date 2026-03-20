@@ -71,7 +71,7 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
 1. Implement the fix based on the confirmed diagnosis. Follow project conventions:
    - R: follow `.github/instructions/r.instructions.md` style.
    - Python: follow `.github/instructions/python.instructions.md` style.
-   - Stata: follow `.github/instructions/stata.instructions.md` style and load `cg-skill-stata-core`.
+   - Stata: follow `.github/instructions/stata.instructions.md` style and load `cg-skill-stata-core`. For analytical bugs (survey weights, poverty measurement, causal inference, PPP conversion), also load `cg-skill-stata-research`.
 
 2. **STOP. Tell the user exactly this:**
 

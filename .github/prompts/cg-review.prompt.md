@@ -52,7 +52,7 @@ For each agent, provide:
 - Package/infrastructure work (package dev, Shiny, targets, plumber, httr2) → load `cg-skill-r-technical`
 - Mixed or unclear → load both
 
-**Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-core` before reviewing those files. Apply the anti-patterns from the skill's references when evaluating Stata code.
+**Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-core` before reviewing those files. Apply the core anti-patterns when evaluating any Stata code. For analytical do-files (welfare measurement, poverty rates, survey data, econometric models), also load `cg-skill-stata-research` and apply its research anti-patterns (unweighted survey statistics, wrong PPP conversion order, TWFE with staggered timing, missing overlap checks, poverty line/welfare unit mismatches).
 
 ### Step 3: Collect and Prioritize Findings
 
