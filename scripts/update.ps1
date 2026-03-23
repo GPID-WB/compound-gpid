@@ -121,7 +121,7 @@ try {
         Write-Host "Available releases:" -ForegroundColor Cyan
         if ($tags) {
             foreach ($tag in $tags) {
-                $marker = if ($tag -eq $currentPin) { "  <-- current" } else { "" }
+                $marker = if ($tag -eq $currentPin) { '  <-- current' } else { '' }
                 Write-Host "  $tag$marker"
             }
         } else {
