@@ -86,7 +86,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 ## Configuration
 
 Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
-- **Language**: R, Python, or both
+- **Language**: R, Python, Stata, or any combination
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
 
