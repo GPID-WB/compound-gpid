@@ -46,7 +46,7 @@ $ErrorActionPreference = "Stop"
 
 # Enforce semver tag format (v<major>.<minor>.<patch>) for consistency with GitHub Release API
 if ($Tag -notmatch '^v\d+\.\d+\.\d+$') {
-    Write-Error "Invalid tag format '$Tag'. Expected v<major>.<minor>.<patch> (e.g. v0.0.6)."
+    Write-Error ('Invalid tag format ''' + $Tag + '''. Expected v<major>.<minor>.<patch> (e.g. v0.0.6).')
     exit 1
 }
 
@@ -94,7 +94,7 @@ try {
 } catch {
     # Only a 404 means "release doesn't exist" — re-throw all other HTTP errors
     # Note: ?. is PS7+ only; use if/else for PS5.1 compatibility
-    $status = if ($_.Exception.Response) { $_.Exception.Response.StatusCode.value__ } else { $null }
+    if ($_.Exception.Response) { $status = $_.Exception.Response.StatusCode.value__ } else { $status = $null }
     if ($null -eq $status -or $status -ne 404) { throw }
 }
 

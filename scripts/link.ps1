@@ -79,9 +79,9 @@ try {
 
 # Show which version is active after the update so the user knows what they're linking.
 $versionFile = Join-Path $CompoundGpidDir ".cg-version"
-$activeVersion = if (Test-Path $versionFile) { (Get-Content $versionFile -Raw).Trim() } else { "latest" }
+if (Test-Path $versionFile) { $activeVersion = (Get-Content $versionFile -Raw).Trim() } else { $activeVersion = "latest" }
 if ([string]::IsNullOrWhiteSpace($activeVersion)) { $activeVersion = "latest" }
-$versionLabel = if ($activeVersion -eq "latest") { "tracking main (latest)" } else { "$activeVersion (pinned)" }
+if ($activeVersion -eq "latest") { $versionLabel = "tracking main (latest)" } else { $versionLabel = "$activeVersion (pinned)" }
 Write-Host "  Version: $versionLabel" -ForegroundColor DarkGray
 
 Write-Host ""
@@ -218,7 +218,7 @@ if (Test-Path $gitignorePath) {
     # Pattern matches any non-empty body lines (not just .github/ prefixed ones), so
     # entries like .cg-docs/ are also removed and not left as orphans on upgrade.
     $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", "").TrimEnd()
-    $separator  = if ($giUpdated.Length -gt 0) { "`n`n" } else { "" }
+    if ($giUpdated.Length -gt 0) { $separator = "`n`n" } else { $separator = "" }
     Set-Content -Path $gitignorePath -Value ($giUpdated + $separator + $cgGitignoreBlock)
     Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
 } else {

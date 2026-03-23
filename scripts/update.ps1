@@ -115,13 +115,13 @@ try {
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
 
-        $modeLabel = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
+        if ($currentPin -eq "latest") { $modeLabel = "main (latest)" } else { $modeLabel = "$currentPin (pinned)" }
 
         Write-Host ""
         Write-Host "Available releases:" -ForegroundColor Cyan
         if ($tags) {
             foreach ($tag in $tags) {
-                $marker = if ($tag -eq $currentPin) { '  <-- current' } else { '' }
+                if ($tag -eq $currentPin) { $marker = '  <-- current' } else { $marker = '' }
                 Write-Host "  $tag$marker"
             }
         } else {
@@ -232,9 +232,9 @@ try {
         $tagExists = $versionMode -in $allTags
         if (-not $tagExists) {
             $similar = $allTags | Select-Object -First 5
-            $hint    = if ($similar) {
-                "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
-            } else { "" }
+            if ($similar) {
+                $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
+            } else { $hint = "" }
             throw "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
         }
 

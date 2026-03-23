@@ -122,9 +122,9 @@ $pathAdded = $false
 try {
     $currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
         Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
-    $currentPath = if ($currentPath) { $currentPath.Trim() } else { "" }
+    if ($currentPath) { $currentPath = $currentPath.Trim() } else { $currentPath = "" }
     if ($currentPath -notlike "*$binDir*") {
-        $newPath = if ($currentPath.Length -gt 0) { "$currentPath;$binDir" } else { $binDir }
+        if ($currentPath.Length -gt 0) { $newPath = "$currentPath;$binDir" } else { $newPath = $binDir }
         reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f | Out-Null
         Write-Host "  Added to PATH: $binDir" -ForegroundColor DarkGray
     } else {
@@ -133,7 +133,7 @@ try {
     $pathAdded = $true
 } catch {
     Write-Warning "  Could not update PATH via reg.exe: $_"
-    Write-Warning "  Add manually: reg add `"HKCU\Environment`" /v PATH /t REG_EXPAND_SZ /d `"<your-current-path>;$binDir`" /f"
+    Write-Warning ('  Add manually: reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "<your-current-path>;' + $binDir + '" /f')
 }
 
 # Clean up old $PROFILE block from previous installs (upgrade path).
@@ -187,7 +187,7 @@ Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
-Write-Host "  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)"
+Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host ""
