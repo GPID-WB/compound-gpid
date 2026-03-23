@@ -214,6 +214,11 @@ if (Test-Path $gitignorePath) {
     $giContent = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
     if (-not $giContent) { $giContent = "" }
 
+    # Normalize: ensure content ends with a newline so the remove-then-rewrite regex
+    # correctly consumes the last block entry even if the file was manually edited to
+    # remove the trailing newline (e.g. by a text editor that strips trailing newlines).
+    if ($giContent -and $giContent -notmatch '\r?\n$') { $giContent = $giContent + "`n" }
+
     # Remove any existing CG block before rewriting - handles version upgrades cleanly
     # Pattern matches any non-empty body lines (not just .github/ prefixed ones), so
     # entries like .cg-docs/ are also removed and not left as orphans on upgrade.

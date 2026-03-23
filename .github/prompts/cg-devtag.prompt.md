@@ -11,6 +11,16 @@ You are a senior developer creating a pre-release dev tag for end-to-end install
 
 ## Process
 
+### Step 0: Fetch latest tags
+
+Run:
+
+```powershell
+git fetch origin --tags
+```
+
+Ensures you see all existing dev tags created by other developers before choosing the next increment number. Prevents two developers from accidentally assigning the same tag.
+
 ### Step 1: Find the base version
 
 Run:
@@ -36,7 +46,7 @@ git tag --list "v<MAJOR>.<MINOR>.<PATCH>.*"
 
 - If no dev tags exist yet for this base, the next tag is `v<MAJOR>.<MINOR>.<PATCH>.9000`.
 - If dev tags exist, find the highest 4th component and increment by 1.
-  - Example: `v0.1.0.9000` and `v0.1.0.9001` exist → next is `v0.1.0.9002`.
+  - Example: `v0.1.0.9000` and `v0.1.0.9001` exist -> next is `v0.1.0.9002`.
 
 ### Step 3: Confirm with the user
 
@@ -81,3 +91,5 @@ Note: this tag is invisible to regular users in cg-update --list.
 - Never create a dev tag on `main`. If the current branch is `main`, warn the user and stop.
 - Always confirm before pushing -- tags on the remote are public.
 - Never modify existing tags. If the intended tag already exists locally or remotely, increment and suggest the next one.
+
+> **See also**: `docs/versioning.md` -- "Dev tags (maintainer-only)" section explains the invisibility guarantees, filtering behavior in `cg-update`, and cleanup steps.

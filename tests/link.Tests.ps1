@@ -232,9 +232,15 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     }
 
     Context "when .gitignore already has all CG entries" {
-        # NOTE: The remove-then-rewrite regex below is intentionally inlined from
-        # link.ps1 for test isolation. If the production regex changes, update this
-        # test and the two tests below that also replicate it.
+        # The remove-then-rewrite logic is inlined from link.ps1 for test isolation.
+        # $RemoveCgBlockPattern and $NormGitignore replicate it here:
+        #   1. Normalize content to end with \n (handles manual edits that strip trailing newlines)
+        #   2. Remove any existing CG block
+        #   3. TrimEnd() to remove trailing whitespace before appending separator + new block
+        # If the production logic in link.ps1 changes, update this Context accordingly.
+        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*"
+        $NormGitignore = { param([string]$c) if ($c -and $c -notmatch '\r?\n$') { $c + "`n" } else { $c } }
+
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
             $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
@@ -245,8 +251,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value $block
 
             # Second run: remove-then-rewrite with broadened regex that matches any non-empty body line
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $block)
 
@@ -271,8 +278,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $newEntries = @(".github/prompts/", ".github/skills/")
             $newBlock   = $newMarker + "`n" + ($newEntries -join "`n") + "`n"
 
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
 
@@ -293,8 +301,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value "*.log"
 
             $newBlock = $marker + "`n" + ($entries -join "`n") + "`n"
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
 
@@ -319,8 +328,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value $initial
 
             # Apply remove-then-rewrite
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $newBlock = $marker + "`n.github/prompts/`n"
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
@@ -340,8 +350,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value $initial
 
             # Apply remove-then-rewrite
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $newBlock = $marker + "`n.github/prompts/`n"
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
@@ -349,6 +360,33 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $lines = Get-Content $gi
             # User content must survive the rewrite
             ($lines | Where-Object { $_ -eq "*.pyc" } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does not leave orphaned entries when CG block has no trailing newline (EOF edge case)" {
+            # Regression guard: a .gitignore manually edited to remove the trailing newline
+            # after the last CG entry must still be fully cleaned up on the next cg-link run.
+            # link.ps1 normalizes the content before applying the regex, so this must pass.
+            $gi     = Join-Path $TestDrive "cg-block-at-eof-no-newline.gitignore"
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            # Write block WITHOUT trailing newline (-NoNewline) to simulate manual edit
+            Set-Content -Path $gi -Value ($marker + "`n.github/prompts/`n.github/skills/") -NoNewline
+
+            $newMarker  = $marker
+            $newEntries = @(".github/prompts/")
+            $newBlock   = $newMarker + "`n" + ($newEntries -join "`n") + "`n"
+
+            # Apply normalization + remove-then-rewrite (as link.ps1 does)
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # The old last entry (.github/skills/) must NOT appear as an orphan
+            ($lines | Where-Object { $_ -eq ".github/skills/" } | Measure-Object).Count | Should Be 0
+            # The new entry must be present
+            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
         }
     }
 

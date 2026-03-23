@@ -629,6 +629,38 @@ Describe "update.ps1 - .cg-version read" {
             $versionMode | Should Be "latest"
         }
     }
+
+    Context "file present with malformed content (manual edit)" {
+        It "rejects garbage content that does not match version format" {
+            # Validate .cg-version content after reading: guards against manual edits
+            # with values like 'main' or 'v1.0' that bypass the CLI argument guard.
+            $rawMode = "main"
+            $isInvalid = ($rawMode -ne "latest" -and
+                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $true
+        }
+
+        It "rejects a 2-segment tag read from .cg-version" {
+            $rawMode = "v1.0"
+            $isInvalid = ($rawMode -ne "latest" -and
+                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $true
+        }
+
+        It "accepts a valid 3-segment tag from .cg-version" {
+            $rawMode = "v0.2.0"
+            $isInvalid = ($rawMode -ne "latest" -and
+                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $false
+        }
+
+        It "accepts a valid 4-segment dev tag from .cg-version" {
+            $rawMode = "v0.1.0.9000"
+            $isInvalid = ($rawMode -ne "latest" -and
+                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $false
+        }
+    }
 }
 
 Describe "update.ps1 - .cg-version write" {
@@ -1016,6 +1048,20 @@ Describe "update.ps1 - --list formatting" {
                           else                           { "$currentPin (pinned)" }
             $modeLabel | Should Be "v0.1.0.9000 (dev -- not listed above)"
         }
+
+        It "shows correct mode label when dev pin no longer exists on remote (orphaned dev tag)" {
+            # Simulate: user pinned to v0.1.0.9000, tag was later deleted from remote.
+            # The dev-pin label must still appear correctly even though the tag is absent.
+            $currentPin = "v0.1.0.9000"
+            $allTags    = @("v0.2.0", "v0.1.0")  # dev tag gone
+            $isDevPin   = $currentPin -ne "latest" -and $currentPin -match '^v\d+\.\d+\.\d+\.\d+$'
+            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
+                          elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
+                          else                           { "$currentPin (pinned)" }
+            $modeLabel | Should Be "v0.1.0.9000 (dev -- not listed above)"
+            # Confirm the tag is indeed absent from remote
+            $currentPin -notin $allTags | Should Be $true
+        }
     }
 
     Context "dev tags excluded from release list" {
@@ -1074,8 +1120,18 @@ Describe "update.ps1 - version status display" {
     Context "pinned mode" {
         It "formats status line as '<tag> (pinned)'" {
             $versionMode = "v0.2.0"
-            $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode (pinned)" }
+            $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
+            $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+            $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode ($pinLabel)" }
             $statusLine | Should Be "Current version: v0.2.0 (pinned)"
+        }
+
+        It "formats status line as '<tag> (dev-pinned)' for a dev tag" {
+            $versionMode = "v0.1.0.9000"
+            $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
+            $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+            $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode ($pinLabel)" }
+            $statusLine | Should Be "Current version: v0.1.0.9000 (dev-pinned)"
         }
     }
 

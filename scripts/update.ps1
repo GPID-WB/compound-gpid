@@ -51,6 +51,11 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 # Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
 $VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 
+# Regex that matches 3-component release tags only (e.g. v0.2.0).
+# Dev tags (4-component, e.g. v0.2.0.9000) are intentionally excluded -- they are
+# invisible to users and must never appear in --list, the newer-release hint, or error suggestions.
+$ReleaseTagPattern = '^v\d+\.\d+\.\d+$'
+
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error @"
@@ -137,6 +142,14 @@ if ($Version) {
     $versionMode = "latest"
 }
 
+# Validate .cg-version content format (guards against manual edits with garbage values).
+# CLI argument $Version is validated separately above; this catches the file-only path.
+if (-not $Version -and $versionMode -ne "latest" -and
+    $versionMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') {
+    Write-Error "Malformed .cg-version: '$versionMode'. Expected a tag like 'v0.2.0' or 'latest'. Edit or delete $VersionFile."
+    exit 1
+}
+
 # Captured inside the pinned-mode branch; used at the end for the "newer release" hint.
 $latestTag = $null
 
@@ -155,7 +168,7 @@ try {
         $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
         # Only show 3-component release tags to users; dev tags (4-component) are
         # a maintainer-only escape hatch and must never appear in normal output.
-        $releaseTags = @($tags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
+        $releaseTags = @($tags | Where-Object { $_ -match $ReleaseTagPattern })
 
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
@@ -276,17 +289,17 @@ try {
             Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
         }
 
-        # Capture all tags once; derive both latestTag and tagExists from the same list.
-        $allTags   = @(git tag --list "v*" --sort=-version:refname 2>$null)
-        # latestTag must be a release (3-component) -- dev tags (4-component) are
-        # invisible to users and must never appear in the "Newer release" hint.
-        $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
+        # Capture all tags once; derive latestTag, tagExists, and similar from the same list.
+        $allTags     = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        # Filter to release-only once; reuse for latestTag and similar -- never show dev tags to users.
+        $releaseTags = @($allTags | Where-Object { $_ -match $ReleaseTagPattern })
+        $latestTag   = $releaseTags | Select-Object -First 1
 
         # Validate the tag exists before attempting checkout or persisting preference.
         $tagExists = $versionMode -in $allTags
         if (-not $tagExists) {
             # Only show release tags in the suggestion -- never expose dev tags.
-            $similar = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 5
+            $similar = $releaseTags | Select-Object -First 5
             if ($similar) {
                 $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
             } else { $hint = "" }
@@ -445,8 +458,10 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
 
     # --- Migration warning: standalone .cg-docs/ in .gitignore ---
     # Projects configured before v0.1.1 (2026-03-23) may have .cg-docs/ as a
-    # standalone line added by Step A5 of .github/prompts/cg-setup.prompt.md.
-    # That standalone line lives outside the CG managed block, so the
+    # standalone line added by the pre-v0.1.1 version of Step A5 in
+    # .github/prompts/cg-setup.prompt.md (that step was changed in v0.1.1 to
+    # stop gitignoring .cg-docs/). The standalone line lives outside the CG
+    # managed block, so the
     # remove-then-rewrite logic in link.ps1 does not touch it. Warn the user
     # so they can remove it manually.
     # Intentional: warn on every cg-update run until the user resolves it -- no
@@ -455,7 +470,7 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
     if (Test-Path $cwdGitignore) {
         # -ErrorAction SilentlyContinue: this is a diagnostics-only path.
         # A permission error or race condition must never abort the update run.
-        $giLines = Get-Content $cwdGitignore -Encoding UTF8 -ErrorAction SilentlyContinue
+        $giLines = Get-Content $cwdGitignore -ErrorAction SilentlyContinue
         # Match either separator (/ or \) -- git on Windows accepts both.
         # Leading/trailing whitespace is also matched: a padded entry like
         # '  .cg-docs/  ' would not be honoured by git, but we warn anyway
@@ -486,7 +501,9 @@ Write-Host ""
 if ($versionMode -eq "latest") {
     Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
 } else {
-    Write-Host "Current version: $versionMode (pinned)" -ForegroundColor DarkGray
+    $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
+    $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+    Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
     # Hint when a newer release is available (only if we have fresh tag data)
     if ($latestTag -and $latestTag -ne $versionMode) {
