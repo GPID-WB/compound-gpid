@@ -62,6 +62,19 @@ If the issue persists, open a [GitHub Issue](https://github.com/GPID-WB/compound
 
 ---
 
+## `cg-update` fails due to untracked files or local changes
+
+**Symptom**: `cg-update` fails with messages about untracked files, merge conflicts, or local changes in the global clone.
+
+**Fix**: Use the built-in repair command:
+```powershell
+cg-update --fix
+```
+
+This cleans untracked files, discards local changes, and pulls the latest code. If `--fix` itself fails (e.g. the installed copy is too old), see the [Repairing a broken installation](installation.md#repairing-a-broken-installation) section.
+
+---
+
 ## `. $PROFILE` fails with "Cannot dot-source" error (Constrained Language Mode)
 
 **Symptom**:
@@ -87,11 +100,44 @@ The installer automatically removes any old `$PROFILE` block from previous insta
 
 ---
 
-## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path — local OneDrive machines only)
+## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path -- local OneDrive machines only)
 
-> **Remote server users**: `$env:USERPROFILE\.compound-gpid` is the correct path on a remote server — no migration needed. Just re-run `install.ps1`.
+> **Remote server users**: `$env:USERPROFILE\.compound-gpid` is the correct path on a remote server -- no migration needed. Just re-run `install.ps1`.
 
-If you are on a **local OneDrive machine** and previously installed to `$env:USERPROFILE\.compound-gpid`, you must migrate to `C:\WBG\.compound-gpid`. See the **[Upgrading from an old installation](installation.md#upgrading-from-an-old-installation)** section on the Installation page for the full four-step process.
+If you are on a **local OneDrive machine** and previously installed to `$env:USERPROFILE\.compound-gpid`, you must migrate to `C:\WBG\.compound-gpid`. Follow the steps below **before** running a fresh install.
+
+### Step A - Remove the old `$PROFILE` block
+
+Run `install.ps1` from the new location -- it will remove the old profile block automatically. If you want to clean it up manually first:
+
+```powershell
+$p = Get-Content $PROFILE -Raw
+$p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", ""
+Set-Content $PROFILE $p.TrimEnd()
+```
+
+### Step B - Remove the old `bin\` directory from PATH
+
+> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead -- it works in all language modes.
+
+```powershell
+$oldBin = "$env:USERPROFILE\.compound-gpid\bin"
+$currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
+    Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
+$newPath = ($currentPath.Trim() -split ';' |
+    Where-Object { $_ -and $_ -ne $oldBin }) -join ';'
+reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
+```
+
+### Step C - Delete the old clone
+
+```powershell
+Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
+```
+
+### Step D - Restart your terminal and IDE
+
+Restart your terminal **and VS Code / Positron** to pick up the PATH change, then proceed with the [Installation](installation.md) steps.
 
 ---
 

@@ -127,46 +127,30 @@ Unpins and resumes pulling `main` on every `cg-update` call.
 
 ---
 
-## Upgrading from an old installation (local OneDrive machines only)
+## Repairing a broken installation
 
-> **Remote server users**: `$env:USERPROFILE\.compound-gpid` is still the correct path on a remote server — no migration needed. Simply re-run `install.ps1` from your existing clone; it is idempotent and will update your PATH and batch wrappers without a fresh clone.
-
-> **Local OneDrive machine users**: if you have an existing installation at `$env:USERPROFILE\.compound-gpid` (the old default path from versions prior to 0.0.2), you must **migrate to `C:\WBG\.compound-gpid`** before installing the new version. Skipping this step will leave a stale PATH entry and potentially a stale PowerShell profile block that conflicts with the new install.
-
-Follow the steps below **before** running Step 1 above.
-
-### Step A - Remove the old `$PROFILE` block
-
-Run `install.ps1` from the new location (Step 2) - it will remove the old profile block automatically. If you want to clean it up manually first:
+If `cg-update` fails (e.g. untracked files blocking `git pull`, or local changes in the global clone), use the built-in repair command:
 
 ```powershell
-$p = Get-Content $PROFILE -Raw
-$p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", ""
-Set-Content $PROFILE $p.TrimEnd()
+cg-update --fix
 ```
 
-### Step B - Remove the old `bin\` directory from PATH
+This cleans untracked files, discards local changes, and pulls the latest code.
 
-> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead - it works in all language modes.
+**If `cg-update --fix` itself fails** (e.g. the installed copy is too old to have `--fix`), run the equivalent commands manually:
 
 ```powershell
-$oldBin = "$env:USERPROFILE\.compound-gpid\bin"
-$currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
-    Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
-$newPath = ($currentPath.Trim() -split ';' |
-    Where-Object { $_ -and $_ -ne $oldBin }) -join ';'
-reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
+# Uncomment your install path:
+$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
+# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
+git -C $cg clean -fd
+git -C $cg checkout .
+git -C $cg pull --ff-only
 ```
 
-### Step C - Delete the old clone
+Then run `cg-update` from each linked project to apply any structural migrations.
 
-```powershell
-Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
-```
-
-### Step D — Restart your terminal and IDE
-
-Restart your terminal **and VS Code / Positron** to pick up the PATH change, then proceed with Steps 1–4 above.
+> **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-envuserprofilecompound-gpid-old-default-path--local-onedrive-machines-only) in the Troubleshooting page.
 
 ---
 
