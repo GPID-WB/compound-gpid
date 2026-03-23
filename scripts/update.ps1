@@ -132,7 +132,7 @@ try {
         Write-Host ""
         Write-Host "Current: $modeLabel" -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "  cg-update <version>  -- pin to a specific release" -ForegroundColor DarkGray
+        Write-Host '  cg-update <version>  -- pin to a specific release' -ForegroundColor DarkGray
         Write-Host "  cg-update latest     -- unpin and track main" -ForegroundColor DarkGray
         Write-Host ""
         exit 0
