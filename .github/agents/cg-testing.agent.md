@@ -1,6 +1,8 @@
 ---
 description: "Reviews test coverage, edge cases, test quality, and testing patterns. Trilingual R/Python/Stata."
 model: Claude Haiku 4.5 (copilot)
+tools: ['read', 'search']
+user-invokable: false
 ---
 
 You are a testing specialist for R, Python, and Stata data science projects.
