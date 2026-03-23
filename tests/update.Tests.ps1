@@ -635,30 +635,40 @@ Describe "update.ps1 - .cg-version read" {
             # Validate .cg-version content after reading: guards against manual edits
             # with values like 'main' or 'v1.0' that bypass the CLI argument guard.
             $rawMode = "main"
-            $isInvalid = ($rawMode -ne "latest" -and
-                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
             $isInvalid | Should Be $true
         }
 
         It "rejects a 2-segment tag read from .cg-version" {
             $rawMode = "v1.0"
-            $isInvalid = ($rawMode -ne "latest" -and
-                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
             $isInvalid | Should Be $true
         }
 
         It "accepts a valid 3-segment tag from .cg-version" {
             $rawMode = "v0.2.0"
-            $isInvalid = ($rawMode -ne "latest" -and
-                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
             $isInvalid | Should Be $false
         }
 
         It "accepts a valid 4-segment dev tag from .cg-version" {
             $rawMode = "v0.1.0.9000"
-            $isInvalid = ($rawMode -ne "latest" -and
-                          $rawMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
             $isInvalid | Should Be $false
+        }
+
+        It "rejects a 5-segment tag from .cg-version (too many segments)" {
+            $rawMode = "v1.0.0.0.0"
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $true
+        }
+
+        It "rejects a version with uppercase V (case-sensitive validation)" {
+            # git tag names are case-sensitive; V0.2.0 would fail at checkout
+            # with an unhelpful 'pathspec did not match' error.
+            $rawMode = "V0.2.0"
+            $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
+            $isInvalid | Should Be $true
         }
     }
 }
@@ -1036,7 +1046,10 @@ Describe "update.ps1 - --list formatting" {
 
         It "marks a pinned tag correctly in the mode label" {
             $currentPin = "v0.2.0"
-            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
+            $isDevPin   = $currentPin -ne "latest" -and $currentPin -match '^v\d+\.\d+\.\d+\.\d+$'
+            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
+                          elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
+                          else                           { "$currentPin (pinned)" }
             $modeLabel | Should Be "v0.2.0 (pinned)"
         }
 

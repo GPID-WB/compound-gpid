@@ -56,6 +56,11 @@ $VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 # invisible to users and must never appear in --list, the newer-release hint, or error suggestions.
 $ReleaseTagPattern = '^v\d+\.\d+\.\d+$'
 
+# Regex that accepts all valid version inputs: release tags, dev tags, and 'latest'.
+# Used in the CLI argument guard and the .cg-version format validator.
+# Case-sensitive (-cmatch/-cnotmatch): git tag names are case-sensitive; 'V0.2.0' != 'v0.2.0'.
+$VersionAcceptPattern = '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$'
+
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error @"
@@ -121,7 +126,7 @@ if ($Version) { $Version = $Version.Trim() }
 # Guard against garbage input early with a clear error (after trimming).
 # Accepted: empty/null (read from file), "latest" (unpin), a release tag like
 # "v0.2.0", or a dev tag like "v0.2.0.9000" (4-component, for maintainer testing).
-if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') {
+if ($Version -and $Version -cnotmatch $VersionAcceptPattern) {
     Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0' (or 'v0.2.0.9000' for dev), 'latest', or use --list to browse."
     exit 1
 }
@@ -144,8 +149,9 @@ if ($Version) {
 
 # Validate .cg-version content format (guards against manual edits with garbage values).
 # CLI argument $Version is validated separately above; this catches the file-only path.
-if (-not $Version -and $versionMode -ne "latest" -and
-    $versionMode -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') {
+# Case-sensitive (-cnotmatch): git tag names are case-sensitive; 'V0.2.0' would pass git validation
+# but fail at checkout with an unhelpful 'pathspec did not match' error.
+if (-not $Version -and $versionMode -cnotmatch $VersionAcceptPattern) {
     Write-Error "Malformed .cg-version: '$versionMode'. Expected a tag like 'v0.2.0' or 'latest'. Edit or delete $VersionFile."
     exit 1
 }
@@ -501,6 +507,8 @@ Write-Host ""
 if ($versionMode -eq "latest") {
     Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
 } else {
+    # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
+    # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
     $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
     $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
