@@ -24,13 +24,17 @@
 #   cg-update v0.2.0        -- pin to a specific release
 #   cg-update latest        -- unpin and track main
 #   cg-update --list        -- browse available releases
+#   cg-update --fix         -- repair a broken installation
 
 param(
     # Optional version argument: a tag (e.g. v0.2.0) or "latest" to unpin.
     # If omitted, the preference stored in .cg-version is used (default: latest).
     [string]$Version,
     # Display available releases and exit without updating.
-    [switch]$List
+    [switch]$List,
+    # Repair the installation: clean untracked files, discard local changes,
+    # and pull the latest code. Use when cg-update fails due to dirty state.
+    [switch]$Fix
 )
 
 Set-StrictMode -Version Latest
@@ -66,6 +70,43 @@ See docs/installation.md for setup instructions and path guidance.
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     Write-Error "git is not available. Install Git from https://git-scm.com/download/win"
     exit 1
+}
+
+# --- Handle --fix: repair a broken installation ---
+if ($Fix.IsPresent) {
+    Write-Host ""
+    Write-Host "Repairing compound-gpid installation..." -ForegroundColor Cyan
+    Write-Host "  Install dir: $CompoundGpidDir" -ForegroundColor DarkGray
+    Write-Host ""
+
+    Push-Location $CompoundGpidDir
+    try {
+        # Remove untracked files (e.g. stale .cg-docs left from old project links)
+        Write-Host "  Cleaning untracked files..." -ForegroundColor DarkGray
+        git clean -fd 2>&1 | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+
+        # Discard any local modifications
+        Write-Host "  Discarding local changes..." -ForegroundColor DarkGray
+        git checkout . 2>&1 | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+
+        # Pull the latest code
+        Write-Host "  Pulling latest..." -ForegroundColor DarkGray
+        git pull --ff-only
+        if ($LASTEXITCODE -ne 0) {
+            throw "git pull --ff-only failed with exit code $LASTEXITCODE"
+        }
+
+        Write-Host ""
+        Write-Host "Repair complete." -ForegroundColor Green
+        Write-Host "Run cg-update again to verify." -ForegroundColor DarkGray
+        Write-Host ""
+    } catch {
+        Write-Error "Repair failed: $_"
+        exit 1
+    } finally {
+        Pop-Location
+    }
+    exit 0
 }
 
 # --- Trim and validate the $Version argument ---
