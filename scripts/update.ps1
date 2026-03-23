@@ -431,19 +431,23 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
 
     # --- Migration warning: standalone .cg-docs/ in .gitignore ---
     # Projects configured before v0.1.1 (2026-03-23) may have .cg-docs/ as a
-    # standalone line added by the /cg-setup prompt (Step A5). The CG block
-    # regex in link.ps1 only removes entries inside the managed block, so those
-    # orphaned lines survive cg-link runs. Warn the user so they can remove it
-    # manually.
+    # standalone line added by Step A5 of .github/prompts/cg-setup.prompt.md.
+    # That standalone line lives outside the CG managed block, so the
+    # remove-then-rewrite logic in link.ps1 does not touch it. Warn the user
+    # so they can remove it manually.
     # Intentional: warn on every cg-update run until the user resolves it -- no
     # sentinel needed. A user who misses the first warning will see it again.
     $cwdGitignore = Join-Path $cwdRoot ".gitignore"
     if (Test-Path $cwdGitignore) {
-        $giLines = Get-Content $cwdGitignore -Encoding UTF8
+        # -ErrorAction SilentlyContinue: this is a diagnostics-only path.
+        # A permission error or race condition must never abort the update run.
+        $giLines = Get-Content $cwdGitignore -Encoding UTF8 -ErrorAction SilentlyContinue
         # Match either separator (/ or \) -- git on Windows accepts both.
         # Leading/trailing whitespace is also matched: a padded entry like
         # '  .cg-docs/  ' would not be honoured by git, but we warn anyway
         # (harmless over-warning vs silently skipping).
+        # Note: this regex detects what /cg-setup wrote as a standalone line --
+        # independent of and complementary to link.ps1's block-rewrite pattern.
         $staleCgDocsLines = $giLines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
         if ($staleCgDocsLines) {
             Write-Host ""
