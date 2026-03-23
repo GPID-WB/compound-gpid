@@ -1,8 +1,7 @@
 ---
 date: 2026-03-16
 title: "Add /cg-fixbug prompt — structured bug-fix workflow"
-status: active
-brainstorm: "N/A (spec provided directly)"
+status: completed
 language: "both"
 estimated-effort: "medium"
 tags: [prompt, bug-fix, workflow, compound-docs, learnings]

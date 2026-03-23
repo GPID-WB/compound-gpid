@@ -1,8 +1,7 @@
 ---
 date: 2026-03-18
 title: "Version pinning via cg-update"
-status: active
-brainstorm: ".cg-docs/brainstorms/2026-03-18-version-pinning-via-cg-update.md"
+status: completed
 language: "both"
 estimated-effort: "medium"
 tags: [versioning, releases, cg-update, git-tags, powershell]

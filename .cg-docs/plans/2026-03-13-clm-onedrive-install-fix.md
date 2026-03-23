@@ -1,8 +1,7 @@
 ---
 date: 2026-03-13
 title: "Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install"
-status: active
-brainstorm: ".cg-docs/brainstorms/2026-03-13-clm-onedrive-install-fix.md"
+status: completed
 language: "PowerShell"
 estimated-effort: "medium"
 tags: [install, clm, onedrive, enterprise, powershell, batch-wrappers]

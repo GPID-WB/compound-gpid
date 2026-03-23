@@ -1,8 +1,7 @@
 ---
 date: 2026-03-02
 title: "Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual"
-status: active
-brainstorm: "docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md"
+status: completed
 language: both
 estimated-effort: medium
 tags: [dx, naming, documentation, guardrails]
