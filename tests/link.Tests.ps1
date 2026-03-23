@@ -234,8 +234,8 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     Context "when .gitignore already has all CG entries" {
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
-            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
-            $entries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
+            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $entries = @(".github/prompts/", ".github/skills/")
             $block   = $marker + "`n" + ($entries -join "`n") + "`n"
 
             # First run
@@ -250,30 +250,20 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $after = Get-Content $gi
             ($after | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
             ($after | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
         }
 
-        It "does not orphan .cg-docs/ when block includes both .github/ and .cg-docs/ entries" {
-            $gi      = Join-Path $TestDrive "cg-docs-orphan.gitignore"
-            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
-            # Simulate a .gitignore written by an older cg-link that only had .github/ entries
-            $oldBlock = $marker + "`n.github/prompts/`n.github/skills/`n"
-            Set-Content -Path $gi -Value $oldBlock
-
-            # New run: upgraded block now includes .cg-docs/
-            $newEntries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
-            $newBlock   = $marker + "`n" + ($newEntries -join "`n") + "`n"
-
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
-            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
-            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+        It "does not gitignore .cg-docs/ — it is committed institutional memory" {
+            $gi      = Join-Path $TestDrive "no-cg-docs-gitignore.gitignore"
+            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $block   = $marker + "`n.github/prompts/`n.github/skills/`n"
+            Set-Content -Path $gi -Value $block
 
             $lines = Get-Content $gi
-            # .cg-docs/ must appear exactly once
-            ($lines | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
-            # No orphan .github/ lines outside the block
+            # .cg-docs/ must NOT appear in the CG gitignore block
+            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
+            # Only .github/ entries should be in the block
             ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
         }
     }
 
