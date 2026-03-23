@@ -896,6 +896,12 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
             ($staleCgDocsLines | Measure-Object).Count | Should Be 1
         }
+
+        It "detects .cg-docs/ in mixed case (case-insensitive regex)" {
+            $lines = @(".CG-DOCS/", ".Cg-Docs\\")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 2
+        }
     }
 
     Context "when .cg-docs/ is NOT a standalone line" {
@@ -937,6 +943,14 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
                 ".github/prompts/",
                 ".github/skills/"
             )
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+
+        It "does not match .cg-docs/ with trailing non-whitespace content ($ anchor)" {
+            # Confirms the $ anchor in the regex rejects lines like '.cg-docs/ # note'
+            # which are not valid gitignore patterns written by the tool.
+            $lines = @(".cg-docs/ # note", ".cg-docs/ extra")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
             ($staleCgDocsLines | Measure-Object).Count | Should Be 0
         }

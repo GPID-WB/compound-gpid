@@ -454,7 +454,7 @@ knowledge (brainstorms, plans, solutions) that must be shared with your team.
 
 To fix:
   1. Remove the '.cg-docs/' line from your .gitignore
-  2. Run: git rm -r --cached .cg-docs/
+  2. Run: git rm -r --cached --ignore-unmatch .cg-docs/
   3. Run: git add .cg-docs/
   4. Commit the change
 "@

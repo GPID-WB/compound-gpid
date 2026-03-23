@@ -256,6 +256,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($after | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
             ($after | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
             ($after | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -match "Compound GPID managed items" } | Measure-Object).Count | Should Be 1
         }
 
         It "removes .cg-docs/ from old CG block on upgrade (institutional knowledge must be committed)" {
@@ -302,6 +303,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
             # All expected entries present
             ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
             ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
         }
 
