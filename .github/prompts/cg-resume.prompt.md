@@ -26,9 +26,20 @@ Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
 ### Step 2: Schema Version Check
 
-Read `SCHEMA_VERSION` from the global Compound GPID install at `C:\WBG\.compound-gpid\SCHEMA_VERSION`.
+Locate the global Compound GPID `SCHEMA_VERSION` file. Check these paths in
+order and use the first one that exists:
 
-If the file does not exist, skip this check (old install — will be handled by `cg-update`).
+1. `C:\WBG\.compound-gpid\SCHEMA_VERSION` (local machine with OneDrive)
+2. `$env:USERPROFILE\.compound-gpid\SCHEMA_VERSION` (remote server)
+
+If neither path exists, this is either a very old install or the install
+directory is non-standard. Warn the user:
+
+> ⚠️ **Cannot locate Compound GPID installation.** Expected `SCHEMA_VERSION`
+> at `C:\WBG\.compound-gpid\` or `$env:USERPROFILE\.compound-gpid\`. Run
+> `cg-update` to verify your installation, or re-run `install.ps1`.
+
+Do not silently skip this check.
 
 If it exists, compare the value to `cg-schema-version` in `compound-gpid.local.md`:
 
