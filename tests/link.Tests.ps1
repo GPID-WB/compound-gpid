@@ -304,6 +304,28 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
             ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
         }
+
+        It "preserves user content preceding the CG block (regex safety)" {
+            # Regression guard: the remove-then-rewrite regex must not affect
+            # user lines that appear BEFORE the CG marker block.
+            $gi     = Join-Path $TestDrive "user-content-before-block.gitignore"
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            # Typical layout: user content first, then the CG block
+            $initial = "*.log`n`n" + $marker + "`n.github/prompts/`n"
+            Set-Content -Path $gi -Value $initial
+
+            # Apply remove-then-rewrite
+            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
+            $existing = $existing.TrimEnd()
+            $newBlock = $marker + "`n.github/prompts/`n"
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # User content before the block must survive
+            ($lines | Where-Object { $_ -eq "*.log" } | Measure-Object).Count | Should Be 1
+        }
+
         It "does not delete user content following the CG block (regex safety)" {
             # Regression guard: the remove-then-rewrite regex must not consume user lines
             # that immediately follow the CG block without a blank-line separator.

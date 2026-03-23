@@ -875,6 +875,8 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
     # Tests for the detection logic that fires when .cg-docs/ appears as a
     # standalone line in .gitignore (added by /cg-setup before v0.1.1).
     # The production regex matches either / or \ as the path separator.
+    # NOTE: The regex below is inlined from update.ps1. If the production
+    # pattern changes, update this Describe block to match.
 
     Context "when .cg-docs/ is present as a standalone line" {
         It "detects .cg-docs/ with forward slash" {
@@ -917,10 +919,19 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
             ($staleCgDocsLines | Measure-Object).Count | Should Be 0
         }
 
-        It "does not trigger when .cg-docs/ is inside the CG managed block marker" {
+        It "does not trigger on .cg-docs without trailing slash (slash required by /cg-setup)" {
+            # /cg-setup generates '.cg-docs/' with a trailing slash. The slash-less
+            # form '.cg-docs' is intentionally not matched -- it is not a gitignore
+            # pattern that would have been written by the tool.
+            $lines = @(".cg-docs")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+
+        It "does not trigger on the CG managed block marker line itself (no .cg-docs/ in block after v0.1.1)" {
             # The managed block is rewritten by link.ps1 and no longer contains
-            # .cg-docs/ after v0.1.1. This test guards against future regressions
-            # where the block marker line might accidentally match.
+            # .cg-docs/ after v0.1.1. This test guards that the 3-line block
+            # containing only .github/ entries produces zero matches.
             $lines = @(
                 "# Compound GPID managed items (junctions + copied file - do not commit)",
                 ".github/prompts/",

@@ -440,7 +440,10 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
     $cwdGitignore = Join-Path $cwdRoot ".gitignore"
     if (Test-Path $cwdGitignore) {
         $giLines = Get-Content $cwdGitignore -Encoding UTF8
-        # Match either separator (/ or \) -- git on Windows accepts both
+        # Match either separator (/ or \) -- git on Windows accepts both.
+        # Leading/trailing whitespace is also matched: a padded entry like
+        # '  .cg-docs/  ' would not be honoured by git, but we warn anyway
+        # (harmless over-warning vs silently skipping).
         $staleCgDocsLines = $giLines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
         if ($staleCgDocsLines) {
             Write-Host ""
