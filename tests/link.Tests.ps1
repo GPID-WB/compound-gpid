@@ -222,7 +222,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     Context "when .gitignore exists with unrelated content" {
         It "appends CG entries without disturbing existing lines" {
             $gi = Join-Path $TestDrive "existing-gi.gitignore"
-            Set-Content -Path $gi -Value "*.log`n*.tmp"
+            Set-Content -Path $gi -Value @("*.log", "*.tmp")
             Add-Content -Path $gi -Value ".github/prompts/"
 
             $content = Get-Content $gi -Raw
@@ -232,47 +232,160 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     }
 
     Context "when .gitignore already has all CG entries" {
+        # The remove-then-rewrite logic is inlined from link.ps1 for test isolation.
+        # $RemoveCgBlockPattern and $NormGitignore replicate it here:
+        #   1. Normalize content to end with \n (handles manual edits that strip trailing newlines)
+        #   2. Remove any existing CG block
+        #   3. TrimEnd() to remove trailing whitespace before appending separator + new block
+        # If the production logic in link.ps1 changes, update this Context accordingly.
+        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*"
+        $NormGitignore = { param([string]$c) if ($c -and $c -notmatch '\r?\n$') { $c + "`n" } else { $c } }
+
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
-            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
-            $entries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
+            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/copilot-instructions.md")
             $block   = $marker + "`n" + ($entries -join "`n") + "`n"
 
             # First run
             Set-Content -Path $gi -Value $block
 
             # Second run: remove-then-rewrite with broadened regex that matches any non-empty body line
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $block)
 
             $after = Get-Content $gi
-            ($after | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -match "Compound GPID managed items" } | Measure-Object).Count | Should Be 1
         }
 
-        It "does not orphan .cg-docs/ when block includes both .github/ and .cg-docs/ entries" {
-            $gi      = Join-Path $TestDrive "cg-docs-orphan.gitignore"
-            $marker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
-            # Simulate a .gitignore written by an older cg-link that only had .github/ entries
-            $oldBlock = $marker + "`n.github/prompts/`n.github/skills/`n"
+        It "removes .cg-docs/ from old CG block on upgrade (institutional knowledge must be committed)" {
+            # Simulate a .gitignore written by an OLD cg-link that gitignored .cg-docs/
+            $gi      = Join-Path $TestDrive "upgrade-gi.gitignore"
+            $oldMarker  = "# Compound GPID managed items (junctions + copied file + knowledge base - do not commit)"
+            $oldBlock   = $oldMarker + "`n.github/prompts/`n.github/skills/`n.cg-docs/`n"
             Set-Content -Path $gi -Value $oldBlock
 
-            # New run: upgraded block now includes .cg-docs/
-            $newEntries = @(".github/prompts/", ".github/skills/", ".cg-docs/")
-            $newBlock   = $marker + "`n" + ($newEntries -join "`n") + "`n"
+            # Apply the remove-then-rewrite logic from link.ps1 with the NEW (narrower) block
+            $newMarker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $newEntries = @(".github/prompts/", ".github/skills/")
+            $newBlock   = $newMarker + "`n" + ($newEntries -join "`n") + "`n"
 
-            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
-            $existing = $existing.TrimEnd()
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
             $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
             Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
 
             $lines = Get-Content $gi
-            # .cg-docs/ must appear exactly once
-            ($lines | Where-Object { $_ -eq ".cg-docs/"        } | Measure-Object).Count | Should Be 1
-            # No orphan .github/ lines outside the block
+            # .cg-docs/ must be gone after upgrade
+            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
+            # Active entries survive exactly once
+            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does not gitignore .cg-docs/ -- it is committed institutional memory" {
+            # Apply the remove-then-rewrite logic from link.ps1 with the current
+            # entry set (no .cg-docs/), starting from a clean pre-existing file.
+            $gi      = Join-Path $TestDrive "no-cg-docs-gitignore.gitignore"
+            $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/copilot-instructions.md")
+            Set-Content -Path $gi -Value "*.log"
+
+            $newBlock = $marker + "`n" + ($entries -join "`n") + "`n"
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # .cg-docs/ must NOT appear after a fresh link run
+            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
+            # All expected entries present
+            ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
+        }
+
+        It "preserves user content preceding the CG block (regex safety)" {
+            # Regression guard: the remove-then-rewrite regex must not affect
+            # user lines that appear BEFORE the CG marker block.
+            $gi     = Join-Path $TestDrive "user-content-before-block.gitignore"
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            # Typical layout: user content first, then the CG block
+            $initial = "*.log`n`n" + $marker + "`n.github/prompts/`n"
+            Set-Content -Path $gi -Value $initial
+
+            # Apply remove-then-rewrite
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
+            $newBlock = $marker + "`n.github/prompts/`n"
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # User content before the block must survive
+            ($lines | Where-Object { $_ -eq "*.log" } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does not delete user content following the CG block (regex safety)" {
+            # Regression guard: the remove-then-rewrite regex must not consume user lines
+            # that immediately follow the CG block without a blank-line separator.
+            $gi     = Join-Path $TestDrive "user-content-after-block.gitignore"
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            # No blank line between CG block and user content -- worst-case layout
+            $initial = $marker + "`n.github/prompts/`n*.pyc"
+            Set-Content -Path $gi -Value $initial
+
+            # Apply remove-then-rewrite
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
+            $newBlock = $marker + "`n.github/prompts/`n"
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # User content must survive the rewrite
+            ($lines | Where-Object { $_ -eq "*.pyc" } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does not leave orphaned entries when CG block has no trailing newline (EOF edge case)" {
+            # Regression guard: a .gitignore manually edited to remove the trailing newline
+            # after the last CG entry must still be fully cleaned up on the next cg-link run.
+            # link.ps1 normalizes the content before applying the regex, so this must pass.
+            $gi     = Join-Path $TestDrive "cg-block-at-eof-no-newline.gitignore"
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            # Write block WITHOUT trailing newline (-NoNewline) to simulate manual edit
+            Set-Content -Path $gi -Value ($marker + "`n.github/prompts/`n.github/skills/") -NoNewline
+
+            $newMarker  = $marker
+            $newEntries = @(".github/prompts/")
+            $newBlock   = $newMarker + "`n" + ($newEntries -join "`n") + "`n"
+
+            # Apply normalization + remove-then-rewrite (as link.ps1 does)
+            $raw      = Get-Content $gi -Raw
+            $raw      = & $NormGitignore $raw
+            $existing = ($raw -replace $RemoveCgBlockPattern, "").TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
+
+            $lines = Get-Content $gi
+            # The old last entry (.github/skills/) must NOT appear as an orphan
+            ($lines | Where-Object { $_ -eq ".github/skills/" } | Measure-Object).Count | Should Be 0
+            # The new entry must be present
             ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
         }
     }

@@ -48,7 +48,7 @@ Replace every `docs/brainstorms`, `docs/plans`, `docs/solutions` reference with 
   - Change `docs/` scaffolding (Steps A4, B1.5) to `.cg-docs/` scaffolding.
   - Update file permissions section: replace `docs/` with `.cg-docs/`.
   - Add `.Rbuildignore` step: after scaffolding `.cg-docs/`, if the user selected "package" project type AND the language is R or both, add `^\.cg-docs$` to `.Rbuildignore` (create the file if needed).
-  - Update `.gitignore` step: add `.cg-docs/` entry.
+  - Update `.gitignore` step: ~~add `.cg-docs/` entry~~ — do NOT add `.cg-docs/` (see Step 12, cancelled 2026-03-23).
   - In Mode B (returning project), scan `.cg-docs/` instead of `docs/` for existing work.
 - **Acceptance criteria**: New projects get `.cg-docs/` scaffolded. R package projects get `.Rbuildignore` entry. Returning projects scan `.cg-docs/`.
 
@@ -131,11 +131,9 @@ Replace every `docs/brainstorms`, `docs/plans`, `docs/solutions` reference with 
 - **Note**: This step also feeds Step 15 — `/cg-resume` reads `cg-schema-version` from local config and compares to the global `SCHEMA_VERSION` to warn the user if their project needs a structural migration.
 - **Acceptance criteria**: `SCHEMA_VERSION` file exists in repo root. After `cg-update`, each project's `compound-gpid.local.md` contains `cg-schema-version`. Schema version matches between SCHEMA_VERSION and local config after migration.
 
-### 12. Add .cg-docs/ to .gitignore entries in link.ps1
+### 12. ~~Add .cg-docs/ to .gitignore entries in link.ps1~~ (CANCELLED)
 
-- **File**: `scripts/link.ps1`
-- **Details**: Add `.cg-docs/` to the `$cgGitignoreEntries` array so it gets gitignored when linking a project. This prevents CG-managed docs from being accidentally committed.
-- **Acceptance criteria**: After `cg-link`, `.gitignore` includes `.cg-docs/`.
+**Cancelled (2026-03-23)**: `.cg-docs/` should NOT be gitignored. It contains institutional knowledge (brainstorms, plans, solutions) that must be committed and shared across the team. Only `compound-gpid.local.md` (per-user config) is gitignored. See `.cg-docs/plans/2026-03-23-fix-cg-docs-gitignore.md` for context.
 
 ### 13. Add Pester tests for migration logic
 

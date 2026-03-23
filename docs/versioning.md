@@ -192,4 +192,56 @@ If missing or corrupted, delete it and run `cg-update` — it defaults to `lates
 
 ---
 
+## Dev tags (maintainer-only)
+
+Dev tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<DEV>` where DEV starts at 9000 (e.g. `v0.1.0.9000`, `v0.1.0.9001`). They are used to test a pre-release commit end-to-end via `cg-update` **before** merging to `main` and cutting an official release.
+
+**Dev tags are invisible to regular users:**
+
+- `cg-update --list` shows only 3-component release tags.
+- The "Newer release available" hint is never triggered by a dev tag.
+- `cg-update` (bare) and `cg-update latest` pull `main` and are unaware of any tags.
+
+### Creating a dev tag
+
+Use the `/cg-devtag` prompt in Copilot Chat — it auto-increments from the latest dev tag for the current base version, confirms with you, and pushes:
+
+```
+/cg-devtag
+```
+
+Or manually:
+
+```powershell
+git tag v0.1.0.9000
+git push origin v0.1.0.9000
+```
+
+### Testing with a dev tag
+
+From any linked project:
+
+```powershell
+cg-update v0.1.0.9000
+```
+
+This checks out the tagged commit in the global clone. All linked projects immediately see the new code via junctions.
+
+### Cleaning up
+
+After testing, delete the dev tag locally and from the remote:
+
+```powershell
+git tag -d v0.1.0.9000
+git push origin --delete v0.1.0.9000
+```
+
+Then return to your normal mode:
+
+```powershell
+cg-update latest     # or cg-update v0.1.0 to pin back to the last release
+```
+
+---
+
 > **See also**: [Reference → Version Management](reference.md#version-management) for a quick command table. [Troubleshooting](troubleshooting.md) for known issues.

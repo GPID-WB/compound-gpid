@@ -135,8 +135,6 @@ Check if `.gitignore` exists. If it does not, create it. Append the following li
 ```gitignore
 # Compound GPID local config (user-specific, never commit)
 compound-gpid.local.md
-# Compound GPID knowledge base (local thinking artifacts, typically not committed)
-.cg-docs/
 ```
 
 #### A6. Print Setup Complete

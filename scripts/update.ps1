@@ -51,6 +51,16 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 # Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
 $VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 
+# Regex that matches 3-component release tags only (e.g. v0.2.0).
+# Dev tags (4-component, e.g. v0.2.0.9000) are intentionally excluded -- they are
+# invisible to users and must never appear in --list, the newer-release hint, or error suggestions.
+$ReleaseTagPattern = '^v\d+\.\d+\.\d+$'
+
+# Regex that accepts all valid version inputs: release tags, dev tags, and 'latest'.
+# Used in the CLI argument guard and the .cg-version format validator.
+# Case-sensitive (-cmatch/-cnotmatch): git tag names are case-sensitive; 'V0.2.0' != 'v0.2.0'.
+$VersionAcceptPattern = '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$'
+
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error @"
@@ -114,9 +124,10 @@ if ($Fix.IsPresent) {
 if ($Version) { $Version = $Version.Trim() }
 
 # Guard against garbage input early with a clear error (after trimming).
-# Accepted: empty/null (read from file), "latest" (unpin), or a tag like "v0.2.0".
-if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') {
-    Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0', 'latest', or use --list to browse."
+# Accepted: empty/null (read from file), "latest" (unpin), a release tag like
+# "v0.2.0", or a dev tag like "v0.2.0.9000" (4-component, for maintainer testing).
+if ($Version -and $Version -cnotmatch $VersionAcceptPattern) {
+    Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0' (or 'v0.2.0.9000' for dev), 'latest', or use --list to browse."
     exit 1
 }
 
@@ -136,6 +147,15 @@ if ($Version) {
     $versionMode = "latest"
 }
 
+# Validate .cg-version content format (guards against manual edits with garbage values).
+# CLI argument $Version is validated separately above; this catches the file-only path.
+# Case-sensitive (-cnotmatch): git tag names are case-sensitive; 'V0.2.0' would pass git validation
+# but fail at checkout with an unhelpful 'pathspec did not match' error.
+if (-not $Version -and $versionMode -cnotmatch $VersionAcceptPattern) {
+    Write-Error "Malformed .cg-version: '$versionMode'. Expected a tag like 'v0.2.0' or 'latest'. Edit or delete $VersionFile."
+    exit 1
+}
+
 # Captured inside the pinned-mode branch; used at the end for the "newer release" hint.
 $latestTag = $null
 
@@ -152,16 +172,26 @@ try {
         }
 
         $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        # Only show 3-component release tags to users; dev tags (4-component) are
+        # a maintainer-only escape hatch and must never appear in normal output.
+        $releaseTags = @($tags | Where-Object { $_ -match $ReleaseTagPattern })
 
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
 
-        if ($currentPin -eq "latest") { $modeLabel = "main (latest)" } else { $modeLabel = "$currentPin (pinned)" }
+        $isDevPin = $currentPin -ne "latest" -and $currentPin -match '^v\d+\.\d+\.\d+\.\d+$'
+        if ($currentPin -eq "latest") {
+            $modeLabel = "main (latest)"
+        } elseif ($isDevPin) {
+            $modeLabel = "$currentPin (dev -- not listed above)"
+        } else {
+            $modeLabel = "$currentPin (pinned)"
+        }
 
         Write-Host ""
         Write-Host "Available releases:" -ForegroundColor Cyan
-        if ($tags) {
-            foreach ($tag in $tags) {
+        if ($releaseTags) {
+            foreach ($tag in $releaseTags) {
                 if ($tag -eq $currentPin) { $marker = '  <-- current' } else { $marker = '' }
                 Write-Host "  $tag$marker"
             }
@@ -265,14 +295,17 @@ try {
             Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
         }
 
-        # Capture all tags once; derive both latestTag and tagExists from the same list.
-        $allTags   = @(git tag --list "v*" --sort=-version:refname 2>$null)
-        $latestTag = $allTags | Select-Object -First 1
+        # Capture all tags once; derive latestTag, tagExists, and similar from the same list.
+        $allTags     = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        # Filter to release-only once; reuse for latestTag and similar -- never show dev tags to users.
+        $releaseTags = @($allTags | Where-Object { $_ -match $ReleaseTagPattern })
+        $latestTag   = $releaseTags | Select-Object -First 1
 
         # Validate the tag exists before attempting checkout or persisting preference.
         $tagExists = $versionMode -in $allTags
         if (-not $tagExists) {
-            $similar = $allTags | Select-Object -First 5
+            # Only show release tags in the suggestion -- never expose dev tags.
+            $similar = $releaseTags | Select-Object -First 5
             if ($similar) {
                 $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
             } else { $hint = "" }
@@ -428,6 +461,44 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
             Write-Host "Schema version stamped: $currentSchema" -ForegroundColor DarkGray
         }
     }
+
+    # --- Migration warning: standalone .cg-docs/ in .gitignore ---
+    # Projects configured before v0.1.1 (2026-03-23) may have .cg-docs/ as a
+    # standalone line added by the pre-v0.1.1 version of Step A5 in
+    # .github/prompts/cg-setup.prompt.md (that step was changed in v0.1.1 to
+    # stop gitignoring .cg-docs/). The standalone line lives outside the CG
+    # managed block, so the
+    # remove-then-rewrite logic in link.ps1 does not touch it. Warn the user
+    # so they can remove it manually.
+    # Intentional: warn on every cg-update run until the user resolves it -- no
+    # sentinel needed. A user who misses the first warning will see it again.
+    $cwdGitignore = Join-Path $cwdRoot ".gitignore"
+    if (Test-Path $cwdGitignore) {
+        # -ErrorAction SilentlyContinue: this is a diagnostics-only path.
+        # A permission error or race condition must never abort the update run.
+        $giLines = Get-Content $cwdGitignore -ErrorAction SilentlyContinue
+        # Match either separator (/ or \) -- git on Windows accepts both.
+        # Leading/trailing whitespace is also matched: a padded entry like
+        # '  .cg-docs/  ' would not be honoured by git, but we warn anyway
+        # (harmless over-warning vs silently skipping).
+        # Note: this regex detects what /cg-setup wrote as a standalone line --
+        # independent of and complementary to link.ps1's block-rewrite pattern.
+        $staleCgDocsLines = $giLines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+        if ($staleCgDocsLines) {
+            Write-Host ""
+            Write-Warning @"
+Your .gitignore contains a standalone '.cg-docs/' entry from versions prior to
+v0.1.1 (2026-03-23). .cg-docs/ should be committed -- it contains institutional
+knowledge (brainstorms, plans, solutions) that must be shared with your team.
+
+To fix:
+  1. Remove the '.cg-docs/' line from your .gitignore
+  2. Run: git rm -r --cached --ignore-unmatch .cg-docs/
+  3. Run: git add .cg-docs/
+  4. Commit the change
+"@
+        }
+    }
 }
 
 # --- Version status display ---
@@ -436,7 +507,11 @@ Write-Host ""
 if ($versionMode -eq "latest") {
     Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
 } else {
-    Write-Host "Current version: $versionMode (pinned)" -ForegroundColor DarkGray
+    # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
+    # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
+    $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
+    $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+    Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
     # Hint when a newer release is available (only if we have fresh tag data)
     if ($latestTag -and $latestTag -ne $versionMode) {
