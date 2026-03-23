@@ -48,7 +48,7 @@ Replace every `docs/brainstorms`, `docs/plans`, `docs/solutions` reference with 
   - Change `docs/` scaffolding (Steps A4, B1.5) to `.cg-docs/` scaffolding.
   - Update file permissions section: replace `docs/` with `.cg-docs/`.
   - Add `.Rbuildignore` step: after scaffolding `.cg-docs/`, if the user selected "package" project type AND the language is R or both, add `^\.cg-docs$` to `.Rbuildignore` (create the file if needed).
-  - Update `.gitignore` step: add `.cg-docs/` entry.
+  - Update `.gitignore` step: ~~add `.cg-docs/` entry~~ — do NOT add `.cg-docs/` (see Step 12, cancelled 2026-03-23).
   - In Mode B (returning project), scan `.cg-docs/` instead of `docs/` for existing work.
 - **Acceptance criteria**: New projects get `.cg-docs/` scaffolded. R package projects get `.Rbuildignore` entry. Returning projects scan `.cg-docs/`.
 

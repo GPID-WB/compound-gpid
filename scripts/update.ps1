@@ -428,6 +428,31 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
             Write-Host "Schema version stamped: $currentSchema" -ForegroundColor DarkGray
         }
     }
+
+    # --- Migration warning: standalone .cg-docs/ in .gitignore ---
+    # Projects configured before v0.1.1 may have .cg-docs/ as a standalone line
+    # added by the /cg-setup prompt (Step A5). The CG block regex in link.ps1 only
+    # removes entries inside the managed block, so those orphaned lines survive
+    # cg-link runs. Warn the user so they can remove it manually.
+    $cwdGitignore = Join-Path $cwdRoot ".gitignore"
+    if (Test-Path $cwdGitignore) {
+        $giLines = Get-Content $cwdGitignore -ErrorAction SilentlyContinue
+        $hasStaleCgDocs = $giLines | Where-Object { $_.Trim() -eq ".cg-docs/" }
+        if ($hasStaleCgDocs) {
+            Write-Host ""
+            Write-Warning @"
+Your .gitignore contains a standalone '.cg-docs/' entry from an older setup.
+.cg-docs/ should be committed -- it contains institutional knowledge (brainstorms,
+plans, solutions) that must be shared with your team.
+
+To fix:
+  1. Remove the '.cg-docs/' line from your .gitignore
+  2. Run: git rm -r --cached .cg-docs/
+  3. Run: git add .cg-docs/
+  4. Commit the change
+"@
+        }
+    }
 }
 
 # --- Version status display ---

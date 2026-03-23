@@ -27,7 +27,7 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
    instantly visible in every linked project — no per-project update step required.
 
 4. **Per-project config**: Running `/cg-setup` in Copilot Chat creates `compound-gpid.local.md`
-   with language, project type, and review depth preferences, and scaffolds the `docs/` structure.
+   with language, project type, and review depth preferences, and scaffolds the `.cg-docs/` structure.
 
 ### Key path conventions
 
@@ -36,7 +36,7 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 | `C:\WBG\.compound-gpid` | Global clone of this repo |
 | `<project>/.github` | Junction pointing to `C:\WBG\.compound-gpid\.github` |
 | `<project>/compound-gpid.local.md` | Project-specific config (gitignored) |
-| `<project>/docs/` | Brainstorms, plans, and captured solutions |
+| `<project>/.cg-docs/` | Brainstorms, plans, and captured solutions |
 
 ## Process
 
@@ -110,12 +110,12 @@ Check if `compound-gpid.local.md` is in `.gitignore`. If not, add it:
 compound-gpid.local.md
 ```
 
-### Step 5: Create docs/ Structure
+### Step 5: Create .cg-docs/ Structure
 
-If the `docs/` directory doesn't exist, create the full structure:
+If the `.cg-docs/` directory doesn't exist, create the full structure:
 
 ```
-docs/
+.cg-docs/
 ├── brainstorms/
 │   └── .gitkeep
 ├── plans/

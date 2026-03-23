@@ -1,7 +1,7 @@
 ---
 date: 2026-03-23
 title: "Stop gitignoring .cg-docs/ — institutional knowledge must be committed"
-status: active
+status: completed
 brainstorm: ~
 language: "both"
 estimated-effort: "small"
