@@ -348,7 +348,7 @@ Describe "update.ps1 - docs to .cg-docs migration" {
             $root = Join-Path $TestDrive "migrate-idempotent"
             New-Item -ItemType Directory -Path "$root\.cg-docs\brainstorms" -Force | Out-Null
             New-Item -ItemType File -Path "$root\.cg-docs\brainstorms\note.md" -Force | Out-Null
-            # docs/brainstorms does not exist — nothing to migrate
+            # docs/brainstorms does not exist -- nothing to migrate
 
             $src = "$root\docs\brainstorms"
             $dst = "$root\.cg-docs\brainstorms"
@@ -457,7 +457,7 @@ Describe "update.ps1 - docs to .cg-docs migration" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — argument parsing
+# Version pinning -- argument parsing
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - argument parsing" {
@@ -542,7 +542,7 @@ Describe "update.ps1 - argument parsing" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — .cg-version read / write
+# Version pinning -- .cg-version read / write
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - .cg-version read" {
@@ -696,7 +696,7 @@ Describe "update.ps1 - .cg-version write" {
             $versionFile = Join-Path $TestDrive "cv-bad-tag.txt"
             Set-Content -Path $versionFile -Value "v0.1.0" -NoNewline
 
-            # Simulate pinned branch: tag validation fails — throw before Set-Content
+            # Simulate pinned branch: tag validation fails -- throw before Set-Content
             $versionMode = "v9.9.9"
             $allTags     = @("v0.2.0", "v0.1.0")
             $wrote       = $false
@@ -704,7 +704,7 @@ Describe "update.ps1 - .cg-version write" {
                 if ($versionMode -notin $allTags) {
                     throw "Release '$versionMode' not found."
                 }
-                # If we get here, checkout succeeded — write preference
+                # If we get here, checkout succeeded -- write preference
                 Set-Content -Path $versionFile -Value $versionMode -NoNewline
                 $wrote = $true
             } catch { <# expected #> }
@@ -716,7 +716,7 @@ Describe "update.ps1 - .cg-version write" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — detached HEAD detection (latest mode)
+# Version pinning -- detached HEAD detection (latest mode)
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - detached HEAD detection" {
@@ -767,7 +767,7 @@ Describe "update.ps1 - detached HEAD detection" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — tag validation (pinned mode)
+# Version pinning -- tag validation (pinned mode)
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - tag validation" {
@@ -826,7 +826,7 @@ Describe "update.ps1 - tag validation" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — PS5.1 safe checkout pattern (pinned mode)
+# Version pinning -- PS5.1 safe checkout pattern (pinned mode)
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - PS5.1-safe checkout" {
@@ -868,7 +868,7 @@ Describe "update.ps1 - PS5.1-safe checkout" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — --list output formatting
+# Version pinning -- --list output formatting
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - --list formatting" {
@@ -908,7 +908,7 @@ Describe "update.ps1 - --list formatting" {
 }
 
 # ---------------------------------------------------------------------------
-# Version pinning — version status display
+# Version pinning -- version status display
 # ---------------------------------------------------------------------------
 
 Describe "update.ps1 - version status display" {

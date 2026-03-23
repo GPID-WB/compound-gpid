@@ -82,7 +82,7 @@ if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') {
 # --- Resolve version mode ---
 # User-supplied argument takes priority; fall back to .cg-version; default to latest.
 # NOTE: The file write (Set-Content) is intentionally deferred to after successful
-# tag validation and checkout in the pinned-mode branch — never written on error.
+# tag validation and checkout in the pinned-mode branch -- never written on error.
 if ($Version) {
     $versionMode = $Version
 } elseif (Test-Path $VersionFile) {
@@ -91,7 +91,7 @@ if ($Version) {
     $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
     if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
 } else {
-    # .cg-version absent — backward compat with pre-versioning installs
+    # .cg-version absent -- backward compat with pre-versioning installs
     $versionMode = "latest"
 }
 
@@ -105,9 +105,9 @@ try {
     if ($List.IsPresent) {
         Write-Host ""
         Write-Host "Fetching available releases..." -ForegroundColor Cyan
-        try { git fetch --tags 2>$null } catch { <# informational stderr — ignore #> }
+        try { git fetch --tags 2>$null } catch { <# informational stderr -- ignore #> }
         if ($LASTEXITCODE -ne 0) {
-            Write-Warning "git fetch --tags failed (exit $LASTEXITCODE) — showing cached tag data. Check your network connection."
+            Write-Warning "git fetch --tags failed (exit $LASTEXITCODE) -- showing cached tag data. Check your network connection."
         }
 
         $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
@@ -164,7 +164,7 @@ try {
         }
         if ($headBranch -eq "HEAD") {
             Write-Host "Switching from pinned version back to main..." -ForegroundColor DarkGray
-            try { git checkout main 2>$null } catch { <# informational stderr — ignore #> }
+            try { git checkout main 2>$null } catch { <# informational stderr -- ignore #> }
             if ($LASTEXITCODE -ne 0) {
                 throw "git checkout main failed with exit code $LASTEXITCODE"
             }
@@ -183,7 +183,7 @@ try {
         # terminating error even with 2>$null in some host configurations. Wrapping
         # in try/catch makes this bullet-proof: we never want a best-effort cleanup
         # step to abort the update. LASTEXITCODE is still checked for real failures.
-        try { git checkout . 2>$null } catch { <# informational stderr — ignore #> }
+        try { git checkout . 2>$null } catch { <# informational stderr -- ignore #> }
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
         }
@@ -219,7 +219,7 @@ try {
 
         # Fetch tags first so tag metadata is current before validation.
         # Fault-tolerant: network failure just means we work with cached tag data.
-        try { git fetch --tags 2>$null } catch { <# informational stderr — ignore #> }
+        try { git fetch --tags 2>$null } catch { <# informational stderr -- ignore #> }
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
         }
@@ -240,7 +240,7 @@ try {
 
         # Checkout the tag. Detached HEAD is expected and normal for pinned mode.
         # Use the PS5.1-safe try/catch + 2>$null pattern to avoid stderr promotion.
-        try { git checkout $versionMode 2>$null } catch { <# informational stderr — ignore #> }
+        try { git checkout $versionMode 2>$null } catch { <# informational stderr -- ignore #> }
         if ($LASTEXITCODE -ne 0) {
             throw "git checkout $versionMode failed with exit code $LASTEXITCODE"
         }
@@ -288,7 +288,7 @@ if (-not $env:CG_INTERNAL_CALL -and
 }
 
 Write-Host ""
-# --- Structural migration: docs/ → .cg-docs/ ---
+# --- Structural migration: docs/ -> .cg-docs/ ---
 # Applies only when run from a linked project. Migrates docs/brainstorms/,
 # docs/plans/, docs/solutions/ to .cg-docs/ if they still exist at the old path.
 # Idempotent: safe to run multiple times across multiple projects.
@@ -309,12 +309,12 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
             }
 
             if (-not (Test-Path $newPath)) {
-                # Simple case: target doesn't exist — just move
+                # Simple case: target doesn't exist -- just move
                 Move-Item -Path $oldPath -Destination $newPath
                 $migrated += $dir
-                Write-Host "  Migrated: docs/$dir/ → .cg-docs/$dir/" -ForegroundColor DarkGray
+                Write-Host "  Migrated: docs/$dir/ -> .cg-docs/$dir/" -ForegroundColor DarkGray
             } else {
-                # Target already exists — merge file by file, skip conflicts
+                # Target already exists -- merge file by file, skip conflicts
                 $conflicts = 0
                 Get-ChildItem -Path $oldPath -Recurse -File | ForEach-Object {
                     $rel  = $_.FullName.Substring($oldPath.Length + 1)
@@ -336,9 +336,9 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
                 }
                 $migrated += $dir
                 if ($conflicts -gt 0) {
-                    Write-Host "  Merged: docs/$dir/ → .cg-docs/$dir/ ($conflicts files skipped - already exist)" -ForegroundColor Yellow
+                    Write-Host "  Merged: docs/$dir/ -> .cg-docs/$dir/ ($conflicts files skipped - already exist)" -ForegroundColor Yellow
                 } else {
-                    Write-Host "  Migrated: docs/$dir/ → .cg-docs/$dir/" -ForegroundColor DarkGray
+                    Write-Host "  Migrated: docs/$dir/ -> .cg-docs/$dir/" -ForegroundColor DarkGray
                 }
             }
         }

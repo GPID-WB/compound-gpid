@@ -5,7 +5,7 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 #
 # Scope: parameter binding, input validation, and output format logic.
-# Real HTTP calls to GitHub are NOT made — tests cover local logic only.
+# Real HTTP calls to GitHub are NOT made -- tests cover local logic only.
 
 # ---------------------------------------------------------------------------
 # Tag format validation
@@ -93,7 +93,7 @@ Describe "create-release.ps1 - NotesFile validation" {
 Describe "create-release.ps1 - switch parameter semantics" {
     # PowerShell switch parameters: when specified, IsPresent = $true; when omitted,
     # PowerShell binds them as [switch]$false (not null). Always test via .IsPresent,
-    # never via magic strings — string-simulated tests pass for the wrong reasons.
+    # never via magic strings -- string-simulated tests pass for the wrong reasons.
 
     Context "-Draft switch" {
         It "Draft.IsPresent is true when switch is specified" {
@@ -263,7 +263,7 @@ Describe "create-release.ps1 - release-result.txt output format" {
 
 # ---------------------------------------------------------------------------
 # Integration: invoke actual script for locally-testable failure cases
-# (no HTTP calls — tests only reach the validation stage)
+# (no HTTP calls -- tests only reach the validation stage)
 # ---------------------------------------------------------------------------
 
 Describe "create-release.ps1 - parameter validation (integration)" {

@@ -4,7 +4,7 @@ Creates a GitHub Release for GPID-WB/compound-gpid via the GitHub API.
 
 .DESCRIPTION
 Creates a release for the specified git tag with optional draft/prerelease flags.
-Retrieves credentials from Git Credential Manager (idempotent — skips if release exists).
+Retrieves credentials from Git Credential Manager (idempotent -- skips if release exists).
 Writes release metadata to release-result.txt next to this script.
 
 .PARAMETER Tag
@@ -30,8 +30,8 @@ If present, marks the release as a prerelease.
 
 .NOTES
 Output format in release-result.txt (written next to this script):
-  EXISTS|<id>|<url>   — release already existed
-  CREATED|<id>|<url>  — release was created
+  EXISTS|<id>|<url>   -- release already existed
+  CREATED|<id>|<url>  -- release was created
 #>
 [CmdletBinding()]
 param(
@@ -60,7 +60,7 @@ if (-not (Test-Path $NotesFile)) {
     Write-Error "Notes file not found: $NotesFile"
     exit 1
 }
-# Read notes and force to a plain string — Get-Content attaches PS extended type
+# Read notes and force to a plain string -- Get-Content attaches PS extended type
 # metadata (PSPath, PSDrive, etc.) to its output. ConvertTo-Json serializes those
 # as object properties, corrupting the JSON body. String interpolation strips them.
 # Use -Encoding UTF8 so multi-byte characters aren't misread as Windows-1252.
@@ -92,7 +92,7 @@ $existingRelease = $null
 try {
     $existingRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases/tags/$Tag" -Headers $headers
 } catch {
-    # Only a 404 means "release doesn't exist" — re-throw all other HTTP errors
+    # Only a 404 means "release doesn't exist" -- re-throw all other HTTP errors
     # Note: ?. is PS7+ only; use if/else for PS5.1 compatibility
     if ($_.Exception.Response) { $status = $_.Exception.Response.StatusCode.value__ } else { $status = $null }
     if ($null -eq $status -or $status -ne 404) { throw }
@@ -116,7 +116,7 @@ $payload = ConvertTo-Json -InputObject @{
     prerelease = $Prerelease.IsPresent
 }
 
-# ConvertTo-Json escapes all non-ASCII as \uXXXX, so $payload is pure ASCII —
+# ConvertTo-Json escapes all non-ASCII as \uXXXX, so $payload is pure ASCII --
 # safe to pass as a string directly. The ETS issue is on $notes (fixed above),
 # not on the serialized JSON string itself.
 $response = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases" `

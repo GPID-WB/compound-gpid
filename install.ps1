@@ -158,7 +158,7 @@ Write-Host "  Registered: cg-link, cg-unlink, cg-update" -ForegroundColor DarkGr
 # Step 4: Initialize .cg-version
 # -----------------------------------------------------------------------
 # Stores the user's version preference ("latest" or a tag like "v0.2.0").
-# Created on first install only — upgrade runs leave the existing value
+# Created on first install only -- upgrade runs leave the existing value
 # untouched so the user's pinned version is preserved.
 Write-Host "Initializing version preference..." -ForegroundColor DarkGray
 $versionFile = Join-Path $CompoundGpidDir ".cg-version"
