@@ -76,7 +76,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-skill-r-technical` | **Infrastructure & packages**: `collapse`, `data.table`, `testthat`, roxygen2, `renv`/`pak`, package dev, `plumber`, `shiny`, `targets`, `httr2`. Preference hierarchy: collapse > data.table > tidyverse. |
 | `cg-skill-r-analytical` | **Analysis patterns**: `collapse`, `data.table`, `haven`, `fixest`, `modelsummary`, `ggplot2`+`wbplot`, welfare/poverty measurement. Preference hierarchy: collapse > data.table > tidyverse. |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
-| `cg-skill-stata-core` | Macro system, program scoping, data management, `repkit`, anti-patterns, do-file conventions |
+| `cg-skill-stata-best-practices` | Comprehensive Stata reference: universal coding principles (compound quotes, macro expansion traps, stored results, `subpop()` vs `if`, clustering), data management, econometrics, causal inference, graphics, Mata, reproducibility (`repkit`: `repado`, `reproot`, `reprun`, `repscan`, `lint`), and 21 community packages (`reghdfe`, `estout`, `did`, `rdrobust`, etc.). ALWAYS load when writing or reviewing `.do` or `.ado` files. |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
@@ -86,7 +86,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 ## Configuration
 
 Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
-- **Language**: R, Python, or both
+- **Language**: R, Python, Stata, or any combination
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
 
