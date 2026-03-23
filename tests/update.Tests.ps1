@@ -868,6 +868,71 @@ Describe "update.ps1 - PS5.1-safe checkout" {
 }
 
 # ---------------------------------------------------------------------------
+# Migration warning: stale .cg-docs/ in .gitignore
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
+    # Tests for the detection logic that fires when .cg-docs/ appears as a
+    # standalone line in .gitignore (added by /cg-setup before v0.1.1).
+    # The production regex matches either / or \ as the path separator.
+
+    Context "when .cg-docs/ is present as a standalone line" {
+        It "detects .cg-docs/ with forward slash" {
+            $lines = @("*.log", ".cg-docs/", "*.tmp")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+        }
+
+        It "detects .cg-docs\ with backslash (Windows path variant)" {
+            $lines = @("*.log", ".cg-docs\", "*.tmp")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+        }
+
+        It "detects .cg-docs/ with surrounding whitespace" {
+            $lines = @("  .cg-docs/  ")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+        }
+    }
+
+    Context "when .cg-docs/ is NOT a standalone line" {
+        It "does not trigger on an empty .gitignore" {
+            $lines = @()
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+
+        It "does not trigger when .cg-docs/ is absent" {
+            $lines = @("*.log", "compound-gpid.local.md", ".github/prompts/")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+
+        It "does not trigger on a .cg-docs/ entry that is a comment" {
+            # git does not support inline comments in .gitignore; a line like
+            # '# .cg-docs/' is a comment and does NOT gitignore the directory.
+            $lines = @("# .cg-docs/")
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+
+        It "does not trigger when .cg-docs/ is inside the CG managed block marker" {
+            # The managed block is rewritten by link.ps1 and no longer contains
+            # .cg-docs/ after v0.1.1. This test guards against future regressions
+            # where the block marker line might accidentally match.
+            $lines = @(
+                "# Compound GPID managed items (junctions + copied file - do not commit)",
+                ".github/prompts/",
+                ".github/skills/"
+            )
+            $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
+            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Version pinning -- --list output formatting
 # ---------------------------------------------------------------------------
 

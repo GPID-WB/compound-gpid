@@ -232,6 +232,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
     }
 
     Context "when .gitignore already has all CG entries" {
+        # NOTE: The remove-then-rewrite regex below is intentionally inlined from
+        # link.ps1 for test isolation. If the production regex changes, update this
+        # test and the two tests below that also replicate it.
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
             $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
@@ -281,17 +284,25 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
         }
 
         It "does not gitignore .cg-docs/ -- it is committed institutional memory" {
+            # Apply the remove-then-rewrite logic from link.ps1 with the current
+            # entry set (no .cg-docs/), starting from a clean pre-existing file.
             $gi      = Join-Path $TestDrive "no-cg-docs-gitignore.gitignore"
             $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-            $block   = $marker + "`n.github/prompts/`n.github/skills/`n"
-            Set-Content -Path $gi -Value $block
+            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/copilot-instructions.md")
+            Set-Content -Path $gi -Value "*.log"
+
+            $newBlock = $marker + "`n" + ($entries -join "`n") + "`n"
+            $existing = (Get-Content $gi -Raw) -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", ""
+            $existing = $existing.TrimEnd()
+            $sep = if ($existing.Length -gt 0) { "`n`n" } else { "" }
+            Set-Content -Path $gi -Value ($existing + $sep + $newBlock)
 
             $lines = Get-Content $gi
-            # .cg-docs/ must NOT appear in the CG gitignore block
+            # .cg-docs/ must NOT appear after a fresh link run
             ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
-            # Only .github/ entries should be in the block
-            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
+            # All expected entries present
+            ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
         }
         It "does not delete user content following the CG block (regex safety)" {
             # Regression guard: the remove-then-rewrite regex must not consume user lines
@@ -312,7 +323,8 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $lines = Get-Content $gi
             # User content must survive the rewrite
             ($lines | Where-Object { $_ -eq "*.pyc" } | Measure-Object).Count | Should Be 1
-        }    }
+        }
+    }
 
     Context "legacy .github entry is no longer added" {
         It "does not add a blanket .github entry" {
