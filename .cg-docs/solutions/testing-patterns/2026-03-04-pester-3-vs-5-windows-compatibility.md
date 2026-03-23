@@ -105,7 +105,9 @@ up automatically after each test.
   # Compatible with Pester 3.4+ (ships built-in on Windows)
   ```
 - Avoid Unicode punctuation (em dashes, curly quotes) in `.ps1` files saved
-  without BOM — they cause lexer errors.
+  without BOM -- they cause silent AST corruption (not just lexer errors). See
+  [PS 5.1 BOM-less UTF-8 em-dash silently corrupts AST](../bugs/2026-03-23-ps51-utf8-bom-em-dash-corrupts-ast-silently.md)
+  for the full root cause and how to detect it.
 
 ## Related
 
