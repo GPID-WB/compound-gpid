@@ -472,14 +472,14 @@ Describe "update.ps1 - argument parsing" {
         It "recognises 'latest' as the unpin keyword" {
             $Version = "latest"
             $Version | Should Be "latest"
-            $Version -match '^(latest|v\d+\.\d+\.\d+)$' | Should Be $true
+            $Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$' | Should Be $true
         }
     }
 
     Context "tag argument" {
         It "recognises a tag string as a pin target" {
             $Version = "v0.1.0"
-            $Version | Should Match '^v\d+\.\d+\.\d+$'
+            $Version | Should Match '^v\d+\.\d+\.\d+(\.\d+)?$'
         }
     }
 
@@ -504,39 +504,49 @@ Describe "update.ps1 - argument parsing" {
         It "trimmed value still passes format validation" {
             $Version = "  v0.2.0  "
             $Version = $Version.Trim()
-            ($Version -match '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+            ($Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
         }
     }
 
     Context "version format validation" {
         It "accepts a valid 3-segment tag" {
             $Version = "v0.2.0"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $false
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
         }
 
         It "accepts the 'latest' keyword" {
             $Version = "latest"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $false
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
+        }
+
+        It "accepts a 4-segment dev tag (v0.2.0.9000 convention)" {
+            $Version = "v0.2.0.9000"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
         }
 
         It "rejects a 2-segment tag missing the patch number" {
             $Version = "v0.2"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
         }
 
         It "rejects a tag without leading 'v'" {
             $Version = "0.2.0"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
         }
 
         It "rejects arbitrary strings" {
             $Version = "main"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
         }
 
-        It "rejects a 4-segment tag" {
-            $Version = "v0.2.0.1"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') | Should Be $true
+        It "rejects a 4-segment tag with trailing dot (malformed)" {
+            $Version = "v0.2.0."
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+        }
+
+        It "rejects a 5-segment tag" {
+            $Version = "v0.2.0.9000.1"
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
         }
     }
 }
@@ -790,6 +800,7 @@ Describe "update.ps1 - tag validation" {
 
         It "builds a helpful error hint from similar tags" {
             $versionMode = "v9.9.9"
+            # Only release tags in the hint -- dev tags are filtered before building $similar.
             $similar     = @("v0.2.0", "v0.1.0")
             $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
             $errorMsg = "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
@@ -811,6 +822,16 @@ Describe "update.ps1 - tag validation" {
             # matching "all available releases" in the body of the error message.
             $errorMsg -match "Available releases:`n" | Should Be $false
             $errorMsg -match "cg-update --list"      | Should Be $true
+        }
+
+        It "dev tags are excluded from the error hint (release-only filter applied to similar)" {
+            # Simulate allTags with dev tags at top (sorted newest first by git).
+            $allTags = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
+            $similar = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 5
+            $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
+            $hint -match "9000" | Should Be $false
+            $hint -match "9001" | Should Be $false
+            $hint -match "v0\.2\.0" | Should Be $true
         }
 
         It "throws when a non-existent tag is validated against the tag list" {
@@ -964,9 +985,9 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
 Describe "update.ps1 - --list formatting" {
     Context "marking the current version in the tag list" {
         It "appends '<-- current' marker to the active pinned tag" {
-            $currentPin = "v0.1.0"
-            $tags       = @("v0.2.0", "v0.1.0")
-            $lines      = $tags | ForEach-Object {
+            $currentPin  = "v0.1.0"
+            $releaseTags = @("v0.2.0", "v0.1.0")
+            $lines       = $releaseTags | ForEach-Object {
                 $marker = if ($_ -eq $currentPin) { "  <-- current" } else { "" }
                 "$_$marker"
             }
@@ -985,6 +1006,32 @@ Describe "update.ps1 - --list formatting" {
             $currentPin = "v0.2.0"
             $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
             $modeLabel | Should Be "v0.2.0 (pinned)"
+        }
+
+        It "marks a dev-tag pin with '(dev -- not listed above)' in the mode label" {
+            $currentPin = "v0.1.0.9000"
+            $isDevPin   = $currentPin -ne "latest" -and $currentPin -match '^v\d+\.\d+\.\d+\.\d+$'
+            $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
+                          elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
+                          else                           { "$currentPin (pinned)" }
+            $modeLabel | Should Be "v0.1.0.9000 (dev -- not listed above)"
+        }
+    }
+
+    Context "dev tags excluded from release list" {
+        It "filters out 4-component dev tags from the display list" {
+            $allTags     = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
+            $releaseTags = @($allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
+            $releaseTags.Count | Should Be 2
+            ($releaseTags | Where-Object { $_ -match '\.\d+\.\d+\.\d+$' }).Count | Should Be 0
+            $releaseTags -contains "v0.2.0" | Should Be $true
+            $releaseTags -contains "v0.1.0" | Should Be $true
+        }
+
+        It "produces an empty release list when all tags are dev tags" {
+            $allTags     = @("v0.1.0.9001", "v0.1.0.9000")
+            $releaseTags = @($allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
+            $releaseTags.Count | Should Be 0
         }
     }
 
@@ -1060,6 +1107,20 @@ Describe "update.ps1 - version status display" {
             # Hint is only shown in the else branch (versionMode -ne "latest")
             $inPinnedBranch = $versionMode -ne "latest"
             $inPinnedBranch | Should Be $false
+        }
+
+        It "skips dev tags when computing latestTag -- hint shows next release only" {
+            # Simulate: git tag --list returns dev+release tags sorted newest first.
+            # latestTag must be derived from release-only tags.
+            $allTags   = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
+            $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
+            $latestTag | Should Be "v0.2.0"
+        }
+
+        It "suppresses hint when only dev tags exist (latestTag becomes null)" {
+            $allTags   = @("v0.1.0.9001", "v0.1.0.9000")
+            $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
+            $latestTag | Should BeNullOrEmpty
         }
     }
 }

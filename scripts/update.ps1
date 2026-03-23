@@ -114,9 +114,10 @@ if ($Fix.IsPresent) {
 if ($Version) { $Version = $Version.Trim() }
 
 # Guard against garbage input early with a clear error (after trimming).
-# Accepted: empty/null (read from file), "latest" (unpin), or a tag like "v0.2.0".
-if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+)$') {
-    Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0', 'latest', or use --list to browse."
+# Accepted: empty/null (read from file), "latest" (unpin), a release tag like
+# "v0.2.0", or a dev tag like "v0.2.0.9000" (4-component, for maintainer testing).
+if ($Version -and $Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') {
+    Write-Error "Invalid version: '$Version'. Expected a tag like 'v0.2.0' (or 'v0.2.0.9000' for dev), 'latest', or use --list to browse."
     exit 1
 }
 
@@ -152,16 +153,26 @@ try {
         }
 
         $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        # Only show 3-component release tags to users; dev tags (4-component) are
+        # a maintainer-only escape hatch and must never appear in normal output.
+        $releaseTags = @($tags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
 
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
 
-        if ($currentPin -eq "latest") { $modeLabel = "main (latest)" } else { $modeLabel = "$currentPin (pinned)" }
+        $isDevPin = $currentPin -ne "latest" -and $currentPin -match '^v\d+\.\d+\.\d+\.\d+$'
+        if ($currentPin -eq "latest") {
+            $modeLabel = "main (latest)"
+        } elseif ($isDevPin) {
+            $modeLabel = "$currentPin (dev -- not listed above)"
+        } else {
+            $modeLabel = "$currentPin (pinned)"
+        }
 
         Write-Host ""
         Write-Host "Available releases:" -ForegroundColor Cyan
-        if ($tags) {
-            foreach ($tag in $tags) {
+        if ($releaseTags) {
+            foreach ($tag in $releaseTags) {
                 if ($tag -eq $currentPin) { $marker = '  <-- current' } else { $marker = '' }
                 Write-Host "  $tag$marker"
             }
@@ -267,12 +278,15 @@ try {
 
         # Capture all tags once; derive both latestTag and tagExists from the same list.
         $allTags   = @(git tag --list "v*" --sort=-version:refname 2>$null)
-        $latestTag = $allTags | Select-Object -First 1
+        # latestTag must be a release (3-component) -- dev tags (4-component) are
+        # invisible to users and must never appear in the "Newer release" hint.
+        $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
 
         # Validate the tag exists before attempting checkout or persisting preference.
         $tagExists = $versionMode -in $allTags
         if (-not $tagExists) {
-            $similar = $allTags | Select-Object -First 5
+            # Only show release tags in the suggestion -- never expose dev tags.
+            $similar = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 5
             if ($similar) {
                 $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
             } else { $hint = "" }
