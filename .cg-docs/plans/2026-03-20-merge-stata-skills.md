@@ -1,7 +1,7 @@
 ---
 date: 2026-03-20
 title: "Merge Stata skills into cg-skill-stata-best-practices"
-status: active
+status: completed
 brainstorm: null
 language: "Stata"
 estimated-effort: "medium"
