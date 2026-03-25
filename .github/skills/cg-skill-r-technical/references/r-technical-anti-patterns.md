@@ -29,20 +29,7 @@ dt[, .(mean_welf = fmean(welfare, w = weight)), by = region]
 
 ### Using set_collapse(mask = ...) to hide function names
 
-> See also the same pattern in [r-analytical-anti-patterns.md](../../../cg-skill-r-analytical/references/r-analytical-anti-patterns.md).
-
-**Problem:** Masking base R functions makes code unreadable for team members.
-
-**Wrong:**
-```r
-set_collapse(mask = "manip")
-dt |> subset(year > 2010) |> transform(log_y = log(y))
-```
-
-**Right:**
-```r
-dt |> fsubset(year > 2010) |> ftransform(log_y = log(y))
-```
+> See the full pattern in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
 
 ---
 
@@ -105,44 +92,9 @@ dt[, result := some_function(col1, col2)]  # vectorize
 
 ## collapse Anti-Patterns
 
-### Not pre-computing GRP for repeated operations
-
-**Problem:** Each `fmean(x, g = dt$region)` call recomputes the grouping.
-
-**Wrong:**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)
-fsd(dt$welfare, g = dt$region, w = dt$weight)
-fnobs(dt$welfare, g = dt$region)
-```
-
-**Right:**
-```r
-g <- GRP(dt, ~ region)
-fmean(dt$welfare, g = g, w = dt$weight)
-fsd(dt$welfare, g = g, w = dt$weight)
-fnobs(dt$welfare, g = g)
-```
-
----
-
-### Forgetting qDT() after fgroup_by pipe
-
-**Problem:** `fgroup_by() |> fmean()` on data.table returns a non-overallocated result. `:=` on it warns.
-
-**Wrong:**
-```r
-result <- dt |> fgroup_by(region) |> fmean(w = weight)
-result[, new := 1]  # Warning
-```
-
-**Right:**
-```r
-result <- dt |> fgroup_by(region) |> fmean(w = weight) |> qDT()
-result[, new := 1]
-```
-
----
+> **Shared collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
+> are in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+> The patterns below are specific to technical work.
 
 ### Aggregate-then-merge instead of using TRA
 

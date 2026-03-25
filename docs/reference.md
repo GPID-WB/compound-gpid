@@ -75,6 +75,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-skill-setup` | Project configuration wizard |
 | `cg-skill-r-technical` | **Infrastructure & packages**: `collapse`, `data.table`, `testthat`, roxygen2, `renv`/`pak`, package dev, `plumber`, `shiny`, `targets`, `httr2`. Preference hierarchy: collapse > data.table > tidyverse. |
 | `cg-skill-r-analytical` | **Analysis patterns**: `collapse`, `data.table`, `haven`, `fixest`, `modelsummary`, `ggplot2`+`wbplot`, welfare/poverty measurement. Preference hierarchy: collapse > data.table > tidyverse. |
+| `cg-skill-r-shared` | Shared R references (collapse anti-patterns) used by both analytical and technical skills |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
 | `cg-skill-stata-best-practices` | Comprehensive Stata reference: universal coding principles (compound quotes, macro expansion traps, stored results, `subpop()` vs `if`, clustering), data management, econometrics, causal inference, graphics, Mata, reproducibility (`repkit`: `repado`, `reproot`, `reprun`, `repscan`, `lint`), and 21 community packages (`reghdfe`, `estout`, `did`, `rdrobust`, etc.). ALWAYS load when writing or reviewing `.do` or `.ado` files. |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |

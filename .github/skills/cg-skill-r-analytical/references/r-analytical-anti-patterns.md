@@ -156,65 +156,11 @@ fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 
 ## collapse Anti-Patterns
 
-### Using set_collapse(mask = ...) to hide function names
+> **Shared collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
+> are in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+> The patterns below are specific to analytical work.
 
-> See also the same pattern in [r-technical-anti-patterns.md](../../cg-skill-r-technical/references/r-technical-anti-patterns.md).
-
-**Problem:** Masking base R functions with collapse equivalents makes code unreadable for team members who don't know about the masking.
-
-**Wrong:**
-```r
-set_collapse(mask = "manip")  # Now subset() is fsubset(), transform() is ftransform()
-dt |> subset(year > 2010) |> transform(log_y = log(y))
-```
-
-**Right:**
-```r
-dt |> fsubset(year > 2010) |> ftransform(log_y = log(y))
-```
-
-**Why it matters:** Explicit `f`-prefixed names tell every reader exactly which function is running.
-
----
-
-### Forgetting qDT() after fgroup_by pipe
-
-**Problem:** `fgroup_by() |> fmean()` on a data.table returns a non-overallocated data.table. Using `:=` on it triggers a warning.
-
-**Wrong:**
-```r
-result <- dt |> fgroup_by(region) |> fmean(w = weight)
-result[, new_col := 1]  # Warning about overallocation
-```
-
-**Right:**
-```r
-result <- dt |> fgroup_by(region) |> fmean(w = weight) |> qDT()
-result[, new_col := 1]  # Works cleanly
-```
-
----
-
-### Not pre-computing GRP objects for repeated grouped operations
-
-**Problem:** Passing raw grouping vectors to multiple collapse functions. Each call recomputes the grouping.
-
-**Wrong:**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)
-fsd(dt$welfare, g = dt$region, w = dt$weight)
-fnobs(dt$welfare, g = dt$region)
-# Grouping computed 3 times
-```
-
-**Right:**
-```r
-g <- GRP(dt, ~ region)
-fmean(dt$welfare, g = g, w = dt$weight)
-fsd(dt$welfare, g = g, w = dt$weight)
-fnobs(dt$welfare, g = g)
-# Grouping computed once, reused 3 times
-```
+*No analytical-specific collapse anti-patterns at this time. General collapse anti-patterns are in the shared file above.*
 
 ---
 

@@ -1,8 +1,7 @@
 ---
 date: 2026-03-17
 title: "Update all references from cg-skill-r-best-practices to cg-skill-r-technical + cg-skill-r-analytical"
-status: active
-brainstorm: ~
+status: completed
 language: "both"
 estimated-effort: "small"
 tags: [documentation, skills, refactor]

@@ -1,7 +1,7 @@
 ---
 date: 2026-03-14
 title: "Dual install paths and restart documentation"
-status: active
+status: completed
 brainstorm: ".cg-docs/brainstorms/2026-03-14-dual-install-paths-and-restart-docs.md"
 language: "both"
 estimated-effort: "small"

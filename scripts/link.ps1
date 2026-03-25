@@ -231,6 +231,25 @@ if (Test-Path $gitignorePath) {
     Write-Host "Created .gitignore with CG entries" -ForegroundColor DarkGray
 }
 
+# --- Step 5b: Remove stale .cg-docs/ gitignore entry from older setups ---
+# Older versions of cg-link added .cg-docs/ to .gitignore under a "knowledge base"
+# comment. Since 2026-03-23 .cg-docs/ must be committed (institutional memory).
+# Remove both the comment line and the entry if they exist.
+if (Test-Path $gitignorePath) {
+    $giAfterCg = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
+    if ($giAfterCg -and ($giAfterCg -match '(?i)# Compound GPID knowledge base')) {
+        $giCleaned = $giAfterCg -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
+        $giCleaned = $giCleaned.TrimEnd()
+        if ([string]::IsNullOrWhiteSpace($giCleaned)) {
+            Remove-Item $gitignorePath -Force
+            Write-Host "  Removed stale .cg-docs/ entry from .gitignore (file now empty, deleted)" -ForegroundColor DarkGray
+        } else {
+            Set-Content -Path $gitignorePath -Value ($giCleaned + "`n")
+            Write-Host "  Removed stale .cg-docs/ entry from .gitignore" -ForegroundColor DarkGray
+        }
+    }
+}
+
 # --- Step 6: Verify a known file is accessible ---
 $checkPath = Join-Path $TargetGithubDir "prompts\cg-setup.prompt.md"
 if (-not (Test-Path $checkPath)) {

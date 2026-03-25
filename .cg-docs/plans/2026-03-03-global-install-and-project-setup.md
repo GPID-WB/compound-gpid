@@ -1,8 +1,7 @@
 ---
 date: 2026-03-03
 title: "Global install with automated junction and per-project setup"
-status: active
-brainstorm: "docs/brainstorms/2026-03-03-global-install-and-project-setup.md"
+status: superseded
 language: "both"
 estimated-effort: "medium"
 tags: [installation, distribution, team-onboarding, windows, junctions, powershell]

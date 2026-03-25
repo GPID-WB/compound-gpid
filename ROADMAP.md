@@ -36,38 +36,15 @@ Focus: Statistical and analytical rigor, data analysis workflows, and results co
 
 ## Phase 3: Research Workflow
 
-Focus: End-to-end research support, writing, and dissemination.
-
-- [ ] Literature scout agent (search papers, summarize findings)
-- [ ] Data catalog researcher agent (find relevant datasets)
-- [ ] Quarto/RMarkdown writing support skill
-- [ ] Paper/report structure skill (World Bank style)
-- [ ] Reproducibility audit agent (end-to-end pipeline verification)
-- [ ] Research design skill (causal inference, identification strategies, power calculations)
-- [ ] Results narration prompt — translate tables and charts into plain-language findings
-- [ ] Revision workflow — track reviewer comments, map them to document sections, implement changes
+End-to-end research support: literature search, data exploration, reproducibility audits, writing support, and revision tracking. Specific features will be scoped after Phase 2 tools are in active use by the analytical team.
 
 ## Phase 4: Domain Knowledge
 
-Focus: Development economics domain expertise.
-
-- [ ] Survey methodology skill (sampling, weights, design effects)
-- [ ] Poverty measurement skill (poverty lines, PPP, inequality indices)
-- [x] Stata best-practices skill (`cg-skill-stata-best-practices`) — survey econometrics, welfare aggregates, poverty measurement, PPP conversion *(consolidated into unified skill in Phase 1, 2026-03-20)*
-- [ ] Spatial analysis skill (geographic data, mapping, spatial joins)
-- [ ] Microdata handling skill (anonymization, harmonization)
-- [ ] World Bank data API skill (WDI, microdata catalog)
+Deep development economics domain expertise: survey methodology, poverty measurement, PPP conversion, spatial analysis, and World Bank data API integration. Specific features will be scoped based on gaps identified during Phase 2 analytical work.
 
 ## Phase 5: Team Scaling
 
-Focus: Multi-project and team-wide compounding.
-
-- [ ] Integrate legacy GPID analytical prompts — port existing prompts from GPID projects into the `cg-` system, adapting to the new structure and formats
-- [ ] Compound Knowledge integration — adapt `/kw:confidence`, `/kw:review` (strategic alignment + data accuracy) concepts from [EveryInc/compound-knowledge-plugin](https://github.com/EveryInc/compound-knowledge-plugin) for the VS Code Copilot environment
-- [ ] Team onboarding agent (new member orientation)
-- [ ] Project template generator (scaffold new projects from patterns)
-- [ ] Dashboard/API deployment skill
-- [ ] Package publishing skill (CRAN, PyPI)
+Multi-project and team-wide compounding: legacy prompt integration, team onboarding, project templates, and publishing workflows. Specific features will be scoped when adoption from earlier phases provides signal on what the team actually needs.
 
 ---
 

@@ -399,5 +399,58 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $content -match "(?m)^\.github\s*$" | Should Be $false
         }
     }
+
+    Context "stale .cg-docs/ gitignore cleanup (Step 5b)" {
+        # Replicates the Step 5b logic in link.ps1 for unit-test isolation.
+        $CleanStaleCgDocs = {
+            param([string]$path)
+            $raw = Get-Content $path -Raw -ErrorAction SilentlyContinue
+            if ($raw -and ($raw -match '(?i)# Compound GPID knowledge base')) {
+                $cleaned = $raw -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
+                $cleaned = $cleaned.TrimEnd()
+                if ([string]::IsNullOrWhiteSpace($cleaned)) {
+                    Remove-Item $path -Force
+                } else {
+                    Set-Content -Path $path -Value ($cleaned + "`n")
+                }
+            }
+        }
+
+        It "removes the stale knowledge-base comment and .cg-docs/ entry" {
+            $gi = Join-Path $TestDrive "stale-cg-docs.gitignore"
+            Set-Content -Path $gi -Value "*.log`n# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/`n"
+            & $CleanStaleCgDocs $gi
+            $lines = Get-Content $gi
+            ($lines | Where-Object { $_ -eq ".cg-docs/"                                                    } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "Compound GPID knowledge base"                              } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -eq "*.log"                                                        } | Measure-Object).Count | Should Be 1
+        }
+
+        It "deletes the .gitignore file when it becomes empty after cleanup" {
+            $gi = Join-Path $TestDrive "only-stale-entry.gitignore"
+            Set-Content -Path $gi -Value "# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/"
+            & $CleanStaleCgDocs $gi
+            Test-Path $gi | Should Be $false
+        }
+
+        It "preserves other entries when removing the stale block" {
+            $gi = Join-Path $TestDrive "preserve-other-entries.gitignore"
+            Set-Content -Path $gi -Value "*.log`n# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/`n*.tmp"
+            & $CleanStaleCgDocs $gi
+            $lines = Get-Content $gi
+            ($lines | Where-Object { $_ -eq ".cg-docs/"  } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -eq "*.log"      } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq "*.tmp"      } | Measure-Object).Count | Should Be 1
+        }
+
+        It "does nothing when the stale entry is absent" {
+            $gi = Join-Path $TestDrive "no-stale-entry.gitignore"
+            Set-Content -Path $gi -Value "*.log`n.github/prompts/"
+            $before = Get-Content $gi -Raw
+            & $CleanStaleCgDocs $gi
+            $after = Get-Content $gi -Raw
+            $after | Should Be $before
+        }
+    }
 }
 

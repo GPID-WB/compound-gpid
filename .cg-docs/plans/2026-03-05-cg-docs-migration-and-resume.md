@@ -1,8 +1,7 @@
 ---
 date: 2026-03-05
 title: "Migrate docs/ to .cg-docs/ and add /cg-resume prompt"
-status: active
-brainstorm: ".cg-docs/brainstorms/2026-03-05-cg-docs-migration-and-resume.md"
+status: completed
 language: "both"
 estimated-effort: "medium"
 tags: [migration, docs, cg-resume, rbuildignore, update-script, breaking-change]

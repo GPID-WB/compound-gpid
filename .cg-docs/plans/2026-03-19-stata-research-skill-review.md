@@ -1,8 +1,7 @@
 ---
 date: 2026-03-19
 title: "Review and integrate cg-skill-stata-research + update references across the project"
-status: active
-brainstorm: ~
+status: superseded
 language: "both"
 estimated-effort: "medium"
 tags: [skills, stata, documentation, integration, review]

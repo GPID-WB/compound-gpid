@@ -1,7 +1,12 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
+tools: ['agent', 'read', 'search']
+agents: ['cg-code-quality', 'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility', 'cg-performance', 'cg-architecture', 'cg-data-quality', 'cg-learnings-researcher']
 ---
+
+<!-- When adding or removing review agents, update the `agents` list in the
+     YAML frontmatter above to match. -->
 
 # Review
 

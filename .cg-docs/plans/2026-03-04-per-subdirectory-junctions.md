@@ -1,8 +1,7 @@
 ---
 date: 2026-03-04
 title: "Per-subdirectory junctions for .github coexistence"
-status: active
-brainstorm: "docs/brainstorms/2026-03-04-per-subdirectory-junctions.md"
+status: completed
 language: "both"
 estimated-effort: "medium"
 tags: [install, link, unlink, update, .github, junctions, windows, powershell]
