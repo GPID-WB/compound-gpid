@@ -16,6 +16,16 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+
 ### Step 1: Intake
 
 1. Ask the user to describe the bug:

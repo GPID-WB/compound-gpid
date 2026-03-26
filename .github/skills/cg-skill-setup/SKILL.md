@@ -31,12 +31,12 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 
 ### Key path conventions
 
-| Path | Purpose |
-|------|---------|
-| `C:\WBG\.compound-gpid` | Global clone of this repo |
-| `<project>/.github` | Junction pointing to `C:\WBG\.compound-gpid\.github` |
-| `<project>/compound-gpid.local.md` | Project-specific config (gitignored) |
-| `<project>/.cg-docs/` | Brainstorms, plans, and captured solutions |
+| Path | Purpose | Committed? |
+|------|---------|-----------|
+| `compound-gpid.md` | Project charter: objectives, deliverables, constraints, current focus | Yes |
+| `compound-gpid.local.md` | Per-user config: language, review depth | No (gitignored) |
+| `.cg-docs/` | Brainstorms, plans, captured solutions | Yes |
+| `roadmap.json` | Milestone/feature tracking (future) | Yes |
 
 ## Process
 

@@ -14,9 +14,23 @@ You are a session context loader. Your job is to quickly orient Copilot and the 
 
 ## Process
 
-### Step 1: Load Project Config
+### Step 1: Load Project Context
 
-Read `compound-gpid.local.md`. If it does not exist, this project has not been set up — reply:
+#### 1a. Read project charter
+
+Read `compound-gpid.md` in the project root. If it exists, extract:
+- `project-name`
+- Objective
+- Current Focus
+- Constraints
+
+If it does not exist, note: "No project charter found. Consider running
+`/cg-setup` to create one."
+
+#### 1b. Read user config
+
+Read `compound-gpid.local.md`. If it does not exist, this project has not
+been set up — reply:
 
 > "This project hasn't been configured yet. Run `/cg-setup` first."
 
@@ -75,12 +89,29 @@ If git is not available or this is not a git repo, skip this step.
 
 ### Step 4: Present Context Summary
 
-Present a structured summary:
+Present a structured summary.
+
+If `compound-gpid.md` exists:
 
 ```markdown
 ## Session Context
 
-**Project**: <project type> | **Language**: <language> | **Review depth**: <review-depth>
+**<project-name>**: <objective> | Focus: <current-focus>
+
+Language: <language> | Type: <project-type> | Review depth: <review-depth>
+```
+
+If `compound-gpid.md` does NOT exist, use:
+
+```markdown
+## Session Context
+
+> no-charter No project charter found. Run `/cg-setup` to create one.
+
+Language: <language> | Type: <project-type> | Review depth: <review-depth>
+```
+
+Then append the pending work sections:
 
 ---
 

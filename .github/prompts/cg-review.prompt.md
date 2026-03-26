@@ -14,11 +14,20 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+
 ### Step 1: Determine Scope
 
-1. Read `compound-gpid.local.md` for the configured review depth (`light`, `standard`, or `thorough`).
-2. If no config exists, default to `standard`.
-3. Identify the files that have changed (use git diff if available, or ask the user).
+1. Use the review depth from `compound-gpid.local.md` (Step 0). If no config exists, default to `standard`.
+2. Identify the files that have changed (use git diff if available, or ask the user).
 
 ### Step 2: Dispatch Agents
 

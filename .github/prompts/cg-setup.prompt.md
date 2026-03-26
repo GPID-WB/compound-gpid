@@ -6,6 +6,7 @@ You are configuring Compound GPID for this project. You help the user set langua
 
 - You may read any file in the workspace.
 - You may create or overwrite `compound-gpid.local.md` in the project root.
+- You may create or overwrite `compound-gpid.md` in the project root.
 - You may create new files and directories under `.cg-docs/`.
 - You may append lines to `.gitignore` and `.Rbuildignore`.
 - You must not modify any other existing file.
@@ -88,6 +89,85 @@ This file configures Compound GPID for this project. It is gitignored and local 
 ## Notes
 <Any additional project-specific notes the user mentioned>
 ```
+
+#### A3.5. Create project charter (`compound-gpid.md`)
+
+> The following questions create your project charter (`compound-gpid.md`).
+> You can skip all of them and create it later.
+
+Ask each question and wait for the answer before asking the next.
+
+**Question 4 — Project name**
+
+> What is the name of this project?
+
+**Question 5 — Objective**
+
+> In 1–3 sentences, what is this project building? Who is it for?
+
+**Question 6 — Key deliverables** (optional — user may skip)
+
+> What are the concrete outputs? (e.g., R package, REST API, analytical
+> report, harmonized dataset). List as many as apply. You can skip this
+> and add them later.
+
+**Question 7 — Constraints** (optional — user may skip)
+
+> Are there any hard constraints Copilot should always respect? (e.g.,
+> reproducibility requirements, data privacy rules, methodological
+> standards). You can skip this and add them later.
+
+Write `compound-gpid.md` in the project root using the template below,
+filling in the user's answers. Leave unfilled sections with placeholder text:
+
+- Architecture Notes: `<Describe the project structure here, or let Copilot fill this in after examining the codebase.>`
+- Current Focus: `<What is the team working on right now? Update this section as priorities change.>`
+- Roadmap: `<Add milestones here. In the future, create roadmap.json for structured tracking.>`
+- Related Resources: `<Add links to external docs, specs, or methodology references.>`
+
+```markdown
+---
+project-name: "<name>"
+team: "DECDG / GPID — World Bank"
+created: "YYYY-MM-DD"
+last-updated: "YYYY-MM-DD"
+---
+
+# <Project Name>
+
+## Objective
+
+<1–3 sentences from Question 5>
+
+## Key Deliverables
+
+<Bulleted list from Question 6, or placeholder>
+
+## Constraints
+
+<Bulleted list from Question 7, or placeholder>
+
+## Architecture Notes
+
+<Describe the project structure here, or let Copilot fill this in after examining the codebase.>
+
+## Current Focus
+
+<What is the team working on right now? Update this section as priorities change.>
+
+## Roadmap
+
+<Add milestones here. In the future, create roadmap.json for structured tracking.>
+
+## Related Resources
+
+<Add links to external docs, specs, or methodology references.>
+```
+
+If the user skips ALL charter questions (skips before Question 4 or skips Question 4 and 5),
+do NOT create `compound-gpid.md`. The setup completes with only `compound-gpid.local.md`.
+
+Do NOT add `compound-gpid.md` to `.gitignore` — it must be committed.
 
 #### A4. Scaffold `.cg-docs/` structure
 
@@ -173,6 +253,16 @@ compound-gpid.local.md
 
 Read `compound-gpid.local.md` and report the current settings (language, project type, review depth).
 
+#### B1.1. Read project charter
+
+Check if `compound-gpid.md` exists in the project root.
+
+- If it exists: read it and extract the `project-name`, Objective, and Current Focus
+  for use in the context summary (Step B3).
+- If it does not exist: note that no project charter exists. After presenting the
+  context summary, offer to create one by asking the charter questions (Questions 4–7
+  from Mode A Step A3.5).
+
 #### B1.5. Scaffold any missing `.cg-docs/` directories
 
 Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
@@ -207,10 +297,15 @@ Scan the following directories and collect the titles and dates from the YAML fr
 
 #### B3. Present context summary
 
-Present a structured summary to orient Copilot and the user:
+Present a structured summary to orient Copilot and the user.
+
+If `compound-gpid.md` exists, use this format:
 
 ```
 ## Project Context
+
+This project is **<project-name>**: <objective>.
+Currently focused on: <current-focus>.
 
 **Language**: <language>
 **Project Type**: <project-type>
@@ -234,6 +329,17 @@ Present a structured summary to orient Copilot and the user:
 - performance-issues: <count>
 - testing-patterns: <count>
 ```
+
+If `compound-gpid.md` does NOT exist, use the same format but replace the first two lines with:
+
+```
+**No project charter found.**
+```
+
+And after presenting the summary, offer:
+
+> "Would you like to create a project charter now? This helps Copilot
+> understand your project's goals, deliverables, and constraints."
 
 #### B4. Offer to update config
 

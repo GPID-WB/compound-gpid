@@ -11,6 +11,14 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
 - Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-best-practices` when writing or reviewing `.do`/`.ado` files.
 
+## Project Context
+
+- Read `compound-gpid.md` in the project root for project objectives,
+  constraints, and current focus. This file is the authoritative source of
+  what this project is building and why.
+- If `compound-gpid.md` does not exist, suggest the user run `/cg-setup`.
+- Do not modify `compound-gpid.md` without explicit user approval.
+
 ## Coding Standards
 
 ### General

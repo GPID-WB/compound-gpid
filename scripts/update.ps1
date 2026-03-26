@@ -462,6 +462,18 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
         }
     }
 
+    # --- Migration notice: project charter (compound-gpid.md) ---
+    # Introduced in schema version 2026-03-25-project-charter.
+    # Inform projects that do not yet have a charter. Do not create it
+    # automatically -- the charter requires interactive user input via /cg-setup.
+    $cwdCharter = Join-Path $cwdRoot "compound-gpid.md"
+    if (-not (Test-Path $cwdCharter)) {
+        Write-Host ""
+        Write-Host "New feature: project charter." -ForegroundColor Cyan
+        Write-Host "  Run /cg-setup in Copilot Chat to create 'compound-gpid.md' for shared project context." -ForegroundColor Cyan
+        Write-Host "  The charter gives Copilot awareness of your project's goals, deliverables, and constraints." -ForegroundColor Cyan
+    }
+
     # --- Migration warning: standalone .cg-docs/ in .gitignore ---
     # Projects configured before v0.1.1 (2026-03-23) may have .cg-docs/ as a
     # standalone line added by the pre-v0.1.1 version of Step A5 in
