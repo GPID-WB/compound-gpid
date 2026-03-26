@@ -1,7 +1,7 @@
 ---
 date: 2026-03-23
 title: "Dev-tag support -- allow 4-component pre-release tags for testing"
-status: active
+status: completed
 brainstorm: ~
 language: "both"
 estimated-effort: "small"
