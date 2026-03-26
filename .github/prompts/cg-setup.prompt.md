@@ -142,6 +142,15 @@ sections (they are visible when editing but do not render in Markdown previews):
 - Roadmap: `<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->`
 - Related Resources: `<!-- TODO: Add links to external docs, specs, or methodology references. -->`
 
+When the user provides answers (not skipped), format them as follows:
+
+- **Objective** (Q5): Place the user's text as 1-3 sentences of prose.
+- **Key Deliverables** (Q6): Format as a bulleted Markdown list (`- item`), one deliverable per bullet.
+- **Constraints** (Q7): Format as a bulleted Markdown list (`- constraint`), one constraint per bullet.
+
+Do not embellish, rewrite, or add items the user did not mention. Use the user's
+wording directly, only correcting obvious typos or grammar.
+
 When filling in YAML string fields, escape any `"` characters as `\"`, or wrap values containing double quotes in single quotes.
 
 ```markdown
