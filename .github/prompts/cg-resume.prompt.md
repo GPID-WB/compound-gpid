@@ -14,9 +14,9 @@ You are a session context loader. Your job is to quickly orient Copilot and the 
 
 ## Process
 
-### Step 1: Load Project Context
+### Step 0: Get Bearings
 
-#### 1a. Read project charter
+#### 0a. Read project charter
 
 Read `compound-gpid.md` in the project root. If it exists, extract:
 - `project-name`
@@ -28,10 +28,10 @@ After extracting, check each field: if a value matches the pattern `<!-- TODO: .
 or is otherwise an unfilled placeholder, treat it as empty and omit it from the
 session summary (do not display placeholder text as real project facts).
 
-If it does not exist, note: "No project charter found. Consider running
-`/cg-setup` to create one."
+If it does not exist, note: "No project charter found. Run `/cg-setup` to
+create one. Proceeding without project context."
 
-#### 1b. Read user config
+#### 0b. Read user config
 
 Read `compound-gpid.local.md`. If it does not exist, this project has not
 been set up — reply:
@@ -42,7 +42,7 @@ And stop.
 
 Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
-### Step 2: Schema Version Check
+### Step 1: Schema Version Check
 
 Locate the global Compound GPID `SCHEMA_VERSION` file. Check these paths in
 order and use the first one that exists:
@@ -71,9 +71,9 @@ If it exists, compare the value to `cg-schema-version` in `compound-gpid.local.m
 
 - If they **match**, continue silently.
 
-### Step 3: Scan Pending Work
+### Step 2: Scan Pending Work
 
-#### 3a. In-progress plans
+#### 2a. In-progress plans
 
 Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with:
 - `status: active`
@@ -81,17 +81,17 @@ Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each an
 
 For each, extract: `date`, `title`, `estimated-effort`, `tags`.
 
-#### 3b. Unplanned brainstorms
+#### 2b. Unplanned brainstorms
 
 Scan `.cg-docs/brainstorms/` for all `.md` files with `status: decided`. For each, check if a corresponding plan file exists in `.cg-docs/plans/` (match by date and title similarity, or a `brainstorm:` frontmatter field in plan files). Collect any decided brainstorms that have no corresponding plan.
 
-#### 3c. Recent git activity
+#### 2c. Recent git activity
 
 Run `git log --oneline -10` to see the last 10 commits. Note the most recent branch name (`git branch --show-current`) and any uncommitted changes (`git status --short`).
 
 If git is not available or this is not a git repo, skip this step.
 
-### Step 4: Present Context Summary
+### Step 3: Present Context Summary
 
 Present a structured summary.
 
@@ -144,7 +144,7 @@ Uncommitted changes: <count files changed, or "none">
 If all three sections are empty, say:
 > "No pending work found. Start with `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build."
 
-### Step 5: Suggest Next Action
+### Step 4: Suggest Next Action
 
 Based on what you found, suggest the most logical next step:
 

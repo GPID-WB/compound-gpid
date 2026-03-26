@@ -93,7 +93,8 @@ This file configures Compound GPID for this project. It is gitignored and local 
 #### A3.5. Create project charter (`compound-gpid.md`)
 
 **Overwrite guard**: If `compound-gpid.md` already exists in the project root, read its
-`project-name` field and ask the user:
+`project-name` field and ask the user. If the file exists but `project-name` cannot be
+parsed (e.g., empty file or missing frontmatter), use `(name unknown)`.
 
 > "A project charter already exists for **<project-name>**. Do you want to overwrite it
 > with new answers? (yes / no)"
@@ -113,7 +114,7 @@ Ask each question and wait for the answer before asking the next.
 
 > What is the name of this project?
 
-**Question 5 -- Objective** (required for charter creation)
+**Question 5 -- Objective** (optional -- user may skip)
 
 > In 1-3 sentences, what is this project building? Who is it for?
 
@@ -141,27 +142,27 @@ sections (they are visible when editing but do not render in Markdown previews):
 - Roadmap: `<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->`
 - Related Resources: `<!-- TODO: Add links to external docs, specs, or methodology references. -->`
 
+When filling in YAML string fields, escape any `"` characters as `\"`, or wrap values containing double quotes in single quotes.
+
 ```markdown
 ---
 project-name: "<name>"
-team: "<your organization>"
 created: "YYYY-MM-DD"
-last-updated: "YYYY-MM-DD"
 ---
 
 # <Project Name>
 
 ## Objective
 
-<1-3 sentences from Question 5, or TODO placeholder>
+<!-- TODO: Describe what this project is building and who it is for. -->
 
 ## Key Deliverables
 
-<Bulleted list from Question 6, or TODO placeholder>
+<!-- TODO: List concrete outputs, e.g. R package, REST API, harmonized dataset. -->
 
 ## Constraints
 
-<Bulleted list from Question 7, or TODO placeholder>
+<!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->
 
 ## Architecture Notes
 

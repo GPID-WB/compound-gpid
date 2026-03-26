@@ -11,7 +11,9 @@ You are a senior developer creating a pre-release dev tag for end-to-end install
 
 ## Process
 
-### Step 0: Fetch latest tags
+> **Developer-tool note**: This prompt operates on the compound-gpid tool repo itself, not a user project. No project charter to read at session start.
+
+### Step 1: Fetch latest tags
 
 Run:
 
@@ -21,7 +23,7 @@ git fetch origin --tags
 
 Ensures you see all existing dev tags created by other developers before choosing the next increment number. Prevents two developers from accidentally assigning the same tag.
 
-### Step 1: Find the base version
+### Step 2: Find the base version
 
 Run:
 
@@ -34,7 +36,7 @@ git describe --tags --abbrev=0
 
 Parse the 3-component base: `v<MAJOR>.<MINOR>.<PATCH>`. This becomes the prefix for the dev tag.
 
-### Step 2: Find the next dev increment
+### Step 3: Find the next dev increment
 
 Run:
 
@@ -42,13 +44,13 @@ Run:
 git tag --list "v<MAJOR>.<MINOR>.<PATCH>.*"
 ```
 
-(Replace `<MAJOR>.<MINOR>.<PATCH>` with the base from Step 1.)
+(Replace `<MAJOR>.<MINOR>.<PATCH>` with the base from Step 2.)
 
 - If no dev tags exist yet for this base, the next tag is `v<MAJOR>.<MINOR>.<PATCH>.9000`.
 - If dev tags exist, find the highest 4th component and increment by 1.
   - Example: `v0.1.0.9000` and `v0.1.0.9001` exist -> next is `v0.1.0.9002`.
 
-### Step 3: Confirm with the user
+### Step 4: Confirm with the user
 
 Present:
 
@@ -62,14 +64,14 @@ Create and push this tag? (yes/no)
 
 Wait for confirmation before proceeding.
 
-### Step 4: Create and push the tag
+### Step 5: Create and push the tag
 
 ```powershell
 git tag v<MAJOR>.<MINOR>.<PATCH>.<DEV>
 git push origin v<MAJOR>.<MINOR>.<PATCH>.<DEV>
 ```
 
-### Step 5: Report
+### Step 6: Report
 
 After success, print:
 

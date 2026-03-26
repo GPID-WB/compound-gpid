@@ -13,7 +13,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 
 ## Project Context
 
-- Read `compound-gpid.md` in the project root for project objectives,
+- Read `compound-gpid.md` in the project root for project objective, key deliverables,
   constraints, and current focus. This file is the authoritative source of
   what this project is building and why.
 - If `compound-gpid.md` does not exist, suggest the user run `/cg-setup`.

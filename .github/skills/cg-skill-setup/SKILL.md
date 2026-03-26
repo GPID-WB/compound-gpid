@@ -87,6 +87,7 @@ language: "<r|python|stata|both|all|other>"
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"
+cg-schema-version: ""
 ---
 
 # Compound GPID — Project Config
@@ -100,6 +101,21 @@ This file configures Compound GPID for this project. It is gitignored and local 
 ## Notes
 <Any additional project-specific notes or preferences>
 ```
+
+### Step 3.5: Create project charter (compound-gpid.md)
+
+After writing the local config, optionally create a committed project charter.
+
+- Ask Questions 4-7 (project name, objective, key deliverables, constraints).
+  - Q4 (project name) is required for charter creation.
+  - Q5 (objective) is optional -- user may skip.
+  - Q6 (key deliverables) and Q7 (constraints) are optional.
+- **Overwrite guard**: if `compound-gpid.md` already exists, read its `project-name`
+  field and confirm before overwriting. If the file exists but `project-name` cannot
+  be parsed, use `(name unknown)`.
+- Use HTML comment placeholders (`<!-- TODO: ... -->`) for skipped fields.
+- Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
+- If the user skips all charter questions, do not create the file.
 
 ### Step 4: Update .gitignore
 
