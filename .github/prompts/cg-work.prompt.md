@@ -9,10 +9,19 @@ You are a senior developer implementing a plan that was previously created with 
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+
 ### Step 1: Load the Plan
 
-1. Read `compound-gpid.local.md` for project config (language, project type).
-2. Find the most recent plan in `.cg-docs/plans/` or ask the user which plan to implement.
+1. Find the most recent plan in `.cg-docs/plans/` or ask the user which plan to implement.
 3. Read the plan thoroughly. Understand every step, its acceptance criteria, and test requirements.
 4. Check relevant skills for the project's language:
    - R: load `cg-skill-r-technical` for package/infrastructure work (collapse, data.table, APIs, Shiny, pipelines), `cg-skill-r-analytical` for statistical/econometric/analytical work (collapse, data.table, fixest, poverty measurement, WB visualizations). Load both if the plan covers mixed work or if unsure.

@@ -16,14 +16,26 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+4. If `compound-gpid.md` exists, keep the project's constraints in mind
+   throughout the brainstorm. If a proposed approach in Step 3 conflicts with
+   declared constraints, flag this explicitly before the user chooses.
+
 ### Step 1: Lightweight Research
 
 Before asking any questions, do a quick scan of the project:
 
 1. Read the project README.md if it exists.
-2. Check `compound-gpid.local.md` for project context and language preferences.
-3. Scan the directory structure to understand what exists.
-4. Read any relevant existing code files mentioned by the user.
+2. Scan the directory structure to understand what exists.
+3. Read any relevant existing code files mentioned by the user.
 
 ### Step 2: Clarifying Questions (One at a Time)
 
@@ -93,3 +105,11 @@ tags: [<relevant tags>]
 After saving, suggest:
 
 > Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
+
+### Charter Update Suggestion
+
+If the brainstorm produced ideas that would change the project's objectives,
+scope, or current focus, suggest updating `compound-gpid.md`:
+
+> "This brainstorm suggests a shift in project scope. Consider updating the
+> 'Current Focus' or 'Key Deliverables' sections of `compound-gpid.md`."

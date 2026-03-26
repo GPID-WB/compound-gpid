@@ -16,10 +16,21 @@ You are a senior data science architect creating a structured implementation pla
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+4. Verify that the planned work aligns with the project's stated objective
+   and constraints. If it does not, flag this to the user before proceeding.
+
 ### Step 1: Gather Context
 
-1. Read `compound-gpid.local.md` for project config (language, project type, review depth).
-2. Read any relevant brainstorm in `.cg-docs/brainstorms/` if one exists for this feature.
+1. Read any relevant brainstorm in `.cg-docs/brainstorms/` if one exists for this feature.
 3. Scan the project directory structure.
 4. Read relevant existing source files to understand current patterns and conventions.
 5. Check `.cg-docs/solutions/` for past learnings related to this work.

@@ -457,6 +457,36 @@ Describe "update.ps1 - docs to .cg-docs migration" {
 }
 
 # ---------------------------------------------------------------------------
+# Charter migration notice
+# ---------------------------------------------------------------------------
+# These are condition-level unit tests that verify the boolean logic used by
+# update.ps1 to decide whether to show the charter migration notice. They do
+# NOT invoke update.ps1 itself -- they test the condition in isolation.
+
+Describe "update.ps1 - charter migration notice" {
+    Context "when compound-gpid.md does NOT exist" {
+        It "detects when charter is absent (condition check)" {
+            $testRoot = Join-Path $TestDrive "charter-notice-absent"
+            New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
+            $charter = Join-Path $testRoot "compound-gpid.md"
+            $shouldNotify = -not (Test-Path $charter)
+            $shouldNotify | Should Be $true
+        }
+    }
+
+    Context "when compound-gpid.md EXISTS" {
+        It "detects when charter is present (condition check)" {
+            $testRoot = Join-Path $TestDrive "charter-notice-present"
+            New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
+            $charter = Join-Path $testRoot "compound-gpid.md"
+            New-Item -ItemType File -Path $charter -Force | Out-Null
+            $shouldNotify = -not (Test-Path $charter)
+            $shouldNotify | Should Be $false
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Version pinning -- argument parsing
 # ---------------------------------------------------------------------------
 

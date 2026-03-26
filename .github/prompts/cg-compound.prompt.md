@@ -18,6 +18,16 @@ Use `/cg-compound` after:
 
 ## Process
 
+### Step 0: Get Bearings
+
+1. Read `compound-gpid.md` in the project root for project context (objective,
+   constraints, current focus).
+2. Read `compound-gpid.local.md` for user config (language, project type,
+   review depth).
+3. If `compound-gpid.md` does not exist, warn the user:
+   "No project charter found. Run `/cg-setup` to create one. Proceeding
+   without project context."
+
 ### Step 1: Gather Context
 
 1. Ask the user what problem was solved (or detect from recent conversation).

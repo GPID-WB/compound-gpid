@@ -454,12 +454,26 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
                 # Update existing field
                 $localConfig = $localConfig -replace 'cg-schema-version:\s*"[^"]*"', "cg-schema-version: `"$currentSchema`""
             } else {
-                # Add field after the last --- in frontmatter
+                # Add field after the last --- in frontmatter.
+                # This regex depends on the "# Compound" heading existing
+                # immediately after the closing --- in compound-gpid.local.md.
                 $localConfig = $localConfig -replace '(---\s*\r?\n# Compound)', "cg-schema-version: `"$currentSchema`"`n---`n# Compound"
             }
             Set-Content -Path $cwdLocalConfig -Value $localConfig -NoNewline
             Write-Host "Schema version stamped: $currentSchema" -ForegroundColor DarkGray
         }
+    }
+
+    # --- Migration notice: project charter (compound-gpid.md) ---
+    # Introduced in schema version 2026-03-25-project-charter.
+    # Inform projects that do not yet have a charter. Do not create it
+    # automatically -- the charter requires interactive user input via /cg-setup.
+    $cwdCharter = Join-Path $cwdRoot "compound-gpid.md"
+    if (-not (Test-Path $cwdCharter)) {
+        Write-Host ""
+        Write-Host "New feature: project charter." -ForegroundColor Cyan
+        Write-Host "  Run /cg-setup in Copilot Chat to create 'compound-gpid.md' for shared project context." -ForegroundColor Cyan
+        Write-Host "  The charter gives Copilot awareness of your project's goals, deliverables, and constraints." -ForegroundColor Cyan
     }
 
     # --- Migration warning: standalone .cg-docs/ in .gitignore ---
@@ -499,6 +513,12 @@ To fix:
 "@
         }
     }
+}
+
+# Remind users running from outside a linked project that per-project notices are skipped
+if (-not $env:CG_INTERNAL_CALL -and -not (Test-Path $cwdGithub)) {
+    Write-Host ""
+    Write-Host "Tip: run cg-update from your project root to apply per-project migration notices." -ForegroundColor DarkGray
 }
 
 # --- Version status display ---

@@ -18,6 +18,11 @@ Brainstorm → Plan → Work → Review → Compound → Release
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** - invoke a prompt, answer its questions when asked, and let it run to completion.
 
+> **Project Charter**: Before any workflow step, Copilot reads your project's
+> `compound-gpid.md` (if it exists) to understand objective, key deliverables, constraints, and
+> current focus. Create or update it via `/cg-setup`. All `/cg-*` prompts
+> warn you if the charter is missing.
+
 ---
 
 ## Steps

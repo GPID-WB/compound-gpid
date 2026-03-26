@@ -50,6 +50,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-resume` | Claude Sonnet 4.6 | Load context and pick up interrupted work |
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |
 
+> **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
+
 ---
 
 ## Review Agents
@@ -90,8 +92,11 @@ Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
 - **Language**: R, Python, Stata, or any combination
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
+- **Project charter** (optional): project name, objective, deliverables, constraints
 
-This creates `compound-gpid.local.md` in your project root (gitignored) and scaffolds the `.cg-docs/` directory.
+This creates `compound-gpid.local.md` (gitignored, user-specific config) and optionally
+`compound-gpid.md` (committed, shared project charter) in your project root, and scaffolds
+the `.cg-docs/` directory.
 
 ---
 
@@ -108,7 +113,8 @@ your-project/
 │   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
-├── compound-gpid.local.md    # Your project config (gitignored)
+├── compound-gpid.md          # Project charter (committed — shared context)
+├── compound-gpid.local.md    # Your user config (gitignored)
 └── .cg-docs/                 # Compound GPID knowledge base (committed — institutional memory)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
