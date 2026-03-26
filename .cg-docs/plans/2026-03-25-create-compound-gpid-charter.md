@@ -1,7 +1,7 @@
 ---
 date: 2026-03-25
 title: "Create compound-gpid.md as the shared project charter and context file"
-status: active
+status: completed
 brainstorm: ~
 language: "both"
 estimated-effort: "medium"

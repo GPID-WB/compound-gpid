@@ -19,7 +19,7 @@ Focus: Coding best practices, testing, documentation, version control, system st
 - [x] Migrate knowledge folder from `docs/` → `.cg-docs/` to avoid project namespace collisions
 - [x] `/cg-resume` prompt — pick up interrupted work by scanning in-progress plans and recent git history
 - [x] Structural schema versioning — track `cg-schema-version` per project so `cg-update` knows which migrations to apply
-- [ ] Project charter file (`compound-gpid.md`) — shared project context
+- [x] Project charter file (`compound-gpid.md`) -- shared project context
       read by all prompts at session start
 
 ## Phase 2: Analytical Quality

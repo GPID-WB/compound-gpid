@@ -25,6 +25,9 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 3. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
+4. If `compound-gpid.md` exists, keep the project's constraints in mind
+   throughout the brainstorm. If a proposed approach in Step 3 conflicts with
+   declared constraints, flag this explicitly before the user chooses.
 
 ### Step 1: Lightweight Research
 

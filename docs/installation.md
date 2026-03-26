@@ -76,6 +76,12 @@ Open your project in VS Code and run in Copilot Chat:
 ```
 
 This configures language preferences, project type, and review depth, and scaffolds the `.cg-docs/` directory.
+It also optionally creates `compound-gpid.md` -- a committed, shared **project charter** that gives Copilot
+awareness of your project's goals, deliverables, and constraints. All `/cg-*` prompts read this file
+automatically at session start.
+
+- `compound-gpid.local.md` -- always created; gitignored; your personal config (language, review depth)
+- `compound-gpid.md` -- optional; committed; shared project charter for the whole team
 
 ---
 

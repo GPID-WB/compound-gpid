@@ -18,6 +18,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 **Key benefits:**
 - **Consistency** — coding standards, tests, and documentation are enforced on every PR, for R, Python, and Stata.
 - **Compounding returns** — the `cg-learnings-researcher` agent cross-references past solutions so the team never solves the same problem twice.
+- **Project awareness** — `compound-gpid.md` gives Copilot persistent knowledge of your project's goals, constraints, and current focus, so every session starts in context.
 - **Zero friction** — one global clone, directory junctions, and three shell commands (`cg-link`, `cg-unlink`, `cg-update`) wire everything into VS Code / Positron automatically.
 - **Team-wide** — update once, every linked project gets the new version instantly.
 - **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.

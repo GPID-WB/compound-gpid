@@ -50,6 +50,10 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-resume` | Claude Sonnet 4.6 | Load context and pick up interrupted work |
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |
 
+> **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at
+> session start (Step 0: Get Bearings). If the file is missing, prompts remind the user
+> to run `/cg-setup` to create one.
+
 ---
 
 ## Review Agents

@@ -92,43 +92,59 @@ This file configures Compound GPID for this project. It is gitignored and local 
 
 #### A3.5. Create project charter (`compound-gpid.md`)
 
+**Overwrite guard**: If `compound-gpid.md` already exists in the project root, read its
+`project-name` field and ask the user:
+
+> "A project charter already exists for **<project-name>**. Do you want to overwrite it
+> with new answers? (yes / no)"
+
+If the user says no, skip A3.5 entirely.
+
 > The following questions create your project charter (`compound-gpid.md`).
 > You can skip all of them and create it later.
 
+A "skip" is any response indicating the user does not want to answer
+(e.g., "skip", "no", "later", "pass", or a blank reply). Do not prompt
+again on ambiguous responses -- treat them as skips.
+
 Ask each question and wait for the answer before asking the next.
 
-**Question 4 — Project name**
+**Question 4 -- Project name** (required for charter creation)
 
 > What is the name of this project?
 
-**Question 5 — Objective**
+**Question 5 -- Objective** (required for charter creation)
 
-> In 1–3 sentences, what is this project building? Who is it for?
+> In 1-3 sentences, what is this project building? Who is it for?
 
-**Question 6 — Key deliverables** (optional — user may skip)
+**Question 6 -- Key deliverables** (optional -- user may skip)
 
 > What are the concrete outputs? (e.g., R package, REST API, analytical
 > report, harmonized dataset). List as many as apply. You can skip this
 > and add them later.
 
-**Question 7 — Constraints** (optional — user may skip)
+**Question 7 -- Constraints** (optional -- user may skip)
 
 > Are there any hard constraints Copilot should always respect? (e.g.,
 > reproducibility requirements, data privacy rules, methodological
 > standards). You can skip this and add them later.
 
 Write `compound-gpid.md` in the project root using the template below,
-filling in the user's answers. Leave unfilled sections with placeholder text:
+filling in the user's answers. Use HTML comments as placeholders for unfilled
+sections (they are visible when editing but do not render in Markdown previews):
 
-- Architecture Notes: `<Describe the project structure here, or let Copilot fill this in after examining the codebase.>`
-- Current Focus: `<What is the team working on right now? Update this section as priorities change.>`
-- Roadmap: `<Add milestones here. In the future, create roadmap.json for structured tracking.>`
-- Related Resources: `<Add links to external docs, specs, or methodology references.>`
+- Objective (Q5 skipped): `<!-- TODO: Describe what this project is building and who it is for. -->`
+- Key Deliverables (Q6 skipped): `<!-- TODO: List concrete outputs, e.g. R package, REST API, harmonized dataset. -->`
+- Constraints (Q7 skipped): `<!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->`
+- Architecture Notes: `<!-- TODO: Describe the project structure here, or let Copilot fill this in after examining the codebase. -->`
+- Current Focus: `<!-- TODO: What is the team working on right now? Update this section as priorities change. -->`
+- Roadmap: `<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->`
+- Related Resources: `<!-- TODO: Add links to external docs, specs, or methodology references. -->`
 
 ```markdown
 ---
 project-name: "<name>"
-team: "DECDG / GPID — World Bank"
+team: "<your organization>"
 created: "YYYY-MM-DD"
 last-updated: "YYYY-MM-DD"
 ---
@@ -137,37 +153,38 @@ last-updated: "YYYY-MM-DD"
 
 ## Objective
 
-<1–3 sentences from Question 5>
+<1-3 sentences from Question 5, or TODO placeholder>
 
 ## Key Deliverables
 
-<Bulleted list from Question 6, or placeholder>
+<Bulleted list from Question 6, or TODO placeholder>
 
 ## Constraints
 
-<Bulleted list from Question 7, or placeholder>
+<Bulleted list from Question 7, or TODO placeholder>
 
 ## Architecture Notes
 
-<Describe the project structure here, or let Copilot fill this in after examining the codebase.>
+<!-- TODO: Describe the project structure here, or let Copilot fill this in after examining the codebase. -->
 
 ## Current Focus
 
-<What is the team working on right now? Update this section as priorities change.>
+<!-- TODO: What is the team working on right now? Update this section as priorities change. -->
 
 ## Roadmap
 
-<Add milestones here. In the future, create roadmap.json for structured tracking.>
+<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->
 
 ## Related Resources
 
-<Add links to external docs, specs, or methodology references.>
+<!-- TODO: Add links to external docs, specs, or methodology references. -->
 ```
 
-If the user skips ALL charter questions (skips before Question 4 or skips Question 4 and 5),
-do NOT create `compound-gpid.md`. The setup completes with only `compound-gpid.local.md`.
+If the user skips ALL charter questions (skips before Question 4 or skips both
+Question 4 and 5), do NOT create `compound-gpid.md`. The setup completes with
+only `compound-gpid.local.md`.
 
-Do NOT add `compound-gpid.md` to `.gitignore` — it must be committed.
+Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 
 #### A4. Scaffold `.cg-docs/` structure
 
@@ -260,10 +277,11 @@ Check if `compound-gpid.md` exists in the project root.
 - If it exists: read it and extract the `project-name`, Objective, and Current Focus
   for use in the context summary (Step B3).
 - If it does not exist: note that no project charter exists. After presenting the
-  context summary, offer to create one by asking the charter questions (Questions 4–7
-  from Mode A Step A3.5).
+  context summary, offer to create one by asking the charter questions (Questions 4-7
+  from Mode A Step A3.5). Apply the same overwrite guard, skip definition, required
+  labels, and placeholder rules defined in A3.5.
 
-#### B1.5. Scaffold any missing `.cg-docs/` directories
+#### B1.2. Scaffold any missing `.cg-docs/` directories
 
 Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
 without touching existing files. This handles projects that were set up before the `.cg-docs/` structure existed,
@@ -281,7 +299,7 @@ or where individual subdirectories were deleted.
 .cg-docs/solutions/testing-patterns/
 ```
 
-#### B1.6. Schema version check
+#### B1.3. Schema version check
 
 Check if `compound-gpid.local.md` contains a `cg-schema-version` field. If the field is missing or empty, add a note:
 
@@ -348,5 +366,20 @@ Ask:
 > Would you like to update any configuration (language, project type, or review depth)?
 
 - If yes: ask the relevant questions (only those the user wants to change) and rewrite `compound-gpid.local.md`.
-- If no: confirm you are ready and suggest a next step:
-  > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."
+- If no: continue to B4.5.
+
+#### B4.5. Offer to update project charter
+
+If `compound-gpid.md` exists, ask:
+
+> Would you like to update your project charter (`compound-gpid.md`)? For example,
+> you can update the Current Focus, add deliverables, or change constraints.
+
+- If yes: ask which sections the user wants to update (objective, deliverables,
+  constraints, current focus) and rewrite the relevant sections of `compound-gpid.md`.
+- If no: confirm you are ready and suggest a next step.
+
+If `compound-gpid.md` does not exist (and the user declined to create one in B1.1):
+- Confirm you are ready and suggest a next step.
+
+> "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."

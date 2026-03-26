@@ -457,6 +457,33 @@ Describe "update.ps1 - docs to .cg-docs migration" {
 }
 
 # ---------------------------------------------------------------------------
+# Charter migration notice
+# ---------------------------------------------------------------------------
+
+Describe "update.ps1 - charter migration notice" {
+    Context "when compound-gpid.md does NOT exist" {
+        It "should notify the user about the new charter feature" {
+            $testRoot = Join-Path $TestDrive "charter-notice-absent"
+            New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
+            $charter = Join-Path $testRoot "compound-gpid.md"
+            $shouldNotify = -not (Test-Path $charter)
+            $shouldNotify | Should Be $true
+        }
+    }
+
+    Context "when compound-gpid.md EXISTS" {
+        It "should NOT notify (charter already created)" {
+            $testRoot = Join-Path $TestDrive "charter-notice-present"
+            New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
+            $charter = Join-Path $testRoot "compound-gpid.md"
+            New-Item -ItemType File -Path $charter -Force | Out-Null
+            $shouldNotify = -not (Test-Path $charter)
+            $shouldNotify | Should Be $false
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Version pinning -- argument parsing
 # ---------------------------------------------------------------------------
 

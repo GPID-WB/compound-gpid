@@ -24,6 +24,10 @@ Read `compound-gpid.md` in the project root. If it exists, extract:
 - Current Focus
 - Constraints
 
+After extracting, check each field: if a value matches the pattern `<!-- TODO: ... -->`
+or is otherwise an unfilled placeholder, treat it as empty and omit it from the
+session summary (do not display placeholder text as real project facts).
+
 If it does not exist, note: "No project charter found. Consider running
 `/cg-setup` to create one."
 
