@@ -109,22 +109,40 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: At the start of a session when you have interrupted work.
 
-**What happens**: Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, and inspects `git status`/`git log` for in-progress code changes. Presents a structured summary and suggests the most logical next action.
+**What happens**: Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, and inspects `git status`/`git log` for in-progress code changes. Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it also displays milestone progress with completion counts, surfaces roadmap/plan status drift, and suggests unstarted roadmap ideas from active milestones.
 
 **Output**: A structured context summary and a suggested continuation path.
+
+---
+
+### Roadmap (`@cg-roadmap`)
+
+**When**: Any time you want to capture a milestone, feature idea, or check project progress.
+
+**What happens**: The agent reads and modifies `roadmap.json` -- adding milestones, registering features, linking plans, and updating statuses. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch this agent automatically for roadmap updates.
+
+**How to use**: Invoke `@cg-roadmap` directly in Copilot Chat. Examples:
+- "Add a milestone for survey harmonization"
+- "I have an idea for automated PPP validation -- add it to the pipeline milestone"
+- "Show me the roadmap progress"
+- "Remove the feature about X, we're not doing it anymore"
+
+**Output**: Updated `roadmap.json` in the project root.
 
 ---
 
 ## Prompts vs. Agents vs. Skills
 
 | Aspect | Prompts | Agents | Skills |
-|--------|---------|--------|--------|
-| **What they are** | Workflow commands | Specialized reviewers | Reference knowledge |
-| **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. | Dispatched by `/cg-review` | Referenced by prompts/agents |
+|--------|---------|--------|---------|
+| **What they are** | Workflow commands | Specialized reviewers / roadmap manager | Reference knowledge |
+| **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
 | **Interactive?** | No - follow the workflow | No - automated | No (passive by design) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
-| **Produce output?** | Yes (docs, code, reviews) | Yes (review findings) | No (consumed by others) |
+| **Produce output?** | Yes (docs, code, reviews) | Yes (review findings, `roadmap.json`) | No (consumed by others) |
+
+> **`@cg-roadmap` is the only user-invokable agent.** All review agents (`cg-code-quality`, `cg-testing`, etc.) are dispatched exclusively by `/cg-review` and do not appear in the Copilot Chat agent dropdown.
 
 ---
 

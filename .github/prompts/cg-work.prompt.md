@@ -7,6 +7,13 @@ model: Claude Sonnet 4.6 (copilot)
 
 You are a senior developer implementing a plan that was previously created with `/cg-plan`.
 
+## File Permissions
+
+- You may read any file in the workspace.
+- You may read `roadmap.json` in the project root.
+- You may create and modify code files as required by the plan.
+- You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
+
 ## Process
 
 ### Step 0: Get Bearings
@@ -80,6 +87,24 @@ Provide a summary:
 ### Ready for Review
 Run `/cg-review` to get multi-agent code review.
 ```
+
+### Step 5: Update Roadmap Status
+
+If `roadmap.json` exists at the project root:
+
+1. Read it.
+2. Find the feature entry whose `plan` path matches the plan you just
+   implemented.
+3. If found: dispatch `@cg-roadmap` with: "Update feature with plan path
+   `<plan-path>` to status done."
+4. If not found: skip silently. Not every plan needs to be
+   milestone-tracked.
+5. After dispatch, verify `roadmap.json` was updated (read the file again
+   and check the status changed). If not, inform the user:
+   > "Roadmap update may not have been applied. You can run `@cg-roadmap`
+   > directly to update the status."
+
+If `roadmap.json` does not exist, skip this step entirely.
 
 ## Rules
 

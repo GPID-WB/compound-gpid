@@ -52,8 +52,7 @@ agent) and Task 3 (`/cg-setup`) will use.
 
 ```json
 {
-  "$schema": "compound-gpid-roadmap-v1",
-  "updated": "YYYY-MM-DD",
+  "schemaVersion": "compound-gpid-roadmap-v1",
   "milestones": [
     {
       "id": "kebab-case-id",
@@ -73,11 +72,19 @@ agent) and Task 3 (`/cg-setup`) will use.
 }
 ```
 
+**Status Enumerations:**
+
+| Type | Valid values |
+|------|-------------|
+| `milestones[].status` | `planned`, `in-progress`, `done` |
+| `features[].status` | `idea`, `planned`, `active`, `done` |
+
+Note: The two status sets are intentionally different. Feature `active` maps
+to milestone `in-progress`. Milestone status is always derived, never set directly.
+
 **Field rules:**
 
-- `$schema`: always `"compound-gpid-roadmap-v1"`. Enables future migration.
-- `updated`: ISO date, updated on every write. Gives `/cg-resume` a staleness
-  signal.
+- `schemaVersion`: always `"compound-gpid-roadmap-v1"`. Renamed from `$schema` to avoid collision with the JSON Schema `$schema` URI keyword.
 - `milestones[].id`: kebab-case, unique across milestones. Used for
   programmatic reference.
 - `milestones[].title`: short human-readable name.
@@ -112,6 +119,9 @@ agent) and Task 3 (`/cg-setup`) will use.
 - No priority or ordering — features within a milestone are unordered. If
   the user cares about sequence, that's a planning decision made in
   `/cg-plan`, not a schema field.
+- No `updated` timestamp — a mutable timestamp creates merge conflicts when
+  two team members edit `roadmap.json` on parallel branches. Git commit
+  metadata (`git log -1 -- roadmap.json`) provides the same staleness signal.
 
 ### 2. Create `@cg-roadmap` agent
 
@@ -122,8 +132,8 @@ agent) and Task 3 (`/cg-setup`) will use.
 
   ```yaml
   ---
-  description: "Manages roadmap.json — adds milestones and features, updates statuses, links plans, and shows progress. The only agent users interact with directly."
-  model: Claude Haiku 4.5 (copilot)
+  description: "Manages roadmap.json — adds milestones and features, updates statuses, and links plans. The only agent users interact with directly."
+  model: Claude Sonnet 4.6 (copilot)
   tools: ['read', 'write']
   user-invokable: true
   ---
@@ -146,8 +156,59 @@ agent) and Task 3 (`/cg-setup`) will use.
 
   ## Schema
 
-  <paste the full schema definition from Task 1, including field rules and
-  the status enum>
+  `roadmap.json` structure -- always read the file before writing:
+
+  ```json
+  {
+    "schemaVersion": "compound-gpid-roadmap-v1",
+    "milestones": [
+      {
+        "id": "kebab-case-id",
+        "title": "Human-readable milestone title",
+        "objective": "One sentence: why this milestone exists.",
+        "status": "planned",
+        "features": [
+          {
+            "id": "kebab-case-feature-id",
+            "title": "Human-readable feature title",
+            "status": "idea",
+            "plan": null
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  **Status enumerations:**
+
+  | Field | Valid values |
+  |-------|-------------|
+  | `milestones[].status` | `planned`, `in-progress`, `done` |
+  | `features[].status` | `idea`, `planned`, `active`, `done` |
+
+  Milestone status is always **derived** -- never set directly. Feature `active`
+  maps to milestone `in-progress`.
+
+  **Key field rules:**
+  - `schemaVersion`: always `"compound-gpid-roadmap-v1"`.
+  - IDs: kebab-case matching `^[a-z0-9]+(-[a-z0-9]+)*$`. Generated from title:
+    lowercase, replace spaces/special chars with hyphens, collapse consecutive
+    hyphens. Never renamed after creation.
+  - `features[].plan`: string path relative to project root, or `null`. Before
+    writing, verify the file exists at the given path.
+
+  ## Milestone Status Calculation
+
+  Always derived using this ordered cascade -- apply the first rule that matches:
+
+  1. Features array is empty → `planned`
+  2. ALL features are `done` → `done`
+  3. ANY feature is `active` → `in-progress`
+  4. ANY feature is `done` (but not all, and none active) → `in-progress`
+  5. Otherwise (all `idea`, all `planned`, or mix) → `planned`
+
+  **Never** set milestone status directly -- always recompute from features.
 
   ## Operations
 
@@ -175,12 +236,15 @@ agent) and Task 3 (`/cg-setup`) will use.
 
   Typically dispatched by `/cg-plan` after creating a plan file.
 
-  1. Receive: plan file path and feature title or id.
-  2. Find the matching feature. If ambiguous, ask.
-  3. Set `plan` to the plan file path.
-  4. Set `status` to `"planned"`.
-  5. Recalculate the milestone's status.
-  6. Update `updated` date. Write the file.
+  1. Receive: plan file path (relative to project root) and feature id as
+     `{milestone-id, feature-id}` (preferred) or feature title.
+  2. Verify the plan file exists at the given path. If not, report:
+     "Plan file not found: <path>. Aborting link." and stop.
+  3. Find the matching feature. If ambiguous, ask.
+  4. Set `plan` to the plan file path.
+  5. Set `status` to `"planned"`.
+  6. Recalculate the milestone's status.
+  7. Write the file.
 
   ### Update Feature Status
 
@@ -199,32 +263,29 @@ agent) and Task 3 (`/cg-setup`) will use.
   3. Recalculate affected milestone status (if removing a feature).
   4. Update `updated` date. Write the file.
 
-  ### Show Progress
-
-  1. Read `roadmap.json`.
-  2. For each milestone, show:
-     - Title and objective.
-     - Completion: done/total features.
-     - Each feature with its status icon:
-       ✅ done | 🔄 active | 📋 planned | 💡 idea
-  3. If more than 60% of all features across milestones are `idea` or
-     `planned` (not `active` or `done`), add a note:
-     > "Your roadmap has grown — <N> of <total> features haven't been
-     > started. Consider whether all of these are still priorities."
-
   ## Milestone Status Calculation
 
-  A milestone's status is always derived from its features:
-  - If ALL features are `done` → milestone is `done`.
-  - If ANY feature is `active` → milestone is `in-progress`.
-  - If ANY feature is `planned` (but none active) → milestone is `in-progress`.
-  - If ALL features are `idea` → milestone is `planned`.
-  - If features array is empty → milestone is `planned`.
+  Always derived using this ordered cascade — apply the first rule that matches:
+
+  1. Features array is empty → `planned`
+  2. ALL features are `done` → `done`
+  3. ANY feature is `active` → `in-progress`
+  4. ANY feature is `done` (but not all, and none active) → `in-progress`
+  5. Otherwise (all `idea`, all `planned`, or mix of `idea`+`planned`) → `planned`
+
+  This cascade is exhaustive. **Never** set milestone status directly — always
+  recompute from features after any change.
 
   ## Rules
 
   - Always read `roadmap.json` before making changes (never work from memory).
-  - Always validate JSON before writing (no trailing commas, proper quoting).
+  - **JSON validation before every write** -- after composing the JSON, verify:
+    1. No trailing commas after the last item in any array or object.
+    2. All string values are quoted; no bare words.
+    3. `milestones` is still an array.
+    4. Every `milestones[].status` is one of `planned`, `in-progress`, `done`.
+    5. Every `features[].status` is one of `idea`, `planned`, `active`, `done`.
+    If any check fails, fix it before writing.
   - Confirm destructive operations (remove) with the user before executing.
   - When dispatched as a subagent, do not ask questions — use the information
     provided by the calling prompt. If critical information is missing, report
@@ -237,7 +298,8 @@ agent) and Task 3 (`/cg-setup`) will use.
   - Agent file exists with correct frontmatter.
   - `user-invokable: true` (visible in Copilot dropdown).
   - `tools: ['read', 'write']` (can modify `roadmap.json`).
-  - All six operations documented in the agent body.
+  - All five operations documented in the agent body (Show Progress excluded — display is `/cg-resume`'s responsibility).
+  - Model is Claude Sonnet 4.6.
   - Milestone status auto-calculation rule is explicit.
   - File permissions restrict writes to `roadmap.json` only.
 
@@ -255,8 +317,7 @@ agent) and Task 3 (`/cg-setup`) will use.
 
   ```json
   {
-    "$schema": "compound-gpid-roadmap-v1",
-    "updated": "<today's date>",
+    "schemaVersion": "compound-gpid-roadmap-v1",
     "milestones": []
   }
   ```
@@ -316,16 +377,19 @@ agent) and Task 3 (`/cg-setup`) will use.
      - If yes: dispatch `@cg-roadmap` with: "Link plan
        `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone
        `<milestone-id>`. Set status to planned."
+       Then verify: read `roadmap.json` again and confirm the change was
+       applied. If not: "Roadmap update may not have been applied. Run
+       `@cg-roadmap` directly."
   4. If no match is found:
      - Ask the user: "Should this plan be added to a milestone in the
        roadmap?"
        - If yes: show existing milestones and ask which one, or offer to
          create a new one. Dispatch `@cg-roadmap` with the appropriate
          operation (add feature, or add milestone + add feature).
+         Then verify: read `roadmap.json` again and confirm the change was
+         applied. If not: "Roadmap update may not have been applied. Run
+         `@cg-roadmap` directly."
        - If no: skip silently.
-  5. If only one active milestone exists AND the plan clearly fits it:
-     - Skip the question. Dispatch `@cg-roadmap` directly to link it.
-     - Inform the user: "Registered in roadmap under '<milestone title>'."
 
   If `roadmap.json` does not exist, skip this step entirely.
   ```
@@ -404,6 +468,8 @@ agent) and Task 3 (`/cg-setup`) will use.
        offer to create a new milestone.
      - Dispatch `@cg-roadmap` with: "Add feature '<brainstorm title>' to
        milestone '<milestone-id>' with status idea."
+     - Verify: read `roadmap.json` again; confirm the feature was added.
+       If not: "Roadmap update may not have been applied. Run `@cg-roadmap`."
   3. If no: skip.
 
   If `roadmap.json` does not exist, skip this section entirely.
@@ -425,7 +491,7 @@ agent) and Task 3 (`/cg-setup`) will use.
 - **File**: `.github/prompts/cg-resume.prompt.md` (MODIFY)
 - **Details**:
 
-  **Step 3 — add sub-step 3d** (after 3c "Recent git activity"):
+  **Insertion point: Step 2** -- add sub-step 2d (after 3c "Recent git activity"):
 
   ```markdown
   #### 3d. Milestone progress
@@ -437,8 +503,8 @@ agent) and Task 3 (`/cg-setup`) will use.
     (not started).
   ```
 
-  **Step 4 — add section to the summary output** (after "Recent Git
-  Activity"):
+  **Insertion point: Step 3 output section** -- add section after "Recent Git
+  Activity":
 
   ```markdown
   ### 📊 Milestone Progress (<milestone count>)
@@ -462,7 +528,7 @@ agent) and Task 3 (`/cg-setup`) will use.
   > deprioritize items that aren't near-term.
   ```
 
-  **Step 5 — extend the "Suggest Next Action" logic**: If the roadmap has
+  **Insertion point: Step 4 "Suggest Next Action"** -- extend the options list: If the roadmap has
   features with `status: "idea"` in an `in-progress` milestone, include an
   option:
 
@@ -474,12 +540,21 @@ agent) and Task 3 (`/cg-setup`) will use.
   `@cg-roadmap` for display. The agent is for writes; `/cg-resume` is for
   reads.
 
-  **Cross-check** (lightweight consistency check): if a feature has
-  `status: "active"` but its linked plan file has `status: completed` in the
-  YAML frontmatter, surface the discrepancy:
+  **Cross-check** (for `in-progress` milestones only): for each feature with a
+  non-null `plan` path, read the linked plan file's YAML frontmatter and check:
+  - If `plan` path does not exist → stale reference warning.
+  - If feature `status: "active"` but plan frontmatter `status: completed`
+    → roadmap-behind-plan drift warning.
+  - If feature `status: "done"` but plan frontmatter does not have
+    `status: completed` → roadmap-ahead-of-plan drift warning.
 
-  > "⚠️ Feature '<title>' is marked active in roadmap but its plan is
-  > completed. Run `@cg-roadmap` to update its status."
+  Plan files use a `status:` field in YAML frontmatter; `/cg-work` sets it to
+  `completed` when implementation finishes.
+
+  Display any discrepancies after the milestone progress section:
+  > "⚠️ Feature '<title>' is marked active but its plan is completed.
+  >  Run `@cg-roadmap` to update its status."
+  > "⚠️ Feature '<title>' has a stale plan reference ('<path>' not found)."
 
 - **Acceptance criteria**:
   - `/cg-resume` displays milestone progress with completion counts.
@@ -582,6 +657,24 @@ agent) and Task 3 (`/cg-setup`) will use.
 
 ---
 
+## Implementation Commit Messages
+
+Use conventional commits (`type(scope): description`). Suggested messages per task:
+
+| Task | Suggested commit message |
+|------|---------------------------|
+| Plan file | `plan(roadmap): add roadmap.json and @cg-roadmap agent plan` |
+| 2 | `feat(agents): add @cg-roadmap agent` |
+| 3 | `feat(setup): scaffold roadmap.json in /cg-setup` |
+| 4 | `feat(plan): dispatch @cg-roadmap for roadmap linking` |
+| 5 | `feat(work): dispatch @cg-roadmap for status update` |
+| 6 | `feat(brainstorm): offer roadmap registration on handoff` |
+| 7 | `feat(resume): add milestone progress display and cross-check` |
+| 8 | `test(agents): verify user-invokable flags on all agents` |
+| 9 | `docs: document @cg-roadmap usage and directory structure` |
+
+---
+
 ## Testing Strategy
 
 ### Manual Testing
@@ -627,6 +720,41 @@ agent) and Task 3 (`/cg-setup`) will use.
 9. **Agent visibility check**: Open the Copilot Chat agents dropdown. Verify
    `@cg-roadmap` appears. Verify no review agents appear.
 
+### Automated Tests (`tests/roadmap.Tests.ps1`)
+
+Create `tests/roadmap.Tests.ps1` covering:
+
+```powershell
+Describe "roadmap.json schema" {
+    It "parses without error" { ... }
+    It "requires schemaVersion field" { ... }
+    It "rejects invalid milestone status" { ... }
+    It "rejects invalid feature status" { ... }
+    It "rejects duplicate milestone IDs" { ... }
+    It "rejects duplicate feature IDs within a milestone" { ... }
+}
+
+Describe "Milestone Status Calculation" {
+    It "empty features -> planned" { ... }
+    It "all done -> done" { ... }
+    It "any active -> in-progress" { ... }
+    It "mix of done + idea (no active) -> in-progress" { ... }
+    It "mix of done + planned (no active) -> in-progress" { ... }
+    It "all idea -> planned" { ... }
+    It "all planned -> planned" { ... }
+    It "mix of planned + idea -> planned" { ... }
+}
+
+Describe "/cg-resume scope health" {
+    It "nudge fires at exactly 60% unstarted" { ... }
+    It "nudge does not fire below 60%" { ... }
+    It "empty feature list -> no divide-by-zero" { ... }
+}
+```
+
+Implement status calculation logic as pure PowerShell helper functions (no
+LLM invocation) for deterministic test results.
+
 ### Structural Validation
 
 ```powershell
@@ -644,6 +772,15 @@ Select-String -Path ".github\prompts\cg-plan.prompt.md", `
 
 # Verify /cg-resume reads roadmap.json
 Select-String -Path ".github\prompts\cg-resume.prompt.md" -Pattern "roadmap.json"
+
+# Verify schemaVersion (not $schema) is used
+Select-String -Path ".github\agents\cg-roadmap.agent.md", `
+  ".github\prompts\cg-setup.prompt.md" -Pattern "schemaVersion"
+
+# Verify roadmap.json is NOT in .gitignore
+$isIgnored = Select-String -Path ".gitignore" -Pattern "roadmap\.json" -Quiet
+"roadmap.json in .gitignore: $isIgnored"
+# Expected: False
 ```
 
 ---
@@ -653,7 +790,7 @@ Select-String -Path ".github\prompts\cg-resume.prompt.md" -Pattern "roadmap.json
 | Risk | Likelihood | Mitigation |
 |------|-----------|------------|
 | JSON corruption from model edits | Medium | Keep file small by design (3-5 milestones, 3-8 features each). File is committed to git — corruption is recoverable via `git checkout`. Agent validates JSON before writing. |
-| Subagent dispatch failure (silent) | Medium | `/cg-work` includes post-dispatch verification. If update not applied, user is informed and can run `@cg-roadmap` directly. |
+| Subagent dispatch failure (silent) | Medium | `/cg-work`, `/cg-plan`, and `/cg-brainstorm` all include post-dispatch verification (read-back and confirm). If update not applied, user is informed and can run `@cg-roadmap` directly. |
 | Roadmap/plan status drift | Medium | `/cg-resume` cross-checks feature status against plan frontmatter and surfaces discrepancies. |
 | Feature ID collisions | Low | Agent checks for existing IDs before adding. IDs are scoped per-milestone. |
 | Scope creep (roadmap grows indefinitely) | Medium | `/cg-resume` nudges user when >60% features are unstarted. `@cg-roadmap` supports removing features. |
@@ -675,6 +812,9 @@ Select-String -Path ".github\prompts\cg-resume.prompt.md" -Pattern "roadmap.json
   2-5 (per prior design decision).
 - **Roadmap visualization or export** — if needed, this is a future feature.
   The JSON is the source of truth; rendering is `/cg-resume`'s job for now.
+- **Schema migration (v1 → v2)** — the `schemaVersion` field enables future
+  migration, but no migration tool or process is designed here. When a new
+  schema version is needed, create a separate plan for the migration approach.
 
 ---
 

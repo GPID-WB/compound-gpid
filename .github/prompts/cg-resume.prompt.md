@@ -91,6 +91,22 @@ Run `git log --oneline -10` to see the last 10 commits. Note the most recent bra
 
 If git is not available or this is not a git repo, skip this step.
 
+#### 2d. Milestone progress
+
+If `roadmap.json` exists at the project root, read it and compute:
+- For each milestone: count of done/total features, overall status.
+- Any features with `status: "active"` (work currently underway).
+- Scope health: what percentage of all features are `idea` or `planned`
+  (not started).
+
+For `in-progress` milestones only, cross-check each feature that has a
+non-null `plan` path:
+- If the plan path does not exist -> stale reference (note it).
+- If feature `status: "active"` but plan frontmatter `status: completed`
+  -> roadmap-behind-plan drift (note it).
+- If feature `status: "done"` but plan frontmatter does not have
+  `status: completed` -> roadmap-ahead-of-plan drift (note it).
+
 ### Step 3: Present Context Summary
 
 Present a structured summary.
@@ -139,6 +155,32 @@ Last commits:
 Uncommitted changes: <count files changed, or "none">
 
 ---
+
+### 📊 Milestone Progress (<milestone count>)
+
+> Only include this section if `roadmap.json` exists.
+
+**<milestone title>** -- <done>/<total> features [<status>]
+  _<objective>_
+  ✅ <done feature title>
+  🔄 <active feature title>
+  📋 <planned feature title>
+  💡 <idea feature title>
+
+**<next milestone>** -- ...
+
+> If any cross-check discrepancies were found:
+> ⚠️ Feature '<title>' is marked active but its plan is completed.
+>   Run `@cg-roadmap` to update its status.
+> ⚠️ Feature '<title>' has a stale plan reference ('<path>' not found).
+
+> Scope health nudge -- include only when more than 60% of all features
+> across milestones are `idea` or `planned`:
+> ⚠️ **Roadmap scope check**: <N> of <total> features haven't been started.
+> Consider reviewing your roadmap with `@cg-roadmap` to archive or
+> deprioritize items that aren't near-term.
+
+---
 ```
 
 If all three sections are empty, say:
@@ -162,5 +204,8 @@ Ask:
 > 4. Start something new — `/cg-brainstorm`
 
 Adapt the options to what's actually available. If only one option applies, just suggest it directly.
+If `roadmap.json` exists and any `in-progress` milestone has features with
+`status: "idea"`, add an additional option:
 
+> N. Plan a roadmap idea: **<feature title>** (in <milestone title>) -- `/cg-plan`
 

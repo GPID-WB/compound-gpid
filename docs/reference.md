@@ -68,6 +68,16 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Sonnet 4.6 |
 
+> All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+
+## Roadmap Agent
+
+| Agent | Focus | Model | User-invokable |
+|-------|-------|-------|----------------|
+| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Sonnet 4.6 | **Yes** |
+
+> `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates.
+
 ---
 
 ## Skills
@@ -113,9 +123,10 @@ your-project/
 │   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
-├── compound-gpid.md          # Project charter (committed — shared context)
+├── compound-gpid.md          # Project charter (committed -- shared context)
 ├── compound-gpid.local.md    # Your user config (gitignored)
-└── .cg-docs/                 # Compound GPID knowledge base (committed — institutional memory)
+├── roadmap.json              # Milestone & feature tracker (committed)
+└── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     └── solutions/            # /cg-compound outputs
