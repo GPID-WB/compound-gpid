@@ -1,7 +1,7 @@
 ---
 date: 2026-03-26
 title: "Add roadmap.json and @cg-roadmap agent — structured milestone tracking"
-status: active
+status: completed
 brainstorm: "N/A (iterative design with architecture advisor)"
 language: "both"
 estimated-effort: "medium"
@@ -221,7 +221,7 @@ to milestone `in-progress`. Milestone status is always derived, never set direct
   2. Generate a kebab-case `id` from the title.
   3. Verify the id is unique across existing milestones.
   4. Add the milestone with `status: "planned"` and an empty `features` array.
-  5. Update `updated` date. Write the file.
+  5. Write the file.
 
   ### Add Feature
 
@@ -230,7 +230,7 @@ to milestone `in-progress`. Milestone status is always derived, never set direct
   3. Verify the id is unique within the target milestone.
   4. Add the feature with `status: "idea"` and `plan: null`.
   5. Recalculate the milestone's status.
-  6. Update `updated` date. Write the file.
+  6. Write the file.
 
   ### Link Plan to Feature
 
@@ -254,27 +254,14 @@ to milestone `in-progress`. Milestone status is always derived, never set direct
   2. Find the matching feature by plan path or id.
   3. Update `status` to the new value.
   4. Recalculate the milestone's status.
-  5. Update `updated` date. Write the file.
+  5. Write the file.
 
   ### Remove Feature or Milestone
 
   1. Confirm with the user before deleting.
   2. Remove the entry.
   3. Recalculate affected milestone status (if removing a feature).
-  4. Update `updated` date. Write the file.
-
-  ## Milestone Status Calculation
-
-  Always derived using this ordered cascade — apply the first rule that matches:
-
-  1. Features array is empty → `planned`
-  2. ALL features are `done` → `done`
-  3. ANY feature is `active` → `in-progress`
-  4. ANY feature is `done` (but not all, and none active) → `in-progress`
-  5. Otherwise (all `idea`, all `planned`, or mix of `idea`+`planned`) → `planned`
-
-  This cascade is exhaustive. **Never** set milestone status directly — always
-  recompute from features after any change.
+  4. Write the file.
 
   ## Rules
 

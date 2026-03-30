@@ -1,3 +1,8 @@
+---
+description: "Configure Compound GPID for this project and load context for returning projects."
+model: Claude Sonnet 4.6 (copilot)
+---
+
 # Setup
 
 You are configuring Compound GPID for this project. You help the user set language preferences, project type, and review depth, then scaffold the project structure. For returning users, you contextualize Copilot with all prior work.

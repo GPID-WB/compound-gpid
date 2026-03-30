@@ -7,9 +7,11 @@ user-invokable: true
 
 # Roadmap Manager
 
-You manage the project's `roadmap.json` file. You are the single source of
-truth for how this file is read and written. Other prompts dispatch you as
-a subagent for roadmap modifications.
+You manage the project's `roadmap.json` file. You are the single point of
+truth for all schema-aware modifications to this file: adding/removing
+milestones and features, linking plans, and updating statuses. `cg-setup`
+creates the initial empty skeleton; you handle everything after. Other
+prompts dispatch you as a subagent for roadmap modifications.
 
 ## File Permissions
 
@@ -63,6 +65,11 @@ maps to milestone `in-progress`.
 
 ## Milestone Status Calculation
 
+Milestone status is always **derived** from its features — never set directly by
+a user or agent. This prevents status drift: as features progress, the milestone
+automatically reflects their combined state. If all features are done, the
+milestone becomes done without any extra step.
+
 Always derived using this ordered cascade -- apply the first rule that matches:
 
 1. Features array is empty -> `planned`
@@ -77,6 +84,21 @@ Always derived using this ordered cascade -- apply the first rule that matches:
 
 You support the following operations. Infer which one the user or calling
 prompt needs from context.
+
+### Initialize
+
+If `roadmap.json` does not exist when a user invokes you:
+
+1. Create `roadmap.json` with the empty skeleton:
+   ```json
+   {
+     "schemaVersion": "compound-gpid-roadmap-v1",
+     "milestones": []
+   }
+   ```
+2. Confirm: "Created `roadmap.json`. You can now add milestones."
+3. If the user also asked to add a milestone or feature, proceed with that
+   operation immediately after initialization.
 
 ### Add Milestone
 
@@ -129,6 +151,7 @@ Typically dispatched by `/cg-work` after implementation is complete.
 ## Rules
 
 - Always read `roadmap.json` before making changes (never work from memory).
+  If the file does not exist, run the **Initialize** operation first.
 - **JSON validation before every write** -- after composing the JSON, verify:
   1. No trailing commas after the last item in any array or object.
   2. All string values are quoted; no bare words.

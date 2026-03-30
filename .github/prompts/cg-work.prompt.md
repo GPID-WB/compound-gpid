@@ -12,7 +12,7 @@ You are a senior developer implementing a plan that was previously created with 
 - You may read any file in the workspace.
 - You may read `roadmap.json` in the project root.
 - You may create and modify code files as required by the plan.
-- You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
+- You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
 
 ## Process
 
@@ -34,6 +34,16 @@ You are a senior developer implementing a plan that was previously created with 
    - R: load `cg-skill-r-technical` for package/infrastructure work (collapse, data.table, APIs, Shiny, pipelines), `cg-skill-r-analytical` for statistical/econometric/analytical work (collapse, data.table, fixest, poverty measurement, WB visualizations). Load both if the plan covers mixed work or if unsure.
    - Python: load the `cg-skill-python-best-practices` skill.
    - Stata: load `cg-skill-stata-best-practices` for any Stata work.
+
+### Step 1.5: Mark Work Started
+
+If `roadmap.json` exists, find a feature whose `plan` path matches this plan.
+If found **and the feature's current status is not `done`**, dispatch
+`@cg-roadmap` with: "Update feature with plan path `<plan-path>` to status
+active." This ensures `/cg-resume` shows the milestone as `in-progress`
+during implementation. (Skip if already `done` to avoid regression.)
+
+Only run this step after the plan is confirmed valid in Step 1.
 
 ### Step 2: Implement Step by Step
 

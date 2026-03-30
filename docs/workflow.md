@@ -119,7 +119,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: Any time you want to capture a milestone, feature idea, or check project progress.
 
-**What happens**: The agent reads and modifies `roadmap.json` -- adding milestones, registering features, linking plans, and updating statuses. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch this agent automatically for roadmap updates.
+**What happens**: The agent reads and modifies `roadmap.json` -- adding milestones, registering features, linking plans, and updating statuses. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch this agent automatically for roadmap updates (when `roadmap.json` exists at the project root).
 
 **How to use**: Invoke `@cg-roadmap` directly in Copilot Chat. Examples:
 - "Add a milestone for survey harmonization"

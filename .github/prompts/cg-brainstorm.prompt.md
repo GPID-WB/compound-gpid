@@ -10,7 +10,6 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json` in the project root.
 - You may create new files ONLY under `.cg-docs/brainstorms/`.
 - You must NOT modify any existing files.
 - You must NOT create files outside `.cg-docs/brainstorms/`.
@@ -103,11 +102,9 @@ tags: [<relevant tags>]
 
 ### Step 5: Handoff
 
-After saving, suggest:
+After saving:
 
-> Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
-
-### Charter Update Suggestion
+#### 5a. Charter Update Suggestion
 
 If the brainstorm produced ideas that would change the project's objectives,
 scope, or current focus, suggest updating `compound-gpid.md`:
@@ -115,7 +112,7 @@ scope, or current focus, suggest updating `compound-gpid.md`:
 > "This brainstorm suggests a shift in project scope. Consider updating the
 > 'Current Focus' or 'Key Deliverables' sections of `compound-gpid.md`."
 
-### Roadmap Registration
+#### 5b. Roadmap Registration
 
 If `roadmap.json` exists at the project root:
 
@@ -131,3 +128,9 @@ If `roadmap.json` exists at the project root:
 3. If no: skip.
 
 If `roadmap.json` does not exist, skip this section entirely.
+
+#### 5c. Handoff
+
+Suggest:
+
+> Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
