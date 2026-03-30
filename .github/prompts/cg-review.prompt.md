@@ -1,7 +1,7 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
-tools: ['agent', 'read', 'search']
+tools: ['agent', 'read', 'search', 'write']
 agents: ['cg-code-quality', 'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility', 'cg-performance', 'cg-architecture', 'cg-data-quality', 'cg-learnings-researcher']
 ---
 
@@ -98,6 +98,15 @@ Merge all agent findings into a single prioritized report:
 - <agent-name>: No issues found
 - <agent-name>: No issues found
 ```
+
+### Step 3.5: Save Review Report
+
+Before presenting findings to the user, save the full report to disk so it can be referenced in future sessions.
+
+1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`).
+2. Derive the review filename: take the plan filename stem (without extension), append `-review`, and place the file in `.cg-docs/reviews/`. Example: plan `2026-03-26-roadmap-json.md` → review `2026-03-26-roadmap-json-review.md`.
+3. Write the full prioritized report (the markdown block from Step 3) to `.cg-docs/reviews/<stem>-review.md`.
+4. Tell the user: "> Review report saved to `.cg-docs/reviews/<filename>`. Use `/cg-fix` in a future session to apply specific findings by number."
 
 ### Step 4: Triage
 
