@@ -95,11 +95,12 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ### 7. Release (`/cg-release`)
 
+> [!NOTE]
+> **Developer-only** — this prompt lives at the compound-gpid repo root and is NOT distributed to linked user projects via junctions. Only invoke it from the compound-gpid workspace.
+
 **When**: After the Compound step, when you are ready to publish a new version of compound-gpid.
 
 **What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub.
-
-> **Developer-only** — this prompt lives at the compound-gpid repo root and is NOT distributed to linked user projects via junctions. Only invoke it from the compound-gpid workspace.
 
 **Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
 
