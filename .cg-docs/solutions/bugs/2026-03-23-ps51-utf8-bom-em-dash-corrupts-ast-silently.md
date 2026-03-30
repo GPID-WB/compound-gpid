@@ -147,4 +147,5 @@ foreach ($i in $ifs) {
 - [PS 5.1 stderr with ErrorActionPreference=Stop terminates on git output](../git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md) -- another PS 5.1 silent failure mode
 - [Get-Item .Target is string[] in PowerShell 5.1](../build-errors/2026-03-04-get-item-target-is-string-array.md) -- another PS 5.1 surprise vs PS 7+
 - [Pester 3.4 vs Pester 5 compatibility](../testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md) -- notes em-dash causes lexer errors; this document covers the silent AST corruption variant
+- [PS 5.1 ConvertFrom-Json single-element array coercion](./2026-03-30-ps51-convertfrom-json-single-element-array-coercion.md) -- another PS 5.1 silent behaviour difference: single-element JSON arrays deserialise to a bare PSCustomObject
 - Commits: `da17d82` (replace non-ASCII chars), `1fe5017` (add Pester guard tests)
