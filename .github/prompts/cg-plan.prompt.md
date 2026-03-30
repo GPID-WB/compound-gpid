@@ -121,9 +121,14 @@ If `roadmap.json` exists at the project root:
 4. If no match is found:
    - Ask the user: "Should this plan be added to a milestone in the
      roadmap?"
-     - If yes: show existing milestones and ask which one, or offer to
-       create a new one. Dispatch `@cg-roadmap` with the appropriate
-       operation (add feature, or add milestone + add feature).
+     - If yes: show existing milestones and ask which one. If the user
+       wants a new milestone, ask for its title and objective.
+       - Existing milestone: dispatch `@cg-roadmap` with: "Add feature
+         '<plan title>' to milestone '<milestone-id>'."
+       - New milestone: dispatch `@cg-roadmap` with: "Add milestone
+         '<title>' with objective '<objective>'." Then, after confirming
+         it was created, dispatch a second message: "Add feature '<plan
+         title>' to milestone '<milestone-id>'."
        Then verify: read `roadmap.json` again and confirm the change was
        applied. If not: "Roadmap update may not have been applied. Run
        `@cg-roadmap` directly."

@@ -37,6 +37,7 @@ function Get-MilestoneStatus {
     MIRRORS @cg-roadmap agent logic -- keep synchronized with
     .github/agents/cg-roadmap.agent.md (Milestone Status Calculation section).
     Internal helper for Pester tests; not exported.
+    #>
     param(
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
@@ -81,6 +82,7 @@ function Get-ScopeHealthNudge {
     MIRRORS @cg-roadmap agent logic -- keep synchronized with
     .github/prompts/cg-resume.prompt.md (scope health nudge section).
     Internal helper for Pester tests; not exported.
+    #>
     param(
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
@@ -267,6 +269,17 @@ Describe "roadmap.json schema" {
         $roadmap = @{
             schemaVersion = "compound-gpid-roadmap-v1"
             milestones    = "not-an-array"
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "must be an array"
+    }
+
+    It "rejects features as a string instead of array" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"; features = "not-an-array" }
+            )
         }
         $errors = Test-RoadmapSchema $roadmap
         ($errors -join " ") | Should -Match "must be an array"

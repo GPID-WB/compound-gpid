@@ -335,8 +335,7 @@ or where individual subdirectories were deleted.
 If `roadmap.json` does not exist in the project root, mention:
 
 > "No `roadmap.json` found. You can create one by invoking `@cg-roadmap`
-> and asking it to set up the roadmap, or it will be created automatically
-> if you re-run `/cg-setup` in new-project mode."
+> in Copilot Chat and asking it to initialize your roadmap."
 
 #### B1.3. Schema version check
 

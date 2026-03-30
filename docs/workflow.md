@@ -31,7 +31,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: Requirements are fuzzy, you're not sure what to build, or multiple approaches are possible.
 
-**What happens**: The prompt scans your project, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`.
+**What happens**: The prompt scans your project, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`. If `roadmap.json` exists, it also offers to register the brainstorm outcome as a feature idea in the roadmap.
 
 **Output**: `.cg-docs/brainstorms/YYYY-MM-DD-<title>.md`
 
@@ -41,7 +41,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After brainstorming (or when you already know what to build).
 
-**What happens**: The prompt reads any relevant brainstorm, researches your codebase, and creates a step-by-step implementation plan with files to create/modify, tests to write, and acceptance criteria.
+**What happens**: The prompt reads any relevant brainstorm, researches your codebase, and creates a step-by-step implementation plan with files to create/modify, tests to write, and acceptance criteria. If `roadmap.json` exists, the prompt also offers to link the plan to a matching roadmap feature, setting its status to `planned`.
 
 **Output**: `.cg-docs/plans/YYYY-MM-DD-<title>.md`
 
@@ -51,7 +51,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After a plan exists.
 
-**What happens**: The prompt loads the most recent plan and implements it step by step - writing code, tests, and documentation. It checks against acceptance criteria and suggests commit messages.
+**What happens**: The prompt loads the most recent plan and implements it step by step - writing code, tests, and documentation. It checks against acceptance criteria and suggests commit messages. If the plan is linked to a roadmap feature, the prompt automatically marks it as `active` before work begins.
 
 **Output**: Code, tests, documentation changes.
 
@@ -109,7 +109,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: At the start of a session when you have interrupted work.
 
-**What happens**: Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, and inspects `git status`/`git log` for in-progress code changes. Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it also displays milestone progress with completion counts, surfaces roadmap/plan status drift, and suggests unstarted roadmap ideas from active milestones.
+**What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, and inspects `git status`/`git log` for in-progress code changes. Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it also displays milestone progress with completion counts, surfaces roadmap/plan status drift, and suggests unstarted roadmap ideas from active milestones.
 
 **Output**: A structured context summary and a suggested continuation path.
 
