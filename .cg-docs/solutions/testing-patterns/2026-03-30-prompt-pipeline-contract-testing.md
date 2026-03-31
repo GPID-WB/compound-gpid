@@ -148,4 +148,5 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
 ## Related
 
 - [2026-03-30-test-prompt-frontmatter-tools-list.md](./2026-03-30-test-prompt-frontmatter-tools-list.md) — guarding the `tools:` permission list in prompt frontmatter (adjacent concern: silent failures at the _permission_ layer rather than the _contract_ layer)
+- [2026-03-30-do-not-delegate-file-write-guardrail.md](./2026-03-30-do-not-delegate-file-write-guardrail.md) — guarding against the AI agent delegating file-writing steps to a subagent, causing silent data loss (layer below: _execution_ rather than _permission_ or _contract_)
 - [2026-03-02-prompt-file-permission-guardrails.md](./2026-03-02-prompt-file-permission-guardrails.md) — broader guardrails for prompt file structure
