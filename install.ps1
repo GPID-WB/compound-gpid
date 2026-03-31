@@ -130,6 +130,11 @@ try {
     } else {
         Write-Host "  Already on PATH: $binDir" -ForegroundColor DarkGray
     }
+    # Broadcast WM_SETTINGCHANGE so Explorer.exe and running processes pick up the
+    # new PATH immediately -- without this, users must sign out and back in.
+    # setx is CLM-safe and always broadcasts after writing to the registry.
+    # The dummy variable is the price of the broadcast; it is harmless.
+    & "$env:SystemRoot\System32\cmd.exe" /c "setx COMPOUND_GPID_INSTALLED 1 >nul 2>&1" | Out-Null
     $pathAdded = $true
 } catch {
     Write-Warning "  Could not update PATH via reg.exe: $_"
