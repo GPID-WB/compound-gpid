@@ -134,3 +134,7 @@ declares `tools:`. Treat the frontmatter as a contract — test it like an API.
   — Complementary pattern: how to scope-limit writes using `## File Permissions`
   prose in the prompt body (for prompts that use default agent mode rather than
   an explicit `tools:` list).
+- [2026-03-30 Prompt pipeline contract testing](./2026-03-30-prompt-pipeline-contract-testing.md)
+  — Adjacent concern: testing the structural contract between chained prompts
+  (output format, file location, cross-reference text) rather than just the
+  permission layer.

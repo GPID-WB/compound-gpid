@@ -139,6 +139,7 @@ your-project/
 └── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
+    ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     └── solutions/            # /cg-compound outputs
         ├── build-errors/
         ├── bugs/

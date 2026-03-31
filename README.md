@@ -13,7 +13,7 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 
 ## Why Compound GPID?
 
-Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review → Compound** loop that does more than produce code — it produces *knowledge*. Every solved problem is captured as a structured document and fed back into future reviews, so your team compounds its expertise with every task.
+Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review → Fix Triage → Compound** loop that does more than produce code — it produces *knowledge*. Every solved problem is captured as a structured document and fed back into future reviews, so your team compounds its expertise with every task.
 
 **Key benefits:**
 - **Consistency** — coding standards, tests, and documentation are enforced on every PR, for R, Python, and Stata.
