@@ -130,10 +130,10 @@ try {
     } else {
         Write-Host "  Already on PATH: $binDir" -ForegroundColor DarkGray
     }
-    # Broadcast WM_SETTINGCHANGE so Explorer.exe and running processes pick up the
-    # new PATH immediately -- without this, users must sign out and back in.
-    # setx is CLM-safe and always broadcasts after writing to the registry.
-    # The dummy variable is the price of the broadcast; it is harmless.
+    # Broadcast WM_SETTINGCHANGE unconditionally so Explorer.exe and all running
+    # processes (including VS Code terminals) pick up the current PATH immediately.
+    # Must run every time install.ps1 is called, not just on first add.
+    # setx is CLM-safe and triggers the broadcast as a side effect.
     & "$env:SystemRoot\System32\cmd.exe" /c "setx COMPOUND_GPID_INSTALLED 1 >nul 2>&1" | Out-Null
     $pathAdded = $true
 } catch {
