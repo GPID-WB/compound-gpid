@@ -124,7 +124,7 @@ try {
         Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
     if ($currentPath) { $currentPath = $currentPath.Trim() } else { $currentPath = "" }
     if ($currentPath -notlike "*$binDir*") {
-        if ($currentPath.Length -gt 0) { $newPath = "$currentPath;$binDir" } else { $newPath = $binDir }
+        if ($currentPath.Length -gt 0) { $newPath = "$binDir;$currentPath" } else { $newPath = $binDir }
         reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f | Out-Null
         Write-Host "  Added to PATH: $binDir" -ForegroundColor DarkGray
     } else {
