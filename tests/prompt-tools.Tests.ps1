@@ -76,6 +76,10 @@ Describe "cg-review.prompt.md - review file output step" {
     It "mentions /cg-fix-triage so users know how to apply findings" {
         ($content -match '/cg-fix-triage') | Should Be $true
     }
+
+    It "explicitly instructs DO NOT delegate the Step 3.5 file write" {
+        ($content -match 'Do NOT delegate') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -106,11 +110,36 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
     }
 }
 
+Describe "cg-fix-triage.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
 Describe "cg-fix-triage.prompt.md - review reports location" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references .cg-docs/reviews/ directory to load saved review reports" {
+        ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-resume.prompt.md pending review findings scan
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - pending review findings scan" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references .cg-docs/reviews/ directory in Step 2e to scan for pending findings" {
         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
     }
 }

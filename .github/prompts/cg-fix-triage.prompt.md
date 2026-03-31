@@ -52,7 +52,7 @@ Parse the user's arguments to decide which findings to fix:
 - **Mixed** (e.g., `P1 P2.3`): Fix all P1 findings plus finding P2.3.
 
 Tell the user which findings are in scope:
-> "Fixing N findings: P1.1, P1.2, P2.3 (skipping M others)."
+> "Fixing N findings: P1.1, P1.2, P2.3 (M out of scope)."​
 
 ### Step 3: Apply Fixes
 
@@ -66,6 +66,11 @@ For each in-scope finding, in order (P1 first, then P2, then P3):
 If a fix is ambiguous or risky:
 - Explain what the fix would do and ask the user to confirm before applying.
 - If the user says skip, move to the next finding.
+
+If a fix fails validation (compile/parse error):
+- Display the error message.
+- Ask the user whether to (a) skip this finding and continue, or (b) stop for manual review.
+- Track failed fixes in the summary under 'Failed'.
 
 ### Step 4: Summary
 
