@@ -1,7 +1,6 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
-tools: ['agent', 'read', 'search', 'write']
 agents: ['cg-code-quality', 'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility', 'cg-performance', 'cg-architecture', 'cg-data-quality', 'cg-learnings-researcher']
 ---
 
@@ -80,19 +79,20 @@ Merge all agent findings into a single prioritized report:
 **Findings**: <count by priority>
 
 ### P1 — CRITICAL (must fix before merge)
-1. **[agent-name]** <file>:<line> — <finding>
-   **Why**: <explanation>
-   **Fix**: <suggested fix>
+- **[P1.1]** [agent-name] <file>:<line> — <finding>
+  **Why**: <explanation>
+  **Fix**: <suggested fix>
+- **[P1.2]** [agent-name] ...
 
 ### P2 — IMPORTANT (should fix)
-1. **[agent-name]** <file>:<line> — <finding>
-   **Why**: <explanation>
-   **Fix**: <suggested fix>
+- **[P2.1]** [agent-name] <file>:<line> — <finding>
+  **Why**: <explanation>
+  **Fix**: <suggested fix>
 
 ### P3 — MINOR (nice to have)
-1. **[agent-name]** <file>:<line> — <finding>
-   **Why**: <explanation>
-   **Fix**: <suggested fix>
+- **[P3.1]** [agent-name] <file>:<line> — <finding>
+  **Why**: <explanation>
+  **Fix**: <suggested fix>
 
 ### ✅ Passed
 - <agent-name>: No issues found
@@ -105,8 +105,8 @@ Before presenting findings to the user, save the full report to disk so it can b
 
 1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`).
 2. Derive the review filename: take the plan filename stem (without extension), append `-review`, and place the file in `.cg-docs/reviews/`. Example: plan `2026-03-26-roadmap-json.md` → review `2026-03-26-roadmap-json-review.md`.
-3. Write the full prioritized report (the markdown block from Step 3) to `.cg-docs/reviews/<stem>-review.md`.
-4. Tell the user: "> Review report saved to `.cg-docs/reviews/<filename>`. Use `/cg-fix` in a future session to apply specific findings by number."
+3. Write the full prioritized report (the markdown block from Step 3) to `.cg-docs/reviews/<stem>-review.md`. **Write this file directly using your own file creation tool. Do NOT delegate this step to a subagent.**
+4. Tell the user: "> Review report saved to `.cg-docs/reviews/<filename>`. Use `/cg-fix-triage` in a future session to apply findings by ID (e.g., `/cg-fix-triage P1.2 P2.1`) or by priority level (e.g., `/cg-fix-triage P1`)."
 
 ### Step 4: Triage
 
@@ -129,6 +129,7 @@ After triage:
 
 ### Next Steps
 - If issues were fixed: Run `/cg-review light` to verify fixes
+- If findings were skipped: Run `/cg-fix-triage` in a future session to apply them
 - If solutions were found: Run `/cg-compound` to capture learnings
 - If this review surfaced a bug that was fixed: Run `/cg-fixbug` to document it with a verified test
 - If all clean: Ready to merge

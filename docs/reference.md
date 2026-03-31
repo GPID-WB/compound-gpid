@@ -46,6 +46,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify, document |
 | `/cg-review` | Mixed | Multi-agent code review with P1/P2/P3 findings |
+| `/cg-fix-triage` | Claude Sonnet 4.6 | Apply review findings by ID or priority level |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context and pick up interrupted work |
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |

@@ -1,14 +1,19 @@
 # tests/prompt-tools.Tests.ps1
-# Pester tests to guard the 'tools:' frontmatter in prompt files
+# Pester tests to guard prompt file structure and tool configuration
 #
 # Run with: Invoke-Pester tests/prompt-tools.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 #
 # Background: VS Code Copilot prompt files support a 'tools:' YAML key that
-# restricts which tools are available when the prompt runs. If 'write' is
-# absent, the agent operating under that prompt cannot create or modify files.
-# The cg-review.prompt.md was missing 'write', causing all file-creation
-# steps (triage fixes, review report output) to silently fail.
+# RESTRICTS which tools are available to the agent running that prompt.
+# Omitting 'tools:' gives the agent all available tools (the safe default).
+#
+# Lesson learned: cg-review.prompt.md had tools:['agent','read','search','write'].
+# This whitelist stripped file-write access from the orchestrating agent mid-session
+# because the tool categories did not map reliably to the underlying tool functions.
+# Fix: remove 'tools:' from orchestrating prompts entirely. Only agent definition
+# files (.agent.md) should declare a 'tools:' restriction, since they are
+# intentionally read-only reviewers.
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 
@@ -33,34 +38,17 @@ function Get-ToolsList {
 }
 
 # ---------------------------------------------------------------------------
-# cg-review.prompt.md tools requirements
+# cg-review.prompt.md must NOT have a tools: restriction
 # ---------------------------------------------------------------------------
 
-Describe "cg-review.prompt.md - tools frontmatter" {
+Describe "cg-review.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
 
-    Context "required tools are declared" {
+    Context "orchestrator must have unrestricted tools" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
-        $tools = Get-ToolsList -Frontmatter $frontmatter
 
-        It "has a tools: key in frontmatter" {
-            $frontmatter | Should Match 'tools:'
-        }
-
-        It "includes 'agent' so review subagents can be dispatched" {
-            $tools | Should Contain 'agent'
-        }
-
-        It "includes 'read' so agents can read source files" {
-            $tools | Should Contain 'read'
-        }
-
-        It "includes 'search' so agents can search the codebase" {
-            $tools | Should Contain 'search'
-        }
-
-        It "includes 'write' so the review report can be saved to .cg-docs/reviews/" {
-            $tools | Should Contain 'write'
+        It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
         }
     }
 }
@@ -73,7 +61,56 @@ Describe "cg-review.prompt.md - review file output step" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "contains a step that writes the review report to .cg-docs/reviews/" {
+    It "writes the review report to .cg-docs/reviews/ directory in Step 3.5" {
+        ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+    }
+
+    It "uses compound finding IDs like [P1.1], [P2.1], [P3.1] in the output template" {
+        ($content -match '\*\*\[P[123]\.\d+\]\*\*') | Should Be $true
+    }
+
+    It "includes /cg-fix-triage usage instruction with a compound ID example" {
+        ($content -match '/cg-fix-triage.*P\d\.\d') | Should Be $true
+    }
+
+    It "mentions /cg-fix-triage so users know how to apply findings" {
+        ($content -match '/cg-fix-triage') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-fix-triage.prompt.md existence and content
+# ---------------------------------------------------------------------------
+
+Describe "cg-fix-triage.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-fix-triage.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+
+    Context "required frontmatter fields" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
+
+Describe "cg-fix-triage.prompt.md - review reports location" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references .cg-docs/reviews/ directory to load saved review reports" {
         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
     }
 }

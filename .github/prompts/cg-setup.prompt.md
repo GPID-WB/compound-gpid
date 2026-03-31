@@ -280,6 +280,7 @@ and ideas by invoking `@cg-roadmap` in Copilot Chat.
 - `/cg-work`       — Implement a plan step by step
 - `/cg-fixbug`     — Structured bug-fix: reproduce, diagnose, fix, verify, document
 - `/cg-review`     — Run multi-agent code review
+- `/cg-fix-triage` — Apply review findings by ID or priority level
 - `/cg-compound`   — Capture a solved problem as reusable knowledge
 - `@cg-roadmap`    — Add milestones, features, and ideas to your project roadmap
 

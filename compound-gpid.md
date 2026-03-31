@@ -12,7 +12,7 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 ## Key Deliverables
 
 - The plugin itself — a set of files in `.github/` (prompts, agents, skills, instructions) distributed via directory junctions, plus PowerShell scripts (cg-link, cg-unlink, cg-update, install.ps1, create-release.ps1)
-- Workflow prompts: /cg-setup, /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-compound, /cg-release, /cg-resume, /cg-fixbug
+- Workflow prompts: /cg-setup, /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound, /cg-release, /cg-resume, /cg-fixbug
 - Knowledge artifacts in `.cg-docs/` — brainstorms, implementation plans, and captured lessons organized by category (bugs, build-errors, performance-issues, testing-patterns, data-quality, environment-issues, git-workflows)
 - Review reports from specialized agents (code quality, testing, architecture, etc.) at light/standard/thorough tiers
 - R skills reference files (cg-skill-r-analytical for economists, cg-skill-r-technical for developers)

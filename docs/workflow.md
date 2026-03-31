@@ -9,8 +9,8 @@ This page explains the Compound GPID workflow loop and how to use each step.
 ## The Loop
 
 ```
-Brainstorm → Plan → Work → Review → Compound → Release
-          ↑          ↑
+Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
+          ^          ^
        Resume     Fix Bug  (enter at any stage when a bug is found)
 ```
 
@@ -71,7 +71,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After implementing changes.
 
-**What happens**: The prompt dispatches specialized agents based on your configured review depth, collects their findings, and presents them prioritized as P1 (critical), P2 (important), P3 (minor).
+**What happens**: The prompt dispatches specialized agents based on your configured review depth, collects their findings, and presents them prioritized as P1 (critical), P2 (important), P3 (minor). Each finding gets a compound ID (e.g., `P1.1`, `P2.3`) for selective fixing later. The full report is saved to `.cg-docs/reviews/`.
 
 | Tier | Agents run | Use when |
 |------|-----------|---------|
@@ -79,7 +79,24 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 | **Standard** | All 8 agents | Default for most work |
 | **Thorough** | All 8 + `cg-learnings-researcher` | Major features, refactors |
 
-**Output**: Prioritized review report with suggested fixes.
+**Output**: `.cg-docs/reviews/<plan-stem>-review.md`
+
+---
+
+### 5b. Fix Triage (`/cg-fix-triage`)
+
+**When**: In a follow-up session after `/cg-review` has saved a review report.
+
+**What happens**: Loads the most recent review report from `.cg-docs/reviews/`, displays the findings, and applies fixes. Supports selective fixing by priority level or individual finding ID.
+
+| Invocation | Effect |
+|-----------|--------|
+| `/cg-fix-triage` | Fix all findings |
+| `/cg-fix-triage P1` | Fix all P1 (critical) findings |
+| `/cg-fix-triage P1 P3` | Fix all P1 and P3 findings |
+| `/cg-fix-triage P1.2 P2.1` | Fix only those specific findings |
+
+**Output**: Applied code fixes + summary of what was fixed, skipped, and remaining.
 
 ---
 

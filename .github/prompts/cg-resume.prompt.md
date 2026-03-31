@@ -106,6 +106,13 @@ non-null `plan` path:
 - If feature `status: "done"` but plan frontmatter does not have
   `status: completed` -> roadmap-ahead-of-plan drift (note it).
 
+#### 2e. Pending review findings
+
+Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`). For each file,
+count lines matching `\*\*\[P1\.` (critical), `\*\*\[P2\.` (important), and
+`\*\*\[P3\.` (minor) to estimate how many unresolved findings remain. Collect
+files that have any P-findings.
+
 ### Step 3: Present Context Summary
 
 Present a structured summary.
@@ -139,7 +146,12 @@ Then append the pending work sections:
    Tags: <tags>
 2. ...
 
-### 💡 Decided Brainstorms Without a Plan (<count>)
+### � Pending Review Findings (<count>)
+1. `<filename>` — <P1-count> critical, <P2-count> important, <P3-count> minor
+   -> Apply with `/cg-fix-triage`
+2. ...
+
+### �💡 Decided Brainstorms Without a Plan (<count>)
 1. `<date>` — **<title>**
    → Ready for `/cg-plan`
 2. ...
@@ -190,6 +202,7 @@ If all three sections are empty, say:
 Based on what you found, suggest the most logical next step:
 
 - If there are **in-progress plans**: offer to continue the most recent one with `/cg-work`
+- If there are **pending review findings**: offer to apply them with `/cg-fix-triage`
 - If there are **unplanned brainstorms**: offer to create a plan with `/cg-plan`
 - If there are **uncommitted changes**: suggest reviewing and committing, or running `/cg-review`
 - If nothing is pending: suggest starting fresh with `/cg-brainstorm` or `/cg-plan`
@@ -198,9 +211,10 @@ Ask:
 
 > What would you like to do?
 > 1. Continue: **<title of most recent in-progress plan>** — `/cg-work`
-> 2. Plan: **<title of decided brainstorm>** — `/cg-plan`
-> 3. Review uncommitted changes — `/cg-review`
-> 4. Start something new — `/cg-brainstorm`
+> 2. Apply review findings: **<review filename>** — `/cg-fix-triage`
+> 3. Plan: **<title of decided brainstorm>** — `/cg-plan`
+> 4. Review uncommitted changes — `/cg-review`
+> 5. Start something new — `/cg-brainstorm`
 
 Adapt the options to what's actually available. If only one option applies, just suggest it directly.
 If `roadmap.json` exists and any `in-progress` milestone has features with
