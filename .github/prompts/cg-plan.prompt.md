@@ -10,8 +10,10 @@ You are a senior data science architect creating a structured implementation pla
 ## File Permissions
 
 - You may read any file in the workspace.
+- You may read `roadmap.json` in the project root.
 - You may create new files ONLY under `.cg-docs/plans/`.
 - You must NOT modify any existing files.
+- You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
 - You must NOT create files outside `.cg-docs/plans/`.
 
 ## Process
@@ -100,7 +102,41 @@ tags: [<relevant tags>]
 2. Present the plan to the user for review.
 3. Ask if any steps need adjustment before proceeding.
 
-### Step 5: Handoff
+### Step 5: Register in Roadmap (if applicable)
+
+If `roadmap.json` exists at the project root:
+
+1. Read it.
+2. Scan the feature list across all milestones for a feature whose title
+   closely matches this plan's title.
+3. If a match is found:
+   - Ask the user: "This plan looks like it corresponds to '<feature title>'
+     in the '<milestone title>' milestone. Link it? (yes/no)"
+   - If yes: dispatch `@cg-roadmap` with: "Link plan
+     `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone
+     `<milestone-id>`. Set status to planned."
+     Then verify: read `roadmap.json` again and confirm the change was
+     applied. If not: "Roadmap update may not have been applied. Run
+     `@cg-roadmap` directly."
+4. If no match is found:
+   - Ask the user: "Should this plan be added to a milestone in the
+     roadmap?"
+     - If yes: show existing milestones and ask which one. If the user
+       wants a new milestone, ask for its title and objective.
+       - Existing milestone: dispatch `@cg-roadmap` with: "Add feature
+         '<plan title>' to milestone '<milestone-id>'."
+       - New milestone: dispatch `@cg-roadmap` with: "Add milestone
+         '<title>' with objective '<objective>'." Then, after confirming
+         it was created, dispatch a second message: "Add feature '<plan
+         title>' to milestone '<milestone-id>'."
+       Then verify: read `roadmap.json` again and confirm the change was
+       applied. If not: "Roadmap update may not have been applied. Run
+       `@cg-roadmap` directly."
+     - If no: skip silently.
+
+If `roadmap.json` does not exist, skip this step entirely.
+
+### Step 6: Handoff
 
 After the user approves:
 

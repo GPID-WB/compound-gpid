@@ -90,3 +90,6 @@ sentences and more likely to be interpreted loosely.
   introduced this pattern
 - `docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md` — the
   brainstorm where the agent: plan vs. default mode tension was first identified
+- [2026-03-30 Test prompt frontmatter tools: list](./2026-03-30-test-prompt-frontmatter-tools-list.md)
+  — Complementary pattern: when prompts use `tools:` frontmatter instead of
+  `agent: plan`, guard the list with Pester tests to prevent silent write failures.

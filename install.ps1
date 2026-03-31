@@ -124,12 +124,17 @@ try {
         Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
     if ($currentPath) { $currentPath = $currentPath.Trim() } else { $currentPath = "" }
     if ($currentPath -notlike "*$binDir*") {
-        if ($currentPath.Length -gt 0) { $newPath = "$currentPath;$binDir" } else { $newPath = $binDir }
+        if ($currentPath.Length -gt 0) { $newPath = "$binDir;$currentPath" } else { $newPath = $binDir }
         reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f | Out-Null
         Write-Host "  Added to PATH: $binDir" -ForegroundColor DarkGray
     } else {
         Write-Host "  Already on PATH: $binDir" -ForegroundColor DarkGray
     }
+    # Broadcast WM_SETTINGCHANGE unconditionally so Explorer.exe and all running
+    # processes (including VS Code terminals) pick up the current PATH immediately.
+    # Must run every time install.ps1 is called, not just on first add.
+    # setx is CLM-safe and triggers the broadcast as a side effect.
+    & "$env:SystemRoot\System32\cmd.exe" /c "setx COMPOUND_GPID_INSTALLED 1 >nul 2>&1" | Out-Null
     $pathAdded = $true
 } catch {
     Write-Warning "  Could not update PATH via reg.exe: $_"

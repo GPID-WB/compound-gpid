@@ -1,3 +1,8 @@
+---
+description: "Configure Compound GPID for this project and load context for returning projects."
+model: Claude Sonnet 4.6 (copilot)
+---
+
 # Setup
 
 You are configuring Compound GPID for this project. You help the user set language preferences, project type, and review depth, then scaffold the project structure. For returning users, you contextualize Copilot with all prior work.
@@ -7,6 +12,7 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may read any file in the workspace.
 - You may create or overwrite `compound-gpid.local.md` in the project root.
 - You may create or overwrite `compound-gpid.md` in the project root.
+- You may create `roadmap.json` in the project root.
 - You may create new files and directories under `.cg-docs/`.
 - You may append lines to `.gitignore` and `.Rbuildignore`.
 - You must not modify any other existing file.
@@ -244,6 +250,20 @@ Check if `.gitignore` exists. If it does not, create it. Append the following li
 compound-gpid.local.md
 ```
 
+#### A5.5. Create `roadmap.json`
+
+Create `roadmap.json` in the project root:
+
+```json
+{
+  "schemaVersion": "compound-gpid-roadmap-v1",
+  "milestones": []
+}
+```
+
+This file tracks project milestones and features. Users can add milestones
+and ideas by invoking `@cg-roadmap` in Copilot Chat.
+
 #### A6. Print Setup Complete
 
 ```
@@ -260,7 +280,9 @@ compound-gpid.local.md
 - `/cg-work`       — Implement a plan step by step
 - `/cg-fixbug`     — Structured bug-fix: reproduce, diagnose, fix, verify, document
 - `/cg-review`     — Run multi-agent code review
+- `/cg-fix-triage` — Apply review findings by ID or priority level
 - `/cg-compound`   — Capture a solved problem as reusable knowledge
+- `@cg-roadmap`    — Add milestones, features, and ideas to your project roadmap
 
 ### PowerShell Commands (in terminal)
 - `cg-update` — Pull latest Compound GPID updates
@@ -308,6 +330,13 @@ or where individual subdirectories were deleted.
 .cg-docs/solutions/performance-issues/
 .cg-docs/solutions/testing-patterns/
 ```
+
+#### B1.2.5. Check for `roadmap.json`
+
+If `roadmap.json` does not exist in the project root, mention:
+
+> "No `roadmap.json` found. You can create one by invoking `@cg-roadmap`
+> in Copilot Chat and asking it to initialize your roadmap."
 
 #### B1.3. Schema version check
 

@@ -10,6 +10,7 @@ You are a session context loader. Your job is to quickly orient Copilot and the 
 ## File Permissions
 
 - You may read any file in the workspace.
+- You may read `roadmap.json` in the project root.
 - You may NOT create, modify, or delete any files.
 
 ## Process
@@ -44,18 +45,16 @@ Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
 ### Step 1: Schema Version Check
 
-Locate the global Compound GPID `SCHEMA_VERSION` file. Check these paths in
-order and use the first one that exists:
+Locate the global Compound GPID `SCHEMA_VERSION` file at:
 
-1. `C:\WBG\.compound-gpid\SCHEMA_VERSION` (local machine with OneDrive)
-2. `$env:USERPROFILE\.compound-gpid\SCHEMA_VERSION` (remote server)
+- `$env:USERPROFILE\.compound-gpid\SCHEMA_VERSION`
 
-If neither path exists, this is either a very old install or the install
+If the file does not exist, this is either a very old install or the install
 directory is non-standard. Warn the user:
 
 > ⚠️ **Cannot locate Compound GPID installation.** Expected `SCHEMA_VERSION`
-> at `C:\WBG\.compound-gpid\` or `$env:USERPROFILE\.compound-gpid\`. Run
-> `cg-update` to verify your installation, or re-run `install.ps1`.
+> at `$env:USERPROFILE\.compound-gpid\`. Run `cg-update` to verify your
+> installation, or re-run `install.ps1`.
 
 Do not silently skip this check.
 
@@ -91,6 +90,29 @@ Run `git log --oneline -10` to see the last 10 commits. Note the most recent bra
 
 If git is not available or this is not a git repo, skip this step.
 
+#### 2d. Milestone progress
+
+If `roadmap.json` exists at the project root, read it and compute:
+- For each milestone: count of done/total features, overall status.
+- Any features with `status: "active"` (work currently underway).
+- Scope health: what percentage of all features are `idea` or `planned`
+  (not started).
+
+For `in-progress` milestones only, cross-check each feature that has a
+non-null `plan` path:
+- If the plan path does not exist -> stale reference (note it).
+- If feature `status: "active"` but plan frontmatter `status: completed`
+  -> roadmap-behind-plan drift (note it).
+- If feature `status: "done"` but plan frontmatter does not have
+  `status: completed` -> roadmap-ahead-of-plan drift (note it).
+
+#### 2e. Pending review findings
+
+Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`). For each file,
+count lines matching `\*\*\[P1\.` (critical), `\*\*\[P2\.` (important), and
+`\*\*\[P3\.` (minor) to estimate how many unresolved findings remain. Collect
+files that have any P-findings.
+
 ### Step 3: Present Context Summary
 
 Present a structured summary.
@@ -124,7 +146,12 @@ Then append the pending work sections:
    Tags: <tags>
 2. ...
 
-### 💡 Decided Brainstorms Without a Plan (<count>)
+### � Pending Review Findings (<count>)
+1. `<filename>` — <P1-count> critical, <P2-count> important, <P3-count> minor
+   -> Apply with `/cg-fix-triage`
+2. ...
+
+### �💡 Decided Brainstorms Without a Plan (<count>)
 1. `<date>` — **<title>**
    → Ready for `/cg-plan`
 2. ...
@@ -139,6 +166,32 @@ Last commits:
 Uncommitted changes: <count files changed, or "none">
 
 ---
+
+### 📊 Milestone Progress (<milestone count>)
+
+> Only include this section if `roadmap.json` exists.
+
+**<milestone title>** -- <done>/<total> features [<status>]
+  _<objective>_
+  ✅ <done feature title>
+  🔄 <active feature title>
+  📋 <planned feature title>
+  💡 <idea feature title>
+
+**<next milestone>** -- ...
+
+> If any cross-check discrepancies were found:
+> ⚠️ Feature '<title>' is marked active but its plan is completed.
+>   Run `@cg-roadmap` to update its status.
+> ⚠️ Feature '<title>' has a stale plan reference ('<path>' not found).
+
+> Scope health nudge -- include only when more than 60% of all features
+> across milestones are `idea` or `planned`:
+> ⚠️ **Roadmap scope check**: <N> of <total> features haven't been started.
+> Consider reviewing your roadmap with `@cg-roadmap` to archive or
+> deprioritize items that aren't near-term.
+
+---
 ```
 
 If all three sections are empty, say:
@@ -149,6 +202,7 @@ If all three sections are empty, say:
 Based on what you found, suggest the most logical next step:
 
 - If there are **in-progress plans**: offer to continue the most recent one with `/cg-work`
+- If there are **pending review findings**: offer to apply them with `/cg-fix-triage`
 - If there are **unplanned brainstorms**: offer to create a plan with `/cg-plan`
 - If there are **uncommitted changes**: suggest reviewing and committing, or running `/cg-review`
 - If nothing is pending: suggest starting fresh with `/cg-brainstorm` or `/cg-plan`
@@ -157,10 +211,14 @@ Ask:
 
 > What would you like to do?
 > 1. Continue: **<title of most recent in-progress plan>** — `/cg-work`
-> 2. Plan: **<title of decided brainstorm>** — `/cg-plan`
-> 3. Review uncommitted changes — `/cg-review`
-> 4. Start something new — `/cg-brainstorm`
+> 2. Apply review findings: **<review filename>** — `/cg-fix-triage`
+> 3. Plan: **<title of decided brainstorm>** — `/cg-plan`
+> 4. Review uncommitted changes — `/cg-review`
+> 5. Start something new — `/cg-brainstorm`
 
 Adapt the options to what's actually available. If only one option applies, just suggest it directly.
+If `roadmap.json` exists and any `in-progress` milestone has features with
+`status: "idea"`, add an additional option:
 
+> N. Plan a roadmap idea: **<feature title>** (in <milestone title>) -- `/cg-plan`
 

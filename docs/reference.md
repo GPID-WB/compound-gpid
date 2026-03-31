@@ -46,8 +46,9 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify, document |
 | `/cg-review` | Mixed | Multi-agent code review with P1/P2/P3 findings |
+| `/cg-fix-triage` | Claude Sonnet 4.6 | Apply review findings by ID or priority level |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
-| `/cg-resume` | Claude Sonnet 4.6 | Load context and pick up interrupted work |
+| `/cg-resume` | Claude Haiku 4.5 | Load context and pick up interrupted work |
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |
 
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
@@ -67,6 +68,25 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Sonnet 4.6 |
+
+> All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+
+## Roadmap Agent
+
+| Agent | Focus | Model | User-invokable |
+|-------|-------|-------|----------------|
+| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Sonnet 4.6 | **Yes** |
+
+> `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates (when `roadmap.json` exists).
+
+### `roadmap.json` Schema
+
+| Field | Type | Values |
+|-------|------|--------|
+| `milestones[].status` | derived | `planned`, `in-progress`, `done` |
+| `features[].status` | set | `idea`, `planned`, `active`, `done` |
+
+Milestone status is always derived from features (never set directly). Feature `active` maps to milestone `in-progress`. IDs are kebab-case and immutable after creation. `features[].plan` is a nullable path to a `.cg-docs/plans/` file.
 
 ---
 
@@ -113,11 +133,13 @@ your-project/
 │   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
-├── compound-gpid.md          # Project charter (committed — shared context)
+├── compound-gpid.md          # Project charter (committed -- shared context)
 ├── compound-gpid.local.md    # Your user config (gitignored)
-└── .cg-docs/                 # Compound GPID knowledge base (committed — institutional memory)
+├── roadmap.json              # Milestone & feature tracker (committed)
+└── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
+    ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     └── solutions/            # /cg-compound outputs
         ├── build-errors/
         ├── bugs/

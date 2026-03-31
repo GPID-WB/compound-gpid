@@ -7,6 +7,13 @@ model: Claude Sonnet 4.6 (copilot)
 
 You are a senior developer implementing a plan that was previously created with `/cg-plan`.
 
+## File Permissions
+
+- You may read any file in the workspace.
+- You may read `roadmap.json` in the project root.
+- You may create and modify code files as required by the plan.
+- You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
+
 ## Process
 
 ### Step 0: Get Bearings
@@ -27,6 +34,16 @@ You are a senior developer implementing a plan that was previously created with 
    - R: load `cg-skill-r-technical` for package/infrastructure work (collapse, data.table, APIs, Shiny, pipelines), `cg-skill-r-analytical` for statistical/econometric/analytical work (collapse, data.table, fixest, poverty measurement, WB visualizations). Load both if the plan covers mixed work or if unsure.
    - Python: load the `cg-skill-python-best-practices` skill.
    - Stata: load `cg-skill-stata-best-practices` for any Stata work.
+
+### Step 1.5: Mark Work Started
+
+If `roadmap.json` exists, find a feature whose `plan` path matches this plan.
+If found **and the feature's current status is not `done`**, dispatch
+`@cg-roadmap` with: "Update feature with plan path `<plan-path>` to status
+active." This ensures `/cg-resume` shows the milestone as `in-progress`
+during implementation. (Skip if already `done` to avoid regression.)
+
+Only run this step after the plan is confirmed valid in Step 1.
 
 ### Step 2: Implement Step by Step
 
@@ -80,6 +97,24 @@ Provide a summary:
 ### Ready for Review
 Run `/cg-review` to get multi-agent code review.
 ```
+
+### Step 5: Update Roadmap Status
+
+If `roadmap.json` exists at the project root:
+
+1. Read it.
+2. Find the feature entry whose `plan` path matches the plan you just
+   implemented.
+3. If found: dispatch `@cg-roadmap` with: "Update feature with plan path
+   `<plan-path>` to status done."
+4. If not found: skip silently. Not every plan needs to be
+   milestone-tracked.
+5. After dispatch, verify `roadmap.json` was updated (read the file again
+   and check the status changed). If not, inform the user:
+   > "Roadmap update may not have been applied. You can run `@cg-roadmap`
+   > directly to update the status."
+
+If `roadmap.json` does not exist, skip this step entirely.
 
 ## Rules
 

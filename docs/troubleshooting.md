@@ -6,6 +6,59 @@ Known issues and step-by-step fixes for Compound GPID.
 
 ---
 
+## `cg-update` (or `cg-link`, `cg-unlink`) not recognized after install
+
+**Symptom**:
+```
+cg-update: The term 'cg-update' is not recognized as a name of a cmdlet,
+function, script file, or executable program.
+```
+This happens right after running `install.ps1`, even in a "new" terminal tab.
+
+**Cause**: `install.ps1` writes `C:\WBG\.compound-gpid\bin` (or `$env:USERPROFILE\.compound-gpid\bin`) to your user `PATH` in the Windows registry. However, VS Code's integrated terminal inherits its environment from the VS Code process, which in turn inherits from **Explorer.exe**. Explorer only re-reads the registry when it receives a `WM_SETTINGCHANGE` message. Until Explorer gets that broadcast, every new terminal tab — including ones opened after `install.ps1` ran — will be missing the new entry.
+
+**Fix (fastest)**: Add the path to the current terminal session manually, then re-run `install.ps1` so the broadcast fires:
+
+```powershell
+# Uncomment your install path:
+$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
+# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
+
+$env:PATH = "$cg\bin;" + $env:PATH
+& "$cg\install.ps1"
+```
+
+After this, open a **brand new terminal tab** and `cg-update` will work.
+
+**Fix (alternative)**: Sign out of Windows and sign back in. This forces Explorer to re-read the registry, so all new processes (including VS Code) inherit the updated PATH automatically.
+
+**Verify the PATH is set**:
+```powershell
+$env:PATH -split ';' | Select-String 'compound'
+# Should print: C:\WBG\.compound-gpid\bin
+```
+
+**Verify the bin directory exists and contains the wrappers**:
+```powershell
+Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
+# Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd
+```
+
+> **PATH length truncation**: If `C:\WBG\.compound-gpid\bin` is present in the registry
+> but never appears in a live terminal (even after a sign-out), your combined system + user
+> PATH may be too long for Windows to merge without truncation. Fix: remove duplicate
+> entries from your user PATH.
+> ```powershell
+> $raw = (reg query "HKCU\Environment" /v PATH) |
+>     Where-Object { $_ -match 'REG_' } |
+>     ForEach-Object { ($_ -replace '.*REG_EXPAND_SZ\s+', '').Trim() }
+> $deduped = ($raw -split ';' | Where-Object { $_ -ne '' } | Select-Object -Unique) -join ';'
+> reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $deduped /f
+> ```
+> Then re-run `install.ps1` to trigger the broadcast.
+
+---
+
 ## `.cg-version` missing or corrupted
 
 **Symptom**: `cg-update` fails with an error about an invalid version, or unexpectedly pins to an unrecognised value.

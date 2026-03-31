@@ -102,14 +102,35 @@ tags: [<relevant tags>]
 
 ### Step 5: Handoff
 
-After saving, suggest:
+After saving:
 
-> Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
-
-### Charter Update Suggestion
+#### 5a. Charter Update Suggestion
 
 If the brainstorm produced ideas that would change the project's objectives,
 scope, or current focus, suggest updating `compound-gpid.md`:
 
 > "This brainstorm suggests a shift in project scope. Consider updating the
 > 'Current Focus' or 'Key Deliverables' sections of `compound-gpid.md`."
+
+#### 5b. Roadmap Registration
+
+If `roadmap.json` exists at the project root:
+
+1. Ask the user: "Should this brainstorm be added to the roadmap as an
+   idea?"
+2. If yes:
+   - Show existing milestones and ask which one the idea belongs to, or
+     offer to create a new milestone.
+   - Dispatch `@cg-roadmap` with: "Add feature '<brainstorm title>' to
+     milestone '<milestone-id>' with status idea."
+   - Verify: read `roadmap.json` again; confirm the feature was added.
+     If not: "Roadmap update may not have been applied. Run `@cg-roadmap`."
+3. If no: skip.
+
+If `roadmap.json` does not exist, skip this section entirely.
+
+#### 5c. Handoff
+
+Suggest:
+
+> Brainstorm captured in `.cg-docs/brainstorms/<filename>`. Ready to proceed with `/cg-plan` to create an implementation plan.
