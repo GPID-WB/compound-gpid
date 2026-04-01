@@ -120,6 +120,11 @@ Ask each question and wait for the answer before asking the next.
 
 > What is the name of this project?
 
+**Question 4.5 -- Team** (optional -- user may skip)
+
+> What team or organization maintains this project?
+> (Default: **DECDG / GPID -- World Bank** -- press Enter to accept.)
+
 **Question 5 -- Objective** (optional -- user may skip)
 
 > In 1-3 sentences, what is this project building? Who is it for?
@@ -140,13 +145,11 @@ Write `compound-gpid.md` in the project root using the template below,
 filling in the user's answers. Use HTML comments as placeholders for unfilled
 sections (they are visible when editing but do not render in Markdown previews):
 
+- Team (Q4.5 skipped): use `"DECDG / GPID -- World Bank"` (default)
 - Objective (Q5 skipped): `<!-- TODO: Describe what this project is building and who it is for. -->`
 - Key Deliverables (Q6 skipped): `<!-- TODO: List concrete outputs, e.g. R package, REST API, harmonized dataset. -->`
 - Constraints (Q7 skipped): `<!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->`
-- Architecture Notes: `<!-- TODO: Describe the project structure here, or let Copilot fill this in after examining the codebase. -->`
-- Current Focus: `<!-- TODO: What is the team working on right now? Update this section as priorities change. -->`
-- Roadmap: `<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->`
-- Related Resources: `<!-- TODO: Add links to external docs, specs, or methodology references. -->`
+- Current Focus: `<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->`
 
 When the user provides answers (not skipped), format them as follows:
 
@@ -157,12 +160,16 @@ When the user provides answers (not skipped), format them as follows:
 Do not embellish, rewrite, or add items the user did not mention. Use the user's
 wording directly, only correcting obvious typos or grammar.
 
+Set `last-reviewed` to today's date (the date the charter is created).
+
 When filling in YAML string fields, escape any `"` characters as `\"`, or wrap values containing double quotes in single quotes.
 
 ```markdown
 ---
 project-name: "<name>"
+team: "<team-name>"
 created: "YYYY-MM-DD"
+last-reviewed: "YYYY-MM-DD"
 ---
 
 # <Project Name>
@@ -179,22 +186,15 @@ created: "YYYY-MM-DD"
 
 <!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->
 
-## Architecture Notes
-
-<!-- TODO: Describe the project structure here, or let Copilot fill this in after examining the codebase. -->
-
 ## Current Focus
 
-<!-- TODO: What is the team working on right now? Update this section as priorities change. -->
-
-## Roadmap
-
-<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->
-
-## Related Resources
-
-<!-- TODO: Add links to external docs, specs, or methodology references. -->
+<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->
 ```
+
+> These are the only four sections. If content doesn't fit one of them,
+> it belongs elsewhere -- architecture notes go in `copilot-instructions.md`
+> or a skill file; historical decisions go in `.cg-docs/brainstorms/`;
+> removed content goes in `.cg-docs/archive/charter-history.md`.
 
 If the user skips ALL charter questions (skips before Question 4 or skips both
 Question 4 and 5), do NOT create `compound-gpid.md`. The setup completes with
@@ -208,6 +208,8 @@ Create the following directories and `.gitkeep` files if they do not already exi
 
 ```
 .cg-docs/
+├── archive/
+│   └── .gitkeep
 ├── brainstorms/
 │   └── .gitkeep
 ├── plans/
@@ -313,6 +315,20 @@ Check if `compound-gpid.md` exists in the project root.
   from Mode A Step A3.5). Apply the same overwrite guard, skip definition, required
   labels, and placeholder rules defined in A3.5.
 
+#### B1.1.5. Check for deprecated charter sections
+
+If `compound-gpid.md` exists, scan its headings for any deprecated sections:
+Architecture Notes, Roadmap, and Related Resources. If any are present, note
+after the context summary:
+
+> "Your charter contains sections beyond the 4-section standard (found:
+> <list deprecated sections found>). When ready, you can migrate them:
+> - **Architecture Notes** → `copilot-instructions.md` or a skill file
+> - **Roadmap** content → `roadmap.json` (use `@cg-roadmap` to populate)
+> - **Related Resources** → `copilot-instructions.md` or a skill file
+>
+> Removed content should be archived to `.cg-docs/archive/charter-history.md`."
+
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 
 Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
@@ -320,6 +336,7 @@ without touching existing files. This handles projects that were set up before t
 or where individual subdirectories were deleted.
 
 ```
+.cg-docs/archive/
 .cg-docs/brainstorms/
 .cg-docs/plans/
 .cg-docs/solutions/build-errors/
@@ -415,7 +432,8 @@ If `compound-gpid.md` exists, ask:
 > you can update the Current Focus, add deliverables, or change constraints.
 
 - If yes: ask which sections the user wants to update (objective, deliverables,
-  constraints, current focus) and rewrite the relevant sections of `compound-gpid.md`.
+  constraints, current focus), rewrite the relevant sections of `compound-gpid.md`,
+  and update `last-reviewed` to today's date.
 - If no: confirm you are ready and suggest a next step.
 
 If `compound-gpid.md` does not exist (and the user declined to create one in B1.1):

@@ -18,10 +18,13 @@ Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** - invoke a prompt, answer its questions when asked, and let it run to completion.
 
-> **Project Charter**: Before any workflow step, Copilot reads your project's
-> `compound-gpid.md` (if it exists) to understand objective, key deliverables, constraints, and
-> current focus. Create or update it via `/cg-setup`. All `/cg-*` prompts
-> warn you if the charter is missing.
+> **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
+> project's charter to understand objective, deliverables, constraints, and current focus.
+> Create or update it via `/cg-setup`. The charter has exactly four sections (Objective, Key
+> Deliverables, Constraints, Current Focus) — content that doesn't fit belongs elsewhere
+> (see `/cg-setup` for where each type belongs). When content is removed, it will be archived
+> to `.cg-docs/archive/charter-history.md` (enabled in a future release). `/cg-resume` will
+> nudge you if `last-reviewed` is missing or more than 30 days old.
 
 ---
 

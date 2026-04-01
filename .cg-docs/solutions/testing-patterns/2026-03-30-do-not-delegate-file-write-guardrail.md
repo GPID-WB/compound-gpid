@@ -106,3 +106,6 @@ files outside the subagent pattern:
 - [2026-03-30-test-prompt-frontmatter-tools-list.md](./2026-03-30-test-prompt-frontmatter-tools-list.md)
   — How to test that the `tools:` frontmatter grants write permission so the
   agent can write at all (a separate but complementary guard).
+- [git-workflows/2026-04-01-charter-drift-prevention.md](../git-workflows/2026-04-01-charter-drift-prevention.md)
+  — Structural rule + `last-reviewed` frontmatter + archive-on-removal pattern
+  applied to a shared committed document; tests enforce the invariants.

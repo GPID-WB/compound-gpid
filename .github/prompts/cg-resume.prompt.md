@@ -113,6 +113,22 @@ count lines matching `\*\*\[P1\.` (critical), `\*\*\[P2\.` (important), and
 `\*\*\[P3\.` (minor) to estimate how many unresolved findings remain. Collect
 files that have any P-findings.
 
+#### 2f. Charter staleness check
+
+If `compound-gpid.md` exists, check its `last-reviewed` frontmatter field:
+
+- If missing, unparseable (not a valid `YYYY-MM-DD` date), or a **future date**: treat as stale.
+- If a date more than 30 days before today: treat as stale.
+- If a valid date within the last 30 days: skip silently.
+
+If stale, collect the following nudge for the **Maintenance Nudges** block in Step 3:
+
+> ⚠️ **Charter review due**: `compound-gpid.md` hasn't been reviewed
+> since <last-reviewed date, or "unknown" if missing or invalid>.
+> Consider updating the "Current Focus" section to reflect what the
+> team is working on now. (If `last-reviewed` is set to a future date,
+> correct it to today's date.)
+
 ### Step 3: Present Context Summary
 
 Present a structured summary.
@@ -191,10 +207,16 @@ Uncommitted changes: <count files changed, or "none">
 > Consider reviewing your roadmap with `@cg-roadmap` to archive or
 > deprioritize items that aren't near-term.
 
+### ⚠️ Maintenance Nudges
+
+> Only include this section if a nudge was collected in Step 2f.
+
+- <nudge text collected from Step 2f>
+
 ---
 ```
 
-If all three sections are empty, say:
+If all sections are empty (no pending plans, findings, brainstorms, or nudges), say:
 > "No pending work found. Start with `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build."
 
 ### Step 4: Suggest Next Action
