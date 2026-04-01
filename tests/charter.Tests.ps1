@@ -37,7 +37,7 @@ Describe "compound-gpid.md - YAML frontmatter" {
 
     Context "last-reviewed format" {
         It "last-reviewed value is a valid YYYY-MM-DD date" {
-            $match = [regex]::Match($yamlBlock, 'last-reviewed\s*:\s*"?(\d{4}-\d{2}-\d{2})"?')
+            $match = [regex]::Match($yamlBlock, 'last-reviewed\s*:\s*["\'']?(\d{4}-\d{2}-\d{2})["\'']?')
             $match.Success | Should Be $true
 
             if ($match.Success) {
@@ -49,13 +49,12 @@ Describe "compound-gpid.md - YAML frontmatter" {
         }
 
         It "last-reviewed is not set to a future date" {
-            $match = [regex]::Match($yamlBlock, 'last-reviewed\s*:\s*"?(\d{4}-\d{2}-\d{2})"?')
-            if ($match.Success) {
-                $dateValue = $match.Groups[1].Value
-                $today     = Get-Date -Format 'yyyy-MM-dd'
-                # ISO date strings compare chronologically
-                ($dateValue -le $today) | Should Be $true
-            }
+            $match = [regex]::Match($yamlBlock, 'last-reviewed\s*:\s*["\'']?(\d{4}-\d{2}-\d{2})["\'']?')
+            $match.Success | Should Be $true
+            $dateValue = $match.Groups[1].Value
+            $today     = Get-Date -Format 'yyyy-MM-dd'
+            # ISO date strings compare chronologically
+            ($dateValue -le $today) | Should Be $true
         }
     }
 }
@@ -102,7 +101,7 @@ Describe "compound-gpid.md - section structure" {
     Context "section count" {
         It "has exactly four level-2 sections" {
             # Split into lines and count those starting with '## ' (followed by non-whitespace)
-            $sectionCount = ($body -split '\r?\n' | Where-Object { $_ -match '^## \S' }).Count
+            $sectionCount = @($body -split '\r?\n' | Where-Object { $_ -match '^##\s+\S' }).Count
             $sectionCount | Should Be 4
         }
     }

@@ -113,3 +113,52 @@
 - **cg-architecture**: Placement of staleness check in cg-resume (not task prompts) is correct; archive directory scaffolded before enforcement; 4-section comment embedded in template output is the right placement
 - **cg-learnings-researcher**: No contradictions with past decisions; remove-then-rewrite pattern (2026-03-04) supports future archive-write implementation; `.cg-docs/` gitignore strategy confirmed correct
 - **cg-data-quality**: `--` in YAML string is valid and parses correctly; no issue
+
+---
+
+## Light Follow-Up Review (2026-04-01 post-commit)
+
+> Note: Resolves P2.12 and P2.13 from the thorough review above — `tests/charter.Tests.ps1` was created. This light review covers the committed test file and prompt changes.
+
+**Review depth**: light
+**Files reviewed**: 9 (commit `5f6b456` on `feat/charter-maintenance`)
+**Agents**: cg-code-quality, cg-testing
+**Findings**: 0 P1, 1 P2, 3 P3
+
+### P1 — CRITICAL
+
+None.
+
+### P2 — IMPORTANT (should fix)
+
+- **[P2.1]** [cg-testing] `tests/charter.Tests.ps1:69` — False negative in "last-reviewed is not set to a future date" test
+  **Why**: The `if ($match.Success)` guard without a prior assertion means the test silently passes when `last-reviewed` is missing or malformed — the exact condition it was designed to catch.
+  **Fix**:
+  ```powershell
+  It "last-reviewed is not set to a future date" {
+      $match = [regex]::Match($yamlBlock, 'last-reviewed\s*:\s*"?(\d{4}-\d{2}-\d{2})"?')
+      $match.Success | Should Be $true
+      $dateValue = $match.Groups[1].Value
+      $today     = Get-Date -Format 'yyyy-MM-dd'
+      ($dateValue -le $today) | Should Be $true
+  }
+  ```
+
+### P3 — MINOR (nice to have)
+
+- **[P3.1]** [cg-code-quality] `tests/charter.Tests.ps1:105` — `.Count` on `Where-Object` output without `@()` wrap
+  **Why**: In PS 5.1, if `Where-Object` returns `$null` (no matches), `.Count` may not evaluate as expected.
+  **Fix**: `$sectionCount = @($body -split '\r?\n' | Where-Object { $_ -match '^## \S' }).Count`
+
+- **[P3.2]** [cg-testing] `tests/charter.Tests.ps1:105` — Section count regex requires exactly one space after `##`
+  **Why**: `'^## \S'` fails on `'##  Title'` (two spaces). Standard Markdown allows any whitespace after the `##` marker.
+  **Fix**: Use `'^##\s+\S'` to allow one or more spaces.
+
+- **[P3.3]** [cg-testing] `tests/charter.Tests.ps1:47` — YAML `last-reviewed` regex doesn't handle single-quoted values
+  **Why**: `'last-reviewed\s*:\s*"?(\d{4}-\d{2}-\d{2})"?'` misses `last-reviewed: '2026-04-01'`, silently returning `$match.Success = $false`.
+  **Fix**: `'last-reviewed\s*:\s*["\x27]?(\d{4}-\d{2}-\d{2})["\x27]?'` — or document that only double-quotes and bare values are supported (no single quotes).
+
+### ✅ Passed
+
+- **cg-code-quality**: PS 5.1 compatibility (`Should Be` syntax), ASCII-only content, naming conventions, DRY, logic correctness in prompts — all clean
+- **cg-testing**: Test isolation, naming clarity, canonical path coverage, `.cg-docs/archive/` scaffold test — all good
