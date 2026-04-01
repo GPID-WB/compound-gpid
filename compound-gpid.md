@@ -1,6 +1,7 @@
 ---
 project-name: "Compound GPID"
 created: "2026-03-26"
+last-reviewed: "2026-04-01"
 ---
 
 # Compound GPID
@@ -29,18 +30,6 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 - Every function gets documentation — roxygen2 for R, docstrings for Python, header blocks for Stata `.ado` files; parameters, return values, at least one example
 - Respect review priority system — P1 (security, data corruption, incorrect results) blocks merge; P2 (performance, tests, docs) should be fixed; P3 is advisory
 
-## Architecture Notes
-
-<!-- TODO: Describe the project structure here, or let Copilot fill this in after examining the codebase. -->
-
 ## Current Focus
 
-<!-- TODO: What is the team working on right now? Update this section as priorities change. -->
-
-## Roadmap
-
-<!-- TODO: Add milestones here. In the future, create roadmap.json for structured tracking. -->
-
-## Related Resources
-
-<!-- TODO: Add links to external docs, specs, or methodology references. -->
+<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->

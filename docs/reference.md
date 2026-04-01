@@ -133,10 +133,11 @@ your-project/
 │   ├── instructions/         → junction to C:\WBG\.compound-gpid\.github\instructions\
 │   ├── copilot-instructions.md  # copied from global clone (managed marker)
 │   └── workflows/            # your own GitHub Actions (untouched by cg-link)
-├── compound-gpid.md          # Project charter (committed -- shared context)
+├── compound-gpid.md          # Project charter (4 sections: Objective, Key Deliverables, Constraints, Current Focus). YAML: project-name, team, created, last-reviewed. Committed -- shared.
 ├── compound-gpid.local.md    # Your user config (gitignored)
 ├── roadmap.json              # Milestone & feature tracker (committed)
 └── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
+    ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
@@ -151,6 +152,15 @@ your-project/
 ```
 
 ---
+
+**Archive file format** (`.cg-docs/archive/charter-history.md`): Content removed from
+the charter is appended with a date heading and source section label:
+
+````markdown
+## Archived YYYY-MM-DD
+**Removed from**: <section name>
+<removed content>
+````
 
 > **Something not working?** See [Troubleshooting](troubleshooting.md).
 
