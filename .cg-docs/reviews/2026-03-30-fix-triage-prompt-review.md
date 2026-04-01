@@ -117,3 +117,12 @@
 - cg-code-quality: `docs/reference.md`, `cg-setup.prompt.md`, `compound-gpid.md` all updated consistently
 - cg-code-quality: `cg-fix-triage.prompt.md` Step 1 correctly references `.cg-docs/reviews/`
 - cg-testing: Existing test helpers (`Get-Frontmatter`, `Get-ToolsList`) reusable; encoding safe
+
+---
+
+## Resolution
+
+**Status**: resolved
+**Resolved date**: 2026-04-01
+**Merged**: PR #12 (commit dce0b5f) -- all findings fixed and merged to main
+**Verification**: all 13 tests in `tests/prompt-tools.Tests.ps1` pass
