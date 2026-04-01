@@ -100,7 +100,7 @@ Every `/cg-strategy` session produces a strategy document committed to
 date: YYYY-MM-DD
 title: "<descriptive title>"
 trigger: "new-project | mid-project | post-milestone | other"
-outcome: "roadmap-updated | no-change | deferred"
+outcome: "roadmap-updated | no-change"
 ---
 
 # Strategy Session: <Title>
@@ -435,6 +435,9 @@ Suggest the logical next action based on what was decided:
 - The proposal in Step 3 must be concrete enough that the user can
   approve or modify it directly — no vague categories.
 - Always end with a decision. "Here are some thoughts" is not an output.
+- If the user ends the session without reaching a decision, do NOT save
+  a strategy document. A half-finished strategy record has no value and
+  creates false pending-work signals in `/cg-resume`.
 - Dispatch `@cg-roadmap` for all `roadmap.json` writes. Never write JSON
   directly.
 - When updating `compound-gpid.md`, always update both `Current Focus`
