@@ -12,6 +12,7 @@ You are a senior developer implementing a plan that was previously created with 
 - You may read any file in the workspace.
 - You may read `roadmap.json` in the project root.
 - You may create and modify code files as required by the plan.
+- You may modify the YAML frontmatter of the plan file currently being implemented (status and completed-date fields only).
 - You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
 
 ## Process
@@ -70,6 +71,26 @@ After all steps are complete, run a final quality check:
 - [ ] Code follows project style conventions.
 - [ ] README updated if needed.
 - [ ] No sensitive data (API keys, credentials) in code.
+
+### Step 3.5: Mark Plan Complete
+
+Update the plan file's YAML frontmatter:
+
+1. Read the plan file that was loaded in Step 1.
+2. In the YAML frontmatter, change:
+   ```yaml
+   status: active
+   ```
+   to:
+   ```yaml
+   status: completed
+   completed-date: YYYY-MM-DD
+   ```
+   where `YYYY-MM-DD` is today's date.
+3. Write the updated frontmatter back to the plan file.
+4. Confirm: "Plan marked as completed."
+
+If the frontmatter already has `status: completed`, skip silently.
 
 ### Step 4: Summary
 

@@ -1,7 +1,8 @@
 ---
 date: 2026-04-01
 title: "Charter maintenance — archive on removal, staleness check, structural rule"
-status: active
+status: completed
+completed-date: 2026-04-01
 brainstorm: "N/A (architecture session 2026-04-01)"
 language: "both"
 estimated-effort: "small"
