@@ -120,5 +120,8 @@ removes only the link.
 ## Related
 
 - [Pester 3.4 vs 5 syntax](2026-03-04-pester-3-vs-5-windows-compatibility.md) — companion Pester entry
+- [2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md](2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)
+  — Same underlying junction issue re-triggered when an agent runs `Invoke-Pester tests/`
+  (all files at once) with a `-PassThru` pipeline; 4 confirmed crashes. Prevention: individual files + `-Output Minimal`.
 - ms-vscode.powershell changelog: Testing API integration added in 2024.x
 - PowerShell docs: [Remove-Item and junctions](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-item)
