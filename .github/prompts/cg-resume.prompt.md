@@ -1,4 +1,4 @@
----
+﻿---
 description: "Load context and resume interrupted work. Use at the start of a session to pick up where you left off."
 model: Claude Haiku 4.5 (copilot)
 ---
@@ -167,7 +167,7 @@ Then append the pending work sections:
    → Apply with `/cg-fix-triage`
 2. ...
 
-### �💡 Decided Brainstorms Without a Plan (<count>)
+### 💡 Decided Brainstorms Without a Plan (<count>)
 1. `<date>` — **<title>**
    → Ready for `/cg-plan`
 2. ...

@@ -189,25 +189,42 @@ Describe "cg-strategy.prompt.md - no tool restriction" {
 
 Describe "copilot-instructions.md - Workflow Entry Points" {
     $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
-    $content = Get-Content $instructionsFile -Raw -Encoding UTF8
+    $rawContent = Get-Content $instructionsFile -Raw -Encoding UTF8
+    $section = if ($rawContent -match '(?s)(## Workflow Entry Points.*?)(\r?\n## |\z)') { $Matches[1] } else { "" }
 
     It "references /cg-strategy in Workflow Entry Points" {
-        ($content -match '/cg-strategy') | Should Be $true
+        ($section -match '/cg-strategy') | Should Be $true
     }
 
     It "references /cg-brainstorm in Workflow Entry Points" {
-        ($content -match '/cg-brainstorm') | Should Be $true
+        ($section -match '/cg-brainstorm') | Should Be $true
     }
 
     It "references /cg-plan in Workflow Entry Points" {
-        ($content -match '/cg-plan') | Should Be $true
+        ($section -match '/cg-plan') | Should Be $true
     }
 
     It "references @cg-roadmap in Workflow Entry Points" {
-        ($content -match '@cg-roadmap') | Should Be $true
+        ($section -match '@cg-roadmap') | Should Be $true
     }
 
     It "references /cg-resume in Workflow Entry Points" {
-        ($content -match '/cg-resume') | Should Be $true
+        ($section -match '/cg-resume') | Should Be $true
+    }
+
+    It "references /cg-work in Workflow Entry Points" {
+        ($section -match '/cg-work') | Should Be $true
+    }
+
+    It "references /cg-review in Workflow Entry Points" {
+        ($section -match '/cg-review') | Should Be $true
+    }
+
+    It "references /cg-fix-triage in Workflow Entry Points" {
+        ($section -match '/cg-fix-triage') | Should Be $true
+    }
+
+    It "references /cg-compound in Workflow Entry Points" {
+        ($section -match '/cg-compound') | Should Be $true
     }
 }

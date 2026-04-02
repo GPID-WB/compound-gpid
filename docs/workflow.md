@@ -10,9 +10,9 @@ This page explains the Compound GPID workflow loop and how to use each step.
 
 ```
 Setup -> Strategy -> Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
-              ^             ^
-   (vision/rethink)     (one task)
-   Resume              Fix Bug  (enter at any stage when a bug is found)
+              ^             ^                                    ^
+   (vision/rethink)     (one task)                           Fix Bug
+Resume (re-entry at any stage)
 ```
 
 > `Release` is developer-only (compound-gpid workspace) and optional — omit for internal work sessions.

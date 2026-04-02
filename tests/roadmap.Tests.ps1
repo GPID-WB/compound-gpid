@@ -810,63 +810,79 @@ function Test-RecentStrategyDocument {
         $match = [regex]::Match($f.Name, '^\d{4}-\d{2}-\d{2}')
         if ($match.Success) {
             try {
-                $fileDate = [datetime]::ParseExact($match.Value, 'yyyy-MM-dd', $null)
+                $fileDate = [datetime]::ParseExact($match.Value, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
                 if ($fileDate -ge $cutoff) { return $true }
-            } catch { }
+            } catch {
+                Write-Verbose "Skipping '$($f.Name)': not a valid date prefix"
+            }
         }
     }
     return $false
 }
 
 Describe "Test-RecentStrategyDocument helper" {
-    $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ("cg-test-strategy-" + [guid]::NewGuid().ToString("N"))
+    $tmpDir  = Join-Path ([System.IO.Path]::GetTempPath()) ("cg-test-strategy-" + [guid]::NewGuid().ToString("N"))
+    $refDate = [datetime]"2026-01-01"
 
     AfterEach {
         if (Test-Path $tmpDir) { Remove-Item $tmpDir -Recurse -Force }
     }
 
     It "returns false when directory does not exist" {
-        Test-RecentStrategyDocument (Join-Path $tmpDir "nonexistent") | Should Be $false
+        Test-RecentStrategyDocument (Join-Path $tmpDir "nonexistent") -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns false when directory is empty" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
-    It "returns false when only file is .gitkeep" {
+    It "returns false when directory contains only non-.md files" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir ".gitkeep") | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns false when only file is older than 60 days" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        $oldDate = (Get-Date).AddDays(-61).ToString("yyyy-MM-dd")
+        $oldDate = $refDate.AddDays(-61).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$oldDate-old-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
-    It "returns true when a file is exactly today" {
+    It "returns true when a file is exactly today (reference date)" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        $todayDate = (Get-Date).ToString("yyyy-MM-dd")
+        $todayDate = $refDate.ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$todayDate-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "returns true when a file is 30 days old (within 60-day window)" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        $recentDate = (Get-Date).AddDays(-30).ToString("yyyy-MM-dd")
+        $recentDate = $refDate.AddDays(-30).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$recentDate-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "returns true when mixed old and recent files exist" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        $oldDate    = (Get-Date).AddDays(-90).ToString("yyyy-MM-dd")
-        $recentDate = (Get-Date).AddDays(-10).ToString("yyyy-MM-dd")
+        $oldDate    = $refDate.AddDays(-90).ToString("yyyy-MM-dd")
+        $recentDate = $refDate.AddDays(-10).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$oldDate-old.md")    | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir "$recentDate-new.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
+    }
+
+    It "returns true when a file is exactly 60 days old (inclusive boundary)" {
+        New-Item -ItemType Directory -Path $tmpDir | Out-Null
+        $boundaryDate = $refDate.AddDays(-60).ToString("yyyy-MM-dd")
+        New-Item -ItemType File -Path (Join-Path $tmpDir "$boundaryDate-boundary.md") | Out-Null
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
+    }
+
+    It "ignores .md files without a date prefix" {
+        New-Item -ItemType Directory -Path $tmpDir | Out-Null
+        New-Item -ItemType File -Path (Join-Path $tmpDir "session-notes.md") | Out-Null
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 }

@@ -134,6 +134,6 @@ Describe "Charter archiving rules - format in copilot-instructions.md" {
     }
 
     It "instructs creating the archive directory if it does not exist" {
-        ($content -match "create.*directory|create.*dir|doesn'?t exist") | Should Be $true
+        ($content -match "create.*directory|create.*dir") | Should Be $true
     }
 }

@@ -18,6 +18,10 @@ produce concrete decisions.
 - You may create `roadmap.json` in the project root if it does not exist.
 - You may modify `compound-gpid.md` ONLY to update the `Current Focus`
   and `last-reviewed` fields — no other fields, no other sections.
+  **Charter archiving**: Before editing `Current Focus`, archive any
+  replaced text to `.cg-docs/archive/charter-history.md` (create the
+  directory if it doesn't exist). Never delete existing content from
+  `compound-gpid.md` — move it, don't remove it.
 - You must NOT create or modify any other files.
 - You must NOT modify any code, tests, or existing plans.
 
