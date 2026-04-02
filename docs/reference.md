@@ -50,9 +50,16 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fix-triage` | Claude Sonnet 4.6 | Apply review findings by ID or priority level |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context and pick up interrupted work |
-| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |
 
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
+
+### Plugin Development (developer-only)
+
+> These prompts are **not distributed** to user projects via junctions. They live at the `compound-gpid` repo root and are only available when working inside the compound-gpid repository itself.
+
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. |
 
 ---
 
