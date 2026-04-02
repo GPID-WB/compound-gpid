@@ -41,6 +41,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | Prompt | Model | Purpose |
 |--------|-------|---------|
 | `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects |
+| `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
@@ -75,7 +76,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 | Agent | Focus | Model | User-invokable |
 |-------|-------|-------|----------------|
-| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Sonnet 4.6 | **Yes** |
+| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Haiku 4.5 | **Yes** |
 
 > `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates (when `roadmap.json` exists).
 
@@ -141,6 +142,7 @@ your-project/
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
+    ├── strategy/             # /cg-strategy session records
     └── solutions/            # /cg-compound outputs
         ├── build-errors/
         ├── bugs/

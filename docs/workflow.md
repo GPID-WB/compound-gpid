@@ -9,9 +9,10 @@ This page explains the Compound GPID workflow loop and how to use each step.
 ## The Loop
 
 ```
-Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
-          ^          ^
-       Resume     Fix Bug  (enter at any stage when a bug is found)
+Setup -> Strategy -> Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
+              ^             ^
+   (vision/rethink)     (one task)
+   Resume              Fix Bug  (enter at any stage when a bug is found)
 ```
 
 > `Release` is developer-only (compound-gpid workspace) and optional — omit for internal work sessions.
@@ -152,12 +153,22 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-## Prompts vs. Agents vs. Skills
+### Strategy (`/cg-strategy`)
+
+**When**: You have a full project vision to structure into milestones and features — at any stage of the project. Use at day zero to build the initial roadmap, mid-project to rethink direction, or after a milestone to plan the next phase.
+
+**What happens**: Reads your project charter, roadmap, and recent work. Asks focused questions one at a time to understand your ideas, surface trade-offs, and clarify priorities. Proposes a concrete roadmap structure for your approval, then dispatches `@cg-roadmap` to apply the changes. Saves a record of the session to `.cg-docs/strategy/`.
+
+**Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed.
+
+**Output**: Updated `roadmap.json` + `.cg-docs/strategy/YYYY-MM-DD-<title>.md`
+
+---
 
 | Aspect | Prompts | Agents | Skills |
 |--------|---------|--------|---------|
 | **What they are** | Workflow commands | Specialized reviewers / roadmap manager | Reference knowledge |
-| **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
+| **How you use them** | Type `/cg-setup`, `/cg-strategy`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
 | **Interactive?** | No - follow the workflow | No - automated | No (passive by design) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |

@@ -100,11 +100,11 @@ If `roadmap.json` exists at the project root, read it and compute:
 
 For `in-progress` milestones only, cross-check each feature that has a
 non-null `plan` path:
-- If the plan path does not exist -> stale reference (note it).
+- If the plan path does not exist → stale reference (note it).
 - If feature `status: "active"` but plan frontmatter `status: completed`
-  -> roadmap-behind-plan drift (note it).
+  → roadmap-behind-plan drift (note it).
 - If feature `status: "done"` but plan frontmatter does not have
-  `status: completed` -> roadmap-ahead-of-plan drift (note it).
+  `status: completed` → roadmap-ahead-of-plan drift (note it).
 
 #### 2e. Pending review findings
 
@@ -164,7 +164,7 @@ Then append the pending work sections:
 
 ### � Pending Review Findings (<count>)
 1. `<filename>` — <P1-count> critical, <P2-count> important, <P3-count> minor
-   -> Apply with `/cg-fix-triage`
+   → Apply with `/cg-fix-triage`
 2. ...
 
 ### �💡 Decided Brainstorms Without a Plan (<count>)
@@ -201,11 +201,12 @@ Uncommitted changes: <count files changed, or "none">
 >   Run `@cg-roadmap` to update its status.
 > ⚠️ Feature '<title>' has a stale plan reference ('<path>' not found).
 
-> Scope health nudge -- include only when more than 60% of all features
+> Scope health nudge <!-- SCOPE_THRESHOLD: 60% --> -- include only when more than 60% of all features
 > across milestones are `idea` or `planned`:
 > ⚠️ **Roadmap scope check**: <N> of <total> features haven't been started.
 > Consider reviewing your roadmap with `@cg-roadmap` to archive or
-> deprioritize items that aren't near-term.
+> deprioritize items that aren't near-term. Or run `/cg-strategy` to
+> rethink the roadmap scope.
 
 ### ⚠️ Maintenance Nudges
 
@@ -216,8 +217,12 @@ Uncommitted changes: <count files changed, or "none">
 ---
 ```
 
-If all sections are empty (no pending plans, findings, brainstorms, or nudges), say:
-> "No pending work found. Start with `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build."
+If all sections are empty (no pending plans, findings, brainstorms, or nudges):
+- If `roadmap.json` exists: say "No pending work found. Start with `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build."
+- If `roadmap.json` does NOT exist but `.cg-docs/strategy/` documents exist: say:
+  > "No roadmap yet, but strategy documents exist. Run `@cg-roadmap` to initialize one."
+- If `roadmap.json` does NOT exist and no `.cg-docs/strategy/` documents exist: say:
+  > "No roadmap found. If you have a project vision to structure, run `/cg-strategy`. If you prefer to build the roadmap directly, run `@cg-roadmap`."
 
 ### Step 4: Suggest Next Action
 
@@ -228,6 +233,7 @@ Based on what you found, suggest the most logical next step:
 - If there are **unplanned brainstorms**: offer to create a plan with `/cg-plan`
 - If there are **uncommitted changes**: suggest reviewing and committing, or running `/cg-review`
 - If nothing is pending: suggest starting fresh with `/cg-brainstorm` or `/cg-plan`
+- If roadmap has >60% unstarted features AND no strategy document in `.cg-docs/strategy/` from the last 60 days (treat a missing directory as zero documents — **scope-check condition**): add `/cg-strategy` as an option to rethink the roadmap scope
 
 Ask:
 
@@ -243,4 +249,8 @@ If `roadmap.json` exists and any `in-progress` milestone has features with
 `status: "idea"`, add an additional option:
 
 > N. Plan a roadmap idea: **<feature title>** (in <milestone title>) -- `/cg-plan`
+
+If **scope-check condition** holds (>60% unstarted features AND no recent strategy document — defined above), add:
+
+> N. Rethink the roadmap scope — `/cg-strategy`
 

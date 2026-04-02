@@ -17,7 +17,30 @@ You are working in a data science project maintained by the DECDG team at the Wo
   constraints, and current focus. This file is the authoritative source of
   what this project is building and why.
 - If `compound-gpid.md` does not exist, suggest the user run `/cg-setup`.
-- Do not modify `compound-gpid.md` without explicit user approval.
+- Do not modify the **body** of `compound-gpid.md` (Objective, Key
+  Deliverables, Constraints, Current Focus sections) without explicit user
+  approval. The `last-reviewed` frontmatter field is metadata — update it
+  automatically whenever the user explicitly approves a charter change.
+- Never remove body content from `compound-gpid.md` without first archiving
+  it to `.cg-docs/archive/charter-history.md` (create the directory if it
+  doesn't exist). The full archiving procedure is in `/cg-strategy`.
+
+## Workflow Entry Points
+
+> **Entry points only.** For all commands, see [docs/reference.md](../docs/reference.md).
+
+| Situation | Command |
+|---|---|
+| Full project vision to structure | `/cg-strategy` |
+| Mid-project direction question | `/cg-strategy` |
+| One fuzzy task to clarify | `/cg-brainstorm` |
+| Known task to plan | `/cg-plan` |
+| Direct roadmap edit | `@cg-roadmap` |
+| Resume interrupted work | `/cg-resume` |
+| Implement a plan | `/cg-work` |
+| Code review | `/cg-review` |
+| Apply review findings | `/cg-fix-triage` |
+| Capture a solution | `/cg-compound` |
 
 ## Coding Standards
 

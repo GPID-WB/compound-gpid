@@ -120,3 +120,20 @@ Describe ".cg-docs/archive/ - scaffold present" {
         Test-Path $gitkeepPath | Should Be $true
     }
 }
+
+Describe "Charter archiving rules - format in copilot-instructions.md" {
+    $instructionsPath = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = if (Test-Path $instructionsPath) { Get-Content $instructionsPath -Raw } else { "" }
+
+    It "copilot-instructions.md exists" {
+        Test-Path $instructionsPath | Should Be $true
+    }
+
+    It "references .cg-docs/archive/charter-history.md as the archive destination" {
+        ($content -match '\.cg-docs[/\\]archive[/\\]charter-history\.md') | Should Be $true
+    }
+
+    It "instructs creating the archive directory if it does not exist" {
+        ($content -match "create.*directory|create.*dir|doesn'?t exist") | Should Be $true
+    }
+}

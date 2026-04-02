@@ -214,6 +214,10 @@ Create the following directories and `.gitkeep` files if they do not already exi
 │   └── .gitkeep
 ├── plans/
 │   └── .gitkeep
+├── reviews/
+│   └── .gitkeep
+├── strategy/
+│   └── .gitkeep
 └── solutions/
     ├── build-errors/
     │   └── .gitkeep
@@ -277,6 +281,7 @@ and ideas by invoking `@cg-roadmap` in Copilot Chat.
 
 ### Available Commands (in Copilot Chat)
 - `/cg-resume`     — Load context and pick up interrupted work
+- `/cg-strategy`   — Structure a full project vision into milestones and features
 - `/cg-brainstorm` — Clarify fuzzy requirements through guided Q&A
 - `/cg-plan`       — Research the codebase and create an implementation plan
 - `/cg-work`       — Implement a plan step by step
@@ -291,9 +296,16 @@ and ideas by invoking `@cg-roadmap` in Copilot Chat.
 - `cg-unlink` — Disconnect this project from Compound GPID
 
 ### Next Steps
-- Start with `/cg-brainstorm` if requirements are fuzzy
-- Start with `/cg-plan` if you know what to build
-- Jump to `/cg-work` if a plan already exists
+
+**If you have a vision for the full project scope:**
+→ Run `/cg-strategy` to think through your ideas and build an initial
+  milestone and feature structure
+
+**If requirements for a specific task are fuzzy:**
+→ Run `/cg-brainstorm` to clarify before planning
+
+**If you already know what to build:**
+→ Run `/cg-plan` to create an implementation plan
 ```
 
 ---
