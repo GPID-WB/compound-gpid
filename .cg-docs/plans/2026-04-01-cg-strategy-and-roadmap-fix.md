@@ -1,9 +1,10 @@
 ---
 date: 2026-04-01
 title: "Add /cg-strategy command and fix @cg-roadmap model to Haiku"
-status: active
+status: completed
+completed-date: 2026-04-01
 brainstorm: "N/A (architecture session 2026-04-01)"
-language: "both"
+language: "config"
 estimated-effort: "medium"
 tags: [strategy, roadmap, vision, cg-strategy, cg-roadmap, project-awareness]
 ---
