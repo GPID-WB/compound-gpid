@@ -143,3 +143,88 @@ Describe "cg-resume.prompt.md - pending review findings scan" {
         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# cg-strategy.prompt.md existence, frontmatter, and no tool restriction
+# ---------------------------------------------------------------------------
+
+Describe "cg-strategy.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-strategy.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
+
+Describe "cg-strategy.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (restrictions are prose-only per convention)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# copilot-instructions.md Workflow Entry Points table
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - Workflow Entry Points" {
+    $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $rawContent = Get-Content $instructionsFile -Raw -Encoding UTF8
+    $section = if ($rawContent -match '(?s)(## Workflow Entry Points.*?)(\r?\n## |\z)') { $Matches[1] } else { "" }
+
+    It "references /cg-strategy in Workflow Entry Points" {
+        ($section -match '/cg-strategy') | Should Be $true
+    }
+
+    It "references /cg-brainstorm in Workflow Entry Points" {
+        ($section -match '/cg-brainstorm') | Should Be $true
+    }
+
+    It "references /cg-plan in Workflow Entry Points" {
+        ($section -match '/cg-plan') | Should Be $true
+    }
+
+    It "references @cg-roadmap in Workflow Entry Points" {
+        ($section -match '@cg-roadmap') | Should Be $true
+    }
+
+    It "references /cg-resume in Workflow Entry Points" {
+        ($section -match '/cg-resume') | Should Be $true
+    }
+
+    It "references /cg-work in Workflow Entry Points" {
+        ($section -match '/cg-work') | Should Be $true
+    }
+
+    It "references /cg-review in Workflow Entry Points" {
+        ($section -match '/cg-review') | Should Be $true
+    }
+
+    It "references /cg-fix-triage in Workflow Entry Points" {
+        ($section -match '/cg-fix-triage') | Should Be $true
+    }
+
+    It "references /cg-compound in Workflow Entry Points" {
+        ($section -match '/cg-compound') | Should Be $true
+    }
+}

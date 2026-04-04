@@ -9,12 +9,11 @@ This page explains the Compound GPID workflow loop and how to use each step.
 ## The Loop
 
 ```
-Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound -> Release
-          ^          ^
-       Resume     Fix Bug  (enter at any stage when a bug is found)
+Setup -> Strategy -> Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound
+              ^             ^                                    ^
+   (vision/rethink)     (one task)                           Fix Bug
+Resume (re-entry at any stage)
 ```
-
-> `Release` is developer-only (compound-gpid workspace) and optional — omit for internal work sessions.
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** - invoke a prompt, answer its questions when asked, and let it run to completion.
 
@@ -113,20 +112,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-### 7. Release (`/cg-release`)
-
-> [!NOTE]
-> **Developer-only** — this prompt lives at the compound-gpid repo root and is NOT distributed to linked user projects via junctions. Only invoke it from the compound-gpid workspace.
-
-**When**: After the Compound step, when you are ready to publish a new version of compound-gpid.
-
-**What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub.
-
-**Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
-
----
-
-### 8. Resume (`/cg-resume`)
+### 7. Resume (`/cg-resume`)
 
 **When**: At the start of a session when you have interrupted work.
 
@@ -152,12 +138,22 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ---
 
-## Prompts vs. Agents vs. Skills
+### Strategy (`/cg-strategy`)
+
+**When**: You have a full project vision to structure into milestones and features — at any stage of the project. Use at day zero to build the initial roadmap, mid-project to rethink direction, or after a milestone to plan the next phase.
+
+**What happens**: Reads your project charter, roadmap, and recent work. Asks focused questions one at a time to understand your ideas, surface trade-offs, and clarify priorities. Proposes a concrete roadmap structure for your approval, then dispatches `@cg-roadmap` to apply the changes. Saves a record of the session to `.cg-docs/strategy/`.
+
+**Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed.
+
+**Output**: Updated `roadmap.json` + `.cg-docs/strategy/YYYY-MM-DD-<title>.md`
+
+---
 
 | Aspect | Prompts | Agents | Skills |
 |--------|---------|--------|---------|
 | **What they are** | Workflow commands | Specialized reviewers / roadmap manager | Reference knowledge |
-| **How you use them** | Type `/cg-setup`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
+| **How you use them** | Type `/cg-setup`, `/cg-strategy`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
 | **Interactive?** | No - follow the workflow | No - automated | No (passive by design) |
 | **Prefix** | `cg-` | `cg-` | `cg-skill-` |
 | **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
@@ -169,4 +165,18 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 > **All commands in one place**: see [Reference](reference.md).
 > **Something broken?** See [Troubleshooting](troubleshooting.md).
+
+---
+
+## Plugin Development
+
+> The commands in this section are **developer-only**. They live at the `compound-gpid` repo root and are NOT distributed to linked user projects via junctions. Only use them when working inside the `compound-gpid` repository itself.
+
+### Release (`/cg-release`)
+
+**When**: After the Compound step, when you are ready to publish a new version of compound-gpid to GitHub.
+
+**What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub.
+
+**Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
 

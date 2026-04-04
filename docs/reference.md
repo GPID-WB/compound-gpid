@@ -41,6 +41,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | Prompt | Model | Purpose |
 |--------|-------|---------|
 | `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects |
+| `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
@@ -49,9 +50,16 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fix-triage` | Claude Sonnet 4.6 | Apply review findings by ID or priority level |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context and pick up interrupted work |
-| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release. Detects next semver tag, drafts release notes, checks `SCHEMA_VERSION`, and publishes. **Developer-only** — lives at repo root, not junctioned to user projects. |
 
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
+
+### Plugin Development (developer-only)
+
+> These prompts are **not distributed** to user projects via junctions. They live at the `compound-gpid` repo root and are only available when working inside the compound-gpid repository itself.
+
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. |
 
 ---
 
@@ -75,7 +83,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 | Agent | Focus | Model | User-invokable |
 |-------|-------|-------|----------------|
-| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Sonnet 4.6 | **Yes** |
+| `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Haiku 4.5 | **Yes** |
 
 > `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates (when `roadmap.json` exists).
 
@@ -141,6 +149,7 @@ your-project/
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
+    ├── strategy/             # /cg-strategy session records
     └── solutions/            # /cg-compound outputs
         ├── build-errors/
         ├── bugs/

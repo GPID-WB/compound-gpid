@@ -75,6 +75,8 @@ Open your project in VS Code and run in Copilot Chat:
 /cg-setup
 ```
 
+> ⚠️ **Do not skip this step.** `/cg-setup` creates the `.cg-docs/` directory structure (brainstorms, plans, reviews, strategy, solutions, archive) required by all workflow prompts. If you skip it, `/cg-strategy`, `/cg-review`, and `/cg-compound` will fail to write their output artifacts.
+
 This configures language preferences, project type, and review depth, and scaffolds the `.cg-docs/` directory.
 It also optionally creates `compound-gpid.md` -- a committed, shared **project charter** that gives Copilot
 awareness of your project's objective, key deliverables, constraints, and current focus. All `/cg-*` prompts read this file
@@ -157,6 +159,12 @@ git -C $cg pull --ff-only
 ```
 
 Then run `cg-update` from each linked project to apply any structural migrations.
+
+> **Existing projects — `.cg-docs/strategy/`**: If you linked your project before this release, create the strategy folder manually:
+> ```powershell
+> New-Item -ItemType Directory -Force .cg-docs\strategy | Out-Null
+> New-Item -ItemType File -Force .cg-docs\strategy\.gitkeep | Out-Null
+> ```
 
 > **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-envuserprofilecompound-gpid-old-default-path--local-onedrive-machines-only) in the Troubleshooting page.
 
