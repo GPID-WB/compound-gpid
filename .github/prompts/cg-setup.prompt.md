@@ -364,8 +364,9 @@ or where individual subdirectories were deleted.
 
 If `roadmap.json` does not exist in the project root, mention:
 
-> "No `roadmap.json` found. You can create one by invoking `@cg-roadmap`
-> in Copilot Chat and asking it to initialize your roadmap."
+> "No `roadmap.json` found. This project was likely set up with an older version of
+> Compound GPID that did not include roadmap support. To add it, invoke `@cg-roadmap`
+> in Copilot Chat and ask it to initialize your roadmap."
 
 #### B1.3. Schema version check
 

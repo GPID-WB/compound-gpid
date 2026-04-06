@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "compound-gpid-roadmap-v1",
+  "milestones": [
+    {
+      "id": "quality-loop",
+      "title": "Quality Loop",
+      "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R, Python, and Stata.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "cg-fix-problems-agent",
+          "title": "@cg-fix-problems agent (auto-dispatched by /cg-work)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-fix-problems-prompt",
+          "title": "/cg-fix-problems user-facing prompt",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "testing-skill-r",
+          "title": "Testing skill for R (testthat/mockery)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "testing-skill-python",
+          "title": "Testing skill for Python (pytest/parametrize/monkeypatch)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "testing-skill-stata",
+          "title": "Testing skill for Stata (assert-based/reprun)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "per-step-test-enforcement-in-cg-work",
+          "title": "Per-step test enforcement in /cg-work",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "title": "Performance",
+      "objective": "Reduce unnecessary model cost and session latency by auditing every prompt and agent against the correct model tier and fixing known slow paths in /cg-release.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "full-model-audit",
+          "title": "Full model audit across prompts and agents",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-release-scan-scope-60-days",
+          "title": "/cg-release scan scope limited to last 60 days",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-release-haiku-sonnet-split",
+          "title": "Split /cg-release into Haiku scan + Sonnet drafting",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "skills-enhancement",
+      "title": "Skills Enhancement",
+      "objective": "Deepen the R skills so analytical team members get idiomatic collapse and data.table patterns, anti-patterns, and ML workflow support without leaving Copilot.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "collapse-syntax-expansion",
+          "title": "collapse syntax expansion in cg-skill-r-technical",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "data-table-expansion",
+          "title": "data.table expansion in cg-skill-r-technical",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "tidymodels-addition",
+          "title": "tidymodels addition to cg-skill-r-analytical",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "architecture-research",
+      "title": "Architecture Research",
+      "objective": "Evaluate Copilot hooks and the OpenAI Codex plugin pattern to determine whether they change the plugin's dispatch architecture before committing to copilot-instructions.md restructuring.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "study-codex-plugin",
+          "title": "Study OpenAI Codex plugin for Claude Code",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "evaluate-copilot-hooks",
+          "title": "Evaluate GitHub Copilot hooks for compound-gpid",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "copilot-instructions-restructuring",
+          "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "evals",
+      "title": "Evals",
+      "objective": "Establish a minimal, automatable eval layer that catches structural regressions in prompt and agent output without requiring a scriptable Copilot API.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "roadmap-schema-validation",
+          "title": "roadmap.json schema validation after @cg-roadmap writes",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "plan-frontmatter-checks",
+          "title": "Required frontmatter field checks from /cg-plan output",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "work-completion-verification",
+          "title": "status:completed verification from /cg-work output",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "evals-scaffold",
+          "title": ".cg-docs/evals/ scaffold with probe-and-check pairs",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    }
+  ]
+}

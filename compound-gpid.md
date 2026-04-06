@@ -1,7 +1,7 @@
 ---
 project-name: "Compound GPID"
 created: "2026-03-26"
-last-reviewed: "2026-04-01"
+last-reviewed: "2026-04-06"
 ---
 
 # Compound GPID
@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->
+Structuring the full plugin backlog across five milestones — Quality Loop, Performance, Skills Enhancement, Architecture Research, and Evals. Immediate priority: Quality Loop (auto-fix diagnostics, test enforcement, testing skills).
