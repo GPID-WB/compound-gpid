@@ -27,6 +27,12 @@ Invoke-Pester tests/ -PassThru |
 This crash happened **four confirmed times** in the `strategy` branch fix-triage
 session (2026-04-02). Each occurrence required a VS Code restart.
 
+**Recurrence (2026-04-06):** Crashed again during the `vision1` branch fix-triage
+session — four additional times. The agent used both `Invoke-Pester tests/ -PassThru`
+(directory form) and `Invoke-Pester ..., ... -PassThru | Select-Object -ExpandProperty
+TestResult | Where-Object ...` (multi-file + ExpandProperty pipeline). Recurrence
+confirms the pattern as reliably dangerous, not edge-case behaviour.
+
 Symptoms:
 - VS Code becomes unresponsive during or immediately after the Pester run
 - Terminal hangs with no output, or output is produced but VS Code then freezes
@@ -88,9 +94,10 @@ single, small, non-junction-creating test file.
 - When verifying a fix, only run the test file that covers the changed code
 
 **For project contributors:**
-- Add to `.github/copilot-instructions.md` or the fix-triage prompt: 
-  > "Run Pester on individual test files with `-Output Minimal`. Never use
-  > `Invoke-Pester tests/` or `-PassThru` pipelines in this workspace."
+- ✅ **Implemented 2026-04-06**: A **Pester Safety Rules** section was added to
+  `.github/copilot-instructions.md` with the three forbidden patterns and three
+  safe replacements. This file is auto-loaded into every Copilot session, so the
+  agent will see the rules before writing any Pester command.
 - If a full suite run is needed for CI, use GitHub Actions (not local agent terminal)
 
 ## Related

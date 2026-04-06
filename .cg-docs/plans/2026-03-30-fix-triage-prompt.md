@@ -1,7 +1,7 @@
 ---
 date: 2026-03-30
 title: "Add /cg-fix-triage and integrate review-to-fix pipeline"
-status: active
+status: completed
 brainstorm: ".cg-docs/brainstorms/2026-03-30-fix-triage-prompt.md"
 language: "both"
 estimated-effort: "small"

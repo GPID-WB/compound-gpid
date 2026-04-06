@@ -44,6 +44,8 @@ $ErrorActionPreference = "Stop"
 # (scripts/ -> parent = compound-gpid root). Works with any install path.
 $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
+. (Join-Path $PSScriptRoot "helpers.ps1")
+
 # The management marker that identifies a CG-managed copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 
@@ -63,16 +65,7 @@ $VersionAcceptPattern = '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$'
 
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
-    Write-Error @"
-Compound GPID installation directory not found at: $CompoundGpidDir
-
-This script expects to run from within a Compound GPID installation.
-See docs/installation.md for setup instructions and path guidance.
-  # Local machine (OneDrive):  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
-  # Remote server:             git clone https://github.com/GPID-WB/compound-gpid.git "`$env:USERPROFILE\.compound-gpid"
-  # Then run: & "<your-path>\install.ps1"
-  # (Adding a new environment? Update this message and the matching one in scripts/link.ps1)
-"@
+    Write-Error "Compound GPID installation directory not found at: $CompoundGpidDir$CG_INSTALL_GUIDANCE"
     exit 1
 }
 
@@ -530,7 +523,7 @@ if ($versionMode -eq "latest") {
     # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
     # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
     $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
-    $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+    if ($isDevPin) { $pinLabel = "dev-pinned" } else { $pinLabel = "pinned" }
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
     # Hint when a newer release is available (only if we have fresh tag data)

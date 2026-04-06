@@ -10,8 +10,8 @@ This page explains the Compound GPID workflow loop and how to use each step.
 
 ```
 Setup -> Strategy -> Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound
-              ^             ^                                    ^
-   (vision/rethink)     (one task)                           Fix Bug
+                ^             ^                                    ^
+       (vision/rethink)   (one task)                            Fix Bug
 Resume (re-entry at any stage)
 ```
 

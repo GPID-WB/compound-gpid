@@ -19,7 +19,7 @@ Describe "compound-gpid.md - YAML frontmatter" {
     $content     = if (Test-Path $charterPath) { Get-Content $charterPath -Raw } else { "" }
 
     # Extract the YAML block between the first two --- delimiters
-    $yamlBlock = if ($content -match "(?s)^---\r?\n(.*?)\r?\n---") { $Matches[1] } else { "" }
+    $yamlBlock = if ($content -match "(?s)^---\s*\r?\n(.+?)\r?\n---") { $Matches[1] } else { "" }
 
     Context "required fields" {
         It "contains project-name" {

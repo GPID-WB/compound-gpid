@@ -102,3 +102,24 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 ## Knowledge Compounding
 
 After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `bugs`, `build-errors`, `data-quality`, `environment-issues`, `git-workflows`, `performance-issues`, `testing-patterns`.
+
+## Pester Safety Rules (CRITICAL — violating these crashes VS Code)
+
+Running Pester incorrectly in this project causes VS Code to freeze and crash. These rules are **mandatory** in every terminal command that invokes Pester:
+
+1. **Never run the full test suite as a directory**: `Invoke-Pester tests/` crashes VS Code. Always specify individual files.
+2. **Never pipeline `-PassThru` output through `Select-Object -ExpandProperty TestResult`**: This pattern (`Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | ...`) reliably freezes VS Code. See `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md`.
+3. **Safe pattern — single file, `-Output Minimal`**:
+   ```powershell
+   Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
+   ```
+4. **Safe pattern — multiple files, summary only**:
+   ```powershell
+   Invoke-Pester tests/roadmap.Tests.ps1, tests/link.Tests.ps1 -Output Minimal
+   ```
+5. **Safe pattern — check for failures only** (if `-PassThru` is needed):
+   ```powershell
+   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
+   $r | Select-Object TotalCount, PassedCount, FailedCount
+   ```
+   Note: assign to variable first, then inspect — do **not** pipeline directly into `Select-Object` or `Where-Object`.

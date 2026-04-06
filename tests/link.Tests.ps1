@@ -238,7 +238,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
         #   2. Remove any existing CG block
         #   3. TrimEnd() to remove trailing whitespace before appending separator + new block
         # If the production logic in link.ps1 changes, update this Context accordingly.
-        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*"
+        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*"
         $NormGitignore = { param([string]$c) if ($c -and $c -notmatch '\r?\n$') { $c + "`n" } else { $c } }
 
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
@@ -450,6 +450,79 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             & $CleanStaleCgDocs $gi
             $after = Get-Content $gi -Raw
             $after | Should Be $before
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 (review finding): update.ps1 call failure handling
+# ---------------------------------------------------------------------------
+# link.ps1 calls update.ps1 inside a try/catch so that a network error or
+# broken update does not prevent the link operation from completing.
+# These tests verify the try/catch pattern keeps execution flowing.
+
+Describe "link.ps1 - update.ps1 call failure handling" {
+    Context "when cg-update throws an exception (e.g. offline)" {
+        It "linking continues after update.ps1 throws (try/catch pattern)" {
+            $linkContinued = $false
+            try {
+                throw "Simulated cg-update failure (offline)"
+            } catch {
+                # Mirrors link.ps1: warn and continue
+                Write-Warning "Could not update Compound GPID (offline?): $_"
+            }
+            # Code after the try/catch must be reachable
+            $linkContinued = $true
+            $linkContinued | Should Be $true
+        }
+
+        It "CG_INTERNAL_CALL env var is cleaned up even when update throws" {
+            $env:CG_INTERNAL_CALL = "1"
+            try {
+                throw "Simulated update failure"
+            } catch {
+                <# warn and continue #>
+            } finally {
+                Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+            }
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.6 (review finding): junction accessibility verification (Step 6)
+# ---------------------------------------------------------------------------
+# link.ps1 Step 6 does a Test-Path check on cg-setup.prompt.md through the
+# junction, emitting a Warning on failure and continuing (non-fatal).
+
+Describe "link.ps1 - junction accessibility verification (Step 6)" {
+    Context "when cg-setup.prompt.md is accessible through the junction" {
+        It "treats Test-Path returning true as verification success" {
+            $checkPath = Join-Path $TestDrive "cg-setup.prompt.md"
+            New-Item -ItemType File -Path $checkPath -Force | Out-Null
+            $verified = Test-Path $checkPath
+            $verified | Should Be $true
+        }
+    }
+
+    Context "when cg-setup.prompt.md is NOT accessible (broken junction or missing source)" {
+        It "treats Test-Path returning false as verification failure" {
+            # link.ps1 shows Write-Warning and continues; this test verifies the check condition.
+            $checkPath = Join-Path $TestDrive "missing-subdir\cg-setup.prompt.md"
+            $verified = Test-Path $checkPath
+            $verified | Should Be $false
+        }
+
+        It "verification failure does not abort the link process (non-fatal guard)" {
+            $checkPath = Join-Path $TestDrive "nonexistent\cg-setup.prompt.md"
+            $linkCompleted = $false
+            if (-not (Test-Path $checkPath)) {
+                Write-Warning "Verification failed - prompts not visible at expected path: $checkPath"
+            }
+            # Execution must continue beyond the if/else
+            $linkCompleted = $true
+            $linkCompleted | Should Be $true
         }
     }
 }

@@ -34,10 +34,18 @@ You are a senior developer applying fixes from a previously saved review report.
    "> No review reports found in `.cg-docs/reviews/`. Run `/cg-review` first
    > to generate a review report."
    Then stop.
-4. Read the review file and parse all findings. Each finding has a compound ID
-   like `P1.1`, `P1.2`, `P2.1`, `P3.1`, etc.
-5. Display a summary: how many findings by priority level, and list each
-   finding ID with its one-line description.
+4. Read the review file and parse all findings from the markdown body. Each
+   finding has a compound ID like `P1.1`, `P1.2`, `P2.1`, `P3.1`, etc.
+5. Read the YAML frontmatter. If a `findings:` key exists, use it to determine
+   which findings are already resolved:
+   - `open` — actionable; present to the user for fixing.
+   - `fixed` or `skipped` — already resolved; exclude from the active findings
+     list but count them.
+   If no `findings:` key exists, treat all parsed findings as `open` (legacy
+   file — run `/cg-fix-triage --migrate` to add tracking frontmatter).
+6. Display a summary: total findings, how many are already resolved (fixed +
+   skipped), how many are `open` and actionable. List each `open` finding ID
+   with its one-line description.
 
 ### Step 2: Determine Scope
 
@@ -61,7 +69,10 @@ For each in-scope finding, in order (P1 first, then P2, then P3):
 1. Show the finding: ID, agent name, file, line, description, and suggested fix.
 2. Apply the suggested fix.
 3. Verify the fix compiles/parses correctly (run any available linter or test).
-4. Mark the finding as fixed.
+4. Mark the finding as fixed: update its entry in the review file's YAML
+   frontmatter from `open` to `fixed` (or `skipped` if the user declined).
+   Edit only the frontmatter — do not modify the markdown body.
+   **Do NOT delegate this frontmatter update to a subagent. Edit the file directly.**
 
 If a fix is ambiguous or risky:
 - Explain what the fix would do and ask the user to confirm before applying.
@@ -80,6 +91,7 @@ After processing all in-scope findings:
 ## Fix-Triage Summary
 
 **Review file**: <filename>
+**Previously resolved**: R findings (from prior sessions)
 **In scope**: N findings
 **Fixed**: X findings
 **Skipped**: Y findings (user declined or ambiguous)
@@ -105,3 +117,43 @@ Suggest follow-up actions:
 - If findings remain: "Run `/cg-fix-triage P2.1 P3.1` to fix remaining findings."
 - If all findings are resolved: "All review findings addressed. Ready to merge."
 - If solutions were found during fixes: "Run `/cg-compound` to capture learnings."
+
+---
+
+## Special Mode: `--migrate`
+
+When invoked as `/cg-fix-triage --migrate`, run the following migration
+instead of the normal fix flow:
+
+1. Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`) that do
+   **not** have a `findings:` key in their YAML frontmatter (or have no
+   frontmatter at all). These are legacy review files.
+2. For each legacy file:
+   a. Parse finding IDs from the markdown body using the pattern
+      `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P1.1`, `P2.3`).
+   b. Apply the companion-plan heuristic to determine default status:
+      - Strip the `-review` suffix from the review filename stem
+        (e.g., `2026-04-01-cg-strategy-review.md` → stem
+        `2026-04-01-cg-strategy`).
+      - Look for a matching file in `.cg-docs/plans/` (exact stem match).
+      - If the plan exists **and** its frontmatter has `status: completed`:
+        set all findings to `fixed`.
+      - Otherwise (plan not found, or plan not completed): set all findings
+        to `open`.
+   c. Add YAML frontmatter to the file:
+      ```yaml
+      ---
+      plan: <path to companion plan, or null>
+      findings:
+        P1.1: fixed   # or open
+        P2.1: fixed
+      ---
+      ```
+      **Write the updated file directly. Do NOT delegate this step to a subagent.**
+3. Report what was migrated:
+   > "Migrated N review file(s). M defaulted to `fixed` (companion plan
+   > completed), K defaulted to `open`. Run `/cg-resume` to see updated
+   > pending findings."
+4. If no legacy files are found:
+   > "No legacy review files found. All review files already have
+   > per-finding status tracking."

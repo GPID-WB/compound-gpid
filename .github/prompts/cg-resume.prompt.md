@@ -108,10 +108,23 @@ non-null `plan` path:
 
 #### 2e. Pending review findings
 
-Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`). For each file,
-count lines matching `\*\*\[P1\.` (critical), `\*\*\[P2\.` (important), and
-`\*\*\[P3\.` (minor) to estimate how many unresolved findings remain. Collect
-files that have any P-findings.
+Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`). For each file:
+
+1. Read the YAML frontmatter.
+2. If a `findings:` key exists: count entries with value `open`, grouped by
+   priority prefix (`P1.x` = critical, `P2.x` = important, `P3.x` = minor).
+   If zero `open` entries, the file is fully resolved — skip it entirely.
+3. If no `findings:` key exists (legacy file with no frontmatter): add the
+   file to a migration list — do NOT count it as pending findings.
+
+Collect files with ≥1 `open` finding for the "Pending Review Findings" section.
+
+If any legacy files were detected, collect this nudge for the **Maintenance
+Nudges** block in Step 3:
+
+> ⚠️ **Review migration needed**: N review file(s) use the old format (no
+> `findings:` frontmatter). Run `/cg-fix-triage --migrate` to add
+> per-finding status tracking.
 
 #### 2f. Charter staleness check
 
@@ -163,7 +176,7 @@ Then append the pending work sections:
 2. ...
 
 ### � Pending Review Findings (<count>)
-1. `<filename>` — <P1-count> critical, <P2-count> important, <P3-count> minor
+1. `<filename>` — <open-P1-count> critical, <open-P2-count> important, <open-P3-count> minor open findings
    → Apply with `/cg-fix-triage`
 2. ...
 
@@ -210,9 +223,9 @@ Uncommitted changes: <count files changed, or "none">
 
 ### ⚠️ Maintenance Nudges
 
-> Only include this section if a nudge was collected in Step 2f.
+> Only include this section if a nudge was collected in Step 2e or Step 2f.
 
-- <nudge text collected from Step 2f>
+- <nudge text collected from Step 2e or Step 2f>
 
 ---
 ```
