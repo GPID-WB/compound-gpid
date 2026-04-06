@@ -530,7 +530,7 @@ if ($versionMode -eq "latest") {
     # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
     # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
     $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
-    $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
+    if ($isDevPin) { $pinLabel = "dev-pinned" } else { $pinLabel = "pinned" }
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
     # Hint when a newer release is available (only if we have fresh tag data)

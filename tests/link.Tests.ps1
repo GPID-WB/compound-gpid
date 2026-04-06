@@ -238,7 +238,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
         #   2. Remove any existing CG block
         #   3. TrimEnd() to remove trailing whitespace before appending separator + new block
         # If the production logic in link.ps1 changes, update this Context accordingly.
-        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*"
+        $RemoveCgBlockPattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*"
         $NormGitignore = { param([string]$c) if ($c -and $c -notmatch '\r?\n$') { $c + "`n" } else { $c } }
 
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {

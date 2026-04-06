@@ -219,10 +219,11 @@ if (Test-Path $gitignorePath) {
     # remove the trailing newline (e.g. by a text editor that strips trailing newlines).
     if ($giContent -and $giContent -notmatch '\r?\n$') { $giContent = $giContent + "`n" }
 
-    # Remove any existing CG block before rewriting - handles version upgrades cleanly
-    # Pattern matches any non-empty body lines (not just .github/ prefixed ones), so
-    # entries like .cg-docs/ are also removed and not left as orphans on upgrade.
-    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items.*\r?\n([^\r\n]+\r?\n)*", "").TrimEnd()
+    # Remove any existing CG block before rewriting - handles version upgrades cleanly.
+    # Pattern matches .github/ and .cg-docs/ prefixed body lines (covers current entries
+    # and legacy .cg-docs/ from older versions) so user content that immediately follows
+    # the CG block without a blank-line separator is not consumed.
+    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*", "").TrimEnd()
     if ($giUpdated.Length -gt 0) { $separator = "`n`n" } else { $separator = "" }
     Set-Content -Path $gitignorePath -Value ($giUpdated + $separator + $cgGitignoreBlock)
     Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray

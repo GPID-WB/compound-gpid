@@ -991,7 +991,7 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
         }
 
         It "detects .cg-docs/ in mixed case (case-insensitive regex)" {
-            $lines = @(".CG-DOCS/", ".Cg-Docs\\")
+            $lines = @(".CG-DOCS/", ".Cg-Docs\")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
             ($staleCgDocsLines | Measure-Object).Count | Should Be 2
         }
