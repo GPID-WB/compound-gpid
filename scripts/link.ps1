@@ -32,6 +32,8 @@ $SourceGithub     = Join-Path $CompoundGpidDir ".github"
 $ProjectRoot      = Get-Location
 $TargetGithubDir  = Join-Path $ProjectRoot ".github"
 
+. (Join-Path $PSScriptRoot "helpers.ps1")
+
 # Subdirectories managed by Compound GPID (each gets its own junction)
 $ManagedDirs = @("prompts", "skills", "agents", "instructions")
 
@@ -42,16 +44,7 @@ $CopilotInstructionsDest    = Join-Path $TargetGithubDir "copilot-instructions.m
 
 # --- Validate global install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
-    Write-Error @"
-Compound GPID installation directory not found at: $CompoundGpidDir
-
-This script expects to run from within a Compound GPID installation.
-See docs/installation.md for setup instructions and path guidance.
-  # Local machine (OneDrive):  git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
-  # Remote server:             git clone https://github.com/GPID-WB/compound-gpid.git "`$env:USERPROFILE\.compound-gpid"
-  # Then run: & "<your-path>\install.ps1"
-  # (Adding a new environment? Update this message and the matching one in scripts/update.ps1)
-"@
+    Write-Error "Compound GPID installation directory not found at: $CompoundGpidDir$CG_INSTALL_GUIDANCE"
     exit 1
 }
 

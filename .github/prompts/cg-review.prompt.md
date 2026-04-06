@@ -103,10 +103,21 @@ Merge all agent findings into a single prioritized report:
 
 Before presenting findings to the user, save the full report to disk so it can be referenced in future sessions.
 
-1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`).
+1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`), and set `plan: null`.
 2. Derive the review filename: take the plan filename stem (without extension), append `-review`, and place the file in `.cg-docs/reviews/`. Example: plan `2026-03-26-roadmap-json.md` → review `2026-03-26-roadmap-json-review.md`.
-3. Write the full prioritized report (the markdown block from Step 3) to `.cg-docs/reviews/<stem>-review.md`. **Write this file directly using your own file creation tool. Do NOT delegate this step to a subagent.**
-4. Tell the user: "> Review report saved to `.cg-docs/reviews/<filename>`. Use `/cg-fix-triage` in a future session to apply findings by ID (e.g., `/cg-fix-triage P1.2 P2.1`) or by priority level (e.g., `/cg-fix-triage P1`)."
+3. Parse every finding ID from the Step 3 report using the pattern `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P1.1`, `P2.3`). Build a YAML `findings:` map with each ID set to `open`. The valid finding statuses are `open`, `fixed`, and `skipped`.
+4. Prepend YAML frontmatter to the review file content before the markdown body:
+   ```yaml
+   ---
+   plan: <path to active plan file, or null>
+   findings:
+     P1.1: open
+     P2.1: open
+     P2.2: open
+   ---
+   ```
+5. Write the frontmatter + full prioritized report to `.cg-docs/reviews/<stem>-review.md`. **Write this file directly using your own file creation tool. Do NOT delegate this step to a subagent.**
+6. Tell the user: "> Review report saved to `.cg-docs/reviews/<filename>`. Use `/cg-fix-triage` in a future session to apply findings by ID (e.g., `/cg-fix-triage P1.2 P2.1`) or by priority level (e.g., `/cg-fix-triage P1`)."
 
 ### Step 4: Triage
 

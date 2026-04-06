@@ -131,18 +131,6 @@ Describe "cg-fix-triage.prompt.md - review reports location" {
     }
 }
 
-# ---------------------------------------------------------------------------
-# cg-resume.prompt.md pending review findings scan
-# ---------------------------------------------------------------------------
-
-Describe "cg-resume.prompt.md - pending review findings scan" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
-    $content = Get-Content $promptFile -Raw -Encoding UTF8
-
-    It "references .cg-docs/reviews/ directory in Step 2e to scan for pending findings" {
-        ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
-    }
-}
 
 # ---------------------------------------------------------------------------
 # cg-strategy.prompt.md existence, frontmatter, and no tool restriction
@@ -226,5 +214,98 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
 
     It "references /cg-compound in Workflow Entry Points" {
         ($section -match '/cg-compound') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-review.prompt.md - review findings frontmatter
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - review findings frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references the findings: frontmatter key in Step 3.5" {
+        ($content -match 'findings:') | Should Be $true
+    }
+
+    It "sets new findings to status: open in Step 3.5" {
+        ($content -match '\bopen\b') | Should Be $true
+    }
+
+    It "mentions status: fixed as a valid finding status" {
+        ($content -match '\bfixed\b') | Should Be $true
+    }
+
+    It "mentions status: skipped as a valid finding status" {
+        ($content -match '\bskipped\b') | Should Be $true
+    }
+
+    It "includes a plan: key in the frontmatter template" {
+        ($content -match '(?s)plan:.*findings:|(?s)findings:.*plan:') | Should Be $true
+    }
+
+    It "documents the finding ID parsing patterns in Step 3.5" {
+        ($content -match [regex]::Escape('**[P1.')) -and
+        ($content -match [regex]::Escape('**[P2.')) -and
+        ($content -match [regex]::Escape('**[P3.')) | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-fix-triage.prompt.md - per-finding status tracking
+# ---------------------------------------------------------------------------
+
+Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references the findings: frontmatter key" {
+        ($content -match 'findings:') | Should Be $true
+    }
+
+    It "instructs updating finding status to fixed in frontmatter after applying a fix" {
+        ($content -match 'fixed') -and ($content -match 'frontmatter') | Should Be $true
+    }
+
+    It "instructs updating finding status to skipped in frontmatter when user declines" {
+        ($content -match 'skipped') | Should Be $true
+    }
+
+    It "references --migrate mode" {
+        ($content -match '\-\-migrate') | Should Be $true
+    }
+
+    It "describes the companion-plan heuristic in --migrate mode" {
+        ($content -match 'companion[- ]plan|companion plan') | Should Be $true
+    }
+
+    It "reports Previously resolved count in summary template" {
+        ($content -match 'Previously resolved') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-resume.prompt.md - findings frontmatter and migration nudge
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - findings frontmatter and migration nudge" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references the findings: frontmatter key in Step 2e" {
+        ($content -match 'findings:') | Should Be $true
+    }
+
+    It "instructs skipping fully-resolved review files (zero open findings)" {
+        ($content -match 'zero|fully resolved|skip it') | Should Be $true
+    }
+
+    It "references --migrate nudge for legacy review files without frontmatter" {
+        ($content -match '\-\-migrate') | Should Be $true
+    }
+
+    It "adds migration nudge to Maintenance Nudges section" {
+        ($content -match 'Review migration needed') | Should Be $true
     }
 }
