@@ -752,6 +752,20 @@ Describe "Milestone Status Calculation -- additional coverage" {
     }
 }
 
+Describe "roadmap.json file validation" {
+    It "actual roadmap.json passes schema validation" {
+        $roadmapPath = Join-Path (Join-Path $PSScriptRoot "..") "roadmap.json"
+        (Test-Path $roadmapPath) | Should Be $true
+        $roadmap = Get-Content $roadmapPath -Raw | ConvertFrom-Json
+        $errors = Test-RoadmapSchema $roadmap
+        if ($errors.Count -gt 0) {
+            $msg = "roadmap.json has $($errors.Count) schema error(s):`n" + ($errors -join "`n")
+            throw $msg
+        }
+        $errors.Count | Should Be 0
+    }
+}
+
 Describe "/cg-resume scope health -- additional coverage" {
     It "single unstarted feature (idea) -> nudge fires" {
         $features = @(@{ status = "idea" })

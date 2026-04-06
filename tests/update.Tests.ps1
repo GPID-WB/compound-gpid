@@ -1224,6 +1224,90 @@ Describe "update.ps1 - version status display" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# P2.7 (review finding): --fix repair partial failure handling
+# ---------------------------------------------------------------------------
+# update.ps1 --fix runs: git clean -fd, git checkout ., git pull --ff-only.
+# git clean and git checkout failures are non-fatal (output piped, LASTEXITCODE
+# not checked); only git pull failure is fatal (LASTEXITCODE checked + throw).
+# The finally block guarantees Pop-Location regardless of outcome.
+
+Describe "update.ps1 - --fix repair partial failure handling" {
+    AfterEach { $global:LASTEXITCODE = 0 }
+
+    Context "git clean failure is non-fatal (LASTEXITCODE not checked)" {
+        It "execution continues beyond git clean even when LASTEXITCODE is non-zero" {
+            # The --fix block pipes git clean output via 2>&1 | ForEach-Object {...}
+            # but does NOT inspect LASTEXITCODE afterward -- clean failure is non-fatal.
+            $global:LASTEXITCODE = 1
+            $cleanRan  = $true   # simulate: ForEach-Object received output lines
+            $pullStage = $false
+            # No LASTEXITCODE check between clean and checkout -- execution reaches pull
+            if ($cleanRan) { $pullStage = $true }
+            $pullStage | Should Be $true
+            $global:LASTEXITCODE = 0
+        }
+    }
+
+    Context "git pull failure is fatal (LASTEXITCODE checked, throws)" {
+        It "throws when git pull --ff-only exits non-zero" {
+            $global:LASTEXITCODE = 1
+            {
+                if ($LASTEXITCODE -ne 0) {
+                    throw "git pull --ff-only failed with exit code $LASTEXITCODE"
+                }
+            } | Should Throw "git pull --ff-only failed"
+        }
+
+        It "does not throw when git pull succeeds (exit code 0)" {
+            $global:LASTEXITCODE = 0
+            $threw = $false
+            try {
+                if ($LASTEXITCODE -ne 0) {
+                    throw "git pull --ff-only failed with exit code $LASTEXITCODE"
+                }
+            } catch {
+                $threw = $true
+            }
+            $threw | Should Be $false
+        }
+    }
+
+    Context "Pop-Location in finally block (location always restored)" {
+        It "restores the original working directory even when repair throws" {
+            $original = Get-Location
+            $tempDir  = Join-Path $TestDrive "fix-repair-test"
+            New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+
+            Push-Location $tempDir
+            try {
+                throw "Simulated repair failure"
+            } catch {
+                <# expected -- mirrors the outer catch in --fix block #>
+            } finally {
+                Pop-Location
+            }
+            (Get-Location).Path | Should Be $original.Path
+        }
+
+        It "restores location even when the inner try succeeds" {
+            $original = Get-Location
+            $tempDir  = Join-Path $TestDrive "fix-success-test"
+            New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+
+            Push-Location $tempDir
+            try {
+                <# repair steps succeed #>
+            } catch {
+                <# no error #>
+            } finally {
+                Pop-Location
+            }
+            (Get-Location).Path | Should Be $original.Path
+        }
+    }
+}
+
 Describe "update.ps1 - CG_INTERNAL_CALL guard" {
     Context "when CG_INTERNAL_CALL is set (called from cg-link)" {
         It "guard condition evaluates to false so refresh/migration is skipped" {

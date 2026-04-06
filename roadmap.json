@@ -5,7 +5,7 @@
       "id": "quality-loop",
       "title": "Quality Loop",
       "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R, Python, and Stata.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "cg-fix-problems-agent",
@@ -42,6 +42,12 @@
           "title": "Per-step test enforcement in /cg-work",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "review-finding-status-tracking",
+          "title": "Per-finding status tracking in review files",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md"
         }
       ]
     },
