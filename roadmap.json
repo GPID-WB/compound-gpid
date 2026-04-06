@@ -68,6 +68,12 @@
           "title": "Split /cg-release into Haiku scan + Sonnet drafting",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "reduce-token-cost-late-sequence-content",
+          "title": "Reduce token cost by extracting late-sequence content",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -118,6 +124,18 @@
         {
           "id": "copilot-instructions-restructuring",
           "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "adding-hooks-to-streamline-process",
+          "title": "Adding hooks to streamline process",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "ideate-prompt-from-compound-engineering",
+          "title": "Include /ce:ideate-style prompt from compound-engineering-plugin",
           "status": "idea",
           "plan": null
         }
