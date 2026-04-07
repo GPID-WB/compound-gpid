@@ -22,8 +22,8 @@
         {
           "id": "testing-skill-r",
           "title": "Testing skill for R (testthat/mockery)",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-06-testing-skill-r.md"
         },
         {
           "id": "testing-skill-python",
@@ -104,6 +104,12 @@
         {
           "id": "tidymodels-addition",
           "title": "tidymodels addition to cg-skill-r-analytical",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "skill-description-consistency-audit",
+          "title": "Skill description consistency audit and optimization",
           "status": "idea",
           "plan": null
         }

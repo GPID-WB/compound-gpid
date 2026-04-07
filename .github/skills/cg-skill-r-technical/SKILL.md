@@ -1,6 +1,6 @@
 ---
 name: cg-skill-r-technical
-description: "R patterns for technical work: collapse for fast statistical computing, data.table for manipulation, testthat, roxygen2, package development, plumber APIs, Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management. Preference hierarchy: collapse > data.table > tidyverse."
+description: "R patterns for technical work: collapse for fast statistical computing, data.table for manipulation, roxygen2, package development, plumber APIs (with API testing in references/testing-apis.md), Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management. Preference hierarchy: collapse > data.table > tidyverse."
 ---
 
 # R Technical Practices
@@ -42,10 +42,11 @@ No masking — always use explicit `f`-prefixed function names from collapse.
 ## References
 
 - [Anti-Patterns](references/r-technical-anti-patterns.md) — Common mistakes in technical R code
-- [Testing with testthat](references/testing-testthat.md) — Test structure, assertions, fixtures
+- [Testing APIs](references/testing-apis.md) — Plumber endpoint testing and httr2 mock testing
 - [renv Reference](references/renv-reference.md) — Dependency isolation, snapshot/restore, lockfile conventions
 
 ---
 
+> For comprehensive R testing patterns (testthat, fixtures, mocking, snapshots, BDD, collapse/data.table testing), load `cg-skill-r-testing`.
 > For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `cg-skill-r-analytical`.
-> For the full collapse API (global options, `set_collapse`, `use.g.names`, all 10 TRA types, GRP structure, attribute preservation), see `cg-skill-r-analytical/references/collapse-reference.md`.
+> For the full collapse API (global options, `use.g.names`, all 10 TRA types, GRP structure, attribute preservation), see `cg-skill-r-analytical/references/collapse-reference.md`.
