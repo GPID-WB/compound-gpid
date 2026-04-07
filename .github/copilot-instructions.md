@@ -8,14 +8,20 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
 2. **Never pipeline `-PassThru` output through `Select-Object -ExpandProperty TestResult`**: This pattern (`Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | ...`) reliably freezes VS Code.
 3. **Safe pattern — single file**:
    ```powershell
-   Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
+   Invoke-Pester tests/roadmap.Tests.ps1 -Quiet
    ```
+   > ⚠️ `-Output Minimal` and `-Output None` are **Pester 5 flags** — they fail on Pester 3.4 (Windows built-in). Use `-Quiet` instead.
 4. **Safe pattern — check for failures only** (if `-PassThru` is needed):
    ```powershell
-   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
+   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Quiet
    $r | Select-Object TotalCount, PassedCount, FailedCount
    ```
    Assign to variable first — do **not** pipeline directly into `Select-Object` or `Where-Object`.
+5. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
+   ```powershell
+   . tests\Run-Tests.ps1
+   ```
+   Or via VS Code: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)**
 
 See `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` for full diagnosis.
 

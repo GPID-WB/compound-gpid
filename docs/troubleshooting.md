@@ -205,6 +205,48 @@ Then retry `cg-link` from your project root.
 
 ---
 
+## VS Code freezes when running Pester tests
+
+**Symptom**: VS Code becomes completely unresponsive immediately after (or during) a Pester run. The terminal hangs with no output, or output arrives and then VS Code freezes. No error message is displayed — the window must be force-quit and restarted.
+
+**Cause**: Two invocation patterns reliably trigger this crash:
+
+1. **Directory-form invocation** — `Invoke-Pester tests/` runs all test files at once, including `link.Tests.ps1` and `unlink.Tests.ps1`, which create and delete directory junctions. When junction cleanup timing races with other tests, the VS Code extension host exhausts memory and hangs.
+
+2. **`ExpandProperty TestResult` pipeline** — `Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...` materialises the full Pester result graph as .NET objects inside the PowerShell extension host process, exhausting its memory.
+
+Both patterns have caused **8+ confirmed VS Code crashes** in this repository.
+
+**Fix**: Use only safe invocation patterns:
+
+```powershell
+# ✅ Canonical: run all tests safely (VS Code task or terminal)
+. tests\Run-Tests.ps1
+
+# ✅ Single file (full output)
+Invoke-Pester tests\roadmap.Tests.ps1
+
+# ✅ Single file (counts only)
+$r = Invoke-Pester tests\roadmap.Tests.ps1 -PassThru -Quiet
+$r | Select-Object TotalCount, PassedCount, FailedCount
+```
+
+```powershell
+# ❌ CRASHES VS CODE — directory form
+Invoke-Pester tests/
+
+# ❌ CRASHES VS CODE — ExpandProperty TestResult pipeline
+Invoke-Pester tests\foo.Tests.ps1 -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...
+```
+
+**VS Code task**: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)** runs `tests/Run-Tests.ps1` automatically and can never use either forbidden pattern.
+
+**Note on `-Output Minimal` / `-Output None`**: These flags are Pester 5 syntax and fail on the Pester 3.4 that ships with Windows ("ambiguous parameter" error). Use `-Quiet` instead.
+
+**Full diagnosis**: `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md`
+
+---
+
 > Still stuck? Open a [GitHub Issue](https://github.com/GPID-WB/compound-gpid/issues).
 > 
 > See [Reference](reference.md) for a full list of commands and agents.

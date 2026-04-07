@@ -28,16 +28,32 @@ Invoke-Pester tests/a.Tests.ps1, tests/b.Tests.ps1 -PassThru |
 
 ## Safe Patterns — ALWAYS USE THESE
 
-### Single file (preferred)
+### Canonical full-suite runner (use this by default)
 
 ```powershell
-Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
+. tests\Run-Tests.ps1
 ```
+
+`tests/Run-Tests.ps1` runs every file in safe order, shows per-file pass/fail counts, and lists the re-run command for any failed file. It enforces all three safety rules by construction — no one needs to remember them.
+
+VS Code shortcut: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)**
+
+### Single file
+
+```powershell
+# Full output (shows each It block result)
+Invoke-Pester tests/roadmap.Tests.ps1
+
+# Quiet (shows only pass/fail counts)
+Invoke-Pester tests/roadmap.Tests.ps1 -Quiet
+```
+
+> ⚠️ **Pester 3.4 note**: `-Output Minimal` and `-Output None` are **Pester 5 flags** and fail on Pester 3.4 (Windows built-in) with "ambiguous parameter". Use `-Quiet` instead.
 
 ### Single file with PassThru (when you need counts)
 
 ```powershell
-$r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
+$r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Quiet
 $r | Select-Object TotalCount, PassedCount, FailedCount
 ```
 
@@ -46,9 +62,10 @@ $r | Select-Object TotalCount, PassedCount, FailedCount
 ### Multiple files — run sequentially, one at a time
 
 ```powershell
-foreach ($f in @('charter', 'roadmap', 'prompt-tools', 'install', 'link', 'unlink', 'update', 'ps51-compat', 'create-release')) {
+foreach ($f in @('charter', 'roadmap', 'prompt-tools', 'model-assignments', 'pester-safety', 'install', 'ps51-compat', 'create-release', 'update', 'link', 'unlink')) {
     Write-Host "`n=== $f ===" -ForegroundColor Cyan
-    Invoke-Pester "tests/$f.Tests.ps1" -Output Minimal
+    $r = Invoke-Pester "tests/$f.Tests.ps1" -PassThru -Quiet
+    $r | Select-Object @{N='File';E={$f}}, TotalCount, PassedCount, FailedCount
 }
 ```
 
@@ -69,12 +86,14 @@ Before submitting any `Invoke-Pester` command, verify:
 | `charter.Tests.ps1` | No | Safe, fast |
 | `roadmap.Tests.ps1` | No | Safe, fast |
 | `prompt-tools.Tests.ps1` | No | Safe, fast |
+| `model-assignments.Tests.ps1` | No | Safe, fast |
+| `pester-safety.Tests.ps1` | No | Meta-test — scans other test files for forbidden patterns |
 | `install.Tests.ps1` | No | Safe |
 | `ps51-compat.Tests.ps1` | No | Safe |
 | `create-release.Tests.ps1` | No | Safe |
+| `update.Tests.ps1` | No | Safe |
 | `link.Tests.ps1` | **Yes** | Run last; has `AfterAll` cleanup |
 | `unlink.Tests.ps1` | **Yes** | Run last; has `AfterAll` cleanup |
-| `update.Tests.ps1` | No | Safe |
 
 Run junction-creating tests (`link`, `unlink`) last and in isolation.
 
