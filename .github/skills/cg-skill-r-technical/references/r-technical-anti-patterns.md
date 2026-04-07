@@ -1,35 +1,6 @@
 # Technical R Anti-Patterns
 
-Common mistakes in technical R development. The team hierarchy is collapse > data.table > tidyverse.
-
----
-
-## Tool Hierarchy Anti-Patterns
-
-### Using base R aggregation when collapse is available
-
-**Problem:** Using `dt[, .(mean = mean(x)), by = g]` with base R's `mean()` instead of `fmean()`. Base R's `mean()` is slower and doesn't support weights natively.
-
-**Wrong:**
-```r
-dt[, .(mean_welf = mean(welfare)), by = region]
-dt[, .(mean_welf = weighted.mean(welfare, weight)), by = region]
-```
-
-**Right:**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)
-# or inside data.table:
-dt[, .(mean_welf = fmean(welfare, w = weight)), by = region]
-```
-
-**Why it matters:** `fmean` is faster (single C call), supports weights as a first-class argument, and has consistent syntax across all collapse functions.
-
----
-
-### Using set_collapse(mask = ...) to hide function names
-
-> See the full pattern in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+Common mistakes in technical R development.
 
 ---
 
@@ -92,8 +63,8 @@ dt[, result := some_function(col1, col2)]  # vectorize
 
 ## collapse Anti-Patterns
 
-> **Shared collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+> **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
+> are in [`cg-skill-r-collapse/references/collapse-anti-patterns.md`](../../cg-skill-r-collapse/references/collapse-anti-patterns.md).
 > The patterns below are specific to technical work.
 
 ### Aggregate-then-merge instead of using TRA

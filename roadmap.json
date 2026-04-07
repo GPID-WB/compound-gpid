@@ -102,16 +102,10 @@
       "status": "planned",
       "features": [
         {
-          "id": "collapse-syntax-expansion",
-          "title": "collapse syntax expansion in cg-skill-r-technical",
-          "status": "idea",
-          "plan": null
-        },
-        {
-          "id": "data-table-expansion",
-          "title": "data.table expansion in cg-skill-r-technical",
-          "status": "idea",
-          "plan": null
+          "id": "r-dialect-skills-architecture",
+          "title": "R dialect skills architecture (collapse, data.table, tidyverse)",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-07-r-dialect-skills-architecture.md"
         },
         {
           "id": "tidymodels-addition",

@@ -88,6 +88,6 @@ group order may differ from the order of first appearance in the data.
 
 ## Related
 
-- [`collapse-reference.md`](../../../../.github/skills/cg-skill-r-analytical/references/collapse-reference.md) — GRP object structure, all 9 elements
+- [`collapse-reference.md`](../../../../.github/skills/cg-skill-r-collapse/references/collapse-reference.md) — GRP object structure, all 9 elements
 - [`welfare-patterns.md`](../../../../.github/skills/cg-skill-r-analytical/workflows/welfare-patterns.md) — FGT regional block using this pattern
 - [`survey-analysis.md`](../../../../.github/skills/cg-skill-r-analytical/workflows/survey-analysis.md) — similar pattern for by-region survey estimates

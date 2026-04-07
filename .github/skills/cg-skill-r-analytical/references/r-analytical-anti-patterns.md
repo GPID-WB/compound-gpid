@@ -1,51 +1,6 @@
 # Analytical R Anti-Patterns
 
-Common mistakes in analytical R code. The team hierarchy is collapse > data.table > tidyverse. Each entry: what the mistake is, why it matters, wrong example, right example.
-
----
-
-## Tool Hierarchy Anti-Patterns
-
-### Using base R or tidyverse for weighted statistics when collapse is available
-
-**Problem:** Computing weighted means with `weighted.mean()`, `dplyr::summarise()`, or manual formulas instead of collapse. These are slower and don't support grouping natively.
-
-**Wrong:**
-```r
-dt[, weighted.mean(welfare, weight), by = region]  # base R, no SE support
-dt %>% group_by(region) %>% summarise(m = weighted.mean(welfare, weight))  # slow
-```
-
-**Right:**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse: fastest, explicit
-```
-
-**Why it matters:** collapse functions are 10-100x faster and have consistent `f*(x, g, w)` signatures that make code readable and auditable.
-
----
-
-### Using srvyr for simple weighted statistics
-
-**Problem:** Declaring a full survey design object just to compute a weighted mean. `srvyr` adds overhead (design declaration, method dispatch) that's unnecessary for point estimates.
-
-**Wrong:**
-```r
-svy <- dt |> as_survey_design(ids = psu, strata = stratum, weights = weight)
-svy |> group_by(region) |> summarise(mean_welfare = survey_mean(welfare))
-```
-
-**Right (point estimates):**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)
-```
-
-**Right (when you need design-based SEs):**
-```r
-survey_mean_se(dt$welfare, w = dt$weight, psu = dt$psu, stratum = dt$stratum)
-```
-
-**Why it matters:** `srvyr` is a fallback for complex SE estimation, not the default tool. Use collapse for everything you can, fall back to srvyr only when needed.
+Common mistakes in analytical R code. Each entry: what the mistake is, why it matters, wrong example, right example.
 
 ---
 
@@ -156,8 +111,8 @@ fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 
 ## collapse Anti-Patterns
 
-> **Shared collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+> **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
+> are in [`cg-skill-r-collapse/references/collapse-anti-patterns.md`](../../cg-skill-r-collapse/references/collapse-anti-patterns.md).
 > The patterns below are specific to analytical work.
 
 *No analytical-specific collapse anti-patterns at this time. General collapse anti-patterns are in the shared file above.*
