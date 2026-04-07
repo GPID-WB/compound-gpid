@@ -40,7 +40,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 | Prompt | Model | Purpose |
 |--------|-------|---------|
-| `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects |
+| `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
 | `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
@@ -75,7 +75,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-performance` | Vectorization, memory, algorithm complexity | Sonnet 4.6 |
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
-| `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Sonnet 4.6 |
+| `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
 
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 

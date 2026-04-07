@@ -1,6 +1,6 @@
 ---
 description: "Configure Compound GPID for this project and load context for returning projects."
-model: Claude Sonnet 4.6 (copilot)
+model: Claude Haiku 4.5 (copilot)
 ---
 
 # Setup

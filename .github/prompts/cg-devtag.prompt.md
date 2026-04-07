@@ -1,6 +1,6 @@
 ---
 description: "Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only."
-model: Claude Sonnet 4.6 (copilot)
+model: Claude Haiku 4.5 (copilot)
 ---
 
 # Dev Tag
