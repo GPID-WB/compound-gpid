@@ -468,3 +468,84 @@ Describe "skill file cross-links resolve" {
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# cg-review.prompt.md - Step 2.5 subagent quality check guidance
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - subagent output quality check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes a Step 2.5 subagent output quality check" {
+        ($content -match 'Subagent Output Quality Check') | Should Be $true
+    }
+
+    It "mentions the Incomplete Reviews warning section for failed agents" {
+        ($content -match 'Incomplete Reviews') | Should Be $true
+    }
+
+    It "instructs NOT to retry the agent automatically" {
+        ($content -match 'NOT retry') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Model assignment drift test
+# Validates all 22 prompt/agent files have their expected model frontmatter.
+# Prevents accidental model changes and serves as a living contract.
+# Update expected model when intentionally changing a file's tier.
+# ---------------------------------------------------------------------------
+
+Describe "Model assignments - prompt files" {
+    # cg-release lives at the repo root (developer-only, not junctioned into user projects)
+    $promptCases = @(
+        @{ File = ".github\prompts\cg-strategy.prompt.md";    Model = "Claude Opus 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-brainstorm.prompt.md";  Model = "Claude Opus 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-plan.prompt.md";        Model = "Claude Opus 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-work.prompt.md";        Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-review.prompt.md";      Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-fixbug.prompt.md";      Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-compound.prompt.md";    Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-fix-triage.prompt.md";  Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\prompts\cg-setup.prompt.md";       Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\prompts\cg-devtag.prompt.md";      Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\prompts\cg-resume.prompt.md";      Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = "cg-release.prompt.md";                     Model = "Claude Sonnet 4.6 (copilot)" }
+    )
+
+    foreach ($case in $promptCases) {
+        $filePath = Join-Path $repoRoot $case.File
+        $expectedModel = $case.Model
+
+        It "$($case.File) uses $expectedModel" {
+            $frontmatter = Get-Frontmatter -FilePath $filePath
+            ($frontmatter -match [regex]::Escape($expectedModel)) | Should Be $true
+        }
+    }
+}
+
+Describe "Model assignments - agent files" {
+    $agentCases = @(
+        @{ File = ".github\agents\cg-architecture.agent.md";        Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\agents\cg-performance.agent.md";         Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\agents\cg-data-quality.agent.md";        Model = "Claude Sonnet 4.6 (copilot)" }
+        @{ File = ".github\agents\cg-code-quality.agent.md";        Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-testing.agent.md";             Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-documentation.agent.md";       Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-version-control.agent.md";     Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-reproducibility.agent.md";     Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-learnings-researcher.agent.md"; Model = "Claude Haiku 4.5 (copilot)" }
+        @{ File = ".github\agents\cg-roadmap.agent.md";             Model = "Claude Haiku 4.5 (copilot)" }
+    )
+
+    foreach ($case in $agentCases) {
+        $filePath = Join-Path $repoRoot $case.File
+        $expectedModel = $case.Model
+
+        It "$($case.File) uses $expectedModel" {
+            $frontmatter = Get-Frontmatter -FilePath $filePath
+            ($frontmatter -match [regex]::Escape($expectedModel)) | Should Be $true
+        }
+    }
+}

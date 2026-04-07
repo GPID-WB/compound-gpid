@@ -79,6 +79,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
+> ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
+
 ## Roadmap Agent
 
 | Agent | Focus | Model | User-invokable |

@@ -1,7 +1,8 @@
 ---
 date: 2026-04-07
 title: "Full model audit across prompts and agents"
-status: active
+status: completed
+completed-date: 2026-04-07
 brainstorm: ".cg-docs/brainstorms/2026-04-07-full-model-audit.md"
 language: "both"
 estimated-effort: "medium"
