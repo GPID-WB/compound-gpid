@@ -1,5 +1,26 @@
 # Compound GPID — Project Instructions
 
+## ⚠️ Pester Safety Rules (CRITICAL — violating these crashes VS Code)
+
+Running Pester incorrectly in this project causes VS Code to freeze and crash. These rules are **mandatory** in every terminal command that invokes Pester. Load `cg-skill-pester-safety` before writing any `Invoke-Pester` command.
+
+1. **Never run the full test suite as a directory**: `Invoke-Pester tests/` crashes VS Code. Always specify individual files.
+2. **Never pipeline `-PassThru` output through `Select-Object -ExpandProperty TestResult`**: This pattern (`Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | ...`) reliably freezes VS Code.
+3. **Safe pattern — single file**:
+   ```powershell
+   Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
+   ```
+4. **Safe pattern — check for failures only** (if `-PassThru` is needed):
+   ```powershell
+   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
+   $r | Select-Object TotalCount, PassedCount, FailedCount
+   ```
+   Assign to variable first — do **not** pipeline directly into `Select-Object` or `Where-Object`.
+
+See `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` for full diagnosis.
+
+---
+
 You are working in a data science project maintained by the DECDG team at the World Bank. Follow these standards in all interactions.
 
 ## Language Preferences
@@ -7,7 +28,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - Check `compound-gpid.local.md` in the project root for the user's preferred language(s).
 - Default: R, Python, and Stata are all acceptable. Ask the user if unclear.
 - R style: `collapse` for statistics/aggregation, `data.table` for data manipulation, `ggplot2` for visualization. Preference hierarchy: collapse > data.table > tidyverse.
-  - **Two R skills**: R work is covered by two skills. `cg-skill-r-technical` covers package/infrastructure work (collapse, data.table, plumber, shiny, targets, renv). `cg-skill-r-analytical` covers statistical/econometric work (collapse, data.table, fixest, modelsummary, wbplot, welfare measurement). Load the appropriate skill based on work type; load both for mixed work.
+  - **Three R skills**: R work is covered by three skills. `cg-skill-r-technical` covers package/infrastructure work (collapse, data.table, plumber, shiny, targets, renv). `cg-skill-r-analytical` covers statistical/econometric work (collapse, data.table, fixest, modelsummary, wbplot, welfare measurement). `cg-skill-r-testing` covers testing R code with testthat (test structure, expectations, fixtures, mocking, snapshots, BDD). Load `cg-skill-r-testing` when writing, reviewing, or debugging R tests (also load `cg-skill-r-technical` if tests cover plumber endpoints or httr2 clients). Load the appropriate skill(s) based on work type.
 - Python style: polars/numpy/pandas for data, seaborn/plotnine for visualization.
 - Stata style: `local` macros, `repkit` for reproducibility, `///` for continuation. Always load `cg-skill-stata-best-practices` when writing or reviewing `.do`/`.ado` files.
 
@@ -65,6 +86,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - Tests should cover: normal cases, edge cases, error conditions.
 - Test data should be minimal and self-contained (no dependency on external files).
 - Aim for meaningful coverage, not 100% line coverage.
+- **PowerShell/Pester**: Always load `cg-skill-pester-safety` before writing any `Invoke-Pester` terminal command. See Pester Safety Rules at the top of this file.
 
 ## Documentation Standards
 
@@ -103,23 +125,4 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `bugs`, `build-errors`, `data-quality`, `environment-issues`, `git-workflows`, `performance-issues`, `testing-patterns`.
 
-## Pester Safety Rules (CRITICAL — violating these crashes VS Code)
-
-Running Pester incorrectly in this project causes VS Code to freeze and crash. These rules are **mandatory** in every terminal command that invokes Pester:
-
-1. **Never run the full test suite as a directory**: `Invoke-Pester tests/` crashes VS Code. Always specify individual files.
-2. **Never pipeline `-PassThru` output through `Select-Object -ExpandProperty TestResult`**: This pattern (`Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | ...`) reliably freezes VS Code. See `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md`.
-3. **Safe pattern — single file, `-Output Minimal`**:
-   ```powershell
-   Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
-   ```
-4. **Safe pattern — multiple files, summary only**:
-   ```powershell
-   Invoke-Pester tests/roadmap.Tests.ps1, tests/link.Tests.ps1 -Output Minimal
-   ```
-5. **Safe pattern — check for failures only** (if `-PassThru` is needed):
-   ```powershell
-   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
-   $r | Select-Object TotalCount, PassedCount, FailedCount
-   ```
-   Note: assign to variable first, then inspect — do **not** pipeline directly into `Select-Object` or `Where-Object`.
+<!-- Pester Safety Rules appear at the top of this file -->

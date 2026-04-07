@@ -83,8 +83,8 @@ test_that("POST /estimates accepts JSON body", {
 ## Prevention
 
 - Always define `make_req()` in `tests/testthat/helper.R`, never inline.
-- The `cg-skill-r-technical` testing workflow (`workflows/testing-testthat.md`) now includes this
-  definition in the "Testing Plumber Endpoints" section.
+- The `cg-skill-r-technical` reference file ([references/testing-apis.md](../../../.github/skills/cg-skill-r-technical/references/testing-apis.md)) now includes
+  this definition in the "Testing Plumber Endpoints" section.
 - Never leave `QUERY_STRING = ""` hardcoded when the helper signature accepts a `query` argument —
   silent parameter ignoring is a test anti-pattern.
 
@@ -92,4 +92,4 @@ test_that("POST /estimates accepts JSON body", {
 
 - [httpx async ASGI transport pattern](2026-03-17-httpx-async-client-asgi-transport.md) — same
   concept for Python FastAPI: no built-in test client, must construct transport manually
-- `cg-skill-r-technical/workflows/testing-testthat.md` — canonical helper definition lives here
+- [`testing-apis.md`](../../../.github/skills/cg-skill-r-technical/references/testing-apis.md) — Plumber endpoint and httr2 mock testing patterns
