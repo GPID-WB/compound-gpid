@@ -48,6 +48,18 @@
           "title": "Per-finding status tracking in review files",
           "status": "done",
           "plan": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md"
+        },
+        {
+          "id": "honest-pushback-in-brainstorm-strategy",
+          "title": "Honest pushback mode in /cg-brainstorm and /cg-strategy",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "side-idea-capture-in-brainstorm",
+          "title": "Side-idea capture during brainstorming (save to roadmap)",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -55,13 +67,13 @@
       "id": "performance",
       "title": "Performance",
       "objective": "Reduce unnecessary model cost and session latency by auditing every prompt and agent against the correct model tier and fixing known slow paths in /cg-release.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "full-model-audit",
           "title": "Full model audit across prompts and agents",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-07-full-model-audit.md"
         },
         {
           "id": "cg-release-scan-scope-60-days",

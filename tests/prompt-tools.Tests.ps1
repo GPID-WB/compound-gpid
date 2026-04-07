@@ -16,16 +16,7 @@
 # intentionally read-only reviewers.
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
-
-# Helper: extract the YAML frontmatter block from a markdown file
-function Get-Frontmatter {
-    param([string]$FilePath)
-    $raw = Get-Content $FilePath -Raw -Encoding UTF8
-    if ($raw -match '(?s)^---\s*\r?\n(.+?)\r?\n---') {
-        return $Matches[1]
-    }
-    return ''
-}
+. "$PSScriptRoot/helpers.ps1"
 
 # Helper: extract the tools list from a frontmatter string
 function Get-ToolsList {
@@ -79,6 +70,10 @@ Describe "cg-review.prompt.md - review file output step" {
 
     It "explicitly instructs DO NOT delegate the Step 3.5 file write" {
         ($content -match 'Do NOT delegate') | Should Be $true
+    }
+
+    It "documents 'no issues found' as valid output when an agent finds nothing" {
+        ($content -match 'no issues found') | Should Be $true
     }
 }
 
@@ -385,64 +380,6 @@ Describe "skill SKILL.md - relative markdown links resolve" {
     }
 }
 # ---------------------------------------------------------------------------
-
-Describe "SKILL.md files - required frontmatter" {
-    $skillFiles = Get-ChildItem (Join-Path $repoRoot ".github\skills") -Filter "SKILL.md" -Recurse
-
-    Context "each SKILL.md has name: in frontmatter" {
-        foreach ($file in $skillFiles) {
-            $relPath = $file.FullName.Replace($repoRoot + "\", "")
-            It "$relPath has name: field" {
-                $frontmatter = Get-Frontmatter -FilePath $file.FullName
-                ($frontmatter -match 'name:') | Should Be $true
-            }
-        }
-    }
-
-    Context "each SKILL.md has description: in frontmatter" {
-        foreach ($file in $skillFiles) {
-            $relPath = $file.FullName.Replace($repoRoot + "\", "")
-            It "$relPath has description: field" {
-                $frontmatter = Get-Frontmatter -FilePath $file.FullName
-                ($frontmatter -match 'description:') | Should Be $true
-            }
-        }
-    }
-}
-
-# ---------------------------------------------------------------------------
-# cg-skill-r-testing - file structure validation
-# ---------------------------------------------------------------------------
-
-Describe "cg-skill-r-testing - file structure" {
-    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-r-testing"
-
-    It "SKILL.md exists" {
-        Test-Path (Join-Path $skillRoot "SKILL.md") | Should Be $true
-    }
-
-    It "references/bdd.md exists" {
-        Test-Path (Join-Path $skillRoot "references\bdd.md") | Should Be $true
-    }
-
-    It "references/mocking.md exists" {
-        Test-Path (Join-Path $skillRoot "references\mocking.md") | Should Be $true
-    }
-
-    It "references/fixtures.md exists" {
-        Test-Path (Join-Path $skillRoot "references\fixtures.md") | Should Be $true
-    }
-
-    It "references/snapshots.md exists" {
-        Test-Path (Join-Path $skillRoot "references\snapshots.md") | Should Be $true
-    }
-
-    It "references/advanced.md exists" {
-        Test-Path (Join-Path $skillRoot "references\advanced.md") | Should Be $true
-    }
-}
-
-# ---------------------------------------------------------------------------
 # Skill file cross-link validation
 # ---------------------------------------------------------------------------
 
@@ -468,3 +405,47 @@ Describe "skill file cross-links resolve" {
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# cg-review.prompt.md - Step 2.5 subagent quality check guidance
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - subagent output quality check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes a Step 2.5 subagent output quality check" {
+        ($content -match 'Subagent Output Quality Check') | Should Be $true
+    }
+
+    It "mentions the Incomplete Reviews warning section for failed agents" {
+        ($content -match 'Incomplete Reviews') | Should Be $true
+    }
+
+    It "instructs NOT to retry the agent automatically" {
+        ($content -match 'NOT retry') | Should Be $true
+    }
+
+    It "lists empty or garbled output as quality failure criteria" {
+        ($content -match 'empty.*garbled|garbled.*empty') | Should Be $true
+    }
+
+    It "includes the warning template with @agent-name placeholder" {
+        ($content -match '@<agent-name>') | Should Be $true
+    }
+
+    It "documents the Presence criterion by name" {
+        ($content -match '\bPresence\b') | Should Be $true
+    }
+
+    It "documents the Context criterion by name" {
+        ($content -match '\bContext\b') | Should Be $true
+    }
+
+    It "documents the Volume criterion by name" {
+        ($content -match '\bVolume\b') | Should Be $true
+    }
+}
+
+# Model assignment tests have been extracted to tests/model-assignments.Tests.ps1.
+# Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal

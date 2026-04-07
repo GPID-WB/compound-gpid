@@ -1,6 +1,7 @@
 ---
 description: "Configure Compound GPID for this project and load context for returning projects."
-model: Claude Sonnet 4.6 (copilot)
+model: Claude Haiku 4.5 (copilot)
+# Model: Haiku 4.5 — configuration task; reasoning=2, creativity=1. See docs/model-guide.md (2026-04-07 audit).
 ---
 
 # Setup

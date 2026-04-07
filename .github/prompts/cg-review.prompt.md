@@ -67,6 +67,28 @@ For each agent, provide:
 
 **Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-best-practices` before reviewing those files. Apply the coding principles and anti-patterns reference when evaluating any Stata code.
 
+### Step 2.5: Subagent Output Quality Check
+
+After each subagent returns its findings, check whether the output is **usable**:
+
+- **Presence**: Contains at least one `**[P1.`/`**[P2.`/`**[P3.` entry, OR an explicit "no issues found" statement.
+- **Context**: Findings reference the changed files by name (not just generic advice).
+- **Volume**: Non-header output is at least 2 lines. Fewer than 2 lines of non-header output counts as incomplete.
+
+If a subagent's output is **empty, garbled, or clearly off-topic** (fails any criterion above):
+
+1. Note it in the review report under a dedicated section:
+   ```
+   ### ⚠️ Incomplete Reviews
+   - `@<agent-name>` did not produce usable output. Consider re-running
+     `/cg-review` with the model picker set to a higher tier, or invoke
+     `@<agent-name>` directly with the changed files listed explicitly.
+   ```
+2. Do NOT retry the agent automatically — the user controls model selection.
+3. Continue collecting output from the remaining agents.
+
+If all agents return usable output, skip this section in the report entirely.
+
 ### Step 3: Collect and Prioritize Findings
 
 Merge all agent findings into a single prioritized report:

@@ -40,7 +40,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 | Prompt | Model | Purpose |
 |--------|-------|---------|
-| `/cg-setup` | Claude Sonnet 4.6 | Configure project or load context for returning projects |
+| `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
 | `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
@@ -50,6 +50,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files. |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |
+
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 22 prompt and agent files.
 
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
 
@@ -75,9 +77,11 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-performance` | Vectorization, memory, algorithm complexity | Sonnet 4.6 |
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
-| `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Sonnet 4.6 |
+| `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
 
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+
+> ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 
 ## Roadmap Agent
 
@@ -172,4 +176,18 @@ the charter is appended with a date heading and source section label:
 ````
 
 > **Something not working?** See [Troubleshooting](troubleshooting.md).
+
+---
+
+## `.cg-docs/` Document Frontmatter Schema
+
+Each document type in `.cg-docs/` uses a defined set of `status` enum values. These are enforced
+by convention now and will be validated automatically in a future `evals` milestone.
+
+| Document type | Path | Valid `status` values |
+|---------------|------|-----------------------|
+| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |
+| Plan | `.cg-docs/plans/` | `draft`, `active`, `completed`, `abandoned` |
+| Solution | `.cg-docs/solutions/` | `draft`, `applied` |
+| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |
 
