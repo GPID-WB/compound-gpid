@@ -51,6 +51,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |
 
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 22 prompt and agent files.
+
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
 
 ### Plugin Development (developer-only)
@@ -174,4 +176,18 @@ the charter is appended with a date heading and source section label:
 ````
 
 > **Something not working?** See [Troubleshooting](troubleshooting.md).
+
+---
+
+## `.cg-docs/` Document Frontmatter Schema
+
+Each document type in `.cg-docs/` uses a defined set of `status` enum values. These are enforced
+by convention now and will be validated automatically in a future `evals` milestone.
+
+| Document type | Path | Valid `status` values |
+|---------------|------|-----------------------|
+| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |
+| Plan | `.cg-docs/plans/` | `draft`, `active`, `completed`, `abandoned` |
+| Solution | `.cg-docs/solutions/` | `draft`, `applied` |
+| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |
 

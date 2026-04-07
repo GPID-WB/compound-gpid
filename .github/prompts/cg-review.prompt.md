@@ -69,12 +69,13 @@ For each agent, provide:
 
 ### Step 2.5: Subagent Output Quality Check
 
-After each subagent returns its findings, quickly assess the output:
+After each subagent returns its findings, check whether the output is **usable**:
 
-- Did it produce findings or explicitly state "no issues found"?
-- Is the output non-empty and relevant to the changed files?
+- **Presence**: Contains at least one `**[P1.`/`**[P2.`/`**[P3.` entry, OR an explicit "no issues found" statement.
+- **Context**: Findings reference the changed files by name (not just generic advice).
+- **Volume**: Non-header output is at least 2 lines. Fewer than 2 lines of non-header output counts as incomplete.
 
-If a subagent's output is **empty, garbled, or clearly off-topic**:
+If a subagent's output is **empty, garbled, or clearly off-topic** (fails any criterion above):
 
 1. Note it in the review report under a dedicated section:
    ```

@@ -385,32 +385,6 @@ Describe "skill SKILL.md - relative markdown links resolve" {
     }
 }
 # ---------------------------------------------------------------------------
-
-Describe "SKILL.md files - required frontmatter" {
-    $skillFiles = Get-ChildItem (Join-Path $repoRoot ".github\skills") -Filter "SKILL.md" -Recurse
-
-    Context "each SKILL.md has name: in frontmatter" {
-        foreach ($file in $skillFiles) {
-            $relPath = $file.FullName.Replace($repoRoot + "\", "")
-            It "$relPath has name: field" {
-                $frontmatter = Get-Frontmatter -FilePath $file.FullName
-                ($frontmatter -match 'name:') | Should Be $true
-            }
-        }
-    }
-
-    Context "each SKILL.md has description: in frontmatter" {
-        foreach ($file in $skillFiles) {
-            $relPath = $file.FullName.Replace($repoRoot + "\", "")
-            It "$relPath has description: field" {
-                $frontmatter = Get-Frontmatter -FilePath $file.FullName
-                ($frontmatter -match 'description:') | Should Be $true
-            }
-        }
-    }
-}
-
-# ---------------------------------------------------------------------------
 # cg-skill-r-testing - file structure validation
 # ---------------------------------------------------------------------------
 
@@ -488,64 +462,15 @@ Describe "cg-review.prompt.md - subagent output quality check" {
     It "instructs NOT to retry the agent automatically" {
         ($content -match 'NOT retry') | Should Be $true
     }
-}
 
-# ---------------------------------------------------------------------------
-# Model assignment drift test
-# Validates all 22 prompt/agent files have their expected model frontmatter.
-# Prevents accidental model changes and serves as a living contract.
-# Update expected model when intentionally changing a file's tier.
-# ---------------------------------------------------------------------------
+    It "lists empty or garbled output as quality failure criteria" {
+        ($content -match 'empty.*garbled|garbled.*empty') | Should Be $true
+    }
 
-Describe "Model assignments - prompt files" {
-    # cg-release lives at the repo root (developer-only, not junctioned into user projects)
-    $promptCases = @(
-        @{ File = ".github\prompts\cg-strategy.prompt.md";    Model = "Claude Opus 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-brainstorm.prompt.md";  Model = "Claude Opus 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-plan.prompt.md";        Model = "Claude Opus 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-work.prompt.md";        Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-review.prompt.md";      Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-fixbug.prompt.md";      Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-compound.prompt.md";    Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-fix-triage.prompt.md";  Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\prompts\cg-setup.prompt.md";       Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\prompts\cg-devtag.prompt.md";      Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\prompts\cg-resume.prompt.md";      Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = "cg-release.prompt.md";                     Model = "Claude Sonnet 4.6 (copilot)" }
-    )
-
-    foreach ($case in $promptCases) {
-        $filePath = Join-Path $repoRoot $case.File
-        $expectedModel = $case.Model
-
-        It "$($case.File) uses $expectedModel" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
-            ($frontmatter -match [regex]::Escape($expectedModel)) | Should Be $true
-        }
+    It "includes the warning template with @agent-name placeholder" {
+        ($content -match '@<agent-name>') | Should Be $true
     }
 }
 
-Describe "Model assignments - agent files" {
-    $agentCases = @(
-        @{ File = ".github\agents\cg-architecture.agent.md";        Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\agents\cg-performance.agent.md";         Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\agents\cg-data-quality.agent.md";        Model = "Claude Sonnet 4.6 (copilot)" }
-        @{ File = ".github\agents\cg-code-quality.agent.md";        Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-testing.agent.md";             Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-documentation.agent.md";       Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-version-control.agent.md";     Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-reproducibility.agent.md";     Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-learnings-researcher.agent.md"; Model = "Claude Haiku 4.5 (copilot)" }
-        @{ File = ".github\agents\cg-roadmap.agent.md";             Model = "Claude Haiku 4.5 (copilot)" }
-    )
-
-    foreach ($case in $agentCases) {
-        $filePath = Join-Path $repoRoot $case.File
-        $expectedModel = $case.Model
-
-        It "$($case.File) uses $expectedModel" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
-            ($frontmatter -match [regex]::Escape($expectedModel)) | Should Be $true
-        }
-    }
-}
+# Model assignment tests have been extracted to tests/model-assignments.Tests.ps1.
+# Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal

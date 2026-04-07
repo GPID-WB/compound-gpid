@@ -4,9 +4,11 @@ Reference for model assignments across all 22 Compound GPID prompt and agent fil
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
-> **Drift protection**: A Pester test in `tests/prompt-tools.Tests.ps1` ("Model assignments")
-> validates all 22 files against this guide. Any unannounced model change will fail CI.
-> Update both the file's frontmatter **and** the test when changing a tier intentionally.
+> **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
+> files" and "Model assignments — agent files" describe blocks) validate all 22 files for model:
+> frontmatter presence, and count sentinels detect unexpected additions. The tests validate
+> against inline constants — update both the file's frontmatter **and** the inline constants when
+> changing a tier intentionally.
 
 ---
 
@@ -112,9 +114,42 @@ Approximate relative cost ratios. Exact pricing changes; use these only for orde
 | Claude Sonnet 4.6 | ~5× | Implementation, multi-agent orchestration, reasoning-heavy reviews |
 | Claude Opus 4.6 | ~25× | Strategic thinking, complex architecture, creative problem-solving at depth |
 
+For current Claude pricing, see [Anthropic pricing](https://www.anthropic.com/pricing/claude).
+
 **Practical implication**: A full `/cg-review standard` run dispatches 8 agents. With 5 on Haiku
 and 3 on Sonnet, the blended cost is far lower than if all 8 were on Sonnet. This is the primary
 token saving from the 2026-04-07 audit.
+
+---
+
+## Version Mapping
+
+The Copilot display names used in frontmatter map to Anthropic API versions as follows:
+
+| Copilot display name | Anthropic model family | Notes |
+|----------------------|------------------------|-------|
+| `Claude Haiku 4.5 (copilot)` | claude-haiku-4-5 | Fastest, cheapest tier |
+| `Claude Sonnet 4.6 (copilot)` | claude-sonnet-4-6 | Balanced performance/cost |
+| `Claude Opus 4.6 (copilot)` | claude-opus-4-6 | Highest capability |
+
+**Maintenance**: If Copilot renames or upgrades models (e.g., Haiku 4.5 → 4.6), all frontmatter
+strings and count sentinels in `tests/model-assignments.Tests.ps1` must be updated together.
+Check the Copilot model picker dropdown for current available names.
+
+---
+
+## Audit Maintenance
+
+| Field | Value |
+|-------|-------|
+| Last validated | 2026-04-07 |
+| Next validation due | 2026-10-07 (6-month cadence) |
+
+**Triggers for early re-audit**:
+- A Claude model in the frontmatter is sunset or renamed by Anthropic/Copilot
+- Copilot announces a new model tier that could replace an existing tier
+- Empirical validation of borderline candidates (cg-brainstorm, cg-plan) produces results
+- Second `/cg-review` runs consistently flag issues in unchanged lines (monitor cg-code-quality, cg-testing, cg-reproducibility)
 
 ---
 
@@ -130,3 +165,7 @@ See the empirical validation protocol in `.cg-docs/plans/2026-04-07-full-model-a
 
 To run a validation test, follow the protocol in the plan: run both tiers on the same representative
 task, compare on (1) instruction compliance, (2) finding/question depth, (3) nothing missed, (4) output structure.
+
+**Current status**: Testing not yet started (scheduled for a future session). Until then, use
+these files normally — their current Opus 4.6 tiers are safe. They may be downgraded to Sonnet
+if empirical testing confirms parity. Results will be documented here when available.

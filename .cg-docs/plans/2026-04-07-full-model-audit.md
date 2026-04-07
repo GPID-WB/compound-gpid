@@ -4,7 +4,7 @@ title: "Full model audit across prompts and agents"
 status: completed
 completed-date: 2026-04-07
 brainstorm: ".cg-docs/brainstorms/2026-04-07-full-model-audit.md"
-language: "both"
+language: "PowerShell"
 estimated-effort: "medium"
 tags: [performance, model-audit, tokens, prompts, agents, review]
 ---

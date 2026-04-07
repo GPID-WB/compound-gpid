@@ -4,9 +4,16 @@ title: "Full model audit — classification methodology and results"
 tags: [model-audit, tokens, performance, prompts, agents, haiku, sonnet, opus]
 status: applied
 plan: ".cg-docs/plans/2026-04-07-full-model-audit.md"
+brainstorm: ".cg-docs/brainstorms/2026-04-07-full-model-audit.md"
 ---
 
 # Full Model Audit — Classification Methodology and Results
+
+> **Decision rationale**: The hybrid approach used in this audit (tier matrix with tiebreaker
+> rules rather than per-file empirical testing first) was chosen during the brainstorm session
+> in `.cg-docs/brainstorms/2026-04-07-full-model-audit.md`. The key insight was that high-confidence
+> decisions (clearly Haiku or clearly Opus) could be applied immediately; borderline cases
+> (cg-brainstorm, cg-plan) were deferred to empirical validation.
 
 ## Problem
 
