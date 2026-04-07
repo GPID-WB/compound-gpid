@@ -98,6 +98,12 @@ single, small, non-junction-creating test file.
   `.github/copilot-instructions.md` with the three forbidden patterns and three
   safe replacements. This file is auto-loaded into every Copilot session, so the
   agent will see the rules before writing any Pester command.
+- ✅ **Implemented 2026-04-06 (Update 2)**: The same Pester safety rules were also
+  added to `compound-gpid.local.md` under a `## Notes` section. This file is loaded
+  into every session's user context, providing a second enforcement point independent
+  of the project instructions. Dual-location documentation increases the chance that
+  at least one copy is in the model's active context window at the time a Pester
+  command is composed.
 - If a full suite run is needed for CI, use GitHub Actions (not local agent terminal)
 
 ## Related
@@ -106,3 +112,6 @@ single, small, non-junction-creating test file.
   — Root fix for the junction-cleanup freeze that this issue can re-trigger when
   the full test suite fires all junction-creating tests at once. Apply both fixes
   in tandem.
+- [2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md](./2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)
+  — Why documenting the rule in a single file is insufficient; how dual-location
+  documentation (copilot-instructions.md + compound-gpid.local.md) reduces recurrence.
