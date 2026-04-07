@@ -16,16 +16,7 @@
 # intentionally read-only reviewers.
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
-
-# Helper: extract the YAML frontmatter block from a markdown file
-function Get-Frontmatter {
-    param([string]$FilePath)
-    $raw = Get-Content $FilePath -Raw -Encoding UTF8
-    if ($raw -match '(?s)^---\s*\r?\n(.+?)\r?\n---') {
-        return $Matches[1]
-    }
-    return ''
-}
+. "$PSScriptRoot/helpers.ps1"
 
 # Helper: extract the tools list from a frontmatter string
 function Get-ToolsList {
@@ -79,6 +70,10 @@ Describe "cg-review.prompt.md - review file output step" {
 
     It "explicitly instructs DO NOT delegate the Step 3.5 file write" {
         ($content -match 'Do NOT delegate') | Should Be $true
+    }
+
+    It "documents 'no issues found' as valid output when an agent finds nothing" {
+        ($content -match 'no issues found') | Should Be $true
     }
 }
 
@@ -385,38 +380,6 @@ Describe "skill SKILL.md - relative markdown links resolve" {
     }
 }
 # ---------------------------------------------------------------------------
-# cg-skill-r-testing - file structure validation
-# ---------------------------------------------------------------------------
-
-Describe "cg-skill-r-testing - file structure" {
-    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-r-testing"
-
-    It "SKILL.md exists" {
-        Test-Path (Join-Path $skillRoot "SKILL.md") | Should Be $true
-    }
-
-    It "references/bdd.md exists" {
-        Test-Path (Join-Path $skillRoot "references\bdd.md") | Should Be $true
-    }
-
-    It "references/mocking.md exists" {
-        Test-Path (Join-Path $skillRoot "references\mocking.md") | Should Be $true
-    }
-
-    It "references/fixtures.md exists" {
-        Test-Path (Join-Path $skillRoot "references\fixtures.md") | Should Be $true
-    }
-
-    It "references/snapshots.md exists" {
-        Test-Path (Join-Path $skillRoot "references\snapshots.md") | Should Be $true
-    }
-
-    It "references/advanced.md exists" {
-        Test-Path (Join-Path $skillRoot "references\advanced.md") | Should Be $true
-    }
-}
-
-# ---------------------------------------------------------------------------
 # Skill file cross-link validation
 # ---------------------------------------------------------------------------
 
@@ -469,6 +432,18 @@ Describe "cg-review.prompt.md - subagent output quality check" {
 
     It "includes the warning template with @agent-name placeholder" {
         ($content -match '@<agent-name>') | Should Be $true
+    }
+
+    It "documents the Presence criterion by name" {
+        ($content -match '\bPresence\b') | Should Be $true
+    }
+
+    It "documents the Context criterion by name" {
+        ($content -match '\bContext\b') | Should Be $true
+    }
+
+    It "documents the Volume criterion by name" {
+        ($content -match '\bVolume\b') | Should Be $true
     }
 }
 

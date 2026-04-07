@@ -14,16 +14,7 @@
 # Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
-
-# Helper: extract the YAML frontmatter block from a markdown file
-function Get-Frontmatter {
-    param([string]$FilePath)
-    $raw = Get-Content $FilePath -Raw -Encoding UTF8
-    if ($raw -match '(?s)^---\s*\r?\n(.+?)\r?\n---') {
-        return $Matches[1]
-    }
-    return ''
-}
+. "$PSScriptRoot/helpers.ps1"
 
 # ---------------------------------------------------------------------------
 # Model assignments - prompt files
@@ -56,10 +47,10 @@ Describe "Model assignments - prompt files" {
             Test-Path $filePath | Should Be $true
         }
 
-        It "$relPath has a model: frontmatter key" {
+        It "$relPath has a model: frontmatter key with a non-empty value" {
             $frontmatter = Get-Frontmatter -FilePath $filePath
-            # P2.4 anchored to key; P3.8 case-sensitive via -cmatch
-            ($frontmatter -cmatch '(?m)^\s*model:') | Should Be $true
+            # Anchored to key with non-empty value; -cmatch for case-sensitive matching
+            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should Be $true
         }
     }
 }
@@ -87,9 +78,10 @@ Describe "Model assignments - agent files" {
             Test-Path $filePath | Should Be $true
         }
 
-        It "$relPath has a model: frontmatter key" {
+        It "$relPath has a model: frontmatter key with a non-empty value" {
             $frontmatter = Get-Frontmatter -FilePath $filePath
-            ($frontmatter -cmatch '(?m)^\s*model:') | Should Be $true
+            # Anchored to key with non-empty value; -cmatch for case-sensitive matching
+            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should Be $true
         }
     }
 }
@@ -117,7 +109,7 @@ Describe "docs/model-guide.md - structure and sync" {
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
-            ($content -match [regex]::Escape($stem)) | Should Be $true
+            ($content -match ([regex]::Escape($stem) + '\.prompt\.md')) | Should Be $true
         }
     }
 
@@ -129,7 +121,7 @@ Describe "docs/model-guide.md - structure and sync" {
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {
-            ($content -match [regex]::Escape($stem)) | Should Be $true
+            ($content -match ([regex]::Escape($stem) + '\.agent\.md')) | Should Be $true
         }
     }
 }
