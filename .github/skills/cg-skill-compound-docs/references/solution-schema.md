@@ -55,8 +55,8 @@ How to avoid this in the future:
 - Standard or convention to adopt
 
 ## Related
-- [Link to related solution](../category/related-file.md)
-- [External documentation](https://example.com)
+- \[Link to related solution\]\(../category/related-file.md\)
+- \[External documentation\]\(https://example.com\)
 ```
 
 ## Naming Convention

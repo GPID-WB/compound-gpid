@@ -62,4 +62,4 @@ Both `collapse` and `data.table` are class-agnostic and interoperable: collapse 
 ---
 
 > For infrastructure workflows (package development, Shiny, targets, httr2) and data.table manipulation patterns (`:=`, joins, `melt`/`dcast`, `fifelse`/`fcase`), use `cg-skill-r-technical`.
-> For testthat patterns including collapse output testing, see `cg-skill-r-technical/references/testing-testthat.md`.
+> For comprehensive testthat patterns including collapse output testing, load `cg-skill-r-testing`.

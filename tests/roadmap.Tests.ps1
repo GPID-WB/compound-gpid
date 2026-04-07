@@ -233,6 +233,15 @@ function Test-RoadmapSchema {
             if ($null -ne $f.plan -and $f.plan -isnot [string]) {
                 $errors += "Feature '$($f.id)' in milestone '$($m.id)': plan must be a string or null"
             }
+
+            if ($null -ne $f.plan -and $f.plan -is [string] -and
+                $f.plan -notmatch '^\.cg-docs/(brainstorms|plans|reviews|solutions)/.*\.md$') {
+                $errors += "Feature '$($f.id)' in milestone '$($m.id)': plan path '$($f.plan)' does not match expected pattern (.cg-docs/{brainstorms|plans|reviews|solutions}/filename.md)"
+            }
+
+            if ($f.status -eq "done" -and $null -eq $f.plan) {
+                $errors += "Feature '$($f.id)' in milestone '$($m.id)': status is 'done' but plan is null (a completed feature must link its plan)"
+            }
         }
     }
 
@@ -445,6 +454,54 @@ Describe "roadmap.json schema" {
         }
         $errors = Test-RoadmapSchema $roadmap
         ($errors -join " ") | Should Match "plan must be a string or null"
+    }
+
+    It "rejects done feature with null plan" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{
+                    id       = "m1"; title = "M1"; objective = "x"; status = "done"
+                    features = @(
+                        @{ id = "f1"; title = "F1"; status = "done"; plan = $null }
+                    )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should Match "done.*plan|plan.*done|completed feature"
+    }
+
+    It "passes for done feature with valid plan path" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{
+                    id       = "m1"; title = "M1"; objective = "x"; status = "done"
+                    features = @(
+                        @{ id = "f1"; title = "F1"; status = "done"; plan = ".cg-docs/plans/2026-04-06-example.md" }
+                    )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should Be 0
+    }
+
+    It "rejects feature with plan path outside .cg-docs/" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{
+                    id       = "m1"; title = "M1"; objective = "x"; status = "done"
+                    features = @(
+                        @{ id = "f1"; title = "F1"; status = "done"; plan = "docs/plans/something.md" }
+                    )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should Match "pattern|\.cg-docs"
     }
 }
 
@@ -763,6 +820,23 @@ Describe "roadmap.json file validation" {
             throw $msg
         }
         $errors.Count | Should Be 0
+    }
+
+    It "plan files referenced in done features exist on disk" {
+        $roadmapPath = Join-Path (Join-Path $PSScriptRoot "..") "roadmap.json"
+        (Test-Path $roadmapPath) | Should Be $true
+        $roadmap = Get-Content $roadmapPath -Raw | ConvertFrom-Json
+        $root = Split-Path $roadmapPath -Parent
+        $milestones = @($roadmap.milestones)
+        foreach ($m in $milestones) {
+            $features = @($m.features)
+            foreach ($f in $features) {
+                if ($f.status -eq "done" -and $null -ne $f.plan) {
+                    $planPath = Join-Path $root $f.plan
+                    Test-Path $planPath | Should Be $true
+                }
+            }
+        }
     }
 }
 

@@ -64,5 +64,5 @@ Always keep `renv/activate.R` and `renv.lock` tracked.
 
 ## See Also
 
-- [r.instructions.md](../../instructions/r.instructions.md) — renv line items in Environment Management section
+- [r.instructions.md](../../../instructions/r.instructions.md) — renv line items in Environment Management section
 - [targets-pipelines.md](../workflows/targets-pipelines.md) — targets + renv integration

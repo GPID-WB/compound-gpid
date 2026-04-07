@@ -309,3 +309,162 @@ Describe "cg-resume.prompt.md - findings frontmatter and migration nudge" {
         ($content -match 'Review migration needed') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# SKILL.md files - required frontmatter
+# ---------------------------------------------------------------------------
+
+Describe "SKILL.md files - required frontmatter" {
+    $skillsDir = Join-Path $repoRoot ".github\skills"
+    $skillFiles = Get-ChildItem -Path $skillsDir -Recurse -Filter "SKILL.md"
+
+    It "finds at least one SKILL.md file" {
+        $skillFiles.Count | Should BeGreaterThan 0
+    }
+
+    foreach ($skill in $skillFiles) {
+        $skillName = (Split-Path (Split-Path $skill.FullName -Parent) -Leaf)
+        $frontmatter = Get-Frontmatter -FilePath $skill.FullName
+
+        It "$skillName SKILL.md has a name: field" {
+            $frontmatter | Should Match '(?m)^\s*name:'
+        }
+
+        It "$skillName SKILL.md has a description: field" {
+            $frontmatter | Should Match '(?m)^\s*description:'
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-r-testing - all 6 skill files exist
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-r-testing - skill file structure" {
+    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-r-testing"
+    $expectedFiles = @(
+        "SKILL.md",
+        "references\bdd.md",
+        "references\mocking.md",
+        "references\fixtures.md",
+        "references\snapshots.md",
+        "references\advanced.md"
+    )
+
+    foreach ($file in $expectedFiles) {
+        It "file '$file' exists" {
+            Test-Path (Join-Path $skillRoot $file) | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Skill SKILL.md cross-references - relative links resolve to real files
+# ---------------------------------------------------------------------------
+
+Describe "skill SKILL.md - relative markdown links resolve" {
+    $skillsDir = Join-Path $repoRoot ".github\skills"
+    $skillFiles = Get-ChildItem -Path $skillsDir -Recurse -Filter "SKILL.md"
+
+    foreach ($skill in $skillFiles) {
+        $skillName = (Split-Path (Split-Path $skill.FullName -Parent) -Leaf)
+        $content = Get-Content $skill.FullName -Raw -Encoding UTF8
+        $skillDir = Split-Path $skill.FullName -Parent
+
+        # Extract relative file links (exclude http/https URLs and anchor-only links)
+        $links = [regex]::Matches($content, '\]\(([^)#]+)\)') |
+            ForEach-Object { $_.Groups[1].Value } |
+            Where-Object { $_ -notmatch '^https?://' -and $_ -match '\.' }
+
+        foreach ($link in $links) {
+            $resolved = [System.IO.Path]::GetFullPath((Join-Path $skillDir $link))
+            It "$($skillName): '$($link)' resolves to an existing file" {
+                Test-Path $resolved | Should Be $true
+            }
+        }
+    }
+}
+# ---------------------------------------------------------------------------
+
+Describe "SKILL.md files - required frontmatter" {
+    $skillFiles = Get-ChildItem (Join-Path $repoRoot ".github\skills") -Filter "SKILL.md" -Recurse
+
+    Context "each SKILL.md has name: in frontmatter" {
+        foreach ($file in $skillFiles) {
+            $relPath = $file.FullName.Replace($repoRoot + "\", "")
+            It "$relPath has name: field" {
+                $frontmatter = Get-Frontmatter -FilePath $file.FullName
+                ($frontmatter -match 'name:') | Should Be $true
+            }
+        }
+    }
+
+    Context "each SKILL.md has description: in frontmatter" {
+        foreach ($file in $skillFiles) {
+            $relPath = $file.FullName.Replace($repoRoot + "\", "")
+            It "$relPath has description: field" {
+                $frontmatter = Get-Frontmatter -FilePath $file.FullName
+                ($frontmatter -match 'description:') | Should Be $true
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-r-testing - file structure validation
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-r-testing - file structure" {
+    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-r-testing"
+
+    It "SKILL.md exists" {
+        Test-Path (Join-Path $skillRoot "SKILL.md") | Should Be $true
+    }
+
+    It "references/bdd.md exists" {
+        Test-Path (Join-Path $skillRoot "references\bdd.md") | Should Be $true
+    }
+
+    It "references/mocking.md exists" {
+        Test-Path (Join-Path $skillRoot "references\mocking.md") | Should Be $true
+    }
+
+    It "references/fixtures.md exists" {
+        Test-Path (Join-Path $skillRoot "references\fixtures.md") | Should Be $true
+    }
+
+    It "references/snapshots.md exists" {
+        Test-Path (Join-Path $skillRoot "references\snapshots.md") | Should Be $true
+    }
+
+    It "references/advanced.md exists" {
+        Test-Path (Join-Path $skillRoot "references\advanced.md") | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Skill file cross-link validation
+# ---------------------------------------------------------------------------
+
+Describe "skill file cross-links resolve" {
+    $skillsRoot = Join-Path $repoRoot ".github\skills"
+    $skillFiles = Get-ChildItem $skillsRoot -Recurse -Filter "*.md" -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Name -ne ".gitkeep" }
+
+    foreach ($skillFile in $skillFiles) {
+        $content = Get-Content $skillFile.FullName -Raw -Encoding UTF8
+        # Extract markdown links: [text](path) — skip anchors and external URLs
+        $links = [regex]::Matches($content, '\[[^\]]*\]\(([^)#]+\.md)\)')
+        foreach ($link in $links) {
+            $target = $link.Groups[1].Value
+            if ($target -match '^https?://') { continue }
+            $resolved = [System.IO.Path]::GetFullPath(
+                [System.IO.Path]::Combine($skillFile.DirectoryName, $target)
+            )
+            $relSource = $skillFile.FullName.Replace($repoRoot + "\", "")
+            It "$relSource -> $target" {
+                Test-Path $resolved | Should Be $true
+            }
+        }
+    }
+}
