@@ -487,6 +487,24 @@ Describe "r.instructions.md - dialect router" {
     It "documents fallback for invalid r-syntax values" {
         ($content -match 'Any other value|unrecognized') | Should Be $true
     }
+
+    # P2.4: applyTo field presence — if this field is missing/wrong, dialect routing
+    # silently stops working for ALL .R files with no error.
+    It "has applyTo frontmatter field (required for auto-apply to .R files)" {
+        ($content -match '(?m)^applyTo:') | Should Be $true
+    }
+
+    It "applyTo covers .R files" {
+        ($content -match 'applyTo.*\*\*/\*\.R') | Should Be $true
+    }
+
+    It "applyTo covers .r files (lowercase)" {
+        ($content -match 'applyTo.*\*\*/\*\.r') | Should Be $true
+    }
+
+    It "applyTo covers .Rmd files" {
+        ($content -match 'applyTo.*\*\*/\*\.Rmd') | Should Be $true
+    }
 }
 
 Describe "R dialect skills - skill directories exist" {

@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-technical
+user-invokable: false
 description: "R patterns for technical work: roxygen2, package development, plumber APIs (with API testing in references/testing-apis.md), Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management."
 ---
 
