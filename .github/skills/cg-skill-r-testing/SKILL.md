@@ -331,17 +331,15 @@ expect_no_missing <- function(x) {
 ## Snapshot Testing
 
 For complex output that's hard to verify programmatically, use `expect_snapshot()`.
-See [references/snapshots.md](references/snapshots.md) for examples, transforms, variants, and full workflow.
+Read `references/snapshots.md` in this directory for examples, transforms, variants, and full workflow.
 
 ## Mocking
 
 Replace external dependencies during testing with `local_mocked_bindings()`.
-See [references/mocking.md](references/mocking.md) for S3/S4/R6 method mocking, webfakes, httptest2, and best practices.
-
-## Test Fixtures and Data
+Read `references/mocking.md` in this directory for S3/S4/R6 method mocking, webfakes, httptest2, and best practices.
 
 Three approaches: constructor functions (preferred), static fixture files, and local functions with cleanup.
-See [references/fixtures.md](references/fixtures.md) for helper files, setup files, database fixtures, and organization.
+Read `references/fixtures.md` in this directory for helper files, setup files, database fixtures, and organization.
 
 ## testthat 3 Modernizations
 

@@ -453,6 +453,40 @@ Describe "cg-review.prompt.md - subagent output quality check" {
 }
 
 # ---------------------------------------------------------------------------
+# cg-compound-refresh.prompt.md - no tool restriction
+# (Orchestrating prompts must not have a tools: whitelist -- it strips write access)
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound-refresh.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-ideate.prompt.md - no tool restriction
+# (Orchestrating prompts must not have a tools: whitelist -- it strips write access)
+# ---------------------------------------------------------------------------
+
+Describe "cg-ideate.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # R dialect routing — r.instructions.md validation
 # ---------------------------------------------------------------------------
 

@@ -14,6 +14,12 @@ review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"
 cg-schema-version: ""
 ---
+```
+
+> **Note**: `cg-schema-version` is intentionally blank for new projects. `cg-update`
+> populates this field with the current schema version when run from the project root.
+> `/cg-resume` will nudge the user to run `cg-update` if this field is blank or
+> mismatched — that is the intended migration prompt.
 
 # Compound GPID — Project Config
 

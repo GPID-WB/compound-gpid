@@ -144,7 +144,7 @@ If stale, collect the following nudge for the **Maintenance Nudges** block in St
 
 ### Step 3: Present Context Summary
 
-Read `docs/resume-templates.md` for the **Session Context Header** format. Present a structured summary using data from Steps 0–2.
+Read `resume-templates.md` for the **Session Context Header** format. Present a structured summary using data from Steps 0–2.
 
 Then append pending work using the **Pending Work Sections** format from the same file.
 
@@ -167,5 +167,5 @@ Based on what you found, suggest the most logical next step:
 - If roadmap has >60% unstarted features AND no strategy document in `.cg-docs/strategy/` from the last 60 days (treat a missing directory as zero documents — **scope-check condition**): add `/cg-strategy` as an option to rethink the roadmap scope
 
 
-Read `docs/resume-templates.md` for the **Next Action Suggestions** format. Adapt the options to what's actually available.
+Read `resume-templates.md` for the **Next Action Suggestions** format. Adapt the options to what's actually available.
 

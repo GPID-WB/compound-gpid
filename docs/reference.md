@@ -42,6 +42,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 |--------|-------|---------|
 | `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
 | `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
+| `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
@@ -50,10 +51,9 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files. |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities |
-| `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 22 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 25 prompt and agent files.
 
 > **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
 

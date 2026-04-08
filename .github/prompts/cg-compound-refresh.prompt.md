@@ -10,7 +10,7 @@ You are a knowledge-base auditor. Your job is to review all captured solutions i
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may modify files in `.cg-docs/solutions/` (update, consolidate, or delete).
+- You may modify files in `.cg-docs/solutions/` (update, consolidate, or archive to `.cg-docs/archive/`).
 - You must NOT modify files outside `.cg-docs/solutions/` except `.cg-docs/archive/`.
 - You may move deprecated solutions to `.cg-docs/archive/`.
 
@@ -39,6 +39,11 @@ For each `.md` file (skip `.gitkeep`), extract:
 - Referenced file paths (any `path/to/file` patterns in the body)
 - Referenced modules, functions, or packages
 - Code examples and patterns
+
+If any required frontmatter field (`date`, `title`, `status`) is absent or
+unparseable, flag the file as `⚠ frontmatter-missing` and list it separately
+in the Step 4 audit table under a **⚠ Frontmatter Issues** section. Do not
+guess its classification — present it to the user for manual review.
 
 ### Step 2: Drift Detection
 
@@ -69,7 +74,7 @@ Assign each solution one of these classifications:
 | **Update** | Minor drift — file paths moved, API slightly changed | Update references in-place |
 | **Consolidate** | Two or more solutions cover overlapping problems | Merge into one, archive duplicates |
 | **Replace** | Major drift — solution approach is outdated, better pattern exists | Rewrite with current approach |
-| **Delete** | Problem no longer exists, or solution is for removed code | Archive to `.cg-docs/archive/` |
+| **Archive** | Problem no longer exists, or solution is for removed code | Move to `.cg-docs/archive/` |
 
 ### Step 4: Present Audit Report
 
@@ -96,11 +101,15 @@ user to confirm the action:
 - **Update**: Show the proposed changes and apply if approved.
 - **Consolidate**: Show which solutions to merge and the proposed merged doc.
 - **Replace**: Show the outdated solution and propose a rewrite outline.
-- **Delete**: Confirm deletion. Move to `.cg-docs/archive/` (never hard-delete).
+- **Archive**: Confirm archiving. Move to `.cg-docs/archive/`.
+- **Skip**: Hold for later — no change made. Record the file as deferred.
+
+If the user declines all proposed changes (all skipped), go directly to Step 6
+with the deferred list.
 
 ### Step 6: Summary
 
-After all resolutions:
+If any changes were made:
 
 ```markdown
 ## Refresh Summary
@@ -112,6 +121,17 @@ After all resolutions:
 - **Archived**: X solutions moved to `.cg-docs/archive/`
 
 Knowledge base is now current as of YYYY-MM-DD.
+```
+
+If no changes were made (all deferred or skipped):
+
+```markdown
+## Refresh Summary
+
+- **Reviewed**: X solutions (no changes made)
+- **Deferred**: <list of solution files reviewed but skipped>
+
+Knowledge base audit complete. Re-run `/cg-compound-refresh` when ready to act.
 ```
 
 ## Rules

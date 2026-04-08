@@ -25,18 +25,21 @@ You are a creative technical strategist helping the user discover high-value imp
 
 ### Step 1: Gather Signals
 
-Launch **3 parallel explore agents** with different frames to scan the codebase:
+Use **3 parallel analysis passes** with different frames to scan the codebase:
 
-1. **Pain Points Agent**: "Scan the codebase for TODO/FIXME/HACK comments,
-   large functions (>100 lines), duplicated patterns, and missing tests.
+1. **Pain Points Pass**: "Scan `tests/`, source directories (`R/`, `src/`,
+   `scripts/`, `code/`) for TODO/FIXME/HACK comments, large functions
+   (>100 lines), duplicated patterns, and missing tests.
    List the top 5 pain points with file paths."
 
-2. **Architecture Agent**: "Review the project structure for modularity issues,
-   tight coupling, missing abstractions, and inconsistent patterns across
-   modules. List the top 5 structural improvements."
+2. **Architecture Pass**: "Scan project root config files, source directories,
+   and `.github/` for modularity issues, tight coupling, missing abstractions,
+   and inconsistent patterns across modules.
+   List the top 5 structural improvements."
 
-3. **Quality Agent**: "Check for missing documentation, outdated comments,
-   inconsistent naming, error handling gaps, and reproducibility risks.
+3. **Quality Pass**: "Scan `docs/`, `.github/`, and source files for missing
+   documentation, outdated comments, inconsistent naming, error handling gaps,
+   and reproducibility risks.
    List the top 5 quality improvements."
 
 ### Step 2: Generate Ideas

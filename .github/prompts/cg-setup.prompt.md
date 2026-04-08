@@ -74,7 +74,9 @@ Ask each question and wait for the answer before asking the next.
 
 #### A3. Create `compound-gpid.local.md`
 
-Write the config file to the project root using the **compound-gpid.local.md Template** from `docs/setup-templates.md`.
+Read `setup-templates.md` (load once here — this file covers all templates used
+through Step A6 and Mode B). Write the config file to the project root using the
+**compound-gpid.local.md Template** from `setup-templates.md`.
 
 #### A3.5. Create project charter (`compound-gpid.md`)
 
@@ -121,7 +123,7 @@ Ask each question and wait for the answer before asking the next.
 > reproducibility requirements, data privacy rules, methodological
 > standards). You can skip this and add them later.
 
-Write `compound-gpid.md` in the project root. Read `docs/setup-templates.md` for the **compound-gpid.md Charter Template**, placeholder rules, and field formatting rules. Fill in the user's answers following those rules.
+Write `compound-gpid.md` in the project root. Using the **compound-gpid.md Charter Template** from `setup-templates.md` (already loaded), fill in the user's answers following the placeholder rules and field formatting rules.
 
 If the user skips ALL charter questions (skips before Question 4 or skips both
 Question 4 and 5), do NOT create `compound-gpid.md`. The setup completes with
@@ -131,7 +133,7 @@ Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 
 #### A4. Scaffold `.cg-docs/` structure
 
-Read `docs/setup-templates.md` for the **.cg-docs/ Directory Scaffold** tree. Create the listed directories and `.gitkeep` files if they do not already exist.
+Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md` (already loaded), create the listed directories and `.gitkeep` files if they do not already exist.
 
 #### A4.5. Update `.Rbuildignore` (R packages only)
 
@@ -156,14 +158,14 @@ compound-gpid.local.md
 
 #### A5.5. Create `roadmap.json`
 
-Create `roadmap.json` in the project root using the **roadmap.json Initial Skeleton** from `docs/setup-templates.md`.
+Create `roadmap.json` in the project root using the **roadmap.json Initial Skeleton** from `setup-templates.md` (already loaded).
 
 This file tracks project milestones and features. Users can add milestones
 and ideas by invoking `@cg-roadmap` in Copilot Chat.
 
 #### A6. Print Setup Complete
 
-Read `docs/setup-templates.md` for the **Setup Complete Message**. Display it, filling in the user's configured language, project type, and review depth.
+Using the **Setup Complete Message** from `setup-templates.md` (already loaded), display it filling in the user's configured language, project type, and review depth.
 
 ---
 
@@ -200,7 +202,7 @@ after the context summary:
 
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 
-Read `docs/setup-templates.md` for the **Mode B: Missing Directories Scaffold** list. Create any missing directories (with a `.gitkeep` inside), without touching existing files.
+Using the **Mode B: Missing Directories Scaffold** list from `setup-templates.md` (already loaded), create any missing directories (with a `.gitkeep` inside), without touching existing files.
 
 #### B1.2.5. Check for `roadmap.json`
 
@@ -226,7 +228,7 @@ Scan the following directories and collect the titles and dates from the YAML fr
 
 #### B3. Present context summary
 
-Present a structured summary to orient Copilot and the user. Read `docs/setup-templates.md` for the **Mode B: Context Summary Format** and fill in the scanned data.
+Present a structured summary to orient Copilot and the user. Using the **Mode B: Context Summary Format** from `setup-templates.md` (already loaded), fill in the scanned data.
 
 #### B4. Offer to update config
 

@@ -101,11 +101,12 @@ Describe "docs/model-guide.md - structure and sync" {
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    # All 12 prompt file stems must appear in the guide
+    # All 14 prompt file stems must appear in the guide
     $promptStems = @(
         'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
         'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
-        'cg-setup', 'cg-devtag', 'cg-resume'
+        'cg-setup', 'cg-devtag', 'cg-resume',
+        'cg-compound-refresh', 'cg-ideate'
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
@@ -113,11 +114,12 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 10 agent file stems must appear in the guide
+    # All 11 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
-        'cg-learnings-researcher', 'cg-roadmap'
+        'cg-learnings-researcher', 'cg-roadmap',
+        'cg-adversarial'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {

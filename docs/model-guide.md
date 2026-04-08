@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 22 Compound GPID prompt and agent files.
+Reference for model assignments across all 25 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-> files" and "Model assignments — agent files" describe blocks) validate all 22 files for model:
+> files" and "Model assignments — agent files" describe blocks) validate all 25 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -30,6 +30,8 @@ and approximate token cost reference.
 | `cg-setup.prompt.md` | Claude Haiku 4.5 | Configure project or load context for returning projects | Reasoning 2, creativity 1 — mechanical scaffolding with conditional logic Haiku handles well | **changed** |
 | `cg-devtag.prompt.md` | Claude Haiku 4.5 | Create a pre-release dev tag and push to origin (developer-only) | 3 git commands with clear rules — Haiku sufficient | **changed** |
 | `cg-resume.prompt.md` | Claude Haiku 4.5 | Load context, scan pending work, resume interrupted sessions | Reasoning 3, mechanical context scanning — Haiku appropriate | confirmed |
+| `cg-compound-refresh.prompt.md` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation | Orchestration 3, precision 4 — multi-step audit with conditional actions needs Sonnet | confirmed |
+| `cg-ideate.prompt.md` | Claude Opus 4.6 | Generate, critique, and filter project improvement ideas | Creativity 5, reasoning 4 — divergent idea generation and adversarial filtering needs Opus | confirmed |
 
 ### Agents
 
@@ -45,6 +47,7 @@ and approximate token cost reference.
 | `cg-reproducibility.agent.md` | Claude Haiku 4.5 | Review lockfiles, relative paths, seeds | Reasoning 4, creativity 3; structured review — Haiku sufficient | confirmed |
 | `cg-learnings-researcher.agent.md` | Claude Haiku 4.5 | Cross-reference past solutions in `.cg-docs/solutions/` | Reasoning 3; primarily search and retrieval — Haiku appropriate | confirmed |
 | `cg-roadmap.agent.md` | Claude Haiku 4.5 | Manage `roadmap.json`: add/remove milestones, update statuses | Reasoning 3; JSON manipulation with clear schema — Haiku sufficient | confirmed |
+| `cg-adversarial.agent.md` | Claude Sonnet 4.6 | Adversarial code reviewer — finds race conditions, edge cases, security vulnerabilities | Reasoning 4, precision 5 — attack-vector analysis and proof-of-concept generation needs Sonnet | confirmed |
 
 ---
 
