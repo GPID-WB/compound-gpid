@@ -138,6 +138,10 @@ declares `tools:`. Treat the frontmatter as a contract — test it like an API.
   — Adjacent concern: testing the structural contract between chained prompts
   (output format, file location, cross-reference text) rather than just the
   permission layer.
+- [2026-04-08 Instruction file applyTo frontmatter silent failure](./2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)
+  — Same class of silent frontmatter failure, but for `applyTo:` in
+  `.instructions.md` files (controls which file types trigger the instruction)
+  rather than `tools:` in `.prompt.md` files.
 - [2026-03-30 Do NOT delegate file-writing guardrail](./2026-03-30-do-not-delegate-file-write-guardrail.md)
   — A third layer of guard: even when the agent _has_ write permission, it can
   silently delegate a write step to a subagent; this pattern and test prevent that.
