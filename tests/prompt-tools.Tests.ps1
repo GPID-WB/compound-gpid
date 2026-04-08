@@ -447,5 +447,208 @@ Describe "cg-review.prompt.md - subagent output quality check" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# R dialect routing — r.instructions.md validation
+# ---------------------------------------------------------------------------
+
+Describe "r.instructions.md - dialect router" {
+    $routerFile = Join-Path $repoRoot ".github\instructions\r.instructions.md"
+
+    It "router file exists" {
+        Test-Path $routerFile | Should Be $true
+    }
+
+    $content = if (Test-Path $routerFile) { Get-Content $routerFile -Raw -Encoding UTF8 } else { "" }
+
+    It "documents data.table-collapse dialect" {
+        ($content -match 'data\.table-collapse') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-collapse for data.table-collapse" {
+        ($content -match 'cg-skill-r-collapse') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-datatable for data.table-collapse" {
+        ($content -match 'cg-skill-r-datatable') | Should Be $true
+    }
+
+    It "documents tidyverse dialect" {
+        ($content -match 'tidyverse') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-tidyverse for tidyverse" {
+        ($content -match 'cg-skill-r-tidyverse') | Should Be $true
+    }
+
+    It "mentions cg-skill-r-visualization" {
+        ($content -match 'cg-skill-r-visualization') | Should Be $true
+    }
+
+    It "documents fallback for invalid r-syntax values" {
+        ($content -match 'Any other value|unrecognized') | Should Be $true
+    }
+}
+
+Describe "R dialect skills - skill directories exist" {
+    $dialectSkills = @(
+        'cg-skill-r-collapse',
+        'cg-skill-r-datatable',
+        'cg-skill-r-tidyverse',
+        'cg-skill-r-visualization'
+    )
+
+    foreach ($skill in $dialectSkills) {
+        It "dialect skill '$skill' has SKILL.md" {
+            $path = Join-Path $repoRoot ".github\skills\$skill\SKILL.md"
+            Test-Path $path | Should Be $true
+        }
+    }
+}
+
+Describe "cg-skill-setup - r-syntax field documentation" {
+    $setupFile = Join-Path $repoRoot ".github\skills\cg-skill-setup\SKILL.md"
+    $content = if (Test-Path $setupFile) { Get-Content $setupFile -Raw -Encoding UTF8 } else { "" }
+
+    It "documents r-syntax field" {
+        ($content -match 'r-syntax') | Should Be $true
+    }
+
+    It "documents data.table-collapse as default dialect" {
+        ($content -match 'data\.table-collapse') | Should Be $true
+    }
+
+    It "documents tidyverse as alternative dialect" {
+        ($content -match 'tidyverse') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.1 — SCHEMA_VERSION dialect marker validation
+# ---------------------------------------------------------------------------
+
+Describe "SCHEMA_VERSION - dialect marker" {
+    $schemaFile = Join-Path $repoRoot "SCHEMA_VERSION"
+    $content = if (Test-Path $schemaFile) { (Get-Content $schemaFile -Raw -Encoding UTF8).Trim() } else { "" }
+
+    It "SCHEMA_VERSION file exists" {
+        Test-Path $schemaFile | Should Be $true
+    }
+
+    It "SCHEMA_VERSION contains r-syntax-dialect marker" {
+        ($content -match 'r-syntax-dialect') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.2 — r.instructions.md router covers all 8 unconditional skill references
+# ---------------------------------------------------------------------------
+
+Describe "r.instructions.md - unconditional skill routing" {
+    $routerFile = Join-Path $repoRoot ".github\instructions\r.instructions.md"
+    $content = if (Test-Path $routerFile) { Get-Content $routerFile -Raw -Encoding UTF8 } else { "" }
+
+    It "routes to cg-skill-r-analytical (unconditional)" {
+        ($content -match 'cg-skill-r-analytical') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-technical (unconditional)" {
+        ($content -match 'cg-skill-r-technical') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-testing (unconditional)" {
+        ($content -match 'cg-skill-r-testing') | Should Be $true
+    }
+
+    It "routes to cg-skill-r-shared (unconditional)" {
+        ($content -match 'cg-skill-r-shared') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.3 — docs/reference.md lists all 8 R skills and r-syntax config field
+# ---------------------------------------------------------------------------
+
+Describe "docs/reference.md - R skills and r-syntax config" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/reference.md exists" {
+        Test-Path $refFile | Should Be $true
+    }
+
+    $allRSkills = @(
+        'cg-skill-r-collapse',
+        'cg-skill-r-datatable',
+        'cg-skill-r-tidyverse',
+        'cg-skill-r-visualization',
+        'cg-skill-r-analytical',
+        'cg-skill-r-technical',
+        'cg-skill-r-shared',
+        'cg-skill-r-testing'
+    )
+
+    foreach ($skill in $allRSkills) {
+        It "reference.md lists $skill" {
+            ($content -match [regex]::Escape($skill)) | Should Be $true
+        }
+    }
+
+    It "documents r-syntax configuration field" {
+        ($content -match 'r-syntax') | Should Be $true
+    }
+
+    It "documents data.table-collapse dialect in config table" {
+        ($content -match 'data\.table-collapse') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.4 — dialect-aware agents document r-syntax and both dialects
+# ---------------------------------------------------------------------------
+
+Describe "R-dialect-aware agents - r-syntax handling" {
+    $dialectAwareAgents = @('cg-code-quality', 'cg-data-quality', 'cg-performance')
+
+    foreach ($agent in $dialectAwareAgents) {
+        $agentFile = Join-Path $repoRoot ".github\agents\$agent.agent.md"
+        $agentContent = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
+
+        It "$agent mentions r-syntax" {
+            ($agentContent -match 'r-syntax') | Should Be $true
+        }
+
+        It "$agent documents data.table-collapse dialect" {
+            ($agentContent -match 'data\.table-collapse') | Should Be $true
+        }
+
+        It "$agent documents tidyverse dialect" {
+            ($agentContent -match 'tidyverse') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.1 — dialect skill reference files exist by name
+# ---------------------------------------------------------------------------
+
+Describe "R dialect skills - reference files exist" {
+    $expectedRefFiles = @{
+        'cg-skill-r-collapse'      = @('collapse-reference.md', 'collapse-anti-patterns.md')
+        'cg-skill-r-datatable'     = @('datatable-reference.md', 'datatable-anti-patterns.md')
+        'cg-skill-r-tidyverse'     = @('tidyverse-reference.md', 'tidyverse-anti-patterns.md',
+                                        'tidyverse-style.md', 'tidyverse-migration.md')
+        'cg-skill-r-visualization' = @('ggplot2-reference.md')
+    }
+
+    foreach ($skill in $expectedRefFiles.Keys) {
+        foreach ($refFile in $expectedRefFiles[$skill]) {
+            It "$skill/references/$refFile exists" {
+                $path = Join-Path $repoRoot ".github\skills\$skill\references\$refFile"
+                Test-Path $path | Should Be $true
+            }
+        }
+    }
+}
+
 # Model assignment tests have been extracted to tests/model-assignments.Tests.ps1.
 # Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal

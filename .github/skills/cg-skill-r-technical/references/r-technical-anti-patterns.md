@@ -6,58 +6,9 @@ Common mistakes in technical R development.
 
 ## data.table Anti-Patterns
 
-### Using ifelse() instead of fifelse()/fcase()
-
-**Problem:** `ifelse()` is slow and coerces types unpredictably (drops Date class).
-
-**Wrong:**
-```r
-dt[, category := ifelse(income > 50000, "high", "low")]
-```
-
-**Right:**
-```r
-dt[, category := fifelse(income > 50000, "high", "low")]
-dt[, category := fcase(
-  income > 100000, "high",
-  income > 50000,  "medium",
-  default = "low"
-)]
-```
-
----
-
-### Using dt$col <- value instead of :=
-
-**Problem:** `$<-` copies the entire data.table. On large data, this causes OOM.
-
-**Wrong:**
-```r
-dt$new_col <- dt$old_col * 2
-```
-
-**Right:**
-```r
-dt[, new_col := old_col * 2]
-```
-
----
-
-### Row-wise for loops
-
-**Problem:** Iterating over rows is O(n) in Python-speed R.
-
-**Wrong:**
-```r
-for (i in 1:nrow(dt)) {
-  dt[i, result := some_function(dt[i, col1], dt[i, col2])]
-}
-```
-
-**Right:**
-```r
-dt[, result := some_function(col1, col2)]  # vectorize
-```
+> **`ifelse()` vs `fifelse()/fcase()`**, **`$<-` vs `:=`**, and row-wise for loop patterns
+> are documented in [`cg-skill-r-datatable/references/datatable-anti-patterns.md`](../../cg-skill-r-datatable/references/datatable-anti-patterns.md)
+> with full examples. The patterns below are specific to technical (package/infrastructure) work.
 
 ---
 

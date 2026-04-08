@@ -1,11 +1,11 @@
 ---
 name: cg-skill-r-testing
-description: "Best practices for testing R code with testthat 3+. Use when writing, reviewing, debugging, or improving tests in .R or .Rmd files — including test_that(), describe()/it(), expect_*() calls, test fixtures, mocking, and snapshot tests. Covers test structure, core expectations, design principles, data.table and collapse patterns for test data construction and statistical assertions, fixtures, mocking with local_mocked_bindings(), snapshots, and BDD-style testing. Load alongside cg-skill-r-technical for plumber/httr2 API testing and cg-skill-r-analytical for welfare/survey testing patterns."
+description: "Best practices for testing R code with testthat 3+. Use when writing, reviewing, debugging, or improving tests in .R or .Rmd files — including test_that(), describe()/it(), expect_*() calls, test fixtures, mocking, and snapshot tests. Covers test structure, core expectations, design principles, test data construction (data.table for data.table-collapse projects, tibble for tidyverse projects), collapse for statistical assertions in both dialects, fixtures, mocking with local_mocked_bindings(), snapshots, and BDD-style testing. Load alongside cg-skill-r-technical for plumber/httr2 API testing and cg-skill-r-analytical for welfare/survey testing patterns."
 ---
 
 # Testing R Code with testthat
 
-Modern best practices for R testing using testthat 3+. Examples use **data.table** for test data construction and **collapse** for statistical assertions. Tidyverse is never used in test code unless annotated as a fallback.
+Modern best practices for R testing using testthat 3+. Default examples use **data.table** for test data construction and **collapse** for statistical assertions. For projects with `r-syntax: "tidyverse"` in `compound-gpid.local.md`, use `tibble()` and dplyr for test data construction — statistical assertions still use collapse functions since they work identically on tibbles.
 
 ## Initial Setup
 

@@ -77,13 +77,15 @@ dt |>
     .by = region
   )
 
-# Weighted transformation
+# Weighted transformation (collapse functions work natively on tibbles)
 dt |> mutate(
   welf_centered = fwithin(welfare, w = weight),
-  welf_lag1     = flag(welfare, 1),
+  welf_lag1     = flag(welfare, 1, t = year),   # t= required for correct time-lag
   .by = country
 )
 ```
+
+> **Note**: Load `cg-skill-r-collapse` for the full weighted statistics reference. `fmean`, `fsum`, `fmedian`, and `flag` work identically on tibbles and are the recommended approach for weighted/panel operations even in tidyverse projects.
 
 ## Joining: join_by() (dplyr 1.2+)
 
@@ -124,7 +126,7 @@ dt |> mutate(across(c(welfare, income), list(log = log, sq = ~ .^2),
                     .names = "{.col}_{.fn}"))
 
 # Summarize multiple columns
-dt |> summarize(across(c(welfare, income), fmean, .by = region))
+dt |> summarize(across(c(welfare, income), fmean), .by = region)
 
 # pick(): select columns without reducing (replacement for across()+c())
 dt |> mutate(row_mean = rowMeans(pick(starts_with("y_"))))

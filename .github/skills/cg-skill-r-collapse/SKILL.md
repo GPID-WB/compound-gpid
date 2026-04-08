@@ -34,8 +34,9 @@ Load alongside `cg-skill-r-datatable` (for `data.table-collapse` dialect) or `cg
 
 ## References
 
-- [collapse Reference](references/collapse-reference.md) — Complete API: Fast Statistical Functions, TRA types, GRP structure, collap(), pivot(), join(), data manipulation verbs, global options, attribute preservation
-- [collapse Anti-Patterns](references/collapse-anti-patterns.md) — Common mistakes: masking, forgotten qDT(), repeated grouping recomputation
+- [collapse Reference](references/collapse-reference.md) — Core daily-use API: Fast Statistical Functions, TRA types, GRP structure, `collap()`, `fwithin`/`fbetween`/`fscale`, panel operations (`flag`/`fdiff`/`fgrowth`), pipe-friendly patterns, global options
+- [collapse Advanced Reference](references/collapse-advanced.md) — Load for lookup of: data manipulation verbs (`fselect`, `fsubset`, `ftransform`), summary stats (`qsu`, `descr`, `qtab`), joins (`join()`), pivoting (`pivot()`), quick conversion (`qDT`/`qTBL`), S3 dispatch table, short aliases, common errors
+- [collapse Anti-Patterns](references/collapse-anti-patterns.md) — Common mistakes: masking, forgotten `qDT()`, repeated grouping recomputation
 
 ---
 

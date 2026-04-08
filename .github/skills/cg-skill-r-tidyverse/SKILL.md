@@ -36,7 +36,7 @@ For projects with external coauthors or where tidyverse readability is required.
 - [tidyverse Reference](references/tidyverse-reference.md) — Core patterns: dplyr 1.2+ (.by, join_by, across/pick/reframe), tidyr, readr, stringr, purrr, GPID-specific workflows
 - [tidyverse Style](references/tidyverse-style.md) — Naming, spacing, pipe style, error messages, function conventions
 - [tidyverse Anti-Patterns](references/tidyverse-anti-patterns.md) — Common mistakes: old-style grouping, deprecated functions, magrittr pipe, type-unsafe operations
-- [tidyverse Migration](references/tidyverse-migration.md) — Side-by-side: data.table/collapse → tidyverse equivalents
+- [tidyverse Migration](references/tidyverse-migration.md) — Load only when translating existing data.table or base R code to tidyverse equivalents. Side-by-side: data.table/collapse → tidyverse equivalents
 
 ---
 
