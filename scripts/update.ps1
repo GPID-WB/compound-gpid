@@ -181,11 +181,21 @@ try {
             $modeLabel = "$currentPin (pinned)"
         }
 
+        # When not pinned ("latest" mode), determine which release tag HEAD points to
+        # so the arrow can still appear next to the installed version.
+        # git tag --points-at HEAD returns tags at the current commit; filter to
+        # release tags only (3-component) to exclude dev tags from the marker logic.
+        $installedTag = $null
+        if ($currentPin -eq "latest") {
+            $headTags = @(git tag --points-at HEAD 2>$null | Where-Object { $_ -match $ReleaseTagPattern })
+            if ($headTags) { $installedTag = $headTags[0] }
+        }
+
         Write-Host ""
         Write-Host "Available releases:" -ForegroundColor Cyan
         if ($releaseTags) {
             foreach ($tag in $releaseTags) {
-                if ($tag -eq $currentPin) { $marker = '  <-- current' } else { $marker = '' }
+                if ($tag -eq $currentPin -or $tag -eq $installedTag) { $marker = '  <-- current' } else { $marker = '' }
                 Write-Host "  $tag$marker"
             }
         } else {

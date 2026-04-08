@@ -1,25 +1,19 @@
 ---
 name: cg-skill-r-technical
-description: "R patterns for technical work: collapse for fast statistical computing, data.table for manipulation, roxygen2, package development, plumber APIs (with API testing in references/testing-apis.md), Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management. Preference hierarchy: collapse > data.table > tidyverse."
+user-invokable: false
+description: "R patterns for technical work: roxygen2, package development, plumber APIs (with API testing in references/testing-apis.md), Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management."
 ---
 
 # R Technical Practices
 
-Reference skill for technical R development in the GPID team. Covers the full stack for building R packages, REST APIs, Shiny applications, and data pipelines. The team's preferred tool hierarchy:
+Reference skill for technical R development in the GPID team. Covers the full stack for building R packages, REST APIs, Shiny applications, and data pipelines.
 
-1. **collapse** — for all grouped, weighted, and statistical computations
-2. **data.table** — for data manipulation, filtering, joins, reshaping, column creation
-3. **tidyverse** — only as fallback when collapse and data.table cannot do the job
-
-No masking — always use explicit `f`-prefixed function names from collapse.
+For data manipulation and statistical computing, consult the dialect skills loaded via `r.instructions.md` based on your project's `r-syntax` setting in `compound-gpid.local.md`.
 
 ## Quick Reference
 
 | Task | Package | Key Pattern |
 |------|---------|-------------|
-| Grouped/weighted stats | `collapse` | `fmean(x, g, w)`, `fsum()`, `collap()` |
-| Transformations | `collapse` | `fwithin()`, `fbetween()`, `fscale()`, `TRA()` |
-| Data manipulation | `data.table` | `DT[i, j, by]` syntax, `:=` for in-place ops |
 | Testing | `testthat` | `test_that()` + `expect_*()`, edition 3 |
 | Documentation | `roxygen2` | `@param`, `@return`, `@export`, `@examples` |
 | Error handling | `rlang` + `cli` | `cli::cli_abort()`, `rlang::try_fetch()` |
@@ -32,7 +26,6 @@ No masking — always use explicit `f`-prefixed function names from collapse.
 
 ## Workflows
 
-- [data.table + collapse Patterns](workflows/data-table-patterns.md) — Data manipulation and statistical computing
 - [Package Development](workflows/package-development.md) — roxygen2, usethis, devtools, renv, pak
 - [Plumber APIs](workflows/plumber-api.md) — REST endpoints, middleware, OpenAPI
 - [Shiny Apps](workflows/shiny-apps.md) — Modules, reactivity, deployment
@@ -47,6 +40,6 @@ No masking — always use explicit `f`-prefixed function names from collapse.
 
 ---
 
-> For comprehensive R testing patterns (testthat, fixtures, mocking, snapshots, BDD, collapse/data.table testing), load `cg-skill-r-testing`.
+> For data manipulation and statistical computing patterns, load `cg-skill-r-collapse`, `cg-skill-r-datatable`, or `cg-skill-r-tidyverse` based on your project's `r-syntax` setting.
+> For comprehensive R testing patterns (testthat, fixtures, mocking, snapshots, BDD), load `cg-skill-r-testing`.
 > For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `cg-skill-r-analytical`.
-> For the full collapse API (global options, `use.g.names`, all 10 TRA types, GRP structure, attribute preservation), see `cg-skill-r-analytical/references/collapse-reference.md`.

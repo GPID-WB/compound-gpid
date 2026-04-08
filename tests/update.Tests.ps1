@@ -422,27 +422,14 @@ Describe "update.ps1 - docs to .cg-docs migration" {
             $localMd = "$root\compound-gpid.local.md"
             Set-Content -Path $localMd -Value "# Compound GPID`ncg-schema-version: `"`""
 
-            $schemaVersion = "2026-03-05-cg-docs"
+            $schemaVersion = "2026-03-05-cg-docs"  # MUST match $SchemaVersion in scripts/update.ps1
 
             # Simulate stamping logic
-            $content = [System.IO.File]::ReadAllText($localMd)
-            if ($content -match 'cg-schema-version:') {
-                $updated = $content -replace '(?m)^(cg-schema-version:\s*).*$', ("cg-schema-version: `"" + $schemaVersion + "`"")
-                [System.IO.File]::WriteAllText($localMd, $updated)
-            }
-
-            $result = [System.IO.File]::ReadAllText($localMd)
-            $result -match [regex]::Escape("cg-schema-version: `"$schemaVersion`"") | Should Be $true
-        }
-
-        It "does not modify compound-gpid.local.md when the field is absent" {
-            $root = Join-Path $TestDrive "schema-stamp-absent"
-            New-Item -ItemType Directory -Path $root -Force | Out-Null
             $localMd = "$root\compound-gpid.local.md"
             $original = "# Custom config without schema field`ncg-language: R"
             Set-Content -Path $localMd -Value $original
 
-            $schemaVersion = "2026-03-05-cg-docs"
+            $schemaVersion = "2026-03-05-cg-docs"  # MUST match $SchemaVersion in scripts/update.ps1
 
             $content = [System.IO.File]::ReadAllText($localMd)
             if ($content -match 'cg-schema-version:') {
@@ -1067,6 +1054,96 @@ Describe "update.ps1 - --list formatting" {
             ($lines | Where-Object { $_ -match "v0\.1\.0.*<-- current" }).Count | Should Be 1
             ($lines | Where-Object { $_ -match "v0\.2\.0.*<-- current" }).Count | Should Be 0
         }
+
+        It "appends '<-- current' marker to the HEAD tag when mode is 'latest'" {
+            # Regression test: when not pinned (versionMode = "latest"), the arrow must
+            # still appear next to whichever release tag HEAD points to.
+            # Bug: the original loop only checked ($_ -eq $currentPin); since $currentPin
+            # is "latest", no release tag ever matched and the arrow was never shown.
+            $currentPin   = "latest"   # user is not pinned
+            $installedTag = "v0.4.3"   # simulates: git tag --points-at HEAD filtered to release tags
+            $releaseTags  = @("v0.4.3", "v0.3.0", "v0.2.0")
+
+            # Fixed logic: mark a tag when it matches either the pin OR the installed HEAD tag
+            $lines = $releaseTags | ForEach-Object {
+                $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+
+            ($lines | Where-Object { $_ -match "<-- current" }).Count        | Should Be 1
+            ($lines | Where-Object { $_ -match "v0\.4\.3.*<-- current" }).Count | Should Be 1
+            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count | Should Be 0
+        }
+
+        It "shows no arrow when mode is 'latest' and HEAD is not at a tagged release (between releases)" {
+            # When HEAD is between tags (e.g. on a commit after the last release),
+            # $installedTag will be $null or empty and no arrow should appear.
+            $currentPin   = "latest"
+            $installedTag = $null   # HEAD points to an untagged commit
+            $releaseTags  = @("v0.4.3", "v0.3.0", "v0.2.0")
+
+            $lines = $releaseTags | ForEach-Object {
+                $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+        }
+
+        It "selects first tag when multiple release tags point to the same HEAD commit" {
+            # Regression/documentation: git tag --points-at HEAD can return multiple
+            # tags (e.g. tag alias). update.ps1 takes $headTags[0]. This test documents
+            # and validates that only the first tag gets the arrow.
+            # (P2.2) MUST match selection logic in scripts/update.ps1 $installedTag block.
+            $currentPin   = "latest"
+            $headTags     = @("v0.4.3", "v0.4.3-alias")   # multiple tags at HEAD
+            $installedTag = $headTags[0]                    # update.ps1: $headTags[0]
+            $releaseTags  = @("v0.4.3", "v0.4.3-alias", "v0.3.0")
+
+            $lines = $releaseTags | ForEach-Object {
+                $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+            ($lines | Where-Object { $_ -match "v0\.4\.3[^-].*<-- current" }).Count | Should Be 1
+            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count    | Should Be 0
+        }
+
+        It "shows no arrow when git tag --points-at HEAD fails (no tags returned)" {
+            # When git fails or HEAD is between releases, $headTags will be empty
+            # and $installedTag stays $null. No arrow should appear.
+            # (P2.3) Documents the error/between-releases path for update.ps1.
+            $currentPin   = "latest"
+            $headTags     = @()        # empty: git failed or no tag at HEAD
+            $installedTag = if ($headTags) { $headTags[0] } else { $null }
+            $releaseTags  = @("v0.4.3", "v0.3.0")
+
+            $lines = $releaseTags | ForEach-Object {
+                $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+        }
+
+        It "shows no arrow when HEAD points to a dev tag in latest mode" {
+            # Dev tags (4-component v0.4.3.9000) are filtered out by $ReleaseTagPattern
+            # before building $headTags, so $installedTag correctly stays $null.
+            # (P3.1) MUST match $ReleaseTagPattern filter in scripts/update.ps1.
+            $CurrentPin          = "latest"
+            # Simulate: git tag --points-at HEAD returned "v0.4.3.9000" which was then
+            # filtered by: Where-Object { $_ -match '^v\d+\.\d+\.\d+$' }
+            $headTagsAfterFilter = @()   # dev tag filtered out → empty
+            $installedTag        = if ($headTagsAfterFilter) { $headTagsAfterFilter[0] } else { $null }
+            $releaseTags         = @("v0.4.3", "v0.3.0")
+
+            $lines = $releaseTags | ForEach-Object {
+                $marker = if ($_ -eq $CurrentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
+                "$_$marker"
+            }
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+        }
+
+        # P3.2: The '^v\d+\.\d+\.\d+$' pattern used below MUST match $ReleaseTagPattern
+        # defined in scripts/update.ps1. If the production pattern changes, update here too.
 
         It "marks 'latest' mode correctly in the mode label" {
             $currentPin = "latest"

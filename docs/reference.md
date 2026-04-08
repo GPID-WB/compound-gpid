@@ -107,9 +107,14 @@ Milestone status is always derived from features (never set directly). Feature `
 | Skill | Contents |
 |-------|---------|
 | `cg-skill-setup` | Project configuration wizard |
-| `cg-skill-r-technical` | **Infrastructure & packages**: `collapse`, `data.table`, `testthat`, roxygen2, `renv`/`pak`, package dev, `plumber`, `shiny`, `targets`, `httr2`. Preference hierarchy: collapse > data.table > tidyverse. |
-| `cg-skill-r-analytical` | **Analysis patterns**: `collapse`, `data.table`, `haven`, `fixest`, `modelsummary`, `ggplot2`+`wbplot`, welfare/poverty measurement. Preference hierarchy: collapse > data.table > tidyverse. |
-| `cg-skill-r-shared` | Shared R references (collapse anti-patterns) used by both analytical and technical skills |
+| `cg-skill-r-collapse` | **collapse statistical computing**: `fmean`/`fsum`/`fmedian`/`fnth` and all Fast Statistical Functions, GRP objects, TRA transformation types, `fwithin`/`fbetween`/`fscale`, `flag`/`fdiff`/`fgrowth`, `collap()`, `fsummarise`/`fmutate`. Dialect-neutral: works on data.table, tibble, and data.frame. |
+| `cg-skill-r-datatable` | **data.table manipulation**: `DT[i,j,by]` syntax, `:=` in-place mutation, `fread`/`fwrite`, joins, `melt`/`dcast` reshaping, `.SD`/`.SDcols`, `fifelse`/`fcase`/`fcoalesce`, keys and indices. |
+| `cg-skill-r-tidyverse` | **tidyverse patterns**: dplyr 1.2+ (`.by`, `join_by`, `across`/`pick`/`reframe`), native pipe `\|>`, `pivot_longer`/`pivot_wider`, `readr` I/O, `stringr`, `purrr`. Load for `r-syntax: "tidyverse"` projects. |
+| `cg-skill-r-visualization` | **ggplot2 + wbplot**: World Bank visualization conventions, `theme_wb()`, `WBCOLORS`, `scale_color_wb_d()`, `scale_fill_wb_c()`, GPID chart types. |
+| `cg-skill-r-analytical` | **Analytical domain patterns**: `haven` (Stata migration), `fixest` (econometrics), `modelsummary` (tables), welfare/poverty measurement, FGT indices, survey analysis. Syntax-neutral — works with any dialect. |
+| `cg-skill-r-technical` | **Infrastructure & packages**: roxygen2, package dev, `plumber` APIs, `shiny`, `targets` pipelines, `httr2` clients, `renv`/`pak`. Syntax-neutral. |
+| `cg-skill-r-shared` | Base R style rules universal to all dialects: `<-` assignment, `snake_case`, `TRUE`/`FALSE`, `rlang`/`cli` error handling. |
+| `cg-skill-r-testing` | testthat 3+ patterns: `test_that()`, `describe()`/`it()`, fixtures, mocking (`local_mocked_bindings()`), snapshots, BDD-style testing. Dialect-aware: data.table examples for collapse/data.table projects, tibble examples for tidyverse projects. |
 | `cg-skill-python-best-practices` | polars, numpy, pytest, type hints, `uv`/`poetry` |
 | `cg-skill-stata-best-practices` | Comprehensive Stata reference: universal coding principles (compound quotes, macro expansion traps, stored results, `subpop()` vs `if`, clustering), data management, econometrics, causal inference, graphics, Mata, reproducibility (`repkit`: `repado`, `reproot`, `reprun`, `repscan`, `lint`), and 21 community packages (`reghdfe`, `estout`, `did`, `rdrobust`, etc.). ALWAYS load when writing or reviewing `.do` or `.ado` files. |
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
@@ -122,6 +127,7 @@ Milestone status is always derived from features (never set directly). Feature `
 
 Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
 - **Language**: R, Python, Stata, or any combination
+- **R syntax dialect** (if R is selected): `data.table-collapse` (default) or `tidyverse`
 - **Project type**: Package, analysis, dashboard, API, tool
 - **Review depth**: Light, standard, or thorough
 - **Project charter** (optional): project name, objective, deliverables, constraints
@@ -129,6 +135,18 @@ Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
 This creates `compound-gpid.local.md` (gitignored, user-specific config) and optionally
 `compound-gpid.md` (committed, shared project charter) in your project root, and scaffolds
 the `.cg-docs/` directory.
+
+### Configuration Fields
+
+All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `language` | `"r"`, `"python"`, `"stata"`, `"both"`, or combination | Language(s) used in the project |
+| `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
+| `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
+| `review-depth` | `"light"`, `"standard"`, `"thorough"` | Depth of `/cg-review` (see Review Depth Tiers in `copilot-instructions.md`) |
+| `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
 ---
 

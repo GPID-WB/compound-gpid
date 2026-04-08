@@ -1,99 +1,21 @@
 # Technical R Anti-Patterns
 
-Common mistakes in technical R development. The team hierarchy is collapse > data.table > tidyverse.
-
----
-
-## Tool Hierarchy Anti-Patterns
-
-### Using base R aggregation when collapse is available
-
-**Problem:** Using `dt[, .(mean = mean(x)), by = g]` with base R's `mean()` instead of `fmean()`. Base R's `mean()` is slower and doesn't support weights natively.
-
-**Wrong:**
-```r
-dt[, .(mean_welf = mean(welfare)), by = region]
-dt[, .(mean_welf = weighted.mean(welfare, weight)), by = region]
-```
-
-**Right:**
-```r
-fmean(dt$welfare, g = dt$region, w = dt$weight)
-# or inside data.table:
-dt[, .(mean_welf = fmean(welfare, w = weight)), by = region]
-```
-
-**Why it matters:** `fmean` is faster (single C call), supports weights as a first-class argument, and has consistent syntax across all collapse functions.
-
----
-
-### Using set_collapse(mask = ...) to hide function names
-
-> See the full pattern in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+Common mistakes in technical R development.
 
 ---
 
 ## data.table Anti-Patterns
 
-### Using ifelse() instead of fifelse()/fcase()
-
-**Problem:** `ifelse()` is slow and coerces types unpredictably (drops Date class).
-
-**Wrong:**
-```r
-dt[, category := ifelse(income > 50000, "high", "low")]
-```
-
-**Right:**
-```r
-dt[, category := fifelse(income > 50000, "high", "low")]
-dt[, category := fcase(
-  income > 100000, "high",
-  income > 50000,  "medium",
-  default = "low"
-)]
-```
-
----
-
-### Using dt$col <- value instead of :=
-
-**Problem:** `$<-` copies the entire data.table. On large data, this causes OOM.
-
-**Wrong:**
-```r
-dt$new_col <- dt$old_col * 2
-```
-
-**Right:**
-```r
-dt[, new_col := old_col * 2]
-```
-
----
-
-### Row-wise for loops
-
-**Problem:** Iterating over rows is O(n) in Python-speed R.
-
-**Wrong:**
-```r
-for (i in 1:nrow(dt)) {
-  dt[i, result := some_function(dt[i, col1], dt[i, col2])]
-}
-```
-
-**Right:**
-```r
-dt[, result := some_function(col1, col2)]  # vectorize
-```
+> **`ifelse()` vs `fifelse()/fcase()`**, **`$<-` vs `:=`**, and row-wise for loop patterns
+> are documented in [`cg-skill-r-datatable/references/datatable-anti-patterns.md`](../../cg-skill-r-datatable/references/datatable-anti-patterns.md)
+> with full examples. The patterns below are specific to technical (package/infrastructure) work.
 
 ---
 
 ## collapse Anti-Patterns
 
-> **Shared collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in [`cg-skill-r-shared/references/collapse-anti-patterns.md`](../../cg-skill-r-shared/references/collapse-anti-patterns.md).
+> **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
+> are in [`cg-skill-r-collapse/references/collapse-anti-patterns.md`](../../cg-skill-r-collapse/references/collapse-anti-patterns.md).
 > The patterns below are specific to technical work.
 
 ### Aggregate-then-merge instead of using TRA

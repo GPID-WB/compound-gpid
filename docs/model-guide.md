@@ -114,7 +114,7 @@ Approximate relative cost ratios. Exact pricing changes; use these only for orde
 | Claude Sonnet 4.6 | ~5× | Implementation, multi-agent orchestration, reasoning-heavy reviews |
 | Claude Opus 4.6 | ~25× | Strategic thinking, complex architecture, creative problem-solving at depth |
 
-For current Claude pricing, see [Anthropic pricing](https://www.anthropic.com/pricing/claude).
+For current Claude pricing, see [Anthropic pricing](https://www.anthropic.com/pricing).
 
 **Practical implication**: A full `/cg-review standard` run dispatches 8 agents. With 5 on Haiku
 and 3 on Sonnet, the blended cost is far lower than if all 8 were on Sonnet. This is the primary

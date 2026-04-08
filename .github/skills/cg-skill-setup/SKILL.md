@@ -60,6 +60,12 @@ Check if `compound-gpid.local.md` already exists in the project root.
 > 5. **All** (R, Python, and Stata)
 > 6. **Other** (specify)
 
+**Question 1b (only if R is selected): R Syntax Dialect**
+
+> What R syntax style do you prefer for this project?
+> 1. **data.table + collapse** — fast data manipulation and statistics; standard for GPID team. *(default, recommended)*
+> 2. **tidyverse** — dplyr/tidyr verbs throughout; use when external coauthors need to read the code. Note: collapse is still used for weighted grouped statistics since there is no native tidyverse equivalent.
+
 **Question 2: Project Type**
 
 > What type of project is this?
@@ -84,6 +90,7 @@ Create `compound-gpid.local.md` in the project root with the following format:
 ```markdown
 ---
 language: "<r|python|stata|both|all|other>"
+r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"
