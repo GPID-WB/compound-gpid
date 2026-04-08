@@ -631,12 +631,12 @@ Describe "/cg-resume scope health" {
 }
 
 Describe "Structural validation" {
-    It "only @cg-roadmap has user-invokable: true" {
+    It "only @cg-roadmap has user-invocable: true" {
         $agentFiles = Get-ChildItem -Path ".github\agents\*.agent.md" -ErrorAction SilentlyContinue
         @($agentFiles).Count | Should BeGreaterThan 0
 
         $invokable = $agentFiles | Where-Object {
-            (Get-Content $_.FullName -Raw) -match 'user-invokable:\s*true'
+            (Get-Content $_.FullName -Raw) -match 'user-invocable:\s*true'
         }
         $invokable.Count | Should Be 1
         $invokable[0].Name | Should Be "cg-roadmap.agent.md"

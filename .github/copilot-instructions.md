@@ -69,6 +69,8 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Apply review findings | `/cg-fix-triage` |
 | Capture a solution | `/cg-compound` |
 
+> **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
+
 ## Coding Standards
 
 ### General

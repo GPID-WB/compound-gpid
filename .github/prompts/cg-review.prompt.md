@@ -1,11 +1,14 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
-agents: ['cg-code-quality', 'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility', 'cg-performance', 'cg-architecture', 'cg-data-quality', 'cg-learnings-researcher']
 ---
 
-<!-- When adding or removing review agents, update the `agents` list in the
-     YAML frontmatter above to match. -->
+<!-- Review agents dispatched by this prompt (update this list when adding/removing agents):
+     cg-code-quality, cg-testing, cg-documentation, cg-version-control,
+     cg-reproducibility, cg-performance, cg-architecture, cg-data-quality,
+     cg-learnings-researcher
+     Note: the 'agents:' frontmatter key is only functional in .agent.md files,
+     not in .prompt.md files — keep this list here as documentation only. -->
 
 # Review
 

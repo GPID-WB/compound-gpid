@@ -22,7 +22,7 @@ severity: "P2"                      # P0 | P1 | P2 | P3
 |-------|------|--------|
 | `date` | Date | `YYYY-MM-DD` |
 | `title` | String | Descriptive, specific |
-| `category` | String | `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows` |
+| `category` | String | `bugs`, `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows` |
 | `language` | String | `R`, `Python`, `both` |
 | `tags` | Array | 3-5 searchable keywords |
 | `root-cause` | String | One-sentence summary |

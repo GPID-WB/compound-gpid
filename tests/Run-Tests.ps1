@@ -90,6 +90,17 @@ if ($failedNames.Count -gt 0) {
     Write-Host "  Run the command above to see the full failure details." -ForegroundColor DarkGray
 }
 
+# Warn about test files not in $testNames (P2.5: prevents silent omissions)
+$allTestFiles = Get-ChildItem -Path (Join-Path $repoRoot "tests") -Filter "*.Tests.ps1" -File
+$undeclared = $allTestFiles | Where-Object { $testNames -notcontains ($_.BaseName -replace '\.Tests$', '') }
+if ($undeclared.Count -gt 0) {
+    Write-Host ""
+    Write-Host "  WARNING: undeclared test files (not in `$testNames):" -ForegroundColor Yellow
+    foreach ($f in $undeclared) {
+        Write-Host "    $($f.Name) — add to `$testNames in Run-Tests.ps1 to include in suite" -ForegroundColor Yellow
+    }
+}
+
 Write-Host "==================================" -ForegroundColor $summaryColor
 Write-Host ""
 

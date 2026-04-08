@@ -279,6 +279,10 @@ Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
     It "reports Previously resolved count in summary template" {
         ($content -match 'Previously resolved') | Should Be $true
     }
+
+    It "Step 3 apply order lists P0 first before P1" {
+        ($content -match 'P0 first') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -619,6 +623,10 @@ Describe "docs/reference.md - R skills and r-syntax config" {
     It "documents data.table-collapse dialect in config table" {
         ($content -match 'data\.table-collapse') | Should Be $true
     }
+
+    It "contains Priority Levels table with P0 BLOCKING entry" {
+        ($content -match 'P0.*BLOCKING') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -671,3 +679,189 @@ Describe "R dialect skills - reference files exist" {
 
 # Model assignment tests have been extracted to tests/model-assignments.Tests.ps1.
 # Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal
+
+# ---------------------------------------------------------------------------
+# P1.2 — agent files must declare a tools: restriction (read-only enforcement)
+# cg-roadmap uses ['read','write']; all others must NOT include 'write'.
+# ---------------------------------------------------------------------------
+
+Describe "Agent files - tools restriction enforcement" {
+    $agentsDir = Join-Path $repoRoot ".github\agents"
+    $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
+
+    foreach ($file in $agentFiles) {
+        $filePath  = $file.FullName
+        $relPath   = $file.Name
+        $fm        = Get-Frontmatter -FilePath $filePath
+
+        It "$relPath has a tools: key in frontmatter" {
+            ($fm -match 'tools:') | Should Be $true
+        }
+    }
+
+    # Review-only agents must not include the 'write' tool
+    $reviewAgents = $agentFiles | Where-Object { $_.Name -ne 'cg-roadmap.agent.md' }
+
+    foreach ($file in $reviewAgents) {
+        $filePath = $file.FullName
+        $relPath  = $file.Name
+        $fm       = Get-Frontmatter -FilePath $filePath
+        $tools    = Get-ToolsList -Frontmatter $fm
+
+        It "$relPath does not include 'write' in its tools list (read-only reviewer)" {
+            ($tools -contains 'write') | Should Be $false
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.2 — cg-compound.prompt.md structural tests
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-compound.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
+
+Describe "cg-compound.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "orchestrator must have unrestricted tools" {
+        It "does not have a tools: key (write access required for saving solution files)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+Describe "cg-compound.prompt.md - severity field includes P0" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "severity field template includes P0 option" {
+        ($content -match '<P0\|P1\|P2\|P3>') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.3 — orchestrating prompts must not have tools: restrictions
+# cg-work, cg-brainstorm, cg-plan
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+Describe "cg-brainstorm.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+Describe "cg-plan.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.4 — agent files must have substantive body content (not just frontmatter)
+# ---------------------------------------------------------------------------
+
+Describe "Agent files - non-trivial body content" {
+    $agentsDir = Join-Path $repoRoot ".github\agents"
+    $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
+
+    foreach ($file in $agentFiles) {
+        $filePath = $file.FullName
+        $relPath  = $file.Name
+        $raw      = Get-Content $filePath -Raw -Encoding UTF8
+
+        # Strip frontmatter (everything between the first two --- delimiters)
+        $body = $raw -replace '(?s)^---.*?---\s*', ''
+
+        It "$relPath has substantive body content (body > 100 chars)" {
+            $body.Trim().Length | Should BeGreaterThan 100
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.2 — Get-Frontmatter helper negative-case tests
+# ---------------------------------------------------------------------------
+
+Describe "Get-Frontmatter helper - edge cases" {
+    # Create temp files in the system temp directory for isolation
+    $tmpNoFm   = [System.IO.Path]::GetTempFileName() + ".md"
+    $tmpPartFm = [System.IO.Path]::GetTempFileName() + ".md"
+
+    # File with no frontmatter at all
+    "# Just a heading`n`nSome content." | Set-Content $tmpNoFm -Encoding UTF8
+
+    # File with an opening --- but no closing ---
+    "---`ndescription: orphan`n# Heading" | Set-Content $tmpPartFm -Encoding UTF8
+
+    It "returns empty string when the file has no frontmatter" {
+        $result = Get-Frontmatter -FilePath $tmpNoFm
+        $result | Should BeNullOrEmpty
+    }
+
+    It "returns empty string when the frontmatter is unclosed (missing closing ---)" {
+        $result = Get-Frontmatter -FilePath $tmpPartFm
+        $result | Should BeNullOrEmpty
+    }
+
+    # Clean up temp files
+    Remove-Item $tmpNoFm  -ErrorAction SilentlyContinue
+    Remove-Item $tmpPartFm -ErrorAction SilentlyContinue
+}
