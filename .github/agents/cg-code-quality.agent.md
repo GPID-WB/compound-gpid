@@ -51,9 +51,11 @@ For each file under review:
 
 For each finding:
 ```
-**[P1|P2|P3]** `file:line` — <brief description>
+**[P0|P1|P2|P3]** `file:line` — <brief description>
 **Issue**: <what's wrong>
 **Fix**: <suggested correction>
 ```
 
 Focus on actionable, specific findings. Avoid generic advice.
+
+P0 = exploitable security vulnerability, silent data corruption, incorrect statistical results, or PII exposure.

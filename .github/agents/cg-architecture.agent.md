@@ -97,8 +97,10 @@ You are an architecture reviewer for R, Python, and Stata data science projects.
 
 For each finding:
 ```
-**[P1|P2|P3]** `file` — <brief description>
+**[P0|P1|P2|P3]** `file` — <brief description>
 **Issue**: <what's wrong with the structure>
 **Impact**: <how this affects maintainability>
 **Fix**: <suggested restructuring>
 ```
+
+P0 = exploitable security vulnerability, silent data corruption, incorrect statistical results, or PII exposure.

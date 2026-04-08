@@ -46,7 +46,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify, document |
-| `/cg-review` | Mixed | Multi-agent code review with P1/P2/P3 findings |
+| `/cg-review` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings |
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files. |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |

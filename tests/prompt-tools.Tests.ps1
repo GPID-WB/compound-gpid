@@ -56,8 +56,8 @@ Describe "cg-review.prompt.md - review file output step" {
         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
     }
 
-    It "uses compound finding IDs like [P1.1], [P2.1], [P3.1] in the output template" {
-        ($content -match '\*\*\[P[123]\.\d+\]\*\*') | Should Be $true
+    It "uses compound finding IDs like [P0.1], [P1.1], [P2.1], [P3.1] in the output template" {
+        ($content -match '\*\*\[P[0123]\.\d+\]\*\*') | Should Be $true
     }
 
     It "includes /cg-fix-triage usage instruction with a compound ID example" {
@@ -241,6 +241,7 @@ Describe "cg-review.prompt.md - review findings frontmatter" {
     }
 
     It "documents the finding ID parsing patterns in Step 3.5" {
+        ($content -match [regex]::Escape('**[P0.')) -and
         ($content -match [regex]::Escape('**[P1.')) -and
         ($content -match [regex]::Escape('**[P2.')) -and
         ($content -match [regex]::Escape('**[P3.')) | Should Be $true

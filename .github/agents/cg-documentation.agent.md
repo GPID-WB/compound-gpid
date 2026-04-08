@@ -50,7 +50,9 @@ You are a documentation reviewer for R, Python, and Stata data science projects.
 
 For each finding:
 ```
-**[P1|P2|P3]** `file:line` — <brief description>
+**[P0|P1|P2|P3]** `file:line` — <brief description>
 **Issue**: <what's missing or incorrect>
 **Fix**: <suggested documentation>
 ```
+
+P0 = exploitable security vulnerability, silent data corruption, incorrect statistical results, or PII exposure.

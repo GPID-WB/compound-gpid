@@ -63,10 +63,13 @@ You are a data quality reviewer for R, Python, and Stata data science projects.
 
 For each finding:
 ```
-**[P1|P2|P3]** `file:line` — <brief description>
+**[P0|P1|P2|P3]** `file:line` — <brief description>
 **Issue**: <what data quality risk exists>
 **Impact**: <what could go wrong: silent errors, wrong results, crashes>
 **Fix**: <suggested validation or handling>
 ```
 
-Silent data corruption is ALWAYS P1.
+Silent data corruption is ALWAYS P0.
+Unvalidated inputs causing incorrect statistical results are ALWAYS P0.
+
+P0 = exploitable security vulnerability, silent data corruption, incorrect statistical results, or PII exposure.

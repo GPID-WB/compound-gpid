@@ -73,7 +73,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After implementing changes.
 
-**What happens**: The prompt dispatches specialized agents based on your configured review depth, collects their findings, and presents them prioritized as P1 (critical), P2 (important), P3 (minor). Each finding gets a compound ID (e.g., `P1.1`, `P2.3`) for selective fixing later. The full report is saved to `.cg-docs/reviews/`.
+**What happens**: The prompt dispatches specialized agents based on your configured review depth, collects their findings, and presents them prioritized as P0 (blocking), P1 (critical), P2 (important), P3 (minor). Each finding gets a compound ID (e.g., `P0.1`, `P1.1`, `P2.3`) for selective fixing later. The full report is saved to `.cg-docs/reviews/`.
 
 | Tier | Agents run | Use when |
 |------|-----------|---------|

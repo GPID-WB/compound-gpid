@@ -1,5 +1,5 @@
 ---
-description: "Run multi-agent code review on recent changes. Produces prioritized P1/P2/P3 findings."
+description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
 agents: ['cg-code-quality', 'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility', 'cg-performance', 'cg-architecture', 'cg-data-quality', 'cg-learnings-researcher']
 ---
@@ -100,6 +100,11 @@ Merge all agent findings into a single prioritized report:
 **Files reviewed**: <count>
 **Findings**: <count by priority>
 
+### P0 — BLOCKING (immediate remediation required)
+- **[P0.1]** [agent-name] <file>:<line> — <finding>
+  **Why**: <explanation>
+  **Fix**: <suggested fix>
+
 ### P1 — CRITICAL (must fix before merge)
 - **[P1.1]** [agent-name] <file>:<line> — <finding>
   **Why**: <explanation>
@@ -127,7 +132,7 @@ Before presenting findings to the user, save the full report to disk so it can b
 
 1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`), and set `plan: null`.
 2. Derive the review filename: take the plan filename stem (without extension), append `-review`, and place the file in `.cg-docs/reviews/`. Example: plan `2026-03-26-roadmap-json.md` → review `2026-03-26-roadmap-json-review.md`.
-3. Parse every finding ID from the Step 3 report using the pattern `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P1.1`, `P2.3`). Build a YAML `findings:` map with each ID set to `open`. The valid finding statuses are `open`, `fixed`, and `skipped`.
+3. Parse every finding ID from the Step 3 report using the pattern `**[P0.`, `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P0.1`, `P1.1`, `P2.3`). Build a YAML `findings:` map with each ID set to `open`. The valid finding statuses are `open`, `fixed`, and `skipped`.
 4. Prepend YAML frontmatter to the review file content before the markdown body:
    ```yaml
    ---
@@ -143,7 +148,7 @@ Before presenting findings to the user, save the full report to disk so it can b
 
 ### Step 4: Triage
 
-Present findings to the user one at a time, starting with P1:
+Present findings to the user one at a time, starting with P0, then P1:
 
 For each finding, ask:
 - **Fix**: Apply the suggested fix
