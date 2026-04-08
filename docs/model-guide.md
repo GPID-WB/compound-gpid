@@ -22,7 +22,7 @@ and approximate token cost reference.
 | `cg-brainstorm.prompt.md` | Claude Opus 4.6 | Guided Q&A to clarify fuzzy requirements with pushback | Reasoning 4, creativity 4, multi-round dialogue — borderline Opus/Sonnet; kept Opus pending empirical test | borderline-pending |
 | `cg-plan.prompt.md` | Claude Opus 4.6 | Deep codebase research + structured implementation plan | Reasoning 4, precision 4, multi-step orchestration — borderline Opus/Sonnet; kept Opus pending empirical test | borderline-pending |
 | `cg-work.prompt.md` | Claude Sonnet 4.6 | Step-by-step implementation from a plan | Precision 5, tool use 5, reasoning 3 — Sonnet sufficient | confirmed |
-| `cg-review.prompt.md` | Claude Sonnet 4.6 | Multi-agent review orchestrator (dispatches 9 agents) | Orchestration 5, precision 5 — must coordinate subagents reliably | confirmed |
+| `cg-review.prompt.md` | Claude Sonnet 4.6 | Multi-agent review orchestrator (dispatches up to 10 agents: 8 standard + 2 thorough-only) | Orchestration 5, precision 5 — must coordinate subagents reliably | confirmed |
 | `cg-fixbug.prompt.md` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify | Reasoning 4, precision 5 — test-driven diagnosis needs Sonnet | confirmed |
 | `cg-release.prompt.md` | Claude Sonnet 4.6 | Create GitHub Release with curated notes (developer-only) | Reasoning 4, creativity 4, multi-step — Sonnet appropriate | confirmed |
 | `cg-compound.prompt.md` | Claude Sonnet 4.6 | Capture solved problems as reusable knowledge | Creativity 4 for generalisation — Haiku risks shallow lessons | confirmed |

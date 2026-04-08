@@ -86,9 +86,27 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 
----
+### Per-Finding Status Tracking
 
-## Priority Levels
+Review reports saved to `.cg-docs/reviews/` include YAML frontmatter that tracks each finding's status:
+
+```yaml
+---
+plan: .cg-docs/plans/2026-04-01-my-feature.md
+findings:
+  P0.1: open
+  P1.1: fixed
+  P2.1: skipped
+---
+```
+
+| Status | Meaning |
+|--------|---------|
+| `open` | Not yet addressed — will appear in the next `/cg-fix-triage` run |
+| `fixed` | Applied by `/cg-fix-triage`; excluded from future sessions |
+| `skipped` | Deliberately deferred; `/cg-resume` still counts them as pending |
+
+> **Legacy review files** (from before v0.4.3) do not have the `findings:` key. Run `/cg-fix-triage --migrate` once to backfill status tracking on all legacy files.
 
 Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing.
 

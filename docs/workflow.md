@@ -89,7 +89,9 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 |------|-----------|---------|
 | **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, small changes |
 | **Standard** | All 8 agents | Default for most work |
-| **Thorough** | All 8 + `cg-learnings-researcher` | Major features, refactors |
+| **Thorough** | All 8 + `cg-learnings-researcher` + `cg-adversarial` | Major features, refactors |
+
+Review reports are saved with per-finding status tracking in YAML frontmatter. Each finding ID (e.g., `P1.2`) is recorded as `open`, `fixed`, or `skipped`. `/cg-resume` shows a summary of open findings across all review files — so unresolved P1s are never lost between sessions.
 
 **Output**: `.cg-docs/reviews/<plan-stem>-review.md`
 
@@ -103,12 +105,15 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 | Invocation | Effect |
 |-----------|--------|
-| `/cg-fix-triage` | Fix all findings |
+| `/cg-fix-triage` | Fix all open findings |
 | `/cg-fix-triage P1` | Fix all P1 (critical) findings |
 | `/cg-fix-triage P1 P3` | Fix all P1 and P3 findings |
 | `/cg-fix-triage P1.2 P2.1` | Fix only those specific findings |
+| `/cg-fix-triage --migrate` | Backfill per-finding status tracking on legacy review files (from before v0.4.3) |
 
-**Output**: Applied code fixes + summary of what was fixed, skipped, and remaining.
+Each finding you fix is tracked in the review file's frontmatter (`open` → `fixed`). If you decline a finding it becomes `skipped`. Previously resolved findings are counted but not re-shown in future sessions.
+
+**Output**: Applied code fixes + updated review frontmatter + summary of what was fixed, skipped, and remaining.
 
 ---
 
@@ -126,7 +131,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: Periodically (e.g., monthly) or after major refactoring to keep the knowledge base current.
 
-**What happens**: Audits all solution documents in `.cg-docs/solutions/` across 7 categories. Detects drift (file paths moved, APIs changed, dependencies updated, solutions outdated) and classifies each as Keep / Update / Consolidate / Replace / Delete. Presents an interactive audit report and applies approved changes. Archived solutions go to `.cg-docs/archive/`.
+**What happens**: Audits all solution documents in `.cg-docs/solutions/` across 7 categories. Detects drift (file paths moved, APIs changed, dependencies updated, solutions outdated) and classifies each as Keep / Update / Consolidate / Replace / Archive. Presents an interactive audit report and applies approved changes. You can also Skip any entry to defer it for later. Solutions that no longer apply are moved to `.cg-docs/archive/` (never hard-deleted).
 
 **Output**: Updated solution files in `.cg-docs/solutions/`; deprecated solutions archived to `.cg-docs/archive/`.
 
