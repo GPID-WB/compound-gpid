@@ -47,21 +47,24 @@ This file contains either the string `latest` or a tag name such as `v0.2.0`. It
 cg-update --list
 ```
 
-Fetches the latest tag metadata from GitHub and prints a table of all available releases, newest first. Your current preference is marked with `<-- current`.
+Fetches the latest tag metadata from GitHub and prints a table of all available releases, newest first. Your installed version is marked with `<-- current`.
 
-**Example output:**
+**Example output (pinned to v0.2.0):**
 ```
 Fetching available releases...
 
-Available releases (newest first):
+Available releases:
   v0.3.0
   v0.2.0  <-- current
   v0.1.0
 
-Mode: pinned (v0.2.0)
+Current: v0.2.0 (pinned)
+
+  cg-update <version>  -- pin to a specific release
+  cg-update latest     -- unpin and track main
 ```
 
-If you are tracking `main`, the mode line reads `Mode: tracking main (latest)` and no tag is marked as current.
+When tracking `main`, the label reads `Current: main (latest)`. If your local HEAD points to a release tag (e.g. you just ran `cg-update latest` on a clean checkout), that tag is still marked with `<-- current`. If HEAD is between releases (e.g. on a newer unreleased commit), no tag is marked.
 
 > **Offline use**: if the network is unavailable, `--list` shows cached tag data from your last successful fetch and displays a warning.
 
