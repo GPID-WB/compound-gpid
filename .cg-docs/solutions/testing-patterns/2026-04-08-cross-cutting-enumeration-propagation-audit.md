@@ -162,3 +162,4 @@ it leverages agents that read the actual file contents.
 - [Prompt pipeline contract testing](2026-03-30-prompt-pipeline-contract-testing.md) — interface contracts between chained prompts (cg-review → cg-fix-triage)
 - [Four Pester test quality patterns](2026-04-07-pester-test-quality-patterns.md) — regression test design for prompt validation
 - [Do-not-delegate file write guardrail](2026-03-30-do-not-delegate-file-write-guardrail.md) — related pipeline trust boundary pattern
+- [New prompt/agent addition checklist](2026-04-08-new-prompt-agent-addition-checklist.md) — related: the 7-file checklist when adding a new prompt or agent
