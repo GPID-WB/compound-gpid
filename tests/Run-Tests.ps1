@@ -44,7 +44,7 @@ $failedNames = @()
 $skippedNames = @()
 
 Write-Host ""
-Write-Host "Compound GPID — Pester test suite" -ForegroundColor Cyan
+Write-Host "Compound GPID - Pester test suite" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 
 foreach ($name in $testNames) {
