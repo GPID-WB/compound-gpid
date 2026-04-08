@@ -71,7 +71,7 @@ For each agent, provide:
 
 After each subagent returns its findings, check whether the output is **usable**:
 
-- **Presence**: Contains at least one `**[P1.`/`**[P2.`/`**[P3.` entry, OR an explicit "no issues found" statement.
+- **Presence**: Contains at least one `**[P0.`/`**[P1.`/`**[P2.`/`**[P3.` entry, OR an explicit "no issues found" statement.
 - **Context**: Findings reference the changed files by name (not just generic advice).
 - **Volume**: Non-header output is at least 2 lines. Fewer than 2 lines of non-header output counts as incomplete.
 
@@ -138,6 +138,7 @@ Before presenting findings to the user, save the full report to disk so it can b
    ---
    plan: <path to active plan file, or null>
    findings:
+     P0.1: open
      P1.1: open
      P2.1: open
      P2.2: open

@@ -52,7 +52,7 @@ You are a senior developer applying fixes from a previously saved review report.
 Parse the user's arguments to decide which findings to fix:
 
 - **No arguments**: Fix all findings in the review report.
-- **Priority levels** (e.g., `P1`, `P2`, `P3`): Fix all findings at the
+- **Priority levels** (e.g., `P0`, `P1`, `P2`, `P3`): Fix all findings at the
   specified priority levels. Example: `/cg-fix-triage P1 P3` fixes all P1
   and all P3 findings.
 - **Individual IDs** (e.g., `P1.2`, `P2.1`): Fix only the specified findings.
@@ -64,7 +64,7 @@ Tell the user which findings are in scope:
 
 ### Step 3: Apply Fixes
 
-For each in-scope finding, in order (P1 first, then P2, then P3):
+For each in-scope finding, in order (P0 first, then P1, then P2, then P3):
 
 1. Show the finding: ID, agent name, file, line, description, and suggested fix.
 2. Apply the suggested fix.

@@ -28,7 +28,7 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 - Fail loudly, never silently — explicit errors or warnings for missing data, null weights, missing artifacts; no silent fallbacks
 - Conventional commits and feature branches — `type(scope): description` format required; work on branches, not main
 - Every function gets documentation — roxygen2 for R, docstrings for Python, header blocks for Stata `.ado` files; parameters, return values, at least one example
-- Respect review priority system — P1 (security, data corruption, incorrect results) blocks merge; P2 (performance, tests, docs) should be fixed; P3 is advisory
+- Respect review priority system — P0 blocks everything (security, PII, data corruption, incorrect published output); P1 blocks merge (correctness, validation); P2 should be fixed (performance, tests, docs); P3 is advisory
 
 ## Current Focus
 

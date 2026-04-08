@@ -83,6 +83,21 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 
+---
+
+## Priority Levels
+
+Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing.
+
+| Level | Label | Meaning | Action |
+|-------|-------|---------|--------|
+| **P0** | BLOCKING | Exploitable security vulnerability, PII/credential exposure, silent data corruption, incorrect statistical results | Immediate remediation required — must fix before anything else |
+| **P1** | CRITICAL | Bugs causing incorrect behavior, missing critical validation, error handling gaps | Must fix before merge |
+| **P2** | IMPORTANT | Performance problems, missing tests, poor documentation | Should fix |
+| **P3** | MINOR | Style improvements, minor refactors, suggestions | Nice to have |
+
+> Use `/cg-fix-triage P0` to fix all blocking findings, `/cg-fix-triage P0 P1` to fix blocking and critical, or `/cg-fix-triage P1.2 P2.3` to fix specific IDs.
+
 ## Roadmap Agent
 
 | Agent | Focus | Model | User-invokable |

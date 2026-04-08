@@ -123,7 +123,7 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 ## Priority System for Review Findings
 
-- **P0 — BLOCKING**: Immediate remediation required. Exploitable security vulnerability, PII/credential exposure, silent data corruption, incorrect statistical results affecting published outputs.
+- **P0 — BLOCKING**: Immediate remediation required. Exploitable security vulnerability, PII/credential exposure, silent data corruption, incorrect statistical results.
 - **P1 — CRITICAL**: Must fix before merge. Bugs causing incorrect behavior, missing critical validation, error handling gaps.
 - **P2 — IMPORTANT**: Should fix. Performance problems, missing tests, poor documentation.
 - **P3 — MINOR**: Nice to have. Style improvements, minor refactors, suggestions.
