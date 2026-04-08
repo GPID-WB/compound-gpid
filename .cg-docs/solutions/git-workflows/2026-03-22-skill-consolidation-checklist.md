@@ -89,3 +89,4 @@ sub-files. The routing table should reference sub-files; it should not duplicate
 - `.cg-docs/solutions/bugs/2026-03-19-copilot-hallucinates-stata-label-functions.md` — updated cross-refs
 - `.cg-docs/solutions/bugs/2026-03-19-fragile-matrix-indexing-regression-results-stata.md` — updated cross-refs
 - `docs/reference.md` — the canonical skill registry
+- `.cg-docs/solutions/bugs/2026-04-08-hardcoded-r-hierarchy-in-agent-files-bypasses-dialect-config.md` — related: same "audit the whole hierarchy" principle applied to agent files during a dialect config migration
