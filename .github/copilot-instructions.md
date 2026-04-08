@@ -123,7 +123,7 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 - **light**: Runs `cg-code-quality` + `cg-testing` agents only. Use for quick fixes and small changes.
 - **standard**: Runs all 8 review agents. Default for most work.
-- **thorough**: Runs all 8 review agents + `cg-learnings-researcher` to cross-reference past solutions. Use for major features and refactors.
+- **thorough**: Runs all 8 review agents + `cg-learnings-researcher` to cross-reference past solutions and `cg-adversarial` for adversarial edge-case analysis. Use for major features and refactors.
 
 ## Priority System for Review Findings
 

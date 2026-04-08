@@ -76,7 +76,7 @@ describe("foofy()", {
 
 **Key insight:** "Use `describe()` to verify you implement the right things; use `test_that()` to ensure you do things right."
 
-See [references/bdd.md](references/bdd.md) for nesting, test-first workflow, and mixing both styles.
+Read `references/bdd.md` in this directory for nesting, test-first workflow, and mixing both styles.
 
 ## Running Tests
 

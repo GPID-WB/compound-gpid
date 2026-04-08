@@ -90,7 +90,7 @@ Present the audit as a structured table:
 |---|------|----------|-----|----------------|------------|-------|
 | 1 | `<filename>` | bugs | 45d | Keep | — | Current |
 | 2 | `<filename>` | testing-patterns | 120d | Update | File paths | `src/old.R` → `R/new.R` |
-| 3 | `<filename>` | performance-issues | 200d | Delete | Conceptual | Feature removed |
+| 3 | `<filename>` | performance-issues | 200d | Archive | Conceptual | Feature removed |
 ```
 
 ### Step 5: Interactive Resolution
@@ -139,4 +139,4 @@ Knowledge base audit complete. Re-run `/cg-compound-refresh` when ready to act.
 - Never hard-delete a solution file. Always archive to `.cg-docs/archive/`.
 - When consolidating, preserve all unique information from both sources.
 - Do not modify code files, prompts, agents, or skills — only `.cg-docs/solutions/` and `.cg-docs/archive/`.
-- If unsure whether to Delete vs. Replace, default to Replace with the current approach.
+- If unsure whether to Archive vs. Replace, default to Replace with the current approach.

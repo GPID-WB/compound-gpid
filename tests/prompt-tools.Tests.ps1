@@ -210,6 +210,14 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "references /cg-compound in Workflow Entry Points" {
         ($section -match '/cg-compound') | Should Be $true
     }
+
+    It "references /cg-compound-refresh in Workflow Entry Points" {
+        ($section -match '/cg-compound-refresh') | Should Be $true
+    }
+
+    It "references /cg-ideate in Workflow Entry Points" {
+        ($section -match '/cg-ideate') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -453,9 +461,32 @@ Describe "cg-review.prompt.md - subagent output quality check" {
 }
 
 # ---------------------------------------------------------------------------
-# cg-compound-refresh.prompt.md - no tool restriction
+# cg-compound-refresh.prompt.md - file existence, frontmatter, and no tool restriction
 # (Orchestrating prompts must not have a tools: whitelist -- it strips write access)
 # ---------------------------------------------------------------------------
+
+Describe "cg-compound-refresh.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-compound-refresh.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
 
 Describe "cg-compound-refresh.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
@@ -464,15 +495,38 @@ Describe "cg-compound-refresh.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
         }
     }
 }
 
 # ---------------------------------------------------------------------------
-# cg-ideate.prompt.md - no tool restriction
+# cg-ideate.prompt.md - file existence, frontmatter, and no tool restriction
 # (Orchestrating prompts must not have a tools: whitelist -- it strips write access)
 # ---------------------------------------------------------------------------
+
+Describe "cg-ideate.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-ideate.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
 
 Describe "cg-ideate.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
@@ -481,7 +535,7 @@ Describe "cg-ideate.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
         }
     }
 }
