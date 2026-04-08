@@ -49,6 +49,8 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-review` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings |
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files. |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
+| `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities |
+| `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |
 
 > **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 22 prompt and agent files.
@@ -78,6 +80,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
+| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (thorough only) | Sonnet 4.6 |
 
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 

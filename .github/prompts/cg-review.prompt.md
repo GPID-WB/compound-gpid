@@ -6,7 +6,7 @@ model: Claude Sonnet 4.6 (copilot)
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):
      cg-code-quality, cg-testing, cg-documentation, cg-version-control,
      cg-reproducibility, cg-performance, cg-architecture, cg-data-quality,
-     cg-learnings-researcher
+     cg-learnings-researcher, cg-adversarial
      Note: the 'agents:' frontmatter key is only functional in .agent.md files,
      not in .prompt.md files — keep this list here as documentation only. -->
 
@@ -52,6 +52,7 @@ Based on review depth, invoke the appropriate agents on the changed files:
 **Thorough** (major features, refactors):
 - All 8 agents from `standard`
 - `@cg-learnings-researcher` — Cross-references `.cg-docs/solutions/` and `.cg-docs/brainstorms/` for relevant past learnings
+- `@cg-adversarial` — Actively tries to break the code: edge cases, data corruption vectors, security vulnerabilities
 
 For each agent, provide:
 - The list of changed files

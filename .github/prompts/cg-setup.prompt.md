@@ -74,28 +74,7 @@ Ask each question and wait for the answer before asking the next.
 
 #### A3. Create `compound-gpid.local.md`
 
-Write the config file to the project root:
-
-```markdown
----
-language: "<r|python|stata|both|all|other>"
-project-type: "<package|analysis|dashboard|api|tool|other>"
-review-depth: "<light|standard|thorough>"
-created: "YYYY-MM-DD"
-cg-schema-version: ""
----
-
-# Compound GPID — Project Config
-
-This file configures Compound GPID for this project. It is gitignored and local to your machine.
-
-## Language: <language>
-## Project Type: <project-type>
-## Review Depth: <review-depth>
-
-## Notes
-<Any additional project-specific notes the user mentioned>
-```
+Write the config file to the project root using the **compound-gpid.local.md Template** from `docs/setup-templates.md`.
 
 #### A3.5. Create project charter (`compound-gpid.md`)
 
@@ -142,60 +121,7 @@ Ask each question and wait for the answer before asking the next.
 > reproducibility requirements, data privacy rules, methodological
 > standards). You can skip this and add them later.
 
-Write `compound-gpid.md` in the project root using the template below,
-filling in the user's answers. Use HTML comments as placeholders for unfilled
-sections (they are visible when editing but do not render in Markdown previews):
-
-- Team (Q4.5 skipped): use `"DECDG / GPID -- World Bank"` (default)
-- Objective (Q5 skipped): `<!-- TODO: Describe what this project is building and who it is for. -->`
-- Key Deliverables (Q6 skipped): `<!-- TODO: List concrete outputs, e.g. R package, REST API, harmonized dataset. -->`
-- Constraints (Q7 skipped): `<!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->`
-- Current Focus: `<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->`
-
-When the user provides answers (not skipped), format them as follows:
-
-- **Objective** (Q5): Place the user's text as 1-3 sentences of prose.
-- **Key Deliverables** (Q6): Format as a bulleted Markdown list (`- item`), one deliverable per bullet.
-- **Constraints** (Q7): Format as a bulleted Markdown list (`- constraint`), one constraint per bullet.
-
-Do not embellish, rewrite, or add items the user did not mention. Use the user's
-wording directly, only correcting obvious typos or grammar.
-
-Set `last-reviewed` to today's date (the date the charter is created).
-
-When filling in YAML string fields, escape any `"` characters as `\"`, or wrap values containing double quotes in single quotes.
-
-```markdown
----
-project-name: "<name>"
-team: "<team-name>"
-created: "YYYY-MM-DD"
-last-reviewed: "YYYY-MM-DD"
----
-
-# <Project Name>
-
-## Objective
-
-<!-- TODO: Describe what this project is building and who it is for. -->
-
-## Key Deliverables
-
-<!-- TODO: List concrete outputs, e.g. R package, REST API, harmonized dataset. -->
-
-## Constraints
-
-<!-- TODO: Add hard constraints, e.g. reproducibility requirements, data privacy rules. -->
-
-## Current Focus
-
-<!-- TODO: What is the team working on right now? 1-2 sentences. Update whenever priorities shift. -->
-```
-
-> These are the only four sections. If content doesn't fit one of them,
-> it belongs elsewhere -- architecture notes go in `copilot-instructions.md`
-> or a skill file; historical decisions go in `.cg-docs/brainstorms/`;
-> removed content goes in `.cg-docs/archive/charter-history.md`.
+Write `compound-gpid.md` in the project root. Read `docs/setup-templates.md` for the **compound-gpid.md Charter Template**, placeholder rules, and field formatting rules. Fill in the user's answers following those rules.
 
 If the user skips ALL charter questions (skips before Question 4 or skips both
 Question 4 and 5), do NOT create `compound-gpid.md`. The setup completes with
@@ -205,36 +131,7 @@ Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 
 #### A4. Scaffold `.cg-docs/` structure
 
-Create the following directories and `.gitkeep` files if they do not already exist:
-
-```
-.cg-docs/
-├── archive/
-│   └── .gitkeep
-├── brainstorms/
-│   └── .gitkeep
-├── plans/
-│   └── .gitkeep
-├── reviews/
-│   └── .gitkeep
-├── strategy/
-│   └── .gitkeep
-└── solutions/
-    ├── build-errors/
-    │   └── .gitkeep
-    ├── bugs/
-    │   └── .gitkeep
-    ├── data-quality/
-    │   └── .gitkeep
-    ├── environment-issues/
-    │   └── .gitkeep
-    ├── git-workflows/
-    │   └── .gitkeep
-    ├── performance-issues/
-    │   └── .gitkeep
-    └── testing-patterns/
-        └── .gitkeep
-```
+Read `docs/setup-templates.md` for the **.cg-docs/ Directory Scaffold** tree. Create the listed directories and `.gitkeep` files if they do not already exist.
 
 #### A4.5. Update `.Rbuildignore` (R packages only)
 
@@ -259,55 +156,14 @@ compound-gpid.local.md
 
 #### A5.5. Create `roadmap.json`
 
-Create `roadmap.json` in the project root:
-
-```json
-{
-  "schemaVersion": "compound-gpid-roadmap-v1",
-  "milestones": []
-}
-```
+Create `roadmap.json` in the project root using the **roadmap.json Initial Skeleton** from `docs/setup-templates.md`.
 
 This file tracks project milestones and features. Users can add milestones
 and ideas by invoking `@cg-roadmap` in Copilot Chat.
 
 #### A6. Print Setup Complete
 
-```
-## Setup Complete ✅
-
-**Language**: <language>
-**Project Type**: <project-type>
-**Review Depth**: <review-depth>
-
-### Available Commands (in Copilot Chat)
-- `/cg-resume`     — Load context and pick up interrupted work
-- `/cg-strategy`   — Structure a full project vision into milestones and features
-- `/cg-brainstorm` — Clarify fuzzy requirements through guided Q&A
-- `/cg-plan`       — Research the codebase and create an implementation plan
-- `/cg-work`       — Implement a plan step by step
-- `/cg-fixbug`     — Structured bug-fix: reproduce, diagnose, fix, verify, document
-- `/cg-review`     — Run multi-agent code review
-- `/cg-fix-triage` — Apply review findings by ID or priority level
-- `/cg-compound`   — Capture a solved problem as reusable knowledge
-- `@cg-roadmap`    — Add milestones, features, and ideas to your project roadmap
-
-### PowerShell Commands (in terminal)
-- `cg-update` — Pull latest Compound GPID updates
-- `cg-unlink` — Disconnect this project from Compound GPID
-
-### Next Steps
-
-**If you have a vision for the full project scope:**
-→ Run `/cg-strategy` to think through your ideas and build an initial
-  milestone and feature structure
-
-**If requirements for a specific task are fuzzy:**
-→ Run `/cg-brainstorm` to clarify before planning
-
-**If you already know what to build:**
-→ Run `/cg-plan` to create an implementation plan
-```
+Read `docs/setup-templates.md` for the **Setup Complete Message**. Display it, filling in the user's configured language, project type, and review depth.
 
 ---
 
@@ -344,22 +200,7 @@ after the context summary:
 
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 
-Check for each of the following directories. Create any that are missing (with a `.gitkeep` inside),
-without touching existing files. This handles projects that were set up before the `.cg-docs/` structure existed,
-or where individual subdirectories were deleted.
-
-```
-.cg-docs/archive/
-.cg-docs/brainstorms/
-.cg-docs/plans/
-.cg-docs/solutions/build-errors/
-.cg-docs/solutions/bugs/
-.cg-docs/solutions/data-quality/
-.cg-docs/solutions/environment-issues/
-.cg-docs/solutions/git-workflows/
-.cg-docs/solutions/performance-issues/
-.cg-docs/solutions/testing-patterns/
-```
+Read `docs/setup-templates.md` for the **Mode B: Missing Directories Scaffold** list. Create any missing directories (with a `.gitkeep` inside), without touching existing files.
 
 #### B1.2.5. Check for `roadmap.json`
 
@@ -385,49 +226,7 @@ Scan the following directories and collect the titles and dates from the YAML fr
 
 #### B3. Present context summary
 
-Present a structured summary to orient Copilot and the user.
-
-If `compound-gpid.md` exists, use this format:
-
-```
-## Project Context
-
-This project is **<project-name>**: <objective>.
-Currently focused on: <current-focus>.
-
-**Language**: <language>
-**Project Type**: <project-type>
-**Review Depth**: <review-depth>
-
-### Prior Work
-**Brainstorms** (<count>):
-- YYYY-MM-DD: <title>
-- ...
-
-**Plans** (<count>):
-- YYYY-MM-DD: <title> [status: active/completed]
-- ...
-
-**Captured Solutions** (<count> across <N> categories):
-- bugs: <count>
-- build-errors: <count>
-- data-quality: <count>
-- environment-issues: <count>
-- git-workflows: <count>
-- performance-issues: <count>
-- testing-patterns: <count>
-```
-
-If `compound-gpid.md` does NOT exist, use the same format but replace the first two lines with:
-
-```
-**No project charter found.**
-```
-
-And after presenting the summary, offer:
-
-> "Would you like to create a project charter now? This helps Copilot
-> understand your project's goals, deliverables, and constraints."
+Present a structured summary to orient Copilot and the user. Read `docs/setup-templates.md` for the **Mode B: Context Summary Format** and fill in the scanned data.
 
 #### B4. Offer to update config
 

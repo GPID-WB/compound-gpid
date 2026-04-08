@@ -9,9 +9,9 @@ This page explains the Compound GPID workflow loop and how to use each step.
 ## The Loop
 
 ```
-Setup -> Strategy -> Brainstorm -> Plan -> Work -> Review -> Fix Triage -> Compound
-                ^             ^                                    ^
-       (vision/rethink)   (one task)                            Fix Bug
+Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> Work -> Review -> Compound
+                ^           ^            ^                      ^          ^
+       (vision/rethink)  (discover)  (one task)             Fix Bug    Refresh
 Resume (re-entry at any stage)
 ```
 
@@ -28,6 +28,16 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 ---
 
 ## Steps
+
+### 0. Ideate (`/cg-ideate`)
+
+**When**: You want to discover what to work on next, or need fresh ideas for project improvement.
+
+**What happens**: Launches parallel agents to scan the codebase for pain points, architecture issues, and quality gaps. Generates 8-12 improvement ideas, filters them against the roadmap and project constraints, and presents the survivors ranked by impact/effort ratio. Hands off to `/cg-brainstorm` or `/cg-plan`.
+
+**Output**: Interactive ranked list of improvement ideas.
+
+---
 
 ### 1. Brainstorm (`/cg-brainstorm`)
 
@@ -109,6 +119,16 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 **What happens**: Captures the problem, root cause, solution, and prevention strategy as a structured document. This feeds the `cg-learnings-researcher` agent in future thorough reviews.
 
 **Output**: `.cg-docs/solutions/<category>/YYYY-MM-DD-<title>.md`
+
+---
+
+### 6b. Compound Refresh (`/cg-compound-refresh`)
+
+**When**: Periodically (e.g., monthly) or after major refactoring to keep the knowledge base current.
+
+**What happens**: Audits all solution documents in `.cg-docs/solutions/` across 7 categories. Detects drift (file paths moved, APIs changed, dependencies updated, solutions outdated) and classifies each as Keep / Update / Consolidate / Replace / Delete. Presents an interactive audit report and applies approved changes. Archived solutions go to `.cg-docs/archive/`.
+
+**Output**: Updated solution files in `.cg-docs/solutions/`; deprecated solutions archived to `.cg-docs/archive/`.
 
 ---
 

@@ -63,11 +63,13 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | One fuzzy task to clarify | `/cg-brainstorm` |
 | Known task to plan | `/cg-plan` |
 | Direct roadmap edit | `@cg-roadmap` |
+| Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
 | Implement a plan | `/cg-work` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
 | Capture a solution | `/cg-compound` |
+| Refresh knowledge base | `/cg-compound-refresh` |
 
 > **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
 

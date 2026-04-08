@@ -97,7 +97,7 @@ if ($undeclared.Count -gt 0) {
     Write-Host ""
     Write-Host "  WARNING: undeclared test files (not in `$testNames):" -ForegroundColor Yellow
     foreach ($f in $undeclared) {
-        Write-Host "    $($f.Name) — add to `$testNames in Run-Tests.ps1 to include in suite" -ForegroundColor Yellow
+        Write-Host "    $($f.Name) - add to `$testNames in Run-Tests.ps1 to include in suite" -ForegroundColor Yellow
     }
 }
 
