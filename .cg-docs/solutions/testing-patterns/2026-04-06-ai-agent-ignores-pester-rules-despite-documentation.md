@@ -102,3 +102,6 @@ verify:
   — Primary crash diagnosis with root cause, safe patterns, and full prevention history
 - [2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md](./2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md)
   — Original junction-freeze bug that interacts with this pattern
+- [2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md](./2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)
+  — Third recurrence: the specific `2>&1 | Select-String` trigger during failure-debugging
+  mode, and why "don't do X" rules need a prominent paired safe alternative
