@@ -32,7 +32,7 @@ Language: <language> | Type: <project-type> | Review depth: <review-depth>
 
 ```markdown
 ### 🔄 In-Progress Plans (<count>)
-1. `<date>` — **<title>** [effort: <estimated-effort>]
+1. `<date>` — **<title>** [scope: <scope>] [effort: <estimated-effort>]
    Tags: <tags>
 2. ...
 

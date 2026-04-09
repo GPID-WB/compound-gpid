@@ -78,7 +78,7 @@ Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each an
 - `status: active`
 - `status: in-progress`
 
-For each, extract: `date`, `title`, `estimated-effort`, `tags`.
+For each, extract: `date`, `title`, `scope`, `estimated-effort`, `tags`.
 
 #### 2b. Unplanned brainstorms
 

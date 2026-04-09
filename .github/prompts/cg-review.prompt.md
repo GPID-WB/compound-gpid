@@ -30,9 +30,10 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Use the review depth from `compound-gpid.local.md` (Step 0). If no config exists, default to `standard`.
 2. Identify the files that have changed (use git diff if available, or ask the user).
-3. Parse any arguments to the review command. Recognized arguments:
+3. Parse any arguments to the review command. Recognized arguments (case-insensitive):
    - `mode:autofix` — Enable autofix mode (applies safe mechanical fixes automatically; see Step 4).
    - `light`, `standard`, `thorough` — Override the review depth from config.
+   If any argument is not in the recognized list, warn the user: "Unrecognized argument '<arg>' — ignoring. Recognized: `mode:autofix`, `light`, `standard`, `thorough`."
 
 ### Step 1.5: Content-Based Depth Overrides
 
@@ -40,13 +41,16 @@ After determining the base depth from config/arguments, apply these automatic es
 
 | Trigger | Override |
 |---------|----------|
-| Changed files include a data pipeline script | Always add `@cg-data-quality` (even in `light`) |
+| Changed files include a script matching `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}`, or any file in a `scripts/` directory | Always add `@cg-data-quality` (even in `light`) |
 | ≥ 50 non-test lines changed | Escalate `light` → `standard` |
 | Changed files touch authentication, secrets, or credentials | Always add `@cg-version-control` |
-| Changed files compute or output statistical results (poverty, welfare, survey) | Always add `@cg-data-quality` + `@cg-reproducibility` |
+| Changed files explicitly call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always add `@cg-data-quality` + `@cg-reproducibility` |
+| ≥ 200 non-test lines changed | Suggest to user: "This is a large change. Consider running `/cg-review thorough` for `@cg-adversarial` coverage." (Do not auto-apply.) |
+
+When applying "always add" rules, skip any agent already included in the selected depth tier's agent set (no duplicate dispatching).
 
 If any override applies, tell the user:
-> "Auto-escalation applied: [reason]. Running [new agent(s)] in addition to the base depth."
+> "Auto-escalation applied: [reason]. Running [new agent(s)] in addition to the base depth. [List any 'always add' agents added by trigger rules.]"
 
 ### Step 2: Dispatch Agents
 
@@ -75,6 +79,7 @@ For each agent, provide:
 - The list of changed files
 - The project language (from `compound-gpid.local.md`)
 - Any relevant context from the plan
+- **Protected files context**: "Never recommend deleting, replacing, renaming, or moving these files: `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, `.cg-docs/archive/`, `compound-gpid.md`, `compound-gpid.local.md`, `roadmap.json`, `SCHEMA_VERSION`, `.github/` (prompts, skills, agents, instructions infrastructure)."
 
 **R Package check (all depth levels)**: Regardless of review depth, if the project contains `DESCRIPTION` + either `NAMESPACE` or an `R/` directory (signals an R package), check whether `.cg-docs/` is listed in `.Rbuildignore`. If `.cg-docs/` exists but is absent from `.Rbuildignore`, add this as a **P2** finding under `@cg-code-quality`:
 > **[cg-code-quality]** `.Rbuildignore` — `.cg-docs/` is not excluded from the R package build.
@@ -88,12 +93,13 @@ For each agent, provide:
 
 **Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-best-practices` before reviewing those files. Apply the coding principles and anti-patterns reference when evaluating any Stata code.
 
-**Protected artifacts (all depth levels)**: Discard any finding that recommends deleting or replacing these files — they are intentional project infrastructure:
-- `.cg-docs/` (knowledge base)
+**Protected artifacts (all depth levels)**: Discard any finding that recommends deleting, replacing, renaming, or moving these files — they are intentional project infrastructure. Do NOT discard findings about the **content** of these files (credentials, schema violations, data quality issues):
+- `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, `.cg-docs/archive/` (knowledge base subdirectories)
 - `compound-gpid.md` (project charter)
 - `compound-gpid.local.md` (local user config)
 - `roadmap.json` (roadmap state)
 - `SCHEMA_VERSION` (versioning sentinel)
+- `.github/` (Copilot extension infrastructure: instructions, skills, prompts, agents)
 
 ### Step 2.5: Subagent Output Quality Check
 
@@ -158,9 +164,9 @@ Merge all agent findings into a single prioritized report:
 
 Before presenting findings to the user, save the full report to disk so it can be referenced in future sessions.
 
-1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`), and set `plan: null`.
+1. Identify the active plan: look for the most recently modified `.md` file in `.cg-docs/plans/` by the `date:` frontmatter field (skip `.gitkeep`). If no plan file exists, use the current date as the slug (`YYYY-MM-DD-review`), and set `plan: null`.
 2. Derive the review filename: take the plan filename stem (without extension), append `-review`, and place the file in `.cg-docs/reviews/`. Example: plan `2026-03-26-roadmap-json.md` → review `2026-03-26-roadmap-json-review.md`.
-3. Parse every finding ID from the Step 3 report using the pattern `**[P0.`, `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P0.1`, `P1.1`, `P2.3`). Build a YAML `findings:` map with each ID set to `open`. The valid finding statuses are `open`, `fixed`, and `skipped`.
+3. Parse every finding ID from the Step 3 report using the regex pattern `\bP[0-3]\.\d+\b` (e.g., `P0.1`, `P1.1`, `P2.3`). Build a YAML `findings:` map with each ID set to `open`. The valid finding statuses are `open`, `fixed`, and `skipped`.
 4. Prepend YAML frontmatter to the review file content before the markdown body:
    ```yaml
    ---
@@ -177,14 +183,20 @@ Before presenting findings to the user, save the full report to disk so it can b
 
 ### Step 4: Triage
 
-**If `mode:autofix` was specified**, classify each finding and process automatically:
+**If `mode:autofix` was specified**, before dispatching agents add to each agent's instructions: "Each finding must include a `[safe_auto]`, `[manual]`, or `[advisory]` tag using this taxonomy: `[safe_auto]` = simple mechanical fix (whitespace, naming, single-line change); `[manual]` = multi-line refactor, logic change, test addition; `[advisory]` = architectural suggestion or performance improvement."
 
-- **safe_auto**: Simple, mechanical fixes (whitespace, naming, single-line change) — apply immediately without asking.
+Then classify and process automatically:
+
+- **safe_auto**: Simple, mechanical fixes (whitespace, naming, single-line change) — apply immediately without asking. Never classify a finding as `safe_auto` if it touches statistical function calls, welfare/income variable references, or weight parameters; escalate these to `manual`.
 - **manual**: Multi-line refactors, logic changes, test additions — present to user for approval before applying.
 - **advisory**: Architectural suggestions, performance improvements — note but do not apply.
 
+Apply each safe fix directly using your own file edit tool. Do NOT delegate this step to a subagent.
+
+For each `safe_auto` fix applied, update the corresponding finding in the saved review file's frontmatter from `open` to `fixed`. Do NOT delegate this frontmatter write to a subagent.
+
 Report after auto-applying:
-> "Autofix complete: applied \<N\> safe fixes, \<M\> manual fixes need your review, \<K\> advisory notes filed."
+> "Autofix complete: applied \<N\> safe fixes (files: <list of file:line changes>), \<M\> manual fixes need your review, \<K\> advisory notes filed."
 
 **If normal mode (no autofix)**, present findings to the user one at a time, starting with P0, then P1:
 
@@ -203,7 +215,7 @@ After triage, present this summary and ask what to do next:
 > - **Remaining**: X findings
 >
 > **What would you like to do next?**
-> 1. **`/cg-review light`** — Verify that the applied fixes pass
+> 1. **`/cg-review light`** — Verify that the applied fixes pass *(ensure fixes are committed or staged first)*
 > 2. **`/cg-fix-triage`** — Apply skipped findings in a future session
 > 3. **`/cg-compound`** — Capture learnings from this review
 > 4. **`/cg-fixbug`** — Document a bug that was found and fixed

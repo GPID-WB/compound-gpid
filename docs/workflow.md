@@ -29,6 +29,16 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 ## Steps
 
+### Setup (`/cg-setup`)
+
+**When**: The first time you use Compound GPID in a new project, or when you want to update your language or review-depth preferences.
+
+**What happens**: Creates `compound-gpid.md` (the project charter) and `compound-gpid.local.md` (your personal config). Walks you through setting the project objective, language, project type, and review depth.
+
+**Output**: `compound-gpid.md` + `compound-gpid.local.md`
+
+---
+
 ### 0. Ideate (`/cg-ideate`)
 
 **When**: You want to discover what to work on next, or need fresh ideas for project improvement.
@@ -45,6 +55,12 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **What happens**: The prompt scans your project, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`. If `roadmap.json` exists, it also offers to register the brainstorm outcome as a feature idea in the roadmap.
 
+For non-software tasks (strategy, team process, documentation-only), the prompt switches to **Thinking Partner Mode** and adapts questions toward decision criteria, stakeholders, and success metrics rather than technical implementation. The scope is classified as Focused / Extended / Strategic instead of the software-task tiers.
+
+The prompt assesses task scope (**Lightweight** / **Standard** / **Deep**) and adjusts question depth and option detail accordingly.
+
+**Handoff options**: `/cg-plan` (turn into a plan), Update charter, `/cg-brainstorm` again (relate topic), or `/cg-work` directly (Lightweight tasks only).
+
 **Output**: `.cg-docs/brainstorms/YYYY-MM-DD-<title>.md`
 
 ---
@@ -53,7 +69,9 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When**: After brainstorming (or when you already know what to build).
 
-**What happens**: The prompt reads any relevant brainstorm, researches your codebase, and creates a step-by-step implementation plan with files to create/modify, tests to write, and acceptance criteria. If `roadmap.json` exists, the prompt also offers to link the plan to a matching roadmap feature, setting its status to `planned`.
+**What happens**: The prompt reads any relevant brainstorm, researches your codebase, and creates a step-by-step implementation plan with files to create/modify, tests to write, and acceptance criteria. The prompt assesses task scope (**Lightweight** / **Standard** / **Deep**) and adapts plan detail accordingly. A confidence check validates completeness, testability, dependencies, risk coverage, and scope clarity before finalizing. If `roadmap.json` exists, the prompt also offers to link the plan to a matching roadmap feature, setting its status to `planned`.
+
+**Handoff options**: `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
 
 **Output**: `.cg-docs/plans/YYYY-MM-DD-<title>.md`
 
@@ -64,6 +82,8 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 **When**: After a plan exists.
 
 **What happens**: The prompt loads the most recent plan and implements it step by step - writing code, tests, and documentation. It checks against acceptance criteria and suggests commit messages. If the plan is linked to a roadmap feature, the prompt automatically marks it as `active` before work begins.
+
+**Handoff options**: `/cg-review`, `/cg-compound`, `/cg-fixbug`, `/cg-plan` (next feature).
 
 **Output**: Code, tests, documentation changes.
 
@@ -90,7 +110,16 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 | **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, small changes |
 | **Standard** | All 8 agents | Default for most work |
 | **Thorough** | All 8 + `cg-learnings-researcher` + `cg-adversarial` | Major features, refactors |
+**Invocation**:
 
+| Command | Effect |
+|---------|--------|
+| `/cg-review` | Use depth from `compound-gpid.local.md` |
+| `/cg-review light` | Override to light (quick fixes) |
+| `/cg-review standard` | Override to standard |
+| `/cg-review thorough` | Override to thorough (adversarial + learnings) |
+| `/cg-review mode:autofix` | Apply safe mechanical fixes automatically |
+| `/cg-review light mode:autofix` | Light review + autofix |
 Review reports are saved with per-finding status tracking in YAML frontmatter. Each finding ID (e.g., `P1.2`) is recorded as `open`, `fixed`, or `skipped`. `/cg-resume` shows a summary of open findings across all review files — so unresolved P1s are never lost between sessions.
 
 **Output**: `.cg-docs/reviews/<plan-stem>-review.md`
@@ -146,6 +175,10 @@ Each finding you fix is tracked in the review file's frontmatter (`open` → `fi
 **Output**: A structured context summary and a suggested continuation path.
 
 ---
+
+### Non-linear Entry Points
+
+The following commands can be invoked at any stage — not just sequentially. Use them whenever you need to update direction, rethink priorities, or capture new ideas.
 
 ### Roadmap (`@cg-roadmap`)
 

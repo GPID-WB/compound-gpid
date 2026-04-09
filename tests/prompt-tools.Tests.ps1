@@ -367,32 +367,6 @@ Describe "cg-skill-r-testing - skill file structure" {
 }
 
 # ---------------------------------------------------------------------------
-# Skill SKILL.md cross-references - relative links resolve to real files
-# ---------------------------------------------------------------------------
-
-Describe "skill SKILL.md - relative markdown links resolve" {
-    $skillsDir = Join-Path $repoRoot ".github\skills"
-    $skillFiles = Get-ChildItem -Path $skillsDir -Recurse -Filter "SKILL.md"
-
-    foreach ($skill in $skillFiles) {
-        $skillName = (Split-Path (Split-Path $skill.FullName -Parent) -Leaf)
-        $content = Get-Content $skill.FullName -Raw -Encoding UTF8
-        $skillDir = Split-Path $skill.FullName -Parent
-
-        # Extract relative file links (exclude http/https URLs and anchor-only links)
-        $links = [regex]::Matches($content, '\]\(([^)#]+)\)') |
-            ForEach-Object { $_.Groups[1].Value } |
-            Where-Object { $_ -notmatch '^https?://' -and $_ -match '\.' }
-
-        foreach ($link in $links) {
-            $resolved = [System.IO.Path]::GetFullPath((Join-Path $skillDir $link))
-            It "$($skillName): '$($link)' resolves to an existing file" {
-                Test-Path $resolved | Should Be $true
-            }
-        }
-    }
-}
-# ---------------------------------------------------------------------------
 # Skill file cross-link validation
 # ---------------------------------------------------------------------------
 
@@ -645,8 +619,8 @@ Describe "SCHEMA_VERSION - dialect marker" {
         Test-Path $schemaFile | Should Be $true
     }
 
-    It "SCHEMA_VERSION contains r-syntax-dialect marker" {
-        ($content -match 'r-syntax-dialect') | Should Be $true
+    It "SCHEMA_VERSION contains scope-fields marker" {
+        ($content -match 'scope-fields') | Should Be $true
     }
 }
 
@@ -952,4 +926,405 @@ Describe "Get-Frontmatter helper - edge cases" {
     # Clean up temp files
     Remove-Item $tmpNoFm  -ErrorAction SilentlyContinue
     Remove-Item $tmpPartFm -ErrorAction SilentlyContinue
+}
+
+# ---------------------------------------------------------------------------
+# P1.18 — cg-brainstorm Step 0.5 prior work scan
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 0.5 prior work scan" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "scans .cg-docs/brainstorms/ for prior work" {
+        ($content -match '\.cg-docs[/\\]brainstorms') | Should Be $true
+    }
+
+    It "presents Continue option" {
+        ($content -match '\*\*Continue\*\*') | Should Be $true
+    }
+
+    It "presents Start fresh option" {
+        ($content -match 'Start fresh') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.19 — cg-brainstorm Step 1.1 Task Classification / Thinking Partner Mode
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 1.1 Task Classification" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 1.1 Task Classification" {
+        ($content -match 'Step 1\.1.*Task Classification') | Should Be $true
+    }
+
+    It "defines Thinking Partner Mode" {
+        ($content -match 'Thinking Partner Mode') | Should Be $true
+    }
+
+    It "skips roadmap registration for non-software tasks" {
+        ($content -match '[Ss]kip roadmap') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.20 — cg-brainstorm Step 1.5 scope assessment
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 1.5 Scope Assessment" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 1.5 Scope Assessment" {
+        ($content -match 'Step 1\.5.*Scope Assessment') | Should Be $true
+    }
+
+    It "defines Lightweight scope tier" {
+        ($content -match '\*\*Lightweight\*\*') | Should Be $true
+    }
+
+    It "defines Standard scope tier" {
+        ($content -match '\*\*Standard\*\*') | Should Be $true
+    }
+
+    It "defines Deep scope tier" {
+        ($content -match '\*\*Deep\*\*') | Should Be $true
+    }
+
+    It "includes Scope assessment output line" {
+        ($content -match 'Scope assessment:') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.21 — cg-plan Step 0.5 prior work scan
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 0.5 prior work scan" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "scans .cg-docs/plans/ for prior work" {
+        ($content -match '\.cg-docs[/\\]plans') | Should Be $true
+    }
+
+    It "presents Refine option" {
+        ($content -match '\*\*Refine\*\*') | Should Be $true
+    }
+
+    It "presents Follow-up option" {
+        ($content -match '\*\*Follow-up\*\*') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.22 — cg-plan Step 1.5 scope assessment
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 1.5 Scope Assessment" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 1.5 Scope Assessment" {
+        ($content -match 'Step 1\.5.*Scope Assessment') | Should Be $true
+    }
+
+    It "includes Lightweight criteria (1-3 steps)" {
+        ($content -match '1.3 steps') | Should Be $true
+    }
+
+    It "includes Standard criteria (3-8 steps)" {
+        ($content -match '3.8 steps') | Should Be $true
+    }
+
+    It "includes Deep criteria (8+ steps)" {
+        ($content -match '8\+ steps') | Should Be $true
+    }
+
+    It "includes Scope assessment output line" {
+        ($content -match 'Scope assessment:') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.23 — cg-plan Step 4.5 confidence check
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 4.5 Confidence Check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 4.5 Confidence Check" {
+        ($content -match 'Step 4\.5.*Confidence Check') | Should Be $true
+    }
+
+    It "checks Completeness dimension" {
+        ($content -match '\*\*Completeness\*\*') | Should Be $true
+    }
+
+    It "checks Testability dimension" {
+        ($content -match '\*\*Testability\*\*') | Should Be $true
+    }
+
+    It "checks Dependencies dimension" {
+        ($content -match '\*\*Dependencies\*\*') | Should Be $true
+    }
+
+    It "checks Risk coverage dimension" {
+        ($content -match '\*\*Risk coverage\*\*') | Should Be $true
+    }
+
+    It "checks Scope clarity dimension" {
+        ($content -match '\*\*Scope clarity\*\*') | Should Be $true
+    }
+
+    It "defines High / Medium / Low confidence levels" {
+        ($content -match '\*\*High\*\*' -and $content -match '\*\*Medium\*\*' -and $content -match '\*\*Low\*\*') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.24 — cg-plan Test Scenarios template (checkmark/warning/cross)
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Test Scenarios template" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Test Scenarios field in step template" {
+        ($content -match '\*\*Test Scenarios\*\*:') | Should Be $true
+    }
+
+    It "includes happy path marker" {
+        ($content -match '[Hh]appy path') | Should Be $true
+    }
+
+    It "includes edge case marker" {
+        ($content -match '[Ee]dge case') | Should Be $true
+    }
+
+    It "includes error path marker" {
+        ($content -match '[Ee]rror path') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.25 — cg-review Step 1.5 content-based depth overrides
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 1.5 Content-Based Depth Overrides" {
+        ($content -match 'Step 1\.5.*Content-Based Depth Overrides') | Should Be $true
+    }
+
+    It "includes pipeline/scripts trigger adding @cg-data-quality" {
+        ($content -match 'pipeline.*@cg-data-quality|scripts.*@cg-data-quality') | Should Be $true
+    }
+
+    It "includes >= 50 non-test lines escalation trigger" {
+        ($content -match '50 non-test lines') | Should Be $true
+    }
+
+    It "includes authentication/secrets trigger adding @cg-version-control" {
+        ($content -match 'authentication.*secrets|secrets.*credentials') | Should Be $true
+    }
+
+    It "includes statistical functions trigger adding @cg-data-quality" {
+        ($content -match 'statistical functions|fmean') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.26 — cg-review @cg-adversarial in thorough depth list
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - @cg-adversarial in thorough depth" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes @cg-adversarial in Thorough section" {
+        ($content -match '(?s)Thorough.*?@cg-adversarial') | Should Be $true
+    }
+
+    It "@cg-adversarial is NOT in Light section" {
+        $lightSection = if ($content -match '(?s)\*\*Light\*\*.*?\*\*Standard\*\*') { $Matches[0] } else { '' }
+        ($lightSection -match '@cg-adversarial') | Should Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.27 — cg-review protected artifacts guard
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - protected artifacts guard" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "mentions Protected artifacts section" {
+        ($content -match 'Protected artifacts') | Should Be $true
+    }
+
+    It "lists .cg-docs subdirectories as protected" {
+        ($content -match '\.cg-docs') | Should Be $true
+    }
+
+    It "lists compound-gpid.md as a protected file" {
+        ($content -match 'compound-gpid\.md') | Should Be $true
+    }
+
+    It "lists roadmap.json as a protected file" {
+        ($content -match 'roadmap\.json') | Should Be $true
+    }
+
+    It "guard instructs discarding delete/replace/rename/move findings" {
+        ($content -match 'Discard any finding.*delet') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.28 — cg-review mode:autofix argument parsing
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - mode:autofix argument" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents mode:autofix argument" {
+        ($content -match 'mode:autofix') | Should Be $true
+    }
+
+    It "defines safe_auto and advisory tags" {
+        ($content -match '(?s)Step 4.*safe_auto.*advisory') | Should Be $true
+    }
+
+    It "includes Autofix complete report template" {
+        ($content -match 'Autofix complete:.*safe fixes') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.29 — cg-review P0 BLOCKING section in report template
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes ### P0 BLOCKING section in report template" {
+        ($content -match '### P0.*BLOCKING') | Should Be $true
+    }
+
+    It "P0 BLOCKING appears before P1 CRITICAL in report" {
+        ($content -match '(?s)P0.*BLOCKING.*P1.*CRITICAL') | Should Be $true
+    }
+
+    It "P0 section includes immediate remediation language" {
+        ($content -match '(?s)P0.*immediate') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.30 — cg-work inline plan fallback
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - inline plan fallback" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "describes lightweight inline plan fallback when no plan found" {
+        ($content -match 'lightweight inline plan') | Should Be $true
+    }
+
+    It "inline plan is described as 3-5 steps" {
+        ($content -match '3.5 steps') | Should Be $true
+    }
+
+    It "offers Proceed with this or run /cg-plan option" {
+        ($content -match 'Proceed with this.*cg-plan') | Should Be $true
+    }
+
+    It "skips roadmap linking Step 1.5 when using inline plan" {
+        ($content -match 'Skip Step 1\.5') | Should Be $true
+    }
+
+    It "saves inline plan to .cg-docs/plans/ before implementing" {
+        ($content -match '\.cg-docs[/\\]plans.*YYYY-MM-DD') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.31 — cg-work Discover existing tests sub-step
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Discover existing tests sub-step" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Discover existing tests sub-step" {
+        ($content -match 'Discover existing tests') | Should Be $true
+    }
+
+    It "instructs searching for test files before implementing" {
+        ($content -match '[Bb]efore implementing.*scan|[Ss]earch for test files') | Should Be $true
+    }
+
+    It "references .Tests.ps1 test file pattern" {
+        ($content -match '\.Tests\.ps1') | Should Be $true
+    }
+
+    It "instructs running both existing and new tests" {
+        ($content -match 'existing tests AND the new tests|discovered.*tests AND.*new tests') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.32 — cg-work Step 3.2 self-review
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 3.2 Self-Review section" {
+        ($content -match 'Step 3\.2.*Self-Review') | Should Be $true
+    }
+
+    It "scans for print( debug code pattern" {
+        ($content -match 'print\(') | Should Be $true
+    }
+
+    It "checks for missing tests on new public functions" {
+        ($content -match 'new public function') | Should Be $true
+    }
+
+    It "scans for TODO FIXME HACK XXX markers" {
+        ($content -match 'TODO.*FIXME.*HACK') | Should Be $true
+    }
+
+    It "emits a self-review complete summary line" {
+        ($content -match '[Ss]elf-review complete:') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.13 — cg-review depth override arguments documented
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - depth override arguments" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents light, standard, and thorough as Override arguments" {
+        ($content -match '(?i)light.*standard.*thorough') | Should Be $true
+    }
+
+    It "references review depth from compound-gpid.local.md for default" {
+        ($content -match 'compound-gpid\.local') | Should Be $true
+    }
 }

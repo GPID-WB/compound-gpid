@@ -102,3 +102,30 @@ Describe "Pester safety - PassThru output must be assigned before use" {
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# Forbidden pattern 4: Invoke-Pester output piped through 2>&1
+#
+# Dangerous:    Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern ...
+# Safe:         $r = Invoke-Pester tests/foo.Tests.ps1 -PassThru -Quiet
+#               if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }
+#
+# Redirecting stderr-to-stdout (2>&1) and piping causes interleaved object
+# serialization that overwhelms the PowerShell extension host on large test
+# files (300+ tests). This has crashed VS Code even on single-file runs.
+# ---------------------------------------------------------------------------
+
+Describe "Pester safety - no 2>&1 piped Invoke-Pester output" {
+    foreach ($file in $testFiles) {
+        $content = Get-Content $file.FullName -Raw -Encoding UTF8
+        $relPath = $file.Name
+
+        It "$relPath does not pipeline Invoke-Pester output through 2>&1" {
+            # Check non-comment lines only.
+            $violations = ($content -split '\r?\n') |
+                Where-Object { $_ -notmatch '^\s*#' } |
+                Where-Object { $_ -match 'Invoke-Pester\b.*2>&1\s*\|' }
+            $violations.Count | Should Be 0
+        }
+    }
+}

@@ -11,6 +11,11 @@
 #   Rule 3:  PassThru output must be assigned before use
 #             → $r = Invoke-Pester ... is the only form used here.
 #
+# REGISTRATION REQUIREMENT: Every .Tests.ps1 file in tests/ MUST be listed in
+# the $testNames array below. Files not listed will not run and produce only a
+# non-fatal warning — a silent coverage gap. When adding a new test file,
+# always add its name to $testNames.
+#
 # Usage:
 #   . tests\Run-Tests.ps1                Run all tests, quiet per-file output
 #   . tests\Run-Tests.ps1 -FailFast      Stop after the first file with failures

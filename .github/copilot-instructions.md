@@ -17,7 +17,13 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
    $r | Select-Object TotalCount, PassedCount, FailedCount
    ```
    Assign to variable first — do **not** pipeline directly into `Select-Object` or `Where-Object`.
-5. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
+5. **NEVER use `2>&1 | ...` pipelines from Invoke-Pester**:
+   ```powershell
+   # ❌ CRASHES VS CODE
+   Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|fail' | ...
+   ```
+   To inspect failures, re-run without `-Quiet`: `if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }`
+6. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
    ```powershell
    . tests\Run-Tests.ps1
    ```
