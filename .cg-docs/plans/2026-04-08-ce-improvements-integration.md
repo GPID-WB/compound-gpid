@@ -1,7 +1,8 @@
 ---
 date: 2026-04-08
 title: "CE-inspired improvements: 3-phase reimplementation on dev"
-status: active
+status: completed
+completed-date: 2026-04-09
 brainstorm: ".cg-docs/brainstorms/2026-04-08-ce-improvements-integration.md"
 language: "both"
 estimated-effort: "large"

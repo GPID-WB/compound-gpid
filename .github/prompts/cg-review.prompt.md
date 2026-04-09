@@ -30,6 +30,23 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Use the review depth from `compound-gpid.local.md` (Step 0). If no config exists, default to `standard`.
 2. Identify the files that have changed (use git diff if available, or ask the user).
+3. Parse any arguments to the review command. Recognized arguments:
+   - `mode:autofix` — Enable autofix mode (applies safe mechanical fixes automatically; see Step 4).
+   - `light`, `standard`, `thorough` — Override the review depth from config.
+
+### Step 1.5: Content-Based Depth Overrides
+
+After determining the base depth from config/arguments, apply these automatic escalation rules:
+
+| Trigger | Override |
+|---------|----------|
+| Changed files include a data pipeline script | Always add `@cg-data-quality` (even in `light`) |
+| ≥ 50 non-test lines changed | Escalate `light` → `standard` |
+| Changed files touch authentication, secrets, or credentials | Always add `@cg-version-control` |
+| Changed files compute or output statistical results (poverty, welfare, survey) | Always add `@cg-data-quality` + `@cg-reproducibility` |
+
+If any override applies, tell the user:
+> "Auto-escalation applied: [reason]. Running [new agent(s)] in addition to the base depth."
 
 ### Step 2: Dispatch Agents
 
@@ -70,6 +87,13 @@ For each agent, provide:
 - Mixed or unclear → load both
 
 **Stata skill check (all depth levels)**: Regardless of review depth, if any `.do` or `.ado` files are in the changed file set, every review agent must load `cg-skill-stata-best-practices` before reviewing those files. Apply the coding principles and anti-patterns reference when evaluating any Stata code.
+
+**Protected artifacts (all depth levels)**: Discard any finding that recommends deleting or replacing these files — they are intentional project infrastructure:
+- `.cg-docs/` (knowledge base)
+- `compound-gpid.md` (project charter)
+- `compound-gpid.local.md` (local user config)
+- `roadmap.json` (roadmap state)
+- `SCHEMA_VERSION` (versioning sentinel)
 
 ### Step 2.5: Subagent Output Quality Check
 
@@ -153,7 +177,16 @@ Before presenting findings to the user, save the full report to disk so it can b
 
 ### Step 4: Triage
 
-Present findings to the user one at a time, starting with P0, then P1:
+**If `mode:autofix` was specified**, classify each finding and process automatically:
+
+- **safe_auto**: Simple, mechanical fixes (whitespace, naming, single-line change) — apply immediately without asking.
+- **manual**: Multi-line refactors, logic changes, test additions — present to user for approval before applying.
+- **advisory**: Architectural suggestions, performance improvements — note but do not apply.
+
+Report after auto-applying:
+> "Autofix complete: applied \<N\> safe fixes, \<M\> manual fixes need your review, \<K\> advisory notes filed."
+
+**If normal mode (no autofix)**, present findings to the user one at a time, starting with P0, then P1:
 
 For each finding, ask:
 - **Fix**: Apply the suggested fix
@@ -162,18 +195,18 @@ For each finding, ask:
 
 ### Step 5: Summary
 
-After triage:
+After triage, present this summary and ask what to do next:
 
-```markdown
-## Review Summary
-- **Fixed**: X findings
-- **Skipped**: X findings
-- **Remaining**: X findings
+> ## Review Summary
+> - **Fixed**: X findings
+> - **Skipped**: X findings
+> - **Remaining**: X findings
+>
+> **What would you like to do next?**
+> 1. **`/cg-review light`** — Verify that the applied fixes pass
+> 2. **`/cg-fix-triage`** — Apply skipped findings in a future session
+> 3. **`/cg-compound`** — Capture learnings from this review
+> 4. **`/cg-fixbug`** — Document a bug that was found and fixed
+> 5. **Ready to merge** — All issues resolved, no further action needed
 
-### Next Steps
-- If issues were fixed: Run `/cg-review light` to verify fixes
-- If findings were skipped: Run `/cg-fix-triage` in a future session to apply them
-- If solutions were found: Run `/cg-compound` to capture learnings
-- If this review surfaced a bug that was fixed: Run `/cg-fixbug` to document it with a verified test
-- If all clean: Ready to merge
-```
+Wait for the user's response before proceeding.

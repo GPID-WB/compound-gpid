@@ -30,12 +30,39 @@ You are a senior data science architect creating a structured implementation pla
 4. Verify that the planned work aligns with the project's stated objective
    and constraints. If it does not, flag this to the user before proceeding.
 
+### Step 0.5: Check for Prior Work
+
+Scan `.cg-docs/plans/` for any existing plans related to this feature:
+
+- Match keywords from the user's request against plan filenames, titles, and objectives.
+- If a matching plan is found, present it:
+  > "I found an existing plan: `<filename>` — **<title>** (status: <status>). Refine this plan, create a follow-up, or start fresh?"
+  - **Refine**: Load the existing plan, present it, ask what to update, then save the revised version.
+  - **Follow-up**: Continue to Step 1 with the prior plan's outcome as context.
+  - **Start fresh**: Proceed normally.
+- If no matching plan exists, proceed normally.
+
 ### Step 1: Gather Context
 
 1. Read any relevant brainstorm in `.cg-docs/brainstorms/` if one exists for this feature.
 3. Scan the project directory structure.
 4. Read relevant existing source files to understand current patterns and conventions.
 5. Check `.cg-docs/solutions/` for past learnings related to this work.
+
+### Step 1.5: Scope Assessment
+
+Classify the implementation scope before proceeding:
+
+| Scope | Criteria | Plan detail |
+|-------|----------|-------------|
+| **Lightweight** | 1–3 steps, single concern, < 2 days | Short plan, minimal risk section |
+| **Standard** | 3–8 steps, multi-file, 2–5 days | Full plan template, complete risk table |
+| **Deep** | 8+ steps, architecture change, > 5 days | Phased plan, detailed requirements table, dependency graph |
+
+Tell the user:
+> "Scope assessment: **[Lightweight | Standard | Deep]** — [brief rationale]. Adapting plan detail accordingly."
+
+For **Deep** plans, recommend organizing steps into numbered phases in the plan template.
 
 ### Step 2: Research
 
@@ -69,11 +96,23 @@ tags: [<relevant tags>]
 ## Context
 <What exists today, what the brainstorm decided, any constraints>
 
+## Requirements
+
+| ID  | Requirement                          | Source           |
+|-----|--------------------------------------|------------------|
+| R1  | <requirement description>            | <brainstorm/user> |
+| R2  | <requirement description>            | <brainstorm/user> |
+
 ## Implementation Steps
 
 ### 1. <Step Name>
+- **Requirements**: R1, R2
 - **Files**: <files to create or modify>
 - **Details**: <what exactly to do>
+- **Test Scenarios**:
+  - ✅ Happy path: <normal case>
+  - 🛑 Edge case: <boundary condition>
+  - ❌ Error path: <failure mode>
 - **Tests**: <what tests to write for this step>
 - **Acceptance criteria**: <how to know this step is done>
 
@@ -101,6 +140,25 @@ tags: [<relevant tags>]
 1. Save the plan to `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md`.
 2. Present the plan to the user for review.
 3. Ask if any steps need adjustment before proceeding.
+
+### Step 4.5: Confidence Check
+
+Before finalizing, evaluate the plan on five dimensions:
+
+| Dimension | Question | Flag if... |
+|-----------|----------|------------|
+| **Completeness** | Are all requirements mapped to steps? | Any requirement has no corresponding step |
+| **Testability** | Can every acceptance criterion be verified automatically? | A criterion requires manual inspection only |
+| **Dependencies** | Are external dependencies explicitly listed? | A step assumes a package/API not yet in use |
+| **Risk coverage** | Does the risks table address the top 3 failure modes? | Fewer than 3 risks listed |
+| **Scope clarity** | Is the Out of Scope section populated? | Out of Scope is empty |
+
+Report confidence as:
+- **High**: All 5 dimensions pass
+- **Medium**: 3–4 dimensions pass — note the gaps
+- **Low**: ≤2 dimensions pass — ask the user if more research is needed before proceeding
+
+> "Confidence check: **[High | Medium | Low]**. [Details if Medium or Low.]"
 
 ### Step 5: Register in Roadmap (if applicable)
 
@@ -138,6 +196,13 @@ If `roadmap.json` does not exist, skip this step entirely.
 
 ### Step 6: Handoff
 
-After the user approves:
+After the user approves, present the following options:
 
-> Plan saved to `.cg-docs/plans/<filename>`. Ready to implement with `/cg-work`.
+> Plan saved to `.cg-docs/plans/<filename>`.
+>
+> **What would you like to do next?**
+> 1. **`/cg-work`** — Start implementing this plan immediately
+> 2. **`/cg-review`** — Review the plan document itself before coding
+> 3. **`/cg-brainstorm`** — Explore any remaining open questions first
+
+Wait for the user's response before proceeding.
