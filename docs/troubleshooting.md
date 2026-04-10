@@ -209,13 +209,15 @@ Then retry `cg-link` from your project root.
 
 **Symptom**: VS Code becomes completely unresponsive immediately after (or during) a Pester run. The terminal hangs with no output, or output arrives and then VS Code freezes. No error message is displayed — the window must be force-quit and restarted.
 
-**Cause**: Two invocation patterns reliably trigger this crash:
+**Cause**: Three invocation patterns reliably trigger this crash:
 
 1. **Directory-form invocation** — `Invoke-Pester tests/` runs all test files at once, including `link.Tests.ps1` and `unlink.Tests.ps1`, which create and delete directory junctions. When junction cleanup timing races with other tests, the VS Code extension host exhausts memory and hangs.
 
 2. **`ExpandProperty TestResult` pipeline** — `Invoke-Pester ... -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...` materialises the full Pester result graph as .NET objects inside the PowerShell extension host process, exhausting its memory.
 
-Both patterns have caused **8+ confirmed VS Code crashes** in this repository.
+3. **`2>&1 | Select-String` pipeline** — `Invoke-Pester ... 2>&1 | Select-String ...` redirects stderr into stdout then filters. The interleaved stream serialization overwhelms the extension host — even on single-file runs of large test files (300+ tests). This pattern is especially dangerous because it is the natural reflex when debugging failing tests ("I want to see what failed").
+
+These patterns have caused **10+ confirmed VS Code crashes** in this repository.
 
 **Fix**: Use only safe invocation patterns:
 
@@ -229,6 +231,10 @@ Invoke-Pester tests\roadmap.Tests.ps1
 # ✅ Single file (counts only)
 $r = Invoke-Pester tests\roadmap.Tests.ps1 -PassThru -Quiet
 $r | Select-Object TotalCount, PassedCount, FailedCount
+
+# ✅ See failure details (two-phase approach)
+$r = Invoke-Pester tests\foo.Tests.ps1 -PassThru -Quiet
+if ($r.FailedCount -gt 0) { Invoke-Pester tests\foo.Tests.ps1 }
 ```
 
 ```powershell
@@ -237,13 +243,77 @@ Invoke-Pester tests/
 
 # ❌ CRASHES VS CODE — ExpandProperty TestResult pipeline
 Invoke-Pester tests\foo.Tests.ps1 -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...
+
+# ❌ CRASHES VS CODE — 2>&1 redirect pipeline
+Invoke-Pester tests\foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|error' | ...
 ```
 
-**VS Code task**: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)** runs `tests/Run-Tests.ps1` automatically and can never use either forbidden pattern.
+**VS Code task**: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)** runs `tests/Run-Tests.ps1` automatically and can never use any forbidden pattern.
 
 **Note on `-Output Minimal` / `-Output None`**: These flags are Pester 5 syntax and fail on the Pester 3.4 that ships with Windows ("ambiguous parameter" error). Use `-Quiet` instead.
 
 **Full diagnosis**: `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md`
+
+---
+
+## VS Code freezes or crashes during long Copilot Chat sessions (not Pester-related)
+
+**Symptom**: VS Code becomes unresponsive and must be force-closed, but no Pester command was running. This typically happens during or after a long Copilot Chat session (multiple hours) with many tool calls — especially during rapid-fire file edits.
+
+**Cause**: Event listener accumulation in the VS Code renderer process. Three sources compound over a long session:
+
+1. **Chat panel rendering** — Each tool call response (file contents, terminal output, search results) renders as a tree item with attached event listeners. Over hundreds of tool calls, these listeners accumulate past the VS Code threshold (`potential listener LEAK detected` in renderer.log).
+
+2. **Terminal accumulation** — Each `run_in_terminal` tool call creates a terminal instance. Over a long session with many terminal operations, these pile up (visible in the terminal panel as 10–20+ tabs).
+
+3. **Rapid-fire edit operations** — When the agent makes many file edits in quick succession (e.g., rewriting a large documentation file with 10+ sequential `replace_string_in_file` calls), the renderer struggles to keep up with the diff computation and tree view refresh.
+
+The combination reaches a tipping point where the renderer thread becomes unresponsive. VS Code's main process detects this (`CodeWindow: detected unresponsive` in main.log, 14 samples) and may kill the window.
+
+**Evidence in logs** (check `%APPDATA%\Code\logs\<session>\`):
+- `main.log`: `CodeWindow: detected unresponsive` + `UnresponsiveSampleError`
+- `window<N>\renderer.log`: `potential listener LEAK detected` with stack traces pointing to `renderAttachments`, `createDetachedTerminal`, or `_instantiateById`
+
+**Mitigation** (no permanent fix — this is a VS Code/Copilot Chat extension limitation):
+
+1. **Start a new chat session every 2–3 hours** of intensive agent work. Close the old chat panel before starting a new one.
+2. **Close unused terminals periodically**. Right-click in the terminal panel → **Kill Terminal** for any old sessions you no longer need.
+3. **Avoid very long single turns** with 10+ sequential file edits. If a large rewrite is needed, consider breaking it across multiple user turns.
+4. **Restart VS Code** if you notice sluggishness in the chat panel, terminal, or editor. The listener leaks do not recover — only a restart clears them.
+5. **Save your work before intensive operations**. Commit and push before starting a large multi-file edit session, so no work is lost if VS Code crashes.
+
+**This is not something we can fix in the Compound GPID codebase** — it's a VS Code extension host resource management issue. The mitigations above reduce the probability and limit the blast radius.
+
+---
+
+---
+
+## General: How to find VS Code crash logs
+
+When VS Code crashes or freezes, the logs are at:
+
+```
+%APPDATA%\Code\logs\<session-folder>\
+```
+
+Key files:
+
+| File | Contains |
+|------|----------|
+| `main.log` | Unresponsive window detection, extension host exits |
+| `window<N>\renderer.log` | Listener leaks, rendering errors, tree view issues |
+| `window<N>\exthost\exthost.log` | Extension host errors, activation failures |
+| `terminal.log` | Terminal creation/destruction, shell output |
+| `window<N>\exthost\GitHub.copilot-chat\GitHub Copilot Chat.log` | Copilot request timing, model calls |
+
+To find the most recent logs:
+```powershell
+Get-ChildItem "$env:APPDATA\Code\logs" -Recurse -Filter "*.log" |
+    Where-Object { $_.Length -gt 0 } |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 10 Name, @{N='SizeKB';E={[math]::Round($_.Length/1KB,1)}}, LastWriteTime |
+    Format-Table -AutoSize
+```
 
 ---
 
