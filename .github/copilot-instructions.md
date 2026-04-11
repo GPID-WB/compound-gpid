@@ -71,6 +71,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Direct roadmap edit | `@cg-roadmap` |
 | Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
+| Diagnose VS Code crash | `/cg-diagnose` |
 | Implement a plan | `/cg-work` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |

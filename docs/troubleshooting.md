@@ -205,9 +205,53 @@ Then retry `cg-link` from your project root.
 
 ---
 
-## VS Code freezes when running Pester tests
+## VS Code crashed — what to do
 
-**Symptom**: VS Code becomes completely unresponsive immediately after (or during) a Pester run. The terminal hangs with no output, or output arrives and then VS Code freezes. No error message is displayed — the window must be force-quit and restarted.
+If VS Code crashed or froze and you had to force-close it, follow these steps:
+
+### Step 1: Restart VS Code
+
+Reopen VS Code normally. Your workspace, open files, and terminal history are preserved across restarts. **No data is lost** if you committed recently — VS Code does not modify your git repository on crash.
+
+### Step 2: Run `/cg-diagnose`
+
+In the new Copilot Chat session, type:
+
+```
+/cg-diagnose
+```
+
+This command automatically:
+- Checks for uncommitted changes or stashed work
+- Locates and reads the VS Code crash logs
+- Classifies the crash into a known category
+- Presents a structured report with recovery steps and prevention advice
+
+### Step 3: Follow the recommendations
+
+`/cg-diagnose` will suggest specific recovery steps based on the crash category. Common next actions:
+- Run `/cg-resume` to scan pending work and pick up where you left off
+- Run `. tests\Run-Tests.ps1` to verify the test suite still passes
+- Review `git diff` if a multi-file edit was interrupted mid-flight
+
+### Quick self-service (if you don't want `/cg-diagnose`)
+
+1. Check for lost work: `git status --short` — if files are modified, review `git diff` before committing
+2. Check for stashed work: `git stash list`
+3. Verify integrity: `. tests\Run-Tests.ps1` (canonical safe test runner)
+4. Resume: run `/cg-resume` to see pending plans, open review findings, and roadmap progress
+
+---
+
+## Known Crash Categories
+
+VS Code crashes in this project fall into well-documented categories.
+`/cg-diagnose` classifies crashes automatically, but here is the reference
+for manual investigation.
+
+### Category A: Pester Unsafe Invocations
+
+**Symptom**: VS Code becomes completely unresponsive immediately after (or during) a Pester test run. The terminal hangs with no output, or output arrives and then VS Code freezes. No error message — the window must be force-quit.
 
 **Cause**: Three invocation patterns reliably trigger this crash:
 
@@ -219,7 +263,11 @@ Then retry `cg-link` from your project root.
 
 These patterns have caused **10+ confirmed VS Code crashes** in this repository.
 
-**Fix**: Use only safe invocation patterns:
+**Log signatures**:
+- `main.log`: `Extension host with pid ... exited` immediately after Pester run
+- `terminal.log`: contains one of the forbidden patterns
+
+**Safe alternatives**:
 
 ```powershell
 # ✅ Canonical: run all tests safely (VS Code task or terminal)
@@ -236,6 +284,8 @@ $r | Select-Object TotalCount, PassedCount, FailedCount
 $r = Invoke-Pester tests\foo.Tests.ps1 -PassThru -Quiet
 if ($r.FailedCount -gt 0) { Invoke-Pester tests\foo.Tests.ps1 }
 ```
+
+**Forbidden patterns** (never use these):
 
 ```powershell
 # ❌ CRASHES VS CODE — directory form
@@ -256,39 +306,66 @@ Invoke-Pester tests\foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|error' | .
 
 ---
 
-## VS Code freezes or crashes during long Copilot Chat sessions (not Pester-related)
+### Category B: Long-Session Listener Accumulation
 
 **Symptom**: VS Code becomes unresponsive and must be force-closed, but no Pester command was running. This typically happens during or after a long Copilot Chat session (multiple hours) with many tool calls — especially during rapid-fire file edits.
 
 **Cause**: Event listener accumulation in the VS Code renderer process. Three sources compound over a long session:
 
-1. **Chat panel rendering** — Each tool call response (file contents, terminal output, search results) renders as a tree item with attached event listeners. Over hundreds of tool calls, these listeners accumulate past the VS Code threshold (`potential listener LEAK detected` in renderer.log).
+1. **Chat panel rendering** — Each tool call response (file contents, terminal output, search results) renders as a tree item with attached event listeners. Over hundreds of tool calls, these listeners accumulate past the VS Code threshold.
 
 2. **Terminal accumulation** — Each `run_in_terminal` tool call creates a terminal instance. Over a long session with many terminal operations, these pile up (visible in the terminal panel as 10–20+ tabs).
 
-3. **Rapid-fire edit operations** — When the agent makes many file edits in quick succession (e.g., rewriting a large documentation file with 10+ sequential `replace_string_in_file` calls), the renderer struggles to keep up with the diff computation and tree view refresh.
+3. **Rapid-fire edit operations** — When the agent makes many file edits in quick succession (e.g., rewriting a large documentation file with 10+ sequential edits), the renderer struggles to keep up with the diff computation and tree view refresh.
 
-The combination reaches a tipping point where the renderer thread becomes unresponsive. VS Code's main process detects this (`CodeWindow: detected unresponsive` in main.log, 14 samples) and may kill the window.
+The combination reaches a tipping point where the renderer thread becomes unresponsive. VS Code's main process detects this and may kill the window.
 
-**Evidence in logs** (check `%APPDATA%\Code\logs\<session>\`):
-- `main.log`: `CodeWindow: detected unresponsive` + `UnresponsiveSampleError`
-- `window<N>\renderer.log`: `potential listener LEAK detected` with stack traces pointing to `renderAttachments`, `createDetachedTerminal`, or `_instantiateById`
+**Log signatures**:
+- `main.log`: `CodeWindow: detected unresponsive` + `UnresponsiveSampleError` with 10+ samples
+- `renderer.log`: `potential listener LEAK detected` with stack traces pointing to `renderAttachments`, `createDetachedTerminal`, or `_instantiateById`
 
-**Mitigation** (no permanent fix — this is a VS Code/Copilot Chat extension limitation):
+**Prevention** (no permanent fix — this is a VS Code/Copilot Chat extension limitation):
 
 1. **Start a new chat session every 2–3 hours** of intensive agent work. Close the old chat panel before starting a new one.
 2. **Close unused terminals periodically**. Right-click in the terminal panel → **Kill Terminal** for any old sessions you no longer need.
 3. **Avoid very long single turns** with 10+ sequential file edits. If a large rewrite is needed, consider breaking it across multiple user turns.
 4. **Restart VS Code** if you notice sluggishness in the chat panel, terminal, or editor. The listener leaks do not recover — only a restart clears them.
-5. **Save your work before intensive operations**. Commit and push before starting a large multi-file edit session, so no work is lost if VS Code crashes.
-
-**This is not something we can fix in the Compound GPID codebase** — it's a VS Code extension host resource management issue. The mitigations above reduce the probability and limit the blast radius.
+5. **Commit and push before intensive operations** so no work is lost if VS Code crashes.
 
 ---
 
+### Category C: Rapid-Fire Large Operations
+
+**Symptom**: VS Code freezes during a multi-file edit turn where the agent is making many rapid changes (10+ `replace_string_in_file` calls in quick succession).
+
+**Cause**: The renderer cannot keep up with diff computation and tree view refreshes for each edit. This is a subcategory of B (listener accumulation) but can trigger independently in shorter sessions if edits are dense enough.
+
+**Log signatures**:
+- `main.log`: `CodeWindow: detected unresponsive` with < 10 samples
+- `renderer.log`: `.splice` errors or tree view rendering errors
+- Copilot Chat log: many rapid requests (< 5s apart) just before crash
+- No `potential listener LEAK detected` in renderer.log (distinguishes from Category B)
+
+**Prevention**: Break large rewrites across multiple user turns. Commit after each logical unit of work.
+
 ---
 
-## General: How to find VS Code crash logs
+### Category D: Extension Host Crash
+
+**Symptom**: VS Code suddenly restarts or shows "Extension Host terminated unexpectedly" — not a freeze, but an abrupt crash.
+
+**Cause**: An extension (any, not just Copilot) hit an unhandled exception or ran out of memory.
+
+**Log signatures**:
+- `exthost.log`: error stacktrace ending in process exit
+- `main.log`: `Extension host with pid ... exited with code: 1` (non-zero exit code)
+- No `CodeWindow: detected unresponsive` — crash was sudden, not a freeze
+
+**Prevention**: Keep VS Code and extensions updated. If a specific extension crashes repeatedly, consider disabling it temporarily and reporting the issue.
+
+---
+
+## How to find VS Code crash logs
 
 When VS Code crashes or freezes, the logs are at:
 
@@ -313,6 +390,15 @@ Get-ChildItem "$env:APPDATA\Code\logs" -Recurse -Filter "*.log" |
     Sort-Object LastWriteTime -Descending |
     Select-Object -First 10 Name, @{N='SizeKB';E={[math]::Round($_.Length/1KB,1)}}, LastWriteTime |
     Format-Table -AutoSize
+```
+
+To find the most recent window directory:
+```powershell
+$logBase = "$env:APPDATA\Code\logs"
+$session = Get-ChildItem $logBase -Directory | Sort-Object Name -Descending | Select-Object -First 1
+$window = Get-ChildItem $session.FullName -Directory -Filter "window*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+Write-Host "Session: $($session.Name)"
+Write-Host "Window:  $($window.FullName)"
 ```
 
 ---

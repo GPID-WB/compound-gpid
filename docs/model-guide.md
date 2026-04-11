@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 25 Compound GPID prompt and agent files.
+Reference for model assignments across all 26 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-> files" and "Model assignments — agent files" describe blocks) validate all 25 files for model:
+> files" and "Model assignments — agent files" describe blocks) validate all 26 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -32,6 +32,7 @@ and approximate token cost reference.
 | `cg-resume.prompt.md` | Claude Haiku 4.5 | Load context, scan pending work, resume interrupted sessions | Reasoning 3, mechanical context scanning — Haiku appropriate | confirmed |
 | `cg-compound-refresh.prompt.md` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation | Orchestration 3, precision 4 — multi-step audit with conditional actions needs Sonnet | confirmed |
 | `cg-ideate.prompt.md` | Claude Opus 4.6 | Generate, critique, and filter project improvement ideas | Creativity 5, reasoning 4 — divergent idea generation and adversarial filtering needs Opus | confirmed |
+| `cg-diagnose.prompt.md` | Claude Sonnet 4.6 | Diagnose VS Code crashes — inspect logs, classify crash category, recommend recovery | Reasoning 4, precision 4 — log analysis and decision-tree classification needs Sonnet | confirmed |
 
 ### Agents
 

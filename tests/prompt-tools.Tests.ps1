@@ -740,7 +740,7 @@ Describe "R dialect skills - reference files exist" {
 }
 
 # Model assignment tests have been extracted to tests/model-assignments.Tests.ps1.
-# Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal
+# Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Quiet
 
 # ---------------------------------------------------------------------------
 # P1.2 — agent files must declare a tools: restriction (read-only enforcement)

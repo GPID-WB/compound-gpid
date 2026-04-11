@@ -11,7 +11,7 @@
 #     frontmatter) and uses -cmatch for case-sensitive matching.
 #   - For tier-assignment rationale and override guidance, see docs/model-guide.md.
 #
-# Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal
+# Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Quiet
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
@@ -33,8 +33,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 14 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should Be 14
+    It "contains exactly 15 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should Be 15
     }
 
     foreach ($file in $promptFiles) {
@@ -106,7 +106,8 @@ Describe "docs/model-guide.md - structure and sync" {
         'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
         'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
         'cg-setup', 'cg-devtag', 'cg-resume',
-        'cg-compound-refresh', 'cg-ideate'
+        'cg-compound-refresh', 'cg-ideate',
+        'cg-diagnose'
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {

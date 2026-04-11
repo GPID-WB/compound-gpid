@@ -66,10 +66,10 @@ problematic.
 **Never run `Invoke-Pester <directory>` on this workspace. Run individual test files.**
 
 ```powershell
-# SAFE — single file, minimal output
-Invoke-Pester tests/charter.Tests.ps1 -Output Minimal
-Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal
-Invoke-Pester tests/prompt-tools.Tests.ps1 -Output Minimal
+# SAFE — single file, quiet output
+Invoke-Pester tests/charter.Tests.ps1 -Quiet
+Invoke-Pester tests/roadmap.Tests.ps1 -Quiet
+Invoke-Pester tests/prompt-tools.Tests.ps1 -Quiet
 ```
 
 If you need to check for failures across multiple files, run them sequentially
@@ -79,7 +79,7 @@ with separate invocations — never as a batch with `-PassThru` pipelines:
 # SAFE — sequential single-file runs
 foreach ($f in @('charter', 'roadmap', 'prompt-tools', 'link', 'unlink')) {
     Write-Host "`n=== $f ==="
-    Invoke-Pester "tests/$f.Tests.ps1" -Output Minimal
+    Invoke-Pester "tests/$f.Tests.ps1" -Quiet
 }
 ```
 

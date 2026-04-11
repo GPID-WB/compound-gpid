@@ -391,14 +391,39 @@ Review reports are saved with per-finding status tracking in YAML frontmatter. E
 **Scenarios**:
 - *Normal session start*: Run `/cg-resume` to see: active plans, open review findings, pending brainstorms, and current git state in one view.
 - *Schema version warning*: If the project schema version is behind the global install, `/cg-resume` tells you exactly what migration is needed.
-- *After a crash*: Run `/cg-resume` to reconstruct where the session was before the interruption.
+- *After a crash*: Run `/cg-diagnose` first to understand what caused the crash, then `/cg-resume` to pick up the work.
 - *Roadmap check*: `/cg-resume` shows milestone progress — e.g., "Milestone 1: 3/5 features done (60%)".
 
 **When NOT to use**:
 - In the middle of an active session — it's an entry point, not a mid-session state snapshot
 - When starting completely fresh with no prior work — just begin with `/cg-setup` or `/cg-brainstorm`
+- After a crash, if you want to understand *what caused it* — use `/cg-diagnose` first
 
 **Output**: A structured context summary and a suggested continuation path.
+
+---
+
+### 8. Diagnose (`/cg-diagnose`)
+
+**When to use**:
+- After VS Code crashed and you restarted — this is always the first thing to run after a crash
+- When VS Code was sluggish or froze and you want to understand why
+- When the AI agent was behaving erratically before a crash (running unsafe commands, getting stuck in loops)
+
+**What happens**: Checks for uncommitted changes and stashed work. Locates and reads VS Code crash logs (`main.log`, `renderer.log`, `exthost.log`, `terminal.log`). Classifies the crash into one of five known categories based on log signatures. Presents a structured crash report with evidence, likely trigger, recovery steps, and prevention advice. Offers to hand off to `/cg-resume` for work recovery.
+
+**Scenarios**:
+- *Post-crash (Pester)*: `/cg-diagnose` finds forbidden Pester patterns in the terminal log, classifies as Category A, and reminds you of safe alternatives.
+- *Post-crash (long session)*: `/cg-diagnose` finds listener LEAK entries in the renderer log, classifies as Category B, and suggests session hygiene (new chat every 2–3h, close terminals).
+- *Post-crash (mid-edit)*: `/cg-diagnose` finds uncommitted changes and warns that a multi-file edit may have been interrupted. Recommends reviewing `git diff` before proceeding.
+- *Post-crash (unknown)*: `/cg-diagnose` doesn't find matching log signatures, classifies as Category E, and suggests filing a VS Code issue with the log excerpts.
+
+**When NOT to use**:
+- When VS Code didn't crash — this command only inspects crash logs
+- For regular session start — use `/cg-resume` instead
+- To fix a bug in your code — use `/cg-fixbug`
+
+**Output**: A structured crash report and a handoff to `/cg-resume` for work recovery.
 
 ---
 

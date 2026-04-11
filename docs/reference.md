@@ -52,6 +52,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. |
 | `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
+| `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
 > **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 25 prompt and agent files.
 
