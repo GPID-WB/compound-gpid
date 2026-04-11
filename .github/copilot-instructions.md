@@ -17,7 +17,13 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
    $r | Select-Object TotalCount, PassedCount, FailedCount
    ```
    Assign to variable first — do **not** pipeline directly into `Select-Object` or `Where-Object`.
-5. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
+5. **NEVER use `2>&1 | ...` pipelines from Invoke-Pester**:
+   ```powershell
+   # ❌ CRASHES VS CODE
+   Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|fail' | ...
+   ```
+   To inspect failures, re-run without `-Quiet`: `if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }`
+6. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
    ```powershell
    . tests\Run-Tests.ps1
    ```
@@ -63,11 +69,16 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | One fuzzy task to clarify | `/cg-brainstorm` |
 | Known task to plan | `/cg-plan` |
 | Direct roadmap edit | `@cg-roadmap` |
+| Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
+| Diagnose VS Code crash | `/cg-diagnose` |
 | Implement a plan | `/cg-work` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
 | Capture a solution | `/cg-compound` |
+| Refresh knowledge base | `/cg-compound-refresh` |
+
+> **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
 
 ## Coding Standards
 
@@ -119,11 +130,12 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 - **light**: Runs `cg-code-quality` + `cg-testing` agents only. Use for quick fixes and small changes.
 - **standard**: Runs all 8 review agents. Default for most work.
-- **thorough**: Runs all 8 review agents + `cg-learnings-researcher` to cross-reference past solutions. Use for major features and refactors.
+- **thorough**: Runs all 8 review agents + `cg-learnings-researcher` to cross-reference past solutions and `cg-adversarial` for adversarial edge-case analysis. Use for major features and refactors.
 
 ## Priority System for Review Findings
 
-- **P1 — CRITICAL**: Must fix before merge. Security issues, data corruption risks, incorrect results.
+- **P0 — BLOCKING**: Immediate remediation required. Exploitable security vulnerability, PII/credential exposure, silent data corruption, incorrect statistical results.
+- **P1 — CRITICAL**: Must fix before merge. Bugs causing incorrect behavior, missing critical validation, error handling gaps.
 - **P2 — IMPORTANT**: Should fix. Performance problems, missing tests, poor documentation.
 - **P3 — MINOR**: Nice to have. Style improvements, minor refactors, suggestions.
 

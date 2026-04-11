@@ -1,8 +1,8 @@
----
+﻿---
 description: "Handles atomic roadmap.json writes: add/remove milestones and features, update statuses, link plans. The only agent users interact with directly. For strategic restructuring (rethinking scope or priorities), use `/cg-strategy`."
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'write']
-user-invokable: true
+user-invocable: true
 ---
 
 # Roadmap Manager
@@ -65,7 +65,7 @@ maps to milestone `in-progress`.
 
 ## Milestone Status Calculation
 
-Milestone status is always **derived** from its features — never set directly by
+Milestone status is always **derived** from its features â€” never set directly by
 a user or agent. This prevents status drift: as features progress, the milestone
 automatically reflects their combined state. If all features are done, the
 milestone becomes done without any extra step.

@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Load context and resume interrupted work. Use at the start of a session to pick up where you left off."
 model: Claude Haiku 4.5 (copilot)
 ---
@@ -78,7 +78,7 @@ Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each an
 - `status: active`
 - `status: in-progress`
 
-For each, extract: `date`, `title`, `estimated-effort`, `tags`.
+For each, extract: `date`, `title`, `scope`, `estimated-effort`, `tags`.
 
 #### 2b. Unplanned brainstorms
 
@@ -144,91 +144,9 @@ If stale, collect the following nudge for the **Maintenance Nudges** block in St
 
 ### Step 3: Present Context Summary
 
-Present a structured summary.
+Read `resume-templates.md` for the **Session Context Header** format. Present a structured summary using data from Steps 0–2.
 
-If `compound-gpid.md` exists:
-
-```markdown
-## Session Context
-
-**<project-name>**: <objective> | Focus: <current-focus>
-
-Language: <language> | Type: <project-type> | Review depth: <review-depth>
-```
-
-If `compound-gpid.md` does NOT exist, use:
-
-```markdown
-## Session Context
-
-> no-charter No project charter found. Run `/cg-setup` to create one.
-
-Language: <language> | Type: <project-type> | Review depth: <review-depth>
-```
-
-Then append the pending work sections:
-
----
-
-### 🔄 In-Progress Plans (<count>)
-1. `<date>` — **<title>** [effort: <estimated-effort>]
-   Tags: <tags>
-2. ...
-
-### � Pending Review Findings (<count>)
-1. `<filename>` — <open-P1-count> critical, <open-P2-count> important, <open-P3-count> minor open findings
-   → Apply with `/cg-fix-triage`
-2. ...
-
-### 💡 Decided Brainstorms Without a Plan (<count>)
-1. `<date>` — **<title>**
-   → Ready for `/cg-plan`
-2. ...
-
-### 🕐 Recent Git Activity
-Branch: `<branch-name>`
-Last commits:
-- <hash> <message>
-- <hash> <message>
-...
-
-Uncommitted changes: <count files changed, or "none">
-
----
-
-### 📊 Milestone Progress (<milestone count>)
-
-> Only include this section if `roadmap.json` exists.
-
-**<milestone title>** -- <done>/<total> features [<status>]
-  _<objective>_
-  ✅ <done feature title>
-  🔄 <active feature title>
-  📋 <planned feature title>
-  💡 <idea feature title>
-
-**<next milestone>** -- ...
-
-> If any cross-check discrepancies were found:
-> ⚠️ Feature '<title>' is marked active but its plan is completed.
->   Run `@cg-roadmap` to update its status.
-> ⚠️ Feature '<title>' has a stale plan reference ('<path>' not found).
-
-> Scope health nudge <!-- SCOPE_THRESHOLD: 60% --> -- include only when more than 60% of all features
-> across milestones are `idea` or `planned`:
-> ⚠️ **Roadmap scope check**: <N> of <total> features haven't been started.
-> Consider reviewing your roadmap with `@cg-roadmap` to archive or
-> deprioritize items that aren't near-term. Or run `/cg-strategy` to
-> rethink the roadmap scope.
-
-### ⚠️ Maintenance Nudges
-
-> Only include this section if a nudge was collected in Step 2e or Step 2f.
-
-- <nudge text collected from Step 2e or Step 2f>
-
----
-```
+Then append pending work using the **Pending Work Sections** format from the same file.
 
 If all sections are empty (no pending plans, findings, brainstorms, or nudges):
 - If `roadmap.json` exists: say "No pending work found. Start with `/cg-brainstorm` if requirements are fuzzy, or `/cg-plan` if you know what to build."
@@ -248,22 +166,6 @@ Based on what you found, suggest the most logical next step:
 - If nothing is pending: suggest starting fresh with `/cg-brainstorm` or `/cg-plan`
 - If roadmap has >60% unstarted features AND no strategy document in `.cg-docs/strategy/` from the last 60 days (treat a missing directory as zero documents — **scope-check condition**): add `/cg-strategy` as an option to rethink the roadmap scope
 
-Ask:
 
-> What would you like to do?
-> 1. Continue: **<title of most recent in-progress plan>** — `/cg-work`
-> 2. Apply review findings: **<review filename>** — `/cg-fix-triage`
-> 3. Plan: **<title of decided brainstorm>** — `/cg-plan`
-> 4. Review uncommitted changes — `/cg-review`
-> 5. Start something new — `/cg-brainstorm`
-
-Adapt the options to what's actually available. If only one option applies, just suggest it directly.
-If `roadmap.json` exists and any `in-progress` milestone has features with
-`status: "idea"`, add an additional option:
-
-> N. Plan a roadmap idea: **<feature title>** (in <milestone title>) -- `/cg-plan`
-
-If **scope-check condition** holds (>60% unstarted features AND no recent strategy document — defined above), add:
-
-> N. Rethink the roadmap scope — `/cg-strategy`
+Read `resume-templates.md` for the **Next Action Suggestions** format. Adapt the options to what's actually available.
 

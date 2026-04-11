@@ -42,18 +42,25 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 |--------|-------|---------|
 | `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
 | `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
-| `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions |
-| `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan |
-| `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan |
-| `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: reproduce, diagnose, fix, verify, document |
-| `/cg-review` | Mixed | Multi-agent code review with P1/P2/P3 findings |
-| `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files. |
-| `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge |
-| `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work, and resume interrupted sessions |
+| `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project. Use when you don't have a specific task in mind. |
+| `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. |
+| `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. Includes confidence check before finalizing. |
+| `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. |
+| `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: intake → reproduce (hard stop) → diagnose → fix (hard stop) → document. Checks prior bug solutions at intake. |
+| `/cg-review [light\|standard\|thorough] [mode:autofix]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Depth overrides config; content-based auto-escalation applies automatically (pipeline files, statistical functions, secrets, large diffs). `mode:autofix` applies safe mechanical fixes automatically. Arguments can be combined: `/cg-review light mode:autofix`. |
+| `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. Use `--migrate` to backfill per-finding status tracking on legacy review files (pre-v0.4.3). |
+| `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. |
+| `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
+| `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
+| `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 22 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 25 prompt and agent files.
 
-> **Project Charter**: All /cg-* prompts automatically read compound-gpid.md at session start (if it exists). If missing, prompts remind you to run /cg-setup to optionally create one. Prompts work without a charter -- the reminder is advisory.
+> **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
+
+> **Prior-work awareness**: `/cg-brainstorm` checks `.cg-docs/brainstorms/` and `/cg-plan` checks `.cg-docs/plans/` for related prior work before starting. If a match is found, you can continue from it, follow up, or start fresh.
+
+> **Scope assessment**: `/cg-brainstorm`, `/cg-plan`, and `/cg-work` all classify the task scope (Lightweight / Standard / Deep) and adapt their behavior accordingly. `/cg-work` declines to generate inline plans for Standard/Deep tasks — use `/cg-plan` first.
 
 ### Plugin Development (developer-only)
 
@@ -78,10 +85,58 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
+| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (thorough only) | Sonnet 4.6 |
 
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
+
+### Auto-Escalation Rules
+
+In addition to the configured depth tier, `/cg-review` automatically applies these content-based overrides:
+
+| Trigger | Override |
+|---------|----------|
+| Changed files include `pipeline*.{R,py}`, `extract*.{R,py}`, `load*.{R,py}`, or any file in a `scripts/` directory | Always adds `@cg-data-quality` (even in `light`) |
+| Changed files touch authentication, secrets, or credentials | Always adds `@cg-version-control` |
+| Changed files call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always adds `@cg-data-quality` + `@cg-reproducibility` |
+| ≥ 50 non-test lines changed | Escalates `light` → `standard` |
+| ≥ 200 non-test lines changed | Suggests `thorough` to user (does not auto-apply) |
+
+When any override fires, the prompt tells you: `"Auto-escalation applied: [reason]. Running [agents] in addition to the base depth."`
+
+### Per-Finding Status Tracking
+
+Review reports saved to `.cg-docs/reviews/` include YAML frontmatter that tracks each finding's status:
+
+```yaml
+---
+plan: .cg-docs/plans/2026-04-01-my-feature.md
+findings:
+  P0.1: open
+  P1.1: fixed
+  P2.1: skipped
+---
+```
+
+| Status | Meaning |
+|--------|---------|
+| `open` | Not yet addressed — will appear in the next `/cg-fix-triage` run |
+| `fixed` | Applied by `/cg-fix-triage`; excluded from future sessions |
+| `skipped` | Deliberately deferred; `/cg-resume` still counts them as pending |
+
+> **Legacy review files** (from before v0.4.3) do not have the `findings:` key. Run `/cg-fix-triage --migrate` once to backfill status tracking on all legacy files.
+
+Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing.
+
+| Level | Label | Meaning | Action |
+|-------|-------|---------|--------|
+| **P0** | BLOCKING | Exploitable security vulnerability, PII/credential exposure, silent data corruption, incorrect statistical results | Immediate remediation required — must fix before anything else |
+| **P1** | CRITICAL | Bugs causing incorrect behavior, missing critical validation, error handling gaps | Must fix before merge |
+| **P2** | IMPORTANT | Performance problems, missing tests, poor documentation | Should fix |
+| **P3** | MINOR | Style improvements, minor refactors, suggestions | Nice to have |
+
+> Use `/cg-fix-triage P0` to fix all blocking findings, `/cg-fix-triage P0 P1` to fix blocking and critical, or `/cg-fix-triage P1.2 P2.3` to fix specific IDs.
 
 ## Roadmap Agent
 

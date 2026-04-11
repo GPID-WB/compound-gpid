@@ -35,7 +35,7 @@ Capture a solution when:
 ### 5. Categorize and Tag
 - Choose the most appropriate category (see SKILL.md)
 - Add relevant tags for searchability
-- Set severity based on impact (P1/P2/P3)
+- Set severity based on impact (P0/P1/P2/P3)
 - Note the language (R, Python, both)
 
 ### 6. Cross-Reference

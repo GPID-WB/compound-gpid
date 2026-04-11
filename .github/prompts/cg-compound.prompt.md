@@ -63,7 +63,7 @@ category: "<category>"
 language: "<R|Python|Stata|both>"
 tags: [<searchable tags>]
 root-cause: "<brief root cause>"
-severity: "<P1|P2|P3>"
+severity: "<P0|P1|P2|P3>"
 ---
 
 # <Title>

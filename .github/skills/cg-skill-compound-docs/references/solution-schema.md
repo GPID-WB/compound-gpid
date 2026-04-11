@@ -12,7 +12,7 @@ category: "performance-issues"      # One of the 6 categories
 language: "R"                       # R | Python | both
 tags: [data.table, join, setkey]    # Searchable tags (3-5 recommended)
 root-cause: "brief root cause"     # One-sentence root cause
-severity: "P2"                      # P1 | P2 | P3
+severity: "P2"                      # P0 | P1 | P2 | P3
 ---
 ```
 
@@ -22,11 +22,11 @@ severity: "P2"                      # P1 | P2 | P3
 |-------|------|--------|
 | `date` | Date | `YYYY-MM-DD` |
 | `title` | String | Descriptive, specific |
-| `category` | String | `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows` |
+| `category` | String | `bugs`, `build-errors`, `performance-issues`, `testing-patterns`, `data-quality`, `environment-issues`, `git-workflows` |
 | `language` | String | `R`, `Python`, `both` |
 | `tags` | Array | 3-5 searchable keywords |
 | `root-cause` | String | One-sentence summary |
-| `severity` | String | `P1`, `P2`, `P3` |
+| `severity` | String | `P0`, `P1`, `P2`, `P3` |
 
 ## Document Body
 

@@ -22,9 +22,12 @@ Invoke-Pester tests/a.Tests.ps1, tests/b.Tests.ps1 -PassThru |
   Select-Object -ExpandProperty TestResult |
   Where-Object { $_.Result -ne 'Passed' } |
   Format-Table -AutoSize Name, Result, ErrorRecord
+
+# ❌ CRASHES VS CODE — pipelining Invoke-Pester output through 2>&1
+Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|fail' | ...
 ```
 
-**Why these crash:** `-ExpandProperty TestResult` materialises the full Pester result graph as .NET objects in the PowerShell extension host. On suites with junction-creating tests (`link.Tests.ps1`, `unlink.Tests.ps1`), this combines with junction-cleanup timing to exhaust the extension host and freeze VS Code.
+**Why these crash:** `-ExpandProperty TestResult` materialises the full Pester result graph as .NET objects in the PowerShell extension host. On suites with junction-creating tests (`link.Tests.ps1`, `unlink.Tests.ps1`), this combines with junction-cleanup timing to exhaust the extension host and freeze VS Code. Pipelining through `2>&1` redirects the error stream into the same pipeline, causing interleaved object serialization that overwhelms the extension host — even on single-file runs of large test files (300+ tests).
 
 ## Safe Patterns — ALWAYS USE THESE
 
@@ -76,8 +79,19 @@ Before submitting any `Invoke-Pester` command, verify:
 - [ ] Not `Invoke-Pester tests/` (directory form)
 - [ ] Not `-PassThru | Select-Object -ExpandProperty TestResult`
 - [ ] Not `-PassThru | Where-Object`
+- [ ] Not `Invoke-Pester ... 2>&1 | ...` (2>&1 redirect piped to anything)
 - [ ] Single file OR sequential `foreach` loop
 - [ ] If using `-PassThru`, result is stored in `$r` first
+
+### Safe pattern for finding failing test details
+
+Do NOT use `2>&1 | Select-String` to grep for failures. Instead:
+```powershell
+$r = Invoke-Pester tests/foo.Tests.ps1 -PassThru -Quiet
+$r | Select-Object TotalCount, PassedCount, FailedCount
+# If failures: re-run without -Quiet to see each It block result
+if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }
+```
 
 ## Test Files in This Workspace
 

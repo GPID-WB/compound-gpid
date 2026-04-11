@@ -52,19 +52,25 @@ You are a senior developer applying fixes from a previously saved review report.
 Parse the user's arguments to decide which findings to fix:
 
 - **No arguments**: Fix all findings in the review report.
-- **Priority levels** (e.g., `P1`, `P2`, `P3`): Fix all findings at the
+- **Priority levels** (e.g., `P0`, `P1`, `P2`, `P3`): Fix all findings at the
   specified priority levels. Example: `/cg-fix-triage P1 P3` fixes all P1
   and all P3 findings.
 - **Individual IDs** (e.g., `P1.2`, `P2.1`): Fix only the specified findings.
   Example: `/cg-fix-triage P1.2 P2.1` fixes exactly those two.
 - **Mixed** (e.g., `P1 P2.3`): Fix all P1 findings plus finding P2.3.
+- **`--migrate`**: Run migration mode instead of the normal fix flow (see
+  Special Mode: `--migrate` at the bottom). Adds `findings:` tracking
+  frontmatter to legacy review files. Does NOT apply any fixes.
+
+If any argument is not in the recognized list above, warn:
+> "Unrecognized argument '`<arg>`' — ignoring. Recognized arguments: `P0`, `P1`, `P2`, `P3`, individual IDs (e.g., `P1.2`), or `--migrate`."
 
 Tell the user which findings are in scope:
 > "Fixing N findings: P1.1, P1.2, P2.3 (M out of scope)."​
 
 ### Step 3: Apply Fixes
 
-For each in-scope finding, in order (P1 first, then P2, then P3):
+For each in-scope finding, in order (P0 first, then P1, then P2, then P3):
 
 1. Show the finding: ID, agent name, file, line, description, and suggested fix.
 2. Apply the suggested fix.
@@ -130,7 +136,7 @@ instead of the normal fix flow:
    frontmatter at all). These are legacy review files.
 2. For each legacy file:
    a. Parse finding IDs from the markdown body using the pattern
-      `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P1.1`, `P2.3`).
+      `**[P0.`, `**[P1.`, `**[P2.`, `**[P3.` (e.g., `P0.1`, `P1.1`, `P2.3`).
    b. Apply the companion-plan heuristic to determine default status:
       - Strip the `-review` suffix from the review filename stem
         (e.g., `2026-04-01-cg-strategy-review.md` → stem
@@ -140,15 +146,19 @@ instead of the normal fix flow:
         set all findings to `fixed`.
       - Otherwise (plan not found, or plan not completed): set all findings
         to `open`.
-   c. Add YAML frontmatter to the file:
-      ```yaml
-      ---
-      plan: <path to companion plan, or null>
-      findings:
-        P1.1: fixed   # or open
-        P2.1: fixed
-      ---
-      ```
+   c. Add tracking frontmatter to the file using this split logic:
+      - **If no frontmatter exists**: prepend a full block:
+        ```yaml
+        ---
+        plan: <path to companion plan, or null>
+        findings:
+          P1.1: fixed   # or open
+          P2.1: fixed
+        ---
+        ```
+      - **If frontmatter exists but lacks a `findings:` key**: insert only the
+        `findings:` map into the existing block (do not create a second `---`
+        block — malformed YAML).
       **Write the updated file directly. Do NOT delegate this step to a subagent.**
 3. Report what was migrated:
    > "Migrated N review file(s). M defaulted to `fixed` (companion plan

@@ -11,7 +11,7 @@
 #     frontmatter) and uses -cmatch for case-sensitive matching.
 #   - For tier-assignment rationale and override guidance, see docs/model-guide.md.
 #
-# Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Output Minimal
+# Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Quiet
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
@@ -33,8 +33,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 12 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should Be 12
+    It "contains exactly 15 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should Be 15
     }
 
     foreach ($file in $promptFiles) {
@@ -65,8 +65,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 10 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should Be 10
+    It "contains exactly 11 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should Be 11
     }
 
     foreach ($file in $agentFiles) {
@@ -101,11 +101,13 @@ Describe "docs/model-guide.md - structure and sync" {
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    # All 12 prompt file stems must appear in the guide
+    # All 14 prompt file stems must appear in the guide
     $promptStems = @(
         'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
         'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
-        'cg-setup', 'cg-devtag', 'cg-resume'
+        'cg-setup', 'cg-devtag', 'cg-resume',
+        'cg-compound-refresh', 'cg-ideate',
+        'cg-diagnose'
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
@@ -113,11 +115,12 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 10 agent file stems must appear in the guide
+    # All 11 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
-        'cg-learnings-researcher', 'cg-roadmap'
+        'cg-learnings-researcher', 'cg-roadmap',
+        'cg-adversarial'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {

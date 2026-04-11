@@ -11,6 +11,11 @@
 #   Rule 3:  PassThru output must be assigned before use
 #             → $r = Invoke-Pester ... is the only form used here.
 #
+# REGISTRATION REQUIREMENT: Every .Tests.ps1 file in tests/ MUST be listed in
+# the $testNames array below. Files not listed will not run and produce only a
+# non-fatal warning — a silent coverage gap. When adding a new test file,
+# always add its name to $testNames.
+#
 # Usage:
 #   . tests\Run-Tests.ps1                Run all tests, quiet per-file output
 #   . tests\Run-Tests.ps1 -FailFast      Stop after the first file with failures
@@ -44,7 +49,7 @@ $failedNames = @()
 $skippedNames = @()
 
 Write-Host ""
-Write-Host "Compound GPID — Pester test suite" -ForegroundColor Cyan
+Write-Host "Compound GPID - Pester test suite" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 
 foreach ($name in $testNames) {
@@ -88,6 +93,17 @@ if ($failedNames.Count -gt 0) {
         Write-Host "    Invoke-Pester tests\$name.Tests.ps1" -ForegroundColor Red
     }
     Write-Host "  Run the command above to see the full failure details." -ForegroundColor DarkGray
+}
+
+# Warn about test files not in $testNames (P2.5: prevents silent omissions)
+$allTestFiles = Get-ChildItem -Path (Join-Path $repoRoot "tests") -Filter "*.Tests.ps1" -File
+$undeclared = $allTestFiles | Where-Object { $testNames -notcontains ($_.BaseName -replace '\.Tests$', '') }
+if ($undeclared.Count -gt 0) {
+    Write-Host ""
+    Write-Host "  WARNING: undeclared test files (not in `$testNames):" -ForegroundColor Yellow
+    foreach ($f in $undeclared) {
+        Write-Host "    $($f.Name) - add to `$testNames in Run-Tests.ps1 to include in suite" -ForegroundColor Yellow
+    }
 }
 
 Write-Host "==================================" -ForegroundColor $summaryColor

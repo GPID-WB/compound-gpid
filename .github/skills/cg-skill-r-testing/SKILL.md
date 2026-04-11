@@ -76,7 +76,7 @@ describe("foofy()", {
 
 **Key insight:** "Use `describe()` to verify you implement the right things; use `test_that()` to ensure you do things right."
 
-See [references/bdd.md](references/bdd.md) for nesting, test-first workflow, and mixing both styles.
+Read `references/bdd.md` in this directory for nesting, test-first workflow, and mixing both styles.
 
 ## Running Tests
 
@@ -330,67 +330,16 @@ expect_no_missing <- function(x) {
 
 ## Snapshot Testing
 
-For complex output that's hard to verify programmatically:
-
-```r
-test_that("error message is informative", {
-  expect_snapshot(error = TRUE, validate_input(NULL))
-})
-
-test_that("print output is stable", {
-  result <- generate_summary(new_test_dt())
-  expect_snapshot(result)
-})
-```
-
-Workflow: `devtools::test()` creates new snapshots → `testthat::snapshot_review()` → `testthat::snapshot_accept()`. Always commit `_snaps/` to git.
-
-See [references/snapshots.md](references/snapshots.md) for transforms, variants, and full workflow.
+For complex output that's hard to verify programmatically, use `expect_snapshot()`.
+Read `references/snapshots.md` in this directory for examples, transforms, variants, and full workflow.
 
 ## Mocking
 
-Replace external dependencies during testing:
+Replace external dependencies during testing with `local_mocked_bindings()`.
+Read `references/mocking.md` in this directory for S3/S4/R6 method mocking, webfakes, httptest2, and best practices.
 
-```r
-test_that("processes API response correctly", {
-  local_mocked_bindings(
-    fetch_data = function(...) data.table(id = 1L, value = 42)
-  )
-  result <- my_wrapper()
-  expect_equal(result$value, 42)
-})
-```
-
-See [references/mocking.md](references/mocking.md) for S3/S4/R6 method mocking, webfakes, httptest2, and best practices.
-
-## Test Fixtures and Data
-
-Three approaches:
-
-```r
-# 1. Constructor function (preferred — data.table, deterministic)
-new_test_dt <- function(n = 10L, seed = 42L) {
-  set.seed(seed)
-  data.table(
-    id     = seq_len(n),
-    value  = rnorm(n),
-    weight = runif(n, 0.5, 2),
-    group  = sample(letters[1:3], n, replace = TRUE)
-  )
-}
-
-# 2. Static fixture file (for real-world edge cases)
-data <- readRDS(test_path("fixtures", "sample.rds"))
-
-# 3. Local function with automatic cleanup
-local_temp_csv <- function(dt, env = parent.frame()) {
-  path <- withr::local_tempfile(fileext = ".csv", .local_envir = env)
-  fwrite(dt, path)
-  path
-}
-```
-
-See [references/fixtures.md](references/fixtures.md) for helper files, setup files, database fixtures, and organization.
+Three approaches: constructor functions (preferred), static fixture files, and local functions with cleanup.
+Read `references/fixtures.md` in this directory for helper files, setup files, database fixtures, and organization.
 
 ## testthat 3 Modernizations
 
@@ -408,13 +357,9 @@ See [references/fixtures.md](references/fixtures.md) for helper files, setup fil
 | Task | Code |
 |------|------|
 | Initialize | `usethis::use_testthat(3)` |
-| New test file | `usethis::use_test("name")` |
 | Run full suite | `devtools::test()` |
 | Run single file | `testthat::test_file("tests/testthat/test-x.R")` |
 | Review snapshots | `testthat::snapshot_review()` |
-| Accept snapshots | `testthat::snapshot_accept()` |
-| Find slow tests | `devtools::test(reporter = "slow")` |
-| Shuffle tests | `devtools::test(shuffle = TRUE)` |
 
 ## Cross-References
 
