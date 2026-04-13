@@ -316,6 +316,7 @@ Review reports are saved with per-finding status tracking in YAML frontmatter. E
 
 **Scenarios**:
 - *Normal fix cycle*: Run `/cg-review`, then `/cg-fix-triage` to apply all findings.
+- *Large report*: If the review has more than 15 open findings, `/cg-fix-triage` warns you before proceeding and recommends priority batches. Respond `batch` to get the three recommended batch commands and stop, or `yes` to proceed with all findings at once.
 - *Prioritized fix*: Run `/cg-fix-triage P0 P1` to address only blocking and critical issues first; fix P2/P3 later or skip them.
 - *Selective fix*: Copy specific finding IDs from the review report: `/cg-fix-triage P1.2 P2.3`.
 - *Legacy review file*: Run `/cg-fix-triage --migrate` once on any review file written before v0.4.3 to add the `findings:` frontmatter block.

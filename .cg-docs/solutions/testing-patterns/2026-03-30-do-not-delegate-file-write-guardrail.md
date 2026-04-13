@@ -109,3 +109,6 @@ files outside the subagent pattern:
 - [git-workflows/2026-04-01-charter-drift-prevention.md](../git-workflows/2026-04-01-charter-drift-prevention.md)
   — Structural rule + `last-reviewed` frontmatter + archive-on-removal pattern
   applied to a shared committed document; tests enforce the invariants.
+- [2026-04-13-prompt-interaction-branch-completeness.md](./2026-04-13-prompt-interaction-branch-completeness.md)
+  — All `[yes/X]` response branches in a prompt guard must be explicitly handled;
+  implicit branches cause silent model failures (the same implicit-behavior failure mode).

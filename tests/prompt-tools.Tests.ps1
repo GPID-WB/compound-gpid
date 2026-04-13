@@ -218,6 +218,10 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "references /cg-ideate in Workflow Entry Points" {
         ($section -match '/cg-ideate') | Should Be $true
     }
+
+    It "references /cg-fix-problems in Workflow Entry Points" {
+        ($section -match '/cg-fix-problems') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -290,6 +294,14 @@ Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
 
     It "Step 3 apply order lists P0 first before P1" {
         ($content -match 'P0 first') | Should Be $true
+    }
+
+    It "warns the user when there are more than 15 open findings (large report guard)" {
+        ($content -match '15 open|more than 15') | Should Be $true
+    }
+
+    It "recommends priority batches (P0 P1, P2, P3) in the large report warning" {
+        ($content -match 'P0 P1.*P2.*P3|priority batch') | Should Be $true
     }
 }
 
@@ -762,7 +774,8 @@ Describe "Agent files - tools restriction enforcement" {
     }
 
     # Review-only agents must not include the 'write' tool
-    $reviewAgents = $agentFiles | Where-Object { $_.Name -ne 'cg-roadmap.agent.md' }
+    # cg-roadmap.agent.md uses write for roadmap updates; cg-fix-problems.agent.md uses editFiles (not write)
+    $reviewAgents = $agentFiles | Where-Object { $_.Name -ne 'cg-roadmap.agent.md' -and $_.Name -ne 'cg-fix-problems.agent.md' }
 
     foreach ($file in $reviewAgents) {
         $filePath = $file.FullName
@@ -1326,5 +1339,127 @@ Describe "cg-review.prompt.md - depth override arguments" {
 
     It "references review depth from compound-gpid.local.md for default" {
         ($content -match 'compound-gpid\.local') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.33 — cg-fix-problems.prompt.md existence, frontmatter, no tool restriction
+# ---------------------------------------------------------------------------
+
+Describe "cg-fix-problems.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-problems.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-fix-problems.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-problems.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
+
+Describe "cg-fix-problems.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-problems.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    Context "orchestrator must have unrestricted tools" {
+        It "does not have a tools: key (write access required for orchestrating prompts)" {
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+        }
+    }
+}
+
+Describe "cg-fix-problems.prompt.md - dispatches agent and scans diagnostics" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-problems.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "dispatches @cg-fix-problems agent" {
+        ($content -match '@cg-fix-problems') | Should Be $true
+    }
+
+    It "references get_errors for diagnostics scanning" {
+        ($content -match 'get_errors') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.34 — cg-fix-problems.agent.md existence, user-invocable false, auto mode protocol
+# ---------------------------------------------------------------------------
+
+Describe "cg-fix-problems.agent.md - user-invocable false" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-fix-problems.agent.md"
+    $frontmatter = Get-Frontmatter -FilePath $agentFile
+
+    It "exists in the repository" {
+        Test-Path $agentFile | Should Be $true
+    }
+
+    It "has user-invocable: false in frontmatter" {
+        ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+    }
+
+    It "has editFiles in its tools list (required to apply code fixes)" {
+        ($frontmatter -match 'editFiles') | Should Be $true
+    }
+}
+
+Describe "cg-fix-problems.agent.md - auto mode protocol" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-fix-problems.agent.md"
+    $content = Get-Content $agentFile -Raw -Encoding UTF8
+
+    It "documents 2-round retry budget" {
+        ($content -match '2[ \-]round|two[ \-]round|Round 2') | Should Be $true
+    }
+
+    It "documents errors-only filter for auto mode" {
+        ($content -match '(?i)errors only') | Should Be $true
+    }
+
+    It "references get_errors diagnostics tool" {
+        ($content -match 'get_errors') | Should Be $true
+    }
+
+    It "documents hard stop after round 2" {
+        ($content -match '[Hh]ard [Ss]top|Hard stop') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.35 — cg-work auto-dispatch @cg-fix-problems
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - auto-dispatch @cg-fix-problems" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references @cg-fix-problems agent" {
+        ($content -match '@cg-fix-problems') | Should Be $true
+    }
+
+    It "documents 2-round retry budget" {
+        ($content -match '2[ \-]round|two[ \-]round|2 rounds') | Should Be $true
+    }
+
+    It "documents errors-only scope for auto mode" {
+        ($content -match '(?i)errors only') | Should Be $true
+    }
+
+    It "explicitly suppresses auto-dispatch when no errors are present (warnings-only guard)" {
+        ($content -match 'Suppress this step.*no errors|no errors are present|when.*get_errors.*returns no errors') | Should Be $true
+    }
+
+    It "passes mode: auto to the agent dispatch (not interactive)" {
+        ($content -match 'mode:\s*auto') | Should Be $true
     }
 }

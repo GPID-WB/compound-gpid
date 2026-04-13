@@ -83,6 +83,27 @@ For **each step** in the plan:
 3. **Implement**: Write the code following project conventions and the relevant language skill.
 4. **Test**: Write tests as specified in the plan. Run both the discovered existing tests AND the new tests to verify nothing regressed.
    - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
+
+**Auto-Fix Diagnostics** (Step 4.1): Call `get_errors` on files touched by this step.
+   If `get_errors` returns **errors** (not warnings or info only):
+   1. Dispatch `@cg-fix-problems` in **auto mode** with the touched files and the
+      already-retrieved error data:
+      `mode: auto, files: [<list of files changed in this step>], diagnostics: [<errors from get_errors>]`
+   2. The agent applies up to **2 fix rounds** (errors only — not warnings or info).
+   3. After the agent returns, re-run both the previously-failing tests AND the full
+      test suite for all modules touched by this step.
+   4. If errors remain after the agent's 2-round budget:
+      > "Auto-fix resolved N of M errors. Remaining errors require manual attention:
+      > • `<file>:<line>` — `<message>`
+      > Continue to next step, or stop here to fix manually? [continue/stop]"
+      Wait for the user's choice.
+   5. If `get_errors` returns clean but tests still fail — the failure is semantic,
+      not diagnostic. Surface to the user:
+      > "Tests are still failing but no diagnostic errors were found. Auto-fix cannot
+      > resolve logical or semantic failures — manual investigation required."
+      Do NOT re-dispatch `@cg-fix-problems`.
+   - Suppress this step entirely when `get_errors` returns no errors.
+
 5. **Validate**: Check against the step's acceptance criteria.
 6. **Commit checkpoint**: Suggest a commit message following conventional commits format:
    - `type(scope): description`

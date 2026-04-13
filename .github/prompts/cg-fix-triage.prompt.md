@@ -65,6 +65,15 @@ Parse the user's arguments to decide which findings to fix:
 If any argument is not in the recognized list above, warn:
 > "Unrecognized argument '`<arg>`' — ignoring. Recognized arguments: `P0`, `P1`, `P2`, `P3`, individual IDs (e.g., `P1.2`), or `--migrate`."
 
+**Large report notice**: If there are more than 15 open findings in scope and no arguments were provided, warn the user before proceeding:
+> "This report has N open findings. Fixing all at once may hit response length limits.
+> Recommended: use priority batches — run `/cg-fix-triage P0 P1` first, then
+> `/cg-fix-triage P2`, then `/cg-fix-triage P3`. Proceed with all N anyway? [yes/batch]"
+> Wait for the user's response before continuing.
+> If the user responds `batch`: display the three recommended commands
+> (``/cg-fix-triage P0 P1``, ``/cg-fix-triage P2``, ``/cg-fix-triage P3``) and stop —
+> do not proceed with triage.
+
 Tell the user which findings are in scope:
 > "Fixing N findings: P1.1, P1.2, P2.3 (M out of scope)."​
 

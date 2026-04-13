@@ -75,6 +75,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Implement a plan | `/cg-work` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
+| Fix VS Code problems | `/cg-fix-problems` |
 | Capture a solution | `/cg-compound` |
 | Refresh knowledge base | `/cg-compound-refresh` |
 

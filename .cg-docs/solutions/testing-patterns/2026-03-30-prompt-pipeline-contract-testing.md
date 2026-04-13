@@ -151,3 +151,4 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
 - [2026-03-30-do-not-delegate-file-write-guardrail.md](./2026-03-30-do-not-delegate-file-write-guardrail.md) — guarding against the AI agent delegating file-writing steps to a subagent, causing silent data loss (layer below: _execution_ rather than _permission_ or _contract_)
 - [2026-03-02-prompt-file-permission-guardrails.md](./2026-03-02-prompt-file-permission-guardrails.md) — broader guardrails for prompt file structure
 - [2026-04-07-pester-test-quality-patterns.md](./2026-04-07-pester-test-quality-patterns.md) — four patterns for higher-quality Pester tests: shared helpers, anchored regex, non-empty value checks, named-criteria guards
+- [2026-04-13-prompt-interaction-branch-completeness.md](./2026-04-13-prompt-interaction-branch-completeness.md) — all `[yes/X]` response branches in a prompt guard must be explicitly handled; implicit branches cause silent model failures
