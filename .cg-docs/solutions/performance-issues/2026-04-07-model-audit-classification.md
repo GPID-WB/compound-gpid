@@ -1,7 +1,11 @@
 ---
 date: 2026-04-07
 title: "Full model audit — classification methodology and results"
+category: "performance-issues"
+language: "both"
 tags: [model-audit, tokens, performance, prompts, agents, haiku, sonnet, opus]
+root-cause: "All prompts and agents launched with default model assignments that were never systematically reviewed, causing over-spend on Opus and under-utilization of Haiku"
+severity: "P2"
 status: applied
 plan: ".cg-docs/plans/2026-04-07-full-model-audit.md"
 brainstorm: ".cg-docs/brainstorms/2026-04-07-full-model-audit.md"
