@@ -1463,3 +1463,43 @@ Describe "cg-work.prompt.md - auto-dispatch @cg-fix-problems" {
         ($content -match 'mode:\s*auto') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# P1.36 — cg-work roadmap status update must happen before summary wait
+# Bug: Step 5 (Update Roadmap Status) was placed after Step 4 (Summary).
+# Step 4 ends with "Wait for the user's response before proceeding."
+# In practice the user picks a next action (/cg-review etc.) and the
+# cg-work session ends — Step 5 never executes, causing roadmap drift.
+# Fix: move roadmap update to before the summary / user-wait.
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - roadmap done update before summary wait" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "'to status done.' dispatch phrase is present in the prompt" {
+        $content.IndexOf("to status done.") | Should BeGreaterThan -1
+    }
+
+    It "'Wait for the user's response before proceeding' phrase is present in the prompt" {
+        $content.IndexOf("Wait for the user's response before proceeding") | Should BeGreaterThan -1
+    }
+
+    It "dispatches roadmap 'to status done.' update BEFORE the 'Wait for the user' pause (prevents roadmap drift)" {
+        $waitPos = $content.IndexOf("Wait for the user's response before proceeding")
+        $donePos = $content.IndexOf("to status done.")
+        # The roadmap update must precede the user-wait pause
+        $donePos | Should BeLessThan $waitPos
+    }
+
+    It "Step 3.7 appears between Step 3.5 and Step 4 in the file" {
+        $step35Pos = $content.IndexOf("### Step 3.5:")
+        $step37Pos = $content.IndexOf("### Step 3.7:")
+        $step4Pos  = $content.IndexOf("### Step 4:")
+        $step35Pos | Should BeGreaterThan -1
+        $step37Pos | Should BeGreaterThan -1
+        $step4Pos  | Should BeGreaterThan -1
+        $step37Pos | Should BeGreaterThan $step35Pos
+        $step37Pos | Should BeLessThan $step4Pos
+    }
+}

@@ -10,14 +10,14 @@
         {
           "id": "cg-fix-problems-agent",
           "title": "@cg-fix-problems agent (auto-dispatched by /cg-work)",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-10-fix-problems-agent-and-prompt.md"
         },
         {
           "id": "cg-fix-problems-prompt",
           "title": "/cg-fix-problems user-facing prompt",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-10-fix-problems-agent-and-prompt.md"
         },
         {
           "id": "testing-skill-r",
@@ -64,7 +64,7 @@
         {
           "id": "ce-improvements-integration",
           "title": "CE-inspired improvements integration (P0 severity, new prompts, smart workflows)",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-04-08-ce-improvements-integration.md"
         }
       ]
@@ -130,7 +130,7 @@
     {
       "id": "architecture-research",
       "title": "Architecture Research",
-      "objective": "Evaluate Copilot hooks and the OpenAI Codex plugin pattern to determine whether they change the plugin's dispatch architecture before committing to copilot-instructions.md restructuring.",
+      "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones — stage control knobs and autonomous pipeline execution.",
       "status": "planned",
       "features": [
         {
@@ -160,6 +160,24 @@
         {
           "id": "ideate-prompt-from-compound-engineering",
           "title": "Include /ce:ideate-style prompt from compound-engineering-plugin",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "study-gsd2-superpowers-patterns",
+          "title": "Study GSD-2 and Superpowers workflow patterns",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "stage-control-knobs",
+          "title": "Stage control knobs for workflow prompts (blocked on external workflow research)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "autonomous-pipeline-autopilot",
+          "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
           "status": "idea",
           "plan": null
         }

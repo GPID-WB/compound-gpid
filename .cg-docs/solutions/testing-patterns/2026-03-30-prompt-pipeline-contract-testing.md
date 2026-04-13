@@ -152,3 +152,5 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
 - [2026-03-02-prompt-file-permission-guardrails.md](./2026-03-02-prompt-file-permission-guardrails.md) — broader guardrails for prompt file structure
 - [2026-04-07-pester-test-quality-patterns.md](./2026-04-07-pester-test-quality-patterns.md) — four patterns for higher-quality Pester tests: shared helpers, anchored regex, non-empty value checks, named-criteria guards
 - [2026-04-13-prompt-interaction-branch-completeness.md](./2026-04-13-prompt-interaction-branch-completeness.md) — all `[yes/X]` response branches in a prompt guard must be explicitly handled; implicit branches cause silent model failures
+- [2026-04-13-prompt-step-ordering-indexof-tests.md](./2026-04-13-prompt-step-ordering-indexof-tests.md) — using `IndexOf` character-offset comparisons to assert that prompt steps are in the correct relative order (complements presence tests)
+- [2026-04-13-dead-step-after-wait-prompt-session-terminator.md](./2026-04-13-dead-step-after-wait-prompt-session-terminator.md) — steps placed after a user-wait pause are dead code; all automatic side-effect steps must appear before the session-ending wait
