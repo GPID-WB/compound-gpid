@@ -48,7 +48,7 @@ You are a senior developer implementing a plan that was previously created with 
      ```
    - Present the plan for confirmation:
      > "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first for a full plan?"
-   - If the user confirms: proceed with the inline plan. Skip Step 1.5 (roadmap linking).
+   - If the user confirms: proceed with the inline plan. Skip Step 1.5 and Step 3.7 (no roadmap entry exists for inline plans).
    - If the user declines: stop and ask them to run `/cg-plan` first.
 3. Read the plan thoroughly. Understand every step, its acceptance criteria, and test requirements.
 4. Check relevant skills for the project's language:
@@ -157,17 +157,25 @@ If the frontmatter already has `status: completed`, skip silently.
 
 ### Step 3.7: Update Roadmap Status
 
+Only proceed to this step if all Step 2 sub-steps and the Step 3 quality
+checklist were completed and all tests are passing.
+
 If `roadmap.json` exists at the project root:
 
-1. Read it.
-2. Find the feature entry whose `plan` path matches the plan you just
-   implemented.
-3. If found: dispatch `@cg-roadmap` with: "Update feature with plan path
-   `<plan-path>` to status done."
-4. If not found: skip silently. Not every plan needs to be
-   milestone-tracked.
-5. After dispatch, verify `roadmap.json` was updated (read the file again
-   and check the status changed). If not, inform the user:
+1. Using the plan path resolved in Step 1, find all feature entries whose
+   `plan` path matches the plan just implemented. When comparing paths,
+   normalize both to forward slashes, workspace-relative format (strip any
+   absolute prefix or leading `./`). Skip features where `plan` is null.
+2. If no features matched but `roadmap.json` contains features with non-null
+   `plan` fields, surface a soft warning:
+   > "No matching feature found in `roadmap.json`. Verify the plan path is
+   > linked with `@cg-roadmap`."
+   Then skip the dispatch.
+3. If the matching feature's current status is already `done`, skip silently.
+4. For each matched feature: dispatch `@cg-roadmap` with: "Update feature
+   with plan path `<plan-path>` to status done."
+5. After `@cg-roadmap` returns, verify `roadmap.json` was updated (read the
+   file and check the status changed). If not, inform the user:
    > "Roadmap update may not have been applied. You can run `@cg-roadmap`
    > directly to update the status."
 

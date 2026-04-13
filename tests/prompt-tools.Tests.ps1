@@ -1477,13 +1477,29 @@ Describe "cg-work.prompt.md - roadmap done update before summary wait" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "dispatches roadmap 'status done' update BEFORE the 'Wait for the user' pause (prevents roadmap drift)" {
+    It "'to status done.' dispatch phrase is present in the prompt" {
+        $content.IndexOf("to status done.") | Should BeGreaterThan -1
+    }
+
+    It "'Wait for the user's response before proceeding' phrase is present in the prompt" {
+        $content.IndexOf("Wait for the user's response before proceeding") | Should BeGreaterThan -1
+    }
+
+    It "dispatches roadmap 'to status done.' update BEFORE the 'Wait for the user' pause (prevents roadmap drift)" {
         $waitPos = $content.IndexOf("Wait for the user's response before proceeding")
-        $donePos = $content.IndexOf("status done")
-        # Both phrases must be present
-        $donePos | Should BeGreaterThan -1
-        $waitPos | Should BeGreaterThan -1
+        $donePos = $content.IndexOf("to status done.")
         # The roadmap update must precede the user-wait pause
         $donePos | Should BeLessThan $waitPos
+    }
+
+    It "Step 3.7 appears between Step 3.5 and Step 4 in the file" {
+        $step35Pos = $content.IndexOf("### Step 3.5:")
+        $step37Pos = $content.IndexOf("### Step 3.7:")
+        $step4Pos  = $content.IndexOf("### Step 4:")
+        $step35Pos | Should BeGreaterThan -1
+        $step37Pos | Should BeGreaterThan -1
+        $step4Pos  | Should BeGreaterThan -1
+        $step37Pos | Should BeGreaterThan $step35Pos
+        $step37Pos | Should BeLessThan $step4Pos
     }
 }
