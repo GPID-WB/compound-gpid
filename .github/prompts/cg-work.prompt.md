@@ -155,6 +155,24 @@ Update the plan file's YAML frontmatter:
 
 If the frontmatter already has `status: completed`, skip silently.
 
+### Step 3.7: Update Roadmap Status
+
+If `roadmap.json` exists at the project root:
+
+1. Read it.
+2. Find the feature entry whose `plan` path matches the plan you just
+   implemented.
+3. If found: dispatch `@cg-roadmap` with: "Update feature with plan path
+   `<plan-path>` to status done."
+4. If not found: skip silently. Not every plan needs to be
+   milestone-tracked.
+5. After dispatch, verify `roadmap.json` was updated (read the file again
+   and check the status changed). If not, inform the user:
+   > "Roadmap update may not have been applied. You can run `@cg-roadmap`
+   > directly to update the status."
+
+If `roadmap.json` does not exist, skip this step entirely.
+
 ### Step 4: Summary
 
 Provide a summary:
@@ -186,24 +204,6 @@ Provide a summary:
 > 4. **`/cg-plan`** — Plan the next feature
 
 Wait for the user's response before proceeding.
-
-### Step 5: Update Roadmap Status
-
-If `roadmap.json` exists at the project root:
-
-1. Read it.
-2. Find the feature entry whose `plan` path matches the plan you just
-   implemented.
-3. If found: dispatch `@cg-roadmap` with: "Update feature with plan path
-   `<plan-path>` to status done."
-4. If not found: skip silently. Not every plan needs to be
-   milestone-tracked.
-5. After dispatch, verify `roadmap.json` was updated (read the file again
-   and check the status changed). If not, inform the user:
-   > "Roadmap update may not have been applied. You can run `@cg-roadmap`
-   > directly to update the status."
-
-If `roadmap.json` does not exist, skip this step entirely.
 
 ## Rules
 
