@@ -179,8 +179,6 @@ If `roadmap.json` exists at the project root:
    > "Roadmap update may not have been applied. You can run `@cg-roadmap`
    > directly to update the status."
 
-If `roadmap.json` does not exist, skip this step entirely.
-
 ### Step 4: Summary
 
 Provide a summary:
