@@ -192,3 +192,5 @@ block was removed.
 - [prompt-pipeline contract testing](./2026-03-30-prompt-pipeline-contract-testing.md) — the upstream pattern for testing named prompt interfaces
 - [Pester 3.4 vs 5 compatibility](./2026-03-04-pester-3-vs-5-windows-compatibility.md) — syntax constraints that apply to all of the above
 - [Invoke-Pester full suite + PassThru crashes VS Code](./2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md) — safe run patterns
+- [2026-04-15-pester-dotall-flag-required-for-multiline-regex.md](./2026-04-15-pester-dotall-flag-required-for-multiline-regex.md) — `(?s)` required when matching text that spans a line break in `Get-Content -Raw` output
+- [2026-04-15-new-validation-branch-requires-dedicated-test.md](./2026-04-15-new-validation-branch-requires-dedicated-test.md) — each new conditional path in a validation function requires a dedicated `It` block

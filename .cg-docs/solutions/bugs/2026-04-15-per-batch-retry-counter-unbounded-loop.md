@@ -102,3 +102,5 @@ When designing bounded retry logic:
   design anti-patterns discovered in Test Failure Recovery
 - `.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md`
   — testing patterns for catching prompt logic bugs
+- `.cg-docs/solutions/bugs/2026-04-15-loop-early-exit-skips-per-iteration-cleanup.md`
+  — related: loop early-exit directive that skips per-iteration cleanup (same class of silent step-bypass)

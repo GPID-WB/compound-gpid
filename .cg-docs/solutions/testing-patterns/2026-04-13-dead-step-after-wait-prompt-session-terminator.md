@@ -107,3 +107,4 @@ It "roadmap dispatch appears before user-wait pause" {
 - `.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md` — related: testing interface contracts between chained prompts
 - `.cg-docs/solutions/bugs/2026-04-15-self-defeating-guardrail-exception-in-llm-prompts.md` — related: another class of self-nullifying LLM guardrail (exception triggers on same evidence as the rule)
 - `.cg-docs/solutions/bugs/2026-04-15-per-batch-retry-counter-unbounded-loop.md` — related: bounded retry logic that resets incorrectly per failure batch
+- `.cg-docs/solutions/bugs/2026-04-15-loop-early-exit-skips-per-iteration-cleanup.md` — related: loop early-exit directive skips per-iteration cleanup steps (same root cause, within a loop rather than after a wait)
