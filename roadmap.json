@@ -4,7 +4,7 @@
     {
       "id": "quality-loop",
       "title": "Quality Loop",
-      "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R, Python, and Stata.",
+      "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R.",
       "status": "in-progress",
       "features": [
         {
@@ -26,22 +26,10 @@
           "plan": ".cg-docs/plans/2026-04-06-testing-skill-r.md"
         },
         {
-          "id": "testing-skill-python",
-          "title": "Testing skill for Python (pytest/parametrize/monkeypatch)",
-          "status": "idea",
-          "plan": null
-        },
-        {
-          "id": "testing-skill-stata",
-          "title": "Testing skill for Stata (assert-based/reprun)",
-          "status": "idea",
-          "plan": null
-        },
-        {
           "id": "per-step-test-enforcement-in-cg-work",
           "title": "Per-step test enforcement in /cg-work",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-15-per-step-test-failure-handling.md"
         },
         {
           "id": "review-finding-status-tracking",
@@ -104,7 +92,7 @@
     {
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
-      "objective": "Deepen the R skills so analytical team members get idiomatic collapse and data.table patterns, anti-patterns, and ML workflow support without leaving Copilot.",
+      "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
       "status": "in-progress",
       "features": [
         {
@@ -122,6 +110,18 @@
         {
           "id": "skill-description-consistency-audit",
           "title": "Skill description consistency audit and optimization",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "testing-skill-python",
+          "title": "Testing skill for Python (pytest/parametrize/monkeypatch)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "testing-skill-stata",
+          "title": "Testing skill for Stata (assert-based/reprun)",
           "status": "idea",
           "plan": null
         }

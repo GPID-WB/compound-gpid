@@ -84,6 +84,27 @@ For **each step** in the plan:
 4. **Test**: Write tests as specified in the plan. Run both the discovered existing tests AND the new tests to verify nothing regressed.
    - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
 
+   **Test Failure Recovery** (functional tests only — not the `get_errors` diagnostic layer):
+   If any tests fail:
+   1. Analyse the failure output. Make a targeted fix to the code under test — do not
+      weaken or remove test assertions. (Exception: if this plan step explicitly changed
+      a function's interface or return type, updating tests to match the new interface
+      is correct.) Re-run the tests.
+   2. If tests still fail, make one more targeted fix attempt and re-run.
+   3. If the targeted failures are resolved, re-run the **full test suite** for all
+      modules touched by this step to catch regressions introduced by the fix.
+      If the full suite passes, continue normally.
+   4. If tests are still failing after 2 fix attempts:
+      > "**N test(s) still failing after 2 fix attempts** — continuing to next step.
+      > Review before merging.
+      > Failing tests:
+      > • `<test-file>::<test-name>` — `<last error message>`
+      > • ..."
+      Continue to the next plan step.
+
+   Do NOT dispatch `@cg-fix-problems` for test failures — that agent handles
+   diagnostic errors only (Step 4.1).
+
 **Auto-Fix Diagnostics** (Step 4.1): Call `get_errors` on files touched by this step.
    If `get_errors` returns **errors** (not warnings or info only):
    1. Dispatch `@cg-fix-problems` in **auto mode** with the touched files and the
@@ -98,7 +119,9 @@ For **each step** in the plan:
       > Continue to next step, or stop here to fix manually? [continue/stop]"
       Wait for the user's choice.
    5. If `get_errors` returns clean but tests still fail — the failure is semantic,
-      not diagnostic. Surface to the user:
+      not diagnostic. If the **Test Failure Recovery** block above already notified
+      the user about exhausted fix attempts in this step, skip this surface (avoid
+      double-notification). Otherwise surface to the user:
       > "Tests are still failing but no diagnostic errors were found. Auto-fix cannot
       > resolve logical or semantic failures — manual investigation required."
       Do NOT re-dispatch `@cg-fix-problems`.
