@@ -1671,27 +1671,39 @@ Describe "cg-work.prompt.md - test failure recovery" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "documents 2 fix attempts hard cap" {
-        ($content -match '2 fix attempts') | Should Be $true
+        ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should Be $true
     }
 
     It "includes user notification template for exhausted fix attempts" {
         ($content -match 'still failing after 2 fix attempts') | Should Be $true
     }
 
+    It "notification template includes 'Review before merging'" {
+        ($content -match 'Review before merging') | Should Be $true
+    }
+
+    It "notification template shows per-test enumeration format" {
+        ($content -match '<test-file>::<test-name>') | Should Be $true
+    }
+
     It "explicitly separates test failures from @cg-fix-problems dispatch" {
-        ($content -match 'Do NOT dispatch.*@cg-fix-problems.*test fail') | Should Be $true
+        ($content -match '(?s)Do NOT dispatch.*@cg-fix-problems.*test fail') | Should Be $true
     }
 
     It "includes anti-weakening guard ('not weaken')" {
         ($content -match 'not\s+weaken|weaken or remove') | Should Be $true
     }
 
+    It "permits test updates when function interface explicitly changed" {
+        ($content -match 'interface or return type|updating tests to match the new interface') | Should Be $true
+    }
+
     It "requires full-suite re-run after targeted fixes resolve to catch regressions" {
-        ($content -match 'full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
+        ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
     }
 
     It "includes double-notification skip-guard for Step 4.1 sub-item 5" {
-        ($content -match 'already notified.*skip this surface|avoid\s+double.notification') | Should Be $true
+        ($content -match '(?s)Test Failure Recovery step 4.*skip this surface') | Should Be $true
     }
 
     It "scopes Test Failure Recovery to functional tests only" {

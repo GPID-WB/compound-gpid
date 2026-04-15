@@ -161,6 +161,7 @@ function Test-RoadmapSchema {
     $milestones = @($Roadmap.milestones)
 
     $milestoneIds = @{}
+    $allFeatureIds = @{}
     foreach ($m in $milestones) {
         if (-not $m.id) {
             $errors += "Milestone missing id"
@@ -218,6 +219,11 @@ function Test-RoadmapSchema {
                 $errors += "Duplicate feature id '$($f.id)' in milestone '$($m.id)'"
             } else {
                 $featureIds[$f.id] = $true
+                if ($allFeatureIds.ContainsKey($f.id)) {
+                    $errors += "Duplicate feature id '$($f.id)' appears in multiple milestones"
+                } else {
+                    $allFeatureIds[$f.id] = $true
+                }
             }
 
             if (-not $f.title) {

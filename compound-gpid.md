@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Finishing the Quality Loop — CE-improvements integration, fix-problems agent/prompt, review-finding tracking, and R testing skill are done; remaining: per-step test enforcement, honest pushback mode, and side-idea capture. Python and Stata testing skills moved to Skills Enhancement (important but not urgent). Architecture Research expanded to include external workflow study (GSD-2, Superpowers), stage control knobs, and autonomous pipeline execution (/cg-autopilot).
+Finishing the Quality Loop — CE-improvements integration, fix-problems agent/prompt, review-finding tracking, R testing skill, and per-step test enforcement are done; remaining: honest pushback mode and side-idea capture. Python and Stata testing skills moved to Skills Enhancement (important but not urgent). Architecture Research expanded to include external workflow study (GSD-2, Superpowers), stage control knobs, and autonomous pipeline execution (/cg-autopilot).
