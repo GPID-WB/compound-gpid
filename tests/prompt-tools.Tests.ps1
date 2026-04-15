@@ -1661,3 +1661,56 @@ Describe "cg-resume.prompt.md - schema bypass guard" {
         ($content -match '[Ss]kip this entire step|[Ss]kip.*proceed.*Step 2') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# cg-work.prompt.md - test failure recovery (per-step test enforcement)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - test failure recovery" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents 2 fix attempts hard cap" {
+        ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should Be $true
+    }
+
+    It "notification is rendered as a blockquote" {
+        ($content -match '>\s+"?\*\*N test\(s\)|>\s+\*\*N test\(s\)') | Should Be $true
+    }
+
+    It "notification template includes 'Review before merging'" {
+        ($content -match 'Review before merging') | Should Be $true
+    }
+
+    It "notification template shows per-test enumeration format" {
+        ($content -match '<test-file>::<test-name>') | Should Be $true
+    }
+
+    It "explicitly separates test failures from @cg-fix-problems dispatch" {
+        ($content -match '(?s)Do NOT dispatch.*@cg-fix-problems.*test fail') | Should Be $true
+    }
+
+    It "includes anti-weakening guard ('not weaken')" {
+        ($content -match 'not\s+weaken|weaken or remove') | Should Be $true
+    }
+
+    It "permits test updates when function interface explicitly changed" {
+        ($content -match 'interface or return type|updating tests to match the new interface') | Should Be $true
+    }
+
+    It "requires full-suite re-run after targeted fixes resolve to catch regressions" {
+        ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
+    }
+
+    It "on new regressions emits step-4 format notification and continues to Auto-Fix Diagnostics" {
+        ($content -match 'emit the standard failure notification.*sub-step 4|format from sub-step 4') | Should Be $true
+    }
+
+    It "includes double-notification skip-guard in Auto-Fix Diagnostics sub-item 5" {
+        ($content -match '(?s)Test Failure Recovery step 4.*skip this surface') | Should Be $true
+    }
+
+    It "scopes Test Failure Recovery to functional tests only" {
+        ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should Be $true
+    }
+}

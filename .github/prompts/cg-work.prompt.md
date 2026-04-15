@@ -84,21 +84,52 @@ For **each step** in the plan:
 4. **Test**: Write tests as specified in the plan. Run both the discovered existing tests AND the new tests to verify nothing regressed.
    - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
 
-**Auto-Fix Diagnostics** (Step 4.1): Call `get_errors` on files touched by this step.
+   **Test Failure Recovery** (functional tests only — `get_errors` compile/lint errors are handled separately in the **Auto-Fix Diagnostics** block below):
+   If any tests fail:
+   1. Analyse the failure output. Make a targeted fix to the code under test — do not
+      weaken or remove test assertions. (Exception: if this plan step explicitly changed
+      a function's interface or return type, updating tests to match the new interface
+      is correct.) Re-run the tests.
+   2. If tests still fail, make one more targeted fix attempt and re-run.
+   3. If the targeted failures are resolved, re-run the **full test suite** for all
+      test files mapped to the files changed in this step (reference the Step 1.6
+      index) to catch regressions introduced by the fix.
+      If the full suite passes, continue normally.
+      If the full suite reveals new regressions (failures not in the original
+      failing set), emit the standard failure notification (format from sub-step 4)
+      and continue to **Auto-Fix Diagnostics** (below).
+   4. If tests are still failing after 2 fix attempts:
+      > "**N test(s) still failing after 2 fix attempts** — continuing to next step.
+      > Review before merging.
+      > Failing tests:
+      > • `<test-file>::<test-name>` — `<last error message>`
+      > • ..."
+      Continue to **Auto-Fix Diagnostics** (below).
+
+   Do NOT dispatch `@cg-fix-problems` for test failures — that agent handles
+   diagnostic errors only (see **Auto-Fix Diagnostics** block below).
+
+**Auto-Fix Diagnostics** (the block below): Call `get_errors` on files touched by this step.
    If `get_errors` returns **errors** (not warnings or info only):
    1. Dispatch `@cg-fix-problems` in **auto mode** with the touched files and the
       already-retrieved error data:
       `mode: auto, files: [<list of files changed in this step>], diagnostics: [<errors from get_errors>]`
    2. The agent applies up to **2 fix rounds** (errors only — not warnings or info).
-   3. After the agent returns, re-run both the previously-failing tests AND the full
-      test suite for all modules touched by this step.
+   3. After the agent returns, re-run the full test suite for all files touched by
+      this step. If new failures appear (regressions introduced by the diagnostic
+      fix), apply one targeted fix (do not re-enter the full 2-round TFR loop); if
+      tests are still failing after that one attempt, notify the user before
+      proceeding to Validate.
    4. If errors remain after the agent's 2-round budget:
       > "Auto-fix resolved N of M errors. Remaining errors require manual attention:
       > • `<file>:<line>` — `<message>`
-      > Continue to next step, or stop here to fix manually? [continue/stop]"
+      > Proceed to Validate (step 5), or stop here to fix manually? [continue/stop]"
       Wait for the user's choice.
    5. If `get_errors` returns clean but tests still fail — the failure is semantic,
-      not diagnostic. Surface to the user:
+      not diagnostic. If **Test Failure Recovery step 4** was triggered for the
+      **current plan step** (i.e., the 'N test(s) still failing after 2 fix attempts'
+      notice was already printed for this step), skip this surface (avoid
+      double-notification). Otherwise surface to the user:
       > "Tests are still failing but no diagnostic errors were found. Auto-fix cannot
       > resolve logical or semantic failures — manual investigation required."
       Do NOT re-dispatch `@cg-fix-problems`.

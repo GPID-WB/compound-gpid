@@ -161,6 +161,7 @@ function Test-RoadmapSchema {
     $milestones = @($Roadmap.milestones)
 
     $milestoneIds = @{}
+    $allFeatureIds = @{}
     foreach ($m in $milestones) {
         if (-not $m.id) {
             $errors += "Milestone missing id"
@@ -218,6 +219,11 @@ function Test-RoadmapSchema {
                 $errors += "Duplicate feature id '$($f.id)' in milestone '$($m.id)'"
             } else {
                 $featureIds[$f.id] = $true
+                if ($allFeatureIds.ContainsKey($f.id)) {
+                    $errors += "Duplicate feature id '$($f.id)' appears in multiple milestones"
+                } else {
+                    $allFeatureIds[$f.id] = $true
+                }
             }
 
             if (-not $f.title) {
@@ -424,6 +430,24 @@ Describe "roadmap.json schema" {
         }
         $errors = Test-RoadmapSchema $roadmap
         ($errors -join " ") | Should Match "Duplicate feature id"
+    }
+
+    It "rejects duplicate feature IDs across milestones" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{
+                    id       = "m1"; title = "M1"; objective = "x"; status = "planned"
+                    features = @(@{ id = "shared-feat"; title = "F1"; status = "idea"; plan = $null })
+                }
+                @{
+                    id       = "m2"; title = "M2"; objective = "x"; status = "planned"
+                    features = @(@{ id = "shared-feat"; title = "F2"; status = "idea"; plan = $null })
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should Match "multiple milestones"
     }
 
     It "rejects invalid kebab-case milestone IDs" {
