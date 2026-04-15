@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 28 Compound GPID prompt and agent files.
+Reference for model assignments across all 30 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-> files" and "Model assignments — agent files" describe blocks) validate all 28 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 30 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -34,6 +34,7 @@ and approximate token cost reference.
 | `cg-ideate.prompt.md` | Claude Opus 4.6 | Generate, critique, and filter project improvement ideas | Creativity 5, reasoning 4 — divergent idea generation and adversarial filtering needs Opus | confirmed |
 | `cg-diagnose.prompt.md` | Claude Sonnet 4.6 | Diagnose VS Code crashes — inspect logs, classify crash category, recommend recovery | Reasoning 4, precision 4 — log analysis and decision-tree classification needs Sonnet | confirmed |
 | `cg-fix-problems.prompt.md` | Claude Sonnet 4.6 | Interactive VS Code diagnostics fixer — scan, user-select scope/severity, dispatch agent | Reasoning 4, precision 4 — multi-step orchestration with conditional scope selection needs Sonnet | confirmed |
+| `cg-plan-review.prompt.md` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions — dispatches `@cg-plan-critic` | Orchestration 4, reasoning 4 — interactive triage and dispatch; matches `/cg-plan` tier | confirmed |
 
 ### Agents
 
@@ -51,6 +52,7 @@ and approximate token cost reference.
 | `cg-roadmap.agent.md` | Claude Haiku 4.5 | Manage `roadmap.json`: add/remove milestones, update statuses | Reasoning 3; JSON manipulation with clear schema — Haiku sufficient | confirmed |
 | `cg-adversarial.agent.md` | Claude Sonnet 4.6 | Adversarial code reviewer — finds race conditions, edge cases, security vulnerabilities | Reasoning 4, precision 5 — attack-vector analysis and proof-of-concept generation needs Sonnet | confirmed |
 | `cg-fix-problems.agent.md` | Claude Sonnet 4.6 | Auto/interactive fix agent — applies code fixes for VS Code diagnostics, 2-round budget | Reasoning 4, precision 5 — code fix generation and error root-cause analysis needs Sonnet | confirmed |
+| `cg-plan-critic.agent.md` | Claude Sonnet 4.6 | Plan reviewer — checks assumptions, over-engineering, edge cases, scope creep, dependency accuracy against actual codebase | Reasoning 5, precision 4 — adversarial plan analysis with codebase verification needs Sonnet | confirmed |
 
 ---
 

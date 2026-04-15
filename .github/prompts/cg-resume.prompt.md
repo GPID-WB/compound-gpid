@@ -45,6 +45,10 @@ Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
 ### Step 1: Schema Version Check
 
+> **Self-check**: Before comparing versions, detect whether this workspace IS the compound-gpid source repository. Check if a `SCHEMA_VERSION` file exists **at the workspace root** (the project folder itself, not the global install path).
+>
+> If `SCHEMA_VERSION` exists at the workspace root: this is the compound-gpid repository. The schema comparison is not meaningful here — the project defines the schema, not consumes it. **Skip this entire step** and proceed directly to Step 2.
+
 Locate the global Compound GPID `SCHEMA_VERSION` file at:
 
 - `$env:USERPROFILE\.compound-gpid\SCHEMA_VERSION`
