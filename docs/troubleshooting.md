@@ -253,7 +253,7 @@ for manual investigation.
 
 **Symptom**: VS Code becomes completely unresponsive immediately after (or during) a Pester test run. The terminal hangs with no output, or output arrives and then VS Code freezes. No error message — the window must be force-quit.
 
-**Cause**: Three invocation patterns reliably trigger this crash:
+**Cause**: Four invocation patterns or conditions reliably trigger this crash:
 
 1. **Directory-form invocation** — `Invoke-Pester tests/` runs all test files at once, including `link.Tests.ps1` and `unlink.Tests.ps1`, which create and delete directory junctions. When junction cleanup timing races with other tests, the VS Code extension host exhausts memory and hangs.
 
@@ -261,7 +261,9 @@ for manual investigation.
 
 3. **`2>&1 | Select-String` pipeline** — `Invoke-Pester ... 2>&1 | Select-String ...` redirects stderr into stdout then filters. The interleaved stream serialization overwhelms the extension host — even on single-file runs of large test files (300+ tests). This pattern is especially dangerous because it is the natural reflex when debugging failing tests ("I want to see what failed").
 
-These patterns have caused **10+ confirmed VS Code crashes** in this repository.
+4. **Verbose run inside a long session** — Running `Invoke-Pester tests\prompt-tools.Tests.ps1` (or any large test file) **without `-Quiet`** during a long fix-triage session floods the agent context window with 300+ test lines. VS Code crashes from context overflow even though PowerShell exits with code 0. This is a pure context-overflow crash — no forbidden pipeline is needed.
+
+These patterns have caused **14+ confirmed VS Code crashes** in this repository.
 
 **Log signatures**:
 - `main.log`: `Extension host with pid ... exited` immediately after Pester run
@@ -273,10 +275,10 @@ These patterns have caused **10+ confirmed VS Code crashes** in this repository.
 # ✅ Canonical: run all tests safely (VS Code task or terminal)
 . tests\Run-Tests.ps1
 
-# ✅ Single file (full output)
+# ✅ Single file (full output — only in short sessions)
 Invoke-Pester tests\roadmap.Tests.ps1
 
-# ✅ Single file (counts only)
+# ✅ Single file (counts only — always safe)
 $r = Invoke-Pester tests\roadmap.Tests.ps1 -PassThru -Quiet
 $r | Select-Object TotalCount, PassedCount, FailedCount
 
@@ -284,6 +286,8 @@ $r | Select-Object TotalCount, PassedCount, FailedCount
 $r = Invoke-Pester tests\foo.Tests.ps1 -PassThru -Quiet
 if ($r.FailedCount -gt 0) { Invoke-Pester tests\foo.Tests.ps1 }
 ```
+
+**Long-session rule**: In a long fix-triage session (accumulated brainstorm + plan + review context), always use `-Quiet` on large test files (`prompt-tools.Tests.ps1` has 300+ blocks). Better: apply all fixes first, then run one test pass at the very end. For pure markdown edits (`.prompt.md`, `.agent.md`) that don't change frontmatter or tool lists, consider skipping the test run entirely and noting the prior passing state.
 
 **Forbidden patterns** (never use these):
 
@@ -296,13 +300,20 @@ Invoke-Pester tests\foo.Tests.ps1 -PassThru | Select-Object -ExpandProperty Test
 
 # ❌ CRASHES VS CODE — 2>&1 redirect pipeline
 Invoke-Pester tests\foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|error' | ...
+
+# ❌ CRASHES VS CODE in long sessions — verbose run on large test file mid-session
+Invoke-Pester tests\prompt-tools.Tests.ps1  # no -Quiet during long fix-triage
 ```
 
 **VS Code task**: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)** runs `tests/Run-Tests.ps1` automatically and can never use any forbidden pattern.
 
 **Note on `-Output Minimal` / `-Output None`**: These flags are Pester 5 syntax and fail on the Pester 3.4 that ships with Windows ("ambiguous parameter" error). Use `-Quiet` instead.
 
-**Full diagnosis**: `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md`
+**Full diagnosis**:
+- `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — forbidden PowerShell patterns
+- `.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md` — context-window dilution; dual-location documentation
+- `.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md` — `2>&1` debugging reflex
+- `.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md` — long-session context overflow (PowerShell exits 0, crash is from context flooding)
 
 ---
 

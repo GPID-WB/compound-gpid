@@ -23,7 +23,8 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
    Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|fail' | ...
    ```
    To inspect failures, re-run without `-Quiet`: `if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }`
-6. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
+6. **Never run Pester mid-stream in a long fix-triage session**: In a long session (brainstorm + plan + review accumulated), Pester output floods the agent context window and crashes VS Code even when PowerShell exits cleanly. Apply ALL fixes first, then run ONE test pass at the very end. For pure markdown edits that don't change frontmatter/tool lists, skip the test run entirely.
+7. **Canonical full-suite runner** — use this instead of writing a `foreach` loop:
    ```powershell
    . tests\Run-Tests.ps1
    ```

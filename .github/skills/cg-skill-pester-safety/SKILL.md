@@ -1,12 +1,12 @@
 ---
 name: cg-skill-pester-safety
-description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 8+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines), safe single-file patterns, safe PassThru patterns, and the sequential foreach loop for multi-file verification."
+description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 12+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, the sequential foreach loop for multi-file verification, and the long-session context-overflow rule (never run Pester mid-stream in fix-triage; always -Quiet on large test files)."
 ---
 
 # Pester Safety Rules for This Workspace
 
 > **Load this skill before composing any `Invoke-Pester` command.**  
-> Violations have crashed VS Code 8+ confirmed times. The crashes are silent — no error, just a frozen window requiring force-quit.
+> Violations have crashed VS Code 12+ confirmed times. The crashes are silent — no error, just a frozen window requiring force-quit.
 
 ## Forbidden Patterns — NEVER USE
 
@@ -82,6 +82,8 @@ Before submitting any `Invoke-Pester` command, verify:
 - [ ] Not `Invoke-Pester ... 2>&1 | ...` (2>&1 redirect piped to anything)
 - [ ] Single file OR sequential `foreach` loop
 - [ ] If using `-PassThru`, result is stored in `$r` first
+- [ ] Large test files (`prompt-tools.Tests.ps1`, 300+ blocks) always use `-Quiet` (no bare verbose run mid-session)
+- [ ] Not running Pester mid-stream in a long fix-triage session (apply all fixes first, run once at the end)
 
 ### Safe pattern for finding failing test details
 
@@ -111,7 +113,17 @@ if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }
 
 Run junction-creating tests (`link`, `unlink`) last and in isolation.
 
+## Long Sessions — Extra Caution
+
+In a long fix-triage session (accumulated brainstorm + plan + implementation + review context), Pester output can flood the agent context window even when the PowerShell command exits cleanly. VS Code crashes from context overflow, not from PowerShell itself.
+
+**Rules for long sessions:**
+1. Always use `-Quiet` — never run large test files (`prompt-tools.Tests.ps1`) without it
+2. Apply all fixes first, then run ONE test pass at the very end
+3. For pure markdown edits (`.prompt.md`, `.agent.md`) that don't change frontmatter/tool lists/step counts, consider skipping the test run and noting "tests were passing before this session"
+
 ## Related
 
 - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — Full diagnosis and root cause
 - `.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md` — Why single-location documentation is insufficient; dual-location strategy
+- `.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md` — Context overflow crash even with safe PowerShell patterns; fix-triage long-session guidance
