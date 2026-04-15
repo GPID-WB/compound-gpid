@@ -432,6 +432,24 @@ Describe "roadmap.json schema" {
         ($errors -join " ") | Should Match "Duplicate feature id"
     }
 
+    It "rejects duplicate feature IDs across milestones" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{
+                    id       = "m1"; title = "M1"; objective = "x"; status = "planned"
+                    features = @(@{ id = "shared-feat"; title = "F1"; status = "idea"; plan = $null })
+                }
+                @{
+                    id       = "m2"; title = "M2"; objective = "x"; status = "planned"
+                    features = @(@{ id = "shared-feat"; title = "F2"; status = "idea"; plan = $null })
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should Match "multiple milestones"
+    }
+
     It "rejects invalid kebab-case milestone IDs" {
         $badIds = @("MyId", "my_id", "my--id", "-my-id")
         foreach ($badId in $badIds) {

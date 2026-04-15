@@ -1674,8 +1674,8 @@ Describe "cg-work.prompt.md - test failure recovery" {
         ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should Be $true
     }
 
-    It "includes user notification template for exhausted fix attempts" {
-        ($content -match 'still failing after 2 fix attempts') | Should Be $true
+    It "notification is rendered as a blockquote" {
+        ($content -match '>\s+"?\*\*N test\(s\)|>\s+\*\*N test\(s\)') | Should Be $true
     }
 
     It "notification template includes 'Review before merging'" {
@@ -1702,11 +1702,15 @@ Describe "cg-work.prompt.md - test failure recovery" {
         ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
     }
 
-    It "includes double-notification skip-guard for Step 4.1 sub-item 5" {
+    It "on new regressions emits step-4 format notification and continues to Auto-Fix Diagnostics" {
+        ($content -match 'emit the standard failure notification.*sub-step 4|format from sub-step 4') | Should Be $true
+    }
+
+    It "includes double-notification skip-guard in Auto-Fix Diagnostics sub-item 5" {
         ($content -match '(?s)Test Failure Recovery step 4.*skip this surface') | Should Be $true
     }
 
     It "scopes Test Failure Recovery to functional tests only" {
-        ($content -match 'Test Failure Recovery.*functional tests only|functional tests only.*not.*get_errors') | Should Be $true
+        ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should Be $true
     }
 }
