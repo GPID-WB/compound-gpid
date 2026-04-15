@@ -197,14 +197,31 @@ If `roadmap.json` exists at the project root:
    `plan` path matches the plan just implemented. When comparing paths,
    normalize both to forward slashes, workspace-relative format (strip any
    absolute prefix or leading `./`). Skip features where `plan` is null.
-2. If no features matched but `roadmap.json` contains features with non-null
-   `plan` fields, surface a soft warning:
+2. If no features matched, **do not stop** — proceed to the title-search
+   fallback (step 2a) rather than emitting a warning and skipping.
+
+   **2a. Title-search fallback for unlinked features:**
+   Read the plan document. Scan all features in `roadmap.json` whose `plan`
+   is null. For each such feature whose title appears in the plan's
+   requirement list or step titles, collect it as a candidate. If any
+   candidates are found, ask the user to confirm which features were
+   completed by this plan:
+   > "The following roadmap features appear to be covered by this plan but
+   > are not linked (plan: null). Confirm which were completed:
+   > - `<feature-id>`: <feature title>
+   > - ..."
+   For each feature the user confirms: dispatch `@cg-roadmap` with:
+   "Update feature `<feature-id>` to status done and set plan to
+   `<plan-path>`."
+   If no candidates are found from the title scan, surface the soft warning:
    > "No matching feature found in `roadmap.json`. Verify the plan path is
    > linked with `@cg-roadmap`."
-   Then skip the dispatch.
+   Then skip.
+
 3. If the matching feature's current status is already `done`, skip silently.
-4. For each matched feature: dispatch `@cg-roadmap` with: "Update feature
-   with plan path `<plan-path>` to status done."
+4. For each matched feature (from path match or confirmed title match):
+   dispatch `@cg-roadmap` with: "Update feature with plan path `<plan-path>`
+   to status done."
 5. After `@cg-roadmap` returns, verify `roadmap.json` was updated (read the
    file and check the status changed). If not, inform the user:
    > "Roadmap update may not have been applied. You can run `@cg-roadmap`

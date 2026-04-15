@@ -124,6 +124,37 @@ Before running any Pester command during a fix-triage session, ask:
 - "Am I verifying a prompt-file edit that doesn't change frontmatter?" → If yes, consider skipping entirely
 - "Have I been running Pester multiple times this session?" → If yes, stop and do one final run
 
+## Update — 2026-04-15 (crashes #15+16): `run_in_terminal` with `-Quiet -PassThru` also crashes
+
+Even the formerly-safe pattern:
+```powershell
+$r = Invoke-Pester tests\prompt-tools.Tests.ps1 -PassThru -Quiet
+$r | Select-Object TotalCount, PassedCount, FailedCount
+```
+
+…crashed VS Code twice more in the same long session. Root cause: `run_in_terminal`
+injects all terminal output (including the `-Quiet` summary lines and PowerShell's
+own status messages) into the agent's visible context. In a long session that is
+already near context capacity, even a small terminal output can cause overflow.
+
+### New rule: Use `execution_subagent` for Pester in long sessions
+
+`execution_subagent` runs in an isolated subagent context and returns only a
+structured summary (counts + failure names). It never injects raw terminal output
+into the parent agent's context window.
+
+```
+# ✅ ALWAYS SAFE in any session length
+execution_subagent query: "Run: $r = Invoke-Pester tests\foo.Tests.ps1 -PassThru -Quiet;
+  $r | Select-Object TotalCount, PassedCount, FailedCount
+  Return only the counts and failing test names."
+```
+
+**Decision tree:**
+- Short session + small test file → `run_in_terminal` with `-Quiet -PassThru` is OK
+- Long session OR large test file (300+ tests) → **always use `execution_subagent`**
+- Any session + `prompt-tools.Tests.ps1` → **always use `execution_subagent`**
+
 ## Related
 
 - [2026-04-02 — `Invoke-Pester tests/ -PassThru` on full directory crashes VS Code](2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)

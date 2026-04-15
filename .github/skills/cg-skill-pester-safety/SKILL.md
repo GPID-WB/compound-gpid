@@ -1,6 +1,6 @@
 ---
 name: cg-skill-pester-safety
-description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 12+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, the sequential foreach loop for multi-file verification, and the long-session context-overflow rule (never run Pester mid-stream in fix-triage; always -Quiet on large test files)."
+description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 16+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, the sequential foreach loop for multi-file verification, the long-session context-overflow rule (never run Pester mid-stream in fix-triage; always -Quiet on large test files), and the execution_subagent rule (use execution_subagent instead of run_in_terminal for Pester in long sessions — even -Quiet -PassThru via run_in_terminal crashes)."
 ---
 
 # Pester Safety Rules for This Workspace
@@ -121,6 +121,12 @@ In a long fix-triage session (accumulated brainstorm + plan + implementation + r
 1. Always use `-Quiet` — never run large test files (`prompt-tools.Tests.ps1`) without it
 2. Apply all fixes first, then run ONE test pass at the very end
 3. For pure markdown edits (`.prompt.md`, `.agent.md`) that don't change frontmatter/tool lists/step counts, consider skipping the test run and noting "tests were passing before this session"
+4. **Use `execution_subagent` instead of `run_in_terminal` for Pester in long sessions** — even `-Quiet -PassThru` via `run_in_terminal` injects terminal output into the agent context; `execution_subagent` returns only a summary and never floods context (crashes #15+16, 2026-04-15)
+
+**Decision tree for choosing how to run Pester:**
+- Short session + small test file (< 100 tests) → `run_in_terminal` with `-Quiet -PassThru` is OK
+- Long session OR large test file (300+ tests) → **use `execution_subagent`**
+- Any session + `prompt-tools.Tests.ps1` → **always use `execution_subagent`**
 
 ## Related
 
