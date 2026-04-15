@@ -206,13 +206,30 @@ If `roadmap.json` does not exist, skip this step entirely.
 
 ### Step 6: Handoff
 
-After the user approves, present the following options:
+After the user approves:
+
+#### 6a. Side-Idea Capture
+
+Before presenting the final handoff options, capture any ideas that emerged during planning.
+
+Check whether any ideas surfaced during research, Q&A, or step design that weren't included in this plan:
+
+- **If side threads emerged**: Ask:
+  > "During planning, we touched on [briefly summarize any adjacent topics raised]. Any of these worth adding to the roadmap as a separate idea?"
+- **If nothing notable arose**: Ask:
+  > "Want to capture any adjacent ideas to the roadmap before proceeding?"
+
+If the user identifies ideas to capture: dispatch `@cg-roadmap` for each. If no: proceed to 6b.
+
+#### 6b. Handoff
+
+Present the following options:
 
 > Plan saved to `.cg-docs/plans/<filename>`.
 >
 > **What would you like to do next?**
 > 1. **`/cg-work`** — Start implementing this plan immediately
-> 2. **`/cg-review`** — Review this plan before starting *(recommended for Standard/Deep plans)*
+> 2. **`/cg-plan-review`** — Challenge this plan before starting *(recommended for Standard/Deep plans)*
 > 3. **`/cg-brainstorm`** — Revisit open questions or explore a related topic first
 
 Wait for the user's response before proceeding.

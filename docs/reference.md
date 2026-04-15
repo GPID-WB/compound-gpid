@@ -45,6 +45,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project. Use when you don't have a specific task in mind. |
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. Includes confidence check before finalizing. |
+| `/cg-plan-review` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Can review existing plans standalone or be run right after `/cg-plan`. Dispatches `@cg-plan-critic`. |
 | `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: intake → reproduce (hard stop) → diagnose → fix (hard stop) → document. Checks prior bug solutions at intake. |
 | `/cg-review [light\|standard\|thorough] [mode:autofix]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Depth overrides config; content-based auto-escalation applies automatically (pipeline files, statistical functions, secrets, large diffs). `mode:autofix` applies safe mechanical fixes automatically. Arguments can be combined: `/cg-review light mode:autofix`. |
@@ -138,6 +139,18 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 | **P3** | MINOR | Style improvements, minor refactors, suggestions | Nice to have |
 
 > Use `/cg-fix-triage P0` to fix all blocking findings, `/cg-fix-triage P0 P1` to fix blocking and critical, or `/cg-fix-triage P1.2 P2.3` to fix specific IDs.
+
+---
+
+## Plan Review Agent
+
+| Agent | Focus | Model | User-invocable |
+|-------|-------|-------|----------------|
+| `@cg-plan-critic` | Plan review: assumptions, over-engineering, missing edge cases, scope creep, dependency accuracy | Sonnet 4.6 | No |
+
+> `@cg-plan-critic` is dispatched exclusively by `/cg-plan-review`. It is **not user-invokable** directly. It reads the plan and actual codebase to verify assumptions, checking for over-engineering, missing edge cases, scope creep, and flawed dependencies.
+
+---
 
 ## Roadmap Agent
 

@@ -1503,3 +1503,161 @@ Describe "cg-work.prompt.md - roadmap done update before summary wait" {
         $step37Pos | Should BeLessThan $step4Pos
     }
 }
+
+# ---------------------------------------------------------------------------
+# P1.26 — cg-brainstorm Step 3.5 Devil's Advocate
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 3.5 Devil's Advocate section" {
+        ($content -match "Step 3\.5.*Devil") | Should Be $true
+    }
+
+    It "checks problem validation (is problem real)" {
+        ($content -match 'Problem validation|problem real') | Should Be $true
+    }
+
+    It "checks simplicity (simpler solution exists)" {
+        ($content -match '[Ss]implicity check|simpler solution') | Should Be $true
+    }
+
+    It "checks effort-value proportionality" {
+        ($content -match '[Ee]ffort-value|80% of the benefit') | Should Be $true
+    }
+
+    It "checks charter alignment" {
+        ($content -match '[Cc]harter alignment') | Should Be $true
+    }
+
+    It "includes side-idea capture instruction during pushback" {
+        ($content -match 'adjacent idea|separate idea worth tracking') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.27 — cg-brainstorm Step 5c Side-Idea Capture
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 5c Side-Idea Capture section" {
+        ($content -match '5c\..*Side-Idea Capture') | Should Be $true
+    }
+
+    It "has 'no adjacent ideas' variant for sessions without pushback" {
+        ($content -match 'No adjacent ideas surfaced') | Should Be $true
+    }
+
+    It "has context-aware variant referencing the pushback discussion" {
+        ($content -match 'pushback discussion') | Should Be $true
+    }
+
+    It "renames previous 5c to 5d (Handoff moved to 5d)" {
+        ($content -match '5d\. Handoff') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.28 — cg-plan-critic.agent.md existence and structure
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan-critic.agent.md - existence and structure" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-plan-critic.agent.md"
+
+    It "exists in the repository" {
+        Test-Path $agentFile | Should Be $true
+    }
+
+    Context "required frontmatter fields" {
+        $frontmatter = Get-Frontmatter -FilePath $agentFile
+
+        It "has tools: restricted to read and search (not write)" {
+            ($frontmatter -match "tools:.*'read'") | Should Be $true
+        }
+
+        It "is NOT user-invocable" {
+            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+        }
+
+        It "has a model in frontmatter" {
+            ($frontmatter -match 'model:') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.29 — cg-plan-review.prompt.md existence and structure
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan-review.prompt.md - existence and structure" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan-review.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
+            ($frontmatter -notmatch 'tools:') | Should Be $true
+        }
+    }
+
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "dispatches @cg-plan-critic" {
+        ($content -match '@cg-plan-critic') | Should Be $true
+    }
+
+    It "can locate a plan without user specifying a path (scans .cg-docs/plans/)" {
+        ($content -match '\.cg-docs[/\\]plans') | Should Be $true
+    }
+
+    It "includes side-idea capture in Step 4" {
+        ($content -match 'Step 4.*Side-Idea|Side-Idea Capture') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.30 — cg-plan.prompt.md Step 6 plan-review handoff and side-idea capture
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 6 suggests /cg-plan-review as an option" {
+        ($content -match '/cg-plan-review') | Should Be $true
+    }
+
+    It "Step 6a includes side-idea capture section" {
+        ($content -match '6a\. Side-Idea Capture') | Should Be $true
+    }
+
+    It "Step 6b contains the handoff options" {
+        ($content -match '6b\. Handoff') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.31 — cg-resume.prompt.md schema bypass guard for compound-gpid workspace
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - schema bypass guard" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "contains workspace-root SCHEMA_VERSION self-check before schema comparison" {
+        ($content -match 'SCHEMA_VERSION.*workspace root|workspace root.*SCHEMA_VERSION') | Should Be $true
+    }
+
+    It "instructs to skip schema comparison when workspace root has SCHEMA_VERSION" {
+        ($content -match '[Ss]kip this entire step|[Ss]kip.*proceed.*Step 2') | Should Be $true
+    }
+}

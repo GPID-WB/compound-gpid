@@ -109,6 +109,24 @@ For each approach, include:
 - **Effort**: Rough estimate (small/medium/large)
 - **Recommended?**: Yes/No with reasoning
 
+### Step 3.5: Devil's Advocate
+
+After proposing approaches, challenge the thinking before the user commits. This step is **always-on and unconditional** — run it for every brainstorm at every scope. Keep the tone conversational: *"Here's my honest pushback..."*, not an interrogation. The user can respond and the conversation continues naturally. This is not a gate — it's a dialogue.
+
+Work through these four checks:
+
+1. **Problem validation**: Is this problem real and worth solving? Could the team live with the status quo? Is there evidence the pain point is significant enough to justify the work?
+2. **Simplicity check**: Does a simpler solution already exist — configuration, convention, or an existing tool — that we're overlooking? Could the problem be solved without writing new code?
+3. **Effort-value check**: Is the estimated effort proportional to the value delivered? Could 80% of the benefit be achieved with 20% of the work?
+4. **Charter alignment**: Does the chosen or leading approach conflict with any declared constraint in `compound-gpid.md` (loaded in Step 0)? Flag any conflicts explicitly.
+
+**For Thinking Partner mode** (non-software brainstorms): adapt the checklist — replace "effort-value" with "decision reversibility" (can this be undone cheaply if wrong?) and "charter alignment" with "stakeholder impact" (who else is affected by this decision?).
+
+**Side-idea capture**: During this exchange, if the user identifies an adjacent idea worth tracking separately — something that surfaced as a risk, alternative, or related problem — offer to dispatch `@cg-roadmap` to record it as an idea before continuing:
+> "That sounds like a separate idea worth tracking. Want me to add it to the roadmap before we continue?"
+
+After the pushback exchange, proceed to Step 4 when the user is ready.
+
 ### Step 4: Capture Decision
 
 Once the user selects an approach, save the brainstorm to `.cg-docs/brainstorms/`:
@@ -180,7 +198,21 @@ If `roadmap.json` exists at the project root:
 
 If `roadmap.json` does not exist, skip this section entirely.
 
-#### 5c. Handoff
+#### 5c. Side-Idea Capture
+
+Before presenting the final handoff options, capture any ideas that emerged during the session.
+
+Check whether a meaningful pushback exchange occurred in Step 3.5:
+
+- **If no substantive exchange occurred**: Ask:
+  > "No adjacent ideas surfaced during this session. Want to add anything to the roadmap anyway?"
+- **If a pushback exchange occurred**: Summarize what was discussed and ask:
+  > "During our pushback discussion, we touched on [briefly summarize the main topics/alternatives raised]. These could be added as ideas to [suggest the most relevant milestone from `roadmap.json`]. Want me to add any of them? Or capture a different idea?"
+
+If the user identifies one or more ideas to capture: dispatch `@cg-roadmap` for each.
+If the user declines: proceed to Step 5d.
+
+#### 5d. Handoff
 
 Present the following options to the user:
 

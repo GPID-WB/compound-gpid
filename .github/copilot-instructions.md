@@ -68,6 +68,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Mid-project direction question | `/cg-strategy` |
 | One fuzzy task to clarify | `/cg-brainstorm` |
 | Known task to plan | `/cg-plan` |
+| Review a plan before implementing | `/cg-plan-review` |
 | Direct roadmap edit | `@cg-roadmap` |
 | Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
