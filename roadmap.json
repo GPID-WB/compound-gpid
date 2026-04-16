@@ -5,7 +5,7 @@
       "id": "quality-loop",
       "title": "Quality Loop",
       "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R.",
-      "status": "in-progress",
+      "status": "done",
       "features": [
         {
           "id": "cg-fix-problems-agent",
@@ -40,14 +40,26 @@
         {
           "id": "honest-pushback-in-brainstorm-strategy",
           "title": "Honest pushback mode in /cg-brainstorm and /cg-strategy",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md"
         },
         {
           "id": "side-idea-capture-in-brainstorm",
           "title": "Side-idea capture during brainstorming (save to roadmap)",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md"
+        },
+        {
+          "id": "plan-review-agent-and-prompt",
+          "title": "Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md"
+        },
+        {
+          "id": "schema-bypass-in-cg-resume",
+          "title": "Schema bypass for compound-gpid repo in /cg-resume",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md"
         },
         {
           "id": "ce-improvements-integration",
@@ -210,6 +222,32 @@
         {
           "id": "evals-scaffold",
           "title": ".cg-docs/evals/ scaffold with probe-and-check pairs",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "onboarding-setup",
+      "title": "Onboarding & Setup",
+      "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "project-scanner-agent",
+          "title": "Project scanner agent for deep project analysis",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "smart-setup-existing-projects",
+          "title": "Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "skip-irrelevant-setup-questions",
+          "title": "Skip high-confidence setup questions based on scanner results",
           "status": "idea",
           "plan": null
         }

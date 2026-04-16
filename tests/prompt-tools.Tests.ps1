@@ -1714,3 +1714,32 @@ Describe "cg-work.prompt.md - test failure recovery" {
         ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# P1.37 — cg-work Step 3.7 must have title-search fallback for unlinked features
+# Bug: When a plan implements features whose roadmap entry still has plan: null,
+# Step 3.7 skips them with only a soft warning and never updates their status.
+# Fix: add a fallback that searches feature titles in the plan content and
+# prompts the user to confirm which features were completed.
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null features" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 3.7 searches feature titles in the plan content when no path match found" {
+        ($content -match 'title.*plan content|feature.*title.*appear|scan.*plan.*title|title.*match.*plan') | Should Be $true
+    }
+
+    It "Step 3.7 prompts the user to confirm which unlinked features were completed" {
+        ($content -match 'confirm.*which features|which.*features.*complet|ask.*user.*confirm') | Should Be $true
+    }
+
+    It "Step 3.7 still dispatches @cg-roadmap for confirmed matches from the fallback" {
+        # The fallback must dispatch @cg-roadmap, not just warn
+        $step37Start = $content.IndexOf("### Step 3.7:")
+        $step4Start  = $content.IndexOf("### Step 4:")
+        $step37Block = $content.Substring($step37Start, $step4Start - $step37Start)
+        ($step37Block -match '@cg-roadmap') | Should Be $true
+    }
+}

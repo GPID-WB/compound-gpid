@@ -864,6 +864,76 @@ Describe "roadmap.json file validation" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Data integrity — plan 2026-04-14-pushback-plan-review-side-ideas-schema-bypass
+# Bug: Four features delivered by this plan were never linked or marked done in
+# roadmap.json after the plan was marked completed on 2026-04-14.
+# Root cause: /cg-work Step 3.7 could not match them because plan: null was set.
+# Fix: link each feature to the plan and set status: done; add the two missing
+# features (plan-review-agent-and-prompt, schema-bypass-in-cg-resume) to the
+# quality-loop milestone.
+# ---------------------------------------------------------------------------
+
+Describe "roadmap.json - pushback plan features must be done and linked (Bug 2026-04-15)" {
+    $roadmapPath = Join-Path (Join-Path $PSScriptRoot "..") "roadmap.json"
+    $roadmap = Get-Content $roadmapPath -Raw | ConvertFrom-Json
+    $planPath = ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md"
+
+    $qlFeatures = @($roadmap.milestones | Where-Object { $_.id -eq "quality-loop" } | ForEach-Object { @($_.features) })
+
+    It "honest-pushback-in-brainstorm-strategy has status done" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "honest-pushback-in-brainstorm-strategy" }
+        @($f).Count | Should BeGreaterThan 0
+        (@($f))[0].status | Should Be "done"
+    }
+
+    It "honest-pushback-in-brainstorm-strategy is linked to the pushback plan" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "honest-pushback-in-brainstorm-strategy" }
+        (@($f))[0].plan | Should Be $planPath
+    }
+
+    It "side-idea-capture-in-brainstorm has status done" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "side-idea-capture-in-brainstorm" }
+        @($f).Count | Should BeGreaterThan 0
+        (@($f))[0].status | Should Be "done"
+    }
+
+    It "side-idea-capture-in-brainstorm is linked to the pushback plan" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "side-idea-capture-in-brainstorm" }
+        (@($f))[0].plan | Should Be $planPath
+    }
+
+    It "plan-review-agent-and-prompt feature exists in quality-loop" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
+        ($f | Measure-Object).Count | Should BeGreaterThan 0
+    }
+
+    It "plan-review-agent-and-prompt has status done" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
+        (@($f))[0].status | Should Be "done"
+    }
+
+    It "plan-review-agent-and-prompt is linked to the pushback plan" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
+        (@($f))[0].plan | Should Be $planPath
+    }
+
+    It "schema-bypass-in-cg-resume feature exists in quality-loop" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
+        ($f | Measure-Object).Count | Should BeGreaterThan 0
+    }
+
+    It "schema-bypass-in-cg-resume has status done" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
+        (@($f))[0].status | Should Be "done"
+    }
+
+    It "schema-bypass-in-cg-resume is linked to the pushback plan" {
+        $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
+        (@($f))[0].plan | Should Be $planPath
+    }
+}
+
 Describe "/cg-resume scope health -- additional coverage" {
     It "single unstarted feature (idea) -> nudge fires" {
         $features = @(@{ status = "idea" })
