@@ -4,6 +4,10 @@ Archived "Current Focus" entries from `compound-gpid.md`.
 
 ---
 
+## 2026-04-15 → 2026-04-16
+
+> Finishing the Quality Loop — CE-improvements integration, fix-problems agent/prompt, review-finding tracking, R testing skill, and per-step test enforcement are done; remaining: honest pushback mode and side-idea capture. Python and Stata testing skills moved to Skills Enhancement (important but not urgent). Architecture Research expanded to include external workflow study (GSD-2, Superpowers), stage control knobs, and autonomous pipeline execution (/cg-autopilot).
+
 ## 2026-04-13 → 2026-04-15
 
 > Finishing the Quality Loop — CE-improvements integration, fix-problems agent/prompt, and review-finding tracking are done; remaining: testing skills for Python and Stata, per-step test enforcement, honest pushback mode, and side-idea capture. Architecture Research expanded to include external workflow study (GSD-2, Superpowers), stage control knobs, and autonomous pipeline execution (/cg-autopilot).
