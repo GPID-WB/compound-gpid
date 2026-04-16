@@ -13,6 +13,7 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may read any file in the workspace.
 - You may create or overwrite `compound-gpid.local.md` in the project root.
 - You may create or overwrite `compound-gpid.md` in the project root.
+- You may create `compound-gpid.context.md` in the project root.
 - You may create `roadmap.json` in the project root.
 - You may create new files and directories under `.cg-docs/`.
 - You may append lines to `.gitignore` and `.Rbuildignore`.
@@ -131,6 +132,25 @@ only `compound-gpid.local.md`.
 
 Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 
+#### A3.7. Create `compound-gpid.context.md`
+
+Create `compound-gpid.context.md` in the project root using the
+**compound-gpid.context.md Template** from `setup-templates.md` (already loaded).
+
+Do NOT add `compound-gpid.context.md` to `.gitignore` — it is institutional knowledge
+and must be committed to git.
+
+#### A3.9. Ask about workspace folders (optional)
+
+> Are there other folders in your VS Code workspace related to this project?
+> If so, describe each folder and what it contains. (Press Enter to skip.)
+
+If the user provides folder descriptions, append them to the
+`## Workspace Notes` section of `compound-gpid.context.md`:
+```markdown
+- **<folder-name>**: <description>
+```
+
 #### A4. Scaffold `.cg-docs/` structure
 
 Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md` (already loaded), create the listed directories and `.gitkeep` files if they do not already exist.
@@ -185,6 +205,19 @@ Check if `compound-gpid.md` exists in the project root.
   context summary, offer to create one by asking the charter questions (Questions 4-7
   from Mode A Step A3.5). Apply the same overwrite guard, skip definition, required
   labels, and placeholder rules defined in A3.5.
+
+#### B1.1.3. Check for `compound-gpid.context.md`
+
+Check if `compound-gpid.context.md` exists in the project root.
+
+- If it **does not exist**: offer to create it:
+  > "No `compound-gpid.context.md` found. This file stores project-specific
+  > context (data sources, domain rules, workspace notes) that grows over time.
+  > Create it now? (yes / no)"
+  - If yes: create it using the **compound-gpid.context.md Template** from
+    `setup-templates.md` (already loaded).
+  - If no: skip silently.
+- If it **exists**: skip silently.
 
 #### B1.1.5. Check for deprecated charter sections
 
@@ -255,3 +288,16 @@ If `compound-gpid.md` does not exist (and the user declined to create one in B1.
 - Confirm you are ready and suggest a next step.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."
+
+#### B4.7. Ask about workspace folders (optional)
+
+> Are there other folders in your VS Code workspace related to this project?
+> If so, describe each folder and what it contains. (Press Enter to skip.)
+
+If the user provides folder descriptions and `compound-gpid.context.md` exists,
+append them to its `## Workspace Notes` section:
+```markdown
+- **<folder-name>**: <description>
+```
+If `compound-gpid.context.md` does not exist, offer to create it first
+(see B1.1.3).

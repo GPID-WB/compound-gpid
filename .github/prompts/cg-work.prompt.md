@@ -23,7 +23,9 @@ You are a senior developer implementing a plan that was previously created with 
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
 
@@ -226,6 +228,30 @@ If `roadmap.json` exists at the project root:
    file and check the status changed). If not, inform the user:
    > "Roadmap update may not have been applied. You can run `@cg-roadmap`
    > directly to update the status."
+
+### Step 3.8: Milestone Completion Check
+
+After Step 3.7 completes (features marked done), check if a milestone has
+been fully completed:
+
+1. Re-read `roadmap.json`.
+2. For each milestone that contained a feature just marked `done`:
+   - Count features that are NOT `done` (i.e., status is `idea`, `planned`,
+     or `active`).
+   - If **all features in the milestone are now `done`**: dispatch
+     `@cg-roadmap` with: "Update milestone `<milestone-id>` to status done."
+   - After `@cg-roadmap` returns, warn the user:
+     > "🎉 Milestone **'<milestone title>'** is now complete! The charter's
+     > Current Focus may be stale. Run `/cg-strategy` to update direction,
+     > or I can suggest new Current Focus text now. (yes to suggest / no to
+     > defer)"
+   - If the user wants an inline suggestion: read `compound-gpid.md` Current
+     Focus and the remaining `in-progress` or `planned` milestones. Propose
+     1-2 sentences of new Current Focus text. Wait for approval before
+     updating. If approved, archive the replaced text to
+     `.cg-docs/archive/charter-history.md` and update `Current Focus` and
+     `last-reviewed` in `compound-gpid.md`.
+3. If no milestone is fully complete after this step, skip silently.
 
 ### Step 4: Summary
 

@@ -24,7 +24,9 @@ Use `/cg-compound` after:
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
 
@@ -90,7 +92,24 @@ severity: "<P0|P1|P2|P3>"
 2. If related solutions exist, add cross-references in both documents.
 3. If this solution reveals a pattern that should be a project-wide convention, suggest updating `copilot-instructions.md` or the relevant language instructions file.
 
-### Step 5: Confirm
+### Step 5: Context Enrichment
+
+1. Re-read `compound-gpid.context.md` (already loaded in Step 0 — re-read for
+   the latest version).
+2. Assess: did this task reveal a domain rule, data source convention, or
+   project-specific fact that would help in future tasks?
+3. If yes, propose a specific addition to the appropriate section:
+   > "This task revealed that [X]. I'd add this to the **[section]** section
+   > of `compound-gpid.context.md`:
+   > `[proposed text]`
+   > Should I add it?"
+4. If approved, insert into the correct section — place it logically within the
+   existing structure, not appended at the end.
+5. If `compound-gpid.context.md` does not exist, suggest creating it:
+   > "No `compound-gpid.context.md` found. Would you like me to create it
+   > with this finding as the first entry?"
+
+### Step 6: Confirm
 
 ```markdown
 ## Solution Captured

@@ -31,6 +31,7 @@ $repoRoot = Split-Path $PSScriptRoot -Parent
 # cleanup. Running them last prevents cleanup races with other test files.
 $testNames = @(
     'charter',
+    'helpers',
     'roadmap',
     'prompt-tools',
     'model-assignments',

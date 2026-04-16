@@ -345,21 +345,22 @@ try {
 }
 
 # --- Refresh copilot-instructions.md in the current project (if linked) ---
-# Junction-linked subdirectories update automatically. The copied
+# Junction-linked subdirectories update automatically. The generated
 # copilot-instructions.md must be refreshed explicitly.
 # We only update it if (a) the current directory looks like a linked project
 # and (b) the file carries the management marker.
 $cwdGithub      = Join-Path (Get-Location) ".github"
 $cwdCopilotDest = Join-Path $cwdGithub "copilot-instructions.md"
-$cgCopilotSrc   = Join-Path $CompoundGpidDir ".github\copilot-instructions.md"
 
 # Skip refresh when called internally by cg-link (it handles its own Step 4 refresh)
 if (-not $env:CG_INTERNAL_CALL -and
-    (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest) -and (Test-Path $cgCopilotSrc)) {
+    (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest)) {
     $existing = Get-Content $cwdCopilotDest -Raw -ErrorAction SilentlyContinue
     if ($existing -and $existing -match [regex]::Escape($CopilotInstructionsMarker)) {
-        $sourceContent = Get-Content $cgCopilotSrc -Raw
-        Set-Content -Path $cwdCopilotDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
+        # Pass (Get-Location) as ProjectRoot — after Pop-Location, this is
+        # the consumer project root, not the compound-gpid install directory.
+        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot (Get-Location)
+        Set-Content -Path $cwdCopilotDest -Value $generated
         Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray
     }
 }

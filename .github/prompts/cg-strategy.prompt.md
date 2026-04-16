@@ -44,15 +44,18 @@ produce concrete decisions.
    > Is this an analytical (statistics/modeling) or technical
    > (infrastructure/API) project?"
 
-3. If `roadmap.json` exists, read it. Note: current milestones, features,
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+
+4. If `roadmap.json` exists, read it. Note: current milestones, features,
    their statuses. Compute: how many features are unstarted vs. in
    progress vs. done.
 
-4. *(Deferred)* Recent brainstorm and plan context is loaded in Step 2 if
+5. *(Deferred)* Recent brainstorm and plan context is loaded in Step 2 if
    the trigger is mid-project or post-milestone (triggers 2 or 3). Do not
    scan these directories during Step 0.
 
-5. Present what you found:
+6. Present what you found:
    ```
    ## Strategy Session
 

@@ -1743,3 +1743,281 @@ Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null featu
         ($step37Block -match '@cg-roadmap') | Should Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# Context Layer — compound-gpid.context.md referenced in all 14 prompts
+# ---------------------------------------------------------------------------
+
+Describe "context layer - all 14 prompts reference compound-gpid.context.md" {
+    $prompts = @(
+        "cg-brainstorm",
+        "cg-compound",
+        "cg-compound-refresh",
+        "cg-diagnose",
+        "cg-fix-problems",
+        "cg-fix-triage",
+        "cg-fixbug",
+        "cg-ideate",
+        "cg-plan",
+        "cg-plan-review",
+        "cg-resume",
+        "cg-review",
+        "cg-strategy",
+        "cg-work"
+    )
+
+    foreach ($name in $prompts) {
+        $promptFile = Join-Path $repoRoot ".github\prompts\$name.prompt.md"
+        $content    = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+        It "$name.prompt.md references compound-gpid.context.md" {
+            ($content -match 'compound-gpid\.context\.md') | Should Be $true
+        }
+
+        It "$name.prompt.md instructs to skip silently when context.md is absent" {
+            ($content -match 'skip silently|skip.*silently|proceed without project context') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer — renumbering survival: 'warn' item retains 'warn' text
+# after context.md item was inserted before it
+# ---------------------------------------------------------------------------
+
+Describe "context layer - warn text survives renumbering in standard prompts" {
+    $standardPrompts = @(
+        "cg-compound",
+        "cg-diagnose",
+        "cg-fix-problems",
+        "cg-fix-triage",
+        "cg-fixbug",
+        "cg-review",
+        "cg-work"
+    )
+
+    foreach ($name in $standardPrompts) {
+        $promptFile = Join-Path $repoRoot ".github\prompts\$name.prompt.md"
+        $content    = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+        It "$name.prompt.md retains 'warn the user' instruction after context.md item inserted" {
+            ($content -match 'warn the user') | Should Be $true
+        }
+
+        It "$name.prompt.md retains 'No project charter found' message text" {
+            ($content -match 'No project charter found') | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer — cg-compound Step 5 context enrichment before Step 6 confirm
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - context enrichment step ordering" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 5 Context Enrichment section" {
+        ($content -match 'Step 5.*Context Enrichment') | Should Be $true
+    }
+
+    It "includes Step 6 Confirm section" {
+        ($content -match 'Step 6.*Confirm') | Should Be $true
+    }
+
+    It "Step 5 (Context Enrichment) comes before Step 6 (Confirm)" {
+        $step5Pos = $content.IndexOf("### Step 5: Context Enrichment")
+        $step6Pos = $content.IndexOf("### Step 6: Confirm")
+        $step5Pos | Should BeGreaterThan -1
+        $step6Pos | Should BeGreaterThan -1
+        $step5Pos | Should BeLessThan $step6Pos
+    }
+
+    It "proposes adding to compound-gpid.context.md when domain knowledge is discovered" {
+        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+    }
+
+    It "offers to create context.md if it does not exist" {
+        ($content -match 'does not exist.*create|create.*first entry') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer — cg-work Step 3.8 milestone completion check
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 3.8 Milestone Completion Check section" {
+        ($content -match 'Step 3\.8.*Milestone Completion Check') | Should Be $true
+    }
+
+    It "Step 3.8 appears between Step 3.7 and Step 4 in the file" {
+        $step37Pos = $content.IndexOf("### Step 3.7:")
+        $step38Pos = $content.IndexOf("### Step 3.8:")
+        $step4Pos  = $content.IndexOf("### Step 4:")
+        $step37Pos | Should BeGreaterThan -1
+        $step38Pos | Should BeGreaterThan -1
+        $step4Pos  | Should BeGreaterThan -1
+        $step38Pos | Should BeGreaterThan $step37Pos
+        $step38Pos | Should BeLessThan $step4Pos
+    }
+
+    It "counts non-done features in the milestone after marking done" {
+        ($content -match 'all features.*done|not.*done.*idea.*planned.*active') | Should Be $true
+    }
+
+    It "dispatches @cg-roadmap when milestone is fully complete" {
+        $step38Start = $content.IndexOf("### Step 3.8:")
+        $step4Start  = $content.IndexOf("### Step 4:")
+        $step38Block = $content.Substring($step38Start, $step4Start - $step38Start)
+        ($step38Block -match '@cg-roadmap') | Should Be $true
+    }
+
+    It "warns user that Current Focus may be stale when milestone completes" {
+        ($content -match '[Ss]tale.*Current Focus|Current Focus.*stale') | Should Be $true
+    }
+
+    It "suggests /cg-strategy to update direction after milestone completes" {
+        ($content -match '/cg-strategy') | Should Be $true
+    }
+
+    It "does NOT auto-modify compound-gpid.md charter (asks first)" {
+        $step38Start = $content.IndexOf("### Step 3.8:")
+        $step4Start  = $content.IndexOf("### Step 4:")
+        $step38Block = $content.Substring($step38Start, $step4Start - $step38Start)
+        # Must ask for approval before modifying charter
+        ($step38Block -match 'wait for approval|If approved|ask') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer — cg-resume Step 2f.5 Current Focus staleness check
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 2f.5 Current Focus staleness check" {
+        ($content -match '2f\.5.*[Cc]urrent [Ff]ocus') | Should Be $true
+    }
+
+    It "checks if Current Focus references a completed milestone" {
+        ($content -match 'status.*done|done.*status') | Should Be $true
+    }
+
+    It "surfaces a nudge when Current Focus references a completed milestone" {
+        ($content -match 'Stale Current Focus') | Should Be $true
+    }
+
+    It "does NOT auto-modify the charter (read-only nudge only)" {
+        $step2f5Start = $content.IndexOf("#### 2f.5.")
+        $step3Start   = $content.IndexOf("### Step 3:")
+        if ($step2f5Start -ge 0 -and $step3Start -ge 0) {
+            $block = $content.Substring($step2f5Start, $step3Start - $step2f5Start)
+            ($block -match 'Set-Content|Write-Content|update.*compound-gpid\.md') | Should Be $false
+        } else {
+            $true | Should Be $true  # guard: skip if section not found
+        }
+    }
+
+    It "suggests /cg-strategy to update direction" {
+        ($content -match '/cg-strategy') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer — .gitignore must NOT contain compound-gpid.context.md
+# (it is institutional knowledge and must be committed)
+# ---------------------------------------------------------------------------
+
+Describe "context layer - compound-gpid.context.md is NOT gitignored" {
+    # The link.ps1 and unlink.ps1 scripts manage a CG block in .gitignore.
+    # compound-gpid.context.md must never appear in that block (or anywhere
+    # in the produced .gitignore content).
+    $gitignoreFile = Join-Path $repoRoot ".gitignore"
+    $content = if (Test-Path $gitignoreFile) {
+        Get-Content $gitignoreFile -Raw -Encoding UTF8
+    } else { "" }
+
+    It "compound-gpid.context.md is not listed in the project .gitignore" {
+        ($content -match 'compound-gpid\.context\.md') | Should Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-compound.prompt.md - context enrichment step (Step 5)
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - context enrichment step" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references compound-gpid.context.md in Step 5" {
+        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+    }
+
+    It "proposes adding to compound-gpid.context.md when a finding is relevant" {
+        # The step must include language proposing additions to context.md sections
+        ($content -match 'I.d add this to the|propose.*addition|suggest.*add') | Should Be $true
+    }
+
+    It "includes an offer to create compound-gpid.context.md when it does not exist" {
+        ($content -match 'does not exist.*create it|create it.*does not exist|Would you like me to create it') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-resume.prompt.md - Current Focus staleness check (Step 2f.5)
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - Current Focus staleness check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 2f.5 Current Focus staleness check" {
+        ($content -match '2f\.5') | Should Be $true
+    }
+
+    It "cross-references milestone status done in staleness logic" {
+        ($content -match "status.*done|status.*`"done`"") | Should Be $true
+    }
+
+    It "emits a Stale Current Focus nudge when a completed milestone is referenced" {
+        ($content -match 'Stale Current Focus') | Should Be $true
+    }
+
+    It "does not auto-modify the charter (nudge only)" {
+        ($content -match 'Do NOT auto-modify|only surface the nudge') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-work.prompt.md - milestone completion check (Step 3.8)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - milestone completion check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Step 3.8 milestone completion check" {
+        ($content -match '3\.8') | Should Be $true
+    }
+
+    It "dispatches @cg-roadmap when all features in a milestone are done" {
+        ($content -match '@cg-roadmap.*milestone|milestone.*@cg-roadmap') | Should Be $true
+    }
+
+    It "warns the user when a milestone is fully complete" {
+        ($content -match 'Milestone.*is now complete|is now complete') | Should Be $true
+    }
+
+    It "offers to update Current Focus when a milestone completes" {
+        ($content -match 'Current Focus') | Should Be $true
+    }
+}
+

@@ -43,6 +43,12 @@ And stop.
 
 Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
+#### 0c. Read project context
+
+If `compound-gpid.context.md` exists in the project root, read it for
+project-specific context, domain rules, data sources, and workspace notes.
+If it does not exist, skip silently.
+
 ### Step 1: Schema Version Check
 
 > **Self-check**: Before comparing versions, detect whether this workspace IS the compound-gpid source repository. Check if a `SCHEMA_VERSION` file exists **at the workspace root** (the project folder itself, not the global install path).
@@ -145,6 +151,21 @@ If stale, collect the following nudge for the **Maintenance Nudges** block in St
 > Consider updating the "Current Focus" section to reflect what the
 > team is working on now. (If `last-reviewed` is set to a future date,
 > correct it to today's date.)
+
+#### 2f.5. Current Focus staleness check
+
+Using the roadmap data already loaded in Step 2d, cross-check the Current
+Focus text (extracted in Step 0a) against milestone statuses:
+
+- If the Current Focus text contains the name of a milestone that is
+  currently status `done` in `roadmap.json`, collect a nudge:
+  > ⚠️ **Stale Current Focus**: Current Focus references
+  > **'<milestone title>'** which is already complete (status: done).
+  > Consider running `/cg-strategy` to update the project direction.
+- If no completed-milestone reference is found, skip silently.
+- If `roadmap.json` does not exist or Step 2d found no milestones, skip.
+
+Do NOT auto-modify the charter — only surface the nudge.
 
 ### Step 3: Present Context Summary
 

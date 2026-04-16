@@ -38,9 +38,8 @@ $TargetGithubDir  = Join-Path $ProjectRoot ".github"
 $ManagedDirs = @("prompts", "skills", "agents", "instructions")
 
 # The management marker that marks copilot-instructions.md as CG-owned
-$CopilotInstructionsMarker  = "<!-- compound-gpid:managed -->"
-$CopilotInstructionsSource  = Join-Path $SourceGithub "copilot-instructions.md"
-$CopilotInstructionsDest    = Join-Path $TargetGithubDir "copilot-instructions.md"
+$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
+$CopilotInstructionsDest   = Join-Path $TargetGithubDir "copilot-instructions.md"
 
 # --- Validate global install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
@@ -162,26 +161,26 @@ Then re-run: cg-link
     }
 }
 
-# --- Step 4: Copy copilot-instructions.md with management marker ---
+# --- Step 4: Generate copilot-instructions.md from template ---
 Write-Host "Linking copilot-instructions.md..." -ForegroundColor DarkGray
 
 if (Test-Path $CopilotInstructionsDest) {
     $existingContent = Get-Content $CopilotInstructionsDest -Raw -ErrorAction SilentlyContinue
     if ($existingContent -and $existingContent -match [regex]::Escape($CopilotInstructionsMarker)) {
-        # Marker present - this is a CG-managed copy, overwrite with latest
-        $sourceContent = Get-Content $CopilotInstructionsSource -Raw
-        Set-Content -Path $CopilotInstructionsDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
-        Write-Host "  copilot-instructions.md - updated" -ForegroundColor DarkGray
+        # Marker present - this is a CG-managed file, regenerate from template
+        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
+        Set-Content -Path $CopilotInstructionsDest -Value $generated
+        Write-Host "  copilot-instructions.md - generated" -ForegroundColor DarkGray
     } else {
         # No marker - user has taken ownership of this file, leave it alone
         Write-Host "  copilot-instructions.md - user-managed (marker absent), skipping" -ForegroundColor Yellow
         Write-Host "  To restore CG management, delete the file and re-run cg-link." -ForegroundColor DarkGray
     }
 } else {
-    # File does not exist - copy with marker
-    $sourceContent = Get-Content $CopilotInstructionsSource -Raw
-    Set-Content -Path $CopilotInstructionsDest -Value ($CopilotInstructionsMarker + "`n" + $sourceContent)
-    Write-Host "  copilot-instructions.md - copied" -ForegroundColor DarkGray
+    # File does not exist - generate from template
+    $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
+    Set-Content -Path $CopilotInstructionsDest -Value $generated
+    Write-Host "  copilot-instructions.md - generated" -ForegroundColor DarkGray
 }
 
 # --- Step 5: Update .gitignore with CG-specific entries only ---
