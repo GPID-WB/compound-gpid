@@ -94,7 +94,13 @@ Describe "Pester safety - PassThru output must be assigned before use" {
             # Check non-comment lines only.
             # Dangerous:  Invoke-Pester ... -PassThru ... |
             # Safe:       $r = Invoke-Pester ... -PassThru
-            $violations = ($content -split '\r?\n') |
+            #
+            # Normalize backtick line-continuations first so that a pattern like:
+            #   Invoke-Pester tests/foo.Tests.ps1 `
+            #       -PassThru | Select-Object ...
+            # is treated as a single line by the scanner.
+            $normalized = ($content -replace '`\r?\n\s*', ' ')
+            $violations = ($normalized -split '\r?\n') |
                 Where-Object { $_ -notmatch '^\s*#' } |
                 Where-Object { $_ -match 'Invoke-Pester\b[^\r\n]*-PassThru[^\r\n]*\|' } |
                 Where-Object { $_ -notmatch '\$\w+\s*=\s*Invoke-Pester' }

@@ -92,6 +92,28 @@ Describe "Run-Tests.ps1 - artifact construction keywords" {
 }
 
 # ---------------------------------------------------------------------------
+# Script text — undeclared-file detection (R14)
+# ---------------------------------------------------------------------------
+Describe "Run-Tests.ps1 - undeclared test file detection" {
+    It "script detects undeclared test files not in `$testNames" {
+        ($runnerContent -match 'Get-ChildItem.*Tests.*ps1') | Should Be $true
+    }
+
+    It "script warns about undeclared test files" {
+        ($runnerContent -match 'undeclared') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Script text — unregistered -File name warning (R7)
+# ---------------------------------------------------------------------------
+Describe "Run-Tests.ps1 - -File unregistered name warning" {
+    It "warns when a -File name is not registered in `$testNames" {
+        ($runnerContent -match 'Write-Warning.*not a registered test name') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Script text — git SHA capture (R4)
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - git SHA audit trail" {
@@ -118,7 +140,8 @@ Describe "Run-Tests.ps1 - TestResult pipeline safety comment" {
 
 # ---------------------------------------------------------------------------
 # Artifact content tests — validate schema of previous run's artifact.
-# Skipped gracefully when no artifact exists (first run on clean repo).
+# Falls back to a single placeholder passing test when no artifact exists
+# (Pester 3.4 has no Skip -- first run shows 1 pass, not a skip).
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - last-run.json artifact schema" {
     if (-not (Test-Path $artifactPath)) {
@@ -172,12 +195,20 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
             ($null -ne $json.ranAt) | Should Be $true
         }
 
+        It "last-run.json ranAt is a valid ISO 8601 UTC timestamp" {
+            ($json.ranAt -match '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') | Should Be $true
+        }
+
         It "last-run.json has 'files' array" {
             ($null -ne $json.files) | Should Be $true
         }
 
         It "last-run.json has 'failures' array" {
             ($null -ne $json.failures) | Should Be $true
+        }
+
+        It "last-run.json has 'skipped' array field" {
+            ($null -ne $json.skipped) | Should Be $true
         }
 
         It "last-run.json totalCount is greater than 0" {

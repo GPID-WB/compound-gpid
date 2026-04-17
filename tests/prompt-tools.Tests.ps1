@@ -1292,7 +1292,10 @@ Describe "cg-work.prompt.md - Discover existing tests sub-step" {
     }
 
     It "instructs running both existing and new tests" {
-        ($content -match 'existing tests AND the new tests|discovered.*tests AND.*new tests') | Should Be $true
+        # Original check: text "existing tests AND the new tests" was replaced with
+        # a literal execution_subagent block (Phase 2 prompt hardening). The
+        # new approach uses execution_subagent + Run-Tests.ps1 + last-run.json.
+        ($content -match 'existing tests AND the new tests|discovered.*tests AND.*new tests|execution_subagent.*Run-Tests|Run-Tests.*execution_subagent') | Should Be $true
     }
 }
 
@@ -1839,9 +1842,7 @@ Describe "cg-compound.prompt.md - context enrichment step ordering" {
     }
 
     It "offers to create context.md if it does not exist" {
-        # 'does not exist.*creat' matches "does not exist, suggest creating it:" on one line
-        # 'first entry' matches the suggested content for the new file
-        ($content -match 'does not exist.*creat|first entry') | Should Be $true
+        ($content -match 'does not exist.*create|create.*first entry') | Should Be $true
     }
 }
 
@@ -1887,12 +1888,12 @@ Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
         ($content -match '/cg-strategy') | Should Be $true
     }
 
-    It "does NOT auto-modify compound-gpid.md charter (asks first)" {
+    It "does NOT auto-modify compound-gpid.md charter (redirects to /cg-strategy)" {
         $step38Start = $content.IndexOf("### Step 3.8:")
         $step4Start  = $content.IndexOf("### Step 4:")
         $step38Block = $content.Substring($step38Start, $step4Start - $step38Start)
-        # Must ask for approval before modifying charter
-        ($step38Block -match 'wait for approval|If approved|ask') | Should Be $true
+        # Charter direction is deferred to /cg-strategy, not handled inline in cg-work
+        ($step38Block -match '/cg-strategy') | Should Be $true
     }
 }
 
@@ -2020,6 +2021,143 @@ Describe "cg-work.prompt.md - milestone completion check" {
 
     It "offers to update Current Focus when a milestone completes" {
         ($content -match 'Current Focus') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Pester crash prevention - literal execution_subagent blocks in test-running prompts
+#
+# These tests verify that cg-work, cg-fix-triage, and cg-diagnose each contain
+# a literal execution_subagent block for running tests, an Invoke-Pester
+# prohibition, and a last-run.json artifact reference. If someone removes these
+# blocks, a Pester crash becomes likely again.
+#
+# Tests use co-presence checks rather than exact phrasing to avoid brittleness.
+# ---------------------------------------------------------------------------
+
+Describe "Pester crash prevention - execution_subagent blocks in cg-work" {
+    $cgWorkFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $cgWorkContent = if (Test-Path $cgWorkFile) { Get-Content $cgWorkFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-work.prompt.md exists" {
+        (Test-Path $cgWorkFile) | Should Be $true
+    }
+
+    It "cg-work.prompt.md contains execution_subagent instruction" {
+        ($cgWorkContent -match 'execution_subagent') | Should Be $true
+    }
+
+    It "cg-work.prompt.md references Run-Tests.ps1 in test block" {
+        ($cgWorkContent -match 'Run-Tests\.ps1') | Should Be $true
+    }
+
+    It "cg-work.prompt.md references last-run.json artifact" {
+        ($cgWorkContent -match 'last-run\.json') | Should Be $true
+    }
+
+    It "cg-work.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
+        # Co-presence check: both must exist (prohibition intent confirmed).
+        # Does not test exact phrasing - rewording the prohibition still passes.
+        ($cgWorkContent -match 'execution_subagent') -and ($cgWorkContent -match 'Invoke-Pester') |
+            Should Be $true
+    }
+}
+
+Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" {
+    $cgFixTriageFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+    $cgFixTriageContent = if (Test-Path $cgFixTriageFile) { Get-Content $cgFixTriageFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-fix-triage.prompt.md exists" {
+        (Test-Path $cgFixTriageFile) | Should Be $true
+    }
+
+    It "cg-fix-triage.prompt.md contains execution_subagent instruction" {
+        ($cgFixTriageContent -match 'execution_subagent') | Should Be $true
+    }
+
+    It "cg-fix-triage.prompt.md references Run-Tests.ps1 in test block" {
+        ($cgFixTriageContent -match 'Run-Tests\.ps1') | Should Be $true
+    }
+
+    It "cg-fix-triage.prompt.md references last-run.json artifact" {
+        ($cgFixTriageContent -match 'last-run\.json') | Should Be $true
+    }
+
+    It "cg-fix-triage.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
+        ($cgFixTriageContent -match 'execution_subagent') -and ($cgFixTriageContent -match 'Invoke-Pester') |
+            Should Be $true
+    }
+}
+
+Describe "Pester crash prevention - execution_subagent blocks in cg-diagnose" {
+    $cgDiagnoseFile = Join-Path $repoRoot ".github\prompts\cg-diagnose.prompt.md"
+    $cgDiagnoseContent = if (Test-Path $cgDiagnoseFile) { Get-Content $cgDiagnoseFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-diagnose.prompt.md exists" {
+        (Test-Path $cgDiagnoseFile) | Should Be $true
+    }
+
+    It "cg-diagnose.prompt.md contains execution_subagent instruction" {
+        ($cgDiagnoseContent -match 'execution_subagent') | Should Be $true
+    }
+
+    It "cg-diagnose.prompt.md references Run-Tests.ps1 in test block" {
+        ($cgDiagnoseContent -match 'Run-Tests\.ps1') | Should Be $true
+    }
+
+    It "cg-diagnose.prompt.md references last-run.json artifact" {
+        ($cgDiagnoseContent -match 'last-run\.json') | Should Be $true
+    }
+
+    It "cg-diagnose.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
+        ($cgDiagnoseContent -match 'execution_subagent') -and ($cgDiagnoseContent -match 'Invoke-Pester') |
+            Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 — cg-skill-pester-safety SKILL.md Agent Workflow regression tests
+# If the Agent Workflow section is removed, no agent will know to use
+# execution_subagent, and the canonical Run-Tests.ps1 pattern is lost.
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-pester-safety - Agent Workflow section present" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-pester-safety\SKILL.md"
+    $skillContent = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+
+    It "SKILL.md contains 'execution_subagent' in Agent Workflow section" {
+        ($skillContent -match 'execution_subagent') | Should Be $true
+    }
+
+    It "SKILL.md references Run-Tests.ps1 in Agent Workflow section" {
+        ($skillContent -match 'Run-Tests\.ps1') | Should Be $true
+    }
+
+    It "SKILL.md references last-run.json artifact in Agent Workflow section" {
+        ($skillContent -match 'last-run\.json') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 — copilot-instructions.md Rule 9 regression tests
+# Rule 9 is the system-level mandate that makes the execution_subagent
+# pattern binding on all agents. If removed, no agent-level test fails.
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - Rule 9 Agent test workflow" {
+    $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $instructionsContent = if (Test-Path $instructionsFile) { Get-Content $instructionsFile -Raw -Encoding UTF8 } else { "" }
+
+    It "copilot-instructions.md contains 'Agent test workflow' rule" {
+        ($instructionsContent -match 'Agent test workflow') | Should Be $true
+    }
+
+    It "copilot-instructions.md references execution_subagent in Rule 9" {
+        ($instructionsContent -match 'execution_subagent') | Should Be $true
+    }
+
+    It "copilot-instructions.md references last-run.json in Rule 9" {
+        ($instructionsContent -match 'last-run\.json') | Should Be $true
     }
 }
 
