@@ -83,8 +83,29 @@ For **each step** in the plan:
 1. **Announce**: Tell the user which step you're starting.
 2. **Discover existing tests**: Using the index from Step 1.6, identify any tests that already exercise the code you're about to change.
 3. **Implement**: Write the code following project conventions and the relevant language skill.
-4. **Test**: Write tests as specified in the plan. Run both the discovered existing tests AND the new tests to verify nothing regressed.
+4. **Test**: Write tests as specified in the plan.
    - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
+
+   **Running tests** (do NOT use `Invoke-Pester` directly — always use `execution_subagent`):
+
+   For the test file(s) covering this step:
+   > **execution_subagent query**: "In the repo root, run
+   > `. tests\Run-Tests.ps1 -File <test-name>` (no other flags, no pipeline).
+   > Then run `Get-Content tests\last-run.json | ConvertFrom-Json |
+   > Select-Object passed, failedCount, failures`. Return only those three fields."
+
+   If `passed` is `true`: continue to the next step.
+   If `passed` is `false`: read `failures` array and apply Test Failure Recovery below.
+
+   **Full-suite gate** (run before each commit checkpoint):
+   > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1`
+   > (no flags, no pipeline). Then run `Get-Content tests\last-run.json |
+   > ConvertFrom-Json | Select-Object passed, failedCount, failures`.
+   > Return only those three fields."
+
+   If `passed` is `true` and `filteredFiles` is null: proceed to commit.
+   If `filteredFiles` is non-null: this is a partial run — do NOT use as the commit gate; run the full suite first.
+   If `passed` is `false`: treat new failures as regressions — apply Test Failure Recovery.
 
    **Test Failure Recovery** (functional tests only — `get_errors` compile/lint errors are handled separately in the **Auto-Fix Diagnostics** block below):
    If any tests fail:
@@ -240,17 +261,9 @@ been fully completed:
      or `active`).
    - If **all features in the milestone are now `done`**: dispatch
      `@cg-roadmap` with: "Update milestone `<milestone-id>` to status done."
-   - After `@cg-roadmap` returns, warn the user:
+   - After `@cg-roadmap` returns, notify the user:
      > "🎉 Milestone **'<milestone title>'** is now complete! The charter's
-     > Current Focus may be stale. Run `/cg-strategy` to update direction,
-     > or I can suggest new Current Focus text now. (yes to suggest / no to
-     > defer)"
-   - If the user wants an inline suggestion: read `compound-gpid.md` Current
-     Focus and the remaining `in-progress` or `planned` milestones. Propose
-     1-2 sentences of new Current Focus text. Wait for approval before
-     updating. If approved, archive the replaced text to
-     `.cg-docs/archive/charter-history.md` and update `Current Focus` and
-     `last-reviewed` in `compound-gpid.md`.
+     > Current Focus may be stale. Run `/cg-strategy` to review direction."
 3. If no milestone is fully complete after this step, skip silently.
 
 ### Step 4: Summary

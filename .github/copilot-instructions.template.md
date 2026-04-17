@@ -1,3 +1,7 @@
+<!-- compound-gpid:template — source for copilot-instructions.md, managed by scripts/helpers.ps1.
+     Run `cg-update` to regenerate the output file from this template.
+     Do not edit .github/copilot-instructions.md directly.
+     Template variables substituted at generation time: project-name, project-type, languages, review-depth. -->
 # Project Instructions
 
 This project uses [Compound GPID](https://github.com/GPID-WB/compound-gpid),

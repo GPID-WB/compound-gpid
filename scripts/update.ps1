@@ -355,13 +355,16 @@ $cwdCopilotDest = Join-Path $cwdGithub "copilot-instructions.md"
 # Skip refresh when called internally by cg-link (it handles its own Step 4 refresh)
 if (-not $env:CG_INTERNAL_CALL -and
     (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest)) {
-    $existing = Get-Content $cwdCopilotDest -Raw -ErrorAction SilentlyContinue
-    if ($existing -and $existing -match [regex]::Escape($CopilotInstructionsMarker)) {
-        # Pass (Get-Location) as ProjectRoot - after Pop-Location, this is
-        # the consumer project root, not the compound-gpid install directory.
-        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot (Get-Location)
-        Set-Content -Path $cwdCopilotDest -Value $generated
-        Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray
+    # Pass (Get-Location) as ProjectRoot -- after Pop-Location, this is
+    # the consumer project root, not the compound-gpid install directory.
+    $outcome = Update-ManagedInstructionsFile -Dest $cwdCopilotDest `
+        -Marker $CopilotInstructionsMarker `
+        -TemplateDir $CompoundGpidDir `
+        -ProjectRoot (Get-Location).Path
+    switch ($outcome) {
+        "refreshed"  { Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray }
+        "up-to-date" { Write-Host "copilot-instructions.md up to date." -ForegroundColor DarkGray }
+        "skipped"    { } # user-managed, no message needed
     }
 }
 

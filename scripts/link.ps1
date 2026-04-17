@@ -164,23 +164,27 @@ Then re-run: cg-link
 # --- Step 4: Generate copilot-instructions.md from template ---
 Write-Host "Linking copilot-instructions.md..." -ForegroundColor DarkGray
 
+# Read existing content once; determine if the file is user-managed (marker absent).
+# Skip generation only when file exists AND marker is absent (user took ownership).
+$existingContent = $null
 if (Test-Path $CopilotInstructionsDest) {
-    $existingContent = Get-Content $CopilotInstructionsDest -Raw -ErrorAction SilentlyContinue
-    if ($existingContent -and $existingContent -match [regex]::Escape($CopilotInstructionsMarker)) {
-        # Marker present - this is a CG-managed file, regenerate from template
-        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
-        Set-Content -Path $CopilotInstructionsDest -Value $generated
+    $existingContent = Get-Content $CopilotInstructionsDest -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+}
+
+$userManaged = $existingContent -and
+               ($existingContent -notmatch [regex]::Escape($CopilotInstructionsMarker))
+
+if ($userManaged) {
+    Write-Host "  copilot-instructions.md - user-managed (marker absent), skipping" -ForegroundColor Yellow
+    Write-Host "  To restore CG management, delete the file and re-run cg-link." -ForegroundColor DarkGray
+} else {
+    $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
+    if ($generated -ne $existingContent) {
+        Set-Content -Path $CopilotInstructionsDest -Value $generated -Encoding UTF8
         Write-Host "  copilot-instructions.md - generated" -ForegroundColor DarkGray
     } else {
-        # No marker - user has taken ownership of this file, leave it alone
-        Write-Host "  copilot-instructions.md - user-managed (marker absent), skipping" -ForegroundColor Yellow
-        Write-Host "  To restore CG management, delete the file and re-run cg-link." -ForegroundColor DarkGray
+        Write-Host "  copilot-instructions.md - up to date" -ForegroundColor DarkGray
     }
-} else {
-    # File does not exist - generate from template
-    $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
-    Set-Content -Path $CopilotInstructionsDest -Value $generated
-    Write-Host "  copilot-instructions.md - generated" -ForegroundColor DarkGray
 }
 
 # --- Step 5: Update .gitignore with CG-specific entries only ---
@@ -193,13 +197,8 @@ if (Test-Path $CopilotInstructionsDest) {
 $gitignorePath = Join-Path $ProjectRoot ".gitignore"
 
 $cgGitignoreMarker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-$cgGitignoreEntries = @(
-    ".github/prompts/",
-    ".github/skills/",
-    ".github/agents/",
-    ".github/instructions/",
-    ".github/copilot-instructions.md"
-)
+$cgGitignoreEntries = @($ManagedDirs | ForEach-Object { ".github/$_/" }) +
+                      @(".github/copilot-instructions.md")
 $cgGitignoreBlock = $cgGitignoreMarker + "`n" + ($cgGitignoreEntries -join "`n") + "`n"
 
 if (Test-Path $gitignorePath) {

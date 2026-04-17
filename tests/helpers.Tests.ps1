@@ -82,6 +82,10 @@ Describe "New-CopilotInstructions - basic generation" {
     }
 
     Context "placeholder substitution" {
+        It "setup succeeded (guard: result is not null)" {
+            [string]::IsNullOrWhiteSpace($result) | Should Be $false
+        }
+
         It "replaces {{project-name}} with charter project-name" {
             ($result -match 'Poverty Analysis') | Should Be $true
         }
@@ -112,6 +116,10 @@ Describe "New-CopilotInstructions - basic generation" {
 
         It "does not contain unreplaced {{review-depth}} placeholder" {
             ($result -match '\{\{review-depth\}\}') | Should Be $false
+        }
+
+        It "does not append R dialect annotation when r-syntax is not configured" {
+            ($result -match '\(R dialect:') | Should Be $false
         }
 
         It "handles project names containing dollar signs (literal, not regex backreferences)" {
@@ -152,6 +160,30 @@ Describe "New-CopilotInstructions - R dialect in languages string" {
 
     It "includes both R and dialect in the languages string" {
         ($result -match 'R.*data\.table-collapse|data\.table-collapse.*R') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# New-CopilotInstructions - r-syntax ignored for non-R languages
+# ---------------------------------------------------------------------------
+
+Describe "New-CopilotInstructions - r-syntax does not annotate non-R language" {
+    $templateDir = Join-Path $TestDrive "non-r-dialect-template"
+    $projectRoot = Join-Path $TestDrive "non-r-dialect-project"
+    New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+    New-TemplateDir -Root $templateDir | Out-Null
+    New-CharterFile -Root $projectRoot -ProjectName "Test"
+    New-LocalConfigFile -Root $projectRoot -Language "Python" -ProjectType "analytical" `
+                        -ReviewDepth "standard" -RSyntax "data.table-collapse"
+
+    $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
+
+    It "does not append R dialect info when language is Python" {
+        ($result -match 'data\.table-collapse') | Should Be $false
+    }
+
+    It "does not inject '(R dialect:' for non-R language" {
+        ($result -match '\(R dialect:') | Should Be $false
     }
 }
 
@@ -199,6 +231,10 @@ Describe "New-CopilotInstructions - fallback when compound-gpid.local.md is miss
 
     It "uses <not configured> fallback for project-type" {
         ($result -match '<not configured>') | Should Be $true
+    }
+
+    It "all three unconfigured fields (project-type, language, review-depth) fall back" {
+        ([regex]::Matches($result, [regex]::Escape('<not configured>')).Count) | Should Be 3
     }
 }
 
