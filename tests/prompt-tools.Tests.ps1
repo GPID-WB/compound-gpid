@@ -1839,7 +1839,9 @@ Describe "cg-compound.prompt.md - context enrichment step ordering" {
     }
 
     It "offers to create context.md if it does not exist" {
-        ($content -match 'does not exist.*create|create.*first entry') | Should Be $true
+        # 'does not exist.*creat' matches "does not exist, suggest creating it:" on one line
+        # 'first entry' matches the suggested content for the new file
+        ($content -match 'does not exist.*creat|first entry') | Should Be $true
     }
 }
 

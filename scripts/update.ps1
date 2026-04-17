@@ -357,7 +357,7 @@ if (-not $env:CG_INTERNAL_CALL -and
     (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest)) {
     $existing = Get-Content $cwdCopilotDest -Raw -ErrorAction SilentlyContinue
     if ($existing -and $existing -match [regex]::Escape($CopilotInstructionsMarker)) {
-        # Pass (Get-Location) as ProjectRoot — after Pop-Location, this is
+        # Pass (Get-Location) as ProjectRoot - after Pop-Location, this is
         # the consumer project root, not the compound-gpid install directory.
         $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot (Get-Location)
         Set-Content -Path $cwdCopilotDest -Value $generated

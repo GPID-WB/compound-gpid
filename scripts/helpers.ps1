@@ -22,13 +22,13 @@ function New-CopilotInstructions {
         in ProjectRoot, fills placeholders, and returns the generated content with
         the management marker prepended.
 
-        Falls back to placeholder values when charter or local config files are absent —
+        Falls back to placeholder values when charter or local config files are absent -
         never fails silently on missing config (only on missing template).
     .PARAMETER TemplateDir
         Path to the Compound GPID installation directory (parent of .github\).
     .PARAMETER ProjectRoot
         Path to the consumer project root directory. When called from update.ps1,
-        pass (Get-Location) after Pop-Location — at that point it resolves to
+        pass (Get-Location) after Pop-Location - at that point it resolves to
         the consumer project root, not the compound-gpid install dir.
     .EXAMPLE
         $content = New-CopilotInstructions -TemplateDir "C:\WBG\.compound-gpid" -ProjectRoot (Get-Location)
@@ -43,7 +43,7 @@ function New-CopilotInstructions {
     $templatePath = Join-Path $TemplateDir ".github\copilot-instructions.template.md"
 
     if (-not (Test-Path $templatePath)) {
-        throw "Compound GPID template not found at: $templatePath. The installation may be corrupted — run cg-update --fix."
+        throw "Compound GPID template not found at: $templatePath. The installation may be corrupted - run cg-update --fix."
     }
 
     $template = Get-Content $templatePath -Raw
@@ -80,7 +80,7 @@ function New-CopilotInstructions {
         }
     }
 
-    # Build languages string — append R dialect when configured
+    # Build languages string - append R dialect when configured
     $languages = $language
     if ($null -ne $rSyntax -and $language -match '(?i)\bR\b') {
         $languages = "$language (R dialect: $rSyntax)"

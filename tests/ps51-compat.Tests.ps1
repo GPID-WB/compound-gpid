@@ -20,7 +20,8 @@ $productionScripts = @(
     "create-release.ps1",
     "scripts\update.ps1",
     "scripts\link.ps1",
-    "scripts\unlink.ps1"
+    "scripts\unlink.ps1",
+    "scripts\helpers.ps1"
 )
 
 # ---------------------------------------------------------------------------
