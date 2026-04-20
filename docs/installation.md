@@ -56,7 +56,7 @@ From your project root:
 cg-link
 ```
 
-This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and copies `copilot-instructions.md` with a management marker. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
+This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template, filling in your project name, languages, and review depth. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -65,7 +65,7 @@ This creates **per-subdirectory junctions** inside `.github/` for the Compound G
 > **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
 > Settings → System → For developers → Developer Mode → On
 
-> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID - do not edit them directly. To customise `copilot-instructions.md`, remove the `<!-- compound-gpid:managed -->` marker at the top of the file; `cg-update` will then leave your version untouched.
+> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` is regenerated from a template on every `cg-link` and `cg-update` run. To take ownership of the file, remove the `<!-- compound-gpid:managed -->` marker at the top; `cg-update` will then leave your version untouched.
 
 ## Step 4 - Configure your project (once per project)
 
@@ -77,13 +77,12 @@ Open your project in VS Code and run in Copilot Chat:
 
 > ⚠️ **Do not skip this step.** `/cg-setup` creates the `.cg-docs/` directory structure (brainstorms, plans, reviews, strategy, solutions, archive) required by all workflow prompts. If you skip it, `/cg-strategy`, `/cg-review`, and `/cg-compound` will fail to write their output artifacts.
 
-This configures language preferences, project type, and review depth, and scaffolds the `.cg-docs/` directory.
-It also optionally creates `compound-gpid.md` -- a committed, shared **project charter** that gives Copilot
-awareness of your project's objective, key deliverables, constraints, and current focus. All `/cg-*` prompts read this file
-automatically at session start.
+This configures language preferences, project type, and review depth, scaffolds the `.cg-docs/` directory,
+and creates three config files:
 
-- `compound-gpid.local.md` -- always created; gitignored; your personal config (language, review depth)
-- `compound-gpid.md` -- optional; committed; shared project charter for the whole team
+- `compound-gpid.local.md` — always created; gitignored; your personal config (language, review depth)
+- `compound-gpid.md` — optional; committed; shared project charter (objective, deliverables, constraints, current focus). All `/cg-*` prompts read this automatically.
+- `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot should know on every task (data sources, variable caveats, workspace folder descriptions, domain vocabulary). All prompts read this in Step 0. Grows over time via `/cg-compound`.
 
 > **Existing repos**: If you already have a project without these files, /cg-setup will detect the existing repo and ask you to create them. You can skip charter questions and create compound-gpid.md later by re-running /cg-setup.
 

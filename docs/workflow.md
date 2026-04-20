@@ -36,7 +36,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 - When you want to update language preferences, project type, or review depth
 - When re-entering an existing project that has no `compound-gpid.md` or `compound-gpid.local.md`
 
-**What happens**: Creates `compound-gpid.md` (the project charter) and `compound-gpid.local.md` (your personal config). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`).
+**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your personal config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`).
 
 **Scenarios**:
 - *New project*: Run once at the start. `/cg-setup` asks about language, project type, review depth, and optionally the project charter.
@@ -48,7 +48,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 - When you just want to resume interrupted work — use `/cg-resume` instead
 - To read the charter — all `/cg-*` prompts read it automatically
 
-**Output**: `compound-gpid.md` + `compound-gpid.local.md` + `.cg-docs/` directories
+**Output**: `compound-gpid.md` + `compound-gpid.local.md` + `compound-gpid.context.md` + `.cg-docs/` directories
 
 ---
 
