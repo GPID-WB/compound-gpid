@@ -4,6 +4,9 @@
 # Run with: Invoke-Pester tests/update.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
+$repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+. (Join-Path $repoRoot "scripts\helpers.ps1")
+
 Describe "update.ps1 - pre-condition checks" {
     Context "install path detection" {
         It "passes when a simulated install directory exists" {
@@ -161,47 +164,38 @@ Describe "update.ps1 - git checkout . before pull" {
 }
 
 Describe "update.ps1 - copilot-instructions.md refresh" {
+    $marker = "<!-- compound-gpid:managed -->"
+
     Context "when the file in CWD has the management marker" {
-        It "overwrites the file with updated content" {
-            $marker  = "<!-- compound-gpid:managed -->"
-            $dest    = Join-Path $TestDrive "copilot-managed.md"
-            $source  = Join-Path $TestDrive "copilot-source.md"
+        It "calls Update-ManagedInstructionsFile which regenerates the file (real code path)" {
+            # Create a minimal template directory so New-CopilotInstructions can run
+            $templateDir = Join-Path $TestDrive "refresh-template"
+            $githubDir   = Join-Path $templateDir ".github"
+            New-Item -ItemType Directory -Path $githubDir -Force | Out-Null
+            Set-Content -Path (Join-Path $githubDir "copilot-instructions.template.md") `
+                        -Value "# Generated" -Encoding UTF8
+            $projectRoot = Join-Path $TestDrive "refresh-project"
+            New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
 
-            Set-Content -Path $source -Value "# Updated instructions from global clone"
-            Set-Content -Path $dest   -Value ($marker + "`n# Old instructions")
+            $dest = Join-Path $TestDrive "copilot-managed.md"
+            Set-Content -Path $dest -Value ($marker + "`n# Old generated content") -Encoding UTF8
 
-            # Simulate the marker check and overwrite
-            $existing = Get-Content $dest -Raw
-            if ($existing -match [regex]::Escape($marker)) {
-                $newContent = Get-Content $source -Raw
-                Set-Content -Path $dest -Value ($marker + "`n" + $newContent)
-            }
-
-            $result = Get-Content $dest -Raw
-            $result -match "Updated instructions" | Should Be $true
-            $result -match "Old instructions"     | Should Be $false
+            $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
+                -TemplateDir $templateDir -ProjectRoot $projectRoot
+            $outcome | Should Be "refreshed"
+            (Get-Content $dest -Raw) -match [regex]::Escape($marker) | Should Be $true
         }
     }
 
     Context "when the file in CWD does NOT have the management marker" {
-        It "leaves the user-managed file untouched" {
-            $marker  = "<!-- compound-gpid:managed -->"
-            $dest    = Join-Path $TestDrive "copilot-user.md"
-            $source  = Join-Path $TestDrive "copilot-source-skip.md"
+        It "returns 'skipped' and leaves the user-managed file untouched" {
+            $dest = Join-Path $TestDrive "copilot-user.md"
+            Set-Content -Path $dest -Value "# My custom instructions (no marker)" -Encoding UTF8
 
-            Set-Content -Path $source -Value "# New source content"
-            Set-Content -Path $dest   -Value "# My custom instructions (no marker)"
-
-            # Simulate the marker check - should NOT overwrite
-            $existing = Get-Content $dest -Raw
-            if ($existing -match [regex]::Escape($marker)) {
-                $newContent = Get-Content $source -Raw
-                Set-Content -Path $dest -Value ($marker + "`n" + $newContent)
-            }
-
-            $result = Get-Content $dest -Raw
-            $result -match "My custom instructions" | Should Be $true
-            $result -match "New source content"     | Should Be $false
+            $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
+                -TemplateDir $TestDrive -ProjectRoot $TestDrive
+            $outcome | Should Be "skipped"
+            (Get-Content $dest -Raw) -match "My custom instructions" | Should Be $true
         }
     }
 

@@ -21,7 +21,9 @@ You are a plan review orchestrator. Your job is to run a structured critique of 
 
 1. Read `compound-gpid.md` in the project root for project context (objective, constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type, review depth).
-3. If `compound-gpid.md` does not exist, warn:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn:
    "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 
 ### Step 1: Locate the Plan to Review

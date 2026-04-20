@@ -21,7 +21,9 @@ You are a senior developer applying fixes from a previously saved review report.
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
 
@@ -83,7 +85,16 @@ For each in-scope finding, in order (P0 first, then P1, then P2, then P3):
 
 1. Show the finding: ID, agent name, file, line, description, and suggested fix.
 2. Apply the suggested fix.
-3. Verify the fix compiles/parses correctly (run any available linter or test).
+3. Verify the fix is correct by running tests (do NOT use `Invoke-Pester` directly — always use `execution_subagent`):
+
+   > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1`
+   > (no flags, no pipeline). Then run `Get-Content tests\last-run.json |
+   > ConvertFrom-Json | Select-Object passed, failedCount, failures`.
+   > Return only those three fields."
+
+   If `passed` is `true`: mark the finding as fixed and continue.
+   If `passed` is `false`: review `failures` — if the failure is unrelated to
+   this finding, note it and continue; if related, the fix needs revision.
 4. Mark the finding as fixed: update its entry in the review file's YAML
    frontmatter from `open` to `fixed` (or `skipped` if the user declined).
    Edit only the frontmatter — do not modify the markdown body.

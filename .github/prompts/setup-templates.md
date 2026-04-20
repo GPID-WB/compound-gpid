@@ -4,6 +4,32 @@ Templates used by `/cg-setup`. Loaded on-demand — do not bulk-load at prompt s
 
 ---
 
+## compound-gpid.context.md Template
+
+```markdown
+# Project Context
+
+Additional context for Copilot and the Compound GPID plugin. Edit freely —
+this file is committed to git and shared with the team.
+
+## Data Sources
+<!-- Where does data come from? File paths, databases, APIs, vintage conventions -->
+
+## Domain Rules
+<!-- Project-specific rules that Copilot should always follow -->
+
+## Work in Progress
+<!-- Modules, features, or migrations currently underway -->
+
+## Workspace Notes
+<!-- Related folders, dependencies on other projects in the VS Code workspace -->
+```
+
+> This file is committed to git. Do NOT add it to `.gitignore`.
+> It is loaded by Step 0 in every `/cg-*` prompt.
+
+---
+
 ## compound-gpid.local.md Template
 
 ```markdown

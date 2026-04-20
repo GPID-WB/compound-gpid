@@ -29,7 +29,9 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
    ```powershell
    . tests\Run-Tests.ps1
    ```
+   Results are written to `tests/last-run.json` — read this artifact via `execution_subagent` rather than parsing terminal output directly.
    Or via VS Code: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)**
+9. **Agent test workflow**: Agents must use `execution_subagent` to run `. tests\Run-Tests.ps1` and read `tests/last-run.json` for results. Never compose `Invoke-Pester` commands directly — use the canonical pattern in `cg-skill-pester-safety`.
 
 See `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` for full diagnosis.
 

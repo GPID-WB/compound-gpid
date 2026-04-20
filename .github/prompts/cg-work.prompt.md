@@ -23,7 +23,9 @@ You are a senior developer implementing a plan that was previously created with 
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
 
@@ -81,8 +83,29 @@ For **each step** in the plan:
 1. **Announce**: Tell the user which step you're starting.
 2. **Discover existing tests**: Using the index from Step 1.6, identify any tests that already exercise the code you're about to change.
 3. **Implement**: Write the code following project conventions and the relevant language skill.
-4. **Test**: Write tests as specified in the plan. Run both the discovered existing tests AND the new tests to verify nothing regressed.
+4. **Test**: Write tests as specified in the plan.
    - R: use `testthat`. Python: use `pytest`. Stata: use `assert` statements and validation do-files.
+
+   **Running tests** (do NOT use `Invoke-Pester` directly — always use `execution_subagent`):
+
+   For the test file(s) covering this step:
+   > **execution_subagent query**: "In the repo root, run
+   > `. tests\Run-Tests.ps1 -File <test-name>` (no other flags, no pipeline).
+   > Then run `Get-Content tests\last-run.json | ConvertFrom-Json |
+   > Select-Object passed, failedCount, failures`. Return only those three fields."
+
+   If `passed` is `true`: continue to the next step.
+   If `passed` is `false`: read `failures` array and apply Test Failure Recovery below.
+
+   **Full-suite gate** (run before each commit checkpoint):
+   > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1`
+   > (no flags, no pipeline). Then run `Get-Content tests\last-run.json |
+   > ConvertFrom-Json | Select-Object passed, failedCount, failures`.
+   > Return only those three fields."
+
+   If `passed` is `true` and `filteredFiles` is null: proceed to commit.
+   If `filteredFiles` is non-null: this is a partial run — do NOT use as the commit gate; run the full suite first.
+   If `passed` is `false`: treat new failures as regressions — apply Test Failure Recovery.
 
    **Test Failure Recovery** (functional tests only — `get_errors` compile/lint errors are handled separately in the **Auto-Fix Diagnostics** block below):
    If any tests fail:
@@ -226,6 +249,22 @@ If `roadmap.json` exists at the project root:
    file and check the status changed). If not, inform the user:
    > "Roadmap update may not have been applied. You can run `@cg-roadmap`
    > directly to update the status."
+
+### Step 3.8: Milestone Completion Check
+
+After Step 3.7 completes (features marked done), check if a milestone has
+been fully completed:
+
+1. Re-read `roadmap.json`.
+2. For each milestone that contained a feature just marked `done`:
+   - Count features that are NOT `done` (i.e., status is `idea`, `planned`,
+     or `active`).
+   - If **all features in the milestone are now `done`**: dispatch
+     `@cg-roadmap` with: "Update milestone `<milestone-id>` to status done."
+   - After `@cg-roadmap` returns, notify the user:
+     > "🎉 Milestone **'<milestone title>'** is now complete! The charter's
+     > Current Focus may be stale. Run `/cg-strategy` to review direction."
+3. If no milestone is fully complete after this step, skip silently.
 
 ### Step 4: Summary
 

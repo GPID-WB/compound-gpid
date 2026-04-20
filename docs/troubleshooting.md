@@ -414,6 +414,25 @@ Write-Host "Window:  $($window.FullName)"
 
 ---
 
+## `cg-update` silently skips refreshing `copilot-instructions.md`
+
+**Symptom**: Running `cg-update` from a linked project completes without errors, but `copilot-instructions.md` is not refreshed even though the management marker is present.
+
+**Cause**: `cg-link` sets `$env:CG_INTERNAL_CALL = "1"` inside its PowerShell subprocess to suppress the refresh step (to avoid doing it twice). The variable is cleared in a `finally` block before the subprocess exits. In normal usage this is transparent. The symptom appears when `$env:CG_INTERNAL_CALL` is set in your current terminal session — for example, if you dot-sourced `link.ps1` directly (`. .\scripts\link.ps1`) and it exited before the `finally` block ran, or if the variable was set manually. Subsequent `cg-update` calls in that terminal inherit the variable and silently skip the refresh.
+
+**Fix**: Open a new terminal — environment variables do not persist across sessions. Then run `cg-update` from your project root.
+
+```powershell
+# Verify the stale variable is the cause (in the affected terminal):
+$env:CG_INTERNAL_CALL   # prints "1" if stale
+
+# Clear it manually (if you don't want to open a new terminal):
+Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+cg-update
+```
+
+---
+
 > Still stuck? Open a [GitHub Issue](https://github.com/GPID-WB/compound-gpid/issues).
 > 
 > See [Reference](reference.md) for a full list of commands and agents.

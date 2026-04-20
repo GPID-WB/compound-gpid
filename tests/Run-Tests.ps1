@@ -17,20 +17,39 @@
 # always add its name to $testNames.
 #
 # Usage:
-#   . tests\Run-Tests.ps1                Run all tests, quiet per-file output
-#   . tests\Run-Tests.ps1 -FailFast      Stop after the first file with failures
+#   . tests\Run-Tests.ps1                        Run all tests, quiet per-file output
+#   . tests\Run-Tests.ps1 -FailFast              Stop after the first file with failures
+#   . tests\Run-Tests.ps1 -File charter          Run only the charter test file
+#   . tests\Run-Tests.ps1 -File charter,roadmap  Run charter and roadmap test files
+#
+# Output artifact: tests/last-run.json — bounded JSON with pass/fail counts,
+# per-file breakdown, and failure details. Written atomically after every run.
+# Agents should read this artifact via execution_subagent rather than composing
+# Invoke-Pester commands directly.
 #
 # VS Code task: Ctrl+Shift+P → Tasks: Run Task → "Run all Pester tests (safe)"
 
-param([switch]$FailFast)
+param(
+    [switch]$FailFast,
+    [string[]]$File
+)
 
 $repoRoot = Split-Path $PSScriptRoot -Parent
+
+# Artifact paths — written atomically after every run.
+$artifactPath = Join-Path $repoRoot "tests\last-run.json"
+$artifactTmp  = Join-Path $repoRoot "tests\.last-run.tmp"
+
+# Capture git SHA for audit trail. Allows /cg-diagnose to verify which commit was tested.
+$gitSha = (git -C $repoRoot rev-parse --short HEAD 2>$null)
+if (-not $gitSha) { $gitSha = "unknown" }
 
 # Ordered list — non-junction-creating tests first, junction-creating tests last.
 # IMPORTANT: link and unlink create directory junctions with timing-sensitive
 # cleanup. Running them last prevents cleanup races with other test files.
 $testNames = @(
     'charter',
+    'helpers',
     'roadmap',
     'prompt-tools',
     'model-assignments',
@@ -38,15 +57,68 @@ $testNames = @(
     'ps51-compat',
     'create-release',
     'install',
+    'run-tests-runner',
     'update',
     'link',     # creates junctions — must be last
     'unlink'    # creates junctions — must be last
 )
 
+# -File filtering: run only the specified subset of test files.
+# Junction-ordering is preserved: link/unlink are always kept last.
+if ($File -and $File.Count -gt 0) {
+    $junctionLast = @('link', 'unlink')
+    $requested    = $File | ForEach-Object { $_.Trim() }
+
+    # Warn about names not registered in $testNames.
+    foreach ($reqName in $requested) {
+        if ($testNames -notcontains $reqName) {
+            Write-Warning "WARNING: '$reqName' is not a registered test name. Skipping."
+        }
+    }
+
+    # Build filtered list preserving original order, then push junction tests to end.
+    $nonJunction = $testNames | Where-Object { $requested -contains $_ -and $junctionLast -notcontains $_ }
+    $junction    = $testNames | Where-Object { $requested -contains $_ -and $junctionLast -contains $_ }
+    $testNames   = @($nonJunction) + @($junction)
+}
+
+# Guard: if all -File names were unregistered, $testNames is now empty.
+# Write an error artifact and fail rather than producing a misleading passed: true, totalCount: 0 result.
+if ($File -and $File.Count -gt 0 -and $testNames.Count -eq 0) {
+    Write-Host "  ERROR: No registered test names matched the -File filter." -ForegroundColor Red
+    $errorArtifact = [pscustomobject]@{
+        gitSha        = $gitSha
+        ranAt         = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        passed        = $false
+        totalCount    = 0
+        passedCount   = 0
+        failedCount   = 0
+        failFast      = $false
+        filteredFiles = @($File)
+        files         = @()
+        failures      = @()
+        error         = "No registered test names matched the -File filter"
+    }
+    try {
+        [System.IO.File]::WriteAllText($artifactTmp, ($errorArtifact | ConvertTo-Json -Depth 4))
+        Move-Item $artifactTmp $artifactPath -Force
+    } catch {
+        Write-Warning "WARNING: Failed to write error artifact: $_"
+    }
+    exit 1
+}
+
 $totalPassed = 0
 $totalFailed = 0
 $failedNames = @()
 $skippedNames = @()
+$earlyExit   = $false  # set to $true only when -FailFast breaks the loop early
+
+# Artifact data — initialized before the loop.
+# Use ArrayList instead of @() + += to prevent single-element array coercion in PS 5.1
+# ConvertTo-Json (PS 5.1) serialises a single-element @() as an object, not an array.
+$filesArray    = [System.Collections.ArrayList]::new()
+$failuresArray = [System.Collections.ArrayList]::new()
 
 Write-Host ""
 Write-Host "Compound GPID - Pester test suite" -ForegroundColor Cyan
@@ -64,6 +136,16 @@ foreach ($name in $testNames) {
     # SAFE PATTERN: assign to $r first — never pipeline Invoke-Pester output directly.
     $r = Invoke-Pester $filePath -PassThru -Quiet
 
+    # Guard: Invoke-Pester can return $null on a fatal load error (missing module at
+    # global scope). Without this check, $r.FailedCount throws and exits the loop,
+    # leaving the artifact stale from a previous run.
+    if ($null -eq $r) {
+        Write-Host "  [ERROR] $name - Invoke-Pester returned null" -ForegroundColor Red
+        $totalFailed += 1
+        $failedNames += $name
+        continue
+    }
+
     $status = if ($r.FailedCount -eq 0) { "[PASS]" } else { "[FAIL]" }
     $color  = if ($r.FailedCount -eq 0) { "Green" } else { "Red" }
     Write-Host ("  {0} {1,-28} passed: {2,3}  failed: {3,3}" -f $status, $name, $r.PassedCount, $r.FailedCount) -ForegroundColor $color
@@ -71,11 +153,35 @@ foreach ($name in $testNames) {
     $totalPassed += $r.PassedCount
     $totalFailed += $r.FailedCount
 
+    # Append per-file summary to artifact data.
+    $filesArray.Add([pscustomobject]@{
+        name   = $name
+        total  = $r.TotalCount
+        passed = $r.PassedCount
+        failed = $r.FailedCount
+    }) | Out-Null
+
     if ($r.FailedCount -gt 0) {
+        # .TestResult pipeline is safe here: Run-Tests.ps1 executes in a terminal
+        # subprocess, NOT in the VS Code extension host. The object graph stays in
+        # the terminal process and never floods the extension host memory.
+        # pester-safety.Tests.ps1 scans this file but its current patterns do not
+        # flag $r.TestResult — they target Invoke-Pester | ... pipelines only.
+        $r.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
+            $failuresArray.Add([pscustomobject]@{
+                file     = $name
+                describe = $_.Describe
+                context  = if ($_.Context) { $_.Context } else { "" }
+                name     = $_.Name
+                message  = $_.FailureMessage
+            }) | Out-Null
+        }
+
         $failedNames += $name
         if ($FailFast) {
             Write-Host ""
             Write-Host "  FailFast: stopping after first failure." -ForegroundColor Red
+            $earlyExit = $true
             break
         }
     }
@@ -95,7 +201,8 @@ if ($failedNames.Count -gt 0) {
     Write-Host "  Run the command above to see the full failure details." -ForegroundColor DarkGray
 }
 
-# Warn about test files not in $testNames (P2.5: prevents silent omissions)
+# Warn about test files not in $testNames -- prevents silent coverage gaps when
+# a new .Tests.ps1 file is added without registering it.
 $allTestFiles = Get-ChildItem -Path (Join-Path $repoRoot "tests") -Filter "*.Tests.ps1" -File
 $undeclared = $allTestFiles | Where-Object { $testNames -notcontains ($_.BaseName -replace '\.Tests$', '') }
 if ($undeclared.Count -gt 0) {
@@ -109,4 +216,27 @@ if ($undeclared.Count -gt 0) {
 Write-Host "==================================" -ForegroundColor $summaryColor
 Write-Host ""
 
-if ($totalFailed -gt 0) { exit 1 }
+# Build and atomically write the test result artifact.
+# failFast is true only when -FailFast was set AND the loop exited early due to failures.
+$artifact = [pscustomobject]@{
+    gitSha        = $gitSha
+    ranAt         = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+    passed        = ($totalFailed -eq 0)
+    totalCount    = $totalPassed + $totalFailed
+    passedCount   = $totalPassed
+    failedCount   = $totalFailed
+    failFast      = [bool]$earlyExit
+    filteredFiles = if ($File) { @($File) } else { $null }
+    skipped       = $skippedNames
+    files         = $filesArray
+    failures      = $failuresArray
+}
+# Write to tmp first, then rename -- prevents agents from reading a partial artifact mid-write.
+try {
+    [System.IO.File]::WriteAllText($artifactTmp, ($artifact | ConvertTo-Json -Depth 4))
+    Move-Item $artifactTmp $artifactPath -Force
+} catch {
+    Write-Warning "WARNING: Failed to write test artifact: $_"
+}
+
+if ($totalFailed -gt 0) { $global:LASTEXITCODE = 1; return }

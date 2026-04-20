@@ -22,7 +22,9 @@ You are a crash forensics investigator for VS Code sessions. When the user runs 
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
 
@@ -165,7 +167,18 @@ Present a structured report using this format:
 #### Category-Specific Recommendations
 
 **Category A (Pester)**:
-- Recovery: Work is likely safe. Run `. tests\Run-Tests.ps1` to verify test suite passes.
+- Recovery: Work is likely safe.
+
+  **Verify test suite** (do NOT use `Invoke-Pester` directly):
+
+  > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1`
+  > (no flags, no pipeline). Then run `Get-Content tests\last-run.json |
+  > ConvertFrom-Json | Select-Object passed, failedCount, failures`.
+  > Return only those three fields."
+
+  If `passed` is `true`: codebase integrity confirmed.
+  If `passed` is `false`: report failures to the user — these may be pre-existing
+  or caused by the crash interrupting a mid-session edit.
 - Prevention: Always use safe Pester patterns. See the Pester Safety Rules in `.github/copilot-instructions.md` (top of file) or load `cg-skill-pester-safety`.
 - If the forbidden pattern came from an AI agent: the rules are documented in two locations (copilot-instructions.md + compound-gpid.local.md). Report this as a recurring issue.
 
@@ -182,7 +195,18 @@ Present a structured report using this format:
 - Prevention: Keep VS Code and extensions updated. If a specific extension crashes repeatedly, consider disabling it temporarily.
 
 **Category E (Unknown)**:
-- Recovery: Check `git status` for any interrupted work. Run `. tests\Run-Tests.ps1` to verify codebase integrity.
+- Recovery: Check `git status` for any interrupted work. Verify test suite integrity:
+
+  **Verify test suite** (do NOT use `Invoke-Pester` directly):
+
+  > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1`
+  > (no flags, no pipeline). Then run `Get-Content tests\last-run.json |
+  > ConvertFrom-Json | Select-Object passed, failedCount, failures`.
+  > Return only those three fields."
+
+  If `passed` is `true`: codebase integrity confirmed.
+  If `passed` is `false`: report failures to the user — these may be pre-existing
+  or caused by the crash interrupting a mid-session edit.
 - Prevention: Commit frequently. If crashes repeat without identifiable cause, consider filing a VS Code issue with the log excerpts.
 
 ### Step 5: Offer Next Steps
@@ -192,7 +216,7 @@ After presenting the report, ask the user:
 ```
 Would you like to:
 1. **Run `/cg-resume`** to scan pending work and pick up where you left off
-2. **Run `. tests\Run-Tests.ps1`** to verify test suite integrity
+2. **Run the test suite (via execution_subagent)** to verify test suite integrity
 3. **See the full log excerpts** for deeper investigation
 4. **Done** — no further action needed
 ```

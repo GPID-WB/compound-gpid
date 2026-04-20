@@ -30,6 +30,10 @@ venv/
 htmlcov/
 *.prof
 
+# Pester test runner artifact (session-local, not committed)
+tests/last-run.json
+tests/.last-run.tmp
+
 # R
 .Rhistory
 .RData

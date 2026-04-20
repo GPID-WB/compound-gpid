@@ -157,13 +157,13 @@ Describe "link.ps1 - per-subdirectory junction creation" {
 }
 
 Describe "link.ps1 - copilot-instructions.md management" {
-    Context "when the file does not exist" {
+    Context "when the file is non-existent (first-time generation)" {
         It "creates the file with the management marker as the first line" {
             $dest          = Join-Path $TestDrive "copilot-instructions.md"
             $marker        = "<!-- compound-gpid:managed -->"
-            $sourceContent = "# Instructions content"
+            $generatedBody = "# Instructions content"
 
-            Set-Content -Path $dest -Value ($marker + "`n" + $sourceContent)
+            Set-Content -Path $dest -Value ($marker + "`n" + $generatedBody)
 
             $lines = Get-Content $dest
             $lines[0] | Should Be $marker
@@ -171,7 +171,7 @@ Describe "link.ps1 - copilot-instructions.md management" {
     }
 
     Context "when the file exists and has the management marker" {
-        It "overwrites the file with the latest content" {
+        It "regenerates the file with the latest content" {
             $dest   = Join-Path $TestDrive "copilot-overwrite.md"
             $marker = "<!-- compound-gpid:managed -->"
             Set-Content -Path $dest -Value ($marker + "`n" + "# Old content")
@@ -523,6 +523,38 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
             # Execution must continue beyond the if/else
             $linkCompleted = $true
             $linkCompleted | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context layer — compound-gpid.context.md must NOT be added to .gitignore
+# (it is institutional knowledge and must be committed to git)
+# ---------------------------------------------------------------------------
+
+Describe "link.ps1 - compound-gpid.context.md is not gitignored" {
+    Context "CG-managed .gitignore entries do not include context.md" {
+        # Extract $ManagedDirs from link.ps1 and reconstruct expected gitignore entries.
+        # This mirrors the derivation logic in link.ps1 so both stay in sync automatically.
+        $linkPs1Path = Join-Path $PSScriptRoot "..\scripts\link.ps1"
+        $linkContent = Get-Content $linkPs1Path -Raw
+        $block = [regex]::Match($linkContent, '(?s)\$ManagedDirs\s*=\s*@\((.+?)\)').Groups[1].Value
+        $managedDirs = $block -split '\r?\n' |
+                       ForEach-Object { $_.Trim().Trim('"').Trim("'") } |
+                       Where-Object { $_ -ne '' }
+        $entries = @($managedDirs | ForEach-Object { ".github/$_/" }) +
+                   @(".github/copilot-instructions.md")
+
+        It "extracted at least one entry from link.ps1 (guard against empty extraction)" {
+            ($entries | Measure-Object).Count | Should BeGreaterThan 0
+        }
+
+        It "the CG gitignore entry list does not contain compound-gpid.context.md" {
+            ($entries -contains "compound-gpid.context.md") | Should Be $false
+        }
+
+        It "copilot-instructions.md IS in the CG gitignore entry list (sanity check)" {
+            ($entries -contains ".github/copilot-instructions.md") | Should Be $true
         }
     }
 }

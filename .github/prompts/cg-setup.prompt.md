@@ -13,6 +13,7 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may read any file in the workspace.
 - You may create or overwrite `compound-gpid.local.md` in the project root.
 - You may create or overwrite `compound-gpid.md` in the project root.
+- You may create `compound-gpid.context.md` in the project root.
 - You may create `roadmap.json` in the project root.
 - You may create new files and directories under `.cg-docs/`.
 - You may append lines to `.gitignore` and `.Rbuildignore`.
@@ -123,7 +124,7 @@ Ask each question and wait for the answer before asking the next.
 > reproducibility requirements, data privacy rules, methodological
 > standards). You can skip this and add them later.
 
-Write `compound-gpid.md` in the project root. Using the **compound-gpid.md Charter Template** from `setup-templates.md` (already loaded), fill in the user's answers following the placeholder rules and field formatting rules.
+Write `compound-gpid.md` in the project root. Using the **compound-gpid.md Charter Template** from `setup-templates.md` (read it now with `read_file` if not already in context), fill in the user's answers following the placeholder rules and field formatting rules.
 
 If the user skips ALL charter questions (skips before Question 4 or skips both
 Question 4 and 5), do NOT create `compound-gpid.md`. The setup completes with
@@ -131,9 +132,34 @@ only `compound-gpid.local.md`.
 
 Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 
+#### A3.6. Create `compound-gpid.context.md`
+
+**Overwrite guard**: If `compound-gpid.context.md` already exists in the project root, skip this step.
+
+Create `compound-gpid.context.md` in the project root using the
+**compound-gpid.context.md Template** from `setup-templates.md` (read it now with `read_file` if not already in context).
+
+Do NOT add `compound-gpid.context.md` to `.gitignore` — it is institutional knowledge
+and must be committed to git.
+
+#### A3.7. Ask about workspace folders (optional)
+
+> Are there other folders in your VS Code workspace related to this project?
+> If so, describe each folder and what it contains. (Press Enter to skip.)
+
+If the user provides folder descriptions:
+- If `compound-gpid.context.md` exists: append them to the
+  `## Workspace Notes` section:
+  ```markdown
+  - **<folder-name>**: <description>
+  ```
+- If `compound-gpid.context.md` does not exist: note:
+  > "Folder descriptions cannot be saved — no `compound-gpid.context.md` exists.
+  > Re-run `/cg-setup` and choose to create it."
+
 #### A4. Scaffold `.cg-docs/` structure
 
-Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md` (already loaded), create the listed directories and `.gitkeep` files if they do not already exist.
+Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md` (read it now with `read_file` if not already in context), create the listed directories and `.gitkeep` files if they do not already exist.
 
 #### A4.5. Update `.Rbuildignore` (R packages only)
 
@@ -158,14 +184,14 @@ compound-gpid.local.md
 
 #### A5.5. Create `roadmap.json`
 
-Create `roadmap.json` in the project root using the **roadmap.json Initial Skeleton** from `setup-templates.md` (already loaded).
+Create `roadmap.json` in the project root using the **roadmap.json Initial Skeleton** from `setup-templates.md` (read it now with `read_file` if not already in context).
 
 This file tracks project milestones and features. Users can add milestones
 and ideas by invoking `@cg-roadmap` in Copilot Chat.
 
 #### A6. Print Setup Complete
 
-Using the **Setup Complete Message** from `setup-templates.md` (already loaded), display it filling in the user's configured language, project type, and review depth.
+Using the **Setup Complete Message** from `setup-templates.md` (read it now with `read_file` if not already in context), display it filling in the user's configured language, project type, and review depth.
 
 ---
 
@@ -182,9 +208,22 @@ Check if `compound-gpid.md` exists in the project root.
 - If it exists: read it and extract the `project-name`, Objective, and Current Focus
   for use in the context summary (Step B3).
 - If it does not exist: note that no project charter exists. After presenting the
-  context summary, offer to create one by asking the charter questions (Questions 4-7
-  from Mode A Step A3.5). Apply the same overwrite guard, skip definition, required
+  context summary, offer to create one by asking the charter questions (Questions 4–7
+  including 4.5, from Mode A Step A3.5). Apply the same overwrite guard, skip definition, required
   labels, and placeholder rules defined in A3.5.
+
+#### B1.1.3. Check for `compound-gpid.context.md`
+
+Check if `compound-gpid.context.md` exists in the project root.
+
+- If it **does not exist**: offer to create it:
+  > "No `compound-gpid.context.md` found. This file stores project-specific
+  > context (data sources, domain rules, workspace notes) that grows over time.
+  > Create it now? (yes / no)"
+  - If yes: create it using the **compound-gpid.context.md Template** from
+    `setup-templates.md` (read it now with `read_file` if not already in context).
+  - If no: skip silently.
+- If it **exists**: skip silently.
 
 #### B1.1.5. Check for deprecated charter sections
 
@@ -202,7 +241,7 @@ after the context summary:
 
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 
-Using the **Mode B: Missing Directories Scaffold** list from `setup-templates.md` (already loaded), create any missing directories (with a `.gitkeep` inside), without touching existing files.
+Using the **Mode B: Missing Directories Scaffold** list from `setup-templates.md` (read it now with `read_file` if not already in context), create any missing directories (with a `.gitkeep` inside), without touching existing files.
 
 #### B1.2.5. Check for `roadmap.json`
 
@@ -228,7 +267,7 @@ Scan the following directories and collect the titles and dates from the YAML fr
 
 #### B3. Present context summary
 
-Present a structured summary to orient Copilot and the user. Using the **Mode B: Context Summary Format** from `setup-templates.md` (already loaded), fill in the scanned data.
+Present a structured summary to orient Copilot and the user. Using the **Mode B: Context Summary Format** from `setup-templates.md` (read it now with `read_file` if not already in context), fill in the scanned data.
 
 #### B4. Offer to update config
 
@@ -255,3 +294,16 @@ If `compound-gpid.md` does not exist (and the user declined to create one in B1.
 - Confirm you are ready and suggest a next step.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."
+
+#### B4.7. Ask about workspace folders (optional)
+
+> Are there other folders in your VS Code workspace related to this project?
+> If so, describe each folder and what it contains. (Press Enter to skip.)
+
+If the user provides folder descriptions and `compound-gpid.context.md` exists,
+append them to its `## Workspace Notes` section:
+```markdown
+- **<folder-name>**: <description>
+```
+If `compound-gpid.context.md` does not exist, offer to create it first
+(see B1.1.3).

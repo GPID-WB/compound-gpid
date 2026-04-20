@@ -20,7 +20,9 @@ You are a knowledge-base auditor. Your job is to review all captured solutions i
 
 1. Read `compound-gpid.md` in the project root for project context.
 2. Read `compound-gpid.local.md` for user config.
-3. If `compound-gpid.md` does not exist, warn the user and proceed without
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user and proceed without
    project context.
 
 ### Step 1: Inventory Solutions

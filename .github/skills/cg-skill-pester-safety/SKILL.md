@@ -1,12 +1,42 @@
 ---
 name: cg-skill-pester-safety
-description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 16+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, the sequential foreach loop for multi-file verification, the long-session context-overflow rule (never run Pester mid-stream in fix-triage; always -Quiet on large test files), and the execution_subagent rule (use execution_subagent instead of run_in_terminal for Pester in long sessions — even -Quiet -PassThru via run_in_terminal crashes)."
+description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 16+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, long-session context-overflow protection rules (never run Pester mid-stream in fix-triage; always -Quiet on large test files), and the execution_subagent rule (use execution_subagent instead of run_in_terminal for Pester in long sessions — even -Quiet -PassThru via run_in_terminal crashes)."
 ---
 
 # Pester Safety Rules for This Workspace
 
 > **Load this skill before composing any `Invoke-Pester` command.**  
-> Violations have crashed VS Code 12+ confirmed times. The crashes are silent — no error, just a frozen window requiring force-quit.
+> Violations have crashed VS Code 16+ confirmed times. The crashes are silent — no error, just a frozen window requiring force-quit.
+
+## Agent Workflow — Canonical Pattern
+
+**Agents must use this pattern. Never compose `Invoke-Pester` commands directly.**
+
+```
+execution_subagent query:
+  "In the repo root, run . tests\Run-Tests.ps1 (no flags, no pipeline).
+   Then run: Get-Content tests\last-run.json | ConvertFrom-Json |
+   Select-Object passed, failedCount, failures
+   Return only those three fields."
+```
+
+Read `tests/last-run.json` for results:
+- `passed: true` → all tests passed; continue
+- `passed: false` → check `failures` array for `file`, `describe`, `name`, `message`
+- `filteredFiles: non-null` → this is a partial run — do NOT use as the commit gate; run the full suite first
+
+For single-file runs (testing one module during a step):
+```
+execution_subagent query:
+  "In the repo root, run . tests\Run-Tests.ps1 -File <test-name>
+   (no other flags, no pipeline).
+   Then run: Get-Content tests\last-run.json | ConvertFrom-Json |
+   Select-Object passed, failedCount, failures
+   Return only those three fields."
+```
+
+The artifact `tests/last-run.json` is written atomically after every run and contains:
+`gitSha`, `ranAt`, `passed`, `totalCount`, `passedCount`, `failedCount`, `failFast`, `filteredFiles`, `files[]`, `failures[]`
 
 ## Forbidden Patterns — NEVER USE
 
@@ -29,9 +59,12 @@ Invoke-Pester tests/foo.Tests.ps1 2>&1 | Select-String -Pattern 'FAIL|fail' | ..
 
 **Why these crash:** `-ExpandProperty TestResult` materialises the full Pester result graph as .NET objects in the PowerShell extension host. On suites with junction-creating tests (`link.Tests.ps1`, `unlink.Tests.ps1`), this combines with junction-cleanup timing to exhaust the extension host and freeze VS Code. Pipelining through `2>&1` redirects the error stream into the same pipeline, causing interleaved object serialization that overwhelms the extension host — even on single-file runs of large test files (300+ tests).
 
-## Safe Patterns — ALWAYS USE THESE
+## Safe Patterns — Interactive Debugging Only
 
-### Canonical full-suite runner (use this by default)
+> **These patterns are for interactive debugging only — never for agent workflows.**
+> Agents must use the canonical `execution_subagent` pattern above.
+
+### Canonical full-suite runner (interactive use)
 
 ```powershell
 . tests\Run-Tests.ps1
@@ -61,16 +94,6 @@ $r | Select-Object TotalCount, PassedCount, FailedCount
 ```
 
 **Critical**: Assign to `$r` first. **Never** pipeline `Invoke-Pester` output directly into `Select-Object` or `Where-Object`.
-
-### Multiple files — run sequentially, one at a time
-
-```powershell
-foreach ($f in @('charter', 'roadmap', 'prompt-tools', 'model-assignments', 'pester-safety', 'install', 'ps51-compat', 'create-release', 'update', 'link', 'unlink')) {
-    Write-Host "`n=== $f ===" -ForegroundColor Cyan
-    $r = Invoke-Pester "tests/$f.Tests.ps1" -PassThru -Quiet
-    $r | Select-Object @{N='File';E={$f}}, TotalCount, PassedCount, FailedCount
-}
-```
 
 ## Pre-Flight Checklist
 
@@ -107,6 +130,7 @@ if ($r.FailedCount -gt 0) { Invoke-Pester tests/foo.Tests.ps1 }
 | `install.Tests.ps1` | No | Safe |
 | `ps51-compat.Tests.ps1` | No | Safe |
 | `create-release.Tests.ps1` | No | Safe |
+| `run-tests-runner.Tests.ps1` | No | Tests Run-Tests.ps1 static properties and last-run.json schema |
 | `update.Tests.ps1` | No | Safe |
 | `link.Tests.ps1` | **Yes** | Run last; has `AfterAll` cleanup |
 | `unlink.Tests.ps1` | **Yes** | Run last; has `AfterAll` cleanup |
@@ -124,8 +148,9 @@ In a long fix-triage session (accumulated brainstorm + plan + implementation + r
 4. **Use `execution_subagent` instead of `run_in_terminal` for Pester in long sessions** — even `-Quiet -PassThru` via `run_in_terminal` injects terminal output into the agent context; `execution_subagent` returns only a summary and never floods context (crashes #15+16, 2026-04-15)
 
 **Decision tree for choosing how to run Pester:**
-- Short session + small test file (< 100 tests) → `run_in_terminal` with `-Quiet -PassThru` is OK
-- Long session OR large test file (300+ tests) → **use `execution_subagent`**
+- **Agent workflow (always)** → use `execution_subagent` + `Run-Tests.ps1` + read `last-run.json` (see Canonical Pattern above)
+- Short interactive session + small test file (< 100 tests) → `run_in_terminal` with `-Quiet -PassThru` is OK
+- Long interactive session OR large test file (300+ tests) → **use `execution_subagent`**
 - Any session + `prompt-tools.Tests.ps1` → **always use `execution_subagent`**
 
 ## Related

@@ -20,8 +20,10 @@ You are a creative technical strategist helping the user discover high-value imp
 
 1. Read `compound-gpid.md` for project context (objective, constraints, current focus).
 2. Read `compound-gpid.local.md` for user config.
-3. If `roadmap.json` exists, read it to understand current milestones and planned features.
-4. Scan `.cg-docs/plans/` and `.cg-docs/brainstorms/` to understand recent work.
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `roadmap.json` exists, read it to understand current milestones and planned features.
+5. Scan `.cg-docs/plans/` and `.cg-docs/brainstorms/` to understand recent work.
 
 ### Step 1: Gather Signals
 

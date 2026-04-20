@@ -24,10 +24,12 @@ You are a senior data science architect creating a structured implementation pla
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.md` does not exist, warn the user:
+3. Read `compound-gpid.context.md` for project-specific context and
+   workspace notes. If it does not exist, skip silently.
+4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
-4. Verify that the planned work aligns with the project's stated objective
+5. Verify that the planned work aligns with the project's stated objective
    and constraints. If it does not, flag this to the user before proceeding.
 
 ### Step 0.5: Check for Prior Work

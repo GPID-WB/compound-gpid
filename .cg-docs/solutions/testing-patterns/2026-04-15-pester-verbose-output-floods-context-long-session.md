@@ -160,3 +160,4 @@ execution_subagent query: "Run: $r = Invoke-Pester tests\foo.Tests.ps1 -PassThru
 - [2026-04-02 — `Invoke-Pester tests/ -PassThru` on full directory crashes VS Code](2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)
 - [2026-04-06 — AI agent repeats Pester crash pattern despite documented rules](2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)
 - [2026-04-09 — AI agent uses `2>&1 | Select-String` when debugging test failures](2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)
+- [2026-04-17 — Canonical Run-Tests.ps1 + last-run.json artifact](2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md) — the permanent structural fix for all context-overflow crash modes
