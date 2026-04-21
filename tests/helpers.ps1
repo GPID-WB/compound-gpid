@@ -17,7 +17,7 @@ function Get-Frontmatter {
 # Helper: extract the tools list from a frontmatter string
 function Get-ToolsList {
     param([string]$Frontmatter)
-    $line = ($Frontmatter -split '\r?\n' | Where-Object { $_ -match '^\s*tools:' })
+    $line = ($Frontmatter -split '\r?\n' | Where-Object { $_ -match '^\s*tools:' } | Select-Object -First 1)
     if (-not $line) { return @() }
     # Match quoted tokens inside the brackets: 'agent', "read", etc.
     $tokens = [regex]::Matches($line, "['""](\w+)['""]") | ForEach-Object { $_.Groups[1].Value }

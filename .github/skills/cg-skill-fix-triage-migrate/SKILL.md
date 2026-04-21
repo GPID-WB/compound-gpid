@@ -18,9 +18,7 @@ When invoked as `/cg-fix-triage --migrate`, add `findings:` tracking frontmatter
       ---
       plan: <path to companion plan, or null if not found>
       findings:
-        P1.1: open
-        P2.1: open
-        # ... all parsed IDs
+        <id>: open   # one entry per parsed ID — replace <id> with actual IDs (e.g., P1.1, P2.3)
       ---
       ```
       If frontmatter exists but lacks `findings:`: insert the `findings:` map as the last key before the closing `---` delimiter (do not create a second `---` block).

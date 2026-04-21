@@ -71,7 +71,7 @@
           "id": "fix-triage-migrate-mode",
           "title": "/cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)",
           "status": "done",
-          "plan": ".cg-docs/plans/2026-04-20-prompt-prose-compression.md"
+          "plan": ".cg-docs/plans/2026-04-20-fix-triage-migrate.md"
         }
       ]
     },

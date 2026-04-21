@@ -141,7 +141,7 @@ Merge all agent findings into a single prioritized report:
 
 ### Step 3.5: Save Review Report
 
-1. Find the most recently modified `.md` plan in `.cg-docs/plans/` by `date:` field (skip `.gitkeep`); if `date:` values tie, prefer the alphabetically last filename. If none, use `<today's date>-review` as slug and `plan: null`.
+1. Find the most recently modified `.md` plan in `.cg-docs/plans/` by `date:` field (skip `.gitkeep`); if `date:` is absent, fall back to last-write time; if tied, prefer the alphabetically last filename. If none, use `<today's date>-review` as slug and `plan: null`.
 2. Filename: `<plan-stem>-review.md` in `.cg-docs/reviews/`. (e.g., `2026-03-26-roadmap-json.md` → `2026-03-26-roadmap-json-review.md`)
 3. Parse all finding IDs matching `P[0-3]\.\d+[a-z]?`. Build a `findings:` YAML map with each set to `open`. Valid statuses: `open`, `fixed`, `skipped`. After parsing: "Parsed N finding IDs. If count differs from total findings above, some IDs may be non-standard."
 4. Prepend frontmatter:
@@ -158,7 +158,7 @@ Merge all agent findings into a single prioritized report:
 
 ### Step 4: Triage
 
-**If `mode:autofix`**: Tagging instructions were included in each agent dispatch at Step 2 (per Step 1.2). Apply the tagged findings:
+**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1.2; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1.2). Apply the tagged findings:
 
 - **safe_auto**: Apply immediately. Never `safe_auto` findings touching statistical functions, welfare/income variables, or weight parameters — escalate to `manual`.
 - **manual**: Present to user for approval before applying.

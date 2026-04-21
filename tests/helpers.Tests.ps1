@@ -321,3 +321,41 @@ Describe "copilot-instructions.template.md - file exists and contains all placeh
         ($content -match '\{\{essential-rules\}\}') | Should Be $false
     }
 }
+
+# ---------------------------------------------------------------------------
+# Get-ToolsList helper - edge cases
+# ---------------------------------------------------------------------------
+
+Describe "Get-ToolsList helper - edge cases" {
+    It "returns empty array for empty string" {
+        $result = Get-ToolsList -Frontmatter ""
+        @($result).Count | Should Be 0
+    }
+
+    It "returns empty array when no tools key present" {
+        $fm = "plan: null`ndate: 2026-01-01"
+        $result = Get-ToolsList -Frontmatter $fm
+        @($result).Count | Should Be 0
+    }
+
+    It "parses inline array correctly" {
+        $fm = "tools: ['agent', 'read', 'write']"
+        $result = Get-ToolsList -Frontmatter $fm
+        ($result -contains 'agent') | Should Be $true
+        ($result -contains 'read') | Should Be $true
+        ($result -contains 'write') | Should Be $true
+    }
+
+    It "does not match comment-prefixed tools line" {
+        $fm = "# tools: 'fake'"
+        $result = Get-ToolsList -Frontmatter $fm
+        @($result).Count | Should Be 0
+    }
+
+    It "returns only first tools line when multiple tools: keys present (dedup guard)" {
+        $fm = "tools: ['agent']`ntools: ['read', 'write']"
+        $result = Get-ToolsList -Frontmatter $fm
+        @($result).Count | Should Be 1
+        ($result -contains 'agent') | Should Be $true
+    }
+}

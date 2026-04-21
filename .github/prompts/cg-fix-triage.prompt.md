@@ -21,9 +21,10 @@ You are a senior developer applying fixes from a previously saved review report.
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
 
+<!-- Execute AFTER Step 1.3 — do not load skills before findings are parsed. -->
 ### Step 0.5: Load Language Skills
 
-**Skip this step if invoked as `--migrate`.**
+**Skip this step if invoked as `--migrate`.** (Deferred: execute after Step 1.3 completes. The `--migrate` flag is visible at invocation time — no need to wait for Step 2.)
 
 After Step 1.3 identifies which file types appear in findings, load applicable skills only for those types:
 - `.R`/`.Rmd` files in findings → `cg-skill-r-technical` and/or `cg-skill-r-analytical` (load both if unsure)
@@ -77,7 +78,7 @@ If ambiguous or risky: explain and confirm with user before applying. If decline
 If validation fails: show error; ask to (a) skip and continue or (b) stop for manual review.
 
 After processing all in-scope findings, run a full-suite regression gate:
-> **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1` (no flags, no pipeline). Then run `Get-Content tests\last-run.json | ConvertFrom-Json | Select-Object passed, failedCount, failures, filteredFiles`. Return only those four fields."
+> **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1` (no flags, no pipeline). Then run `if (-not (Test-Path tests\last-run.json)) { Write-Output 'last-run.json not found — run tests first' } else { Get-Content tests\last-run.json | ConvertFrom-Json | Select-Object passed, failedCount, failures, filteredFiles }`. Return only those four fields."
 If new failures appear: note as regressions in the summary.
 
 ### Step 4: Summary
@@ -113,6 +114,8 @@ After processing all in-scope findings:
 
 ---
 
+<!-- cg-skill-fix-triage-migrate implements the full --migrate workflow.
+     Edit that skill to change migration behavior — not this file. -->
 ## Special Mode: `--migrate`
 
 When invoked as `/cg-fix-triage --migrate`, first verify `.github/skills/cg-skill-fix-triage-migrate/SKILL.md` can be read. If not found, stop: "Migration skill not found — re-run `cg-link` to restore it." Otherwise, load `cg-skill-fix-triage-migrate` and follow its instructions to add `findings:` tracking frontmatter using the companion-plan heuristic. Does NOT apply fixes.

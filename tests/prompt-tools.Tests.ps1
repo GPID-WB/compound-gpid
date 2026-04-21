@@ -72,6 +72,10 @@ Describe "cg-review.prompt.md - review file output step" {
     It "includes R package .Rbuildignore check for .cg-docs/" {
         ($content -match '\.Rbuildignore') | Should Be $true
     }
+
+    It "Step 3.5 falls back to last-write time when date: is absent" {
+        ($content -match 'last.write|absent.*fall back') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -318,13 +322,17 @@ Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
         ($content -match 'cg-skill-fix-triage-migrate') | Should Be $true
     }
 
+    It "Step 0.5 instructs skipping skill load when invoked as --migrate" {
+        ($content -match 'Skip this step if invoked as.*--migrate') | Should Be $true
+    }
+
     It "warns on unrecognized arguments with recognized options list" {
-        ($content -match 'Unrecognized argument') | Should Be $true
+        ($content -match 'Unrecognized argument') -and ($content -match '\-\-migrate') | Should Be $true
     }
 }
 
 # ---------------------------------------------------------------------------
-# P2.1 — cg-skill-fix-triage-migrate SKILL.md behavioral rules
+# cg-skill-fix-triage-migrate SKILL.md - behavioral rules
 # ---------------------------------------------------------------------------
 
 Describe "cg-skill-fix-triage-migrate SKILL.md - behavioral rules" {
@@ -344,7 +352,15 @@ Describe "cg-skill-fix-triage-migrate SKILL.md - behavioral rules" {
     }
 
     It "instructs prepending full frontmatter block when no frontmatter exists" {
-        ($content -match 'prepend') | Should Be $true
+        ($content -match 'prepend full block') | Should Be $true
+    }
+
+    It "uses generic <id> placeholder in frontmatter template (not hardcoded P1.1)" {
+        ($content -match '<id>:') | Should Be $true
+    }
+
+    It "documents that <id> should be replaced with actual parsed IDs" {
+        ($content -match 'replace <id> with actual IDs|actual IDs.*e\.g\.') | Should Be $true
     }
 }
 
@@ -1276,7 +1292,7 @@ Describe "cg-review.prompt.md - mode:autofix argument" {
     }
 
     It "prohibits safe_auto for statistical functions (escalate to manual)" {
-        ($content -match 'Never.*safe_auto.*statistical|statistical.*escalate.*manual') | Should Be $true
+        ($content -match '(?s)Never.*safe_auto.*statistical|statistical.*escalate.*manual') | Should Be $true
     }
 }
 
@@ -1822,7 +1838,7 @@ Describe "cg-work.prompt.md - Step 1.5 Mark Work Started" {
     }
 
     It "Step 1.5 is conditioned on feature status being planned" {
-        ($content -match 'status is.*planned|status.*planned') | Should Be $true
+        ($content -match 'status is.*planned') | Should Be $true
     }
 }
 
@@ -1839,7 +1855,12 @@ Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
     }
 
     It "Step 3.5 changes status to completed in plan frontmatter" {
-        ($content -match 'status.*completed|status: completed') | Should Be $true
+        $step35Start = $content.IndexOf("### Step 3.5:")
+        $step37Start = $content.IndexOf("### Step 3.7:")
+        $step35Start | Should BeGreaterThan -1
+        $step37Start | Should BeGreaterThan $step35Start
+        $step35Block = $content.Substring($step35Start, $step37Start - $step35Start)
+        ($step35Block -match 'status.*completed|status: completed') | Should Be $true
     }
 }
 
@@ -2044,7 +2065,10 @@ Describe "context layer - compound-gpid.context.md is NOT gitignored" {
     } else { "" }
 
     It "compound-gpid.context.md is not listed in the project .gitignore" {
-        ($content -match 'compound-gpid\.context\.md') | Should Be $false
+        # Only check non-comment lines — a comment documenting that the file is intentionally
+        # NOT gitignored is permitted; an uncommented entry would actually ignore the file.
+        $nonCommentLines = ($content -split '\r?\n' | Where-Object { $_ -notmatch '^\s*#' }) -join "`n"
+        ($nonCommentLines -match 'compound-gpid\.context\.md') | Should Be $false
     }
 }
 
@@ -2207,6 +2231,14 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" 
 
     It "full-suite gate includes filteredFiles field" {
         ($cgFixTriageContent -match 'filteredFiles') | Should Be $true
+    }
+
+    It "full-suite gate includes Test-Path guard for missing last-run.json" {
+        ($cgFixTriageContent -match 'Test-Path tests\\last-run\.json') | Should Be $true
+    }
+
+    It "full-suite gate emits 'last-run.json not found' message when file is missing" {
+        ($cgFixTriageContent -match 'last-run\.json not found') | Should Be $true
     }
 }
 

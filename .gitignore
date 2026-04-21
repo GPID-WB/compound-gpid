@@ -1,5 +1,6 @@
 # Compound GPID local config (user-specific, never committed)
 compound-gpid.local.md
+# NOTE: compound-gpid.context.md is intentionally not listed here — it is shared institutional knowledge and must be committed.
 
 # User's version preference (per-machine, never committed)
 .cg-version
