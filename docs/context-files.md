@@ -170,13 +170,14 @@ Two mechanisms:
 
 ### What makes a good context entry
 
-Good entries are **durable facts** that would otherwise need to be re-explained at the start of every session:
+Good entries are **durable facts or conventions** that would otherwise need to be re-explained at the start of every session:
 
 - ✅ File paths and their meaning (`data/raw/hies-2023.dta — read-only; PPP 2017`)
 - ✅ Variable-level caveats (`hh_weight is household-level, not person-level`)
 - ✅ Workspace layout for multi-folder projects
 - ✅ Domain vocabulary specific to your team or field
 - ✅ Repeated gotchas that have caused bugs more than once
+- ✅ Project-wide conventions that all prompts should follow (e.g., plan-selection sort key, IndexOf guard pattern, mode-flag evaluation rules) — these are too cross-cutting for a single prompt file but too Compound-specific for the shared instructions
 
 Bad entries are **transient or task-specific**:
 

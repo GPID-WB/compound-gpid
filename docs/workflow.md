@@ -301,6 +301,8 @@ Review reports are saved with per-finding status tracking in YAML frontmatter. E
 
 **What happens**: Loads the most recent review report from `.cg-docs/reviews/`, displays findings by priority, applies fixes, and updates per-finding status in the report's frontmatter. Supports selective fixing by priority level or individual finding ID.
 
+After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify the change, then runs a full-suite regression gate at the end of the session. Language-specific skills are loaded conditionally — only when in-scope findings reference `.R`, `.py`, `.do`, or `.ado` files; findings that reference only `.md`, `.json`, or `.ps1` files skip skill loading entirely.
+
 **Invocation**:
 
 | Command | Effect |
