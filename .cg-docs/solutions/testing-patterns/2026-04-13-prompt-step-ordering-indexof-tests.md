@@ -161,4 +161,21 @@ Describe "<prompt-file> - <invariant name>" {
 
 - `.cg-docs/solutions/testing-patterns/2026-04-13-dead-step-after-wait-prompt-session-terminator.md` — the anti-pattern these tests guard against
 - `.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md` — complementary: testing interface contracts between chained prompts
+- `.cg-docs/solutions/testing-patterns/2026-04-21-prompt-step-forward-dependency-deferred-marker.md` — when a step appears before its dependency step (forward dependency); same IndexOf guard pattern applies
 - `tests/prompt-tools.Tests.ps1` — canonical location for all prompt contract and ordering tests
+
+## Addendum: Guard `IndexOf` values before `Substring` (2026-04-21)
+
+When using `IndexOf` to extract a text block via `Substring`, guard both
+index values before calling `Substring`. Without guards, a missing section
+header throws `ArgumentOutOfRangeException`, obscuring which assertion failed:
+
+```powershell
+# ❌ FRAGILE — unhandled exception if either header is missing
+$step35Block = $content.Substring($step35Start, $step37Start - $step35Start)
+
+# ✅ CLEAR — two guard assertions produce a specific failure message
+$step35Start | Should BeGreaterThan -1
+$step37Start | Should BeGreaterThan $step35Start
+$step35Block = $content.Substring($step35Start, $step37Start - $step35Start)
+```

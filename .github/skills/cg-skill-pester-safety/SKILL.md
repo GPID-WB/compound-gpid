@@ -158,3 +158,21 @@ In a long fix-triage session (accumulated brainstorm + plan + implementation + r
 - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — Full diagnosis and root cause
 - `.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md` — Why single-location documentation is insufficient; dual-location strategy
 - `.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md` — Context overflow crash even with safe PowerShell patterns; fix-triage long-session guidance
+
+## PowerShell Helper Anti-Patterns
+
+### `Where-Object` returns `PSObject[]` — never pass directly to .NET string methods
+
+`Where-Object` always returns a collection (`PSObject[]`), even when only one element matches. Passing the result directly to a .NET method expecting `[string]` triggers implicit `.ToString()` which joins elements with spaces — producing garbled output with no error:
+
+```powershell
+# ❌ WRONG — $line is PSObject[]; [regex]::Matches() coerces to space-joined string
+$line = ($text -split '\r?\n' | Where-Object { $_ -match '^\s*tools:' })
+$tokens = [regex]::Matches($line, "['\"](\w+)['\"]")   # silently merges duplicate lines
+
+# ✅ CORRECT — Select-Object -First 1 forces scalar, deduplicates duplicate keys
+$line = ($text -split '\r?\n' | Where-Object { $_ -match '^\s*tools:' } | Select-Object -First 1)
+$tokens = [regex]::Matches($line, "['\"](\w+)['\"]")
+```
+
+**Rule**: Always add `| Select-Object -First 1` after `Where-Object` before passing to any .NET method that expects a `[string]`.
