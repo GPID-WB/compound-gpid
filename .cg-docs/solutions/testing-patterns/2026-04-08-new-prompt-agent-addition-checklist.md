@@ -150,3 +150,4 @@ fix(x): apply light review findings
 - [2026-04-08-cross-cutting-enumeration-propagation-audit.md](2026-04-08-cross-cutting-enumeration-propagation-audit.md) — related pattern for enumeration changes that cut across many files
 - [2026-03-30-prompt-pipeline-contract-testing.md](2026-03-30-prompt-pipeline-contract-testing.md) — general pattern for testing interfaces between chained prompts
 - [2026-03-30-test-prompt-frontmatter-tools-list.md](2026-03-30-test-prompt-frontmatter-tools-list.md) — specifically the `tools:` whitelist restriction pattern
+- [2026-04-20-behavioral-pester-tests-for-skill-md-files.md](2026-04-20-behavioral-pester-tests-for-skill-md-files.md) — parallel checklist for **new skill files** (behavioral describe block + `docs/reference.md` skills table row)

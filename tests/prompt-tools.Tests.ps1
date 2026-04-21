@@ -16,17 +16,10 @@
 # intentionally read-only reviewers.
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_ROOT '$env:CG_TEST_ROOT' does not exist" }
 . "$PSScriptRoot/helpers.ps1"
 
-# Helper: extract the tools list from a frontmatter string
-function Get-ToolsList {
-    param([string]$Frontmatter)
-    $line = ($Frontmatter -split '\r?\n' | Where-Object { $_ -match '^\s*tools:' })
-    if (-not $line) { return @() }
-    # Match quoted tokens inside the brackets: 'agent', "read", etc.
-    $tokens = [regex]::Matches($line, "['""](\w+)['""]") | ForEach-Object { $_.Groups[1].Value }
-    return $tokens
-}
+# Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved from this file per P2.17)
 
 # ---------------------------------------------------------------------------
 # cg-review.prompt.md must NOT have a tools: restriction
@@ -74,6 +67,10 @@ Describe "cg-review.prompt.md - review file output step" {
 
     It "documents 'no issues found' as valid output when an agent finds nothing" {
         ($content -match 'no issues found') | Should Be $true
+    }
+
+    It "includes R package .Rbuildignore check for .cg-docs/" {
+        ($content -match '\.Rbuildignore') | Should Be $true
     }
 }
 
@@ -252,10 +249,19 @@ Describe "cg-review.prompt.md - review findings frontmatter" {
         ($content -match '(?s)plan:.*findings:|(?s)findings:.*plan:') | Should Be $true
     }
 
-    It "documents the finding ID parsing patterns in Step 3.5" {
-        ($content -match [regex]::Escape('**[P0.')) -and
-        ($content -match [regex]::Escape('**[P1.')) -and
-        ($content -match [regex]::Escape('**[P2.')) -and
+    It "documents P0 finding ID pattern in Step 3.5" {
+        ($content -match [regex]::Escape('**[P0.')) | Should Be $true
+    }
+
+    It "documents P1 finding ID pattern in Step 3.5" {
+        ($content -match [regex]::Escape('**[P1.')) | Should Be $true
+    }
+
+    It "documents P2 finding ID pattern in Step 3.5" {
+        ($content -match [regex]::Escape('**[P2.')) | Should Be $true
+    }
+
+    It "documents P3 finding ID pattern in Step 3.5" {
         ($content -match [regex]::Escape('**[P3.')) | Should Be $true
     }
 }
@@ -302,6 +308,43 @@ Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
 
     It "recommends priority batches (P0 P1, P2, P3) in the large report warning" {
         ($content -match 'P0 P1.*P2.*P3|priority batch') | Should Be $true
+    }
+
+    It "instructs DO NOT delegate frontmatter status update to a subagent" {
+        ($content -match 'Do NOT delegate') | Should Be $true
+    }
+
+    It "loads cg-skill-fix-triage-migrate for --migrate mode by name" {
+        ($content -match 'cg-skill-fix-triage-migrate') | Should Be $true
+    }
+
+    It "warns on unrecognized arguments with recognized options list" {
+        ($content -match 'Unrecognized argument') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.1 — cg-skill-fix-triage-migrate SKILL.md behavioral rules
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-fix-triage-migrate SKILL.md - behavioral rules" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-fix-triage-migrate\SKILL.md"
+    $content = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+
+    It "documents all-open default for findings" {
+        ($content -match 'Set all findings to.*open|defaulted to.*open|all findings.*open') | Should Be $true
+    }
+
+    It "instructs do NOT delegate to subagent for file writes" {
+        ($content -match 'do NOT delegate|NOT delegate') | Should Be $true
+    }
+
+    It "has 'No legacy review files found' response for empty scan result" {
+        ($content -match 'No legacy review files found') | Should Be $true
+    }
+
+    It "instructs prepending full frontmatter block when no frontmatter exists" {
+        ($content -match 'prepend') | Should Be $true
     }
 }
 
@@ -1028,6 +1071,10 @@ Describe "cg-plan.prompt.md - Step 0.5 prior work scan" {
         ($content -match '\*\*Refine\*\*') | Should Be $true
     }
 
+    It "uses 3+ matching keywords threshold (synced with cg-brainstorm)" {
+        ($content -match '3\+?\s*matching keywords') | Should Be $true
+    }
+
     It "presents Follow-up option" {
         ($content -match '\*\*Follow-up\*\*') | Should Be $true
     }
@@ -1059,6 +1106,10 @@ Describe "cg-plan.prompt.md - Step 1.5 Scope Assessment" {
 
     It "includes Scope assessment output line" {
         ($content -match 'Scope assessment:') | Should Be $true
+    }
+
+    It "blocks Focused/Extended/Strategic scope as plan input (Thinking Partner guard)" {
+        ($content -match 'Thinking Partner.*not valid') | Should Be $true
     }
 }
 
@@ -1151,6 +1202,10 @@ Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
     It "includes statistical functions trigger adding @cg-data-quality" {
         ($content -match 'statistical functions|fmean') | Should Be $true
     }
+
+    It "includes >= 200 non-test lines suggestion trigger" {
+        ($content -match '200 non-test lines') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -1218,6 +1273,10 @@ Describe "cg-review.prompt.md - mode:autofix argument" {
 
     It "includes Autofix complete report template" {
         ($content -match 'Autofix complete:.*safe fixes') | Should Be $true
+    }
+
+    It "prohibits safe_auto for statistical functions (escalate to manual)" {
+        ($content -match 'Never.*safe_auto.*statistical|statistical.*escalate.*manual') | Should Be $true
     }
 }
 
@@ -1295,7 +1354,8 @@ Describe "cg-work.prompt.md - Discover existing tests sub-step" {
         # Original check: text "existing tests AND the new tests" was replaced with
         # a literal execution_subagent block (Phase 2 prompt hardening). The
         # new approach uses execution_subagent + Run-Tests.ps1 + last-run.json.
-        ($content -match 'existing tests AND the new tests|discovered.*tests AND.*new tests|execution_subagent.*Run-Tests|Run-Tests.*execution_subagent') | Should Be $true
+        # (?s) flag makes . match newlines so the pattern spans multiple lines.
+        ($content -match '(?s)existing tests AND the new tests|(?s)execution_subagent.*Run-Tests|Run-Tests.*execution_subagent') | Should Be $true
     }
 }
 
@@ -1327,6 +1387,8 @@ Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
         ($content -match '[Ss]elf-review complete:') | Should Be $true
     }
 }
+
+# P3.3–P3.12 are advisory-only findings; no regression tests required.
 
 # ---------------------------------------------------------------------------
 # P3.13 — cg-review depth override arguments documented
@@ -1508,7 +1570,7 @@ Describe "cg-work.prompt.md - roadmap done update before summary wait" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.26 — cg-brainstorm Step 3.5 Devil's Advocate
+# P1.38 — cg-brainstorm Step 3.5 Devil's Advocate
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
@@ -1541,7 +1603,7 @@ Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.27 — cg-brainstorm Step 5c Side-Idea Capture
+# P1.39 — cg-brainstorm Step 5c Side-Idea Capture
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
@@ -1566,7 +1628,7 @@ Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.28 — cg-plan-critic.agent.md existence and structure
+# P1.40 — cg-plan-critic.agent.md existence and structure
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan-critic.agent.md - existence and structure" {
@@ -1594,7 +1656,7 @@ Describe "cg-plan-critic.agent.md - existence and structure" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.29 — cg-plan-review.prompt.md existence and structure
+# P1.41 — cg-plan-review.prompt.md existence and structure
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan-review.prompt.md - existence and structure" {
@@ -1628,7 +1690,7 @@ Describe "cg-plan-review.prompt.md - existence and structure" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.30 — cg-plan.prompt.md Step 6 plan-review handoff and side-idea capture
+# P1.42 — cg-plan.prompt.md Step 6 plan-review handoff and side-idea capture
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
@@ -1649,7 +1711,7 @@ Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.31 — cg-resume.prompt.md schema bypass guard for compound-gpid workspace
+# P1.43 — cg-resume.prompt.md schema bypass guard for compound-gpid workspace
 # ---------------------------------------------------------------------------
 
 Describe "cg-resume.prompt.md - schema bypass guard" {
@@ -1710,7 +1772,7 @@ Describe "cg-work.prompt.md - test failure recovery" {
     }
 
     It "includes double-notification skip-guard in Auto-Fix Diagnostics sub-item 5" {
-        ($content -match '(?s)Test Failure Recovery step 4.*skip this surface') | Should Be $true
+        ($content -match '(?s)Test Failure Recovery step 4.*skip emitting') | Should Be $true
     }
 
     It "scopes Test Failure Recovery to functional tests only" {
@@ -1744,6 +1806,40 @@ Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null featu
         $step4Start  = $content.IndexOf("### Step 4:")
         $step37Block = $content.Substring($step37Start, $step4Start - $step37Start)
         ($step37Block -match '@cg-roadmap') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.4 — cg-work.prompt.md - Step 1.5 Mark Work Started
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Step 1.5 Mark Work Started" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "dispatches @cg-roadmap to mark feature status active at work start" {
+        ($content -match 'to status active') | Should Be $true
+    }
+
+    It "Step 1.5 is conditioned on feature status being planned" {
+        ($content -match 'status is.*planned|status.*planned') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 — cg-work.prompt.md - Step 3.5 Mark Plan Complete
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 3.5 writes completed-date with today's date" {
+        ($content -match 'completed-date') | Should Be $true
+    }
+
+    It "Step 3.5 changes status to completed in plan frontmatter" {
+        ($content -match 'status.*completed|status: completed') | Should Be $true
     }
 }
 
@@ -1842,7 +1938,7 @@ Describe "cg-compound.prompt.md - context enrichment step ordering" {
     }
 
     It "offers to create context.md if it does not exist" {
-        ($content -match 'does not exist.*create|create.*first entry') | Should Be $true
+        ($content -match 'does not exist.*suggest creating|Would you like me to create it') | Should Be $true
     }
 }
 
@@ -2061,6 +2157,27 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-work" {
         ($cgWorkContent -match 'execution_subagent') -and ($cgWorkContent -match 'Invoke-Pester') |
             Should Be $true
     }
+
+    It "warns filteredFiles non-null means partial run (commit gate guard)" {
+        ($cgWorkContent -match 'filteredFiles') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.10 — cg-work full-suite commit gate guard (dedicated describe)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - full-suite commit gate guard" {
+    $cgWorkFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $cgWorkContent = if (Test-Path $cgWorkFile) { Get-Content $cgWorkFile -Raw -Encoding UTF8 } else { "" }
+
+    It "full-suite gate query includes filteredFiles field" {
+        ($cgWorkContent -match 'filteredFiles') | Should Be $true
+    }
+
+    It "partial run guard: non-null filteredFiles blocks commit gate" {
+        ($cgWorkContent -match 'filteredFiles.*partial run|partial run.*filteredFiles') | Should Be $true
+    }
 }
 
 Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" {
@@ -2086,6 +2203,10 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" 
     It "cg-fix-triage.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
         ($cgFixTriageContent -match 'execution_subagent') -and ($cgFixTriageContent -match 'Invoke-Pester') |
             Should Be $true
+    }
+
+    It "full-suite gate includes filteredFiles field" {
+        ($cgFixTriageContent -match 'filteredFiles') | Should Be $true
     }
 }
 
@@ -2158,6 +2279,97 @@ Describe "copilot-instructions.md - Rule 9 Agent test workflow" {
 
     It "copilot-instructions.md references last-run.json in Rule 9" {
         ($instructionsContent -match 'last-run\.json') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.19 — cg-setup.prompt.md structural tests (zero coverage previously)
+# ---------------------------------------------------------------------------
+
+Describe "cg-setup.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-setup.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    It "has a description in frontmatter" {
+        $frontmatter | Should Match 'description:'
+    }
+
+    It "has a model in frontmatter" {
+        $frontmatter | Should Match 'model:'
+    }
+
+    It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
+        ($frontmatter -notmatch 'tools:') | Should Be $true
+    }
+}
+
+Describe "cg-setup.prompt.md - mode detection and overwrite guard" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references compound-gpid.local.md for mode detection (Mode A vs Mode B)" {
+        ($content -match 'compound-gpid\.local\.md') | Should Be $true
+    }
+
+    It "has a project-name overwrite guard before recreating compound-gpid.md" {
+        ($content -match 'already exists|overwrite') | Should Be $true
+    }
+
+    It "references setup-templates.md for templates" {
+        ($content -match 'setup-templates\.md') | Should Be $true
+    }
+
+    It "creates roadmap.json during new project setup" {
+        ($content -match 'roadmap\.json') | Should Be $true
+    }
+
+    It "updates .gitignore to exclude compound-gpid.local.md" {
+        ($content -match '\.gitignore') | Should Be $true
+    }
+
+    It "does NOT create compound-gpid.md if user skips Question 4 (project name)" {
+        ($content -match 'do NOT create|skips.*Q4|skips before Question 4') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.26 — cg-setup.prompt.md Mode B returning project coverage
+# ---------------------------------------------------------------------------
+
+Describe "cg-setup.prompt.md - Mode B returning project" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Mode B section for returning projects" {
+        ($content -match 'Mode B') | Should Be $true
+    }
+
+    It "checks for deprecated charter sections (B1.1.5)" {
+        ($content -match 'Architecture Notes|deprecated') | Should Be $true
+    }
+
+    It "performs schema version check (B1.3)" {
+        ($content -match 'cg-schema-version') | Should Be $true
+    }
+
+    It "checks for roadmap.json and notifies if missing (B1.2.5)" {
+        ($content -match 'roadmap\.json') | Should Be $true
+    }
+
+    It "checks for compound-gpid.context.md and offers to create it (B1.1.3)" {
+        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+    }
+
+    It "explicitly instructs not to add context.md to .gitignore" {
+        ($content -match '(?i)do NOT add.*\.gitignore|institutional knowledge') | Should Be $true
     }
 }
 

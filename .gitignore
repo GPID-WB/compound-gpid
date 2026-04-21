@@ -30,9 +30,11 @@ venv/
 htmlcov/
 *.prof
 
-# Pester test runner artifact (session-local, not committed)
+# Pester test runner artifacts (session-local, not committed)
 tests/last-run.json
 tests/.last-run.tmp
+# Pester debug capture files (tail parser, triage block outputs) — session-local, not committed
+tests/*.txt
 
 # R
 .Rhistory

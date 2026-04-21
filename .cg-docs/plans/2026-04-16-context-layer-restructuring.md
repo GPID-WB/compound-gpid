@@ -1,12 +1,13 @@
 ---
 date: 2026-04-16
 title: "Context Layer Restructuring"
-status: active
+status: completed
+completed-date: 2026-04-17
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-04-16-context-layer-restructuring.md"
 language: "PowerShell + Markdown"
 estimated-effort: "large"
-tags: [context, copilot-instructions, template, consumer-projects, Step-0, multi-folder]
+tags: [context, copilot-instructions, template, consumer-projects, step-0, multi-folder]
 ---
 
 # Plan: Context Layer Restructuring
@@ -356,8 +357,8 @@ Key design decisions:
 - [ ] Update `docs/manual.md` — document context.md and slim
   copilot-instructions.md
 - [ ] Update `docs/installation.md` — mention context.md creation
-- [ ] Inline comments in `New-CopilotInstructions` function
-- [ ] Template file has header comment explaining its purpose
+- [x] Inline comments in `New-CopilotInstructions` function
+- [x] Template file has header comment explaining its purpose
 
 ## Risks & Mitigations
 

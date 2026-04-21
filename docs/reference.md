@@ -99,7 +99,7 @@ In addition to the configured depth tier, `/cg-review` automatically applies the
 
 | Trigger | Override |
 |---------|----------|
-| Changed files include `pipeline*.{R,py}`, `extract*.{R,py}`, `load*.{R,py}`, or any file in a `scripts/` directory | Always adds `@cg-data-quality` (even in `light`) |
+| Changed files include `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}`, or any file in a `**/scripts/**` directory | Always adds `@cg-data-quality` (even in `light`) |
 | Changed files touch authentication, secrets, or credentials | Always adds `@cg-version-control` |
 | Changed files call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always adds `@cg-data-quality` + `@cg-reproducibility` |
 | ≥ 50 non-test lines changed | Escalates `light` → `standard` |
@@ -189,6 +189,7 @@ Milestone status is computed by `@cg-roadmap` from feature statuses (never set d
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
+| `cg-skill-fix-triage-migrate` | Migration mode for `/cg-fix-triage --migrate`: backfills `findings:` tracking frontmatter on legacy review files. Does NOT apply fixes. |
 
 ---
 

@@ -1,9 +1,9 @@
-> [!CAUTION]
-> **⚠️ WORK IN PROGRESS — DO NOT USE IN PRODUCTION**
+> [!NOTE]
+> **⚠️ WORK IN PROGRESS**
 >
-> This project is under active development and is not yet ready for use.
+> Core workflows (brainstorm, plan, work, review, fix-triage, compound) are stable.
+> Advanced features (release automation, context layer) are still evolving.
 > Prompts, agents, skills, and conventions may change without notice.
-> This banner will be removed when the system is stable.
 
 # Compound GPID
 
