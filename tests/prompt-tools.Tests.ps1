@@ -1868,7 +1868,7 @@ Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
 # Context Layer — compound-gpid.context.md referenced in all 14 prompts
 # ---------------------------------------------------------------------------
 
-Describe "context layer - all 14 prompts reference compound-gpid.context.md" {
+Describe "context layer - all 15 prompts reference compound-gpid.context.md" {
     $prompts = @(
         "cg-brainstorm",
         "cg-compound",
@@ -1882,6 +1882,7 @@ Describe "context layer - all 14 prompts reference compound-gpid.context.md" {
         "cg-plan-review",
         "cg-resume",
         "cg-review",
+        "cg-review-repos",
         "cg-strategy",
         "cg-work"
     )
@@ -2402,6 +2403,141 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
 
     It "explicitly instructs not to add context.md to .gitignore" {
         ($content -match '(?i)do NOT add.*\.gitignore|institutional knowledge') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-review-repos.prompt.md - file existence, frontmatter, guardrail, and content
+# (Developer-only prompt for competitive repo analysis)
+# ---------------------------------------------------------------------------
+
+Describe "cg-review-repos.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-review-repos.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+    $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
+
+    Context "required frontmatter fields" {
+        It "has a description in frontmatter" {
+            $frontmatter | Should Match 'description:'
+        }
+
+        It "has a model in frontmatter" {
+            $frontmatter | Should Match 'model:'
+        }
+    }
+}
+
+Describe "cg-review-repos.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
+
+        It "does not have a tools: key" {
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+        }
+    }
+}
+
+Describe "cg-review-repos.prompt.md - dev-repo guardrail" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "checks compound-gpid.md for project-name" {
+        ($content -match 'project-name') | Should Be $true
+    }
+
+    It "contains consumer-project warning message" {
+        ($content -match 'compound-gpid development only') | Should Be $true
+    }
+}
+
+Describe "cg-review-repos.prompt.md - content structure" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "references --full flag for initial assessment mode" {
+        ($content -match '--full') | Should Be $true
+    }
+
+    It "references repos.json registry file" {
+        ($content -match 'repos\.json') | Should Be $true
+    }
+
+    It "feature card template includes Compatibility field" {
+        ($content -match 'Compatibility:') | Should Be $true
+    }
+
+    It "feature card template includes How we'd adapt it field" {
+        ($content -match "How we'd adapt it") | Should Be $true
+    }
+
+    It "mentions concept mapping table" {
+        ($content -match 'Concept Mapping') | Should Be $true
+    }
+
+    It "references assessment file path format" {
+        ($content -match 'competitive-reviews/.*-full-review\.md|competitive-reviews\\.*-full-review\.md') | Should Be $true
+    }
+
+    It "references delta report file path format" {
+        ($content -match 'delta-review\.md') | Should Be $true
+    }
+
+    It "warns about null-baseline repos for delta mode" {
+        ($content -match 'lastReviewedRelease') | Should Be $true
+    }
+
+    It "instructs to run --full to recover null-baseline repos" {
+        ($content -match '--full.*first|Run.*--full') | Should Be $true
+    }
+
+    It "stops when registry file is missing" {
+        ($content -match 'Stop if the registry is missing') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# competitive-reviews/repos.json - registry file validation
+# ---------------------------------------------------------------------------
+
+Describe "competitive-reviews/repos.json - registry" {
+    $registryFile = Join-Path $repoRoot ".cg-docs\competitive-reviews\repos.json"
+
+    It "exists in the repository" {
+        Test-Path $registryFile | Should Be $true
+    }
+
+    It "is valid JSON" {
+        { Get-Content $registryFile -Raw -Encoding UTF8 | ConvertFrom-Json } | Should Not Throw
+    }
+
+    $json = if (Test-Path $registryFile) {
+        try { Get-Content $registryFile -Raw -Encoding UTF8 | ConvertFrom-Json } catch { $null }
+    } else { $null }
+
+    It "has schemaVersion field" {
+        $json.schemaVersion | Should Not BeNullOrEmpty
+    }
+
+    It "has repos array with exactly 3 entries" {
+        $json.repos.Count | Should Be 3
+    }
+
+    foreach ($repoEntry in @(if ($null -ne $json) { $json.repos } else { @() })) {
+        It "repo '$($repoEntry.id)' has required fields" {
+            $repoEntry.id | Should Not BeNullOrEmpty
+            $repoEntry.url | Should Not BeNullOrEmpty
+            $repoEntry.releasesUrl | Should Not BeNullOrEmpty
+            $repoEntry.shortName | Should Not BeNullOrEmpty
+        }
     }
 }
 

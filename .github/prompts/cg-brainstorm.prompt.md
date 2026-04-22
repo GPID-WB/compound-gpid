@@ -127,7 +127,30 @@ Work through these four checks:
 **Side-idea capture**: During this exchange, if the user identifies an adjacent idea worth tracking separately — something that surfaced as a risk, alternative, or related problem — offer to dispatch `@cg-roadmap` to record it as an idea before continuing:
 > "That sounds like a separate idea worth tracking. Want me to add it to the roadmap before we continue?"
 
-After the pushback exchange, proceed to Step 4 when the user is ready.
+After the pushback exchange, proceed to Step 3.75 when the user is ready.
+
+### Step 3.75: Branch Offer
+
+Before drafting the brainstorm document, offer to create a new git branch for
+the upcoming work:
+
+> "Would you like to start this work on a new branch? Suggested name:
+> `feat/<short-description-from-brainstorm>`
+>
+> 1. **Yes** — I'll create the branch now
+> 2. **No** — Stay on the current branch"
+
+- Derive the branch name from the brainstorm title using the project's
+  branching convention: `type/short-description` (see `copilot-instructions.md`
+  § Version Control). Use `feat/` for new features, `fix/` for bug fixes,
+  `refactor/` for restructuring.
+- If the user accepts: create the branch with `git checkout -b <branch-name>`
+  and confirm: "Switched to new branch `<branch-name>`."
+- If the user declines or the brainstorm is **Thinking Partner mode**
+  (non-software): skip silently and proceed to Step 4.
+- If the repo has uncommitted changes, warn before branching:
+  > "You have uncommitted changes. Want to stash them first, or branch
+  > anyway?"
 
 ### Step 4: Capture Decision
 

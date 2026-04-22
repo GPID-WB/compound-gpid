@@ -56,7 +56,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 28 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 31 prompt and agent files.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -71,6 +71,26 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | Prompt | Model | Purpose |
 |--------|-------|---------|
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. |
+| `/cg-review-repos [--full]` | Claude Opus 4.6 | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos (README, docs, skills/commands, latest releases) — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. |
+
+### Competitive Review System
+
+`/cg-review-repos` uses a registry file (`.cg-docs/competitive-reviews/repos.json`) to
+track which repos are monitored and when each was last reviewed. The registry stores the
+last-reviewed release tag per repo so delta reviews only scan new releases.
+
+**Adding a new repo**: Edit `repos.json` and add an entry with `id`, `url`, `releasesUrl`,
+`shortName`, and null `lastReviewedRelease`/`lastReviewDate`. Then run
+`/cg-review-repos --full` to establish a baseline.
+
+**Review cadence**: Run `/cg-review-repos` (delta mode) every 1–2 weeks to check for new
+releases. Run `--full` only when adding a new repo or doing a periodic deep audit.
+
+**Outputs**: Per-repo full-review files (`.cg-docs/competitive-reviews/YYYY-MM-DD-<id>-full-review.md`)
+and delta reports (`.cg-docs/competitive-reviews/YYYY-MM-DD-delta-review.md`).
+After a `--full` run, `lastFullReview` at the root of `repos.json` is set to today's date
+(YYYY-MM-DD), recording the last complete audit across all repos. On partial failure,
+`lastFullReview` is set to `null` and a `lastFullReviewNote` field records which repos failed.
 
 ---
 

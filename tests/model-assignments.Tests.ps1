@@ -33,8 +33,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 17 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should Be 17
+    It "contains exactly 18 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should Be 18
     }
 
     foreach ($file in $promptFiles) {
@@ -101,13 +101,14 @@ Describe "docs/model-guide.md - structure and sync" {
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    # All 17 prompt file stems must appear in the guide
+    # All 18 prompt file stems must appear in the guide
     $promptStems = @(
         'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
         'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
         'cg-setup', 'cg-devtag', 'cg-resume',
         'cg-compound-refresh', 'cg-ideate',
-        'cg-diagnose', 'cg-fix-problems', 'cg-plan-review'
+        'cg-diagnose', 'cg-fix-problems', 'cg-plan-review',
+        'cg-review-repos'
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
