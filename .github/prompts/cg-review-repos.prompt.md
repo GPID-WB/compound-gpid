@@ -30,9 +30,8 @@ If the file is missing or `project-name` does not equal `"Compound GPID"`:
 
 Parse the invocation arguments:
 
-- `--full`: **Full assessment mode** — deep review of each repo's README, docs,
-  skills/commands/agents directories, and releases. Use this for the initial
-  baseline review of a repo.
+- `--full`: **Full assessment mode** — deep review of each repo's README and
+  releases. Use this for the initial baseline review of a repo or periodic deep audits.
 - *(no flag)*: **Delta review mode** — only review releases newer than
   `lastReviewedRelease` in `repos.json`. Use this for recurring weekly/biweekly
   check-ins.
@@ -58,10 +57,31 @@ If the file is missing:
 > "Registry schema version mismatch — expected compound-gpid-competitive-reviews-v1,
 > found <value>."
 
+**Validate registry is non-empty**: If the `repos` key is absent from the JSON, stop:
+> "Registry JSON is missing the `repos` field — schema may be corrupted."
+If `repos` is present but empty (`[]`), stop:
+> "Registry contains no repos. Add entries to `repos.json` before running."
+
+**Validate required repo fields**: For each repo object in `repos` (by zero-based
+index), verify that `id`, `url`, `releasesUrl`, and `shortName` are all present and
+non-empty. If any required field is absent or empty, abort:
+> "Repo at index <N> is missing required field '<field>'."
+
+**Validate unique repo IDs**: Verify that all `id` values are unique. If any
+duplicate exists, abort:
+> "Duplicate repo id '<id>' found — all ids must be unique."
+
 **Validate repo IDs**: For each repo in `repos`, verify that the `id` field contains
 only alphanumeric characters and hyphens. If any id contains `/`, `\`, `.`, or
 whitespace, abort:
 > "Invalid repo id '<id>' — ids must be alphanumeric with hyphens only."
+
+**Validate shortNames**: For each repo in `repos`, verify that `shortName` is 1–10
+alphanumeric characters (no spaces or special characters). If any `shortName` is
+blank or out of range, abort:
+> "Invalid shortName '<value>' for repo '<id>' — must be 1–10 alphanumeric characters."
+Also verify that all `shortName` values are unique. If any duplicates exist, abort:
+> "Duplicate shortName '<value>' found — all shortNames must be unique."
 
 **Validate repo URLs**: For each repo in `repos`, verify that both `url` and
 `releasesUrl` begin with `https://github.com/`. If any URL does not match this
@@ -69,15 +89,22 @@ scheme and domain, abort:
 > "Registry contains invalid URL for repo '<id>' — only https://github.com/ URLs
 > are permitted."
 
-**Validate registry is non-empty**: If `repos` is empty, stop:
-> "Registry contains no repos. Add entries to `repos.json` before running."
+**Validate releasesUrl suffix**: For each repo in `repos`, verify that `releasesUrl`
+ends with `/releases`. If it does not, abort:
+> "releasesUrl for repo '<id>' must end with '/releases' — found '<value>'."
+
+**Validate date formats**: For any repo where `lastReviewDate` or `lastFullReview`
+is non-null, verify the value matches the pattern `YYYY-MM-DD` (four-digit year,
+two-digit month, two-digit day). If any value does not match, abort:
+> "Invalid date format for '<field>' in repo '<id>' — expected YYYY-MM-DD, found '<value>'."
 
 **For delta mode only**: For each repo where `lastReviewedRelease` is null, skip that
 repo and warn:
 
 > "Repo '<id>' has no baseline review. Run `/cg-review-repos --full` first to
-> establish a baseline, then use delta mode for subsequent reviews. Note:
-> `--full` will update only repos that lack a baseline."
+> establish a baseline, then use delta mode for subsequent reviews."
+
+> Note: `--full` reviews all repos in the registry and refreshes their baselines.
 
 After applying the above per-repo checks: if **no repos remain eligible** (all were
 skipped due to null `lastReviewedRelease`), stop immediately:
@@ -90,8 +117,12 @@ Use the following table to normalize terminology when describing features from e
 external repo. Always translate external terms to compound-gpid equivalents in
 feature cards.
 
-| compound-gpid | CE Plugin | Superpowers | GSD-2 |
-|---------------|-----------|-------------|-------|
+<!-- last verified: 2026-04-22 -->
+<!-- Update this table when repos.json entries change. For repos not listed here,
+     infer mappings from the compound-gpid column only. -->
+
+| compound-gpid | CE | SP | GSD |
+|---------------|-----|-----|-----|
 | Prompts | Slash commands | Skills (auto-triggered) | Commands |
 | Agents | Agents | Agents | Extensions |
 | Skills | Skills | Skills | Skills (within extensions) |
@@ -119,6 +150,10 @@ it if absent.
 
 ### Full Assessment Mode (`--full`)
 
+If `repos` contains more than 4 entries, warn before proceeding:
+> "Running --full on N repos will generate a large session. Consider passing specific
+> repo IDs or running in batches. Continuing with all N repos."
+
 For **each repo** in `repos.json`:
 
 1. Fetch the repo's main page (README) via `fetch_webpage`
@@ -134,6 +169,10 @@ Save the per-repo assessment immediately after completing each repo:
 ```
 .cg-docs/competitive-reviews/YYYY-MM-DD-<repo-id>-full-review.md
 ```
+
+If the target file already exists (same-day re-run), append `-2`, `-3`, etc.
+(e.g., `YYYY-MM-DD-<repo-id>-full-review-2.md`). Note in the Step 5 summary if
+overwriting was avoided.
 
 Assessment file format:
 
@@ -156,7 +195,7 @@ not-applicable: <count>
 <Brief repo description and philosophy>
 
 ## Concept Mapping
-<How this repo's architecture maps to compound-gpid concepts>
+<2–3 sentence narrative mapping this repo's terms to compound-gpid equivalents — do not reproduce the Step 1.5 table.>
 
 ## Features — Directly Applicable
 <Feature cards>
@@ -185,14 +224,27 @@ For **each repo** in `repos.json` that has a non-null `lastReviewedRelease`:
    `--full` to catch up."
 4. For each new release (up to the 10 most recent), fetch its individual release
    notes page (`<releasesUrl>/tag/<tag>`) to get detailed notes — do not rely on the
-   list page alone
-5. For each new feature found in the release notes, produce a Feature Card
+   list page alone. **Pre-filter**: if a release's excerpt on the list page is ≥ 100
+   words and appears to contain complete notes, skip the individual page fetch and use
+   the list-page excerpt instead. Only fetch individual pages for releases whose list
+   summaries are truncated or empty.
+5. For each new feature found in the release notes, produce a Feature Card.
+   Limit to the **15 most significant features per repo**. For additional features,
+   emit a brief bullet: "+ N additional features noted but not carded — run `--full`
+   for complete coverage."
 
 Save the delta report after all repos are processed:
 
 ```
 .cg-docs/competitive-reviews/YYYY-MM-DD-delta-review.md
 ```
+
+If the target file already exists (same-day re-run), append `-2`, `-3`, etc.
+(e.g., `YYYY-MM-DD-delta-review-2.md`).
+
+> **Recovery after interruption**: If a delta run is interrupted after some repos
+> have been processed (and their registry updated), reset `lastReviewedRelease` to
+> its previous value for each updated repo before re-running.
 
 Delta report format:
 
@@ -226,7 +278,7 @@ Use this template for every feature identified:
 - **Compatibility**: Directly applicable / Needs adaptation / Not applicable
 - **Why this verdict**: <1 sentence justification>
 - **How we'd adapt it**: <implementation sketch for compound-gpid — which files to
-  create/modify, rough approach>
+  create/modify, rough approach. Write "N/A" if Compatibility is Not applicable.>
 - **Maps to**: <prompt | agent | skill | instruction | script>
 - **Effort**: Small / Medium / Large
 - **Priority**: High / Medium / Low
@@ -279,7 +331,13 @@ For `--full` mode: set `lastFullReview` in the root object (YYYY-MM-DD format) o
 when **all repos succeed**. On partial failure (one or more repos failed fetch or
 produced no output), set `lastFullReview` to `null` and add
 `"lastFullReviewNote": "partial — <comma-separated failed-repo-ids>"` to the root
-object instead.
+object instead. On a subsequent successful full review (all repos succeed),
+remove `lastFullReviewNote` from the root object if it is present.
+
+> Note: `lastFullReviewNote` is an optional root-level field used only on partial
+> failure. It is not present in a clean registry and is removed on the next successful
+> full run. Per-repo `lastReviewDate` fields are the durable record of individual
+> repo review history.
 
 If a fetch fails for one repo: log the failure in the Step 5 summary table, skip that
 repo's registry update, and continue with the next repo.

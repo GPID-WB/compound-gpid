@@ -95,3 +95,5 @@ It "all three unconfigured fields fall back" {
 
 - [2026-04-07 — Pester test quality patterns](2026-04-07-pester-test-quality-patterns.md) — broader test quality reference for this project
 - `tests/helpers.Tests.ps1` — where this fix was applied
+- [`2026-04-22-schema-constant-coupling-value-equality-test-and-maintenance-anchor.md`](./2026-04-22-schema-constant-coupling-value-equality-test-and-maintenance-anchor.md)
+  — related: `Should Be` vs `Should Not BeNullOrEmpty` for schema constants that must exactly equal a known value

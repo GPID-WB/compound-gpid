@@ -37,7 +37,9 @@ htmlcov/
 # Pester test runner artifacts (session-local, not committed)
 tests/last-run.json
 tests/.last-run.tmp
-# Pester debug capture files (tail parser, triage block outputs) — session-local, not committed
+# Pester debug capture files (tail parser, triage block outputs) — session-local artifacts,
+# not committed. Note: existing test fixture files (tail.txt, tail2.txt, etc.) are separate
+# tracked test resources and remain committed regardless of this rule.
 tests/*.txt
 
 # R
@@ -49,6 +51,7 @@ tests/*.txt
 # Stata
 *.smcl
 *.gph
+# Stata and other generated log files
 *.log
 
 # Secrets — never commit

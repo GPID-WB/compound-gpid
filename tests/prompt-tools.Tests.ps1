@@ -2457,6 +2457,11 @@ Describe "cg-review-repos.prompt.md - dev-repo guardrail" {
     It "contains consumer-project warning message" {
         ($content -match 'compound-gpid development only') | Should Be $true
     }
+
+    # P1.1: guardrail must check the exact case-sensitive value, not just key presence
+    It "guardrail checks exact case-sensitive value 'Compound GPID'" {
+        ($content -match '"Compound GPID"') | Should Be $true
+    }
 }
 
 Describe "cg-review-repos.prompt.md - content structure" {
@@ -2465,6 +2470,11 @@ Describe "cg-review-repos.prompt.md - content structure" {
 
     It "references --full flag for initial assessment mode" {
         ($content -match '--full') | Should Be $true
+    }
+
+    # P3.5: case-insensitive --full flag matching must be documented
+    It "specifies case-insensitive --full flag matching" {
+        ($content -match 'case.insensitive') | Should Be $true
     }
 
     It "references repos.json registry file" {
@@ -2502,6 +2512,41 @@ Describe "cg-review-repos.prompt.md - content structure" {
     It "stops when registry file is missing" {
         ($content -match 'Stop if the registry is missing') | Should Be $true
     }
+
+    # P1.2: injection guard for fetch_webpage content
+    It "contains injection guard for fetch_webpage content" {
+        ($content -match 'untrusted data') | Should Be $true
+    }
+
+    # P1.3: URL validation — only https://github.com/ permitted
+    It "requires https://github.com/ URLs only" {
+        ($content -match 'https://github\.com/') | Should Be $true
+    }
+
+    # P1.4: repo ID validation — alphanumeric + hyphens only
+    It "validates repo IDs are alphanumeric with hyphens only" {
+        ($content -match 'alphanumeric.*hyphens|hyphens only') | Should Be $true
+    }
+
+    # P1.5: feature card limit per repo in full mode
+    It "limits feature cards to 25 per repo in full mode" {
+        ($content -match '25 most significant') | Should Be $true
+    }
+
+    # P1.6a: registry write strategy — per-repo immediately
+    It "instructs updating registry per-repo immediately (not at end)" {
+        ($content -match 'per-repo immediately') | Should Be $true
+    }
+
+    # P1.6b: registry write strategy — replace entire file
+    It "instructs replacing the entire repos.json file on each write" {
+        ($content -match 'entire file') | Should Be $true
+    }
+
+    # P2.4: lastFullReviewNote behavior on partial failure
+    It "specifies lastFullReviewNote behavior on partial failure" {
+        ($content -match 'lastFullReviewNote') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -2527,6 +2572,12 @@ Describe "competitive-reviews/repos.json - registry" {
         $json.schemaVersion | Should Not BeNullOrEmpty
     }
 
+    # P2.3: value must match the constant expected by the prompt
+    It "schemaVersion equals expected constant" {
+        $json.schemaVersion | Should Be 'compound-gpid-competitive-reviews-v1'
+    }
+
+    # P2.2: count sentinel — update when adding a new repo to repos.json
     It "has repos array with exactly 3 entries" {
         $json.repos.Count | Should Be 3
     }

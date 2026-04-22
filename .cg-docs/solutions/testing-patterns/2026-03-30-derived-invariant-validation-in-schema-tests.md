@@ -112,3 +112,5 @@ For any schema that has a derived field `D` computed from source fields `S`:
   — PS 5.1 array coercion fix applied in the same schema validator
 - `.cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md`
   — related pattern: validate before writing persistent state
+- [`2026-04-22-schema-constant-coupling-value-equality-test-and-maintenance-anchor.md`](./2026-04-22-schema-constant-coupling-value-equality-test-and-maintenance-anchor.md)
+  — related: same idea applied to static constants shared across files (not derived computed state)

@@ -151,7 +151,7 @@ Check the Copilot model picker dropdown for current available names.
 
 | Field | Value |
 |-------|-------|
-| Last validated | 2026-04-07 |
+| Last validated | 2026-04-22 |
 | Next validation due | 2026-10-07 (6-month cadence) |
 
 **Triggers for early re-audit**:

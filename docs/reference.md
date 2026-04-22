@@ -79,9 +79,24 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 track which repos are monitored and when each was last reviewed. The registry stores the
 last-reviewed release tag per repo so delta reviews only scan new releases.
 
-**Adding a new repo**: Edit `repos.json` and add an entry with `id`, `url`, `releasesUrl`,
-`shortName`, and null `lastReviewedRelease`/`lastReviewDate`. Then run
-`/cg-review-repos --full` to establish a baseline.
+**Adding a new repo**: Edit `repos.json` and add an entry with the following fields:
+- `id` — unique identifier, alphanumeric + hyphens only
+- `url` — repo URL (must begin with `https://github.com/`)
+- `releasesUrl` — releases page URL (must begin with `https://github.com/` and end with `/releases`)
+- `shortName` — short display name (1–10 characters)
+- `lastReviewedRelease` — set to `null` for new entries
+- `lastReviewDate` — set to `null` for new entries
+
+The registry root must also include `"schemaVersion": "compound-gpid-competitive-reviews-v1"`.
+
+> **Schema version sync**: The `schemaVersion` value in `repos.json` and the expected
+> value hardcoded in Step 1 of `cg-review-repos.prompt.md` must always match. When
+> bumping the schema version, update both files together.
+
+Also add a column to the concept mapping table in Step 1.5 of
+`.github/prompts/cg-review-repos.prompt.md` for the new repo's terminology.
+
+Then run `/cg-review-repos --full` to establish a baseline.
 
 **Review cadence**: Run `/cg-review-repos` (delta mode) every 1–2 weeks to check for new
 releases. Run `--full` only when adding a new repo or doing a periodic deep audit.
@@ -91,6 +106,15 @@ and delta reports (`.cg-docs/competitive-reviews/YYYY-MM-DD-delta-review.md`).
 After a `--full` run, `lastFullReview` at the root of `repos.json` is set to today's date
 (YYYY-MM-DD), recording the last complete audit across all repos. On partial failure,
 `lastFullReview` is set to `null` and a `lastFullReviewNote` field records which repos failed.
+`lastFullReviewNote` is removed on the next successful full run.
+Per-repo `lastReviewDate` fields are the durable record of individual repo review history.
+`lastFullReview` reflects only the most recent successful full-suite run.
+
+> **Distribution note**: `/cg-review-repos` is distributed to consumer projects via
+> junctions (it lives in `.github/prompts/` along with all other prompts). It will appear
+> in the Copilot Chat autocomplete for any project using compound-gpid. The Step 0
+> guardrail stops execution cleanly with an explanatory message if the prompt is invoked
+> outside the compound-gpid repo — no action is taken in consumer projects.
 
 ---
 
