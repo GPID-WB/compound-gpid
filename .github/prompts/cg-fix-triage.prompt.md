@@ -106,7 +106,7 @@ After processing all in-scope findings:
 
 ### Step 5: Next Steps
 
-- If fixes applied: suggest a commit: `fix(scope): description` for bug fixes, `docs(scope): description` for documentation fixes. Then: "Run `/cg-review light` to verify the fixes."
+- If fixes applied: suggest a commit: `fix(scope): description` for bug fixes, `docs(scope): description` for documentation fixes. Then: "Run `/cg-review mode:verify` to verify the fixes converged."
 - If findings remain: "Run `/cg-fix-triage P2.1 P3.1` to fix remaining findings."
 - If all resolved: "All review findings addressed. Ready to merge."
 - If a bug was found and fixed: "Run `/cg-fixbug` to document it."
