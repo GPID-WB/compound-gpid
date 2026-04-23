@@ -66,6 +66,11 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 ### Plugin Development (developer-only)
 
+> **Consumer project users**: The prompts below are for compound-gpid maintenance
+> only. `/cg-review-repos` appears in your autocomplete because it is distributed
+> via junctions, but it **will not run** outside the compound-gpid repo — Step 0
+> stops it immediately. Do not use these prompts in consumer projects.
+
 | Prompt | Model | Purpose | Distribution |
 |--------|-------|---------|-------------|
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Not distributed** — lives at the `compound-gpid` repo root only. |
