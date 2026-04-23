@@ -111,3 +111,4 @@ tests catch it immediately.
 - [2026-04-15 — cg-work Step 3.7 silently skips plan:null features](../bugs/2026-04-15-cg-work-step-3-7-silent-skip-plan-null-features.md)
 - [2026-04-15 — Roadmap plan linkage must be audited at completion](./2026-04-15-roadmap-plan-linkage-must-be-audited-at-completion.md)
 - [2026-04-13 — Dead step after user-wait is a session terminator](./2026-04-13-dead-step-after-wait-prompt-session-terminator.md)
+- [2026-04-23 — Verify-mode suppression must be anchored to fixed-finding scope](./2026-04-23-verify-mode-suppression-must-be-anchored-to-fixed-finding-scope.md) — same root cause: suppression/skip conditions must reference objective artifacts, not agent inference
