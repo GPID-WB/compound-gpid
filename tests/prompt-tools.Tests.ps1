@@ -2646,3 +2646,89 @@ Describe "competitive-reviews/repos.json - registry" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Review convergence — cg-review mode:verify argument
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - mode:verify argument" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents mode:verify argument" {
+        ($content -match 'mode:verify') | Should Be $true
+    }
+
+    It "includes Step 1.7 for verification context" {
+        ($content -match 'Step 1\.7') | Should Be $true
+    }
+
+    It "suppression policy never suppresses P0/P1" {
+        ($content -match '(?s)P0/P1.*[Nn]ever suppress') | Should Be $true
+    }
+
+    It "suppression policy suppresses P2/P3 on fixed-finding scope" {
+        ($content -match '(?s)P2/P3.*fixed-finding scope|P2/P3.*fix-consequence') | Should Be $true
+    }
+
+    It "suppression policy always reports cross-file breakage" {
+        ($content -match '(?s)[Cc]ross-file breakage.*[Aa]lways report') | Should Be $true
+    }
+
+    It "forces light depth in verify mode" {
+        ($content -match '(?si)Force depth to.*light|light.*forced') | Should Be $true
+    }
+
+    It "verify review filename pattern documented" {
+        ($content -match 'verify-review\.md') | Should Be $true
+    }
+
+    It "instructs to skip Step 1.5 overrides in verify mode" {
+        ($content -match '(?si)Step 1\.5.*[Ss]kip.*mode:verify|[Ss]kip this step if.*mode:verify') | Should Be $true
+    }
+
+    It "documents parent-review frontmatter for verify reviews" {
+        ($content -match 'parent-review') | Should Be $true
+    }
+
+    It "documents type: verification frontmatter field" {
+        ($content -match 'type: verification') | Should Be $true
+    }
+
+    It "unrecognized-argument warning lists mode:verify" {
+        ($content -match 'Recognized:.*mode:verify') | Should Be $true
+    }
+
+    It "documents mutual exclusion of mode:autofix and mode:verify" {
+        ($content -match '(?s)mode:autofix.*mode:verify.*mutually exclusive|Cannot combine.*mode:autofix.*mode:verify') | Should Be $true
+    }
+
+    It "mutual exclusion resolves in favour of mode:verify" {
+        ($content -match 'using.*mode:verify|ignore.*mode:autofix') | Should Be $true
+    }
+
+    It "warns when no prior review with fixed findings found" {
+        ($content -match '[Nn]o prior review with fixed findings found') | Should Be $true
+    }
+
+    It "verify mode dispatches only cg-code-quality and cg-testing" {
+        ($content -match '(?s)[Vv]erify mode.*cg-code-quality.*cg-testing|cg-code-quality.*cg-testing.*light.*forced') | Should Be $true
+    }
+
+    It "excludes -verify-review.md files from prior review scan" {
+        ($content -match '-review\.md.*NOT.*-verify-review\.md|verify-review\.md.*[Ss]kip|[Ss]kip.*verify-review\.md') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Review convergence — cg-fix-triage mode:verify handoff
+# ---------------------------------------------------------------------------
+
+Describe "cg-fix-triage.prompt.md - mode:verify handoff" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "suggests mode:verify instead of review light in Step 5" {
+        ($content -match '(?s)Step 5.*mode:verify') | Should Be $true
+    }
+}
+
