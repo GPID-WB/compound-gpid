@@ -207,7 +207,7 @@ Merge all agent findings into a single prioritized report:
 
 ### Step 4: Triage
 
-**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1.2; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1.2). Apply the tagged findings:
+**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1, item 3; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1, item 3). Apply the tagged findings:
 
 - **safe_auto**: Apply immediately. Never `safe_auto` findings touching statistical functions, welfare/income variables, or weight parameters — escalate to `manual`.
 - **manual**: Present to user for approval before applying.
