@@ -328,4 +328,5 @@ by convention now and will be validated automatically in a future `evals` milest
 | Plan | `.cg-docs/plans/` | `draft`, `active`, `completed`, `abandoned` |
 | Solution | `.cg-docs/solutions/` | `draft`, `applied` |
 | Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |
+| Verify Review | `.cg-docs/reviews/` (filename: `<stem>-verify-review.md`) | Same `findings:` map as Review, plus `parent-review: <path>` (prior review file) and `type: verification` |
 
