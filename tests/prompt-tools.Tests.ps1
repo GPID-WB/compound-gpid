@@ -1644,6 +1644,29 @@ Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
 }
 
 # ---------------------------------------------------------------------------
+# P2.11 — cg-brainstorm Branch Offer step ordering
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Step 4.5 Branch Offer ordering" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 4.5 Branch Offer appears after Step 4 Capture Decision" {
+        $step4Idx   = $content.IndexOf('### Step 4:')
+        $step45Idx  = $content.IndexOf('### Step 4.5:')
+        $step4Idx   | Should BeGreaterThan -1
+        $step45Idx  | Should BeGreaterThan $step4Idx
+    }
+
+    It "Step 5 Handoff appears after Step 4.5 Branch Offer" {
+        $step45Idx  = $content.IndexOf('### Step 4.5:')
+        $step5Idx   = $content.IndexOf('### Step 5:')
+        $step45Idx  | Should BeGreaterThan -1
+        $step5Idx   | Should BeGreaterThan $step45Idx
+    }
+}
+
+# ---------------------------------------------------------------------------
 # P1.40 — cg-plan-critic.agent.md existence and structure
 # ---------------------------------------------------------------------------
 
@@ -2474,7 +2497,7 @@ Describe "cg-review-repos.prompt.md - content structure" {
 
     # P3.5: case-insensitive --full flag matching must be documented
     It "specifies case-insensitive --full flag matching" {
-        ($content -match 'case.insensitive') | Should Be $true
+        ($content -match 'case-insensitive') | Should Be $true
     }
 
     It "references repos.json registry file" {
@@ -2547,6 +2570,32 @@ Describe "cg-review-repos.prompt.md - content structure" {
     It "specifies lastFullReviewNote behavior on partial failure" {
         ($content -match 'lastFullReviewNote') | Should Be $true
     }
+
+    # P3.2: lastFullReviewNote must be removed on successful full review
+    It "specifies lastFullReviewNote is removed on successful full review" {
+        ($content -match 'remove.*lastFullReviewNote|lastFullReviewNote.*removed') | Should Be $true
+    }
+
+    # P2.12: branch-specific tests for new validation paths
+    It "validates releasesUrl ends with /releases" {
+        ($content -match 'ends with.*releases|/releases') | Should Be $true
+    }
+
+    It "validates date formats as YYYY-MM-DD" {
+        ($content -match 'YYYY-MM-DD') | Should Be $true
+    }
+
+    It "validates shortName uniqueness" {
+        ($content -match 'shortName.*unique|unique.*shortName|Duplicate shortName') | Should Be $true
+    }
+
+    It "specifies collision policy for same-day re-runs" {
+        ($content -match 'same-day re-run|-2.*-3|-3.*-2') | Should Be $true
+    }
+
+    It "validates root-level lastFullReview date separately from per-repo dates" {
+        ($content -match 'root-level|registry root') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -2572,9 +2621,14 @@ Describe "competitive-reviews/repos.json - registry" {
         $json.schemaVersion | Should Not BeNullOrEmpty
     }
 
-    # P2.3: value must match the constant expected by the prompt
+    # P2.3: value must match the constant expected by the prompt (case-sensitive)
     It "schemaVersion equals expected constant" {
-        $json.schemaVersion | Should Be 'compound-gpid-competitive-reviews-v1'
+        $json.schemaVersion.Trim() | Should BeExactly 'compound-gpid-competitive-reviews-v1'
+    }
+
+    # P2.5: schemaVersion must not have leading/trailing whitespace (invisible in failure messages)
+    It "schemaVersion has no leading or trailing whitespace" {
+        $json.schemaVersion | Should Be $json.schemaVersion.Trim()
     }
 
     # P2.2: count sentinel — update when adding a new repo to repos.json

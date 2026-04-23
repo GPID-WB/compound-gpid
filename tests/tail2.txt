@@ -1,0 +1,19 @@
+﻿    It "references --migrate mode" {
+        ($content -match '\-\-migrate') | Should Be $true
+    }
+
+    It "describes the companion-plan heuristic in --migrate mode" {
+        ($content -match 'companion[- ]plan|companion plan') | Should Be $true
+    }
+
+    It "reports Previously resolved count in summary template" {
+        ($content -match 'Previously resolved') | Should Be $true
+    }
+
+    It "Step 3 apply order lists P0 first before P1" {
+        ($content -match 'P0 first') | Should Be $true
+    }
+
+    It "warns the user when there are more than 15 open findings (large report guard)" {
+        ($content -match '15 open|more than 15') | Should Be $true
+    }

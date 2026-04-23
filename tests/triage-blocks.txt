@@ -1,0 +1,184 @@
+﻿79: # ---------------------------------------------------------------------------
+80: # cg-fix-triage.prompt.md existence and content
+81: # ---------------------------------------------------------------------------
+82: 
+83: Describe "cg-fix-triage.prompt.md - file existence" {
+84:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+85: 
+86:     It "exists in the repository" {
+87:         Test-Path $promptFile | Should Be $true
+88:     }
+89: }
+90: 
+91: Describe "cg-fix-triage.prompt.md - frontmatter" {
+92:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+93: 
+94:     Context "required frontmatter fields" {
+95:         $frontmatter = Get-Frontmatter -FilePath $promptFile
+96: 
+97:         It "has a description in frontmatter" {
+98:             $frontmatter | Should Match 'description:'
+99:         }
+100: 
+---
+82: 
+83: Describe "cg-fix-triage.prompt.md - file existence" {
+84:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+85: 
+86:     It "exists in the repository" {
+87:         Test-Path $promptFile | Should Be $true
+88:     }
+89: }
+90: 
+91: Describe "cg-fix-triage.prompt.md - frontmatter" {
+92:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+93: 
+94:     Context "required frontmatter fields" {
+95:         $frontmatter = Get-Frontmatter -FilePath $promptFile
+96: 
+97:         It "has a description in frontmatter" {
+98:             $frontmatter | Should Match 'description:'
+99:         }
+100: 
+101:         It "has a model in frontmatter" {
+102:             $frontmatter | Should Match 'model:'
+103:         }
+---
+90: 
+91: Describe "cg-fix-triage.prompt.md - frontmatter" {
+92:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+93: 
+94:     Context "required frontmatter fields" {
+95:         $frontmatter = Get-Frontmatter -FilePath $promptFile
+96: 
+97:         It "has a description in frontmatter" {
+98:             $frontmatter | Should Match 'description:'
+99:         }
+100: 
+101:         It "has a model in frontmatter" {
+102:             $frontmatter | Should Match 'model:'
+103:         }
+104:     }
+105: }
+106: 
+107: Describe "cg-fix-triage.prompt.md - no tool restriction" {
+108:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+109: 
+110:     Context "orchestrator must have unrestricted tools" {
+111:         $frontmatter = Get-Frontmatter -FilePath $promptFile
+---
+106: 
+107: Describe "cg-fix-triage.prompt.md - no tool restriction" {
+108:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+109: 
+110:     Context "orchestrator must have unrestricted tools" {
+111:         $frontmatter = Get-Frontmatter -FilePath $promptFile
+112: 
+113:         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
+114:             ($frontmatter -notmatch 'tools:') | Should Be $true
+115:         }
+116:     }
+117: }
+118: 
+119: Describe "cg-fix-triage.prompt.md - review reports location" {
+120:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+121:     $content = Get-Content $promptFile -Raw -Encoding UTF8
+122: 
+123:     It "references .cg-docs/reviews/ directory to load saved review reports" {
+124:         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+125:     }
+126: }
+127: 
+---
+118: 
+119: Describe "cg-fix-triage.prompt.md - review reports location" {
+120:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+121:     $content = Get-Content $promptFile -Raw -Encoding UTF8
+122: 
+123:     It "references .cg-docs/reviews/ directory to load saved review reports" {
+124:         ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+125:     }
+126: }
+127: 
+128: 
+129: # ---------------------------------------------------------------------------
+130: # cg-strategy.prompt.md existence, frontmatter, and no tool restriction
+131: # ---------------------------------------------------------------------------
+132: 
+133: Describe "cg-strategy.prompt.md - file existence" {
+134:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
+135: 
+136:     It "exists in the repository" {
+137:         Test-Path $promptFile | Should Be $true
+138:     }
+139: }
+---
+262: # ---------------------------------------------------------------------------
+263: # cg-fix-triage.prompt.md - per-finding status tracking
+264: # ---------------------------------------------------------------------------
+265: 
+266: Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
+267:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+268:     $content = Get-Content $promptFile -Raw -Encoding UTF8
+269: 
+270:     It "references the findings: frontmatter key" {
+271:         ($content -match 'findings:') | Should Be $true
+272:     }
+273: 
+274:     It "instructs updating finding status to fixed in frontmatter after applying a fix" {
+275:         ($content -match 'fixed') -and ($content -match 'frontmatter') | Should Be $true
+276:     }
+277: 
+278:     It "instructs updating finding status to skipped in frontmatter when user declines" {
+279:         ($content -match 'skipped') | Should Be $true
+280:     }
+281: 
+282:     It "references --migrate mode" {
+283:         ($content -match '\-\-migrate') | Should Be $true
+---
+265: 
+266: Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
+267:     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+268:     $content = Get-Content $promptFile -Raw -Encoding UTF8
+269: 
+270:     It "references the findings: frontmatter key" {
+271:         ($content -match 'findings:') | Should Be $true
+272:     }
+273: 
+274:     It "instructs updating finding status to fixed in frontmatter after applying a fix" {
+275:         ($content -match 'fixed') -and ($content -match 'frontmatter') | Should Be $true
+276:     }
+277: 
+278:     It "instructs updating finding status to skipped in frontmatter when user declines" {
+279:         ($content -match 'skipped') | Should Be $true
+280:     }
+281: 
+282:     It "references --migrate mode" {
+283:         ($content -match '\-\-migrate') | Should Be $true
+284:     }
+285: 
+286:     It "describes the companion-plan heuristic in --migrate mode" {
+---
+2065: Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" {
+2066:     $cgFixTriageFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+2067:     $cgFixTriageContent = if (Test-Path $cgFixTriageFile) { Get-Content $cgFixTriageFile -Raw -Encoding UTF8 } else { "" }
+2068: 
+2069:     It "cg-fix-triage.prompt.md exists" {
+2070:         (Test-Path $cgFixTriageFile) | Should Be $true
+2071:     }
+2072: 
+2073:     It "cg-fix-triage.prompt.md contains execution_subagent instruction" {
+2074:         ($cgFixTriageContent -match 'execution_subagent') | Should Be $true
+2075:     }
+2076: 
+2077:     It "cg-fix-triage.prompt.md references Run-Tests.ps1 in test block" {
+2078:         ($cgFixTriageContent -match 'Run-Tests\.ps1') | Should Be $true
+2079:     }
+2080: 
+2081:     It "cg-fix-triage.prompt.md references last-run.json artifact" {
+2082:         ($cgFixTriageContent -match 'last-run\.json') | Should Be $true
+2083:     }
+2084: 
+2085:     It "cg-fix-triage.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
+2086:         ($cgFixTriageContent -match 'execution_subagent') -and ($cgFixTriageContent -match 'Invoke-Pester') |
+---

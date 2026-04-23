@@ -66,12 +66,10 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 ### Plugin Development (developer-only)
 
-> These prompts are **not distributed** to user projects via junctions. They live at the `compound-gpid` repo root and are only available when working inside the compound-gpid repository itself.
-
-| Prompt | Model | Purpose |
-|--------|-------|---------|
-| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. |
-| `/cg-review-repos [--full]` | Claude Opus 4.6 | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos (README, docs, skills/commands, latest releases) — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. |
+| Prompt | Model | Purpose | Distribution |
+|--------|-------|---------|-------------|
+| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Not distributed** — lives at the `compound-gpid` repo root only. |
+| `/cg-review-repos [--full]` | Claude Opus 4.6 | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 
 ### Competitive Review System
 
@@ -83,7 +81,7 @@ last-reviewed release tag per repo so delta reviews only scan new releases.
 - `id` — unique identifier, alphanumeric + hyphens only
 - `url` — repo URL (must begin with `https://github.com/`)
 - `releasesUrl` — releases page URL (must begin with `https://github.com/` and end with `/releases`)
-- `shortName` — short display name (1–10 characters)
+- `shortName` — unique display label, 1–10 alphanumeric characters only (no hyphens, spaces, or special characters)
 - `lastReviewedRelease` — set to `null` for new entries
 - `lastReviewDate` — set to `null` for new entries
 
@@ -290,6 +288,7 @@ your-project/
 └── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
+    ├── competitive-reviews/  # /cg-review-repos registry (repos.json) and assessment outputs
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     ├── strategy/             # /cg-strategy session records

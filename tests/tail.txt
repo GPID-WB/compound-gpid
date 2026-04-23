@@ -1,0 +1,10 @@
+﻿        ($cgFixTriageContent -match 'execution_subagent') -and ($cgFixTriageContent -match 'Invoke-Pester') |
+            Should Be $true
+    }
+}
+
+Describe "Pester crash prevention - execution_subagent blocks in cg-diagnose" {
+    $cgDiagnoseFile = Join-Path $repoRoot ".github\prompts\cg-diagnose.prompt.md"
+    $cgDiagnoseContent = if (Test-Path $cgDiagnoseFile) { Get-Content $cgDiagnoseFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-diagnose.prompt.md exists" {

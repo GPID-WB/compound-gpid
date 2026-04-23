@@ -1,0 +1,16 @@
+﻿    }
+
+    It "recommends priority batches (P0 P1, P2, P3) in the large report warning" {
+        ($content -match 'P0 P1.*P2.*P3|priority batch') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-resume.prompt.md - findings frontmatter and migration nudge
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - findings frontmatter and migration nudge" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "references the findings: frontmatter key in Step 2e" {
