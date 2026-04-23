@@ -28,10 +28,14 @@ You are a review orchestrator that coordinates multiple specialized review agent
 2. Identify changed files (use git diff or ask the user).
 3. Parse arguments (case-insensitive):
    - `mode:autofix` — Enable autofix mode (see Step 4). If `mode:autofix`, include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2. **Note**: argument must be `mode:autofix` with no spaces around `:` — `mode: autofix` is not recognized.
+   - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
    - `light`, `standard`, `thorough` — Override config depth.
-   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `mode:autofix`, `light`, `standard`, `thorough`."
+   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`."
+   `mode:autofix` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `mode:autofix` and `mode:verify` — using `mode:verify`." and ignore `mode:autofix`.
 
 ### Step 1.5: Content-Based Depth Overrides
+
+Skip this step if `mode:verify` was passed (Step 1.7 enforces light depth and disables overrides).
 
 Apply these automatic escalation rules after determining base depth:
 
@@ -44,6 +48,28 @@ Apply these automatic escalation rules after determining base depth:
 | ≥ 200 non-test lines changed | Suggest to user: "This is a large change. Consider running `/cg-review thorough` for `@cg-adversarial` coverage." (Do not auto-apply.) |
 
 Skip duplicate agents already in the selected tier. If any override applies: > "Auto-escalation applied: [reason]. Running [new agent(s)] in addition to the base depth. [List any 'always add' agents added by trigger rules.]"
+
+### Step 1.7: Build Verification Context (mode:verify only)
+
+Skip this step unless `mode:verify` was passed.
+
+1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the `findings:` map contains at least one `fixed` entry. If `date:` is absent, treat the file as oldest (sort last). If `findings:` is absent or not a map, treat as no `fixed` entries — skip the file. If none found: warn "No prior review with fixed findings found. Falling back to normal review." and disable verify mode.
+2. Read the prior review file. Extract:
+   - The list of finding IDs and their statuses (`fixed`, `skipped`, `open`).
+   - The full relative path to the review file (e.g., `.cg-docs/reviews/2026-04-21-foo-review.md`) for linking the verify review via `parent-review:` frontmatter (see Step 3.5).
+3. Build the **suppression context** — a text block passed to every agent in Step 2:
+
+   > **Verification mode**: This is a verify pass following fix-triage.
+   > The prior review file is `<filename>` with these resolved findings:
+   > \<list of fixed finding IDs and one-line descriptions\>.
+   >
+   > **Suppression policy**:
+   > - **P0/P1**: Always report. Never suppress correctness, security, or data-integrity issues regardless of whether the code was written as a fix.
+   > - **P2/P3 on fixed-finding scope**: Suppress a P2/P3 only when the finding targets a function or block whose refactoring was explicitly listed as `fixed` in the prior review's `findings:` map (the list above). Do not suppress based on inference that code looks like a fix or was written recently — only the explicit `fixed` list is an authoritative anchor.
+   > - **Cross-file breakage**: Always report, at any severity. If a fix in file A broke a reference, import, or contract in file B, that is a genuine new issue.
+   > - **When in doubt, report**: If unsure whether a finding is within the scope of a `fixed` entry, report it. False positives are cheaper than missed bugs.
+
+4. Force depth to `light` (override any config or argument).
 
 ### Step 2: Dispatch Agents
 
@@ -85,6 +111,12 @@ For each agent provide: changed files, project language (from `compound-gpid.loc
 **Python skill check (all depth levels)**: If `.py` files are changed, each agent must load `cg-skill-python-best-practices`.
 
 **Protected artifacts (all depth levels)**: Discard any finding recommending to delete, replace, rename, or move these files (same protected list as the Global agent constraint above). Do NOT discard content findings (credentials, schema violations, data quality issues).
+
+**Verify mode agent dispatch** (when `mode:verify` is active):
+Dispatch only `@cg-code-quality` and `@cg-testing` (depth is `light` per Step 1.7).
+Include the suppression context from Step 1.7 in each agent's dispatch.
+Do NOT apply content-based depth overrides — the verify pass stays at light depth regardless of file content.
+Language-specific skill loading still applies — see R/Python/Stata skill checks above.
 
 ### Step 2.5: Subagent Output Quality Check
 
@@ -143,6 +175,23 @@ Merge all agent findings into a single prioritized report:
 
 1. Find the most recently modified `.md` plan in `.cg-docs/plans/` by `date:` field (skip `.gitkeep`); if `date:` is absent, fall back to last-write time; if tied, prefer the alphabetically last filename. If none, use `<today's date>-review` as slug and `plan: null`.
 2. Filename: `<plan-stem>-review.md` in `.cg-docs/reviews/`. (e.g., `2026-03-26-roadmap-json.md` → `2026-03-26-roadmap-json-review.md`)
+
+   **If `mode:verify` is active**: strip the trailing `-review` from the prior review filename stem, then append `-verify-review.md`. Example: prior review `2026-04-21-foo-review.md` → stem without `-review`: `2026-04-21-foo` → filename: `2026-04-21-foo-verify-review.md`. If that file already exists, append a counter: `2026-04-21-foo-verify-review-2.md`, `2026-04-21-foo-verify-review-3.md`, etc. (The latest verify pass supersedes prior ones, but the prior file is preserved for traceability.)
+
+   Use the following frontmatter schema for verify reviews:
+   ```yaml
+   ---
+   date: YYYY-MM-DD
+   depth: light
+   parent-review: .cg-docs/reviews/<prior-review-filename>
+   type: verification
+   findings:
+     P1.1: open
+   ---
+   ```
+   Before writing, confirm the `parent-review:` target exists. If not, warn: "parent-review: target not found — link may be stale."
+   The `parent-review:` field links to the prior standard review (not the upstream plan). The `type: verification` field distinguishes verify reviews from standard reviews.
+
 3. Parse all finding IDs matching `P[0-3]\.\d+[a-z]?`. Build a `findings:` YAML map with each set to `open`. Valid statuses: `open`, `fixed`, `skipped`. After parsing: "Parsed N finding IDs. If count differs from total findings above, some IDs may be non-standard."
 4. Prepend frontmatter:
    ```yaml
@@ -158,7 +207,7 @@ Merge all agent findings into a single prioritized report:
 
 ### Step 4: Triage
 
-**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1.2; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1.2). Apply the tagged findings:
+**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1, item 3; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1, item 3). Apply the tagged findings:
 
 - **safe_auto**: Apply immediately. Never `safe_auto` findings touching statistical functions, welfare/income variables, or weight parameters — escalate to `manual`.
 - **manual**: Present to user for approval before applying.
@@ -178,10 +227,12 @@ Report: > "Autofix complete: applied \<N\> safe fixes (files: <list of file:line
 > - **Remaining**: X findings
 >
 > **What would you like to do next?**
-> 1. **`/cg-review light`** — Verify that the applied fixes pass *(ensure fixes are committed or staged first)*
+> 1. **`/cg-review mode:verify`** — Verify fixes converged (suppresses fix-consequence P2/P3 findings) *(ensure fixes are committed or staged first)*
 > 2. **`/cg-fix-triage`** — Apply skipped findings in a future session
 > 3. **`/cg-compound`** — Capture learnings from this review
 > 4. **`/cg-fixbug`** — Document a bug that was found and fixed
 > 5. **Ready to merge** — All issues resolved, no further action needed
+>
+> *If `mode:verify` was active and no findings were reported: move option 5 to position 1 — the cycle has converged.*
 
 Wait for the user's response before proceeding.

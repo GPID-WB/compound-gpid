@@ -235,6 +235,7 @@ The prompt scans its own output for:
 - Any time you want an independent quality scan of specific files
 - Before publishing analytical results — P0 findings (statistical errors, data corruption) must be clear
 - After applying a significant fix to verify no regressions were introduced
+- After applying fix-triage results — use `/cg-review mode:verify` to check convergence (suppresses expected fix-consequence P2/P3)
 
 **What happens**: The prompt determines review depth, identifies changed files, applies any **automatic depth overrides** based on content (see table below), dispatches the appropriate agents, and consolidates findings as P0/P1/P2/P3. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing. The full report is saved to `.cg-docs/reviews/`.
 
@@ -268,6 +269,7 @@ When any override fires, the prompt tells you: `"Auto-escalation applied: [reaso
 | `/cg-review thorough` | Override to thorough (10 agents, adversarial + learnings) |
 | `/cg-review mode:autofix` | Apply safe mechanical fixes automatically after collecting findings |
 | `/cg-review light mode:autofix` | Light review + autofix combined |
+| `/cg-review mode:verify` | Verify that prior fixes converged — suppresses fix-consequence P2/P3 findings, forces `light` depth |
 
 Arguments can be combined in any order: `/cg-review thorough mode:autofix`.
 
@@ -275,7 +277,7 @@ Arguments can be combined in any order: `/cg-review thorough mode:autofix`.
 - *After implementing a feature*: Run `/cg-review` (or `/cg-review standard`) — the configured depth from `compound-gpid.local.md` applies.
 - *Quick check after a typo fix*: `/cg-review light` — only code quality and tests, takes less time.
 - *Before merging a statistical module*: The auto-escalation adds `@cg-data-quality` + `@cg-reproducibility` automatically if statistical functions are detected — no need to manually choose thorough.
-- *After applying fix-triage results*: Run `/cg-review light` to confirm all P0/P1 issues are resolved.
+- *After applying fix-triage results*: Run `/cg-review mode:verify` to confirm fixes converged — suppresses fix-consequence P2/P3 findings so the cycle terminates.
 - *Major architectural refactor*: `/cg-review thorough` dispatches `@cg-adversarial` to actively try to break the code.
 - *CI-like use*: Run `/cg-review standard` before every PR merge as a quality gate.
 
@@ -287,7 +289,7 @@ Review reports are saved with per-finding status tracking in YAML frontmatter. E
 - On work-in-progress branches where the design is still changing — review findings become stale immediately if the design shifts
 - As a first response to a known bug — use `/cg-fixbug` which is designed for reproduce-first diagnosis
 
-**Output**: `.cg-docs/reviews/<plan-stem>-review.md`
+**Output**: `.cg-docs/reviews/<plan-stem>-review.md`; for `mode:verify` passes: `<plan-stem>-verify-review.md`.
 
 ---
 
@@ -322,7 +324,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - *Prioritized fix*: Run `/cg-fix-triage P0 P1` to address only blocking and critical issues first; fix P2/P3 later or skip them.
 - *Selective fix*: Copy specific finding IDs from the review report: `/cg-fix-triage P1.2 P2.3`.
 - *Legacy review file*: Run `/cg-fix-triage --migrate` once on any review file written before v0.4.3 to add the `findings:` frontmatter block.
-- *Verify after fixing*: After fix-triage, run `/cg-review light` to confirm the P0/P1 issues are resolved.
+- *Verify after fixing*: After fix-triage, run `/cg-review mode:verify` to confirm fixes converged — suppresses fix-consequence P2/P3 findings so the cycle terminates.
 
 **When NOT to use**:
 - Before running `/cg-review` — there is no report to act on; the prompt will tell you to run `/cg-review` first
