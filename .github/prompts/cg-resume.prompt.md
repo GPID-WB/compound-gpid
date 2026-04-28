@@ -51,9 +51,9 @@ If it does not exist, skip silently.
 
 ### Step 1: Schema Version Check
 
-> **Self-check**: Before comparing versions, detect whether this workspace IS the compound-gpid source repository. Check if a `SCHEMA_VERSION` file exists **at the workspace root** (the project folder itself, not the global install path).
+> **Self-check**: Before comparing versions, detect whether this workspace IS the compound-gpid source repository. Check if a `SCHEMA_VERSION` file exists **at the workspace root** (the project folder itself, not the global install path) **and** either `install.ps1` or `cg-release.prompt.md` also exists at the workspace root.
 >
-> If `SCHEMA_VERSION` exists at the workspace root: this is the compound-gpid repository. The schema comparison is not meaningful here — the project defines the schema, not consumes it. **Skip this entire step** and proceed directly to Step 2.
+> If all conditions are met: this is the compound-gpid repository. The schema comparison is not meaningful here — the project defines the schema, not consumes it. **Skip this entire step** and proceed directly to Step 2.
 
 Locate the global Compound GPID `SCHEMA_VERSION` file at:
 
