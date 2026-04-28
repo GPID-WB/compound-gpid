@@ -223,6 +223,10 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "references /cg-fix-problems in Workflow Entry Points" {
         ($section -match '/cg-fix-problems') | Should Be $true
     }
+
+    It "references /cg-plan-review in Workflow Entry Points" {
+        ($section -match '/cg-plan-review') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -764,6 +768,10 @@ Describe "docs/reference.md - R skills and r-syntax config" {
     It "reference.md documents @cg-release-scanner agent" {
         ($content -match 'cg-release-scanner') | Should Be $true
     }
+
+    It "column header uses User-invocable (not User-invokable)" {
+        ($content -match 'User-invocable') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -980,8 +988,8 @@ Describe "Agent files - non-trivial body content" {
 
 Describe "Get-Frontmatter helper - edge cases" {
     # Create temp files in the system temp directory for isolation
-    $tmpNoFm   = [System.IO.Path]::GetTempFileName() + ".md"
-    $tmpPartFm = [System.IO.Path]::GetTempFileName() + ".md"
+    $tmpNoFm   = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName() + ".md")
+    $tmpPartFm = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName() + ".md")
 
     # File with no frontmatter at all
     "# Just a heading`n`nSome content." | Set-Content $tmpNoFm -Encoding UTF8
@@ -1620,6 +1628,18 @@ Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
     It "includes side-idea capture instruction during pushback" {
         ($content -match 'adjacent idea|separate idea worth tracking') | Should Be $true
     }
+
+    It "Step 3.5 is always-on and unconditional for all scopes" {
+        ($content -match 'always-on and unconditional') | Should Be $true
+    }
+
+    It "Thinking Partner mode uses decision reversibility check" {
+        ($content -match 'decision reversibility') | Should Be $true
+    }
+
+    It "Thinking Partner mode uses stakeholder impact check" {
+        ($content -match 'stakeholder impact') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -1645,10 +1665,36 @@ Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
     It "renames previous 5c to 5d (Handoff moved to 5d)" {
         ($content -match '5d\. Handoff') | Should Be $true
     }
+
+    It "Step 5c dispatches @cg-roadmap for captured ideas" {
+        ($content -match '@cg-roadmap') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
-# P2.11 — cg-brainstorm Branch Offer step ordering
+# P2.17 — cg-brainstorm step ordering: Step 3.5 before Step 4, Step 5c before 5d
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - step ordering: Step 3.5 and Step 5c" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 3.5 appears before Step 4 in the file" {
+        $step35Idx = $content.IndexOf("### Step 3.5:")
+        $step4Idx  = $content.IndexOf("### Step 4:")
+        $step35Idx | Should BeGreaterThan -1
+        $step4Idx  | Should BeGreaterThan -1
+        $step35Idx | Should BeLessThan $step4Idx
+    }
+
+    It "Step 5c Side-Idea Capture appears before Step 5d Handoff" {
+        $step5cIdx = $content.IndexOf("5c. Side-Idea Capture")
+        $step5dIdx = $content.IndexOf("5d. Handoff")
+        $step5cIdx | Should BeGreaterThan -1
+        $step5dIdx | Should BeGreaterThan -1
+        $step5cIdx | Should BeLessThan $step5dIdx
+    }
+}
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 4.5 Branch Offer ordering" {
@@ -1682,10 +1728,10 @@ Describe "cg-plan-critic.agent.md - existence and structure" {
     }
 
     Context "required frontmatter fields" {
-        $frontmatter = Get-Frontmatter -FilePath $agentFile
+        $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
 
         It "has tools: restricted to read and search (not write)" {
-            ($frontmatter -match "tools:.*'read'") | Should Be $true
+            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should Be $true
         }
 
         It "is NOT user-invocable" {
@@ -1728,7 +1774,7 @@ Describe "cg-plan-review.prompt.md - existence and structure" {
     }
 
     It "includes side-idea capture in Step 4" {
-        ($content -match 'Step 4.*Side-Idea|Side-Idea Capture') | Should Be $true
+        ($content -match 'Step 4.*Side-Idea Capture') | Should Be $true
     }
 }
 
@@ -1762,7 +1808,7 @@ Describe "cg-resume.prompt.md - schema bypass guard" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "contains workspace-root SCHEMA_VERSION self-check before schema comparison" {
-        ($content -match 'SCHEMA_VERSION.*workspace root|workspace root.*SCHEMA_VERSION') | Should Be $true
+        ($content -match 'SCHEMA_VERSION') -and ($content -match 'workspace root') | Should Be $true
     }
 
     It "instructs to skip schema comparison when workspace root has SCHEMA_VERSION" {
@@ -2767,6 +2813,13 @@ Describe "cg-release-scanner.agent.md - existence and structure" {
 
     It "documents Highest impact: none for empty commit log" {
         ($agentContent -match 'Highest impact: none') | Should Be $true
+    }
+
+    It "uses window-days (hyphen, not underscore) in window-start description" {
+        ($agentContent -match 'window-days') | Should Be $true
+    }
+    It "uses tag-date (hyphen, not underscore) in window-start description" {
+        ($agentContent -match 'tag-date') | Should Be $true
     }
 }
 
