@@ -4,8 +4,8 @@ depth: light
 parent-review: .cg-docs/reviews/2026-04-28-cg-release-scan-optimization-review.md
 type: verification
 findings:
-  P3.1: open
-  P3.2: open
+  P3.1: fixed
+  P3.2: fixed
 ---
 
 ## Review Report
