@@ -1,7 +1,7 @@
 ---
 date: 2026-04-17
 title: "Structural prevention of agent-caused Pester crashes"
-status: active
+status: superseded
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-04-17-structural-pester-crash-prevention.md"
 language: "both"
