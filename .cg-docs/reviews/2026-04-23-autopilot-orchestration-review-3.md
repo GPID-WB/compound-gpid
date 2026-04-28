@@ -14,15 +14,15 @@ findings:
   P2.7: fixed
   P2.8: fixed
   P3.1: fixed
-  P3.2: skipped
-  P3.3: skipped
+  P3.2: fixed
+  P3.3: fixed
   P3.4: fixed
   P3.5: fixed
   P3.6: fixed
   P3.7: fixed
   P3.8: fixed
   P3.9: fixed
-  P3.10: skipped
+  P3.10: fixed
 ---
 
 ## Review Report

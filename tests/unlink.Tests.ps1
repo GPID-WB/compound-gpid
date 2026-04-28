@@ -44,6 +44,10 @@ Describe "unlink.ps1 - legacy whole-directory junction" {
 }
 
 Describe "unlink.ps1 - per-subdirectory junction removal" {
+    # Single-representative design: only prompts/ is tested as a concrete case.
+    # All managed subdirs (skills/, agents/, instructions/) follow the same
+    # Remove-Item junction logic -- one test covers the shared code path.
+    # hooks/ is excluded from $CG_MANAGED_DIRS until Phase 0 completes.
     Context "removing junctions for each managed subdirectory" {
         It "removes a prompts/ junction pointing to compound-gpid" {
             $target   = Join-Path $TestDrive "compound-gpid-prompts"

@@ -12,6 +12,9 @@ See docs/installation.md for setup instructions and path guidance.
   # Then run: & "<your-path>\install.ps1"
 "@
 
+# Subdirectories managed by Compound GPID (single source of truth -- used by link.ps1 and unlink.ps1)
+$CG_MANAGED_DIRS = @("prompts", "skills", "agents", "instructions")
+
 function New-CopilotInstructions {
     <#
     .SYNOPSIS

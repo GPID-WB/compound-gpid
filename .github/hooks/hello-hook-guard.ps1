@@ -17,10 +17,10 @@
 #       Re-running the PoC overwrites them. Input logs are timestamped and accumulate per run.
 #
 # Validation criteria (all must pass to proceed to Phase 1):
-#   A1: poc-hook-input-<timestamp>.json exists  → hook fires at all
-#   A2: input contains stop_hook_active field → stdin format is as expected
-#   A3: block response causes agent to continue  → hookSpecificOutput.decision=block works
-#   A4: second stop (stop_hook_active:true) succeeds → anti-recursion guard works
+#   A1: poc-hook-input-<timestamp>.json exists  -> hook fires at all
+#   A2: input contains stop_hook_active field -> stdin format is as expected
+#   A3: block response causes agent to continue  -> hookSpecificOutput.decision=block works
+#   A4: second stop (stop_hook_active:true) succeeds -> anti-recursion guard works
 #
 # NOTE: Script blocks indefinitely if VS Code does not close stdin -- acceptable for PoC.
 # NOTE: Set-StrictMode and $ErrorActionPreference = "Stop" are intentionally omitted --
@@ -49,7 +49,7 @@ if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') {
 }
 
 # Read the full stdin payload (CLM-safe: $input works in PS5.1 Constrained Language Mode)
-# Empty payload treated as first-stop (block) — intentional fail-open for empty/missing stdin
+# Empty payload treated as first-stop (block) -- intentional fail-open for empty/missing stdin
 $rawInput = ($input -join "`n")
 
 # Log raw input regardless of parse outcome (A1, A2 validation)
@@ -90,7 +90,7 @@ if ($stopHookActive) {
 
 # Block the stop on the first attempt (A3)
 # Emits hookSpecificOutput wrapper and decision field, exercising A3.
-# Assumption 3: hookSpecificOutput.decision=block schema is unverified — investigate if A3 fails.
+# Assumption 3: hookSpecificOutput.decision=block schema is unverified -- investigate if A3 fails.
 $blockResponse = [ordered]@{
     hookSpecificOutput = [ordered]@{
         hookEventName = "Stop"

@@ -35,7 +35,7 @@ $TargetGithubDir  = Join-Path $ProjectRoot ".github"
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
 # Subdirectories managed by Compound GPID (each gets its own junction)
-$ManagedDirs = @("prompts", "skills", "agents", "instructions")
+$ManagedDirs = $CG_MANAGED_DIRS
 
 # The management marker that marks copilot-instructions.md as CG-owned
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
