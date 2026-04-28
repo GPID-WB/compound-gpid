@@ -1,3 +1,4 @@
+<!-- Agents dispatched: cg-plan-critic (plan review), cg-roadmap (side-idea capture). Note: 'agents:' frontmatter is non-functional in .prompt.md files. -->
 ---
 description: "Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan."
 model: Claude Opus 4.6 (copilot)
@@ -29,9 +30,9 @@ You are a plan review orchestrator. Your job is to run a structured critique of 
 ### Step 1: Locate the Plan to Review
 
 1. If the user specifies a plan file path or title: use it.
-2. If not: scan `.cg-docs/plans/` for the most recent file with `status: active` in its frontmatter. Present it:
+2. If not: scan `.cg-docs/plans/` for the most recent file with `status: active` or `status: in-progress` in its frontmatter (sort by YYYY-MM-DD filename prefix; for ties use the frontmatter `date:` field; for remaining ties sort alphabetically). Present it:
    > "Found the most recent active plan: `<filename>` — **<title>**. Reviewing this one. Or specify a different plan."
-3. If no active plan is found: scan for the 3 most recently modified plan files and ask:
+3. If no active or in-progress plan is found: scan for the 3 most recently modified plan files and ask:
    > "No active plans found. Which of these would you like to review?
    > 1. `<filename>` — <title>
    > 2. `<filename>` — <title>
@@ -40,16 +41,24 @@ You are a plan review orchestrator. Your job is to run a structured critique of 
 
 ### Step 2: Dispatch `@cg-plan-critic`
 
-Dispatch `@cg-plan-critic` with the full plan content and charter context. The agent will review for:
+Dispatch `@cg-plan-critic` with: (1) the full plan content, (2) the Objective, Constraints, and Current Focus sections copied verbatim from `compound-gpid.md`. The agent will review for:
 - Flawed or unverified assumptions
 - Over-engineering and unnecessary steps
 - Missing edge cases and failure modes
 - Scope creep and requirement drift
 - Inaccurate dependency claims
 
+If `@cg-plan-critic` returns no output and no explicit "No significant issues found" statement, display:
+> "The plan critic did not return usable output. Try invoking `@cg-plan-critic` directly with the plan file."
+And stop at this step.
+
 ### Step 3: Present Findings Interactively
 
-Present the agent's findings to the user. For P1 and P2 findings, engage interactively one at a time:
+Present the agent's findings to the user.
+
+> **Circuit breaker**: If the total number of P1 + P2 findings exceeds 5, present all findings as a summary list first and ask: "There are N findings (P1: X, P2: Y). Do you want to engage with them one at a time (interactive) or accept/defer all at once (batch)?"
+
+For P1 and P2 findings, engage interactively one at a time:
 
 > "**[P1.N]** — <title>. <Why this matters.> Do you want to address this before proceeding? (yes / no / defer)"
 
@@ -57,6 +66,10 @@ Collect decisions:
 - **yes**: Record as "needs plan revision"
 - **no**: Record as "accepted risk"
 - **defer**: Record for a follow-up session
+
+After the P1/P2 interactive pass, present all P3 findings at once without requiring individual responses:
+> "**P3 findings** (minor, no individual response needed):
+> - [P3.N] <title>: <brief description>"
 
 After all findings are reviewed, summarize:
 ```
@@ -86,12 +99,12 @@ Present the outcome and options:
 >
 > **What would you like to do next?**
 >
-> *If findings need revision:*
+> *If findings need revision* (any P1 or P2 findings remain):
 > 1. **`/cg-plan`** — Revise the plan to address the findings
 > 2. **`/cg-brainstorm`** — Rethink the approach if findings are significant
 >
-> *If plan is solid:*
+> *If plan is solid* (zero P1/P2 findings):
 > 1. **`/cg-work`** — Start implementing this plan
-> 2. **`/cg-plan`** — Make minor adjustments before starting
+> 2. **`/cg-plan`** — Make minor optional adjustments before starting
 
 Wait for the user's response before proceeding.
