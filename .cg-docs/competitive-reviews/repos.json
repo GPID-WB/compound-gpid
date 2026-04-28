@@ -1,30 +1,30 @@
 {
   "schemaVersion": "compound-gpid-competitive-reviews-v1",
-  "lastFullReview": null,
+  "lastFullReview": "2026-04-23",
   "repos": [
     {
       "id": "compound-engineering",
       "url": "https://github.com/EveryInc/compound-engineering-plugin",
       "releasesUrl": "https://github.com/EveryInc/compound-engineering-plugin/releases",
       "shortName": "CE",
-      "lastReviewedRelease": null,
-      "lastReviewDate": null
+      "lastReviewedRelease": "compound-engineering-v3.0.1",
+      "lastReviewDate": "2026-04-23"
     },
     {
       "id": "superpowers",
       "url": "https://github.com/obra/superpowers",
       "releasesUrl": "https://github.com/obra/superpowers/releases",
       "shortName": "SP",
-      "lastReviewedRelease": null,
-      "lastReviewDate": null
+      "lastReviewedRelease": "v5.0.7",
+      "lastReviewDate": "2026-04-23"
     },
     {
       "id": "gsd-2",
       "url": "https://github.com/gsd-build/gsd-2",
       "releasesUrl": "https://github.com/gsd-build/gsd-2/releases",
       "shortName": "GSD",
-      "lastReviewedRelease": null,
-      "lastReviewDate": null
+      "lastReviewedRelease": "v2.77.0",
+      "lastReviewDate": "2026-04-23"
     }
   ]
 }
