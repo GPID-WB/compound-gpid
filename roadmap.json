@@ -123,7 +123,7 @@
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
       "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "r-dialect-skills-architecture",
@@ -361,7 +361,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "project-scanner-agent",
