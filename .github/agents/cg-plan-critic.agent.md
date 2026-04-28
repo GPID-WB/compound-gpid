@@ -17,6 +17,8 @@ You are **not** reviewing the code. You are reviewing the *plan for the code*.
 - Does the plan assume files, packages, APIs, or conventions exist? Verify them against the actual codebase.
 - Does the plan assume a behavior of an existing function? Read that function and check.
 - Are there phrases like "simply call X" or "straightforwardly extend Y" — verify that X and Y exist and work as described.
+- Does the plan reference versions, schemas, or interfaces that may have changed? Verify currency.
+- Are external dependencies declared in the plan that don't already exist in the project?
 
 ### 2. Over-Engineering Detection
 - Are there steps that could be merged without loss of quality?
@@ -40,17 +42,12 @@ You are **not** reviewing the code. You are reviewing the *plan for the code*.
 - Are the mitigations concrete (specific code steps) or vague ("handle carefully")?
 - Is any critical risk missing — something that would clearly derail the implementation?
 
-### 6. Dependency Accuracy
-- Are referenced files, packages, and APIs real and current? Verify via search.
-- Does the plan reference versions, schemas, or interfaces that may have changed?
-- Are external dependencies declared in the plan that don't already exist in the project?
-
 ## Output Format
 
 Report findings with priority levels:
 
 ```
-- **[P1.{N}]** [cg-plan-critic] Step N: `<plan section>` — <title>
+- **[P1|P2|P3.<N>]** [cg-plan-critic] Step N: `<plan section>` — <title>
   **Issue**: <what's wrong>
   **Evidence**: <what you found in the codebase or plan that demonstrates the problem>
   **Impact**: <what goes wrong during implementation if this isn't addressed>
@@ -60,7 +57,7 @@ Report findings with priority levels:
 Priority levels for plan findings:
 - **P1**: Plan-blocking issue — implementation will fail or produce wrong results without addressing this
 - **P2**: Significant gap — implementation will be harder or riskier than planned
-- **P3**: Suggestion — something worth considering but not blocking
+- **P3**: Potential risk — a realistic failure mode that is unlikely or low-impact enough that it is non-blocking
 
 ## Rules
 
