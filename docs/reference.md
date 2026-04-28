@@ -136,7 +136,7 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
 | `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (thorough only) | Sonnet 4.6 |
 
-> All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+> All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown. `@cg-hello-hook` (Phase 0 PoC) is temporarily user-invokable but will be deleted after Phase 0 validation completes.
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 
@@ -322,6 +322,94 @@ the charter is appended with a date heading and source section label:
 ````
 
 > **Something not working?** See [Troubleshooting](troubleshooting.md).
+
+---
+
+## Agent Hooks
+
+> **Status: Phase 0 (PoC validation)** — The hooks infrastructure is under active development. The API shape is unverified as of v0.7.x. Do not build production tooling on hooks until Phase 0 completes.
+
+### What Hooks Are
+
+VS Code Copilot supports **agent-scoped lifecycle hooks**: PowerShell (or shell) commands declared in an agent's frontmatter that fire automatically at defined points in the agent's lifecycle. Compound GPID uses the `Stop` hook event — a script that runs *before* the agent finishes its turn, giving it the ability to inspect state, block the stop, or allow it.
+
+Hooks are declared in `.agent.md` frontmatter:
+
+```yaml
+hooks:
+  Stop:
+    - type: command
+      command: "powershell -ExecutionPolicy Bypass -File .github/hooks/my-guard.ps1"
+```
+
+The hook script receives the hook payload on `stdin` as JSON and must write its response to `stdout`. An empty object `{}` signals *allow*; a `hookSpecificOutput.decision=block` object signals *block*.
+
+Hooks are **agent-scoped**: a hook declared in `cg-hello-hook.agent.md` fires only when `@cg-hello-hook` is active, not during `/cg-review` or any other prompt.
+
+### The `hooks/` Directory
+
+`.github/hooks/` contains PowerShell scripts invoked by the VS Code Copilot agent hooks API. Currently:
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `hello-hook-guard.ps1` | Phase 0 PoC: validates that Stop hooks fire, that `stop_hook_active` appears in stdin, and that a block response prevents the stop | **Temporary — delete after Phase 0 validation** |
+
+> **Consumer projects**: `hooks/` is **not** distributed via `cg-link` junctions yet. It lives only in the `compound-gpid` repo. Phase 1 will decide whether and how to distribute hook scripts to consumers.
+
+### Phase 0 Validation Agent (`@cg-hello-hook`)
+
+`@cg-hello-hook` is a **temporary throwaway agent** used to validate four assumptions about the hooks API:
+
+| Criterion | What it checks |
+|-----------|----------------|
+| A1 | Hook fires at all — `poc-hook-input-<timestamp>.json` exists after invocation |
+| A2 | `stop_hook_active` field appears in stdin JSON |
+| A3 | A `hookSpecificOutput.decision=block` response blocks the first stop |
+| A4 | When `stop_hook_active: true`, the anti-recursion guard allows the second stop |
+
+**To run the PoC validation**:
+1. Invoke `@cg-hello-hook` in Copilot Chat
+2. The agent will attempt to stop twice; the first stop should be blocked, the second allowed
+3. After it completes, inspect `.cg-docs/autopilot-runs/`:
+   - `poc-hook-input-<timestamp>.json` — raw stdin payload (A1, A2)
+   - `poc-hook-output-block.json` — first-stop block response (A3)
+   - `poc-hook-output-allow.json` — second-stop allow response (A4)
+
+**When to use `@cg-hello-hook`**:
+- When you want to verify that VS Code agent-scoped Stop hooks work in your environment
+- When diagnosing why autopilot orchestration (Phase 1+) is not stopping/resuming as expected
+- Only inside the `compound-gpid` repository (not in consumer projects)
+
+**When NOT to use `@cg-hello-hook`**:
+- In consumer projects — the agent is not distributed via junctions and `hooks/` is not linked
+- As a general-purpose agent — it has no knowledge work capability, only hook API validation
+- After Phase 0 validation is complete — it will be deleted from the repo at that point
+- As a test of whether autopilot is working end-to-end — that requires Phase 1 infrastructure
+
+### Hook Execution Environment
+
+| Concern | Detail |
+|---------|--------|
+| **Script location** | `.github/hooks/<script>.ps1` — resolved relative to the agent's workspace root |
+| **Invocation** | `powershell -ExecutionPolicy Bypass -File .github/hooks/<script>.ps1` |
+| **`-ExecutionPolicy Bypass`** | Overrides the machine policy. Acceptable for Phase 0 PoC. Phase 1 will require code-signed scripts or a `RemoteSigned` consumer policy instead. |
+| **Stdin/stdout** | Hook payload delivered on stdin as JSON; response written to stdout as JSON |
+| **Fail-open design** | Hook scripts must not crash VS Code. Logging errors are caught and silenced; the hook always reaches `Write-Output` even if file I/O fails. |
+| **Constrained Language Mode** | Scripts use `Set-Content` (CLM-safe) instead of `[IO.File]::WriteAllText` (CLM-blocked on managed enterprise machines). |
+| **Log files** | Written to `.cg-docs/autopilot-runs/`. Input logs are timestamped and accumulate; output logs are overwritten each run. |
+| **`$PSScriptRoot` behaviour** | In the compound-gpid repo, resolves to `.github/hooks/`. In a linked consumer project it would resolve to the compound-gpid install dir — Phase 1 must derive workspace root from the hook payload or `$PWD`. |
+
+### The Road Ahead
+
+Hooks underpin `/cg-autopilot` — the planned fire-and-forget command that executes the full work → review → fix-triage → verify → compound → commit → PR loop autonomously.
+
+| Phase | Gate | What happens |
+|-------|------|-------------|
+| **Phase 0** *(current)* | All four A1–A4 criteria pass | PoC validates that Stop hooks work in VS Code Copilot (not just Copilot CLI). Temporary files deleted after validation. |
+| **Phase 1** | Phase 0 passes | Build `autopilot-guard.ps1` (production Stop hook), `autopilot-precompact.ps1` (PreCompact hook for state saving). Add `hooks/` to `$CG_MANAGED_DIRS` so `cg-link` distributes it to consumer projects. Code-sign scripts or document consumer execution-policy requirements. |
+| **Phase 2+** | Phase 1 complete | Ship `/cg-autopilot` prompt and `@cg-autopilot` agent. State file schema (`autopilot-v1`) drives resumability and audit trail. |
+
+> If Phase 0 PoC fails (hooks unsupported in this VS Code/Copilot version), the fallback is **Approach 2**: pure prompt orchestration without hooks. The state file schema and subagent dispatch logic survive either approach; only the Stop-hook safety net is lost.
 
 ---
 

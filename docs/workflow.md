@@ -464,6 +464,40 @@ The following commands can be invoked at any stage — not just sequentially.
 
 ---
 
+### Hooks (`@cg-hello-hook` — Phase 0 PoC)
+
+> **Status**: Experimental — Phase 0 validation only. Not for general use.
+
+**What hooks are**: VS Code Copilot supports lifecycle hooks declared in agent frontmatter — PowerShell scripts that fire automatically at defined points (e.g., `Stop`). A `Stop` hook can inspect state and decide whether to block or allow the agent to finish its turn. Compound GPID will use these hooks to power `/cg-autopilot` (fire-and-forget orchestration). The hooks API shape is currently unverified.
+
+**When to use `@cg-hello-hook`**:
+- When you want to verify that agent-scoped Stop hooks work in your specific VS Code + Copilot version
+- When diagnosing why a hook-dependent feature is not stopping/resuming correctly
+- Only inside the `compound-gpid` repository — the agent is not distributed to linked consumer projects
+
+**What happens**: The agent attempts to stop twice. The first stop should be blocked by `hello-hook-guard.ps1` (A3); the second stop should be allowed after the anti-recursion guard detects `stop_hook_active: true` (A4). Log files in `.cg-docs/autopilot-runs/` provide evidence for all four validation criteria (A1–A4).
+
+**When NOT to use**:
+- In **consumer projects** — `hooks/` is not distributed via `cg-link` junctions; the agent and hook script do not exist in linked projects
+- As a **general-purpose agent** — it only validates the hooks API; it has no knowledge work capability
+- Once **Phase 0 validation is complete** — both `cg-hello-hook.agent.md` and `hello-hook-guard.ps1` will be deleted from the repo after A1–A4 pass
+- As a **substitute for `/cg-autopilot`** — that feature does not exist yet; it requires Phase 1 hook infrastructure first
+- When **hooks are not relevant to your work** — if you are doing analysis, coding, or review work, hooks are invisible and you should ignore this section entirely
+
+**Phase roadmap**:
+
+| Phase | What happens |
+|-------|-------------|
+| **Phase 0** *(current)* | PoC validates A1–A4. Temporary files deleted after validation. |
+| **Phase 1** | Production hook scripts built; `hooks/` added to `$CG_MANAGED_DIRS` and distributed via `cg-link`. Scripts code-signed or consumer execution policy documented. |
+| **Phase 2+** | `/cg-autopilot` ships. Stop hook prevents premature termination; PreCompact hook saves state before context compaction. |
+
+> **Full technical details**: See the [Agent Hooks](reference.md#agent-hooks) section in Reference.
+
+**Output**: `.cg-docs/autopilot-runs/poc-hook-input-<timestamp>.json`, `poc-hook-output-block.json`, `poc-hook-output-allow.json`
+
+---
+
 ### Strategy (`/cg-strategy`)
 
 **When to use**:
@@ -490,18 +524,18 @@ The following commands can be invoked at any stage — not just sequentially.
 
 ---
 
-## Prompts vs. Agents vs. Skills
+## Prompts vs. Agents vs. Skills vs. Hooks
 
-| Aspect | Prompts | Agents | Skills |
-|--------|---------|--------|---------|
-| **What they are** | Workflow commands | Specialized reviewers / roadmap manager | Reference knowledge |
-| **How you use them** | Type `/cg-setup`, `/cg-strategy`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents |
-| **Interactive?** | Yes — they ask questions and wait for your answers | No — automated | No (passive, loaded on demand) |
-| **Prefix** | `cg-` | `cg-` | `cg-skill-` |
-| **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
-| **Produce output?** | Yes (docs, code, reviews) | Yes (review findings, `roadmap.json`) | No (consumed by others) |
+| Aspect | Prompts | Agents | Skills | Hooks |
+|--------|---------|--------|--------|-------|
+| **What they are** | Workflow commands | Specialized reviewers / roadmap manager | Reference knowledge | Lifecycle scripts that fire at agent events |
+| **How you use them** | Type `/cg-setup`, `/cg-strategy`, `/cg-brainstorm`, etc. | `@cg-roadmap` (direct); review agents dispatched by `/cg-review` | Referenced by prompts/agents | Declared in agent frontmatter; fire automatically |
+| **Interactive?** | Yes — they ask questions and wait for your answers | No — automated | No (passive, loaded on demand) | No — event-driven |
+| **Prefix** | `cg-` | `cg-` | `cg-skill-` | no prefix (plain `.ps1`) |
+| **Location** | `.github/prompts/` | `.github/agents/` | `.github/skills/` | `.github/hooks/` |
+| **Produce output?** | Yes (docs, code, reviews) | Yes (review findings, `roadmap.json`) | No (consumed by others) | Yes (block/allow signal to VS Code; log files) |
 
-> **`@cg-roadmap` is the only user-invokable agent.** All review agents (`cg-code-quality`, `cg-testing`, etc.) are dispatched exclusively by `/cg-review` and do not appear in the Copilot Chat agent dropdown.
+> **`@cg-roadmap` is the only permanently user-invokable agent.** All review agents (`cg-code-quality`, `cg-testing`, etc.) are dispatched exclusively by `/cg-review` and do not appear in the Copilot Chat agent dropdown. `@cg-hello-hook` is temporarily user-invokable for Phase 0 PoC validation only — it will be deleted after validation completes.
 
 ---
 
