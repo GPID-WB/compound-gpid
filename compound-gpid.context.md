@@ -14,3 +14,5 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 ## Testing Conventions
 
 - **IndexOf guard pattern**: Block-scoped prompt tests that extract text via `$content.Substring($start, $end - $start)` must first assert both index values with `$start | Should BeGreaterThan -1` and `$end | Should BeGreaterThan $start`. Without guards, a missing section header throws `ArgumentOutOfRangeException`, obscuring which assertion failed.
+
+- **Guard test scope**: Guard tests validating extraction success must check the extracted variable (e.g., `$managedDirs`), never a composite array that mixes extracted entries with static hardcoded elements. The static element keeps `Count ≥ 1` even when extraction returns empty, defeating the guard. See `.cg-docs/solutions/testing-patterns/2026-04-28-guard-test-vacuous-pass-when-mixed-array-has-static-member.md`.

@@ -214,6 +214,12 @@
           "plan": null
         },
         {
+          "id": "phase0-poc-cleanup",
+          "title": "Delete Phase 0 PoC hook files after A1-A4 validation (hello-hook-guard.ps1, cg-hello-hook.agent.md)",
+          "status": "idea",
+          "plan": ".cg-docs/plans/2026-04-23-autopilot-orchestration.md"
+        },
+        {
           "id": "copilot-instructions-restructuring",
           "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
           "status": "idea",
@@ -246,6 +252,18 @@
         {
           "id": "autonomous-pipeline-autopilot",
           "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+          "status": "idea",
+          "plan": ".cg-docs/brainstorms/2026-04-23-autopilot-orchestration.md"
+        },
+        {
+          "id": "copilot-cli-model-c-execution",
+          "title": "Copilot CLI execution with worktrees (Model C)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "verification-commands-post-task",
+          "title": "Verification commands — configurable post-task checks",
           "status": "idea",
           "plan": null
         }

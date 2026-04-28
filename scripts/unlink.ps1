@@ -11,12 +11,14 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+. (Join-Path $PSScriptRoot "helpers.ps1")
+
 $ProjectRoot     = Get-Location
 $TargetGithubDir = Join-Path $ProjectRoot ".github"
 $gitignorePath   = Join-Path $ProjectRoot ".gitignore"
 
-# Subdirectories managed by Compound GPID
-$ManagedDirs = @("prompts", "skills", "agents", "instructions")
+# Subdirectories managed by Compound GPID (sourced from helpers.ps1)
+$ManagedDirs = $CG_MANAGED_DIRS
 
 # The management marker used in copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"

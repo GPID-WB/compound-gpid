@@ -136,3 +136,4 @@ This prevents column drift when repos are added or removed from the registry.
 
 - [`2026-03-30-derived-invariant-validation-in-schema-tests.md`](./2026-03-30-derived-invariant-validation-in-schema-tests.md) — same root idea (stored value must match a recomputed value) but applies to *derived computed state*, not static constants
 - [`2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md`](./2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md) — related: test assertions must precisely match what the test name claims
+- [`2026-04-28-guard-test-vacuous-pass-when-mixed-array-has-static-member.md`](./2026-04-28-guard-test-vacuous-pass-when-mixed-array-has-static-member.md) — related: guard test checking a composite array (extracted + static) passes vacuously when extraction returns empty; always guard on the extracted variable, not the composite
