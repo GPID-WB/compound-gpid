@@ -65,8 +65,9 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 13 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should Be 13
+    It "contains exactly 14 agent files - update this sentinel when adding a new agent" {
+        # +1 for cg-hello-hook.agent.md (TEMPORARY PoC -- revert to 13 when deleted)
+        $agentFiles.Count | Should Be 14
     }
 
     foreach ($file in $agentFiles) {
@@ -116,7 +117,8 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 13 agent file stems must appear in the guide
+    # All 13 permanent agent file stems must appear in the guide
+    # (cg-hello-hook is excluded -- temporary PoC, not added to model-guide.md)
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',

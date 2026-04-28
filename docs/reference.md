@@ -2,7 +2,7 @@
 
 Quick reference for all Compound GPID commands, agents, skills, configuration, and file structure.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, and `compound-gpid.context.md`. See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, and `compound-gpid.context.md`. See [Troubleshooting](troubleshooting.md) for known issues. See [Review Verify](review-verify.md) for a deep-dive on `/cg-review mode:verify`.
 
 ---
 

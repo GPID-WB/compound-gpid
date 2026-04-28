@@ -2,7 +2,7 @@
 
 This page explains the Compound GPID workflow loop and how to use each step — including when to use each command, the different scenarios each supports, and when **not** to use them.
 
-> **Not installed yet?** See [Installation](installation.md) first. For all commands and shortcuts, see [Reference](reference.md).
+> **Not installed yet?** See [Installation](installation.md) first. For all commands and shortcuts, see [Reference](reference.md). For a deep-dive on verification passes, see [Review Verify](review-verify.md).
 
 ---
 
@@ -290,6 +290,8 @@ Review reports are saved with per-finding status tracking in YAML frontmatter. E
 - As a first response to a known bug — use `/cg-fixbug` which is designed for reproduce-first diagnosis
 
 **Output**: `.cg-docs/reviews/<plan-stem>-review.md`; for `mode:verify` passes: `<plan-stem>-verify-review.md`.
+
+> **Deep dive**: See [Review Verify](review-verify.md) for full details on suppression policy, anti-loop protection, convergence patterns, and caveats.
 
 ---
 
