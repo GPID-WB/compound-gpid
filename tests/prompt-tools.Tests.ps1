@@ -760,6 +760,10 @@ Describe "docs/reference.md - R skills and r-syntax config" {
     It "contains Priority Levels table with P0 BLOCKING entry" {
         ($content -match 'P0.*BLOCKING') | Should Be $true
     }
+
+    It "reference.md documents @cg-release-scanner agent" {
+        ($content -match 'cg-release-scanner') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -2729,6 +2733,73 @@ Describe "cg-fix-triage.prompt.md - mode:verify handoff" {
 
     It "suggests mode:verify instead of review light in Step 5" {
         ($content -match '(?s)Step 5.*mode:verify') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.7/P2.8 — cg-release-scanner.agent.md existence and dispatch reference
+# ---------------------------------------------------------------------------
+
+Describe "cg-release-scanner.agent.md - existence and structure" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md"
+
+    It "exists in the repository" {
+        Test-Path $agentFile | Should Be $true
+    }
+
+    Context "required frontmatter fields" {
+        $frontmatter = Get-Frontmatter -FilePath $agentFile
+
+        It "has user-invocable: false in frontmatter" {
+            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+        }
+
+        It "has tools: restricted to read and search (not write)" {
+            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should Be $true
+        }
+
+        It "has a model in frontmatter" {
+            ($frontmatter -match 'model:') | Should Be $true
+        }
+    }
+
+    $agentContent = Get-Content $agentFile -Raw -Encoding UTF8
+
+    It "documents Highest impact: none for empty commit log" {
+        ($agentContent -match 'Highest impact: none') | Should Be $true
+    }
+}
+
+Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
+    $promptFile = Join-Path $repoRoot "cg-release.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-release.prompt.md references @cg-release-scanner" {
+        ($content -match '@cg-release-scanner') | Should Be $true
+    }
+
+    It "warns when window-start is on or after today (zero-doc-context guard)" {
+        ($content -match 'window-start.*today|All.*cg-docs.*entries will be excluded') | Should Be $true
+    }
+
+    It "warns and falls back when --since ISO date is in the future" {
+        ($content -match 'after today.*fall back|parsed.*after today') | Should Be $true
+    }
+
+    It "warns when commit log exceeds 500 lines" {
+        ($content -match '500 lines|exceeds 500') | Should Be $true
+    }
+
+    It "warns on shallow clone and falls back to window-days formula" {
+        ($content -match 'shallow clone') | Should Be $true
+    }
+
+    It "catch-all when release-result.txt is absent or unrecognized" {
+        ($content -match 'may have failed|release-result\.txt.*absent|neither.*CREATED') | Should Be $true
+    }
+
+    It "documents halt condition when scanner returns no output" {
+        ($content -match 'no output|does not contain.*Scan Summary|Scanner returned no output') | Should Be $true
     }
 }
 

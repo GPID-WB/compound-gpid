@@ -127,3 +127,6 @@ that a path is untested.
   — testing derived/computed invariants in schema validation (complementary)
 - `.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md`
   — upstream pattern for testing prompt contracts (adjacent: what to test)
+- `.cg-docs/solutions/testing-patterns/2026-04-28-prompt-guard-conditions-need-immediate-pester-coverage.md`
+  — prompt-file equivalent: natural-language guards in `.prompt.md` files
+  also need immediate text-presence assertions or they silently regress
