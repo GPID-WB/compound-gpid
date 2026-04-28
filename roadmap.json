@@ -154,6 +154,12 @@
           "title": "Testing skill for Stata (assert-based/reprun)",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "skill-description-length-cap",
+          "title": "Skill description length cap with test enforcement [from CE]",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -246,6 +252,74 @@
         {
           "id": "autonomous-pipeline-autopilot",
           "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "copilot-cli-model-c-execution",
+          "title": "Copilot CLI execution with worktrees (Model C)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "verification-commands-post-task",
+          "title": "Verification commands — configurable post-task checks",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "auto-triggered-skills-via-hooks",
+          "title": "Auto-triggered skills via expanded applyTo hook patterns [from SP]",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "competitive-prompt-enhancements",
+      "title": "Competitive Prompt Enhancements",
+      "objective": "Adopt the highest-value patterns identified in the April 2026 competitive review of compound-engineering, superpowers, and GSD-2 — focusing on traceability, inline quality gates, structured debugging, and knowledge capture improvements across workflow prompts.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "brainstorm-plan-id-traceability",
+          "title": "End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "inline-self-review-brainstorm-plan",
+          "title": "Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "verification-before-completion-cg-work",
+          "title": "Verification-before-completion enforcement in /cg-work tasks [from SP]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "decisions-register",
+          "title": "Append-only DECISIONS.md register for methodology and architecture choices [from GSD]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "hitl-review-loop-mode",
+          "title": "HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "systematic-debugging-4-phase",
+          "title": "Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "auto-knowledge-extraction-after-work",
+          "title": "Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]",
           "status": "idea",
           "plan": null
         }
