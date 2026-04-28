@@ -65,8 +65,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 13 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should Be 13
+    It "contains exactly 14 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should Be 14
     }
 
     foreach ($file in $agentFiles) {
@@ -116,12 +116,13 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 13 agent file stems must appear in the guide
+    # All 14 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
         'cg-learnings-researcher', 'cg-roadmap',
-        'cg-adversarial', 'cg-fix-problems', 'cg-plan-critic'
+        'cg-adversarial', 'cg-fix-problems', 'cg-plan-critic',
+        'cg-release-scanner'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {
