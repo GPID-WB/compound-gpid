@@ -8,7 +8,7 @@ findings:
   P2.1: skipped
   P2.2: skipped
   P2.3: skipped
-  P2.4: skipped
+  P2.4: fixed
   P2.5: fixed
   P2.6: fixed
   P2.7: fixed
@@ -54,6 +54,7 @@ None.
 ### P2 — IMPORTANT (should fix)
 
 - **[P2.1]** [cg-testing] `tests/link.Tests.ps1` — `hooks/` junction creation and gitignore entry not covered
+  **Status**: SKIPPED — deferred until Phase 1 re-adds `hooks/` to `$CG_MANAGED_DIRS`. P1.2 (fix-triage) removed `hooks/` from the list; adding test assertions for it now would fail against production behaviour. Re-open when `$CG_MANAGED_DIRS` in `helpers.ps1` includes `"hooks"`.
   **Why**: `$ManagedDirs` now has 5 entries; `link.Tests.ps1` has `It` blocks and gitignore assertions for only 4. If `"hooks"` is accidentally dropped from the production list, no test catches it.
   **Fix**: Add `It "creates a junction for hooks/"` to the junction context and add `.github/hooks/` to the gitignore entry assertions:
   ```powershell
@@ -62,10 +63,12 @@ None.
   ```
 
 - **[P2.2]** [cg-testing] `tests/link.Tests.ps1:~209` — gitignore tests encode the old 4-dir entry set
+  **Status**: SKIPPED — deferred until Phase 1 re-adds `hooks/` to `$CG_MANAGED_DIRS`. Hardcoding `.github/hooks/` in gitignore assertions would fail against the current 4-dir production list.
   **Why**: The "creates .gitignore with CG-specific entries", "does not add duplicate entries when run twice", and "does not gitignore .cg-docs/" tests all hardcode the pre-`hooks` entry array. `.github/hooks/` is not asserted in any of them.
   **Fix**: Add `.github/hooks/` to the `$entries` array and the dedup count assertion.
 
 - **[P2.3]** [cg-testing] `tests/unlink.Tests.ps1:~148` — gitignore cleanup test's simulated block is stale
+  **Status**: SKIPPED — deferred until Phase 1 re-adds `hooks/` to `$CG_MANAGED_DIRS`. Adding `.github/hooks/` to the fixture block would test a block that `cg-link` no longer writes.
   **Why**: The "removes the CG managed-items block" test constructs a `.gitignore` block matching the old 4-dir state. After `cg-link` writes the updated block (with `hooks/`), the regex under test doesn't exercise the new entry.
   **Fix**: Add `.github/hooks/` to the test fixture block and assert it is absent after removal.
 
