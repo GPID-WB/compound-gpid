@@ -534,19 +534,19 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
 
 Describe "link.ps1 - compound-gpid.context.md is not gitignored" {
     Context "CG-managed .gitignore entries do not include context.md" {
-        # Extract $ManagedDirs from link.ps1 and reconstruct expected gitignore entries.
-        # This mirrors the derivation logic in link.ps1 so both stay in sync automatically.
-        $linkPs1Path = Join-Path $PSScriptRoot "..\scripts\link.ps1"
-        $linkContent = Get-Content $linkPs1Path -Raw
-        $block = [regex]::Match($linkContent, '(?s)\$ManagedDirs\s*=\s*@\((.+?)\)').Groups[1].Value
+        # Extract $CG_MANAGED_DIRS from helpers.ps1 (single source of truth after P3.2 refactor)
+        # and reconstruct expected gitignore entries -- mirrors link.ps1 derivation automatically.
+        $helpersPath    = Join-Path $PSScriptRoot "..\scripts\helpers.ps1"
+        $helpersContent = Get-Content $helpersPath -Raw
+        $block = [regex]::Match($helpersContent, '(?s)\$CG_MANAGED_DIRS\s*=\s*@\((.+?)\)').Groups[1].Value
         $managedDirs = $block -split '\r?\n' |
                        ForEach-Object { $_.Trim().Trim('"').Trim("'") } |
                        Where-Object { $_ -ne '' }
         $entries = @($managedDirs | ForEach-Object { ".github/$_/" }) +
                    @(".github/copilot-instructions.md")
 
-        It "extracted at least one entry from link.ps1 (guard against empty extraction)" {
-            ($entries | Measure-Object).Count | Should BeGreaterThan 0
+        It "extracted at least one managed dir from helpers.ps1 (guard against empty extraction)" {
+            ($managedDirs | Measure-Object).Count | Should BeGreaterThan 0
         }
 
         It "the CG gitignore entry list does not contain compound-gpid.context.md" {
