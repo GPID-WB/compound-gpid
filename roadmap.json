@@ -85,7 +85,7 @@
       "id": "performance",
       "title": "Performance",
       "objective": "Reduce unnecessary model cost and session latency by auditing every prompt and agent against the correct model tier and fixing known slow paths in /cg-release.",
-      "status": "in-progress",
+      "status": "done",
       "features": [
         {
           "id": "full-model-audit",
