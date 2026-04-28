@@ -9,9 +9,9 @@ This page explains the Compound GPID workflow loop and how to use each step — 
 ## The Loop
 
 ```
-Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> Work -> Review -> Compound
-                ^           ^            ^                      ^          ^
-       (vision/rethink)  (discover)  (one task)             Fix Bug    Refresh
+Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> Compound
+                ^           ^            ^                                ^          ^
+       (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh
 Resume (re-entry at any stage)
 ```
 
@@ -84,7 +84,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 - You want to explore a design decision before committing to an implementation plan
 - The task is non-technical (strategy, process, documentation-only) and you want a Thinking Partner
 
-**What happens**: The prompt first **checks for prior work** — it scans `.cg-docs/brainstorms/` for any existing brainstorm on the same topic and offers to continue from it instead of starting fresh. It then scans your project, classifies the task type (software vs. non-software), assesses scope, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. Once you pick one, it saves a decision document to `.cg-docs/brainstorms/`. If `roadmap.json` exists, it also offers to register the brainstorm outcome as a feature idea in the roadmap.
+**What happens**: The prompt first **checks for prior work** — it scans `.cg-docs/brainstorms/` for any existing brainstorm on the same topic and offers to continue from it instead of starting fresh. It then scans your project, classifies the task type (software vs. non-software), assesses scope, asks clarifying questions one at a time, and proposes 2–3 approaches with pros/cons. After proposing approaches, runs an **always-on devil's advocate challenge** (Step 3.5) covering problem validity, simplicity, effort-value, and charter alignment before the decision is finalized. Once you select an approach, it saves a decision document to `.cg-docs/brainstorms/`. If `roadmap.json` exists, it also offers to register the brainstorm outcome as a feature idea in the roadmap.
 
 **Task Classification**: The prompt auto-detects whether the task is software/data work or a strategy/process/documentation-only discussion:
 - **Software/Data mode**: asks about technical implementation approaches, dependencies, testing strategy
@@ -142,7 +142,7 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 - *Brainstorm-first flow*: If a brainstorm was loaded, the scope classification is inherited from it — no redundant assessment step.
 - *Deep architectural change*: Use a phased plan with numbered phases; `/cg-work` will implement one phase at a time.
 
-**Handoff options**: `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
+**Handoff options**: `/cg-plan-review` (challenge the plan before starting — recommended for Standard/Deep), `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
 
 **When NOT to use**:
 - For trivial one-file changes that take under an hour — use `/cg-work` directly (it generates an inline Lightweight plan if none exists)
@@ -151,6 +151,28 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 - For emergency production hotfixes — go to `/cg-fixbug` directly to avoid the overhead of a full plan
 
 **Output**: `.cg-docs/plans/YYYY-MM-DD-<title>.md`
+
+---
+
+### 2b. Plan Review (`/cg-plan-review`)
+
+**When to use**:
+- After `/cg-plan` has created a plan — before starting implementation
+- When the task is Standard or Deep scope and you want a structured critique before committing to code
+- Any time you want to challenge a plan for flawed assumptions, over-engineering, or missing edge cases
+
+**What happens**: Dispatches `@cg-plan-critic` with the full plan content and charter context (Objective, Constraints, Current Focus). The critic checks for flawed or unverified assumptions, over-engineering, missing edge cases, scope creep, and inaccurate dependency claims. Findings are presented interactively (P1 and P2 one at a time; P3 all at once after). You decide for each: address it, accept the risk, or defer. Side ideas that surfaced during the review are offered for roadmap capture.
+
+**Scenarios**:
+- *Standard/Deep plan before implementation*: Run `/cg-plan-review` to catch structural problems before any code is written.
+- *Spot-checking assumptions*: The critic reads the actual codebase to verify that referenced files, packages, and functions exist as described.
+- *Flood of findings*: If the critic returns more than 5 P1/P2 findings, you are offered a batch-decision option — accept/defer all at once rather than going through them individually.
+
+**When NOT to use**:
+- For Lightweight tasks where you're confident the plan is correct — use `/cg-work` directly
+- As a substitute for `/cg-review` — Plan Review checks the plan document; `/cg-review` checks the implemented code
+
+**Output**: Interactive findings session; no files written.
 
 ---
 

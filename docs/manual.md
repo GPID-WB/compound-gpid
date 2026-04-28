@@ -18,7 +18,7 @@ All documentation lives here in `docs/`. Start with [Installation](installation.
 Compound GPID is a structured workflow for AI-assisted development. The typical path through a task is:
 
 ```
-/cg-brainstorm → /cg-plan → /cg-work → /cg-review → /cg-fix-triage → /cg-compound
+/cg-brainstorm → /cg-plan → /cg-plan-review → /cg-work → /cg-review → /cg-fix-triage → /cg-compound
 ```
 
 Short on time? Use [Reference](reference.md) to look up a specific command. Starting fresh? See [Installation](installation.md). Resuming interrupted work? Run `/cg-resume` in Copilot Chat.
