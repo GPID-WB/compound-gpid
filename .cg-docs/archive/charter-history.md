@@ -4,6 +4,10 @@ Archived "Current Focus" entries from `compound-gpid.md`.
 
 ---
 
+## 2026-04-28 → 2026-04-29
+
+> Onboarding & Setup — making the first interaction with compound-gpid intelligent by scanning existing projects deeply, drafting a charter, and only asking about what the scanner couldn't determine. Performance and Skills Enhancement milestones continue in parallel with idea-stage features.
+
 ## 2026-04-16 → 2026-04-28
 
 > Context Layer — restructuring how consumer projects provide context to Copilot (slim copilot-instructions.md, project context file, multi-folder workspace awareness). Performance and Skills Enhancement milestones continue in parallel with idea-stage features.
