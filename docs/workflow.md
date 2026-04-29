@@ -38,11 +38,13 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your personal config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`).
 
+For **existing projects**, `/cg-setup` dispatches `@cg-project-scanner` to scan the file tree before asking any questions. The scanner infers language, project type, and charter-draft content from signals like `renv.lock`, `pyproject.toml`, `.do` files, and `README.md`. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation; only genuinely unknown fields are asked.
+
 **Scenarios**:
 - *New project*: Run once at the start. `/cg-setup` asks about language, project type, review depth, and optionally the project charter.
-- *Returning project (no config)*: Run `/cg-setup` — it detects the existing repo and offers to create the config files without overwriting existing work.
+- *Existing project (no config)*: Run `/cg-setup` — `@cg-project-scanner` scans the file tree first and pre-fills setup answers where confidence is high. You only confirm or correct what the scanner inferred.
 - *Change review depth*: Run `/cg-setup` again and update the `review-depth` field. You can also edit `compound-gpid.local.md` directly.
-- *Team member onboarding*: Each team member runs `/cg-setup` independently since `compound-gpid.local.md` is gitignored. The shared `compound-gpid.md` charter is already committed.
+- *Team member onboarding*: Each team member runs `/cg-setup` independently since `compound-gpid.local.md` is gitignored. The shared `compound-gpid.md` charter is already in the repo.
 
 **When NOT to use**:
 - When you just want to resume interrupted work — use `/cg-resume` instead

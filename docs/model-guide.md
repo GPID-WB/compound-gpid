@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 32 Compound GPID prompt and agent files.
+Reference for model assignments across all 33 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 32 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 33 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -55,6 +55,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 32 
 | `cg-fix-problems.agent.md` | Claude Sonnet 4.6 | Auto/interactive fix agent — applies code fixes for VS Code diagnostics, 2-round budget | Reasoning 4, precision 5 — code fix generation and error root-cause analysis needs Sonnet | confirmed |
 | `cg-plan-critic.agent.md` | Claude Sonnet 4.6 | Plan reviewer — checks assumptions, over-engineering, edge cases, scope creep, dependency accuracy against actual codebase | Reasoning 5, precision 4 — adversarial plan analysis with codebase verification needs Sonnet | confirmed |
 | `cg-release-scanner.agent.md` | Claude Haiku 4.5 | Classify commits and scan .cg-docs entries within a time window for /cg-release | Reasoning 3, creativity 1; mechanical classification and categorization — Haiku appropriate | confirmed |
+| `cg-project-scanner.agent.md` | Claude Haiku 4.5 | Scan project files to detect languages, frameworks, and charter content for /cg-setup | Reasoning 3, creativity 1; mechanical file-based classification — Haiku appropriate | confirmed |
 
 ---
 

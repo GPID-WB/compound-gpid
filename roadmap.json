@@ -85,7 +85,7 @@
       "id": "performance",
       "title": "Performance",
       "objective": "Reduce unnecessary model cost and session latency by auditing every prompt and agent against the correct model tier and fixing known slow paths in /cg-release.",
-      "status": "done",
+      "status": "in-progress",
       "features": [
         {
           "id": "full-model-audit",
@@ -129,7 +129,7 @@
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
       "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "r-dialect-skills-architecture",
@@ -372,8 +372,8 @@
         {
           "id": "project-scanner-agent",
           "title": "Project scanner agent for deep project analysis",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-04-29-project-scanner-skill-agent-phase1.md"
         },
         {
           "id": "smart-setup-existing-projects",

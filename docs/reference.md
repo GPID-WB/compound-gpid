@@ -56,7 +56,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 31 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 33 prompt and agent files.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -199,6 +199,16 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 
 ---
 
+## Project Scanner Agent
+
+| Agent | Focus | Model | User-invocable |
+|-------|-------|-------|----------------|
+| `@cg-project-scanner` | Scans project file structure to detect languages, frameworks, project type, and charter-relevant content. Returns structured analysis for `/cg-setup` and other prompts | Claude Haiku 4.5 | No |
+
+> `@cg-project-scanner` is dispatched by `/cg-setup` (Phase 2) and other prompts that need project analysis. It is **not user-invokable** directly. It reads the project file tree, matches signals against the `cg-skill-project-scanner` catalog, extracts charter-draft content from README and DESCRIPTION, and returns a structured markdown report with language detection, project type, and per-question setup recommendations.
+
+---
+
 ## Release Scanner Agent
 
 | Agent | Focus | Model | User-invocable |
@@ -247,6 +257,7 @@ Milestone status is computed by `@cg-roadmap` from feature statuses (never set d
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
 | `cg-skill-fix-triage-migrate` | Migration mode for `/cg-fix-triage --migrate`: backfills `findings:` tracking frontmatter on legacy review files. Does NOT apply fixes. |
+| `cg-skill-project-scanner` | Project scanner signal catalog for `/cg-setup`: language/framework detection (Tier 1), project type signals (Tier 2), charter-draft content extraction (Tier 3). Dispatched by `@cg-project-scanner`. |
 
 ---
 

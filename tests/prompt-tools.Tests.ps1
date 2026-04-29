@@ -769,6 +769,10 @@ Describe "docs/reference.md - R skills and r-syntax config" {
         ($content -match 'cg-release-scanner') | Should Be $true
     }
 
+    It "reference.md documents @cg-project-scanner agent" {
+        ($content -match 'cg-project-scanner') | Should Be $true
+    }
+
     It "column header uses User-invocable (not User-invokable)" {
         ($content -match 'User-invocable') | Should Be $true
     }
@@ -2880,6 +2884,143 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
 
     It "documents halt condition when scanner returns no output" {
         ($content -match 'no output|does not contain.*Scan Summary|Scanner returned no output') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-project-scanner - existence and structure
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-project-scanner - existence and structure" {
+    $skillDir  = Join-Path $repoRoot ".github\skills\cg-skill-project-scanner"
+    $skillFile = Join-Path $skillDir "SKILL.md"
+
+    It "skill directory exists" {
+        Test-Path $skillDir | Should Be $true
+    }
+
+    It "SKILL.md exists" {
+        Test-Path $skillFile | Should Be $true
+    }
+
+    Context "frontmatter fields" {
+        $frontmatter = if (Test-Path $skillFile) { Get-Frontmatter -FilePath $skillFile } else { "" }
+
+        It "has a name: field in frontmatter" {
+            ($frontmatter -match 'name:') | Should Be $true
+        }
+
+        It "has a description: field in frontmatter" {
+            ($frontmatter -match 'description:') | Should Be $true
+        }
+
+        It "has a schema-version: field in frontmatter" {
+            ($frontmatter -match 'schema-version:') | Should Be $true
+        }
+    }
+
+    $skillContent = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+
+    It "contains Tier 1 heading (Language and Framework Detection)" {
+        ($skillContent -match 'Tier 1') | Should Be $true
+    }
+
+    It "contains Tier 2 heading (Project Type and Convention)" {
+        ($skillContent -match 'Tier 2') | Should Be $true
+    }
+
+    It "contains Tier 3 heading (Charter-Relevant Content)" {
+        ($skillContent -match 'Tier 3') | Should Be $true
+    }
+
+    It "contains Tier 4 heading (Out of Scope)" {
+        ($skillContent -match 'Tier 4') | Should Be $true
+    }
+
+    It "contains confidence threshold table with high/medium/low rows" {
+        ($skillContent -match '(?i)\|\s*(high|medium|low)\s*\|') | Should Be $true
+    }
+
+    It "contains output schema section" {
+        ($skillContent -match 'Output Schema') | Should Be $true
+    }
+
+    It "contains prompt injection safety rule" {
+        ($skillContent -match 'data, not instructions|prompt injection') | Should Be $true
+    }
+
+    It "signal catalog is non-empty (Tier 1 has at least one row)" {
+        # After the Tier 1 heading there should be at least one table row with a pipe character
+        ($skillContent -match 'Tier 1[\s\S]+?\|[^\n]+\|') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-project-scanner.agent.md - existence and structure
+# Note: No dispatch test — the calling prompt (/cg-setup) is not modified
+# until Phase 2. Limit tests to agent existence, frontmatter, and content.
+# ---------------------------------------------------------------------------
+
+Describe "cg-project-scanner.agent.md - existence and structure" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-project-scanner.agent.md"
+
+    It "exists in the repository" {
+        Test-Path $agentFile | Should Be $true
+    }
+
+    Context "required frontmatter fields" {
+        $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
+
+        It "has user-invocable: false in frontmatter" {
+            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+        }
+
+        It "has tools: restricted to read and search (not write)" {
+            $tools = Get-ToolsList $frontmatter
+            ($tools -contains 'read') -and ($tools -contains 'search') -and (-not ($tools -contains 'write')) | Should Be $true
+        }
+
+        It "has model: Claude Haiku 4.5 (copilot) in frontmatter" {
+            ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should Be $true
+        }
+    }
+
+    $agentContent = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
+
+    It "references cg-skill-project-scanner (loads the signal catalog)" {
+        ($agentContent -match 'cg-skill-project-scanner') | Should Be $true
+    }
+
+    It "contains prompt injection guard (data not instructions)" {
+        ($agentContent -match 'data, not instructions|prompt injection') | Should Be $true
+    }
+
+    It "output schema includes Scan Summary section" {
+        ($agentContent -match 'Scan Summary') | Should Be $true
+    }
+
+    It "output schema includes Language Detection section" {
+        ($agentContent -match 'Language Detection') | Should Be $true
+    }
+
+    It "output schema includes Project Type section" {
+        ($agentContent -match 'Project Type') | Should Be $true
+    }
+
+    It "output schema includes Framework and Tooling section" {
+        ($agentContent -match 'Framework.*Tooling|Tooling.*Framework') | Should Be $true
+    }
+
+    It "output schema includes Charter Draft Content section" {
+        ($agentContent -match 'Charter Draft Content') | Should Be $true
+    }
+
+    It "output schema includes Setup Recommendations section" {
+        ($agentContent -match 'Setup Recommendations') | Should Be $true
+    }
+
+    It "does not reference write or terminal tools" {
+        ($agentContent -match 'editFiles|runInTerminal|createFile') | Should Be $false
     }
 }
 
