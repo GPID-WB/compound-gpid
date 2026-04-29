@@ -87,11 +87,11 @@ For **each step** in the plan:
    If `passed` is `false`: treat new failures as regressions — apply Test Failure Recovery.
 
    **Test Failure Recovery** (functional tests only — `get_errors` errors handled in **Auto-Fix Diagnostics** below):
-   If any tests fail:
-   1. Analyse output. Make a targeted fix — do not weaken assertions. (Exception: if this plan step explicitly changed a function's interface or return type, updating tests to match the new interface is correct.) Re-run.
+   If any tests fail, apply up to **2 fix attempts total per plan step** — the limit is global and does not reset when switching between targeted failures and full-suite regressions:
+   1. Analyze output. Make a targeted fix — do not weaken assertions. Do not change expected values in assertions to match new implementation output unless the plan step names the exact return values expected to change. (Exception: if this plan step explicitly enumerates the old and new function signature — e.g., `before: foo(x)`, `after: foo(x, y)` — updating only the assertions that directly verify the changed signature or return type is correct. Inference about interface change from test failure alone is prohibited.) Re-run.
    2. If still failing, one more targeted fix and re-run.
    3. If resolved, re-run the **full test suite** for all files changed in this step to catch regressions introduced by the fix. If new regressions appear, emit the standard failure notification (format from sub-step 4) and continue to **Auto-Fix Diagnostics**.
-   4. If tests are still failing after 2 fix attempts:
+   4. If tests are still failing after 2 fix attempts total:
       > "**N test(s) still failing after 2 fix attempts** — continuing to next step.
       > Review before merging.
       > Failing tests:

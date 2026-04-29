@@ -1,8 +1,8 @@
 ---
 plan: .cg-docs/plans/2026-04-15-per-step-test-failure-handling.md
 findings:
-  P0.1: open
-  P0.2: open
+  P0.1: fixed
+  P0.2: fixed
   P1.1: open
   P1.2: open
   P1.3: open
