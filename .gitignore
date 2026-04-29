@@ -13,7 +13,10 @@ compound-gpid.local.md
 Thumbs.db
 
 # IDE
-# .vscode/ is intentionally tracked — tasks.json provides the shared safe Pester runner
+# .vscode/ — only tasks.json and settings.json are committed (safe Pester runner + settings)
+.vscode/*
+!.vscode/tasks.json
+!.vscode/settings.json
 .idea/
 .tmp/
 

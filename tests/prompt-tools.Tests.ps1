@@ -1824,6 +1824,10 @@ Describe "cg-work.prompt.md - test failure recovery" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
+    It "exists" {
+        Test-Path $promptFile | Should Be $true
+    }
+
     It "documents 2 fix attempts hard cap" {
         ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should Be $true
     }
@@ -1845,11 +1849,19 @@ Describe "cg-work.prompt.md - test failure recovery" {
     }
 
     It "includes anti-weakening guard ('not weaken')" {
-        ($content -match 'not\s+weaken|weaken or remove') | Should Be $true
+        ($content -match 'not\s+weaken|weaken or remove') | Should Be $true  # \s+ intentionally spans the CRLF line break between 'not' and 'weaken' in the prompt
     }
 
     It "permits test updates when function interface explicitly changed" {
-        ($content -match 'interface or return type|updating tests to match the new interface') | Should Be $true
+        ($content -match 'changed signature or return type|Inference about interface change') | Should Be $true
+    }
+
+    It "notification template uses variable count placeholder (N test(s))" {
+        ($content -match 'N test\(s\)') | Should Be $true
+    }
+
+    It "describes sequential two-attempt structure ('one more targeted fix attempt')" {
+        ($content -match 'one more targeted fix') | Should Be $true
     }
 
     It "requires full-suite re-run after targeted fixes resolve to catch regressions" {

@@ -104,9 +104,10 @@ For **each step** in the plan:
       - If the user says `stop`: halt immediately.
       - If the user says `continue` (or makes no explicit response): proceed to **Auto-Fix Diagnostics**, carrying forward the list of unfixed tests.
 
-   Do NOT dispatch `@cg-fix-problems` for test failures — that agent handles diagnostic errors only.
+   Do NOT dispatch `@cg-fix-problems` for test failures — that agent handles VS Code Problems-panel diagnostics only (detected via `get_errors`). Test runner output is handled here.
+   When inspecting Pester failures, use the two-phase safe pattern: `$r = Invoke-Pester <file> -PassThru -Quiet; if ($r.FailedCount -gt 0) { Invoke-Pester <file> }`. Never use `2>&1 | Select-String`.
 
-   **Auto-Fix Diagnostics**: Call `get_errors` on files touched by this step.
+   **Auto-Fix Diagnostics** (runs after each test phase, within Step 2): Call `get_errors` on files touched by this step.
    If `get_errors` returns **errors** (not warnings or info only):
    1. Dispatch `@cg-fix-problems`: `mode: auto, files: [<touched files>], diagnostics: [<errors from get_errors>]`
       If Test Failure Recovery already attempted fixes on these files in this step, note this in the dispatch so `@cg-fix-problems` avoids re-applying the same fixes.

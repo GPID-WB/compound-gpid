@@ -28,18 +28,18 @@ findings:
   P2.16: fixed
   P2.17: fixed
   P2.18: skipped
-  P3.1: open
-  P3.2: open
-  P3.3: open
-  P3.4: open
-  P3.5: open
-  P3.6: open
-  P3.7: open
-  P3.8: open
-  P3.9: open
-  P3.10: open
-  P3.11: open
-  P3.12: open
+  P3.1: fixed
+  P3.2: fixed
+  P3.3: fixed
+  P3.4: fixed
+  P3.5: fixed
+  P3.6: fixed
+  P3.7: fixed
+  P3.8: fixed
+  P3.9: fixed
+  P3.10: fixed
+  P3.11: fixed
+  P3.12: fixed
 ---
 
 ## Review Report

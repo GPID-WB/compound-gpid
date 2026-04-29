@@ -4,7 +4,6 @@ title: "Per-step test failure handling in /cg-work"
 status: completed
 completed-date: 2026-04-15
 scope: Lightweight
-brainstorm: null
 language: "both"
 estimated-effort: small
 tags: [quality-loop, cg-work, testing, prompt-engineering]
