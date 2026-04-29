@@ -19,8 +19,17 @@ Focus: Coding best practices, testing, documentation, version control, system st
 - [x] Migrate knowledge folder from `docs/` → `.cg-docs/` to avoid project namespace collisions
 - [x] `/cg-resume` prompt — pick up interrupted work by scanning in-progress plans and recent git history
 - [x] Structural schema versioning — track `cg-schema-version` per project so `cg-update` knows which migrations to apply
-- [x] Project charter file (`compound-gpid.md`) -- shared project context
-      read by all prompts at session start
+- [x] Project charter file (`compound-gpid.md`) — shared project context read by all prompts at session start
+- [x] R dialect skills — `cg-skill-r-collapse`, `cg-skill-r-datatable`, `cg-skill-r-tidyverse`, `cg-skill-r-visualization`, `cg-skill-r-shared`; route via `r-syntax` setting in `compound-gpid.local.md`
+- [x] R testing skill (`cg-skill-r-testing`) — testthat 3+ patterns, BDD-style tests, fixtures, mocking, snapshot tests
+- [x] `/cg-fix-problems` prompt + `cg-fix-problems` agent — diagnose and resolve VS Code diagnostics interactively
+- [x] `/cg-plan-review` prompt + `cg-plan-critic` agent — review implementation plans for risks and over-engineering before executing
+- [x] `/cg-review --verify` mode — lightweight post-implementation correctness check
+- [x] `/cg-fix-triage --migrate` mode — add `findings:` tracking frontmatter to legacy review files
+- [x] Context layer — `compound-gpid.context.md` for shared institutional conventions; read by all prompts
+- [x] Haiku/Sonnet model split — cost-optimized model assignments per agent; documented in `docs/model-guide.md`
+- [x] Release automation — `/cg-release` prompt + `cg-release-scanner` agent + `create-release.ps1` script
+- [x] `@cg-project-scanner` agent + `cg-skill-project-scanner` — scan existing projects to auto-detect language, framework, and charter signals for intelligent `/cg-setup` pre-fill (Phase 1)
 
 ## Phase 2: Analytical Quality
 
