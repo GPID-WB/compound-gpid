@@ -1856,6 +1856,14 @@ Describe "cg-work.prompt.md - test failure recovery" {
         ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
     }
 
+    It "instructs continuing to Auto-Fix Diagnostics when full suite passes (continue path)" {
+        ($content -match '(?s)full suite passes.*continue normally|continue.*Auto-Fix Diagnostics') | Should Be $true
+    }
+
+    It "notification template includes last error message placeholder" {
+        ($content -match '<last error message>') | Should Be $true
+    }
+
     It "on new regressions emits step-4 format notification and continues to Auto-Fix Diagnostics" {
         ($content -match 'emit the standard failure notification.*sub-step 4|format from sub-step 4') | Should Be $true
     }
@@ -1866,6 +1874,13 @@ Describe "cg-work.prompt.md - test failure recovery" {
 
     It "scopes Test Failure Recovery to functional tests only" {
         ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should Be $true
+    }
+
+    It "full-suite re-run step appears before the user-wait pause" {
+        $rrunIdx = $content.IndexOf('full test suite')
+        $waitIdx = $content.IndexOf('Wait for the user')
+        $rrunIdx | Should BeGreaterThan -1
+        $rrunIdx | Should BeLessThan $waitIdx
     }
 }
 

@@ -64,7 +64,9 @@ For **each step** in the plan:
 1. **Announce** which step you're starting.
 2. **Discover existing tests**: Using the Step 1.6 index, identify tests exercising the code you're about to change.
 3. **Implement** following project conventions and the relevant language skill.
-4. **Test** as specified in the plan (R: `testthat`, Python: `pytest`, Stata: `assert` + validation do-files).
+4. **Test** as specified in the plan (R: `testthat`, Python: `pytest`, Stata: `assert` + validation do-files, PowerShell: Pester via `. tests\Run-Tests.ps1` or `Invoke-Pester <file> -Quiet` — never `Invoke-Pester tests/` (crashes VS Code)).
+
+   If no test framework is identified for the project, skip all Test Failure Recovery loop iterations and surface: "Test framework not identified — manual verification required."
 
    **Running tests** (do NOT use `Invoke-Pester` directly — always use `execution_subagent`):
 
@@ -98,12 +100,16 @@ For **each step** in the plan:
       > • `<test-file>::<test-name>` — `<last error message>`
       > • ..."
       Append the current step number to the plan file's `failing-steps:` frontmatter list (create the field if absent). Continue to **Auto-Fix Diagnostics** (below).
+      Wait for the user's response.
+      - If the user says `stop`: halt immediately.
+      - If the user says `continue` (or makes no explicit response): proceed to **Auto-Fix Diagnostics**, carrying forward the list of unfixed tests.
 
    Do NOT dispatch `@cg-fix-problems` for test failures — that agent handles diagnostic errors only.
 
    **Auto-Fix Diagnostics**: Call `get_errors` on files touched by this step.
    If `get_errors` returns **errors** (not warnings or info only):
    1. Dispatch `@cg-fix-problems`: `mode: auto, files: [<touched files>], diagnostics: [<errors from get_errors>]`
+      If Test Failure Recovery already attempted fixes on these files in this step, note this in the dispatch so `@cg-fix-problems` avoids re-applying the same fixes.
    2. Agent applies up to 2 fix rounds (errors only — not warnings or info).
    3. Re-run the full suite for touched files. If regressions appear, apply one targeted fix; if still failing, notify user before proceeding to Validate.
    4. If errors remain after 2 rounds:
