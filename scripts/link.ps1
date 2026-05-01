@@ -255,6 +255,7 @@ Write-Host ""
 Write-Host "Linked!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Compound GPID prompts are now available in this project."
+Write-Host "  Next step: run /cg-setup in Copilot Chat to configure."
 Write-Host ""
 Write-Host "IMPORTANT:" -ForegroundColor Yellow
 Write-Host "  The following directories are managed by Compound GPID." -ForegroundColor Yellow

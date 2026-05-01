@@ -1701,22 +1701,22 @@ Describe "cg-brainstorm.prompt.md - step ordering: Step 3.5 and Step 5c" {
 }
 # ---------------------------------------------------------------------------
 
-Describe "cg-brainstorm.prompt.md - Step 4.5 Branch Offer ordering" {
+Describe "cg-brainstorm.prompt.md - Step 1.7 Branch Offer ordering" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "Step 4.5 Branch Offer appears after Step 4 Capture Decision" {
-        $step4Idx   = $content.IndexOf('### Step 4:')
-        $step45Idx  = $content.IndexOf('### Step 4.5:')
-        $step4Idx   | Should BeGreaterThan -1
-        $step45Idx  | Should BeGreaterThan $step4Idx
+    It "Step 1.7 Branch Offer appears after Step 1.5 Scope Assessment" {
+        $step15Idx  = $content.IndexOf('### Step 1.5:')
+        $step17Idx  = $content.IndexOf('### Step 1.7:')
+        $step15Idx  | Should BeGreaterThan -1
+        $step17Idx  | Should BeGreaterThan $step15Idx
     }
 
-    It "Step 5 Handoff appears after Step 4.5 Branch Offer" {
-        $step45Idx  = $content.IndexOf('### Step 4.5:')
-        $step5Idx   = $content.IndexOf('### Step 5:')
-        $step45Idx  | Should BeGreaterThan -1
-        $step5Idx   | Should BeGreaterThan $step45Idx
+    It "Step 2 Clarifying Questions appears after Step 1.7 Branch Offer" {
+        $step17Idx  = $content.IndexOf('### Step 1.7:')
+        $step2Idx   = $content.IndexOf('### Step 2:')
+        $step17Idx  | Should BeGreaterThan -1
+        $step2Idx   | Should BeGreaterThan $step17Idx
     }
 }
 
@@ -2511,6 +2511,280 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
 }
 
 # ---------------------------------------------------------------------------
+# setup-templates.md - Charter Quality Gate section (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "setup-templates.md - charter quality gate section" {
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $content = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "contains the Charter Quality Gate section heading" {
+        ($content -match '## Charter Quality Gate') | Should Be $true
+    }
+
+    It "lists project-name as a blocker" {
+        ($content -match 'project-name') | Should Be $true
+    }
+
+    It "lists <!-- TODO placeholder as a blocker" {
+        ($content -match '<!-- TODO') | Should Be $true
+    }
+
+    It "lists empty Objective as a blocker" {
+        ($content -match '## Objective') | Should Be $true
+    }
+
+    It "lists last-reviewed as a warning" {
+        ($content -match 'last-reviewed') | Should Be $true
+    }
+
+    It "includes deferred-output instruction for Mode B" {
+        ($content -match 'Store results internally|Do NOT output') | Should Be $true
+    }
+
+    It "Charter Quality Gate specifies exact TODO blocker strings" {
+        ($content -match '<!-- TODO: Describe') | Should Be $true
+        ($content -match '<!-- TODO: List') | Should Be $true
+        ($content -match '<!-- TODO: Add') | Should Be $true
+        ($content -match '<!-- TODO: What') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# setup-templates.md - Charter from Scanner Results section (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "setup-templates.md - scanner charter template section" {
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $content = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "contains the Charter from Scanner Results section heading" {
+        ($content -match '## Charter from Scanner Results') | Should Be $true
+    }
+
+    It "references @cg-project-scanner or scanner" {
+        ($content -match '@cg-project-scanner|cg-project-scanner') | Should Be $true
+    }
+
+    It "contains hybrid approve option: Approve as-is" {
+        ($content -match 'Approve as-is') | Should Be $true
+    }
+
+    It "contains hybrid approve option: Walk through section by section" {
+        ($content -match 'Walk through') | Should Be $true
+    }
+
+    It "contains hybrid approve option: Start from scratch" {
+        ($content -match 'Start from scratch') | Should Be $true
+    }
+
+    It "contains confidence-action mapping table with high/skip" {
+        ($content -match '\| high') | Should Be $true
+        ($content -match '\| skip') | Should Be $true
+    }
+
+    It "contains confidence-action mapping table with confirm and ask" {
+        ($content -match '\| confirm') | Should Be $true
+        ($content -match '\| ask') | Should Be $true
+    }
+
+    It "field mapping table notes Current Focus as not scannable" {
+        ($content -match 'Current Focus.*not scannable|not scannable.*Current Focus') | Should Be $true
+    }
+
+    It "setup-templates.md includes YAML quoting rule for project-name" {
+        ($content -match 'single-quoted YAML|single quotes instead') | Should Be $true
+    }
+
+    It "setup-templates.md includes JSON string escaping rule" {
+        ($content -match 'JSON string escaping') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# setup-templates.md - Pre-flight Health Check section (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "setup-templates.md - pre-flight health check section" {
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $content = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "contains the Pre-flight Health Check section heading" {
+        ($content -match '## Pre-flight Health Check') | Should Be $true
+    }
+
+    It "checks .github/prompts/ directory" {
+        ($content -match '\.github/prompts/') | Should Be $true
+    }
+
+    It "checks .github/skills/ directory" {
+        ($content -match '\.github/skills/') | Should Be $true
+    }
+
+    It "checks .github/agents/ directory" {
+        ($content -match '\.github/agents/') | Should Be $true
+    }
+
+    It "checks .github/instructions/ directory" {
+        ($content -match '\.github/instructions/') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# setup-templates.md - Roadmap Bootstrap from Charter section (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "setup-templates.md - roadmap bootstrap section" {
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $content = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "contains the Roadmap Bootstrap from Charter section heading" {
+        ($content -match '## Roadmap Bootstrap from Charter') | Should Be $true
+    }
+
+    It "mentions roadmap.json" {
+        ($content -match 'roadmap\.json') | Should Be $true
+    }
+
+    It "mentions Current Focus as the seed source" {
+        ($content -match 'Current Focus') | Should Be $true
+    }
+
+    It "specifies the empty skeleton fallback when charter was not written" {
+        ($content -match 'charter was NOT written|charter was skipped') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-setup.prompt.md - Mode A scanner integration (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "cg-setup.prompt.md - Mode A scanner integration" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "dispatches @cg-project-scanner in Mode A" {
+        ($content -match '@cg-project-scanner') | Should Be $true
+    }
+
+    It "contains named Fallback: Manual Questions block" {
+        ($content -match 'Fallback: Manual Questions') | Should Be $true
+    }
+
+    It "references Charter Quality Gate template" {
+        ($content -match 'Charter Quality Gate') | Should Be $true
+    }
+
+    It "references Pre-flight Health Check template" {
+        ($content -match 'Pre-flight Health Check') | Should Be $true
+    }
+
+    It "references Roadmap Bootstrap from Charter template" {
+        ($content -match 'Roadmap Bootstrap from Charter') | Should Be $true
+    }
+
+    It "contains scanner failure fallback text" {
+        ($content -match 'Scanner could not analyze') | Should Be $true
+    }
+
+    It "contains hybrid approve as-is option text" {
+        ($content -match 'Approve as-is') | Should Be $true
+    }
+
+    It "contains overwrite guard for existing charter" {
+        ($content -match 'already exists.*overwrite|overwrite.*already exists') | Should Be $true
+    }
+
+    It "mentions .Rbuildignore update step" {
+        ($content -match '\.Rbuildignore') | Should Be $true
+    }
+
+    It "contains scanner output sanitization instruction" {
+        ($content -match 'untrusted user data|SYSTEM:.*prefix|Sanitization') | Should Be $true
+    }
+
+    It "names specific injection trigger words (Ignore, Override, Forget)" {
+        ($content -match '(?i)\bIgnore\b') | Should Be $true
+        ($content -match '(?i)\bOverride\b') | Should Be $true
+        ($content -match '(?i)\bForget\b') | Should Be $true
+    }
+
+    It "has roadmap.json existence guard (skip if already exists)" {
+        ($content -match 'roadmap\.json.*already exists.*skip|already exists.*roadmap') | Should Be $true
+    }
+
+    It "falls back to ask when Setup Recommendations table is absent" {
+        ($content -match 'absent from the scanner report|Setup Recommendations.*absent') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-setup.prompt.md - Mode B quality gate (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "cg-setup.prompt.md - Mode B quality gate" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Mode B contains B1.1.1 charter quality check step" {
+        ($content -match 'B1\.1\.1') | Should Be $true
+    }
+
+    It "Mode B contains deferred-output instruction" {
+        ($content -match 'Store results internally|Do NOT output') | Should Be $true
+    }
+
+    It "Mode B references the Charter Quality Gate template" {
+        ($content -match 'Charter Quality Gate') | Should Be $true
+    }
+
+    It "Mode B preserves B1 read config step" {
+        ($content -match 'B1\. Read existing config') | Should Be $true
+    }
+
+    It "Mode B preserves B3 context summary step" {
+        ($content -match 'B3\. Present context summary') | Should Be $true
+    }
+
+    It "Mode B B3 step includes instruction to append quality gate findings" {
+        ($content -match 'B3.*quality gate|quality gate.*B3|append.*quality gate|quality gate.*B1\.1\.1') | Should Be $true
+    }
+
+    It "Mode B preserves B4.7 workspace folders step" {
+        ($content -match 'B4\.7') | Should Be $true
+    }
+
+    It "Mode B has B0.5 pre-load templates step" {
+        ($content -match 'B0\.5') | Should Be $true
+    }
+
+    It "Mode B B4 instructs carrying forward cg-schema-version on rewrite" {
+        ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should Be $true
+    }
+
+    It "Mode B B3 instructs skipping B4.5 when blockers were fixed in B3" {
+        ($content -match 'skip.*B4\.5|charter was just updated') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# link.ps1 - setup guidance in success message (Phase 2)
+# ---------------------------------------------------------------------------
+
+Describe "link.ps1 - setup guidance in success message" {
+    $linkScript = Join-Path $repoRoot "scripts\link.ps1"
+    $content = Get-Content $linkScript -Raw -Encoding UTF8
+
+    It "contains specific /cg-setup guidance text" {
+        ($content -match 'run /cg-setup in Copilot Chat to configure') | Should Be $true
+    }
+
+    It "still contains the managed-by warning (not removed)" {
+        ($content -match 'managed by Compound GPID') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # cg-review-repos.prompt.md - file existence, frontmatter, guardrail, and content
 # (Developer-only prompt for competitive repo analysis)
 # ---------------------------------------------------------------------------
@@ -3021,6 +3295,29 @@ Describe "cg-project-scanner.agent.md - existence and structure" {
 
     It "does not reference write or terminal tools" {
         ($agentContent -match 'editFiles|runInTerminal|createFile') | Should Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.44 — cg-brainstorm Branch Offer must appear before Step 2 questions
+# The branch offer is the very first question asked of the user, so the
+# model cannot bias itself toward an existing branch mid-brainstorm.
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Branch Offer appears before Step 2" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has a Branch Offer step between Step 1.5 and Step 2 (Step 1.7)" {
+        $branchOfferIdx = $content.IndexOf('### Step 1.7:')
+        $branchOfferIdx | Should BeGreaterThan -1
+    }
+
+    It "Branch Offer (Step 1.7) appears before Step 2 Clarifying Questions" {
+        $branchOfferIdx = $content.IndexOf('### Step 1.7:')
+        $step2Idx       = $content.IndexOf('### Step 2:')
+        $branchOfferIdx | Should BeGreaterThan -1
+        $step2Idx       | Should BeGreaterThan $branchOfferIdx
     }
 }
 
