@@ -84,7 +84,7 @@ and creates three config files:
 - `compound-gpid.md` — optional; committed; shared project charter (objective, deliverables, constraints, current focus). All `/cg-*` prompts read this automatically.
 - `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot should know on every task (data sources, variable caveats, workspace folder descriptions, domain vocabulary). All prompts read this in Step 0. Grows over time via `/cg-compound`.
 
-> **Existing repos**: If you already have a project without these files, /cg-setup will detect the existing repo and ask you to create them. You can skip charter questions and create compound-gpid.md later by re-running /cg-setup.
+> **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
 
 ---
 

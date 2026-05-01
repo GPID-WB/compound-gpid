@@ -105,7 +105,12 @@ The four-section structure is enforced: if content doesn't fit neatly into one o
 
 ### How it is created
 
-`/cg-setup` creates the file interactively by asking you about your project objective, deliverables, constraints, and language preferences. It also creates `compound-gpid.local.md` and `compound-gpid.context.md` at the same time.
+`/cg-setup` creates the file through one of two paths:
+
+- **New project (no existing code)**: asks about objective, deliverables, constraints, and language preferences directly.
+- **Existing project**: dispatches `@cg-project-scanner` first to infer a charter draft from signals in the file tree (language files, `README.md`, `DESCRIPTION`, `pyproject.toml`, etc.). The draft is shown in a fenced code block for approval, section-by-section walkthrough, or full manual override. A Charter Quality Gate validates the draft before writing — blocking on unfilled `<!-- TODO -->` placeholders, a missing `project-name`, or an empty `## Objective`.
+
+Both paths also create `compound-gpid.local.md` and `compound-gpid.context.md` at the same time.
 
 ### How it is updated
 
