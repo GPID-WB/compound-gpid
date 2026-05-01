@@ -103,4 +103,5 @@ script-scoped `BeforeAll` pattern from the existing test file.
 
 - [New Validation Branch Added Without Test](./2026-04-15-new-validation-branch-requires-dedicated-test.md) — same root cause in code; this solution covers the prompt-text equivalent
 - [Prompt Pipeline Contract Testing](./2026-03-30-prompt-pipeline-contract-testing.md) — broader contract testing patterns for prompt files
+- [Fix-Triage Changes Need Co-Authored Tests](./2026-05-01-fix-triage-prompt-changes-need-co-authored-tests.md) — generalizes this pattern: applies to all prompt text changes in fix-triage, not just guard conditions; quantifies the scale (10 of 21 fixes uncovered in one session)
 - [Prompt Step Silent Skip Antipattern](./2026-04-15-prompt-step-silent-skip-antipattern-fallback-required.md) — related: guard conditions that silently skip instead of failing loudly
