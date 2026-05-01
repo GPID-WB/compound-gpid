@@ -1701,22 +1701,22 @@ Describe "cg-brainstorm.prompt.md - step ordering: Step 3.5 and Step 5c" {
 }
 # ---------------------------------------------------------------------------
 
-Describe "cg-brainstorm.prompt.md - Step 4.5 Branch Offer ordering" {
+Describe "cg-brainstorm.prompt.md - Step 1.7 Branch Offer ordering" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "Step 4.5 Branch Offer appears after Step 4 Capture Decision" {
-        $step4Idx   = $content.IndexOf('### Step 4:')
-        $step45Idx  = $content.IndexOf('### Step 4.5:')
-        $step4Idx   | Should BeGreaterThan -1
-        $step45Idx  | Should BeGreaterThan $step4Idx
+    It "Step 1.7 Branch Offer appears after Step 1.5 Scope Assessment" {
+        $step15Idx  = $content.IndexOf('### Step 1.5:')
+        $step17Idx  = $content.IndexOf('### Step 1.7:')
+        $step15Idx  | Should BeGreaterThan -1
+        $step17Idx  | Should BeGreaterThan $step15Idx
     }
 
-    It "Step 5 Handoff appears after Step 4.5 Branch Offer" {
-        $step45Idx  = $content.IndexOf('### Step 4.5:')
-        $step5Idx   = $content.IndexOf('### Step 5:')
-        $step45Idx  | Should BeGreaterThan -1
-        $step5Idx   | Should BeGreaterThan $step45Idx
+    It "Step 2 Clarifying Questions appears after Step 1.7 Branch Offer" {
+        $step17Idx  = $content.IndexOf('### Step 1.7:')
+        $step2Idx   = $content.IndexOf('### Step 2:')
+        $step17Idx  | Should BeGreaterThan -1
+        $step2Idx   | Should BeGreaterThan $step17Idx
     }
 }
 
@@ -3021,6 +3021,29 @@ Describe "cg-project-scanner.agent.md - existence and structure" {
 
     It "does not reference write or terminal tools" {
         ($agentContent -match 'editFiles|runInTerminal|createFile') | Should Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P1.44 — cg-brainstorm Branch Offer must appear before Step 2 questions
+# The branch offer is the very first question asked of the user, so the
+# model cannot bias itself toward an existing branch mid-brainstorm.
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - Branch Offer appears before Step 2" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has a Branch Offer step between Step 1.5 and Step 2 (Step 1.7)" {
+        $branchOfferIdx = $content.IndexOf('### Step 1.7:')
+        $branchOfferIdx | Should BeGreaterThan -1
+    }
+
+    It "Branch Offer (Step 1.7) appears before Step 2 Clarifying Questions" {
+        $branchOfferIdx = $content.IndexOf('### Step 1.7:')
+        $step2Idx       = $content.IndexOf('### Step 2:')
+        $branchOfferIdx | Should BeGreaterThan -1
+        $step2Idx       | Should BeGreaterThan $branchOfferIdx
     }
 }
 

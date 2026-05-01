@@ -9,7 +9,7 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Mode-specific step skipping**: Steps depending on in-scope findings (e.g., skill loading) are skipped when a mode flag (`--migrate`) is present. The flag is evaluable at invocation time — no formal arg-parsing step needed.
 
-- **Deferred side-effects come after the primary deliverable**: In interactive prompts, side-effect offers (e.g., "create a git branch", "open a PR") must come after the primary deliverable is created — not before. Creating a branch before writing a document means the document is created on the new branch (which may be wrong) and leaves an empty "orphan" branch if the session is interrupted. Pattern: complete the main output first, then offer optional follow-on actions.
+- **Deferred side-effects come after the primary deliverable**: In interactive prompts, side-effect offers (e.g., "open a PR", "add to roadmap") must come after the primary deliverable is created — not before. Pattern: complete the main output first, then offer optional follow-on actions. **Exception — branch selection**: "Which branch should this work go on?" is workspace *configuration*, not a side-effect. Ask it **before any clarifying questions or work begins** so the user's investment lands on the right branch. Burying it in the handoff menu causes it to be missed. See `.cg-docs/solutions/testing-patterns/2026-05-01-branch-offer-must-precede-user-investment-steps.md`.
 
 ## Testing Conventions
 

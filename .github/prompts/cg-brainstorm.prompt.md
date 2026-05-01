@@ -13,7 +13,7 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 - You may create new files ONLY under `.cg-docs/brainstorms/`.
 - You must NOT modify any existing files.
 - You must NOT create files outside `.cg-docs/brainstorms/`.
-- You may create a git branch if the user explicitly accepts at Step 4.5.
+- You may create a git branch if the user explicitly accepts at Step 1.7.
 
 ## Process
 
@@ -87,6 +87,28 @@ Tell the user the scope classification before asking questions:
 Record the scope in the brainstorm frontmatter (see Step 4). If a brainstorm from this session will be followed by `/cg-plan`, the plan will inherit this scope classification and skip its own Step 1.5 assessment.
 
 Adjust question depth and option detail accordingly.
+
+### Step 1.7: Branch Offer
+
+Before asking any clarifying questions, offer to create a new git branch for
+this work:
+
+> "Before we start, would you like to work on a new branch?
+> Suggested name: `feat/<short-description-from-your-request>`
+>
+> 1. **Yes** — I'll create the branch now
+> 2. **No** — Stay on the current branch"
+
+- Derive the branch name from the user's initial description using the
+  project's convention: `type/short-description` (`feat/` for features,
+  `fix/` for bugs, `refactor/` for restructuring).
+- If the user accepts: create the branch with `git checkout -b <branch-name>`
+  and confirm: "Switched to new branch `<branch-name>`. Let's continue."
+- If the user declines: proceed silently.
+- If the repo has uncommitted changes, warn before branching:
+  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
+- If the brainstorm is classified as **Thinking Partner mode** (Step 1.1),
+  skip this step silently — non-software tasks don't need branches.
 
 ### Step 2: Clarifying Questions (One at a Time)
 
@@ -173,29 +195,6 @@ tags: [<relevant tags>]
 <For software/data tasks: concrete actions for handoff to /plan.
 For non-software tasks: follow-up decisions, experiments, or stakeholder consultations.>
 ```
-
-### Step 4.5: Branch Offer
-
-After saving the brainstorm document, offer to create a new git branch for
-the upcoming work:
-
-> "Would you like to start this work on a new branch? Suggested name:
-> `feat/<short-description-from-brainstorm>`
->
-> 1. **Yes** — I'll create the branch now
-> 2. **No** — Stay on the current branch"
-
-- Derive the branch name from the brainstorm title using the project's
-  branching convention: `type/short-description` (see `copilot-instructions.md`
-  § Version Control). Use `feat/` for new features, `fix/` for bug fixes,
-  `refactor/` for restructuring.
-- If the user accepts: create the branch with `git checkout -b <branch-name>`
-  and confirm: "Switched to new branch `<branch-name>`."
-- If the user declines or the brainstorm is **Thinking Partner mode**
-  (non-software): skip silently and proceed to Step 5.
-- If the repo has uncommitted changes, warn before branching:
-  > "You have uncommitted changes. Want to stash them first, or branch
-  > anyway?"
 
 ### Step 5: Handoff
 
