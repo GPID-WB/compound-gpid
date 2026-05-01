@@ -1,7 +1,7 @@
 ---
 date: 2026-05-01
 title: "Smart /cg-setup Phase 2 — Scanner Integration, Quality Gate & Health Check"
-status: active
+status: superseded
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-04-30-smart-setup-phase2-integration.md"
 language: "PowerShell"

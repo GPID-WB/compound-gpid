@@ -378,20 +378,20 @@
         {
           "id": "smart-setup-existing-projects",
           "title": "Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)",
-          "status": "planned",
-          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-integration.md"
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md"
         },
         {
           "id": "skip-irrelevant-setup-questions",
           "title": "Skip high-confidence setup questions based on scanner results",
-          "status": "planned",
-          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-integration.md"
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md"
         },
         {
           "id": "first-run-welcome-health-check",
           "title": "First-run welcome and health check after cg-link",
-          "status": "planned",
-          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-integration.md"
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md"
         },
         {
           "id": "vanilla-copilot-migration",
@@ -402,8 +402,8 @@
         {
           "id": "charter-quality-gate",
           "title": "Charter quality gate (validate no placeholders, all fields populated)",
-          "status": "planned",
-          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-integration.md"
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md"
         },
         {
           "id": "roadmap-bootstrap-from-charter",
