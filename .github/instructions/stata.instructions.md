@@ -7,6 +7,10 @@ applyTo: "**/*.do,**/*.ado"
 > **Full guidance**: Load `cg-skill-stata-best-practices` for the complete reference including coding principles,
 > reproducibility tools (repkit), and all Stata patterns. This file is a condensed rule-reference for common standards.
 
+Also load:
+
+- `cg-skill-stata-testing` when writing, reviewing, or debugging test blocks, assertion patterns, or reproducibility checks
+
 ## MCP Stata connection
 - Make sure you have the MCP Stata connection set up and working. If not, notify the user. If you do, make sure you use it to test everything you do. 
 

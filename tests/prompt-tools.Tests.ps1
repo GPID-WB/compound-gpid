@@ -3321,3 +3321,105 @@ Describe "cg-brainstorm.prompt.md - Branch Offer appears before Step 2" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - all 8 skill files exist
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-stata-testing - skill file structure" {
+    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-stata-testing"
+    $expectedFiles = @(
+        "SKILL.md",
+        "references\assertions-and-error-handling.md",
+        "references\data-validation.md",
+        "references\result-verification.md",
+        "references\reproducibility-reprun.md",
+        "references\test-scaffolding.md",
+        "references\anti-patterns.md",
+        "references\workflow-examples.md"
+    )
+
+    foreach ($file in $expectedFiles) {
+        It "file '$file' exists" {
+            Test-Path (Join-Path $skillRoot $file) | Should Be $true
+        }
+    }
+
+    It "SKILL.md has a description: field" {
+        $skillFile = Join-Path $skillRoot "SKILL.md"
+        $fm = Get-Frontmatter -FilePath $skillFile
+        ($fm -match 'description:') | Should Be $true
+    }
+
+    It "SKILL.md description is non-empty" {
+        $skillFile = Join-Path $skillRoot "SKILL.md"
+        $content = Get-Content $skillFile -Raw -Encoding UTF8
+        ($content -match 'description:\s*[>|]?\s*\S') | Should Be $true
+    }
+
+    It "SKILL.md is under 100 lines (thin routing table)" {
+        $skillFile = Join-Path $skillRoot "SKILL.md"
+        $lineCount = (Get-Content $skillFile).Count
+        $lineCount | Should BeLessThan 101
+    }
+
+    It "SKILL.md references cg-skill-stata-best-practices (cross-reference)" {
+        $skillFile = Join-Path $skillRoot "SKILL.md"
+        $content = Get-Content $skillFile -Raw -Encoding UTF8
+        ($content -match 'cg-skill-stata-best-practices') | Should Be $true
+    }
+
+    It "anti-patterns.md references coding-principles (cross-reference)" {
+        $antiFile = Join-Path $skillRoot "references\anti-patterns.md"
+        $content = if (Test-Path $antiFile) { Get-Content $antiFile -Raw -Encoding UTF8 } else { "" }
+        ($content -match 'coding-principles') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - stata.instructions.md routing
+# ---------------------------------------------------------------------------
+
+Describe "stata.instructions.md - skill routing" {
+    $instrFile = Join-Path $repoRoot ".github\instructions\stata.instructions.md"
+    $content = if (Test-Path $instrFile) { Get-Content $instrFile -Raw -Encoding UTF8 } else { "" }
+
+    It "stata.instructions.md exists" {
+        Test-Path $instrFile | Should Be $true
+    }
+
+    It "has applyTo covering .do files" {
+        $fm = Get-Frontmatter -FilePath $instrFile
+        ($fm -match '\.do') | Should Be $true
+    }
+
+    It "has applyTo covering .ado files" {
+        $fm = Get-Frontmatter -FilePath $instrFile
+        ($fm -match '\.ado') | Should Be $true
+    }
+
+    It "routes to cg-skill-stata-best-practices" {
+        ($content -match 'cg-skill-stata-best-practices') | Should Be $true
+    }
+
+    It "routes to cg-skill-stata-testing" {
+        ($content -match 'cg-skill-stata-testing') | Should Be $true
+    }
+
+    It "uses conditional trigger language for stata-testing" {
+        ($content -match 'when writing') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - docs/reference.md registration
+# ---------------------------------------------------------------------------
+
+Describe "docs/reference.md - cg-skill-stata-testing registration" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/reference.md lists cg-skill-stata-testing" {
+        ($content -match 'cg-skill-stata-testing') | Should Be $true
+    }
+}
+
