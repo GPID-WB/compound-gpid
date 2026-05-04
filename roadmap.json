@@ -152,7 +152,7 @@
         {
           "id": "testing-skill-stata",
           "title": "Testing skill for Stata (assert-based/reprun)",
-          "status": "planned",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-04-stata-testing-skill-revised.md"
         },
         {

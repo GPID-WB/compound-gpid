@@ -1,7 +1,8 @@
 ---
 date: 2026-05-04
 title: "Stata Testing & Reproducibility Skill (cg-skill-stata-testing) — revised"
-status: active
+status: completed
+completed-date: 2026-05-04
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-05-01-stata-testing-skill.md"
 language: "Stata"
