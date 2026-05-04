@@ -1,40 +1,59 @@
 ---
 date: 2026-05-04
-title: "Stata Testing & Reproducibility Skill (cg-skill-stata-testing)"
-status: superseded
-superseded-by: ".cg-docs/plans/2026-05-04-stata-testing-skill-revised.md"
+title: "Stata Testing & Reproducibility Skill (cg-skill-stata-testing) — revised"
+status: active
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-05-01-stata-testing-skill.md"
 language: "Stata"
 estimated-effort: "large"
-tags: [skills, stata, testing, reproducibility, reprun, repkit, assert, data-validation]
+tags: [skills, stata, testing, reproducibility, reprun, repkit, assert, data-validation, revised]
 ---
 
-# Plan: Stata Testing & Reproducibility Skill
+# Plan: Stata Testing & Reproducibility Skill (revised)
+
+> **Revision note**: Supersedes `2026-05-04-stata-testing-skill.md`. Addresses
+> 6 findings from `/cg-plan-review`:
+> P1.1 (template reference corrected to stata-best-practices routing pattern),
+> P1.2 (500-char description cap removed — test asserts presence only),
+> P2.1 (Step 6 split into 6a scaffolding + 6b anti-patterns),
+> P2.2 (workflow-examples.md acknowledged as scope addition with rationale),
+> P2.3 (dual-skill loading validation step added),
+> P3.1 (reference count mismatch fixed).
 
 ## Objective
 
 Create a new skill `cg-skill-stata-testing` that teaches Stata developers
 reproducible testing workflows — from inline assertions through `reprun`
 verification — so Copilot can guide both economists maintaining legacy `.do`
-files and developers transitioning to R/Python. The skill is core-loaded
-alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
+files and developers transitioning to R/Python. The skill follows the
+**routing-table pattern** of `cg-skill-stata-best-practices` (thin SKILL.md
+with on-demand reference files) and is conditionally loaded from
+`stata.instructions.md` when testing context is detected.
 
 ## Context
 
 - `cg-skill-stata-best-practices` already covers coding principles (11 anti-patterns),
   `repkit` documentation (repado, reprun, reproot, repscan, lint), and 21 community
   packages. It does NOT have a dedicated testing section — only scattered mentions
-  of `assert` in workflow-best-practices.md.
-- `cg-skill-r-testing` provides the structural template: SKILL.md with routing
-  table + 5 reference files. This is the proven pattern.
+  of `assert` in workflow-best-practices.md. **Its SKILL.md uses the routing-table
+  pattern** (thin shell that directs the model to load specific reference files
+  on demand). This is the structural template for the new skill.
+- `cg-skill-r-testing` is a **cross-reference destination** for Stata→R migration
+  context. It uses an inline-content pattern (not a routing table) — do NOT mirror
+  its structure.
 - The brainstorm decided: reproducibility is #1 priority; `reprun`/`reproot` are
   CORE (not optional); all 6 topic areas included; anti-patterns section references
   existing coding-principles and adds 8 testing-specific ones; examples are mixed
   across poverty, survey, harmonization, and causal inference — focused on testing
   the analysis, not performing the analysis.
+- **Scope addition (beyond brainstorm)**: A standalone `workflow-examples.md` file
+  is added as Step 7. Rationale: the brainstorm's "Workflow Examples" section (§7
+  in proposed structure) intended domain examples; splitting them into a standalone
+  file keeps reference files focused on one topic each and makes examples
+  copy-pasteable. This is the most expensive deliverable — budget accordingly.
 - `stata.instructions.md` currently routes only to `cg-skill-stata-best-practices`.
-  It needs to also mention the new testing skill.
+  The new skill will be loaded **conditionally** (when testing context is detected),
+  not unconditionally on every `.do`/`.ado` file.
 
 ## Requirements
 
@@ -47,51 +66,58 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
 | R5  | Reproducibility & reprun workflow (run → capture → compare) | brainstorm |
 | R6  | Test scaffolding & loops (batch testing, isolation)      | brainstorm  |
 | R7  | Anti-patterns: cross-reference existing + 8 testing-specific | brainstorm |
-| R8  | Workflow examples (end-to-end, domain-specific)          | brainstorm  |
+| R8  | Workflow examples (end-to-end, domain-specific)          | brainstorm+ |
 | R9  | Cross-references to cg-skill-stata-best-practices and cg-skill-r-testing | brainstorm |
-| R10 | Update `stata.instructions.md` to mention new skill     | convention  |
-| R11 | Pester tests: file existence, description length, cross-links | convention |
+| R10 | Update `stata.instructions.md` with conditional routing  | convention  |
+| R11 | Pester tests: file existence, description presence, cross-links | convention |
 | R12 | Update `copilot-instructions.md` skill listing           | convention  |
 | R13 | Examples focused on TESTING (not calculating)            | brainstorm  |
+| R14 | SKILL.md stays under 100 lines (thin routing table)      | P2.3 fix    |
 
 ## Implementation Steps
 
 ### 1. Create SKILL.md with Routing Table
 
-- **Requirements**: R1, R9
+- **Requirements**: R1, R9, R14
 - **Files**: Create `.github/skills/cg-skill-stata-testing/SKILL.md`
 - **Details**:
   Frontmatter:
   ```yaml
   ---
   name: cg-skill-stata-testing
-  description: "Testing and reproducibility best practices for Stata. Covers
-    inline assertions (assert, capture, exit codes), data validation patterns,
-    econometric result verification, reprun/repkit reproducibility workflows,
-    test scaffolding, and testing anti-patterns. Load when writing, reviewing,
-    or debugging test blocks in .do/.ado files. Use alongside
-    cg-skill-stata-best-practices for coding principles and package reference."
+  description: "Testing and reproducibility best practices for Stata. Covers inline assertions (assert, capture, exit codes), data validation patterns, econometric result verification, reprun/repkit reproducibility workflows, test scaffolding, and testing anti-patterns. Load when writing, reviewing, or debugging test blocks in .do/.ado files. Use alongside cg-skill-stata-best-practices for coding principles and package reference."
   ---
   ```
-  Body: routing table pointing to 5 reference files:
-  - `references/assertions-and-error-handling.md` (R2)
-  - `references/data-validation.md` (R3)
-  - `references/result-verification.md` (R4)
-  - `references/reproducibility-reprun.md` (R5)
-  - `references/test-scaffolding.md` (R6)
-  - `references/anti-patterns.md` (R7)
-  - `references/workflow-examples.md` (R8)
+  Body: **routing table** (following `cg-skill-stata-best-practices` pattern — NOT
+  the inline-content pattern of `cg-skill-r-testing`):
+  
+  | File | Topics |
+  |------|--------|
+  | `references/assertions-and-error-handling.md` | `assert`, `capture`, `_rc`, exit codes, soft assertions |
+  | `references/data-validation.md` | `isid`, `duplicates`, `misstable`, `inrange`, panel/survey validation |
+  | `references/result-verification.md` | `_b[]`, `reldif`, `test`, coefficient bounds, stability |
+  | `references/reproducibility-reprun.md` | `reprun`, `reproot`, `repscan`, result caching |
+  | `references/test-scaffolding.md` | `foreach` loops, `preserve`/`restore`, test harness patterns |
+  | `references/anti-patterns.md` | 8 testing-specific anti-patterns + cross-ref to coding-principles |
+  | `references/workflow-examples.md` | End-to-end examples: poverty, PPP, survey, DiD |
 
-  Brief intro paragraph explaining the skill's purpose, when to load it, and
-  cross-references to `cg-skill-stata-best-practices` (coding-principles) and
-  `cg-skill-r-testing` (for Stata→R migration context).
+  Brief intro paragraph (3–5 lines) explaining:
+  - Purpose: testing & reproducibility patterns for Stata
+  - When to load: test blocks, assertions, reprun workflows
+  - Cross-references: `cg-skill-stata-best-practices` (coding-principles, repkit API),
+    `cg-skill-r-testing` (for Stata→R migration mindset)
+
+  **Constraint**: Total SKILL.md must stay under 100 lines. The routing table +
+  intro + frontmatter should be ~50–70 lines.
 - **Test Scenarios**:
   - ✅ SKILL.md exists and has valid frontmatter
   - ✅ All 7 reference files listed in routing table exist on disk
-  - 🛑 Description under 500 characters (skill description length convention)
+  - ✅ `description:` field is present and non-empty
+  - ✅ Total line count ≤ 100
 - **Tests**: Pester test asserting file exists, description is present, all
-  reference paths resolve.
-- **Acceptance criteria**: SKILL.md loads cleanly, routing table references resolve.
+  reference paths resolve, line count ≤ 100.
+- **Acceptance criteria**: SKILL.md loads cleanly, routing table references resolve,
+  stays under 100-line budget.
 
 ### 2. Write `references/assertions-and-error-handling.md`
 
@@ -110,15 +136,13 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
     * Verify no negative welfare values after PPP conversion
     count if welfare_ppp < 0
     local neg_count = r(N)
-    assert `neg_count' == 0, ///
-        rc(9) // "Found `neg_count' negative welfare values after PPP conversion"
+    assert `neg_count' == 0
     ```
   - Pattern: soft assertion (warn but continue)
     ```stata
     capture assert income > 0
     if _rc {
-        display as error "WARNING: `=r(N)' observations with non-positive income"
-        // Log but don't halt — downstream code handles this
+        display as error "WARNING: observations with non-positive income found"
     }
     ```
 - **Test Scenarios**:
@@ -146,11 +170,11 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
   * --- Test: PPP conversion factors are aligned to correct vintage ---
   assert !missing(ppp_2017) if !missing(welfare_lcu)
   assert ppp_2017 > 0
-  assert inrange(ppp_2017, 0.01, 10000) // no implausible conversion factors
+  assert inrange(ppp_2017, 0.01, 10000)
   
   * Verify welfare variable completeness
   count if missing(welfare_lcu) & !missing(weight)
-  assert r(N) == 0 // no weighted observations should lack welfare
+  assert r(N) == 0
   ```
 - **Test Scenarios**:
   - ✅ File exists
@@ -174,17 +198,17 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
 
   Example (testing DiD parallel trends):
   ```stata
-  * --- Test: Pre-treatment trends are parallel (coefficient near zero) ---
+  * --- Test: Pre-treatment trends are parallel ---
   regress outcome i.treated##i.period controls, vce(cluster district)
   
   * Pre-period interaction should be insignificant
   test 1.treated#1.pre_period = 0
-  assert r(p) > 0.05 // fail if pre-trend is significant at 5%
+  assert r(p) > 0.05
   
   * Treatment effect should be positive and bounded
   local beta = _b[1.treated#1.post_period]
-  assert `beta' > 0            // expected direction
-  assert `beta' < 2.0          // sanity bound — not implausibly large
+  assert `beta' > 0
+  assert `beta' < 2.0
   ```
 - **Test Scenarios**:
   - ✅ File exists
@@ -200,59 +224,31 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
   Core reproducibility testing patterns with `reprun`:
   - **Basic workflow**: `reprun "analysis.do"` — run twice, compare state
   - **Reading reprun output**: Seed RNG, Sort Order RNG, Data Checksum columns
-  - **Common failure patterns and fixes** (from existing repkit.md — distill into testing context):
+  - **Common failure patterns and fixes** (distilled from existing repkit.md):
     - Missing `set seed` before random processes
     - Non-unique sort keys (`sort mpg` → `sort mpg make`)
     - `bysort` without secondary sort
   - **reproot for portable test paths**: test assertions using `${root_code}` not hard-coded paths
   - **repscan as pre-flight check**: scan before running full `reprun`
-  - **Result caching pattern**:
-    ```stata
-    * --- Save expected results for future comparison ---
-    regress y x1 x2, vce(robust)
-    local expected_b1 = _b[x1]
-    local expected_N  = e(N)
-    
-    * Write to a comparison file
-    file open fh using "${root}/tests/expected/regression_results.txt", write replace
-    file write fh "b_x1=`expected_b1'" _n
-    file write fh "N=`expected_N'" _n
-    file close fh
-    ```
-  - **Comparing against cached results**:
-    ```stata
-    * --- Verify current results match expected ---
-    regress y x1 x2, vce(robust)
-    
-    * Load expected values
-    file open fh using "${root}/tests/expected/regression_results.txt", read
-    file read fh line
-    local expected_b1 = substr("`line'", strpos("`line'", "=") + 1, .)
-    file close fh
-    
-    * Compare with tolerance
-    assert reldif(_b[x1], `expected_b1') < 1e-6
-    ```
+  - **Result caching pattern**: save expected results to file, compare on re-run
+  - **Comparing against cached results**: load file, parse, `assert reldif() < tol`
 
   Note: Cross-reference `cg-skill-stata-best-practices/packages/repkit.md` for
-  full `reprun` documentation. This file focuses on **testing patterns using reprun**,
-  not the tool's full API.
+  full `reprun` API documentation. This file focuses on **testing patterns using
+  reprun**, not the tool's full API.
 - **Test Scenarios**:
   - ✅ File exists
   - ✅ Contains `reprun`, `reproot`, `repscan`, `set seed`
-  - ✅ Contains cross-reference to repkit.md
-- **Tests**: Pester file-existence + cross-link resolution.
+  - ✅ Contains cross-reference link to `../../cg-skill-stata-best-practices/packages/repkit.md`
+- **Tests**: Pester file-existence + cross-link resolution (existing block handles this).
 - **Acceptance criteria**: Users can set up a reproducibility testing workflow from this file alone.
 
-### 6. Write `references/test-scaffolding.md` and `references/anti-patterns.md`
+### 6a. Write `references/test-scaffolding.md`
 
-- **Requirements**: R6, R7, R13
-- **Files**: 
-  - Create `.github/skills/cg-skill-stata-testing/references/test-scaffolding.md`
-  - Create `.github/skills/cg-skill-stata-testing/references/anti-patterns.md`
+- **Requirements**: R6, R13
+- **Files**: Create `.github/skills/cg-skill-stata-testing/references/test-scaffolding.md`
 - **Details**:
-
-  **test-scaffolding.md** — Test loop patterns and isolation:
+  Test loop patterns and isolation:
   - `foreach` loops for batch variable testing
   - `preserve`/`restore` for test isolation (test doesn't corrupt original data)
   - `tempfile` for intermediate test state
@@ -260,8 +256,6 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
   - Pattern: test harness do-file structure
     ```stata
     * --- test_poverty_indices.do ---
-    * Tests FGT poverty indices across multiple thresholds
-    
     local tests_passed = 0
     local tests_failed = 0
     
@@ -270,7 +264,6 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
     foreach z in 1.90 3.20 5.50 {
         quietly poverty welfare [aw=weight], line(`z')
         
-        * FGT0 must be between 0 and 1
         capture assert inrange(r(head_count), 0, 1)
         if _rc {
             local ++tests_failed
@@ -286,31 +279,52 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
     display as result _n "Tests passed: `tests_passed'  Failed: `tests_failed'"
     assert `tests_failed' == 0
     ```
+  - Pattern: multi-file test runner (master test do-file that runs sub-tests)
+- **Test Scenarios**:
+  - ✅ File exists
+  - ✅ Contains `preserve`, `restore`, `foreach`, `tempfile`
+- **Tests**: Pester file-existence test.
+- **Acceptance criteria**: Users can build batch test harnesses from these patterns.
 
-  **anti-patterns.md** — Testing-specific anti-patterns:
-  - Cross-reference header pointing to `cg-skill-stata-best-practices/references/coding-principles.md`
-    (11 universal anti-patterns)
-  - 8 testing-specific anti-patterns:
-    1. **Silent-passing assertions**: `assert` after `capture` without checking `_rc`
+### 6b. Write `references/anti-patterns.md`
+
+- **Requirements**: R7, R13
+- **Files**: Create `.github/skills/cg-skill-stata-testing/references/anti-patterns.md`
+- **Details**:
+  Testing-specific anti-patterns catalog:
+  - **Cross-reference header**: link to
+    `../../cg-skill-stata-best-practices/references/coding-principles.md`
+    (11 universal anti-patterns that also affect tests — don't repeat, just link)
+  - **8 testing-specific anti-patterns** (each with: pattern, why it's wrong, fix):
+    1. **Silent-passing assertions**: `capture assert ...` without checking `_rc` afterward
     2. **Not preserving data**: modifying master data in tests without `preserve`/`restore`
-    3. **Hard-coded thresholds without documentation**: magic numbers in bounds
-    4. **Floating-point precision**: `assert x == 0.1` instead of `reldif()` or `float()`
+    3. **Hard-coded thresholds without documentation**: magic numbers in bounds with no comment
+    4. **Floating-point precision**: `assert x == 0.1` instead of `assert reldif(x, 0.1) < 1e-10` or `assert float(x) == float(0.1)`
     5. **Breaking reprun with hard-coded paths**: using `"C:/Users/me/..."` instead of `reproot`
     6. **Order-dependent tests**: test B fails unless test A runs first
     7. **Undocumented test purpose**: no comment explaining what the assertion checks
     8. **Testing inside data-modifying code**: mixing assert blocks with `generate`/`replace`
+  
+  Each anti-pattern has:
+  - ❌ Wrong pattern (code block)
+  - ✅ Correct pattern (code block)
+  - Brief explanation of why the wrong pattern fails
 - **Test Scenarios**:
-  - ✅ Both files exist
-  - ✅ anti-patterns.md contains cross-reference to coding-principles.md
-  - ✅ anti-patterns.md mentions `reldif`, `preserve`, `reproot`
-- **Tests**: Pester file-existence + content assertions.
-- **Acceptance criteria**: Anti-patterns are actionable and include fix examples.
+  - ✅ File exists
+  - ✅ Contains cross-reference link to `coding-principles.md`
+  - ✅ Contains `reldif`, `preserve`, `reproot`
+- **Tests**: Pester file-existence + content assertions + cross-link resolution.
+- **Acceptance criteria**: All 8 anti-patterns are actionable and include working fix examples.
 
-### 7. Write `references/workflow-examples.md`
+### 7. Write `references/workflow-examples.md` (scope addition)
 
 - **Requirements**: R8, R13
 - **Files**: Create `.github/skills/cg-skill-stata-testing/references/workflow-examples.md`
 - **Details**:
+  > **Scope addition**: This file is beyond the brainstorm's locked 6-section
+  > structure. Rationale: standalone examples file keeps reference files focused
+  > on single topics and makes domain examples copy-pasteable for users.
+
   End-to-end testing workflows, one per domain:
 
   **Example 1: Testing poverty measurement (FGT indices)**
@@ -339,34 +353,63 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
 - **Tests**: Pester file-existence + content check.
 - **Acceptance criteria**: A new user can copy any example and adapt it to their project.
 
-### 8. Update `stata.instructions.md` and Register Skill
+### 8. Validate Dual-Skill Loading
+
+- **Requirements**: R14, R10
+- **Files**: None (validation step)
+- **Details**:
+  Before updating `stata.instructions.md`, validate that:
+  1. The new SKILL.md is ≤ 100 lines (confirmed in Step 1)
+  2. The existing `cg-skill-stata-best-practices/SKILL.md` routing table + new
+     skill routing table together won't overflow context
+  3. **Decision**: Use **conditional loading** in `stata.instructions.md`:
+     ```
+     Load `cg-skill-stata-testing` when the user is writing, reviewing, or
+     debugging test blocks, assertion patterns, or reproducibility checks.
+     ```
+     This means it loads alongside `cg-skill-stata-best-practices` only when
+     testing context is detected — NOT unconditionally on every `.do` file.
+
+  This avoids the untested dual-loading pattern flagged in P2.3.
+- **Test Scenarios**:
+  - ✅ SKILL.md line count ≤ 100
+  - ✅ `stata.instructions.md` uses conditional language (not "always load")
+- **Tests**: Pester line-count assertion (Step 9).
+- **Acceptance criteria**: Dual loading validated as safe before instruction update.
+
+### 9. Update `stata.instructions.md` and Register Skill
 
 - **Requirements**: R10, R12
 - **Files**: 
   - Modify `.github/instructions/stata.instructions.md`
   - Modify `.github/copilot-instructions.md` (skill listing)
 - **Details**:
-  - Add routing line to `stata.instructions.md`:
+  - Add conditional routing line to `stata.instructions.md`:
     > Load `cg-skill-stata-testing` when writing, reviewing, or debugging
     > test blocks, assertion patterns, or reproducibility checks in `.do`/`.ado` files.
-  - Add skill entry to the `<skills>` list in `copilot-instructions.md` with appropriate description.
+  - Add skill entry to `copilot-instructions.md` skill listing with description.
+  - The instruction is **conditional** (not "always load") — the model decides
+    based on the user's current task whether testing guidance is relevant.
 - **Test Scenarios**:
   - ✅ `stata.instructions.md` mentions `cg-skill-stata-testing`
   - ✅ `copilot-instructions.md` lists the new skill
+  - ✅ Instruction uses conditional language ("when writing...test blocks")
 - **Tests**: Pester content assertions.
-- **Acceptance criteria**: Copilot loads the skill automatically on `.do`/`.ado` files when testing context is detected.
+- **Acceptance criteria**: Copilot loads the skill conditionally on `.do`/`.ado` files when testing context is detected.
 
-### 9. Add Pester Tests
+### 10. Add Pester Tests
 
-- **Requirements**: R11
+- **Requirements**: R11, R14
 - **Files**: Modify `tests/prompt-tools.Tests.ps1`
 - **Details**:
   Add a `Describe "cg-skill-stata-testing - skill file structure"` block:
   - Assert SKILL.md exists
-  - Assert all 7 reference files exist (file loop, same pattern as `cg-skill-r-testing`)
-  - Assert description length ≤ 500 characters
+  - Assert all 7 reference files exist (file loop, same pattern as `cg-skill-r-testing` test block)
+  - Assert `description:` field is present and non-empty (match existing pattern — NO length cap)
   - Assert SKILL.md mentions `cg-skill-stata-best-practices` (cross-reference)
+  - Assert SKILL.md line count ≤ 100 (R14 — thin routing table enforcement)
   - Assert `anti-patterns.md` mentions `coding-principles` (cross-reference link)
+  - Assert `stata.instructions.md` contains `cg-skill-stata-testing`
 
   Cross-link validation is already handled by the existing
   `"skill file cross-links resolve"` block — new files will be picked up automatically
@@ -374,32 +417,35 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
 - **Test Scenarios**:
   - ✅ All new tests pass on first run
   - 🛑 Tests fail if a reference file is missing
+  - 🛑 Tests fail if SKILL.md exceeds 100 lines
 - **Tests**: Self-validating (tests test themselves).
 - **Acceptance criteria**: Full suite passes (1300+ assertions, 0 failures).
 
 ## Testing Strategy
 
-- **Structural tests** (Pester): file existence, description quality, cross-link resolution
+- **Structural tests** (Pester): file existence, description presence, cross-link resolution, line count
 - **Content tests** (Pester): key terms present in each reference file (assert, reprun, preserve, etc.)
 - **Manual validation**: read through each example and verify Stata syntax is correct
 - **Cross-reference validation**: existing cross-link test block covers all new markdown links automatically
+- **No description length cap test**: only assert presence/non-empty (existing pattern)
 
 ## Documentation Checklist
 
 - [x] SKILL.md routing table with descriptions (serves as documentation)
 - [ ] Each reference file has a clear heading structure
 - [ ] Examples include comments explaining the testing methodology
-- [ ] Cross-references to related skills are bidirectional where useful
+- [ ] Cross-references to related skills use relative markdown links
 - [ ] README.md — not applicable (skill files are self-documenting via SKILL.md)
 
 ## Risks & Mitigations
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
-| Overlap with existing repkit.md content | High | Low | Focus new file on testing PATTERNS with reprun, not reprun API. Cross-reference existing repkit.md for full API docs. |
-| Skill description exceeds length cap | Medium | Low | Keep under 500 chars; test enforces this. |
+| Overlap with existing repkit.md content | High | Low | Focus on testing PATTERNS, not API. Cross-reference existing repkit.md for full docs. |
 | Examples contain incorrect Stata syntax | Medium | High | Manual review pass; load cg-skill-stata-best-practices during writing. |
-| New skill bloats context when loaded alongside existing skill | Low | Medium | Routing table keeps only SKILL.md in context; reference files loaded on-demand. |
+| New skill bloats context when loaded alongside existing skill | Low | Medium | Routing table keeps SKILL.md thin (≤100 lines); conditional loading in instructions. |
+| workflow-examples.md is expensive (scope addition) | Medium | Medium | Budget this as the longest step; defer to last content step so core files aren't shortchanged. |
+| Cross-reference links break if skill directories are renamed | Low | Low | Existing cross-link Pester test catches this automatically. |
 
 ## Out of Scope
 
@@ -408,3 +454,4 @@ alongside `cg-skill-stata-best-practices` on all `.do`/`.ado` files.
 - Automated test runners (Stata has no built-in test framework — patterns are manual)
 - CI/CD integration for Stata tests (no standard tool exists)
 - `.ado` file unit testing patterns (future enhancement — this plan covers `.do` file testing)
+- Description length cap enforcement (no existing precedent; existing skills exceed any proposed cap)
