@@ -12,13 +12,18 @@ tags: [skills, stata, testing, reproducibility, reprun, repkit, assert, data-val
 # Plan: Stata Testing & Reproducibility Skill (revised)
 
 > **Revision note**: Supersedes `2026-05-04-stata-testing-skill.md`. Addresses
-> 6 findings from `/cg-plan-review`:
-> P1.1 (template reference corrected to stata-best-practices routing pattern),
+> findings from two `/cg-plan-review` rounds:
+> **Round 1** — P1.1 (template reference corrected to stata-best-practices routing pattern),
 > P1.2 (500-char description cap removed — test asserts presence only),
 > P2.1 (Step 6 split into 6a scaffolding + 6b anti-patterns),
 > P2.2 (workflow-examples.md acknowledged as scope addition with rationale),
 > P2.3 (dual-skill loading validation step added),
 > P3.1 (reference count mismatch fixed).
+> **Round 2** — P2.1 (phantom Step 8 removed, merged as pre-condition into Step 8),
+> P2.2 (stata.instructions.md format specified, Pester tests expanded),
+> P2.3 (docs/reference.md added to registration step),
+> P3.1 (r.instructions.md description corrected — it IS the pattern template for Step 8),
+> P3.2 (stata-best-practices SKILL.md line count corrected to ~120 lines).
 
 ## Objective
 
@@ -37,7 +42,9 @@ with on-demand reference files) and is conditionally loaded from
   packages. It does NOT have a dedicated testing section — only scattered mentions
   of `assert` in workflow-best-practices.md. **Its SKILL.md uses the routing-table
   pattern** (thin shell that directs the model to load specific reference files
-  on demand). This is the structural template for the new skill.
+  on demand, ~120 lines for 35+ references). This is the structural template for
+  the new skill. The new skill's much shorter routing table (7 files) easily fits
+  under the 100-line budget.
 - `cg-skill-r-testing` is a **cross-reference destination** for Stata→R migration
   context. It uses an inline-content pattern (not a routing table) — do NOT mirror
   its structure.
@@ -54,6 +61,9 @@ with on-demand reference files) and is conditionally loaded from
 - `stata.instructions.md` currently routes only to `cg-skill-stata-best-practices`.
   The new skill will be loaded **conditionally** (when testing context is detected),
   not unconditionally on every `.do`/`.ado` file.
+- `r.instructions.md` is the **direct pattern template for the conditional routing
+  line** — it conditionally loads `cg-skill-r-testing` with the phrase "when writing,
+  reviewing, or debugging R tests". Use matching syntax for `stata.instructions.md`.
 
 ## Requirements
 
@@ -353,51 +363,40 @@ with on-demand reference files) and is conditionally loaded from
 - **Tests**: Pester file-existence + content check.
 - **Acceptance criteria**: A new user can copy any example and adapt it to their project.
 
-### 8. Validate Dual-Skill Loading
+### 8. Update `stata.instructions.md`, Register Skill, and Update Docs
 
-- **Requirements**: R14, R10
-- **Files**: None (validation step)
-- **Details**:
-  Before updating `stata.instructions.md`, validate that:
-  1. The new SKILL.md is ≤ 100 lines (confirmed in Step 1)
-  2. The existing `cg-skill-stata-best-practices/SKILL.md` routing table + new
-     skill routing table together won't overflow context
-  3. **Decision**: Use **conditional loading** in `stata.instructions.md`:
-     ```
-     Load `cg-skill-stata-testing` when the user is writing, reviewing, or
-     debugging test blocks, assertion patterns, or reproducibility checks.
-     ```
-     This means it loads alongside `cg-skill-stata-best-practices` only when
-     testing context is detected — NOT unconditionally on every `.do` file.
-
-  This avoids the untested dual-loading pattern flagged in P2.3.
-- **Test Scenarios**:
-  - ✅ SKILL.md line count ≤ 100
-  - ✅ `stata.instructions.md` uses conditional language (not "always load")
-- **Tests**: Pester line-count assertion (Step 9).
-- **Acceptance criteria**: Dual loading validated as safe before instruction update.
-
-### 9. Update `stata.instructions.md` and Register Skill
-
-- **Requirements**: R10, R12
+- **Requirements**: R10, R12, R14
+- **Pre-condition**: Verify SKILL.md is ≤ 100 lines before proceeding (ensures
+  dual loading won't bloat context). If over budget, trim before registering.
 - **Files**: 
   - Modify `.github/instructions/stata.instructions.md`
   - Modify `.github/copilot-instructions.md` (skill listing)
+  - Modify `docs/reference.md` (skill catalog)
 - **Details**:
-  - Add conditional routing line to `stata.instructions.md`:
-    > Load `cg-skill-stata-testing` when writing, reviewing, or debugging
-    > test blocks, assertion patterns, or reproducibility checks in `.do`/`.ado` files.
-  - Add skill entry to `copilot-instructions.md` skill listing with description.
-  - The instruction is **conditional** (not "always load") — the model decides
-    based on the user's current task whether testing guidance is relevant.
+  - **`stata.instructions.md`** — Add conditional routing line using the exact
+    format from `r.instructions.md` (which uses: `- cg-skill-r-testing when writing,
+    reviewing, or debugging R tests`):
+    ```markdown
+    - Load `cg-skill-stata-testing` when writing, reviewing, or debugging test
+      blocks, assertion patterns, or reproducibility checks.
+    ```
+    This means it loads alongside `cg-skill-stata-best-practices` only when
+    testing context is detected — NOT unconditionally on every `.do` file.
+  - **`copilot-instructions.md`** — Add skill entry to the skill listing section
+    with description matching SKILL.md frontmatter.
+  - **`docs/reference.md`** — Add skill entry to the skill catalog table (matching
+    format of existing `cg-skill-stata-best-practices` row).
 - **Test Scenarios**:
   - ✅ `stata.instructions.md` mentions `cg-skill-stata-testing`
+  - ✅ `stata.instructions.md` contains conditional language ("when writing...test blocks")
   - ✅ `copilot-instructions.md` lists the new skill
-  - ✅ Instruction uses conditional language ("when writing...test blocks")
+  - ✅ `docs/reference.md` lists the new skill
+  - ✅ SKILL.md line count ≤ 100 (pre-condition check)
 - **Tests**: Pester content assertions.
-- **Acceptance criteria**: Copilot loads the skill conditionally on `.do`/`.ado` files when testing context is detected.
+- **Acceptance criteria**: Copilot loads the skill conditionally on `.do`/`.ado`
+  files when testing context is detected. All three registration locations are updated.
 
-### 10. Add Pester Tests
+### 9. Add Pester Tests
 
 - **Requirements**: R11, R14
 - **Files**: Modify `tests/prompt-tools.Tests.ps1`
@@ -409,7 +408,15 @@ with on-demand reference files) and is conditionally loaded from
   - Assert SKILL.md mentions `cg-skill-stata-best-practices` (cross-reference)
   - Assert SKILL.md line count ≤ 100 (R14 — thin routing table enforcement)
   - Assert `anti-patterns.md` mentions `coding-principles` (cross-reference link)
-  - Assert `stata.instructions.md` contains `cg-skill-stata-testing`
+
+  Add a `Describe "stata.instructions.md - skill routing"` block:
+  - Assert `applyTo` field is present and covers `.do` and `.ado`
+  - Assert file mentions `cg-skill-stata-best-practices` (existing routing)
+  - Assert file mentions `cg-skill-stata-testing` (new conditional routing)
+  - Assert conditional trigger language is present ("when writing", "test blocks")
+
+  Add one assertion in existing `docs/reference.md` block (if present):
+  - Assert `docs/reference.md` contains `cg-skill-stata-testing`
 
   Cross-link validation is already handled by the existing
   `"skill file cross-links resolve"` block — new files will be picked up automatically
@@ -418,6 +425,7 @@ with on-demand reference files) and is conditionally loaded from
   - ✅ All new tests pass on first run
   - 🛑 Tests fail if a reference file is missing
   - 🛑 Tests fail if SKILL.md exceeds 100 lines
+  - 🛑 Tests fail if `stata.instructions.md` is missing conditional routing
 - **Tests**: Self-validating (tests test themselves).
 - **Acceptance criteria**: Full suite passes (1300+ assertions, 0 failures).
 
