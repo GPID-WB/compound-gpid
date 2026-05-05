@@ -3461,3 +3461,44 @@ Describe "copilot-instructions.md - cg-skill-stata-testing registration" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# cg-plan.prompt.md - Step 0.7 Branch Offer ordering
+# Feature: branch-creation-from-plan (Workflow Maturity milestone)
+# Verifies the branch offer step exists between Step 0.5 and Step 1.
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 0.7 Branch Offer exists in the prompt" {
+        ($content -match '### Step 0\.7:.*Branch Offer') | Should Be $true
+    }
+
+    It "File Permissions allows branch creation" {
+        ($content -match 'create a git branch.*Step 0\.7') | Should Be $true
+    }
+
+    It "Step 0.7 Branch Offer appears after Step 0.5" {
+        $step05Idx = $content.IndexOf('### Step 0.5:')
+        $step07Idx = $content.IndexOf('### Step 0.7:')
+        $step05Idx | Should BeGreaterThan -1
+        $step07Idx | Should BeGreaterThan $step05Idx
+    }
+
+    It "Step 1 Gather Context appears after Step 0.7 Branch Offer" {
+        $step07Idx = $content.IndexOf('### Step 0.7:')
+        $step1Idx  = $content.IndexOf('### Step 1:')
+        $step07Idx | Should BeGreaterThan -1
+        $step1Idx  | Should BeGreaterThan $step07Idx
+    }
+
+    It "Branch Offer skips silently when already on a feature branch" {
+        ($content -match 'not.*main.*master.*skip silently|already on a.*branch.*skip silently') | Should Be $true
+    }
+
+    It "Branch Offer warns on uncommitted changes" {
+        ($content -match 'uncommitted changes') | Should Be $true
+    }
+}
+

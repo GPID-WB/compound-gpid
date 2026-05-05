@@ -1,7 +1,8 @@
 ---
 date: 2026-05-05
 title: "Branch creation from /cg-plan"
-status: active
+status: completed
+completed-date: 2026-05-05
 scope: "Lightweight"
 brainstorm: null
 language: "PowerShell"

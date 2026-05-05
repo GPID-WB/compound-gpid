@@ -12,6 +12,7 @@ You are a senior data science architect creating a structured implementation pla
 - You may read any file in the workspace.
 - You may read `roadmap.json` in the project root.
 - You may create new files ONLY under `.cg-docs/plans/`.
+- You may create a git branch if the user explicitly accepts at Step 0.7.
 - You must NOT modify any existing files.
 - You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
 - You must NOT create files outside `.cg-docs/plans/`.
@@ -34,6 +35,25 @@ Scan `.cg-docs/plans/` for existing plans matching this feature (keywords agains
   - **Start fresh**: Proceed normally.
 - If frontmatter is malformed: "Found related file '<filename>' but could not read its metadata (malformed frontmatter). Proceeding to Step 1."
 - If no exact match, scan titles of the 5 most recently modified plan files (by `date:` frontmatter field; if absent, fall back to last-write time; if tied, prefer the alphabetically last filename) for keyword overlap. Surface any with 3+ matching keywords. <!-- threshold synced with cg-brainstorm.prompt.md Step 0.5 -->
+
+### Step 0.7: Branch Offer
+
+Before gathering context, check the current branch:
+
+- Run `git branch --show-current`. If the result is not `main` or `master` (i.e., already on a feature branch): skip silently.
+- If on the default branch (`main`/`master`), offer:
+
+  > "Before we start planning, would you like to work on a new branch?
+  > Suggested name: `feat/<short-description-from-request>`
+  >
+  > 1. **Yes** — I'll create the branch now
+  > 2. **No** — Stay on the current branch"
+
+- Derive the branch name from the user's feature description using the project convention: `type/short-description` (`feat/` for features, `fix/` for bugs, `refactor/` for restructuring).
+- If accepted: create the branch with `git checkout -b <branch-name>` and confirm: "Switched to new branch `<branch-name>`. Let's continue."
+- If declined: proceed silently.
+- If the repo has uncommitted changes, warn before branching:
+  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
 
 ### Step 1: Gather Context
 

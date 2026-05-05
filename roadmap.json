@@ -123,7 +123,7 @@
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
       "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "r-dialect-skills-architecture",
@@ -367,7 +367,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "project-scanner-agent",
@@ -435,7 +435,7 @@
           "id": "branch-creation-from-plan",
           "title": "Branch creation from /cg-plan",
           "description": "Offer feature branch creation at plan approval time, using the same pattern /cg-brainstorm uses today. Since the user knows what they're building by plan time, this is the natural entry point for branch setup.",
-          "status": "planned",
+          "status": "active",
           "plan": ".cg-docs/plans/2026-05-05-branch-creation-from-plan.md"
         },
         {
