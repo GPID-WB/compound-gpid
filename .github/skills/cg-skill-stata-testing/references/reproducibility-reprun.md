@@ -21,7 +21,7 @@ reprun "analysis/main.do"
 
 | Column | Meaning |
 |--------|---------|
-| **Seed RNG** | Random number generator state changed between runs |
+| **Seed RNG State** | Random number generator state changed between runs |
 | **Sort Order RNG** | Sort order differed (non-unique sort) |
 | **Data Checksum** | Dataset changed between the two runs |
 
@@ -49,7 +49,7 @@ Fix strategy:
 Before running the full `reprun`, use `repscan` to quickly check for known patterns:
 
 ```stata
-repscan using "analysis/main.do"
+repscan "analysis/main.do"
 ```
 
 `repscan` checks for common issues without running the file twice. It is fast and catches:
@@ -65,7 +65,9 @@ Hard-coded paths break reproducibility across machines. Use `reproot` to define 
 
 ```stata
 * At the top of master do-file:
-reproot, project("my_project") roots("C:/Users/me/projects" "D:/work")
+* roots() takes NAME IDs defined in reproot-env.yaml — NOT absolute paths.
+* Run `reproot_setup` once per machine to configure the machine-local env file.
+reproot, project("my_project") roots("code" "data")
 
 * Use the root in all paths:
 use "${root_data}/raw/survey.dta", clear
@@ -76,7 +78,7 @@ In test assertions, use `${root_code}` (not hard-coded paths) to ensure the test
 
 **Never write**:
 ```stata
-use "C:/Users/wb384996/projects/poverty/data/survey.dta", clear   // ← BREAKS on other machines
+use "C:/Users/analyst/projects/poverty/data/survey.dta", clear   // ← BREAKS on other machines
 ```
 
 ## Result Caching and Comparison
@@ -101,15 +103,27 @@ file close cache
 
 ### Step 2: Compare against cache (run on every subsequent execution)
 ```stata
-* Load cached values
+* Load all cached values
+local cached_b  = .
+local cached_se = .
+local cached_n  = .
 file open cache using "${root_code}/tests/expected_results.txt", read
 file read cache line
-local cached_b = real(substr("`line'", strpos("`line'", "=") + 1, .))
+while r(eof) == 0 {
+    local key = substr("`line'", 1, strpos("`line'", "=") - 1)
+    local val = real(substr("`line'", strpos("`line'", "=") + 1, .))
+    if "`key'" == "b_treatment"  local cached_b  = `val'
+    if "`key'" == "se_treatment" local cached_se = `val'
+    if "`key'" == "n_obs"        local cached_n  = `val'
+    file read cache line
+}
 file close cache
 
-* Assert current result matches cache
+* Assert current results match all cached values
 regress outcome treatment controls [aw=weight]
-assert reldif(_b[treatment], `cached_b') < 1e-8
+assert reldif(_b[treatment],  `cached_b')  < 1e-8
+assert reldif(_se[treatment], `cached_se') < 1e-8
+assert e(N) == `cached_n'
 ```
 
 For simpler caching, use a CSV file read with `import delimited` and check with `assert reldif()`.
@@ -138,13 +152,24 @@ local analysis_scripts ///
     "analysis/01_clean.do" ///
     "analysis/02_poverty.do" ///
     "analysis/03_tables.do"
+local total_failed = 0
 
 foreach script of local analysis_scripts {
     display as text _n "Testing: `script'"
-    reprun "`script'"
-    // reprun halts on non-reproducible output
-    display as result "PASS: `script' is reproducible"
+    capture reprun "`script'"
+    if _rc {
+        // reprun exited with error or detected non-reproducible output
+        display as error "FAIL: `script' is NOT reproducible (rc = `_rc')"
+        local ++total_failed
+    }
+    else {
+        display as result "PASS: `script' is reproducible"
+    }
 }
 
 display as result _n "All reproducibility tests passed."
+assert `total_failed' == 0
+// Note: verify `capture reprun` exit code behavior against your installed repkit version.
+// If reprun always exits 0 (only printing a report), check the SMCL output file instead.
+// See: help reprun for _rc documentation.
 ```

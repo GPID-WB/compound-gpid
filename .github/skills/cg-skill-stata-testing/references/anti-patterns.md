@@ -101,13 +101,15 @@ assert float(headcount) == float(0.4231)
 
 ❌ **Wrong** — absolute paths break reproducibility across machines:
 ```stata
-do "C:/Users/wb384996/projects/poverty/tests/test_ppp.do"
+do "C:/Users/analyst/projects/poverty/tests/test_ppp.do"
 use "D:/data/survey_2023.dta", clear
 ```
 
 ✅ **Correct** — use `reproot` globals for all paths:
 ```stata
-reproot, project("poverty_analysis") roots("C:/projects" "D:/work")
+* roots() takes NAME IDs (e.g., "code", "data") — NOT absolute paths.
+* Absolute paths live in the machine-local reproot-env.yaml (configured once via reproot_setup).
+reproot, project("poverty_analysis") roots("code" "data")
 do "${root_code}/tests/test_ppp.do"
 use "${root_data}/raw/survey_2023.dta", clear
 ```
@@ -180,18 +182,42 @@ replace welfare_ppp = . if welfare_ppp > 999
 assert !missing(welfare_ppp)   // ← this passes trivially after the replace above
 ```
 
-✅ **Correct** — separate transformation code from test code:
+✅ **Correct** — test the generation logic before capping, then verify the final state separately:
 ```stata
 * --- Transformation (in analysis do-file) ---
+* Note: welfare_lcu assumed daily-rate LCU; annual surveys additionally require / 365
 gen welfare_ppp = welfare / ppp_2017
-replace welfare_ppp = . if welfare_ppp > 999
 
 * --- Validation (in test do-file or labeled test block) ---
-/* TEST: verify PPP conversion produces valid output */
-assert !missing(welfare_ppp) if !missing(welfare)
+/* TEST: verify PPP conversion formula — re-derive and test before capping */
+preserve
+    gen welfare_ppp_test = welfare / ppp_2017    // re-derive to test the formula, not the replace
+    assert welfare_ppp_test >= 0                  // catches sign errors in the gen formula
+restore
+
+/* TEST: verify post-transformation state */
 assert welfare_ppp >= 0
-count if welfare_ppp > 999
-assert r(N) == 0    // replace above should have removed all > 999
+assert !missing(welfare_ppp) if !missing(welfare)
 ```
 
 **Why it fails**: Interleaved assertions hide logical errors. The second assertion (`!missing`) passes only because the first `replace` already removed the invalid values — it tests the `replace`, not the `gen`. Separating test code into labeled blocks makes each assertion's purpose clear and allows the test to catch regressions when the generation logic changes.
+
+---
+
+## 9. Survey Subgroup Analysis with `if` Instead of `subpop()`
+
+❌ **Wrong** — using `if` to restrict to a subgroup gives incorrect variance estimates:
+```stata
+svy: mean welfare if urban == 1
+svy: mean welfare if region == "North"
+```
+
+✅ **Correct** — use `subpop()` to preserve the full survey design for variance estimation:
+```stata
+svy, subpop(if urban == 1): mean welfare
+svy, subpop(if region == "North"): mean welfare
+```
+
+**Why it fails**: Complex survey designs estimate variance using the full PSU/strata structure across all observations. Conditioning with `if` before `svy:` removes non-subgroup observations before variance computation, discarding cross-stratum covariance information. The result is standard errors that are too small — confidence intervals on rural/urban poverty rates appear more precise than they actually are. For World Bank poverty publications this means falsely narrow uncertainty bounds on official statistics.
+
+The `subpop()` approach keeps all observations in memory during variance estimation but restricts point estimates to the subpopulation — correctly propagating design uncertainty.

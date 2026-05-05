@@ -76,7 +76,9 @@ regress outcome treatment controls [aw=weight]
 
 * Assert observation count is within expected range
 assert e(N) >= 1000
-assert e(N) == _N    // no observations dropped unexpectedly
+* Note: exact equality (e(N) == _N) fires for any missing covariate via listwise deletion — a
+* normal Stata behavior, not a bug. Assert a minimum retention rate instead:
+assert e(N) >= _N * 0.90    // at least 90% of observations retained after listwise deletion
 
 * Assert R-squared is plausible (not suspiciously perfect)
 assert e(r2) > 0.01
@@ -106,9 +108,11 @@ local b2 = _b[treatment]
 regress outcome treatment controls, vce(cluster district)
 local b3 = _b[treatment]
 
-* Assert stable across specs (within 20% of each other)
-assert reldif(`b1', `b2') < 0.20
-assert reldif(`b2', `b3') < 0.05    // same point estimate, only SE changes
+* Assert stable across specs — calibrate tolerance to domain:
+* < 0.05 for welfare/poverty estimates (5% rel. difference ≈ ±2pp on a 0.45 headcount)
+* Looser tolerances (< 0.20) risk masking large covariate sensitivity — document if used.
+assert reldif(`b1', `b2') < 0.05    // welfare statistics: 5% max relative difference
+assert reldif(`b2', `b3') < 0.01    // same point estimate, only SE changes
 ```
 
 ## FGT Poverty Index Checks
@@ -117,6 +121,8 @@ FGT indices must satisfy mathematical properties:
 
 ```stata
 * After computing poverty measures
+* Requires: ssc install povdeco (or equivalent). Return names (head_count, poverty_gap,
+* poverty_severity) are povdeco-specific. Other packages: r(p0)/r(FGT0), r(p1), r(p2) — check help.
 poverty welfare [aw=weight], line(`poverty_line')
 
 * Assert FGT0 (headcount) is a proportion
@@ -163,8 +169,9 @@ estimates store spec2
 
 * Retrieve and check coefficient from stored estimate
 estimates restore spec1
-assert _b[treatment] > 0
+local b_spec1 = _b[treatment]    // store before switching to spec2
+assert `b_spec1' > 0
 
 estimates restore spec2
-assert reldif(_b[treatment], _b[treatment]) < 0.20    // stability check
+assert reldif(`b_spec1', _b[treatment]) < 0.20    // stability check
 ```

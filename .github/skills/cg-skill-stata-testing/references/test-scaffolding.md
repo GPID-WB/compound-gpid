@@ -52,7 +52,8 @@ foreach z in 1.90 3.20 5.50 6.85 {
 restore
 
 display as result _n "Tests passed: `tests_passed'  Failed: `tests_failed'"
-assert `tests_failed' == 0, "Some poverty-line tests failed — see above"
+if `tests_failed' > 0 display as error "Some poverty-line tests failed — see above"
+assert `tests_failed' == 0
 ```
 
 ## Temporary Files for Test State
@@ -111,14 +112,16 @@ local tests_failed = 0
 * Helper macro to record pass/fail
 capture program drop assert_soft
 program define assert_soft
-    args condition label
+    // args: condition  label  tests_failed_var  tests_passed_var
+    // Example: assert_soft "inrange(welfare,0,1)" "welfare non-neg" tests_failed tests_passed
+    args condition label tf_var tp_var
     capture assert `condition'
     if _rc {
         di as error "FAIL: `label'"
-        c_local tests_failed = `tests_failed' + 1
+        c_local `tf_var' = ``tf_var'' + 1
     }
     else {
-        c_local tests_passed = `tests_passed' + 1
+        c_local `tp_var' = ``tp_var'' + 1
     }
 end
 
@@ -188,6 +191,30 @@ display as result    "Total failed files: `total_failed'"
 display as result    "=========================="
 assert `total_failed' == 0
 ```
+
+## Test Data Strategy
+
+Use synthetic data for unit tests and production data for integration tests.
+
+**Unit tests** (logic checks, formula validation): generate minimal synthetic data in-memory.
+Never rely on a real survey file — it may not be present on every machine.
+
+```stata
+/* Unit test: generate 500 synthetic observations */
+clear
+set obs 500
+set seed 42
+gen welfare = runiform() * 100    // continuous, non-negative
+gen weight  = runiform() + 0.1   // strictly positive
+gen urban   = (runiform() > 0.5)
+
+* Run and assert on synthetic data
+poverty welfare [aw=weight], line(10)
+assert inrange(r(head_count), 0, 1)
+```
+
+**Integration tests**: use `preserve`/`restore` around a real survey file loaded by the master runner.
+Keep integration test do-files in a separate folder (`tests/integration/`) to separate from unit tests.
 
 ## Test File Naming Convention
 

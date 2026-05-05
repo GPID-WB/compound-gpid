@@ -118,7 +118,9 @@ assert !missing(ppp_2017)
 preserve
 
 * Apply PPP conversion
+* welfare_lcu must be ANNUAL (LCU per year); / ppp_2017 converts to 2017 USD; / 365 gives daily
 gen welfare_ppp = welfare_lcu / ppp_2017 / 365
+assert welfare_ppp < 500 if !missing(welfare_ppp)    // plausibility: < $500/day
 
 // ---- 3. VERIFY ----
 
@@ -193,7 +195,7 @@ svy: mean welfare
 
 local mean_est  = e(b)[1,1]
 local mean_se   = sqrt(e(V)[1,1])
-local deff      = e(deff)
+local deff      = e(deff)[1,1]    // [1,1] = first variable; e(deff) is a matrix for multi-variable svy: mean
 
 // ---- 3. VERIFY ----
 
@@ -208,8 +210,8 @@ if _rc { local ++tests_failed ; display as error "FAIL: SE >= mean (CV ≥ 100%)
 else   { local ++tests_passed ; display as text  "PASS: SE < mean" }
 
 * Design effect is plausible (between 1 and 20)
-capture assert inrange(`deff', 1, 20)
-if _rc { local ++tests_failed ; display as error "FAIL: DEFF = `deff' outside [1,20]" }
+capture assert inrange(`deff', 0.5, 30)    // DEFF < 1 is valid for calibrated/post-stratified weights
+if _rc { local ++tests_failed ; display as error "FAIL: DEFF = `deff' outside [0.5,30]" }
 else   { local ++tests_passed ; display as text  "PASS: DEFF in plausible range" }
 
 * Sample size is adequate
@@ -256,21 +258,23 @@ xtset district_id year
 assert inlist(treated, 0, 1)
 assert !missing(treated)
 assert !missing(outcome)
+local treatment_year = 2018    // adjust to actual treatment year
 
 // ---- 2. EXECUTE ----
 preserve
 
-* Pre-treatment: test parallel trends (interaction should be insignificant)
-gen pre_period   = (year <  `treatment_year')
-gen post_period  = (year >= `treatment_year')
+* Pre-treatment: test parallel trends
+* Keep only pre-treatment periods and test year x treated interactions.
+* Do NOT include i.pre_period alongside i.year — they are collinear and get dropped.
+keep if year < `treatment_year'
 
-regress outcome i.treated##i.pre_period controls i.year, ///
+regress outcome i.treated##i.year controls, ///
     vce(cluster district_id)
 
 // ---- 3. VERIFY: Pre-trends ----
 
-* Pre-period treatment interaction must be insignificant
-test 1.treated#1.pre_period = 0
+* Joint test: all treated x year interactions are zero (parallel trends)
+testparm i.treated#i.year
 local p_pretrend = r(p)
 
 capture assert `p_pretrend' > 0.05
