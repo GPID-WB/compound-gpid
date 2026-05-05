@@ -123,7 +123,7 @@
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
       "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "r-dialect-skills-architecture",
@@ -367,7 +367,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "project-scanner-agent",
@@ -420,6 +420,49 @@
         {
           "id": "onboarding-tour-prompt",
           "title": "Onboarding tour prompt /cg-tour (guided workflow walkthrough)",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "workflow-maturity",
+      "title": "Workflow Maturity",
+      "objective": "Improve the plan→execute cycle with branch management, phased execution, smarter debugging, and optional team coordination.",
+      "status": "in-progress",
+      "features": [
+        {
+          "id": "branch-creation-from-plan",
+          "title": "Branch creation from /cg-plan",
+          "description": "Offer feature branch creation at plan approval time, using the same pattern /cg-brainstorm uses today. Since the user knows what they're building by plan time, this is the natural entry point for branch setup.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "phased-plan-structure",
+          "title": "Phased plan structure in /cg-plan",
+          "description": "Allow /cg-plan to structure implementation plans into numbered phases. Ask user if they have a phase breakdown in mind; if not, suggest one. Last phase defaults to testing/validation/polish unless user overrides. Plan output uses explicit Phase sections with self-contained task lists.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "phased-execution-cg-work",
+          "title": "Phased execution in /cg-work",
+          "description": "Support '/cg-work phase1' to execute a single phase and stop, enabling cross-session continuity. '/cg-work' without arguments runs all phases sequentially. Track completed phases in plan frontmatter so users can resume in new sessions.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "fixbug-test-correctness-assessment",
+          "title": "/cg-fixbug test-correctness assessment",
+          "description": "Before fixing a bug, /cg-fixbug evaluates whether existing tests assert the intended behavior or merely codify the bug. Decides whether to fix the test, replace it, or write a new one — never blindly runs new code against old (possibly wrong) assertions.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "github-issues-integration",
+          "title": "GitHub Issues integration (optional, via gh CLI)",
+          "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive — not a replacement for the existing roadmap feature.",
           "status": "idea",
           "plan": null
         }
