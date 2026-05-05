@@ -3321,3 +3321,143 @@ Describe "cg-brainstorm.prompt.md - Branch Offer appears before Step 2" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - all 8 skill files exist
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-stata-testing - skill file structure" {
+    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-stata-testing"
+    $skillFile = Join-Path $skillRoot "SKILL.md"
+    $skillContent = Get-Content $skillFile -Raw -Encoding UTF8
+    $skillFm = Get-Frontmatter -FilePath $skillFile
+    $skillLineCount = (Get-Content $skillFile).Count
+    $expectedFiles = @(
+        "SKILL.md",
+        "references\assertions-and-error-handling.md",
+        "references\data-validation.md",
+        "references\result-verification.md",
+        "references\reproducibility-reprun.md",
+        "references\test-scaffolding.md",
+        "references\anti-patterns.md",
+        "references\workflow-examples.md"
+    )
+
+    foreach ($file in $expectedFiles) {
+        It "file '$file' exists" {
+            Test-Path (Join-Path $skillRoot $file) | Should Be $true
+        }
+    }
+
+    It "SKILL.md has a description: field" {
+        ($skillFm -match 'description:') | Should Be $true
+    }
+
+    It "SKILL.md description is non-empty" {
+        ($skillContent -match 'description:\s*[>|]?\s*\S') | Should Be $true
+    }
+
+    It "SKILL.md is 100 lines or fewer (thin routing table)" {
+        $skillLineCount | Should BeLessThan 101
+    }
+
+    It "SKILL.md references cg-skill-stata-best-practices (cross-reference)" {
+        ($skillContent -match 'cg-skill-stata-best-practices') | Should Be $true
+    }
+
+    It "SKILL.md has user-invokable: false (P2.3)" {
+        ($skillFm -match 'user-invokable:\s*false') | Should Be $true
+    }
+
+    It "SKILL.md description trigger mentions assertion blocks (P2.4)" {
+        ($skillFm -match 'assertion blocks') | Should Be $true
+    }
+
+    It "anti-patterns.md references coding-principles (cross-reference)" {
+        $antiFile = Join-Path $skillRoot "references\anti-patterns.md"
+        $content = if (Test-Path $antiFile) { Get-Content $antiFile -Raw -Encoding UTF8 } else { "" }
+        ($content -match 'coding-principles') | Should Be $true
+    }
+
+    It "data-validation.md uses r(balanced) not e(balanced) (P0.2 guard)" {
+        $dv = Get-Content (Join-Path $skillRoot "references\data-validation.md") -Raw -Encoding UTF8
+        ($dv -match 'e\(balanced\)') | Should Be $false
+        ($dv -match 'r\(balanced\)') | Should Be $true
+    }
+
+    It "data-validation.md has no assert with inline string message (P0.1 guard)" {
+        $dv = Get-Content (Join-Path $skillRoot "references\data-validation.md") -Raw -Encoding UTF8
+        # assert[^()\r\n]+,\s*" matches assert without parens before the comma (excludes inlist(), inrange() etc.)
+        ($dv -match 'assert\b[^()\r\n]+,\s*"') | Should Be $false
+    }
+
+    It "result-verification.md stores spec coefficient before reldif (P0.3 guard)" {
+        $rv = Get-Content (Join-Path $skillRoot "references\result-verification.md") -Raw -Encoding UTF8
+        ($rv -match 'local\s+b\d\s*=\s*_b\[') | Should Be $true
+    }
+
+    It "SKILL.md routing table lists 9 anti-patterns (P2.1 guard)" {
+        ($skillContent -match '9 testing-specific anti-patterns') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - stata.instructions.md routing
+# ---------------------------------------------------------------------------
+
+Describe "stata.instructions.md - skill routing" {
+    $instrFile = Join-Path $repoRoot ".github\instructions\stata.instructions.md"
+    $content = if (Test-Path $instrFile) { Get-Content $instrFile -Raw -Encoding UTF8 } else { "" }
+
+    It "stata.instructions.md exists" {
+        Test-Path $instrFile | Should Be $true
+    }
+
+    It "has applyTo covering .do files" {
+        $fm = Get-Frontmatter -FilePath $instrFile
+        ($fm -match '\.do') | Should Be $true
+    }
+
+    It "has applyTo covering .ado files" {
+        $fm = Get-Frontmatter -FilePath $instrFile
+        ($fm -match '\.ado') | Should Be $true
+    }
+
+    It "routes to cg-skill-stata-best-practices" {
+        ($content -match 'cg-skill-stata-best-practices') | Should Be $true
+    }
+
+    It "routes to cg-skill-stata-testing" {
+        ($content -match 'cg-skill-stata-testing') | Should Be $true
+    }
+
+    It "uses conditional trigger language for stata-testing" {
+        ($content -match 'cg-skill-stata-testing.*when writing|when writing.*cg-skill-stata-testing') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-skill-stata-testing - docs/reference.md registration
+# ---------------------------------------------------------------------------
+
+Describe "docs/reference.md - cg-skill-stata-testing registration" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/reference.md lists cg-skill-stata-testing" {
+        ($content -match 'cg-skill-stata-testing') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# copilot-instructions.md - cg-skill-stata-testing registration (P2.2)
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - cg-skill-stata-testing registration" {
+    $instrFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = if (Test-Path $instrFile) { Get-Content $instrFile -Raw -Encoding UTF8 } else { "" }
+
+    It "copilot-instructions.md registers cg-skill-stata-testing" {
+        ($content -match 'cg-skill-stata-testing') | Should Be $true
+    }
+}
+
