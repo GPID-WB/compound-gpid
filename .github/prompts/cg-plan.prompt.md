@@ -40,20 +40,34 @@ Scan `.cg-docs/plans/` for existing plans matching this feature (keywords agains
 
 Before gathering context, check the current branch:
 
-- Run `git branch --show-current`. If the result is not `main` or `master` (i.e., already on a feature branch): skip silently.
-- If on the default branch (`main`/`master`), offer:
+- Run `git branch --show-current`. If the command fails or returns empty output (non-git workspace), skip this step silently.
+- If Step 0.5 concluded with a **Refine** decision, skip this step silently — the branch for this plan likely already exists.
+- Determine the default branch: run `git symbolic-ref refs/remotes/origin/HEAD --short 2>$null` (strips `origin/` prefix to get e.g. `main`, `develop`, `trunk`). If the command fails or returns empty, fall back to checking for `main` or `master`.
+- If the current branch is not the default branch (i.e., already on a feature branch): skip silently.
+- If the repo has uncommitted changes, warn before offering:
+  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
+- Derive the branch name from the user's feature description using the project convention: `type/short-description` where type follows the project's commit-type taxonomy:
+  - `feat/` — new features
+  - `fix/` — bug fixes
+  - `refactor/` — code restructuring
+  - `test/` — testing work
+  - `docs/` — documentation
+  - `chore/` — maintenance tasks
+  - `data/` — data work
+  - `analysis/` — analysis work
+- Normalize the branch name: replace spaces with `-`, remove characters in `~^:?*[\`, collapse `..` to `-`, strip `@{`, truncate to 60 characters. If empty after normalization, ask the user for a branch name.
+- If on the default branch, offer:
 
   > "Before we start planning, would you like to work on a new branch?
-  > Suggested name: `feat/<short-description-from-request>`
+  > Suggested name: `<type>/<short-description-from-your-request>`
   >
   > 1. **Yes** — I'll create the branch now
   > 2. **No** — Stay on the current branch"
 
-- Derive the branch name from the user's feature description using the project convention: `type/short-description` (`feat/` for features, `fix/` for bugs, `refactor/` for restructuring).
-- If accepted: create the branch with `git checkout -b <branch-name>` and confirm: "Switched to new branch `<branch-name>`. Let's continue."
-- If declined: proceed silently.
-- If the repo has uncommitted changes, warn before branching:
-  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
+- If the user accepts: create the branch with `git checkout -b <branch-name>` and confirm: "Switched to new branch `<branch-name>`. Let's continue."
+  - If `git checkout -b` fails because the branch already exists, offer: "Branch `<name>` already exists — switch to it? (yes/no)." For other errors, report the git error verbatim and skip branching.
+- If the user declines: proceed silently.
+- **Cleanup note**: If the planning session ends without producing a plan (abandoned at Step 0.5 or 1.5), suggest: `git branch -d <branch-name>` to remove the unused branch.
 
 ### Step 1: Gather Context
 
