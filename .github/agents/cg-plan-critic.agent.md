@@ -42,6 +42,13 @@ You are **not** reviewing the code. You are reviewing the *plan for the code*.
 - Are the mitigations concrete (specific code steps) or vague ("handle carefully")?
 - Is any critical risk missing — something that would clearly derail the implementation?
 
+### 6. Phase Structure (if the plan is phased)
+- Do the phases form a logical, sequential order with clear handoff boundaries?
+- Is each phase independently testable and committable (could you stop after phase N and resume cleanly)?
+- Does each phase have a clear completion criterion, or does the boundary feel arbitrary?
+- Are there any steps that logically belong to phase N but are placed in phase N+1 (or vice versa)?
+- Does any later phase depend on implementation details from an earlier phase that aren't explicitly listed as a handoff artifact?
+
 ## Output Format
 
 Report findings with priority levels:

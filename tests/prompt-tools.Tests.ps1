@@ -227,6 +227,10 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "references /cg-plan-review in Workflow Entry Points" {
         ($section -match '/cg-plan-review') | Should Be $true
     }
+
+    It "documents /cg-work phaseX for implementing a specific phase (P3.6)" {
+        ($section -match '/cg-work phaseX|cg-work phase') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -3449,6 +3453,31 @@ Describe "docs/reference.md - cg-skill-stata-testing registration" {
 }
 
 # ---------------------------------------------------------------------------
+# docs/reference.md - phased plan (P1.6 + P1.7)
+# ---------------------------------------------------------------------------
+
+Describe "docs/reference.md - phased plan documentation" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
+
+    It "/cg-work entry documents phaseX argument syntax" {
+        ($content -match '/cg-work \[phaseX\]|cg-work phase') | Should Be $true
+    }
+
+    It "documents phases: frontmatter field as a convenience hint" {
+        ($content -match 'phases.*hint|hint.*phases') | Should Be $true
+    }
+
+    It "documents completed-phases as the authoritative completion record" {
+        ($content -match 'completed-phases') | Should Be $true
+    }
+
+    It "documents current-phase frontmatter field" {
+        ($content -match 'current-phase') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # copilot-instructions.md - cg-skill-stata-testing registration (P2.2)
 # ---------------------------------------------------------------------------
 
@@ -3592,3 +3621,362 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
     }
 }
 
+
+# ---------------------------------------------------------------------------
+# Phased plan structure — cg-plan.prompt.md Step 3.5
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - phase structure support" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "contains Step 3.5 Phase Structure section" {
+        ($content -match 'Phase Structure') | Should Be $true
+    }
+
+    It "documents phases: frontmatter field in phased template" {
+        ($content -match 'phases:') | Should Be $true
+    }
+
+    It "shows ## Phase header format in the phased template example" {
+        ($content -match '## Phase') | Should Be $true
+    }
+
+    It "offers phase breakdown for Deep scope" {
+        ($content -match '(?i)Deep.*phases|phases.*Deep') | Should Be $true
+    }
+
+    It "offers optional phase breakdown for Standard scope" {
+        ($content -match '(?i)Standard.*phases|phases.*Standard|Would you like to organize') | Should Be $true
+    }
+
+    It "silently skips phase offer for Lightweight scope" {
+        ($content -match '(?i)Lightweight.*skip silently|skip silently') | Should Be $true
+    }
+
+    It "Step 3.5 appears before Step 4 in the file" {
+        $step35Pos = $content.IndexOf("### Step 3.5:")
+        $step4Pos  = $content.IndexOf("### Step 4:")
+        $step35Pos | Should BeGreaterThan -1
+        $step4Pos  | Should BeGreaterThan -1
+        $step35Pos | Should BeLessThan $step4Pos
+    }
+
+    It "Step 3.5 checks for non-empty completed-phases before restructuring phases (pre-flight guard)" {
+        ($content -match 'completed phases recorded|invalidate the completion history') | Should Be $true
+    }
+
+    It "phases: example includes hint comment noting the field may be stale (P3.10)" {
+        ($content -match 'phases:.*convenience hint|may be stale.*recount') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phased execution — cg-work.prompt.md Steps 1.2 and 2.5
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - phase argument parsing (Step 1.2)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "contains Step 1.2 Parse Phase Argument section" {
+        ($content -match 'Step 1\.2|Parse Phase Argument') | Should Be $true
+    }
+
+    It "documents completed-phases frontmatter field" {
+        ($content -match 'completed-phases') | Should Be $true
+    }
+
+    It "documents current-phase frontmatter field" {
+        ($content -match 'current-phase') | Should Be $true
+    }
+
+    It "documents out-of-bounds error message" {
+        ($content -match 'Phase N does not exist') | Should Be $true
+    }
+
+    It "documents sequential enforcement error message (Phase X cannot start)" {
+        ($content -match 'Phase X cannot start') | Should Be $true
+    }
+
+    It "Step 1.2 appears before Step 1.5 in the file" {
+        $step12Pos = $content.IndexOf("### Step 1.2:")
+        $step15Pos = $content.IndexOf("### Step 1.5:")
+        $step12Pos | Should BeGreaterThan -1
+        $step15Pos | Should BeGreaterThan -1
+        $step12Pos | Should BeLessThan $step15Pos
+    }
+
+    It "Step 1.2 phase detection ignores ## Phase inside fenced code blocks" {
+        ($content -match 'fenced code block|ignore.*code block|code block.*ignore') | Should Be $true
+    }
+
+    It "Step 1.2 no-arg phased path skips completed phases" {
+        ($content -match 'skip.*completed|already.*completed-phases') | Should Be $true
+    }
+
+    It "Step 1.2 accepts case-insensitive phase argument forms" {
+        ($content -match 'case.insensitive') | Should Be $true
+    }
+
+    It "Step 1.2 warns when phase arg given on non-phased plan" {
+        ($content -match 'This plan has no phases|no phases.*Executing') | Should Be $true
+    }
+
+    It "Step 1.2 sequential enforcement exempts phase 1" {
+        ($content -match 'phase 1 is always allowed|exception.*phase 1') | Should Be $true
+    }
+
+    It "Step 1.2 treats absent completed-phases as empty list" {
+        ($content -match 'absent.*treat.*\[\]|absent.*empty list') | Should Be $true
+    }
+
+    It "Step 1.2 validates no-arg phased run has positive integers in [1, M]" {
+        ($content -match 'positive integers in.*1.*M|entries.*out of range') | Should Be $true
+    }
+
+    It "Step 1.2 all-phases-complete path halts with clear message" {
+        ($content -match 'All.*phases.*already complete|phases are already complete') | Should Be $true
+    }
+
+    It "Step 1.2 all-phases-complete halt message uses M (not N) for phase count (P3.v1)" {
+        ($content -match 'All M phases are already complete') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase argument validation — cg-work.prompt.md Step 1.2 (P1.3, P2.17, P2.18)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - phase argument validation" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 1.2 validates lower-bound (phase0 is not valid)" {
+        ($content -match 'phase.*must be.*1|phase0.*not valid|N < 1') | Should Be $true
+    }
+
+    It "Step 1.2 re-validates phase argument after plan-loading fallback" {
+        ($content -match 're-count.*recovered|re-validate.*fallback|After any plan-file fallback') | Should Be $true
+    }
+
+    It "Step 1.2 preamble headings excluded from phase membership scan" {
+        ($content -match 'preamble.*NOT steps|before the first.*Phase.*preamble') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase boundary — cg-work.prompt.md Step 2.5 (P0.1, P0.2, P1.1, P2.11, P2.12)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - phase boundary (Step 2.5)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "contains Step 2.5 Phase Boundary section" {
+        ($content -match 'Step 2\.5|Phase Boundary') | Should Be $true
+    }
+
+    It "documents phase-terminal commit suppression" {
+        ($content -match 'phase-terminal|sub-step 6') | Should Be $true
+    }
+
+    It "Step 2.5 appears before Step 3 in the file" {
+        $step25Pos = $content.IndexOf("### Step 2.5:")
+        $step3Pos  = $content.IndexOf("### Step 3:")
+        $step25Pos | Should BeGreaterThan -1
+        $step3Pos  | Should BeGreaterThan -1
+        $step25Pos | Should BeLessThan $step3Pos
+    }
+
+    It "instructs keeping status: active when user stops at phase boundary" {
+        ($content -match 'paused between phases') | Should Be $true
+    }
+
+    It "Step 2.5 mandates completed-phases written before current-phase (crash-safe write order)" {
+        ($content -match 'exact order|crash.safe|authoritative completion record') | Should Be $true
+    }
+
+    It "Step 2.5 mandates YAML flow sequence with unquoted integers for completed-phases" {
+        ($content -match 'unquoted integer|Never use quoted') | Should Be $true
+    }
+
+    It "Step 2.5 handles final phase (N = M) by proceeding to Step 3 without continue/stop offer" {
+        ($content -match 'final phase.*N = M|N = M.*final phase') | Should Be $true
+    }
+
+    It "Step 2.5 removes current-phase frontmatter after final phase" {
+        ($content -match 'remove.*current-phase|current-phase.*final') | Should Be $true
+    }
+
+    It "Step 2.5 documents current-phase as informational only with no consumer" {
+        ($content -match 'informational only|no prompt reads') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# File permissions — cg-work.prompt.md phase fields (P2 additions)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - file permissions include phase fields" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    # Extract the File Permissions section (between ## File Permissions and ## Process)
+    $permStart = $content.IndexOf("## File Permissions")
+    $permEnd   = $content.IndexOf("## Process")
+    $permBlock = if ($permStart -ge 0 -and $permEnd -gt $permStart) {
+        $content.Substring($permStart, $permEnd - $permStart)
+    } else { "" }
+
+    It "File Permissions section start anchor found (IndexOf guard)" {
+        $permStart | Should BeGreaterThan -1
+    }
+
+    It "Process section start anchor found - end of perm block (IndexOf guard)" {
+        $permEnd | Should BeGreaterThan $permStart
+    }
+
+    It "File Permissions section exists" {
+        $permBlock | Should Not BeNullOrEmpty
+    }
+
+    It "File Permissions section mentions completed-phases" {
+        ($permBlock -match 'completed-phases') | Should Be $true
+    }
+
+    It "File Permissions section mentions current-phase" {
+        ($permBlock -match 'current-phase') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phased execution — cg-resume.prompt.md phase progress display
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - phase progress display in Step 2a" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    # Extract Step 2a section only (from "#### 2a." to "#### 2b.") — P3.4 scope fix
+    $step2aStart = $content.IndexOf("#### 2a.")
+    $step2bStart = $content.IndexOf("#### 2b.")
+    $step2aBlock = if ($step2aStart -ge 0 -and $step2bStart -gt $step2aStart) {
+        $content.Substring($step2aStart, $step2bStart - $step2aStart)
+    } else { "" }
+
+    It "Step 2a section start anchor found (IndexOf guard)" {
+        $step2aStart | Should BeGreaterThan -1
+    }
+
+    It "Step 2b section start is after Step 2a (IndexOf guard)" {
+        $step2bStart | Should BeGreaterThan $step2aStart
+    }
+
+    It "Step 2a section exists" {
+        $step2aBlock | Should Not BeNullOrEmpty
+    }
+
+    It "references completed-phases frontmatter field in Step 2a" {
+        ($step2aBlock -match 'completed-phases') | Should Be $true
+    }
+
+    It "documents phase progress display format" {
+        ($step2aBlock -match 'Phase progress:') | Should Be $true
+    }
+
+    It "documents next phase suggestion with /cg-work phase command" {
+        ($step2aBlock -match '/cg-work phase') | Should Be $true
+    }
+
+    It "sanitizes malformed completed-phases before computing next phase (discards non-integer entries)" {
+        ($step2aBlock -match 'discard.*not positive integer|deduplicate') | Should Be $true
+    }
+
+    It "uses smallest integer >= 1 (lower-bound) for next phase computation" {
+        ($step2aBlock -match 'smallest integer.*1|integer.*1.*not in') | Should Be $true
+    }
+
+    It "reads plan body to count ## Phase headers (not phases: hint) for M" {
+        ($step2aBlock -match 'read the plan body|authoritative header count|do not use the.*phases.*hint') | Should Be $true
+    }
+
+    It "displays absent completed-phases as no phase info (three-branch display: absent)" {
+        ($step2aBlock -match 'completed-phases.*absent.*no phase|absent.*display no phase') | Should Be $true
+    }
+
+    It "displays completed-phases: [] as 0/M phases (three-branch display: empty)" {
+        ($step2aBlock -match 'present but empty|\[\].*0/M|0/M.*phase1') | Should Be $true
+    }
+
+    It "displays all-phases-complete state without a /cg-work phaseX suggestion" {
+        ($step2aBlock -match 'All.*phases completed|all phases complete') | Should Be $true
+    }
+
+    It "all-phases-complete message does not suggest bare /cg-work (P2.v1: broken suggestion fixed)" {
+        ($step2aBlock -match 'Run `/cg-work` to proceed') | Should Be $false
+    }
+
+    It "all-phases-complete message references final quality checks (P2.v1)" {
+        ($step2aBlock -match 'Final quality checks ran|re-run the final phase') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phased plan critic — cg-plan-critic.agent.md Phase Structure dimension (P2.15)
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan-critic.agent.md - phase structure review dimension" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-plan-critic.agent.md"
+    $content = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
+
+    It "contains a Phase Structure review dimension" {
+        ($content -match 'Phase Structure') | Should Be $true
+    }
+
+    It "Phase Structure dimension checks phase ordering and completion criteria" {
+        ($content -match 'completion criterion|logical.*order|independently testable') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-work.prompt.md description — no [plan_file] arg (P2.20)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - description does not advertise plan_file argument" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "description does not advertise [plan_file] (unimplemented argument)" {
+        ($content -match '\[plan_file\]') | Should Be $false
+    }
+
+    It "description: frontmatter advertises phaseX argument support (P3.14)" {
+        ($content -match '\[phaseX\]|Supports.*phaseX') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Pipeline contract tests (P2.25): cg-plan -> cg-work -> cg-resume
+# ---------------------------------------------------------------------------
+
+Describe "phased plan pipeline contract: cg-plan emits format cg-work parses" {
+    $planPromptFile  = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $workPromptFile  = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $resumePromptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $planContent   = if (Test-Path $planPromptFile)   { Get-Content $planPromptFile   -Raw -Encoding UTF8 } else { "" }
+    $workContent   = if (Test-Path $workPromptFile)   { Get-Content $workPromptFile   -Raw -Encoding UTF8 } else { "" }
+    $resumeContent = if (Test-Path $resumePromptFile) { Get-Content $resumePromptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-plan phased template uses '## Phase N:' format (matches cg-work parser)" {
+        ($planContent -match '## Phase \d+:') | Should Be $true
+    }
+
+    It "cg-work parser scans for '## Phase' headers (matches cg-plan output format)" {
+        ($workContent -match '## Phase') | Should Be $true
+    }
+
+    It "cg-resume /cg-work suggestion uses phase argument format matching cg-work parser" {
+        ($resumeContent -match '/cg-work phase\d|/cg-work phase') | Should Be $true
+    }
+}
