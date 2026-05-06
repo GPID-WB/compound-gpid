@@ -231,6 +231,11 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "documents /cg-work phaseX for implementing a specific phase (P3.6)" {
         ($section -match '/cg-work phaseX|cg-work phase') | Should Be $true
     }
+
+    # P2.1 — /cg-roadmap-view in Workflow Entry Points
+    It "references /cg-roadmap-view in Workflow Entry Points" {
+        ($section -match '/cg-roadmap-view') | Should Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -3978,5 +3983,332 @@ Describe "phased plan pipeline contract: cg-plan emits format cg-work parses" {
 
     It "cg-resume /cg-work suggestion uses phase argument format matching cg-work parser" {
         ($resumeContent -match '/cg-work phase\d|/cg-work phase') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-roadmap-view.agent.md — existence, frontmatter, read-only enforcement
+# ---------------------------------------------------------------------------
+
+Describe "cg-roadmap-view.agent.md - existence" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-roadmap-view.agent.md"
+
+    It "exists in the repository" {
+        Test-Path $agentFile | Should Be $true
+    }
+}
+
+Describe "cg-roadmap-view.agent.md - frontmatter" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-roadmap-view.agent.md"
+    $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
+
+    It "has user-invocable: false (hidden agent)" {
+        ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+    }
+
+    It "has tools: restricted to read only (no write)" {
+        ($frontmatter -match "tools:.*'read'") | Should Be $true
+    }
+
+    It "does not include write in tools list" {
+        $tools = Get-ToolsList -Frontmatter $frontmatter
+        ($tools -contains 'write') | Should Be $false
+    }
+
+    It "uses Haiku model for fast rendering" {
+        ($frontmatter -match 'Haiku') | Should Be $true
+    }
+
+    It "has a description in frontmatter" {
+        ($frontmatter -match 'description:') | Should Be $true
+    }
+}
+
+Describe "cg-roadmap-view.agent.md - view mode templates" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-roadmap-view.agent.md"
+    $content = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
+
+    It "documents summary view" {
+        ($content -match '`summary`') | Should Be $true
+    }
+
+    It "documents milestone view" {
+        ($content -match '`milestone`') | Should Be $true
+    }
+
+    It "documents tasks view" {
+        ($content -match '`tasks`') | Should Be $true
+    }
+
+    It "documents detail view" {
+        ($content -match '`detail`') | Should Be $true
+    }
+
+    It "documents status view" {
+        ($content -match '`status`') | Should Be $true
+    }
+
+    It "documents wip view" {
+        ($content -match '`wip`') | Should Be $true
+    }
+
+    # P3.1 — tasks-milestone view coverage
+    It "documents tasks-milestone view" {
+        ($content -match '`tasks-milestone`') | Should Be $true
+    }
+
+    It "defines fuzzy matching rules" {
+        ($content -match '[Ff]uzzy [Mm]atching') | Should Be $true
+    }
+
+    # P1.4 — idea badge (no emoji in regex: Pester 3.4 reads as Windows-1252, multi-byte chars cause parse errors)
+    It "defines idea feature status badge" {
+        ($content -match '`idea`') | Should Be $true
+    }
+
+    # P1.6 — filter match precedence
+    It "defines precedence rule when filter matches both milestone and feature" {
+        ($content -match '(?i)(precedence|prefer the (feature|milestone) match)') | Should Be $true
+    }
+
+    # P1.7 — tasks collapse threshold clarity
+    It "clarifies tasks collapse threshold as roadmap-wide total" {
+        ($content -match '(?i)roadmap-wide') | Should Be $true
+    }
+
+    # P1.9 — status view case normalization
+    It "normalizes filter to lowercase for status view comparison" {
+        ($content -match '(?i)Normalize\s+`filter`\s+to\s+lowercase') | Should Be $true
+    }
+
+    It "does not instruct writing or modifying files anywhere in body" {
+        # Match imperative write/modify/create instructions but not quoted examples or error messages
+        # that reference what the USER should do (e.g., 'Run @cg-roadmap to create one')
+        # (?m) flag required: without it, ^ anchors to start of string (always misses body content)
+        ($content -match '(?im)^\s*(write|modify|create)\s+the\s+(file|roadmap|plan)') | Should Be $false
+    }
+
+    # P0.1 — path traversal guard
+    It "requires plan paths to start with .cg-docs/plans/" {
+        ($content -match '\.cg-docs/plans/') | Should Be $true
+    }
+
+    It "prohibits paths containing '..' sequences" {
+        ($content -match '(?i)no\s*`?\.\.`?\s*(sequences?|path)') | Should Be $true
+    }
+
+    It "rejects absolute paths (no leading / or drive letter)" {
+        ($content -match '(?i)(absolute path|leading\s+`?/|drive letter)') | Should Be $true
+    }
+
+    It "states the invalid-path rejection response" {
+        ($content -match '(?i)Plan path is invalid') | Should Be $true
+    }
+
+    # P0.2 — prompt injection guard
+    It "labels roadmap.json data as untrusted content" {
+        ($content -match '(?i)untrusted content') | Should Be $true
+    }
+
+    It "instructs rendering field values verbatim (not as instructions)" {
+        ($content -match '(?i)render it verbatim') | Should Be $true
+    }
+
+    # P2.5 — schemaVersion validation
+    It "validates schemaVersion before rendering" {
+        ($content -match '(?i)schemaVersion') | Should Be $true
+    }
+
+    It "emits warning when schemaVersion mismatches" {
+        ($content -match '(?i)(schema mismatch|does not match)') | Should Be $true
+    }
+
+    # P2.6 — plan-not-found diagnostic
+    It "renders diagnostic when plan file cannot be read" {
+        ($content -match '(?i)Plan file not found') | Should Be $true
+    }
+
+    # P2.7 — features array null guard
+    It "guards missing features array with 0/0 fallback" {
+        ($content -match '(?i)(no `features` array|features.*empty|0/0)') | Should Be $true
+    }
+
+    # P2.9 — pipe escaping in titles
+    It "escapes pipe characters in title values" {
+        ($content -match '(?i)(escape.*\||\\\|)') | Should Be $true
+    }
+
+    # P2.10 — skip empty milestone headers in status view
+    It "only renders milestone headers with matching features in status view" {
+        ($content -match '(?i)(only render.*header|at least one feature)') | Should Be $true
+    }
+
+    # P2.11 — missing Objective section fallback
+    It "handles missing Objective section without hallucinating" {
+        ($content -match '(?i)(does not contain an.*Objective|## Objective section)') | Should Be $true
+    }
+
+    # P2.16 — collapse threshold documented
+    It "documents the collapse threshold value" {
+        ($content -match '(?i)Collapse threshold.*50|50.*roadmap-wide') | Should Be $true
+    }
+
+    # P3.5 — description field in detail view
+    It "renders description field in detail view template" {
+        ($content -match '(?i)\*\*Description\*\*') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-roadmap-view.prompt.md — existence, no tool restriction, flag documentation
+# ---------------------------------------------------------------------------
+
+Describe "cg-roadmap-view.prompt.md - existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-roadmap-view.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should Be $true
+    }
+}
+
+Describe "cg-roadmap-view.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-roadmap-view.prompt.md"
+    $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
+
+    It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
+        ($frontmatter -notmatch 'tools:') | Should Be $true
+    }
+
+    It "has a description in frontmatter" {
+        ($frontmatter -match 'description:') | Should Be $true
+    }
+}
+
+Describe "cg-roadmap-view.prompt.md - dispatches agent and documents flags" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-roadmap-view.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "dispatches @cg-roadmap-view agent" {
+        ($content -match '@cg-roadmap-view') | Should Be $true
+    }
+
+    It "documents --milestone flag" {
+        ($content -match '\-\-milestone') | Should Be $true
+    }
+
+    It "documents --tasks flag" {
+        ($content -match '\-\-tasks') | Should Be $true
+    }
+
+    It "documents --detail flag" {
+        ($content -match '\-\-detail') | Should Be $true
+    }
+
+    It "documents --plan flag" {
+        ($content -match '\-\-plan') | Should Be $true
+    }
+
+    It "documents --status flag" {
+        ($content -match '\-\-status') | Should Be $true
+    }
+
+    It "documents --wip flag" {
+        ($content -match '\-\-wip') | Should Be $true
+    }
+
+    It "documents --help flag" {
+        ($content -match '\-\-help') | Should Be $true
+    }
+
+    # P3.2 — --help stop behavior
+    It "instructs stop after --help (do not dispatch agent)" {
+        ($content -match '(?i)(stop|do not proceed)') | Should Be $true
+    }
+
+    # P1.8 — --plan guard
+    It "guards --plan used without --detail with an error message" {
+        ($content -match '(?i)`--plan`\s+requires\s+`--detail`') | Should Be $true
+    }
+
+    # P2.8 — --detail guard
+    It "guards --detail used without a name with an error message" {
+        ($content -match '(?i)`--detail`\s+requires\s+a\s+feature\s+name') | Should Be $true
+    }
+
+    # P3.4 — --status schema note
+    It "notes that --status values mirror roadmap.json schema" {
+        ($content -match '(?i)mirror.*schema|status.*field.*features') | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Integration: cg-resume, cg-brainstorm, cg-plan, cg-strategy dispatch agent
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - renders wip context inline (no agent dispatch)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    # P1.5: resume renders WIP inline from Step 2d data — no @cg-roadmap-view dispatch
+    It "does NOT dispatch @cg-roadmap-view for wip in Step 3" {
+        # The only @cg-roadmap-view reference in cg-resume should NOT be in the
+        # context of dispatching it for WIP rendering (that was removed for P1.5).
+        # This checks that no dispatch call for wip view remains.
+        ($content -match '@cg-roadmap-view\s+with\s+`?view:\s*wip') | Should Be $false
+    }
+
+    It "instructs inline rendering for in-progress milestones" {
+        ($content -match '(?i)(render|inline).*(in-progress|wip)|(in-progress|wip).*(render|inline)') | Should Be $true
+    }
+
+    It "references compact WIP table format" {
+        ($content -match '(?i)(compact|Work In Progress|WIP)') | Should Be $true
+    }
+}
+
+Describe "cg-brainstorm.prompt.md - dispatches @cg-roadmap-view in Step 5b" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "references @cg-roadmap-view in Step 5b roadmap registration" {
+        ($content -match '@cg-roadmap-view') | Should Be $true
+    }
+
+    # P3.7 — Step 5c also dispatches @cg-roadmap-view for milestone display (consistent with 5b)
+    It "dispatches @cg-roadmap-view in Step 5c for side-idea milestone display" {
+        # Step 5c now dispatches @cg-roadmap-view view: summary before asking which milestone
+        ($content -match '(?i)consistent with Step 5b|@cg-roadmap-view.*view.*summary') | Should Be $true
+    }
+}
+
+Describe "cg-plan.prompt.md - milestone selection uses inline rendering (P2.14)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "does NOT dispatch @cg-roadmap-view for milestone list in Step 5 (data already in context)" {
+        # P2.14: dispatch was replaced with inline rendering from already-loaded roadmap.json
+        ($content -match 'dispatch\s+`@cg-roadmap-view`\s+with\s+`view:\s*summary`\s+to\s+show') | Should Be $false
+    }
+
+    It "instructs inline milestone list from loaded roadmap data" {
+        ($content -match '(?i)(already.loaded|loaded.*item|show.*milestone.*names)') | Should Be $true
+    }
+
+    # P3.6 — permissions block distinguishes structural vs display reads
+    It "documents structural vs display read distinction in permissions" {
+        ($content -match '(?i)(structural operations|for display)') | Should Be $true
+    }
+}
+
+Describe "cg-strategy.prompt.md - dispatches @cg-roadmap-view for full picture" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "references @cg-roadmap-view" {
+        ($content -match '@cg-roadmap-view') | Should Be $true
+    }
+
+    It "uses summary view for strategy context (P2.4: not tasks view)" {
+        ($content -match 'view.*summary|summary.*view') | Should Be $true
     }
 }
