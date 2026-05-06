@@ -12,6 +12,7 @@ You are a senior data science architect creating a structured implementation pla
 - You may read any file in the workspace.
 - You may read `roadmap.json` in the project root.
 - You may create new files ONLY under `.cg-docs/plans/`.
+- You may create a git branch if the user explicitly accepts at Step 0.7.
 - You must NOT modify any existing files.
 - You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for all roadmap writes.
 - You must NOT create files outside `.cg-docs/plans/`.
@@ -34,6 +35,39 @@ Scan `.cg-docs/plans/` for existing plans matching this feature (keywords agains
   - **Start fresh**: Proceed normally.
 - If frontmatter is malformed: "Found related file '<filename>' but could not read its metadata (malformed frontmatter). Proceeding to Step 1."
 - If no exact match, scan titles of the 5 most recently modified plan files (by `date:` frontmatter field; if absent, fall back to last-write time; if tied, prefer the alphabetically last filename) for keyword overlap. Surface any with 3+ matching keywords. <!-- threshold synced with cg-brainstorm.prompt.md Step 0.5 -->
+
+### Step 0.7: Branch Offer
+
+Before gathering context, check the current branch:
+
+- Run `git branch --show-current`. If the command fails or returns empty output (non-git workspace), skip this step silently.
+- If Step 0.5 concluded with a **Refine** decision, skip this step silently — the branch for this plan likely already exists.
+- Determine the default branch: run `git symbolic-ref refs/remotes/origin/HEAD --short 2>$null` (strips `origin/` prefix to get e.g. `main`, `develop`, `trunk`). If the command fails or returns empty, fall back to checking for `main` or `master`.
+- If the current branch is not the default branch (i.e., already on a feature branch): skip silently.
+- If the repo has uncommitted changes, warn before offering:
+  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
+- Derive the branch name from the user's feature description using the project convention: `type/short-description` where type follows the project's commit-type taxonomy:
+  - `feat/` — new features
+  - `fix/` — bug fixes
+  - `refactor/` — code restructuring
+  - `test/` — testing work
+  - `docs/` — documentation
+  - `chore/` — maintenance tasks
+  - `data/` — data work
+  - `analysis/` — analysis work
+- Normalize the branch name: replace spaces with `-`, remove characters in `~^:?*[\`, collapse `..` to `-`, strip `@{`, truncate to 60 characters. If empty after normalization, ask the user for a branch name.
+- If on the default branch, offer:
+
+  > "Before we start planning, would you like to work on a new branch?
+  > Suggested name: `<type>/<short-description-from-your-request>`
+  >
+  > 1. **Yes** — I'll create the branch now
+  > 2. **No** — Stay on the current branch"
+
+- If the user accepts: create the branch with `git checkout -b <branch-name>` and confirm: "Switched to new branch `<branch-name>`. Let's continue."
+  - If `git checkout -b` fails because the branch already exists, offer: "Branch `<name>` already exists — switch to it? (yes/no)." For other errors, report the git error verbatim and skip branching.
+- If the user declines: proceed silently.
+- **Cleanup note**: If the planning session ends without producing a plan (abandoned at Step 0.5 or 1.5), suggest: `git branch -d <branch-name>` to remove the unused branch.
 
 ### Step 1: Gather Context
 

@@ -3461,3 +3461,134 @@ Describe "copilot-instructions.md - cg-skill-stata-testing registration" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# cg-plan.prompt.md - Step 0.7 Branch Offer ordering
+# Feature: branch-creation-from-plan (Workflow Maturity milestone)
+# Verifies the branch offer step exists between Step 0.5 and Step 1.
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 0.7 Branch Offer exists in the prompt" {
+        ($content -match '### Step 0\.7:.*Branch Offer') | Should Be $true
+    }
+
+    It "File Permissions references branch creation at Step 0.7" {
+        ($content -match 'create a git branch.*Step 0\.7') | Should Be $true
+    }
+
+    It "Step 0.7 Branch Offer appears after Step 0.5" {
+        $step05Idx  = $content.IndexOf('### Step 0.5:')
+        $step07Idx  = $content.IndexOf('### Step 0.7:')
+        $step05Idx  | Should BeGreaterThan -1
+        $step07Idx  | Should BeGreaterThan -1
+        $step07Idx  | Should BeGreaterThan $step05Idx
+    }
+
+    It "Step 1 Gather Context appears after Step 0.7 Branch Offer" {
+        $step07Idx = $content.IndexOf('### Step 0.7:')
+        $step1Idx  = $content.IndexOf('### Step 1:')
+        $step07Idx | Should BeGreaterThan -1
+        $step1Idx  | Should BeGreaterThan -1
+        $step1Idx  | Should BeGreaterThan $step07Idx
+    }
+
+    It "Branch Offer skips silently when already on a feature branch" {
+        ($content -match 'already on a.*branch.*skip silently') | Should Be $true
+    }
+
+    It "Branch Offer warns on uncommitted changes" {
+        ($content -match 'uncommitted changes') | Should Be $true
+    }
+
+    # P1.1 — type derivation rule must appear before the offer block
+    It "Branch type derivation rule appears before the offer block" {
+        $derivationIdx = $content.IndexOf('Derive the branch name')
+        $offerIdx      = $content.IndexOf('Suggested name:')
+        $derivationIdx | Should BeGreaterThan -1
+        $offerIdx      | Should BeGreaterThan -1
+        $derivationIdx | Should BeLessThan $offerIdx
+    }
+
+    # P1.2 — uncommitted-changes check must appear before the offer block
+    It "Uncommitted-changes check appears before the offer block" {
+        $uncommittedIdx = $content.IndexOf('uncommitted changes')
+        $offerIdx       = $content.IndexOf('Suggested name:')
+        $uncommittedIdx | Should BeGreaterThan -1
+        $offerIdx       | Should BeGreaterThan -1
+        $uncommittedIdx | Should BeLessThan $offerIdx
+    }
+
+    # P1.3 — error handling when branch already exists
+    It "Handles git checkout -b failure when branch already exists" {
+        ($content -match 'already exists.*switch to it') | Should Be $true
+    }
+
+    # P1.4 — cleanup path for orphaned branches
+    It "Provides cleanup instruction for orphaned branch when planning abandoned" {
+        ($content -match 'git branch -d') | Should Be $true
+    }
+
+    # P1.5 — extended type taxonomy covers all conventional-commit types
+    It "Branch type taxonomy includes extended types (test, docs, chore, data, analysis)" {
+        ($content -match 'test/.*testing work') | Should Be $true
+        ($content -match 'analysis/.*analysis work') | Should Be $true
+        ($content -match 'chore/.*maintenance') | Should Be $true
+        ($content -match 'docs/.*documentation') | Should Be $true
+        ($content -match 'data/.*data work')      | Should Be $true
+    }
+
+    # P2.3 — dynamic default branch detection via git symbolic-ref
+    It "Uses git symbolic-ref for dynamic default branch detection" {
+        ($content -match 'git symbolic-ref refs/remotes/origin/HEAD') | Should Be $true
+    }
+
+    # P2.4 — non-git workspace guard
+    It "Skips silently when git command fails or returns empty (non-git workspace)" {
+        ($content -match 'fails or returns empty.*non-git|non-git workspace.*skip') | Should Be $true
+    }
+
+    # P2.5 — branch name sanitization
+    It "Branch name normalization rule is present" {
+        ($content -match 'Normalize the branch name') | Should Be $true
+        ($content -match 'truncate to 60') | Should Be $true
+    }
+
+    # P2.6 — Refine path skips branch offer
+    It "Refine decision at Step 0.5 skips the branch offer" {
+        ($content -match 'Refine.*decision.*skip|Refine.*skip.*branch') | Should Be $true
+    }
+
+    # P3.1 — placeholder matches cg-brainstorm style with 'from-your-request'
+    It "Offer placeholder uses 'from-your-request' suffix to match cg-brainstorm style" {
+        ($content -match 'short-description-from-your-request') | Should Be $true
+    }
+
+    # P3.2 — user-facing language matches cg-brainstorm 'If the user accepts/declines'
+    It "Uses 'If the user accepts' and 'If the user declines' phrasing" {
+        ($content -match 'If the user accepts') | Should Be $true
+        ($content -match 'If the user declines') | Should Be $true
+    }
+
+    # P3.6 — branch name convention and creation command are tested
+    It "Branch type convention covers feat, fix, refactor" {
+        ($content -match '(?s)feat/.*fix/.*refactor/') | Should Be $true
+    }
+
+    It "Branch creation uses git checkout -b" {
+        ($content -match 'git checkout -b') | Should Be $true
+    }
+
+    # P2.2 — "other errors → report verbatim" path is tested
+    It "Reports git error verbatim and skips branching on other checkout failures" {
+        ($content -match 'other errors.*verbatim|report the git error verbatim') | Should Be $true
+    }
+
+    # P2.3 — "empty after normalization → ask user" fallback is tested
+    It "Asks user for branch name when normalization yields empty string" {
+        ($content -match 'empty after normalization.*ask the user') | Should Be $true
+    }
+}
+
