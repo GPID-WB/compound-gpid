@@ -233,6 +233,22 @@ if ($failedNames.Count -gt 0) {
         Write-Host "    Invoke-Pester tests\$name.Tests.ps1" -ForegroundColor Red
     }
     Write-Host "  Run the command above to see the full failure details." -ForegroundColor DarkGray
+
+    # Inline failure summary — visible in CI logs without downloading the artifact.
+    if ($failuresArray.Count -gt 0) {
+        Write-Host ""
+        Write-Host "  Failure details:" -ForegroundColor Red
+        foreach ($f in $failuresArray) {
+            $loc = "$($f.file) > $($f.describe)"
+            if ($f.context) { $loc += " > $($f.context)" }
+            $loc += " > $($f.name)"
+            Write-Host "    FAIL: $loc" -ForegroundColor Red
+            if ($f.message) {
+                $msg = ($f.message -split '\r?\n')[0]   # first line only
+                Write-Host "         $msg" -ForegroundColor DarkGray
+            }
+        }
+    }
 }
 
 # Warn about test files not in $testNames -- prevents silent coverage gaps when
