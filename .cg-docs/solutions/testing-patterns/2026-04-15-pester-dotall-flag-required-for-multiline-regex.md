@@ -120,3 +120,5 @@ Get-Content tests\*.Tests.ps1 -Raw |
   — another class of silent Pester test failure (context overflow)
 - `.cg-docs/solutions/bugs/2026-04-15-self-defeating-guardrail-exception-in-llm-prompts.md`
   — from the same review; adversarial prompt logic patterns
+- `.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md`
+  — the companion `(?m)` case: `^`/`$` anchors silently only match string start/end without `(?m)`
