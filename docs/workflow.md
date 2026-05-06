@@ -13,6 +13,7 @@ Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Re
                 ^           ^            ^                                ^          ^
        (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh
 Resume (re-entry at any stage)
+Roadmap View (read-only snapshot at any stage)
 ```
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** — invoke a prompt, answer its questions when asked, and let it run to completion.
@@ -492,6 +493,104 @@ The following commands can be invoked at any stage — not just sequentially.
 
 ---
 
+### Roadmap View (`/cg-roadmap-view`)
+
+**When to use**:
+- Any time you want a readable snapshot of the roadmap without modifying anything
+- At the start of a session to orient yourself before picking the next task
+- When you want to check the status of a specific feature or milestone
+- When `/cg-resume` shows in-progress milestones and you want to drill into one
+- When planning what to put in a PR description or release note
+
+**What happens**: Parses `roadmap.json` and renders a formatted Markdown table or detail view directly in chat. Read-only — never modifies any file. Feature and milestone names are **fuzzy-matched**: you do not need to remember exact IDs.
+
+The view mode is controlled by flags. No flags gives you the summary table; add flags for more detail:
+
+| Command | What you get |
+|---------|-------------|
+| `/cg-roadmap-view` | Summary table — all milestones with status and done/total count |
+| `/cg-roadmap-view --wip` | In-progress milestones only, with their feature lists |
+| `/cg-roadmap-view --milestone skills` | Full detail for the milestone matching "skills" |
+| `/cg-roadmap-view --tasks` | Every milestone with its full feature list |
+| `/cg-roadmap-view --tasks skills` | Feature list for the milestone matching "skills" only |
+| `/cg-roadmap-view --detail stata testing` | Detail card for the feature matching "stata testing" |
+| `/cg-roadmap-view --detail stata testing --plan` | Detail card + 2–3 sentence summary of the linked plan |
+| `/cg-roadmap-view --status idea` | All features with status `idea`, grouped by milestone |
+| `/cg-roadmap-view --status active` | All in-progress features across the whole roadmap |
+| `/cg-roadmap-view --help` | Display this flag reference without dispatching a render |
+
+**Flag reference**:
+
+| Flag | Argument | Description |
+|------|----------|-------------|
+| *(none)* | — | Summary table: all milestones, status badge, done/total count |
+| `--wip` | — | In-progress milestones only, with feature tables |
+| `--milestone` | `<name>` | One milestone: objective, progress bar, full feature list |
+| `--tasks` | *(optional name)* | All milestones with feature tables, or one milestone's features if a name is given |
+| `--detail` | `<name>` | One feature: ID, status, description, linked plan path |
+| `--plan` | — | Modifier for `--detail` — also prints a 2–3 sentence summary of the linked plan file |
+| `--status` | `idea\|planned\|active\|done` | All features with that status, grouped by milestone |
+| `--help` | — | Show the flag reference; stop without rendering |
+
+> `--plan` requires `--detail`. Running `/cg-roadmap-view --plan` alone returns a usage error.
+
+**Fuzzy matching**: names are matched case-insensitively by substring or by two-or-more matching words. `"skills"` matches `"Skills Enhancement"`. `"stata testing"` matches `"Testing skill for Stata (assert-based/reprun)"`. When multiple entries match, the prompt lists all candidates and asks you to clarify.
+
+**Detail card example** — `/cg-roadmap-view --detail stata testing`:
+```
+## 🔍 Testing skill for Stata (assert-based/reprun)
+
+**Milestone**: Stata Toolchain
+**Status**: ✅
+**ID**: `stata-testing-skill`
+**Description**: —
+**Plan**: .cg-docs/plans/2026-05-04-stata-testing-skill-revised.md
+```
+
+**Summary table example** — `/cg-roadmap-view`:
+```
+## 📊 My Project — Roadmap
+
+| Milestone | Status | Progress |
+|---|---|---|
+| Skills Enhancement | ✅ Done | 8/8 |
+| Stata Toolchain | 🔄 In Progress | 3/6 |
+| Workflow Maturity | 📋 Planned | 0/4 |
+
+> 1 of 3 milestones complete. In progress: Stata Toolchain.
+> Use `/cg-roadmap-view --tasks <name>` to see features in a milestone.
+```
+
+**Status filter example** — `/cg-roadmap-view --status idea`:
+```
+## Features with status: idea
+
+### Workflow Maturity
+- GitHub Issues integration for team coordination
+- Optional per-prompt token-budget reporting
+```
+
+**Scenarios**:
+- *Start of session orientation*: Run `/cg-roadmap-view` to see where each milestone stands before deciding what to work on.
+- *Drilling into a milestone*: Run `/cg-roadmap-view --tasks stata` to see every feature in the Stata Toolchain milestone and its status.
+- *Checking a specific feature*: Run `/cg-roadmap-view --detail ppp validation` to see whether the PPP validation feature has a linked plan.
+- *Discovering backlog ideas*: Run `/cg-roadmap-view --status idea` to list all unstarted idea-stage features across all milestones.
+- *Preparing a PR description*: Run `/cg-roadmap-view --wip` to see what was in-progress so you can describe the changes accurately.
+- *Linking a plan to context*: Run `/cg-roadmap-view --detail <feature> --plan` to get the feature card and a brief summary of its implementation plan in one step.
+
+**Integration with other prompts**: Several prompts dispatch `/cg-roadmap-view` automatically:
+- `/cg-resume` renders in-progress milestones inline at session start
+- `/cg-strategy`, `/cg-brainstorm`, `/cg-plan`, and `/cg-plan-review` show a roadmap summary when milestone selection is needed
+
+**When NOT to use**:
+- To modify the roadmap — use `@cg-roadmap` for edits
+- To add a new feature idea — use `@cg-roadmap` or let `/cg-brainstorm` do it at handoff
+- As a substitute for `/cg-resume` — `/cg-resume` also checks schema version, open review findings, and in-progress git changes, not just the roadmap
+
+**Output**: Formatted Markdown rendered in chat. No files written.
+
+---
+
 ### Strategy (`/cg-strategy`)
 
 **When to use**:
@@ -530,6 +629,8 @@ The following commands can be invoked at any stage — not just sequentially.
 | **Produce output?** | Yes (docs, code, reviews) | Yes (review findings, `roadmap.json`) | No (consumed by others) |
 
 > **`@cg-roadmap` is the only user-invokable agent.** All review agents (`cg-code-quality`, `cg-testing`, etc.) are dispatched exclusively by `/cg-review` and do not appear in the Copilot Chat agent dropdown.
+
+> **`/cg-roadmap-view` is a prompt, not an agent.** It dispatches the `@cg-roadmap-view` agent internally, but you always invoke it as `/cg-roadmap-view` — you never call `@cg-roadmap-view` directly. This keeps the read-only renderer separate from the `@cg-roadmap` write agent.
 
 ---
 

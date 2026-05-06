@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 33 Compound GPID prompt and agent files.
+Reference for model assignments across all 35 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 33 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 35 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -36,6 +36,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 33 
 | `cg-fix-problems.prompt.md` | Claude Sonnet 4.6 | Interactive VS Code diagnostics fixer — scan, user-select scope/severity, dispatch agent | Reasoning 4, precision 4 — multi-step orchestration with conditional scope selection needs Sonnet | confirmed |
 | `cg-plan-review.prompt.md` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions — dispatches `@cg-plan-critic` | Orchestration 4, reasoning 4 — interactive triage and dispatch; matches `/cg-plan` tier | confirmed |
 | `cg-review-repos.prompt.md` | Claude Opus 4.6 | Multi-repo competitive analysis with registry write — fetches releases pages, generates feature cards, updates `repos.json` | Orchestration 4, reasoning 4 — multi-step web-fetching and registry mutation across 3 repos in one session; Opus handles multi-tool-loop orchestration more reliably than Sonnet at this breadth | confirmed |
+| `cg-roadmap-view.prompt.md` | Claude Haiku 4.5 | User-facing roadmap visualizer — parses flags, dispatches `@cg-roadmap-view` agent | Orchestration 1, reasoning 1 — pure flag dispatch with no judgment required; Haiku appropriate | confirmed |
 
 ### Agents
 
@@ -56,6 +57,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 33 
 | `cg-plan-critic.agent.md` | Claude Sonnet 4.6 | Plan reviewer — checks assumptions, over-engineering, edge cases, scope creep, dependency accuracy against actual codebase | Reasoning 5, precision 4 — adversarial plan analysis with codebase verification needs Sonnet | confirmed |
 | `cg-release-scanner.agent.md` | Claude Haiku 4.5 | Classify commits and scan .cg-docs entries within a time window for /cg-release | Reasoning 3, creativity 1; mechanical classification and categorization — Haiku appropriate | confirmed |
 | `cg-project-scanner.agent.md` | Claude Haiku 4.5 | Scan project files to detect languages, frameworks, and charter content for /cg-setup | Reasoning 3, creativity 1; mechanical file-based classification — Haiku appropriate | confirmed |
+| `cg-roadmap-view.agent.md` | Claude Haiku 4.5 | Read-only roadmap renderer — reads `roadmap.json` and formats milestone/feature data as Markdown tables | Reasoning 1, creativity 1; pure template-filling with no judgment — Haiku appropriate | confirmed |
 
 ---
 
