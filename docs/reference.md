@@ -193,9 +193,9 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 
 | Agent | Focus | Model | User-invocable |
 |-------|-------|-------|----------------|
-| `@cg-plan-critic` | Plan review: assumptions, over-engineering, missing edge cases, scope creep, dependency accuracy | Sonnet 4.6 | No |
+| `@cg-plan-critic` | Plan review: assumptions, over-engineering, missing edge cases, scope creep, dependency accuracy, and phase structure (logical ordering, independent testability, completion criteria, cross-phase handoffs) | Sonnet 4.6 | No |
 
-> `@cg-plan-critic` is dispatched exclusively by `/cg-plan-review`. It is **not user-invokable** directly. It reads the plan and actual codebase to verify assumptions, checking for over-engineering, missing edge cases, scope creep, and flawed dependencies.
+> `@cg-plan-critic` is dispatched exclusively by `/cg-plan-review`. It is **not user-invokable** directly. It reads the plan and actual codebase to verify assumptions, checking for over-engineering, missing edge cases, scope creep, flawed dependencies, and (for phased plans) phase structure quality.
 
 ---
 

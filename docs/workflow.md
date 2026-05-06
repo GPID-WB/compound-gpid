@@ -147,6 +147,7 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - *Follow-on work from a finished plan*: Choose "follow-up" to create a new plan that inherits context from the prior one.
 - *Brainstorm-first flow*: If a brainstorm was loaded, the scope classification is inherited from it — no redundant assessment step.
 - *Deep architectural change*: Use a phased plan with numbered phases; `/cg-work` will implement one phase at a time.
+- *Adding phases to an existing plan*: `/cg-plan` offers to restructure the Implementation Steps section into numbered `## Phase N:` blocks. **Lightweight** scope: skips the offer silently. **Standard** scope: offers phases as an optional suggestion. **Deep** scope: proposes phases by default. **Pre-flight guard**: if `completed-phases` is already non-empty in the plan frontmatter, `/cg-plan` warns before restructuring — reorganising phases invalidates the completion history.
 
 **Handoff options**: `/cg-plan-review` (challenge the plan before starting — recommended for Standard/Deep), `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
 
@@ -167,7 +168,7 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - When the task is Standard or Deep scope and you want a structured critique before committing to code
 - Any time you want to challenge a plan for flawed assumptions, over-engineering, or missing edge cases
 
-**What happens**: Dispatches `@cg-plan-critic` with the full plan content and charter context (Objective, Constraints, Current Focus). The critic checks for flawed or unverified assumptions, over-engineering, missing edge cases, scope creep, and inaccurate dependency claims. Findings are presented interactively (P1 and P2 one at a time; P3 all at once after). You decide for each: address it, accept the risk, or defer. Side ideas that surfaced during the review are offered for roadmap capture.
+**What happens**: Dispatches `@cg-plan-critic` with the full plan content and charter context (Objective, Constraints, Current Focus). The critic checks for flawed or unverified assumptions, over-engineering, missing edge cases, scope creep, inaccurate dependency claims, and **phase structure** (for phased plans: logical phase ordering, independently testable phases, clear completion criteria, and cross-phase handoff artifacts). Findings are presented interactively (P1 and P2 one at a time; P3 all at once after). You decide for each: address it, accept the risk, or defer. Side ideas that surfaced during the review are offered for roadmap capture.
 
 **Scenarios**:
 - *Standard/Deep plan before implementation*: Run `/cg-plan-review` to catch structural problems before any code is written.
@@ -209,7 +210,7 @@ The prompt scans its own output for:
 
 **Scenarios**:
 - *Normal implementation*: Load the plan, implement step by step, commit at each checkpoint.
-- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete.
+- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase to continue with, then use `/cg-work phaseN`.
 - *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan before starting.
 - *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint. `/cg-resume` shows phase progress and the next command when you return to a paused phased plan.
 - *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). To re-run a completed phase, manually remove N from `completed-phases` in the plan frontmatter, then run `/cg-work phaseN`.
