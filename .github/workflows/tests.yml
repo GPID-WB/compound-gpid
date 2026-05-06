@@ -63,7 +63,7 @@ jobs:
       # -------------------------------------------------------------------
       - name: Upload test result artifact
         if: always()
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f5f3b94524  # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: test-results-${{ matrix.os }}
           path: tests/last-run.json
