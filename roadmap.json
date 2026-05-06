@@ -442,15 +442,15 @@
           "id": "phased-plan-structure",
           "title": "Phased plan structure in /cg-plan",
           "description": "Allow /cg-plan to structure implementation plans into numbered phases. Ask user if they have a phase breakdown in mind; if not, suggest one. Last phase defaults to testing/validation/polish unless user overrides. Plan output uses explicit Phase sections with self-contained task lists.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-05-phased-plan-and-execution.md"
         },
         {
           "id": "phased-execution-cg-work",
           "title": "Phased execution in /cg-work",
           "description": "Support '/cg-work phase1' to execute a single phase and stop, enabling cross-session continuity. '/cg-work' without arguments runs all phases sequentially. Track completed phases in plan frontmatter so users can resume in new sessions.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-05-phased-plan-and-execution.md"
         },
         {
           "id": "fixbug-test-correctness-assessment",
