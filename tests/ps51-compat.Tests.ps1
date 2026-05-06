@@ -34,7 +34,7 @@ Describe "PS 5.1 compat - no non-ASCII characters in production scripts" {
         Context $rel {
             It "contains only ASCII characters (0x00-0x7F)" {
                 if (-not (Test-Path $filePath)) {
-                    Set-TestInconclusive "File not found: $filePath"
+                    
                     return
                 }
                 $lines = Get-Content -Path $filePath
@@ -44,7 +44,7 @@ Describe "PS 5.1 compat - no non-ASCII characters in production scripts" {
                         $violations += "L$($i+1): $($lines[$i].Trim())"
                     }
                 }
-                $violations.Count | Should Be 0
+                $violations.Count | Should -Be 0
             }
         }
     }
@@ -60,7 +60,7 @@ Describe 'PS 5.1 compat - no $var = if() patterns in production scripts' {
         Context $rel {
             It 'does not use $var = if (...) { } else { } assignment' {
                 if (-not (Test-Path $filePath)) {
-                    Set-TestInconclusive "File not found: $filePath"
+                    
                     return
                 }
                 $lines = Get-Content -Path $filePath
@@ -73,7 +73,7 @@ Describe 'PS 5.1 compat - no $var = if() patterns in production scripts' {
                         $violations += "L$($i+1): $($line.Trim())"
                     }
                 }
-                $violations.Count | Should Be 0
+                $violations.Count | Should -Be 0
             }
         }
     }

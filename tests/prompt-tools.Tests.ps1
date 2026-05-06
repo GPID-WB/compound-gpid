@@ -32,7 +32,7 @@ Describe "cg-review.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -46,35 +46,35 @@ Describe "cg-review.prompt.md - review file output step" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "writes the review report to .cg-docs/reviews/ directory in Step 3.5" {
-        ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+        ($content -match '\.cg-docs[/\\]reviews') | Should -Be $true
     }
 
     It "uses compound finding IDs like [P0.1], [P1.1], [P2.1], [P3.1] in the output template" {
-        ($content -match '\*\*\[P[0123]\.\d+\]\*\*') | Should Be $true
+        ($content -match '\*\*\[P[0123]\.\d+\]\*\*') | Should -Be $true
     }
 
     It "includes /cg-fix-triage usage instruction with a compound ID example" {
-        ($content -match '/cg-fix-triage.*P\d\.\d') | Should Be $true
+        ($content -match '/cg-fix-triage.*P\d\.\d') | Should -Be $true
     }
 
     It "mentions /cg-fix-triage so users know how to apply findings" {
-        ($content -match '/cg-fix-triage') | Should Be $true
+        ($content -match '/cg-fix-triage') | Should -Be $true
     }
 
     It "explicitly instructs DO NOT delegate the Step 3.5 file write" {
-        ($content -match 'Do NOT delegate') | Should Be $true
+        ($content -match 'Do NOT delegate') | Should -Be $true
     }
 
     It "documents 'no issues found' as valid output when an agent finds nothing" {
-        ($content -match 'no issues found') | Should Be $true
+        ($content -match 'no issues found') | Should -Be $true
     }
 
     It "includes R package .Rbuildignore check for .cg-docs/" {
-        ($content -match '\.Rbuildignore') | Should Be $true
+        ($content -match '\.Rbuildignore') | Should -Be $true
     }
 
     It "Step 3.5 falls back to last-write time when date: is absent" {
-        ($content -match 'last.write|absent.*fall back') | Should Be $true
+        ($content -match 'last.write|absent.*fall back') | Should -Be $true
     }
 }
 
@@ -86,7 +86,7 @@ Describe "cg-fix-triage.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -97,11 +97,11 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -113,7 +113,7 @@ Describe "cg-fix-triage.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -123,7 +123,7 @@ Describe "cg-fix-triage.prompt.md - review reports location" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references .cg-docs/reviews/ directory to load saved review reports" {
-        ($content -match '\.cg-docs[/\\]reviews') | Should Be $true
+        ($content -match '\.cg-docs[/\\]reviews') | Should -Be $true
     }
 }
 
@@ -136,7 +136,7 @@ Describe "cg-strategy.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -146,11 +146,11 @@ Describe "cg-strategy.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -162,7 +162,7 @@ Describe "cg-strategy.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (restrictions are prose-only per convention)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -177,55 +177,55 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     $section = if ($rawContent -match '(?s)(## Workflow Entry Points.*?)(\r?\n## |\z)') { $Matches[1] } else { "" }
 
     It "references /cg-strategy in Workflow Entry Points" {
-        ($section -match '/cg-strategy') | Should Be $true
+        ($section -match '/cg-strategy') | Should -Be $true
     }
 
     It "references /cg-brainstorm in Workflow Entry Points" {
-        ($section -match '/cg-brainstorm') | Should Be $true
+        ($section -match '/cg-brainstorm') | Should -Be $true
     }
 
     It "references /cg-plan in Workflow Entry Points" {
-        ($section -match '/cg-plan') | Should Be $true
+        ($section -match '/cg-plan') | Should -Be $true
     }
 
     It "references @cg-roadmap in Workflow Entry Points" {
-        ($section -match '@cg-roadmap') | Should Be $true
+        ($section -match '@cg-roadmap') | Should -Be $true
     }
 
     It "references /cg-resume in Workflow Entry Points" {
-        ($section -match '/cg-resume') | Should Be $true
+        ($section -match '/cg-resume') | Should -Be $true
     }
 
     It "references /cg-work in Workflow Entry Points" {
-        ($section -match '/cg-work') | Should Be $true
+        ($section -match '/cg-work') | Should -Be $true
     }
 
     It "references /cg-review in Workflow Entry Points" {
-        ($section -match '/cg-review') | Should Be $true
+        ($section -match '/cg-review') | Should -Be $true
     }
 
     It "references /cg-fix-triage in Workflow Entry Points" {
-        ($section -match '/cg-fix-triage') | Should Be $true
+        ($section -match '/cg-fix-triage') | Should -Be $true
     }
 
     It "references /cg-compound in Workflow Entry Points" {
-        ($section -match '/cg-compound') | Should Be $true
+        ($section -match '/cg-compound') | Should -Be $true
     }
 
     It "references /cg-compound-refresh in Workflow Entry Points" {
-        ($section -match '/cg-compound-refresh') | Should Be $true
+        ($section -match '/cg-compound-refresh') | Should -Be $true
     }
 
     It "references /cg-ideate in Workflow Entry Points" {
-        ($section -match '/cg-ideate') | Should Be $true
+        ($section -match '/cg-ideate') | Should -Be $true
     }
 
     It "references /cg-fix-problems in Workflow Entry Points" {
-        ($section -match '/cg-fix-problems') | Should Be $true
+        ($section -match '/cg-fix-problems') | Should -Be $true
     }
 
     It "references /cg-plan-review in Workflow Entry Points" {
-        ($section -match '/cg-plan-review') | Should Be $true
+        ($section -match '/cg-plan-review') | Should -Be $true
     }
 }
 
@@ -238,39 +238,39 @@ Describe "cg-review.prompt.md - review findings frontmatter" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references the findings: frontmatter key in Step 3.5" {
-        ($content -match 'findings:') | Should Be $true
+        ($content -match 'findings:') | Should -Be $true
     }
 
     It "sets new findings to status: open in Step 3.5" {
-        ($content -match '\bopen\b') | Should Be $true
+        ($content -match '\bopen\b') | Should -Be $true
     }
 
     It "mentions status: fixed as a valid finding status" {
-        ($content -match '\bfixed\b') | Should Be $true
+        ($content -match '\bfixed\b') | Should -Be $true
     }
 
     It "mentions status: skipped as a valid finding status" {
-        ($content -match '\bskipped\b') | Should Be $true
+        ($content -match '\bskipped\b') | Should -Be $true
     }
 
     It "includes a plan: key in the frontmatter template" {
-        ($content -match '(?s)plan:.*findings:|(?s)findings:.*plan:') | Should Be $true
+        ($content -match '(?s)plan:.*findings:|(?s)findings:.*plan:') | Should -Be $true
     }
 
     It "documents P0 finding ID pattern in Step 3.5" {
-        ($content -match [regex]::Escape('**[P0.')) | Should Be $true
+        ($content -match [regex]::Escape('**[P0.')) | Should -Be $true
     }
 
     It "documents P1 finding ID pattern in Step 3.5" {
-        ($content -match [regex]::Escape('**[P1.')) | Should Be $true
+        ($content -match [regex]::Escape('**[P1.')) | Should -Be $true
     }
 
     It "documents P2 finding ID pattern in Step 3.5" {
-        ($content -match [regex]::Escape('**[P2.')) | Should Be $true
+        ($content -match [regex]::Escape('**[P2.')) | Should -Be $true
     }
 
     It "documents P3 finding ID pattern in Step 3.5" {
-        ($content -match [regex]::Escape('**[P3.')) | Should Be $true
+        ($content -match [regex]::Escape('**[P3.')) | Should -Be $true
     }
 }
 
@@ -283,55 +283,55 @@ Describe "cg-fix-triage.prompt.md - per-finding status tracking" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references the findings: frontmatter key" {
-        ($content -match 'findings:') | Should Be $true
+        ($content -match 'findings:') | Should -Be $true
     }
 
     It "instructs updating finding status to fixed in frontmatter after applying a fix" {
-        ($content -match 'fixed') -and ($content -match 'frontmatter') | Should Be $true
+        ($content -match 'fixed') -and ($content -match 'frontmatter') | Should -Be $true
     }
 
     It "instructs updating finding status to skipped in frontmatter when user declines" {
-        ($content -match 'skipped') | Should Be $true
+        ($content -match 'skipped') | Should -Be $true
     }
 
     It "references --migrate mode" {
-        ($content -match '\-\-migrate') | Should Be $true
+        ($content -match '\-\-migrate') | Should -Be $true
     }
 
     It "describes the companion-plan heuristic in --migrate mode" {
-        ($content -match 'companion[- ]plan|companion plan') | Should Be $true
+        ($content -match 'companion[- ]plan|companion plan') | Should -Be $true
     }
 
     It "reports Previously resolved count in summary template" {
-        ($content -match 'Previously resolved') | Should Be $true
+        ($content -match 'Previously resolved') | Should -Be $true
     }
 
     It "Step 3 apply order lists P0 first before P1" {
-        ($content -match 'P0 first') | Should Be $true
+        ($content -match 'P0 first') | Should -Be $true
     }
 
     It "warns the user when there are more than 15 open findings (large report guard)" {
-        ($content -match '15 open|more than 15') | Should Be $true
+        ($content -match '15 open|more than 15') | Should -Be $true
     }
 
     It "recommends priority batches (P0 P1, P2, P3) in the large report warning" {
-        ($content -match 'P0 P1.*P2.*P3|priority batch') | Should Be $true
+        ($content -match 'P0 P1.*P2.*P3|priority batch') | Should -Be $true
     }
 
     It "instructs DO NOT delegate frontmatter status update to a subagent" {
-        ($content -match 'Do NOT delegate') | Should Be $true
+        ($content -match 'Do NOT delegate') | Should -Be $true
     }
 
     It "loads cg-skill-fix-triage-migrate for --migrate mode by name" {
-        ($content -match 'cg-skill-fix-triage-migrate') | Should Be $true
+        ($content -match 'cg-skill-fix-triage-migrate') | Should -Be $true
     }
 
     It "Step 0.5 instructs skipping skill load when invoked as --migrate" {
-        ($content -match 'Skip this step if invoked as.*--migrate') | Should Be $true
+        ($content -match 'Skip this step if invoked as.*--migrate') | Should -Be $true
     }
 
     It "warns on unrecognized arguments with recognized options list" {
-        ($content -match 'Unrecognized argument') -and ($content -match '\-\-migrate') | Should Be $true
+        ($content -match 'Unrecognized argument') -and ($content -match '\-\-migrate') | Should -Be $true
     }
 }
 
@@ -344,27 +344,27 @@ Describe "cg-skill-fix-triage-migrate SKILL.md - behavioral rules" {
     $content = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
 
     It "documents all-open default for findings" {
-        ($content -match 'Set all findings to.*open|defaulted to.*open|all findings.*open') | Should Be $true
+        ($content -match 'Set all findings to.*open|defaulted to.*open|all findings.*open') | Should -Be $true
     }
 
     It "instructs do NOT delegate to subagent for file writes" {
-        ($content -match 'do NOT delegate|NOT delegate') | Should Be $true
+        ($content -match 'do NOT delegate|NOT delegate') | Should -Be $true
     }
 
     It "has 'No legacy review files found' response for empty scan result" {
-        ($content -match 'No legacy review files found') | Should Be $true
+        ($content -match 'No legacy review files found') | Should -Be $true
     }
 
     It "instructs prepending full frontmatter block when no frontmatter exists" {
-        ($content -match 'prepend full block') | Should Be $true
+        ($content -match 'prepend full block') | Should -Be $true
     }
 
     It "uses generic <id> placeholder in frontmatter template (not hardcoded P1.1)" {
-        ($content -match '<id>:') | Should Be $true
+        ($content -match '<id>:') | Should -Be $true
     }
 
     It "documents that <id> should be replaced with actual parsed IDs" {
-        ($content -match 'replace <id> with actual IDs|actual IDs.*e\.g\.') | Should Be $true
+        ($content -match 'replace <id> with actual IDs|actual IDs.*e\.g\.') | Should -Be $true
     }
 }
 
@@ -377,19 +377,19 @@ Describe "cg-resume.prompt.md - findings frontmatter and migration nudge" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references the findings: frontmatter key in Step 2e" {
-        ($content -match 'findings:') | Should Be $true
+        ($content -match 'findings:') | Should -Be $true
     }
 
     It "instructs skipping fully-resolved review files (zero open findings)" {
-        ($content -match 'zero|fully resolved|skip it') | Should Be $true
+        ($content -match 'zero|fully resolved|skip it') | Should -Be $true
     }
 
     It "references --migrate nudge for legacy review files without frontmatter" {
-        ($content -match '\-\-migrate') | Should Be $true
+        ($content -match '\-\-migrate') | Should -Be $true
     }
 
     It "adds migration nudge to Maintenance Nudges section" {
-        ($content -match 'Review migration needed') | Should Be $true
+        ($content -match 'Review migration needed') | Should -Be $true
     }
 }
 
@@ -402,7 +402,7 @@ Describe "SKILL.md files - required frontmatter" {
     $skillFiles = Get-ChildItem -Path $skillsDir -Recurse -Filter "SKILL.md"
 
     It "finds at least one SKILL.md file" {
-        $skillFiles.Count | Should BeGreaterThan 0
+        $skillFiles.Count | Should -BeGreaterThan 0
     }
 
     foreach ($skill in $skillFiles) {
@@ -410,11 +410,11 @@ Describe "SKILL.md files - required frontmatter" {
         $frontmatter = Get-Frontmatter -FilePath $skill.FullName
 
         It "$skillName SKILL.md has a name: field" {
-            $frontmatter | Should Match '(?m)^\s*name:'
+            $frontmatter | Should -Match '(?m)^\s*name:'
         }
 
         It "$skillName SKILL.md has a description: field" {
-            $frontmatter | Should Match '(?m)^\s*description:'
+            $frontmatter | Should -Match '(?m)^\s*description:'
         }
     }
 }
@@ -436,7 +436,7 @@ Describe "cg-skill-r-testing - skill file structure" {
 
     foreach ($file in $expectedFiles) {
         It "file '$file' exists" {
-            Test-Path (Join-Path $skillRoot $file) | Should Be $true
+            Test-Path (Join-Path $skillRoot $file) | Should -Be $true
         }
     }
 }
@@ -462,7 +462,7 @@ Describe "skill file cross-links resolve" {
             )
             $relSource = $skillFile.FullName.Replace($repoRoot + "\", "")
             It "$relSource -> $target" {
-                Test-Path $resolved | Should Be $true
+                Test-Path $resolved | Should -Be $true
             }
         }
     }
@@ -477,35 +477,35 @@ Describe "cg-review.prompt.md - subagent output quality check" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes a Step 2.5 subagent output quality check" {
-        ($content -match 'Subagent Output Quality Check') | Should Be $true
+        ($content -match 'Subagent Output Quality Check') | Should -Be $true
     }
 
     It "mentions the Incomplete Reviews warning section for failed agents" {
-        ($content -match 'Incomplete Reviews') | Should Be $true
+        ($content -match 'Incomplete Reviews') | Should -Be $true
     }
 
     It "instructs NOT to retry the agent automatically" {
-        ($content -match 'NOT retry') | Should Be $true
+        ($content -match 'NOT retry') | Should -Be $true
     }
 
     It "lists empty or garbled output as quality failure criteria" {
-        ($content -match 'empty.*garbled|garbled.*empty') | Should Be $true
+        ($content -match 'empty.*garbled|garbled.*empty') | Should -Be $true
     }
 
     It "includes the warning template with @agent-name placeholder" {
-        ($content -match '@<agent-name>') | Should Be $true
+        ($content -match '@<agent-name>') | Should -Be $true
     }
 
     It "documents the Presence criterion by name" {
-        ($content -match '\bPresence\b') | Should Be $true
+        ($content -match '\bPresence\b') | Should -Be $true
     }
 
     It "documents the Context criterion by name" {
-        ($content -match '\bContext\b') | Should Be $true
+        ($content -match '\bContext\b') | Should -Be $true
     }
 
     It "documents the Volume criterion by name" {
-        ($content -match '\bVolume\b') | Should Be $true
+        ($content -match '\bVolume\b') | Should -Be $true
     }
 }
 
@@ -518,7 +518,7 @@ Describe "cg-compound-refresh.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -528,11 +528,11 @@ Describe "cg-compound-refresh.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -544,7 +544,7 @@ Describe "cg-compound-refresh.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
-            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should -Be $true
         }
     }
 }
@@ -558,7 +558,7 @@ Describe "cg-ideate.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -568,11 +568,11 @@ Describe "cg-ideate.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -584,7 +584,7 @@ Describe "cg-ideate.prompt.md - no tool restriction" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating prompt)" {
-            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should -Be $true
         }
     }
 }
@@ -597,55 +597,55 @@ Describe "r.instructions.md - dialect router" {
     $routerFile = Join-Path $repoRoot ".github\instructions\r.instructions.md"
 
     It "router file exists" {
-        Test-Path $routerFile | Should Be $true
+        Test-Path $routerFile | Should -Be $true
     }
 
     $content = if (Test-Path $routerFile) { Get-Content $routerFile -Raw -Encoding UTF8 } else { "" }
 
     It "documents data.table-collapse dialect" {
-        ($content -match 'data\.table-collapse') | Should Be $true
+        ($content -match 'data\.table-collapse') | Should -Be $true
     }
 
     It "routes to cg-skill-r-collapse for data.table-collapse" {
-        ($content -match 'cg-skill-r-collapse') | Should Be $true
+        ($content -match 'cg-skill-r-collapse') | Should -Be $true
     }
 
     It "routes to cg-skill-r-datatable for data.table-collapse" {
-        ($content -match 'cg-skill-r-datatable') | Should Be $true
+        ($content -match 'cg-skill-r-datatable') | Should -Be $true
     }
 
     It "documents tidyverse dialect" {
-        ($content -match 'tidyverse') | Should Be $true
+        ($content -match 'tidyverse') | Should -Be $true
     }
 
     It "routes to cg-skill-r-tidyverse for tidyverse" {
-        ($content -match 'cg-skill-r-tidyverse') | Should Be $true
+        ($content -match 'cg-skill-r-tidyverse') | Should -Be $true
     }
 
     It "mentions cg-skill-r-visualization" {
-        ($content -match 'cg-skill-r-visualization') | Should Be $true
+        ($content -match 'cg-skill-r-visualization') | Should -Be $true
     }
 
     It "documents fallback for invalid r-syntax values" {
-        ($content -match 'Any other value|unrecognized') | Should Be $true
+        ($content -match 'Any other value|unrecognized') | Should -Be $true
     }
 
     # P2.4: applyTo field presence — if this field is missing/wrong, dialect routing
     # silently stops working for ALL .R files with no error.
     It "has applyTo frontmatter field (required for auto-apply to .R files)" {
-        ($content -match '(?m)^applyTo:') | Should Be $true
+        ($content -match '(?m)^applyTo:') | Should -Be $true
     }
 
     It "applyTo covers .R files" {
-        ($content -match 'applyTo.*\*\*/\*\.R') | Should Be $true
+        ($content -match 'applyTo.*\*\*/\*\.R') | Should -Be $true
     }
 
     It "applyTo covers .r files (lowercase)" {
-        ($content -match 'applyTo.*\*\*/\*\.r') | Should Be $true
+        ($content -match 'applyTo.*\*\*/\*\.r') | Should -Be $true
     }
 
     It "applyTo covers .Rmd files" {
-        ($content -match 'applyTo.*\*\*/\*\.Rmd') | Should Be $true
+        ($content -match 'applyTo.*\*\*/\*\.Rmd') | Should -Be $true
     }
 }
 
@@ -660,7 +660,7 @@ Describe "R dialect skills - skill directories exist" {
     foreach ($skill in $dialectSkills) {
         It "dialect skill '$skill' has SKILL.md" {
             $path = Join-Path $repoRoot ".github\skills\$skill\SKILL.md"
-            Test-Path $path | Should Be $true
+            Test-Path $path | Should -Be $true
         }
     }
 }
@@ -670,15 +670,15 @@ Describe "cg-skill-setup - r-syntax field documentation" {
     $content = if (Test-Path $setupFile) { Get-Content $setupFile -Raw -Encoding UTF8 } else { "" }
 
     It "documents r-syntax field" {
-        ($content -match 'r-syntax') | Should Be $true
+        ($content -match 'r-syntax') | Should -Be $true
     }
 
     It "documents data.table-collapse as default dialect" {
-        ($content -match 'data\.table-collapse') | Should Be $true
+        ($content -match 'data\.table-collapse') | Should -Be $true
     }
 
     It "documents tidyverse as alternative dialect" {
-        ($content -match 'tidyverse') | Should Be $true
+        ($content -match 'tidyverse') | Should -Be $true
     }
 }
 
@@ -691,11 +691,11 @@ Describe "SCHEMA_VERSION - dialect marker" {
     $content = if (Test-Path $schemaFile) { (Get-Content $schemaFile -Raw -Encoding UTF8).Trim() } else { "" }
 
     It "SCHEMA_VERSION file exists" {
-        Test-Path $schemaFile | Should Be $true
+        Test-Path $schemaFile | Should -Be $true
     }
 
     It "SCHEMA_VERSION contains scope-fields marker" {
-        ($content -match 'scope-fields') | Should Be $true
+        ($content -match 'scope-fields') | Should -Be $true
     }
 }
 
@@ -708,19 +708,19 @@ Describe "r.instructions.md - unconditional skill routing" {
     $content = if (Test-Path $routerFile) { Get-Content $routerFile -Raw -Encoding UTF8 } else { "" }
 
     It "routes to cg-skill-r-analytical (unconditional)" {
-        ($content -match 'cg-skill-r-analytical') | Should Be $true
+        ($content -match 'cg-skill-r-analytical') | Should -Be $true
     }
 
     It "routes to cg-skill-r-technical (unconditional)" {
-        ($content -match 'cg-skill-r-technical') | Should Be $true
+        ($content -match 'cg-skill-r-technical') | Should -Be $true
     }
 
     It "routes to cg-skill-r-testing (unconditional)" {
-        ($content -match 'cg-skill-r-testing') | Should Be $true
+        ($content -match 'cg-skill-r-testing') | Should -Be $true
     }
 
     It "routes to cg-skill-r-shared (unconditional)" {
-        ($content -match 'cg-skill-r-shared') | Should Be $true
+        ($content -match 'cg-skill-r-shared') | Should -Be $true
     }
 }
 
@@ -733,7 +733,7 @@ Describe "docs/reference.md - R skills and r-syntax config" {
     $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
 
     It "docs/reference.md exists" {
-        Test-Path $refFile | Should Be $true
+        Test-Path $refFile | Should -Be $true
     }
 
     $allRSkills = @(
@@ -749,32 +749,32 @@ Describe "docs/reference.md - R skills and r-syntax config" {
 
     foreach ($skill in $allRSkills) {
         It "reference.md lists $skill" {
-            ($content -match [regex]::Escape($skill)) | Should Be $true
+            ($content -match [regex]::Escape($skill)) | Should -Be $true
         }
     }
 
     It "documents r-syntax configuration field" {
-        ($content -match 'r-syntax') | Should Be $true
+        ($content -match 'r-syntax') | Should -Be $true
     }
 
     It "documents data.table-collapse dialect in config table" {
-        ($content -match 'data\.table-collapse') | Should Be $true
+        ($content -match 'data\.table-collapse') | Should -Be $true
     }
 
     It "contains Priority Levels table with P0 BLOCKING entry" {
-        ($content -match 'P0.*BLOCKING') | Should Be $true
+        ($content -match 'P0.*BLOCKING') | Should -Be $true
     }
 
     It "reference.md documents @cg-release-scanner agent" {
-        ($content -match 'cg-release-scanner') | Should Be $true
+        ($content -match 'cg-release-scanner') | Should -Be $true
     }
 
     It "reference.md documents @cg-project-scanner agent" {
-        ($content -match 'cg-project-scanner') | Should Be $true
+        ($content -match 'cg-project-scanner') | Should -Be $true
     }
 
     It "column header uses User-invocable (not User-invokable)" {
-        ($content -match 'User-invocable') | Should Be $true
+        ($content -match 'User-invocable') | Should -Be $true
     }
 }
 
@@ -790,15 +790,15 @@ Describe "R-dialect-aware agents - r-syntax handling" {
         $agentContent = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
 
         It "$agent mentions r-syntax" {
-            ($agentContent -match 'r-syntax') | Should Be $true
+            ($agentContent -match 'r-syntax') | Should -Be $true
         }
 
         It "$agent documents data.table-collapse dialect" {
-            ($agentContent -match 'data\.table-collapse') | Should Be $true
+            ($agentContent -match 'data\.table-collapse') | Should -Be $true
         }
 
         It "$agent documents tidyverse dialect" {
-            ($agentContent -match 'tidyverse') | Should Be $true
+            ($agentContent -match 'tidyverse') | Should -Be $true
         }
     }
 }
@@ -820,7 +820,7 @@ Describe "R dialect skills - reference files exist" {
         foreach ($refFile in $expectedRefFiles[$skill]) {
             It "$skill/references/$refFile exists" {
                 $path = Join-Path $repoRoot ".github\skills\$skill\references\$refFile"
-                Test-Path $path | Should Be $true
+                Test-Path $path | Should -Be $true
             }
         }
     }
@@ -844,7 +844,7 @@ Describe "Agent files - tools restriction enforcement" {
         $fm        = Get-Frontmatter -FilePath $filePath
 
         It "$relPath has a tools: key in frontmatter" {
-            ($fm -match 'tools:') | Should Be $true
+            ($fm -match 'tools:') | Should -Be $true
         }
     }
 
@@ -859,7 +859,7 @@ Describe "Agent files - tools restriction enforcement" {
         $tools    = Get-ToolsList -Frontmatter $fm
 
         It "$relPath does not include 'write' in its tools list (read-only reviewer)" {
-            ($tools -contains 'write') | Should Be $false
+            ($tools -contains 'write') | Should -Be $false
         }
     }
 }
@@ -872,7 +872,7 @@ Describe "cg-compound.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -882,11 +882,11 @@ Describe "cg-compound.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -897,7 +897,7 @@ Describe "cg-compound.prompt.md - no tool restriction" {
 
     Context "orchestrator must have unrestricted tools" {
         It "does not have a tools: key (write access required for saving solution files)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -907,7 +907,7 @@ Describe "cg-compound.prompt.md - severity field includes P0" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "severity field template includes P0 option" {
-        ($content -match '<P0\|P1\|P2\|P3>') | Should Be $true
+        ($content -match '<P0\|P1\|P2\|P3>') | Should -Be $true
     }
 }
 
@@ -920,14 +920,14 @@ Describe "cg-work.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 
     Context "orchestrator must have unrestricted tools" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -936,14 +936,14 @@ Describe "cg-brainstorm.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 
     Context "orchestrator must have unrestricted tools" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -952,14 +952,14 @@ Describe "cg-plan.prompt.md - no tool restriction" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 
     Context "orchestrator must have unrestricted tools" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (orchestrating prompts need unrestricted access)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 }
@@ -981,7 +981,7 @@ Describe "Agent files - non-trivial body content" {
         $body = $raw -replace '(?s)^---.*?---\s*', ''
 
         It "$relPath has substantive body content (body > 100 chars)" {
-            $body.Trim().Length | Should BeGreaterThan 100
+            $body.Trim().Length | Should -BeGreaterThan 100
         }
     }
 }
@@ -1003,12 +1003,12 @@ Describe "Get-Frontmatter helper - edge cases" {
 
     It "returns empty string when the file has no frontmatter" {
         $result = Get-Frontmatter -FilePath $tmpNoFm
-        $result | Should BeNullOrEmpty
+        $result | Should -BeNullOrEmpty
     }
 
     It "returns empty string when the frontmatter is unclosed (missing closing ---)" {
         $result = Get-Frontmatter -FilePath $tmpPartFm
-        $result | Should BeNullOrEmpty
+        $result | Should -BeNullOrEmpty
     }
 
     # Clean up temp files
@@ -1025,15 +1025,15 @@ Describe "cg-brainstorm.prompt.md - Step 0.5 prior work scan" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "scans .cg-docs/brainstorms/ for prior work" {
-        ($content -match '\.cg-docs[/\\]brainstorms') | Should Be $true
+        ($content -match '\.cg-docs[/\\]brainstorms') | Should -Be $true
     }
 
     It "presents Continue option" {
-        ($content -match '\*\*Continue\*\*') | Should Be $true
+        ($content -match '\*\*Continue\*\*') | Should -Be $true
     }
 
     It "presents Start fresh option" {
-        ($content -match 'Start fresh') | Should Be $true
+        ($content -match 'Start fresh') | Should -Be $true
     }
 }
 
@@ -1046,15 +1046,15 @@ Describe "cg-brainstorm.prompt.md - Step 1.1 Task Classification" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 1.1 Task Classification" {
-        ($content -match 'Step 1\.1.*Task Classification') | Should Be $true
+        ($content -match 'Step 1\.1.*Task Classification') | Should -Be $true
     }
 
     It "defines Thinking Partner Mode" {
-        ($content -match 'Thinking Partner Mode') | Should Be $true
+        ($content -match 'Thinking Partner Mode') | Should -Be $true
     }
 
     It "skips roadmap registration for non-software tasks" {
-        ($content -match '[Ss]kip roadmap') | Should Be $true
+        ($content -match '[Ss]kip roadmap') | Should -Be $true
     }
 }
 
@@ -1067,23 +1067,23 @@ Describe "cg-brainstorm.prompt.md - Step 1.5 Scope Assessment" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 1.5 Scope Assessment" {
-        ($content -match 'Step 1\.5.*Scope Assessment') | Should Be $true
+        ($content -match 'Step 1\.5.*Scope Assessment') | Should -Be $true
     }
 
     It "defines Lightweight scope tier" {
-        ($content -match '\*\*Lightweight\*\*') | Should Be $true
+        ($content -match '\*\*Lightweight\*\*') | Should -Be $true
     }
 
     It "defines Standard scope tier" {
-        ($content -match '\*\*Standard\*\*') | Should Be $true
+        ($content -match '\*\*Standard\*\*') | Should -Be $true
     }
 
     It "defines Deep scope tier" {
-        ($content -match '\*\*Deep\*\*') | Should Be $true
+        ($content -match '\*\*Deep\*\*') | Should -Be $true
     }
 
     It "includes Scope assessment output line" {
-        ($content -match 'Scope assessment:') | Should Be $true
+        ($content -match 'Scope assessment:') | Should -Be $true
     }
 }
 
@@ -1096,19 +1096,19 @@ Describe "cg-plan.prompt.md - Step 0.5 prior work scan" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "scans .cg-docs/plans/ for prior work" {
-        ($content -match '\.cg-docs[/\\]plans') | Should Be $true
+        ($content -match '\.cg-docs[/\\]plans') | Should -Be $true
     }
 
     It "presents Refine option" {
-        ($content -match '\*\*Refine\*\*') | Should Be $true
+        ($content -match '\*\*Refine\*\*') | Should -Be $true
     }
 
     It "uses 3+ matching keywords threshold (synced with cg-brainstorm)" {
-        ($content -match '3\+?\s*matching keywords') | Should Be $true
+        ($content -match '3\+?\s*matching keywords') | Should -Be $true
     }
 
     It "presents Follow-up option" {
-        ($content -match '\*\*Follow-up\*\*') | Should Be $true
+        ($content -match '\*\*Follow-up\*\*') | Should -Be $true
     }
 }
 
@@ -1121,27 +1121,27 @@ Describe "cg-plan.prompt.md - Step 1.5 Scope Assessment" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 1.5 Scope Assessment" {
-        ($content -match 'Step 1\.5.*Scope Assessment') | Should Be $true
+        ($content -match 'Step 1\.5.*Scope Assessment') | Should -Be $true
     }
 
     It "includes Lightweight criteria (1-3 steps)" {
-        ($content -match '1.3 steps') | Should Be $true
+        ($content -match '1.3 steps') | Should -Be $true
     }
 
     It "includes Standard criteria (3-8 steps)" {
-        ($content -match '3.8 steps') | Should Be $true
+        ($content -match '3.8 steps') | Should -Be $true
     }
 
     It "includes Deep criteria (8+ steps)" {
-        ($content -match '8\+ steps') | Should Be $true
+        ($content -match '8\+ steps') | Should -Be $true
     }
 
     It "includes Scope assessment output line" {
-        ($content -match 'Scope assessment:') | Should Be $true
+        ($content -match 'Scope assessment:') | Should -Be $true
     }
 
     It "blocks Focused/Extended/Strategic scope as plan input (Thinking Partner guard)" {
-        ($content -match 'Thinking Partner.*not valid') | Should Be $true
+        ($content -match 'Thinking Partner.*not valid') | Should -Be $true
     }
 }
 
@@ -1154,31 +1154,31 @@ Describe "cg-plan.prompt.md - Step 4.5 Confidence Check" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 4.5 Confidence Check" {
-        ($content -match 'Step 4\.5.*Confidence Check') | Should Be $true
+        ($content -match 'Step 4\.5.*Confidence Check') | Should -Be $true
     }
 
     It "checks Completeness dimension" {
-        ($content -match '\*\*Completeness\*\*') | Should Be $true
+        ($content -match '\*\*Completeness\*\*') | Should -Be $true
     }
 
     It "checks Testability dimension" {
-        ($content -match '\*\*Testability\*\*') | Should Be $true
+        ($content -match '\*\*Testability\*\*') | Should -Be $true
     }
 
     It "checks Dependencies dimension" {
-        ($content -match '\*\*Dependencies\*\*') | Should Be $true
+        ($content -match '\*\*Dependencies\*\*') | Should -Be $true
     }
 
     It "checks Risk coverage dimension" {
-        ($content -match '\*\*Risk coverage\*\*') | Should Be $true
+        ($content -match '\*\*Risk coverage\*\*') | Should -Be $true
     }
 
     It "checks Scope clarity dimension" {
-        ($content -match '\*\*Scope clarity\*\*') | Should Be $true
+        ($content -match '\*\*Scope clarity\*\*') | Should -Be $true
     }
 
     It "defines High / Medium / Low confidence levels" {
-        ($content -match '\*\*High\*\*' -and $content -match '\*\*Medium\*\*' -and $content -match '\*\*Low\*\*') | Should Be $true
+        ($content -match '\*\*High\*\*' -and $content -match '\*\*Medium\*\*' -and $content -match '\*\*Low\*\*') | Should -Be $true
     }
 }
 
@@ -1191,19 +1191,19 @@ Describe "cg-plan.prompt.md - Test Scenarios template" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Test Scenarios field in step template" {
-        ($content -match '\*\*Test Scenarios\*\*:') | Should Be $true
+        ($content -match '\*\*Test Scenarios\*\*:') | Should -Be $true
     }
 
     It "includes happy path marker" {
-        ($content -match '[Hh]appy path') | Should Be $true
+        ($content -match '[Hh]appy path') | Should -Be $true
     }
 
     It "includes edge case marker" {
-        ($content -match '[Ee]dge case') | Should Be $true
+        ($content -match '[Ee]dge case') | Should -Be $true
     }
 
     It "includes error path marker" {
-        ($content -match '[Ee]rror path') | Should Be $true
+        ($content -match '[Ee]rror path') | Should -Be $true
     }
 }
 
@@ -1216,27 +1216,27 @@ Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 1.5 Content-Based Depth Overrides" {
-        ($content -match 'Step 1\.5.*Content-Based Depth Overrides') | Should Be $true
+        ($content -match 'Step 1\.5.*Content-Based Depth Overrides') | Should -Be $true
     }
 
     It "includes pipeline/scripts trigger adding @cg-data-quality" {
-        ($content -match 'pipeline.*@cg-data-quality|scripts.*@cg-data-quality') | Should Be $true
+        ($content -match 'pipeline.*@cg-data-quality|scripts.*@cg-data-quality') | Should -Be $true
     }
 
     It "includes >= 50 non-test lines escalation trigger" {
-        ($content -match '50 non-test lines') | Should Be $true
+        ($content -match '50 non-test lines') | Should -Be $true
     }
 
     It "includes authentication/secrets trigger adding @cg-version-control" {
-        ($content -match 'authentication.*secrets|secrets.*credentials') | Should Be $true
+        ($content -match 'authentication.*secrets|secrets.*credentials') | Should -Be $true
     }
 
     It "includes statistical functions trigger adding @cg-data-quality" {
-        ($content -match 'statistical functions|fmean') | Should Be $true
+        ($content -match 'statistical functions|fmean') | Should -Be $true
     }
 
     It "includes >= 200 non-test lines suggestion trigger" {
-        ($content -match '200 non-test lines') | Should Be $true
+        ($content -match '200 non-test lines') | Should -Be $true
     }
 }
 
@@ -1249,12 +1249,12 @@ Describe "cg-review.prompt.md - @cg-adversarial in thorough depth" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes @cg-adversarial in Thorough section" {
-        ($content -match '(?s)Thorough.*?@cg-adversarial') | Should Be $true
+        ($content -match '(?s)Thorough.*?@cg-adversarial') | Should -Be $true
     }
 
     It "@cg-adversarial is NOT in Light section" {
         $lightSection = if ($content -match '(?s)\*\*Light\*\*.*?\*\*Standard\*\*') { $Matches[0] } else { '' }
-        ($lightSection -match '@cg-adversarial') | Should Be $false
+        ($lightSection -match '@cg-adversarial') | Should -Be $false
     }
 }
 
@@ -1267,23 +1267,23 @@ Describe "cg-review.prompt.md - protected artifacts guard" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "mentions Protected artifacts section" {
-        ($content -match 'Protected artifacts') | Should Be $true
+        ($content -match 'Protected artifacts') | Should -Be $true
     }
 
     It "lists .cg-docs subdirectories as protected" {
-        ($content -match '\.cg-docs') | Should Be $true
+        ($content -match '\.cg-docs') | Should -Be $true
     }
 
     It "lists compound-gpid.md as a protected file" {
-        ($content -match 'compound-gpid\.md') | Should Be $true
+        ($content -match 'compound-gpid\.md') | Should -Be $true
     }
 
     It "lists roadmap.json as a protected file" {
-        ($content -match 'roadmap\.json') | Should Be $true
+        ($content -match 'roadmap\.json') | Should -Be $true
     }
 
     It "guard instructs discarding delete/replace/rename/move findings" {
-        ($content -match 'Discard any finding.*delet') | Should Be $true
+        ($content -match 'Discard any finding.*delet') | Should -Be $true
     }
 }
 
@@ -1296,19 +1296,19 @@ Describe "cg-review.prompt.md - mode:autofix argument" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "documents mode:autofix argument" {
-        ($content -match 'mode:autofix') | Should Be $true
+        ($content -match 'mode:autofix') | Should -Be $true
     }
 
     It "defines safe_auto and advisory tags" {
-        ($content -match '(?s)Step 4.*safe_auto.*advisory') | Should Be $true
+        ($content -match '(?s)Step 4.*safe_auto.*advisory') | Should -Be $true
     }
 
     It "includes Autofix complete report template" {
-        ($content -match 'Autofix complete:.*safe fixes') | Should Be $true
+        ($content -match 'Autofix complete:.*safe fixes') | Should -Be $true
     }
 
     It "prohibits safe_auto for statistical functions (escalate to manual)" {
-        ($content -match '(?s)Never.*safe_auto.*statistical|statistical.*escalate.*manual') | Should Be $true
+        ($content -match '(?s)Never.*safe_auto.*statistical|statistical.*escalate.*manual') | Should -Be $true
     }
 }
 
@@ -1321,15 +1321,15 @@ Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes ### P0 BLOCKING section in report template" {
-        ($content -match '### P0.*BLOCKING') | Should Be $true
+        ($content -match '### P0.*BLOCKING') | Should -Be $true
     }
 
     It "P0 BLOCKING appears before P1 CRITICAL in report" {
-        ($content -match '(?s)P0.*BLOCKING.*P1.*CRITICAL') | Should Be $true
+        ($content -match '(?s)P0.*BLOCKING.*P1.*CRITICAL') | Should -Be $true
     }
 
     It "P0 section includes immediate remediation language" {
-        ($content -match '(?s)P0.*immediate') | Should Be $true
+        ($content -match '(?s)P0.*immediate') | Should -Be $true
     }
 }
 
@@ -1342,23 +1342,23 @@ Describe "cg-work.prompt.md - inline plan fallback" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "describes lightweight inline plan fallback when no plan found" {
-        ($content -match 'lightweight inline plan') | Should Be $true
+        ($content -match 'lightweight inline plan') | Should -Be $true
     }
 
     It "inline plan is described as 3-5 steps" {
-        ($content -match '3.5 steps') | Should Be $true
+        ($content -match '3.5 steps') | Should -Be $true
     }
 
     It "offers Proceed with this or run /cg-plan option" {
-        ($content -match 'Proceed with this.*cg-plan') | Should Be $true
+        ($content -match 'Proceed with this.*cg-plan') | Should -Be $true
     }
 
     It "skips roadmap linking Step 1.5 when using inline plan" {
-        ($content -match 'Skip Step 1\.5') | Should Be $true
+        ($content -match 'Skip Step 1\.5') | Should -Be $true
     }
 
     It "saves inline plan to .cg-docs/plans/ before implementing" {
-        ($content -match '\.cg-docs[/\\]plans.*YYYY-MM-DD') | Should Be $true
+        ($content -match '\.cg-docs[/\\]plans.*YYYY-MM-DD') | Should -Be $true
     }
 }
 
@@ -1371,15 +1371,15 @@ Describe "cg-work.prompt.md - Discover existing tests sub-step" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Discover existing tests sub-step" {
-        ($content -match 'Discover existing tests') | Should Be $true
+        ($content -match 'Discover existing tests') | Should -Be $true
     }
 
     It "instructs searching for test files before implementing" {
-        ($content -match '[Bb]efore implementing.*scan|[Ss]earch for test files') | Should Be $true
+        ($content -match '[Bb]efore implementing.*scan|[Ss]earch for test files') | Should -Be $true
     }
 
     It "references .Tests.ps1 test file pattern" {
-        ($content -match '\.Tests\.ps1') | Should Be $true
+        ($content -match '\.Tests\.ps1') | Should -Be $true
     }
 
     It "instructs running both existing and new tests" {
@@ -1387,7 +1387,7 @@ Describe "cg-work.prompt.md - Discover existing tests sub-step" {
         # a literal execution_subagent block (Phase 2 prompt hardening). The
         # new approach uses execution_subagent + Run-Tests.ps1 + last-run.json.
         # (?s) flag makes . match newlines so the pattern spans multiple lines.
-        ($content -match '(?s)existing tests AND the new tests|(?s)execution_subagent.*Run-Tests|Run-Tests.*execution_subagent') | Should Be $true
+        ($content -match '(?s)existing tests AND the new tests|(?s)execution_subagent.*Run-Tests|Run-Tests.*execution_subagent') | Should -Be $true
     }
 }
 
@@ -1400,23 +1400,23 @@ Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 3.2 Self-Review section" {
-        ($content -match 'Step 3\.2.*Self-Review') | Should Be $true
+        ($content -match 'Step 3\.2.*Self-Review') | Should -Be $true
     }
 
     It "scans for print( debug code pattern" {
-        ($content -match 'print\(') | Should Be $true
+        ($content -match 'print\(') | Should -Be $true
     }
 
     It "checks for missing tests on new public functions" {
-        ($content -match 'new public function') | Should Be $true
+        ($content -match 'new public function') | Should -Be $true
     }
 
     It "scans for TODO FIXME HACK XXX markers" {
-        ($content -match 'TODO.*FIXME.*HACK') | Should Be $true
+        ($content -match 'TODO.*FIXME.*HACK') | Should -Be $true
     }
 
     It "emits a self-review complete summary line" {
-        ($content -match '[Ss]elf-review complete:') | Should Be $true
+        ($content -match '[Ss]elf-review complete:') | Should -Be $true
     }
 }
 
@@ -1431,11 +1431,11 @@ Describe "cg-review.prompt.md - depth override arguments" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "documents light, standard, and thorough as Override arguments" {
-        ($content -match '(?i)light.*standard.*thorough') | Should Be $true
+        ($content -match '(?i)light.*standard.*thorough') | Should -Be $true
     }
 
     It "references review depth from compound-gpid.local.md for default" {
-        ($content -match 'compound-gpid\.local') | Should Be $true
+        ($content -match 'compound-gpid\.local') | Should -Be $true
     }
 }
 
@@ -1447,7 +1447,7 @@ Describe "cg-fix-problems.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fix-problems.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -1457,11 +1457,11 @@ Describe "cg-fix-problems.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -1472,7 +1472,7 @@ Describe "cg-fix-problems.prompt.md - no tool restriction" {
 
     Context "orchestrator must have unrestricted tools" {
         It "does not have a tools: key (write access required for orchestrating prompts)" {
-            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should -Be $true
         }
     }
 }
@@ -1482,11 +1482,11 @@ Describe "cg-fix-problems.prompt.md - dispatches agent and scans diagnostics" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "dispatches @cg-fix-problems agent" {
-        ($content -match '@cg-fix-problems') | Should Be $true
+        ($content -match '@cg-fix-problems') | Should -Be $true
     }
 
     It "references get_errors for diagnostics scanning" {
-        ($content -match 'get_errors') | Should Be $true
+        ($content -match 'get_errors') | Should -Be $true
     }
 }
 
@@ -1499,15 +1499,15 @@ Describe "cg-fix-problems.agent.md - user-invocable false" {
     $frontmatter = Get-Frontmatter -FilePath $agentFile
 
     It "exists in the repository" {
-        Test-Path $agentFile | Should Be $true
+        Test-Path $agentFile | Should -Be $true
     }
 
     It "has user-invocable: false in frontmatter" {
-        ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+        ($frontmatter -match 'user-invocable:\s*false') | Should -Be $true
     }
 
     It "has editFiles in its tools list (required to apply code fixes)" {
-        ($frontmatter -match 'editFiles') | Should Be $true
+        ($frontmatter -match 'editFiles') | Should -Be $true
     }
 }
 
@@ -1516,19 +1516,19 @@ Describe "cg-fix-problems.agent.md - auto mode protocol" {
     $content = Get-Content $agentFile -Raw -Encoding UTF8
 
     It "documents 2-round retry budget" {
-        ($content -match '2[ \-]round|two[ \-]round|Round 2') | Should Be $true
+        ($content -match '2[ \-]round|two[ \-]round|Round 2') | Should -Be $true
     }
 
     It "documents errors-only filter for auto mode" {
-        ($content -match '(?i)errors only') | Should Be $true
+        ($content -match '(?i)errors only') | Should -Be $true
     }
 
     It "references get_errors diagnostics tool" {
-        ($content -match 'get_errors') | Should Be $true
+        ($content -match 'get_errors') | Should -Be $true
     }
 
     It "documents hard stop after round 2" {
-        ($content -match '[Hh]ard [Ss]top|Hard stop') | Should Be $true
+        ($content -match '[Hh]ard [Ss]top|Hard stop') | Should -Be $true
     }
 }
 
@@ -1541,23 +1541,23 @@ Describe "cg-work.prompt.md - auto-dispatch @cg-fix-problems" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references @cg-fix-problems agent" {
-        ($content -match '@cg-fix-problems') | Should Be $true
+        ($content -match '@cg-fix-problems') | Should -Be $true
     }
 
     It "documents 2-round retry budget" {
-        ($content -match '2[ \-]round|two[ \-]round|2 rounds') | Should Be $true
+        ($content -match '2[ \-]round|two[ \-]round|2 rounds') | Should -Be $true
     }
 
     It "documents errors-only scope for auto mode" {
-        ($content -match '(?i)errors only') | Should Be $true
+        ($content -match '(?i)errors only') | Should -Be $true
     }
 
     It "explicitly suppresses auto-dispatch when no errors are present (warnings-only guard)" {
-        ($content -match 'Suppress this step.*no errors|no errors are present|when.*get_errors.*returns no errors') | Should Be $true
+        ($content -match 'Suppress this step.*no errors|no errors are present|when.*get_errors.*returns no errors') | Should -Be $true
     }
 
     It "passes mode: auto to the agent dispatch (not interactive)" {
-        ($content -match 'mode:\s*auto') | Should Be $true
+        ($content -match 'mode:\s*auto') | Should -Be $true
     }
 }
 
@@ -1575,29 +1575,29 @@ Describe "cg-work.prompt.md - roadmap done update before summary wait" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "'to status done.' dispatch phrase is present in the prompt" {
-        $content.IndexOf("to status done.") | Should BeGreaterThan -1
+        $content.IndexOf("to status done.") | Should -BeGreaterThan -1
     }
 
     It "'Wait for the user's response before proceeding' phrase is present in the prompt" {
-        $content.IndexOf("Wait for the user's response before proceeding") | Should BeGreaterThan -1
+        $content.IndexOf("Wait for the user's response before proceeding") | Should -BeGreaterThan -1
     }
 
     It "dispatches roadmap 'to status done.' update BEFORE the 'Wait for the user' pause (prevents roadmap drift)" {
         $waitPos = $content.IndexOf("Wait for the user's response before proceeding")
         $donePos = $content.IndexOf("to status done.")
         # The roadmap update must precede the user-wait pause
-        $donePos | Should BeLessThan $waitPos
+        $donePos | Should -BeLessThan $waitPos
     }
 
     It "Step 3.7 appears between Step 3.5 and Step 4 in the file" {
         $step35Pos = $content.IndexOf("### Step 3.5:")
         $step37Pos = $content.IndexOf("### Step 3.7:")
         $step4Pos  = $content.IndexOf("### Step 4:")
-        $step35Pos | Should BeGreaterThan -1
-        $step37Pos | Should BeGreaterThan -1
-        $step4Pos  | Should BeGreaterThan -1
-        $step37Pos | Should BeGreaterThan $step35Pos
-        $step37Pos | Should BeLessThan $step4Pos
+        $step35Pos | Should -BeGreaterThan -1
+        $step37Pos | Should -BeGreaterThan -1
+        $step4Pos  | Should -BeGreaterThan -1
+        $step37Pos | Should -BeGreaterThan $step35Pos
+        $step37Pos | Should -BeLessThan $step4Pos
     }
 }
 
@@ -1610,39 +1610,39 @@ Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 3.5 Devil's Advocate section" {
-        ($content -match "Step 3\.5.*Devil") | Should Be $true
+        ($content -match "Step 3\.5.*Devil") | Should -Be $true
     }
 
     It "checks problem validation (is problem real)" {
-        ($content -match 'Problem validation|problem real') | Should Be $true
+        ($content -match 'Problem validation|problem real') | Should -Be $true
     }
 
     It "checks simplicity (simpler solution exists)" {
-        ($content -match '[Ss]implicity check|simpler solution') | Should Be $true
+        ($content -match '[Ss]implicity check|simpler solution') | Should -Be $true
     }
 
     It "checks effort-value proportionality" {
-        ($content -match '[Ee]ffort-value|80% of the benefit') | Should Be $true
+        ($content -match '[Ee]ffort-value|80% of the benefit') | Should -Be $true
     }
 
     It "checks charter alignment" {
-        ($content -match '[Cc]harter alignment') | Should Be $true
+        ($content -match '[Cc]harter alignment') | Should -Be $true
     }
 
     It "includes side-idea capture instruction during pushback" {
-        ($content -match 'adjacent idea|separate idea worth tracking') | Should Be $true
+        ($content -match 'adjacent idea|separate idea worth tracking') | Should -Be $true
     }
 
     It "Step 3.5 is always-on and unconditional for all scopes" {
-        ($content -match 'always-on and unconditional') | Should Be $true
+        ($content -match 'always-on and unconditional') | Should -Be $true
     }
 
     It "Thinking Partner mode uses decision reversibility check" {
-        ($content -match 'decision reversibility') | Should Be $true
+        ($content -match 'decision reversibility') | Should -Be $true
     }
 
     It "Thinking Partner mode uses stakeholder impact check" {
-        ($content -match 'stakeholder impact') | Should Be $true
+        ($content -match 'stakeholder impact') | Should -Be $true
     }
 }
 
@@ -1655,23 +1655,23 @@ Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 5c Side-Idea Capture section" {
-        ($content -match '5c\..*Side-Idea Capture') | Should Be $true
+        ($content -match '5c\..*Side-Idea Capture') | Should -Be $true
     }
 
     It "has 'no adjacent ideas' variant for sessions without pushback" {
-        ($content -match 'No adjacent ideas surfaced') | Should Be $true
+        ($content -match 'No adjacent ideas surfaced') | Should -Be $true
     }
 
     It "has context-aware variant referencing the pushback discussion" {
-        ($content -match 'pushback discussion') | Should Be $true
+        ($content -match 'pushback discussion') | Should -Be $true
     }
 
     It "renames previous 5c to 5d (Handoff moved to 5d)" {
-        ($content -match '5d\. Handoff') | Should Be $true
+        ($content -match '5d\. Handoff') | Should -Be $true
     }
 
     It "Step 5c dispatches @cg-roadmap for captured ideas" {
-        ($content -match '@cg-roadmap') | Should Be $true
+        ($content -match '@cg-roadmap') | Should -Be $true
     }
 }
 
@@ -1686,17 +1686,17 @@ Describe "cg-brainstorm.prompt.md - step ordering: Step 3.5 and Step 5c" {
     It "Step 3.5 appears before Step 4 in the file" {
         $step35Idx = $content.IndexOf("### Step 3.5:")
         $step4Idx  = $content.IndexOf("### Step 4:")
-        $step35Idx | Should BeGreaterThan -1
-        $step4Idx  | Should BeGreaterThan -1
-        $step35Idx | Should BeLessThan $step4Idx
+        $step35Idx | Should -BeGreaterThan -1
+        $step4Idx  | Should -BeGreaterThan -1
+        $step35Idx | Should -BeLessThan $step4Idx
     }
 
     It "Step 5c Side-Idea Capture appears before Step 5d Handoff" {
         $step5cIdx = $content.IndexOf("5c. Side-Idea Capture")
         $step5dIdx = $content.IndexOf("5d. Handoff")
-        $step5cIdx | Should BeGreaterThan -1
-        $step5dIdx | Should BeGreaterThan -1
-        $step5cIdx | Should BeLessThan $step5dIdx
+        $step5cIdx | Should -BeGreaterThan -1
+        $step5dIdx | Should -BeGreaterThan -1
+        $step5cIdx | Should -BeLessThan $step5dIdx
     }
 }
 # ---------------------------------------------------------------------------
@@ -1708,15 +1708,15 @@ Describe "cg-brainstorm.prompt.md - Step 1.7 Branch Offer ordering" {
     It "Step 1.7 Branch Offer appears after Step 1.5 Scope Assessment" {
         $step15Idx  = $content.IndexOf('### Step 1.5:')
         $step17Idx  = $content.IndexOf('### Step 1.7:')
-        $step15Idx  | Should BeGreaterThan -1
-        $step17Idx  | Should BeGreaterThan $step15Idx
+        $step15Idx  | Should -BeGreaterThan -1
+        $step17Idx  | Should -BeGreaterThan $step15Idx
     }
 
     It "Step 2 Clarifying Questions appears after Step 1.7 Branch Offer" {
         $step17Idx  = $content.IndexOf('### Step 1.7:')
         $step2Idx   = $content.IndexOf('### Step 2:')
-        $step17Idx  | Should BeGreaterThan -1
-        $step2Idx   | Should BeGreaterThan $step17Idx
+        $step17Idx  | Should -BeGreaterThan -1
+        $step2Idx   | Should -BeGreaterThan $step17Idx
     }
 }
 
@@ -1728,22 +1728,22 @@ Describe "cg-plan-critic.agent.md - existence and structure" {
     $agentFile = Join-Path $repoRoot ".github\agents\cg-plan-critic.agent.md"
 
     It "exists in the repository" {
-        Test-Path $agentFile | Should Be $true
+        Test-Path $agentFile | Should -Be $true
     }
 
     Context "required frontmatter fields" {
         $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
 
         It "has tools: restricted to read and search (not write)" {
-            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should Be $true
+            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should -Be $true
         }
 
         It "is NOT user-invocable" {
-            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+            ($frontmatter -match 'user-invocable:\s*false') | Should -Be $true
         }
 
         It "has a model in frontmatter" {
-            ($frontmatter -match 'model:') | Should Be $true
+            ($frontmatter -match 'model:') | Should -Be $true
         }
     }
 }
@@ -1756,29 +1756,29 @@ Describe "cg-plan-review.prompt.md - existence and structure" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan-review.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 
     Context "orchestrator must have unrestricted tools" {
         $frontmatter = Get-Frontmatter -FilePath $promptFile
 
         It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
-            ($frontmatter -notmatch 'tools:') | Should Be $true
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
         }
     }
 
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "dispatches @cg-plan-critic" {
-        ($content -match '@cg-plan-critic') | Should Be $true
+        ($content -match '@cg-plan-critic') | Should -Be $true
     }
 
     It "can locate a plan without user specifying a path (scans .cg-docs/plans/)" {
-        ($content -match '\.cg-docs[/\\]plans') | Should Be $true
+        ($content -match '\.cg-docs[/\\]plans') | Should -Be $true
     }
 
     It "includes side-idea capture in Step 4" {
-        ($content -match 'Step 4.*Side-Idea Capture') | Should Be $true
+        ($content -match 'Step 4.*Side-Idea Capture') | Should -Be $true
     }
 }
 
@@ -1791,15 +1791,15 @@ Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "Step 6 suggests /cg-plan-review as an option" {
-        ($content -match '/cg-plan-review') | Should Be $true
+        ($content -match '/cg-plan-review') | Should -Be $true
     }
 
     It "Step 6a includes side-idea capture section" {
-        ($content -match '6a\. Side-Idea Capture') | Should Be $true
+        ($content -match '6a\. Side-Idea Capture') | Should -Be $true
     }
 
     It "Step 6b contains the handoff options" {
-        ($content -match '6b\. Handoff') | Should Be $true
+        ($content -match '6b\. Handoff') | Should -Be $true
     }
 }
 
@@ -1812,11 +1812,11 @@ Describe "cg-resume.prompt.md - schema bypass guard" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "contains workspace-root SCHEMA_VERSION self-check before schema comparison" {
-        ($content -match 'SCHEMA_VERSION') -and ($content -match 'workspace root') | Should Be $true
+        ($content -match 'SCHEMA_VERSION') -and ($content -match 'workspace root') | Should -Be $true
     }
 
     It "instructs to skip schema comparison when workspace root has SCHEMA_VERSION" {
-        ($content -match '[Ss]kip this entire step|[Ss]kip.*proceed.*Step 2') | Should Be $true
+        ($content -match '[Ss]kip this entire step|[Ss]kip.*proceed.*Step 2') | Should -Be $true
     }
 }
 
@@ -1829,74 +1829,74 @@ Describe "cg-work.prompt.md - test failure recovery" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "exists" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 
     It "documents 2 fix attempts hard cap" {
-        ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should Be $true
+        ($content -match '\d+\.\s+If tests are still failing after 2 fix attempts') | Should -Be $true
     }
 
     It "notification is rendered as a blockquote" {
-        ($content -match '>\s+"?\*\*N test\(s\)|>\s+\*\*N test\(s\)') | Should Be $true
+        ($content -match '>\s+"?\*\*N test\(s\)|>\s+\*\*N test\(s\)') | Should -Be $true
     }
 
     It "notification template includes 'Review before merging'" {
-        ($content -match 'Review before merging') | Should Be $true
+        ($content -match 'Review before merging') | Should -Be $true
     }
 
     It "notification template shows per-test enumeration format" {
-        ($content -match '<test-file>::<test-name>') | Should Be $true
+        ($content -match '<test-file>::<test-name>') | Should -Be $true
     }
 
     It "explicitly separates test failures from @cg-fix-problems dispatch" {
-        ($content -match '(?s)Do NOT dispatch.*@cg-fix-problems.*test fail') | Should Be $true
+        ($content -match '(?s)Do NOT dispatch.*@cg-fix-problems.*test fail') | Should -Be $true
     }
 
     It "includes anti-weakening guard ('not weaken')" {
-        ($content -match 'not\s+weaken|weaken or remove') | Should Be $true  # \s+ intentionally spans the CRLF line break between 'not' and 'weaken' in the prompt
+        ($content -match 'not\s+weaken|weaken or remove') | Should -Be $true  # \s+ intentionally spans the CRLF line break between 'not' and 'weaken' in the prompt
     }
 
     It "permits test updates when function interface explicitly changed" {
-        ($content -match 'changed signature or return type|Inference about interface change') | Should Be $true
+        ($content -match 'changed signature or return type|Inference about interface change') | Should -Be $true
     }
 
     It "notification template uses variable count placeholder (N test(s))" {
-        ($content -match 'N test\(s\)') | Should Be $true
+        ($content -match 'N test\(s\)') | Should -Be $true
     }
 
     It "describes sequential two-attempt structure ('one more targeted fix attempt')" {
-        ($content -match 'one more targeted fix') | Should Be $true
+        ($content -match 'one more targeted fix') | Should -Be $true
     }
 
     It "requires full-suite re-run after targeted fixes resolve to catch regressions" {
-        ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should Be $true
+        ($content -match '(?s)full test suite.*catch regressions|regressions introduced by the fix') | Should -Be $true
     }
 
     It "instructs continuing to Auto-Fix Diagnostics when full suite passes (continue path)" {
-        ($content -match '(?s)full suite passes.*continue normally|continue.*Auto-Fix Diagnostics') | Should Be $true
+        ($content -match '(?s)full suite passes.*continue normally|continue.*Auto-Fix Diagnostics') | Should -Be $true
     }
 
     It "notification template includes last error message placeholder" {
-        ($content -match '<last error message>') | Should Be $true
+        ($content -match '<last error message>') | Should -Be $true
     }
 
     It "on new regressions emits step-4 format notification and continues to Auto-Fix Diagnostics" {
-        ($content -match 'emit the standard failure notification.*sub-step 4|format from sub-step 4') | Should Be $true
+        ($content -match 'emit the standard failure notification.*sub-step 4|format from sub-step 4') | Should -Be $true
     }
 
     It "includes double-notification skip-guard in Auto-Fix Diagnostics sub-item 5" {
-        ($content -match '(?s)Test Failure Recovery step 4.*skip emitting') | Should Be $true
+        ($content -match '(?s)Test Failure Recovery step 4.*skip emitting') | Should -Be $true
     }
 
     It "scopes Test Failure Recovery to functional tests only" {
-        ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should Be $true
+        ($content -match 'Test Failure Recovery.*functional tests only|get_errors.*handled separately') | Should -Be $true
     }
 
     It "full-suite re-run step appears before the user-wait pause" {
         $rrunIdx = $content.IndexOf('full test suite')
         $waitIdx = $content.IndexOf('Wait for the user')
-        $rrunIdx | Should BeGreaterThan -1
-        $rrunIdx | Should BeLessThan $waitIdx
+        $rrunIdx | Should -BeGreaterThan -1
+        $rrunIdx | Should -BeLessThan $waitIdx
     }
 }
 
@@ -1913,11 +1913,11 @@ Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null featu
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "Step 3.7 searches feature titles in the plan content when no path match found" {
-        ($content -match 'title.*plan content|feature.*title.*appear|scan.*plan.*title|title.*match.*plan') | Should Be $true
+        ($content -match 'title.*plan content|feature.*title.*appear|scan.*plan.*title|title.*match.*plan') | Should -Be $true
     }
 
     It "Step 3.7 prompts the user to confirm which unlinked features were completed" {
-        ($content -match 'confirm.*which features|which.*features.*complet|ask.*user.*confirm') | Should Be $true
+        ($content -match 'confirm.*which features|which.*features.*complet|ask.*user.*confirm') | Should -Be $true
     }
 
     It "Step 3.7 still dispatches @cg-roadmap for confirmed matches from the fallback" {
@@ -1925,7 +1925,7 @@ Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null featu
         $step37Start = $content.IndexOf("### Step 3.7:")
         $step4Start  = $content.IndexOf("### Step 4:")
         $step37Block = $content.Substring($step37Start, $step4Start - $step37Start)
-        ($step37Block -match '@cg-roadmap') | Should Be $true
+        ($step37Block -match '@cg-roadmap') | Should -Be $true
     }
 }
 
@@ -1938,11 +1938,11 @@ Describe "cg-work.prompt.md - Step 1.5 Mark Work Started" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "dispatches @cg-roadmap to mark feature status active at work start" {
-        ($content -match 'to status active') | Should Be $true
+        ($content -match 'to status active') | Should -Be $true
     }
 
     It "Step 1.5 is conditioned on feature status being planned" {
-        ($content -match 'status is.*planned') | Should Be $true
+        ($content -match 'status is.*planned') | Should -Be $true
     }
 }
 
@@ -1955,16 +1955,16 @@ Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "Step 3.5 writes completed-date with today's date" {
-        ($content -match 'completed-date') | Should Be $true
+        ($content -match 'completed-date') | Should -Be $true
     }
 
     It "Step 3.5 changes status to completed in plan frontmatter" {
         $step35Start = $content.IndexOf("### Step 3.5:")
         $step37Start = $content.IndexOf("### Step 3.7:")
-        $step35Start | Should BeGreaterThan -1
-        $step37Start | Should BeGreaterThan $step35Start
+        $step35Start | Should -BeGreaterThan -1
+        $step37Start | Should -BeGreaterThan $step35Start
         $step35Block = $content.Substring($step35Start, $step37Start - $step35Start)
-        ($step35Block -match 'status.*completed|status: completed') | Should Be $true
+        ($step35Block -match 'status.*completed|status: completed') | Should -Be $true
     }
 }
 
@@ -1996,11 +1996,11 @@ Describe "context layer - all 15 prompts reference compound-gpid.context.md" {
         $content    = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
         It "$name.prompt.md references compound-gpid.context.md" {
-            ($content -match 'compound-gpid\.context\.md') | Should Be $true
+            ($content -match 'compound-gpid\.context\.md') | Should -Be $true
         }
 
         It "$name.prompt.md instructs to skip silently when context.md is absent" {
-            ($content -match 'skip silently|skip.*silently|proceed without project context') | Should Be $true
+            ($content -match 'skip silently|skip.*silently|proceed without project context') | Should -Be $true
         }
     }
 }
@@ -2026,11 +2026,11 @@ Describe "context layer - warn text survives renumbering in standard prompts" {
         $content    = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
         It "$name.prompt.md retains 'warn the user' instruction after context.md item inserted" {
-            ($content -match 'warn the user') | Should Be $true
+            ($content -match 'warn the user') | Should -Be $true
         }
 
         It "$name.prompt.md retains 'No project charter found' message text" {
-            ($content -match 'No project charter found') | Should Be $true
+            ($content -match 'No project charter found') | Should -Be $true
         }
     }
 }
@@ -2044,27 +2044,27 @@ Describe "cg-compound.prompt.md - context enrichment step ordering" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 5 Context Enrichment section" {
-        ($content -match 'Step 5.*Context Enrichment') | Should Be $true
+        ($content -match 'Step 5.*Context Enrichment') | Should -Be $true
     }
 
     It "includes Step 6 Confirm section" {
-        ($content -match 'Step 6.*Confirm') | Should Be $true
+        ($content -match 'Step 6.*Confirm') | Should -Be $true
     }
 
     It "Step 5 (Context Enrichment) comes before Step 6 (Confirm)" {
         $step5Pos = $content.IndexOf("### Step 5: Context Enrichment")
         $step6Pos = $content.IndexOf("### Step 6: Confirm")
-        $step5Pos | Should BeGreaterThan -1
-        $step6Pos | Should BeGreaterThan -1
-        $step5Pos | Should BeLessThan $step6Pos
+        $step5Pos | Should -BeGreaterThan -1
+        $step6Pos | Should -BeGreaterThan -1
+        $step5Pos | Should -BeLessThan $step6Pos
     }
 
     It "proposes adding to compound-gpid.context.md when domain knowledge is discovered" {
-        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+        ($content -match 'compound-gpid\.context\.md') | Should -Be $true
     }
 
     It "offers to create context.md if it does not exist" {
-        ($content -match 'does not exist.*suggest creating|Would you like me to create it') | Should Be $true
+        ($content -match 'does not exist.*suggest creating|Would you like me to create it') | Should -Be $true
     }
 }
 
@@ -2077,37 +2077,37 @@ Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 3.8 Milestone Completion Check section" {
-        ($content -match 'Step 3\.8.*Milestone Completion Check') | Should Be $true
+        ($content -match 'Step 3\.8.*Milestone Completion Check') | Should -Be $true
     }
 
     It "Step 3.8 appears between Step 3.7 and Step 4 in the file" {
         $step37Pos = $content.IndexOf("### Step 3.7:")
         $step38Pos = $content.IndexOf("### Step 3.8:")
         $step4Pos  = $content.IndexOf("### Step 4:")
-        $step37Pos | Should BeGreaterThan -1
-        $step38Pos | Should BeGreaterThan -1
-        $step4Pos  | Should BeGreaterThan -1
-        $step38Pos | Should BeGreaterThan $step37Pos
-        $step38Pos | Should BeLessThan $step4Pos
+        $step37Pos | Should -BeGreaterThan -1
+        $step38Pos | Should -BeGreaterThan -1
+        $step4Pos  | Should -BeGreaterThan -1
+        $step38Pos | Should -BeGreaterThan $step37Pos
+        $step38Pos | Should -BeLessThan $step4Pos
     }
 
     It "counts non-done features in the milestone after marking done" {
-        ($content -match 'all features.*done|not.*done.*idea.*planned.*active') | Should Be $true
+        ($content -match 'all features.*done|not.*done.*idea.*planned.*active') | Should -Be $true
     }
 
     It "dispatches @cg-roadmap when milestone is fully complete" {
         $step38Start = $content.IndexOf("### Step 3.8:")
         $step4Start  = $content.IndexOf("### Step 4:")
         $step38Block = $content.Substring($step38Start, $step4Start - $step38Start)
-        ($step38Block -match '@cg-roadmap') | Should Be $true
+        ($step38Block -match '@cg-roadmap') | Should -Be $true
     }
 
     It "warns user that Current Focus may be stale when milestone completes" {
-        ($content -match '[Ss]tale.*Current Focus|Current Focus.*stale') | Should Be $true
+        ($content -match '[Ss]tale.*Current Focus|Current Focus.*stale') | Should -Be $true
     }
 
     It "suggests /cg-strategy to update direction after milestone completes" {
-        ($content -match '/cg-strategy') | Should Be $true
+        ($content -match '/cg-strategy') | Should -Be $true
     }
 
     It "does NOT auto-modify compound-gpid.md charter (redirects to /cg-strategy)" {
@@ -2115,7 +2115,7 @@ Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
         $step4Start  = $content.IndexOf("### Step 4:")
         $step38Block = $content.Substring($step38Start, $step4Start - $step38Start)
         # Charter direction is deferred to /cg-strategy, not handled inline in cg-work
-        ($step38Block -match '/cg-strategy') | Should Be $true
+        ($step38Block -match '/cg-strategy') | Should -Be $true
     }
 }
 
@@ -2128,15 +2128,15 @@ Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 2f.5 Current Focus staleness check" {
-        ($content -match '2f\.5.*[Cc]urrent [Ff]ocus') | Should Be $true
+        ($content -match '2f\.5.*[Cc]urrent [Ff]ocus') | Should -Be $true
     }
 
     It "checks if Current Focus references a completed milestone" {
-        ($content -match 'status.*done|done.*status') | Should Be $true
+        ($content -match 'status.*done|done.*status') | Should -Be $true
     }
 
     It "surfaces a nudge when Current Focus references a completed milestone" {
-        ($content -match 'Stale Current Focus') | Should Be $true
+        ($content -match 'Stale Current Focus') | Should -Be $true
     }
 
     It "does NOT auto-modify the charter (read-only nudge only)" {
@@ -2144,14 +2144,14 @@ Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
         $step3Start   = $content.IndexOf("### Step 3:")
         if ($step2f5Start -ge 0 -and $step3Start -ge 0) {
             $block = $content.Substring($step2f5Start, $step3Start - $step2f5Start)
-            ($block -match 'Set-Content|Write-Content|update.*compound-gpid\.md') | Should Be $false
+            ($block -match 'Set-Content|Write-Content|update.*compound-gpid\.md') | Should -Be $false
         } else {
-            $true | Should Be $true  # guard: skip if section not found
+            $true | Should -Be $true  # guard: skip if section not found
         }
     }
 
     It "suggests /cg-strategy to update direction" {
-        ($content -match '/cg-strategy') | Should Be $true
+        ($content -match '/cg-strategy') | Should -Be $true
     }
 }
 
@@ -2173,7 +2173,7 @@ Describe "context layer - compound-gpid.context.md is NOT gitignored" {
         # Only check non-comment lines — a comment documenting that the file is intentionally
         # NOT gitignored is permitted; an uncommented entry would actually ignore the file.
         $nonCommentLines = ($content -split '\r?\n' | Where-Object { $_ -notmatch '^\s*#' }) -join "`n"
-        ($nonCommentLines -match 'compound-gpid\.context\.md') | Should Be $false
+        ($nonCommentLines -match 'compound-gpid\.context\.md') | Should -Be $false
     }
 }
 
@@ -2186,16 +2186,16 @@ Describe "cg-compound.prompt.md - context enrichment step" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references compound-gpid.context.md in Step 5" {
-        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+        ($content -match 'compound-gpid\.context\.md') | Should -Be $true
     }
 
     It "proposes adding to compound-gpid.context.md when a finding is relevant" {
         # The step must include language proposing additions to context.md sections
-        ($content -match 'I.d add this to the|propose.*addition|suggest.*add') | Should Be $true
+        ($content -match 'I.d add this to the|propose.*addition|suggest.*add') | Should -Be $true
     }
 
     It "includes an offer to create compound-gpid.context.md when it does not exist" {
-        ($content -match 'does not exist.*create it|create it.*does not exist|Would you like me to create it') | Should Be $true
+        ($content -match 'does not exist.*create it|create it.*does not exist|Would you like me to create it') | Should -Be $true
     }
 }
 
@@ -2208,19 +2208,19 @@ Describe "cg-resume.prompt.md - Current Focus staleness check" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 2f.5 Current Focus staleness check" {
-        ($content -match '2f\.5') | Should Be $true
+        ($content -match '2f\.5') | Should -Be $true
     }
 
     It "cross-references milestone status done in staleness logic" {
-        ($content -match "status.*done|status.*`"done`"") | Should Be $true
+        ($content -match "status.*done|status.*`"done`"") | Should -Be $true
     }
 
     It "emits a Stale Current Focus nudge when a completed milestone is referenced" {
-        ($content -match 'Stale Current Focus') | Should Be $true
+        ($content -match 'Stale Current Focus') | Should -Be $true
     }
 
     It "does not auto-modify the charter (nudge only)" {
-        ($content -match 'Do NOT auto-modify|only surface the nudge') | Should Be $true
+        ($content -match 'Do NOT auto-modify|only surface the nudge') | Should -Be $true
     }
 }
 
@@ -2233,19 +2233,19 @@ Describe "cg-work.prompt.md - milestone completion check" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Step 3.8 milestone completion check" {
-        ($content -match '3\.8') | Should Be $true
+        ($content -match '3\.8') | Should -Be $true
     }
 
     It "dispatches @cg-roadmap when all features in a milestone are done" {
-        ($content -match '@cg-roadmap.*milestone|milestone.*@cg-roadmap') | Should Be $true
+        ($content -match '@cg-roadmap.*milestone|milestone.*@cg-roadmap') | Should -Be $true
     }
 
     It "warns the user when a milestone is fully complete" {
-        ($content -match 'Milestone.*is now complete|is now complete') | Should Be $true
+        ($content -match 'Milestone.*is now complete|is now complete') | Should -Be $true
     }
 
     It "offers to update Current Focus when a milestone completes" {
-        ($content -match 'Current Focus') | Should Be $true
+        ($content -match 'Current Focus') | Should -Be $true
     }
 }
 
@@ -2265,30 +2265,30 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-work" {
     $cgWorkContent = if (Test-Path $cgWorkFile) { Get-Content $cgWorkFile -Raw -Encoding UTF8 } else { "" }
 
     It "cg-work.prompt.md exists" {
-        (Test-Path $cgWorkFile) | Should Be $true
+        (Test-Path $cgWorkFile) | Should -Be $true
     }
 
     It "cg-work.prompt.md contains execution_subagent instruction" {
-        ($cgWorkContent -match 'execution_subagent') | Should Be $true
+        ($cgWorkContent -match 'execution_subagent') | Should -Be $true
     }
 
     It "cg-work.prompt.md references Run-Tests.ps1 in test block" {
-        ($cgWorkContent -match 'Run-Tests\.ps1') | Should Be $true
+        ($cgWorkContent -match 'Run-Tests\.ps1') | Should -Be $true
     }
 
     It "cg-work.prompt.md references last-run.json artifact" {
-        ($cgWorkContent -match 'last-run\.json') | Should Be $true
+        ($cgWorkContent -match 'last-run\.json') | Should -Be $true
     }
 
     It "cg-work.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
         # Co-presence check: both must exist (prohibition intent confirmed).
         # Does not test exact phrasing - rewording the prohibition still passes.
         ($cgWorkContent -match 'execution_subagent') -and ($cgWorkContent -match 'Invoke-Pester') |
-            Should Be $true
+            Should -Be $true
     }
 
     It "warns filteredFiles non-null means partial run (commit gate guard)" {
-        ($cgWorkContent -match 'filteredFiles') | Should Be $true
+        ($cgWorkContent -match 'filteredFiles') | Should -Be $true
     }
 }
 
@@ -2301,11 +2301,11 @@ Describe "cg-work.prompt.md - full-suite commit gate guard" {
     $cgWorkContent = if (Test-Path $cgWorkFile) { Get-Content $cgWorkFile -Raw -Encoding UTF8 } else { "" }
 
     It "full-suite gate query includes filteredFiles field" {
-        ($cgWorkContent -match 'filteredFiles') | Should Be $true
+        ($cgWorkContent -match 'filteredFiles') | Should -Be $true
     }
 
     It "partial run guard: non-null filteredFiles blocks commit gate" {
-        ($cgWorkContent -match 'filteredFiles.*partial run|partial run.*filteredFiles') | Should Be $true
+        ($cgWorkContent -match 'filteredFiles.*partial run|partial run.*filteredFiles') | Should -Be $true
     }
 }
 
@@ -2314,36 +2314,36 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-fix-triage" 
     $cgFixTriageContent = if (Test-Path $cgFixTriageFile) { Get-Content $cgFixTriageFile -Raw -Encoding UTF8 } else { "" }
 
     It "cg-fix-triage.prompt.md exists" {
-        (Test-Path $cgFixTriageFile) | Should Be $true
+        (Test-Path $cgFixTriageFile) | Should -Be $true
     }
 
     It "cg-fix-triage.prompt.md contains execution_subagent instruction" {
-        ($cgFixTriageContent -match 'execution_subagent') | Should Be $true
+        ($cgFixTriageContent -match 'execution_subagent') | Should -Be $true
     }
 
     It "cg-fix-triage.prompt.md references Run-Tests.ps1 in test block" {
-        ($cgFixTriageContent -match 'Run-Tests\.ps1') | Should Be $true
+        ($cgFixTriageContent -match 'Run-Tests\.ps1') | Should -Be $true
     }
 
     It "cg-fix-triage.prompt.md references last-run.json artifact" {
-        ($cgFixTriageContent -match 'last-run\.json') | Should Be $true
+        ($cgFixTriageContent -match 'last-run\.json') | Should -Be $true
     }
 
     It "cg-fix-triage.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
         ($cgFixTriageContent -match 'execution_subagent') -and ($cgFixTriageContent -match 'Invoke-Pester') |
-            Should Be $true
+            Should -Be $true
     }
 
     It "full-suite gate includes filteredFiles field" {
-        ($cgFixTriageContent -match 'filteredFiles') | Should Be $true
+        ($cgFixTriageContent -match 'filteredFiles') | Should -Be $true
     }
 
     It "full-suite gate includes Test-Path guard for missing last-run.json" {
-        ($cgFixTriageContent -match 'Test-Path tests\\last-run\.json') | Should Be $true
+        ($cgFixTriageContent -match 'Test-Path tests\\last-run\.json') | Should -Be $true
     }
 
     It "full-suite gate emits 'last-run.json not found' message when file is missing" {
-        ($cgFixTriageContent -match 'last-run\.json not found') | Should Be $true
+        ($cgFixTriageContent -match 'last-run\.json not found') | Should -Be $true
     }
 }
 
@@ -2352,24 +2352,24 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-diagnose" {
     $cgDiagnoseContent = if (Test-Path $cgDiagnoseFile) { Get-Content $cgDiagnoseFile -Raw -Encoding UTF8 } else { "" }
 
     It "cg-diagnose.prompt.md exists" {
-        (Test-Path $cgDiagnoseFile) | Should Be $true
+        (Test-Path $cgDiagnoseFile) | Should -Be $true
     }
 
     It "cg-diagnose.prompt.md contains execution_subagent instruction" {
-        ($cgDiagnoseContent -match 'execution_subagent') | Should Be $true
+        ($cgDiagnoseContent -match 'execution_subagent') | Should -Be $true
     }
 
     It "cg-diagnose.prompt.md references Run-Tests.ps1 in test block" {
-        ($cgDiagnoseContent -match 'Run-Tests\.ps1') | Should Be $true
+        ($cgDiagnoseContent -match 'Run-Tests\.ps1') | Should -Be $true
     }
 
     It "cg-diagnose.prompt.md references last-run.json artifact" {
-        ($cgDiagnoseContent -match 'last-run\.json') | Should Be $true
+        ($cgDiagnoseContent -match 'last-run\.json') | Should -Be $true
     }
 
     It "cg-diagnose.prompt.md contains Invoke-Pester prohibition alongside execution_subagent" {
         ($cgDiagnoseContent -match 'execution_subagent') -and ($cgDiagnoseContent -match 'Invoke-Pester') |
-            Should Be $true
+            Should -Be $true
     }
 }
 
@@ -2384,15 +2384,15 @@ Describe "cg-skill-pester-safety - Agent Workflow section present" {
     $skillContent = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
 
     It "SKILL.md contains 'execution_subagent' in Agent Workflow section" {
-        ($skillContent -match 'execution_subagent') | Should Be $true
+        ($skillContent -match 'execution_subagent') | Should -Be $true
     }
 
     It "SKILL.md references Run-Tests.ps1 in Agent Workflow section" {
-        ($skillContent -match 'Run-Tests\.ps1') | Should Be $true
+        ($skillContent -match 'Run-Tests\.ps1') | Should -Be $true
     }
 
     It "SKILL.md references last-run.json artifact in Agent Workflow section" {
-        ($skillContent -match 'last-run\.json') | Should Be $true
+        ($skillContent -match 'last-run\.json') | Should -Be $true
     }
 }
 
@@ -2407,15 +2407,15 @@ Describe "copilot-instructions.md - Rule 9 Agent test workflow" {
     $instructionsContent = if (Test-Path $instructionsFile) { Get-Content $instructionsFile -Raw -Encoding UTF8 } else { "" }
 
     It "copilot-instructions.md contains 'Agent test workflow' rule" {
-        ($instructionsContent -match 'Agent test workflow') | Should Be $true
+        ($instructionsContent -match 'Agent test workflow') | Should -Be $true
     }
 
     It "copilot-instructions.md references execution_subagent in Rule 9" {
-        ($instructionsContent -match 'execution_subagent') | Should Be $true
+        ($instructionsContent -match 'execution_subagent') | Should -Be $true
     }
 
     It "copilot-instructions.md references last-run.json in Rule 9" {
-        ($instructionsContent -match 'last-run\.json') | Should Be $true
+        ($instructionsContent -match 'last-run\.json') | Should -Be $true
     }
 }
 
@@ -2427,7 +2427,7 @@ Describe "cg-setup.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -2436,15 +2436,15 @@ Describe "cg-setup.prompt.md - frontmatter" {
     $frontmatter = Get-Frontmatter -FilePath $promptFile
 
     It "has a description in frontmatter" {
-        $frontmatter | Should Match 'description:'
+        $frontmatter | Should -Match 'description:'
     }
 
     It "has a model in frontmatter" {
-        $frontmatter | Should Match 'model:'
+        $frontmatter | Should -Match 'model:'
     }
 
     It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
-        ($frontmatter -notmatch 'tools:') | Should Be $true
+        ($frontmatter -notmatch 'tools:') | Should -Be $true
     }
 }
 
@@ -2453,27 +2453,27 @@ Describe "cg-setup.prompt.md - mode detection and overwrite guard" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "references compound-gpid.local.md for mode detection (Mode A vs Mode B)" {
-        ($content -match 'compound-gpid\.local\.md') | Should Be $true
+        ($content -match 'compound-gpid\.local\.md') | Should -Be $true
     }
 
     It "has a project-name overwrite guard before recreating compound-gpid.md" {
-        ($content -match 'already exists|overwrite') | Should Be $true
+        ($content -match 'already exists|overwrite') | Should -Be $true
     }
 
     It "references setup-templates.md for templates" {
-        ($content -match 'setup-templates\.md') | Should Be $true
+        ($content -match 'setup-templates\.md') | Should -Be $true
     }
 
     It "creates roadmap.json during new project setup" {
-        ($content -match 'roadmap\.json') | Should Be $true
+        ($content -match 'roadmap\.json') | Should -Be $true
     }
 
     It "updates .gitignore to exclude compound-gpid.local.md" {
-        ($content -match '\.gitignore') | Should Be $true
+        ($content -match '\.gitignore') | Should -Be $true
     }
 
     It "does NOT create compound-gpid.md if user skips Question 4 (project name)" {
-        ($content -match 'do NOT create|skips.*Q4|skips before Question 4') | Should Be $true
+        ($content -match 'do NOT create|skips.*Q4|skips before Question 4') | Should -Be $true
     }
 }
 
@@ -2486,27 +2486,27 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes Mode B section for returning projects" {
-        ($content -match 'Mode B') | Should Be $true
+        ($content -match 'Mode B') | Should -Be $true
     }
 
     It "checks for deprecated charter sections (B1.1.5)" {
-        ($content -match 'Architecture Notes|deprecated') | Should Be $true
+        ($content -match 'Architecture Notes|deprecated') | Should -Be $true
     }
 
     It "performs schema version check (B1.3)" {
-        ($content -match 'cg-schema-version') | Should Be $true
+        ($content -match 'cg-schema-version') | Should -Be $true
     }
 
     It "checks for roadmap.json and notifies if missing (B1.2.5)" {
-        ($content -match 'roadmap\.json') | Should Be $true
+        ($content -match 'roadmap\.json') | Should -Be $true
     }
 
     It "checks for compound-gpid.context.md and offers to create it (B1.1.3)" {
-        ($content -match 'compound-gpid\.context\.md') | Should Be $true
+        ($content -match 'compound-gpid\.context\.md') | Should -Be $true
     }
 
     It "explicitly instructs not to add context.md to .gitignore" {
-        ($content -match '(?i)do NOT add.*\.gitignore|institutional knowledge') | Should Be $true
+        ($content -match '(?i)do NOT add.*\.gitignore|institutional knowledge') | Should -Be $true
     }
 }
 
@@ -2519,34 +2519,34 @@ Describe "setup-templates.md - charter quality gate section" {
     $content = Get-Content $templateFile -Raw -Encoding UTF8
 
     It "contains the Charter Quality Gate section heading" {
-        ($content -match '## Charter Quality Gate') | Should Be $true
+        ($content -match '## Charter Quality Gate') | Should -Be $true
     }
 
     It "lists project-name as a blocker" {
-        ($content -match 'project-name') | Should Be $true
+        ($content -match 'project-name') | Should -Be $true
     }
 
     It "lists <!-- TODO placeholder as a blocker" {
-        ($content -match '<!-- TODO') | Should Be $true
+        ($content -match '<!-- TODO') | Should -Be $true
     }
 
     It "lists empty Objective as a blocker" {
-        ($content -match '## Objective') | Should Be $true
+        ($content -match '## Objective') | Should -Be $true
     }
 
     It "lists last-reviewed as a warning" {
-        ($content -match 'last-reviewed') | Should Be $true
+        ($content -match 'last-reviewed') | Should -Be $true
     }
 
     It "includes deferred-output instruction for Mode B" {
-        ($content -match 'Store results internally|Do NOT output') | Should Be $true
+        ($content -match 'Store results internally|Do NOT output') | Should -Be $true
     }
 
     It "Charter Quality Gate specifies exact TODO blocker strings" {
-        ($content -match '<!-- TODO: Describe') | Should Be $true
-        ($content -match '<!-- TODO: List') | Should Be $true
-        ($content -match '<!-- TODO: Add') | Should Be $true
-        ($content -match '<!-- TODO: What') | Should Be $true
+        ($content -match '<!-- TODO: Describe') | Should -Be $true
+        ($content -match '<!-- TODO: List') | Should -Be $true
+        ($content -match '<!-- TODO: Add') | Should -Be $true
+        ($content -match '<!-- TODO: What') | Should -Be $true
     }
 }
 
@@ -2559,45 +2559,45 @@ Describe "setup-templates.md - scanner charter template section" {
     $content = Get-Content $templateFile -Raw -Encoding UTF8
 
     It "contains the Charter from Scanner Results section heading" {
-        ($content -match '## Charter from Scanner Results') | Should Be $true
+        ($content -match '## Charter from Scanner Results') | Should -Be $true
     }
 
     It "references @cg-project-scanner or scanner" {
-        ($content -match '@cg-project-scanner|cg-project-scanner') | Should Be $true
+        ($content -match '@cg-project-scanner|cg-project-scanner') | Should -Be $true
     }
 
     It "contains hybrid approve option: Approve as-is" {
-        ($content -match 'Approve as-is') | Should Be $true
+        ($content -match 'Approve as-is') | Should -Be $true
     }
 
     It "contains hybrid approve option: Walk through section by section" {
-        ($content -match 'Walk through') | Should Be $true
+        ($content -match 'Walk through') | Should -Be $true
     }
 
     It "contains hybrid approve option: Start from scratch" {
-        ($content -match 'Start from scratch') | Should Be $true
+        ($content -match 'Start from scratch') | Should -Be $true
     }
 
     It "contains confidence-action mapping table with high/skip" {
-        ($content -match '\| high') | Should Be $true
-        ($content -match '\| skip') | Should Be $true
+        ($content -match '\| high') | Should -Be $true
+        ($content -match '\| skip') | Should -Be $true
     }
 
     It "contains confidence-action mapping table with confirm and ask" {
-        ($content -match '\| confirm') | Should Be $true
-        ($content -match '\| ask') | Should Be $true
+        ($content -match '\| confirm') | Should -Be $true
+        ($content -match '\| ask') | Should -Be $true
     }
 
     It "field mapping table notes Current Focus as not scannable" {
-        ($content -match 'Current Focus.*not scannable|not scannable.*Current Focus') | Should Be $true
+        ($content -match 'Current Focus.*not scannable|not scannable.*Current Focus') | Should -Be $true
     }
 
     It "setup-templates.md includes YAML quoting rule for project-name" {
-        ($content -match 'single-quoted YAML|single quotes instead') | Should Be $true
+        ($content -match 'single-quoted YAML|single quotes instead') | Should -Be $true
     }
 
     It "setup-templates.md includes JSON string escaping rule" {
-        ($content -match 'JSON string escaping') | Should Be $true
+        ($content -match 'JSON string escaping') | Should -Be $true
     }
 }
 
@@ -2610,23 +2610,23 @@ Describe "setup-templates.md - pre-flight health check section" {
     $content = Get-Content $templateFile -Raw -Encoding UTF8
 
     It "contains the Pre-flight Health Check section heading" {
-        ($content -match '## Pre-flight Health Check') | Should Be $true
+        ($content -match '## Pre-flight Health Check') | Should -Be $true
     }
 
     It "checks .github/prompts/ directory" {
-        ($content -match '\.github/prompts/') | Should Be $true
+        ($content -match '\.github/prompts/') | Should -Be $true
     }
 
     It "checks .github/skills/ directory" {
-        ($content -match '\.github/skills/') | Should Be $true
+        ($content -match '\.github/skills/') | Should -Be $true
     }
 
     It "checks .github/agents/ directory" {
-        ($content -match '\.github/agents/') | Should Be $true
+        ($content -match '\.github/agents/') | Should -Be $true
     }
 
     It "checks .github/instructions/ directory" {
-        ($content -match '\.github/instructions/') | Should Be $true
+        ($content -match '\.github/instructions/') | Should -Be $true
     }
 }
 
@@ -2639,19 +2639,19 @@ Describe "setup-templates.md - roadmap bootstrap section" {
     $content = Get-Content $templateFile -Raw -Encoding UTF8
 
     It "contains the Roadmap Bootstrap from Charter section heading" {
-        ($content -match '## Roadmap Bootstrap from Charter') | Should Be $true
+        ($content -match '## Roadmap Bootstrap from Charter') | Should -Be $true
     }
 
     It "mentions roadmap.json" {
-        ($content -match 'roadmap\.json') | Should Be $true
+        ($content -match 'roadmap\.json') | Should -Be $true
     }
 
     It "mentions Current Focus as the seed source" {
-        ($content -match 'Current Focus') | Should Be $true
+        ($content -match 'Current Focus') | Should -Be $true
     }
 
     It "specifies the empty skeleton fallback when charter was not written" {
-        ($content -match 'charter was NOT written|charter was skipped') | Should Be $true
+        ($content -match 'charter was NOT written|charter was skipped') | Should -Be $true
     }
 }
 
@@ -2664,57 +2664,57 @@ Describe "cg-setup.prompt.md - Mode A scanner integration" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "dispatches @cg-project-scanner in Mode A" {
-        ($content -match '@cg-project-scanner') | Should Be $true
+        ($content -match '@cg-project-scanner') | Should -Be $true
     }
 
     It "contains named Fallback: Manual Questions block" {
-        ($content -match 'Fallback: Manual Questions') | Should Be $true
+        ($content -match 'Fallback: Manual Questions') | Should -Be $true
     }
 
     It "references Charter Quality Gate template" {
-        ($content -match 'Charter Quality Gate') | Should Be $true
+        ($content -match 'Charter Quality Gate') | Should -Be $true
     }
 
     It "references Pre-flight Health Check template" {
-        ($content -match 'Pre-flight Health Check') | Should Be $true
+        ($content -match 'Pre-flight Health Check') | Should -Be $true
     }
 
     It "references Roadmap Bootstrap from Charter template" {
-        ($content -match 'Roadmap Bootstrap from Charter') | Should Be $true
+        ($content -match 'Roadmap Bootstrap from Charter') | Should -Be $true
     }
 
     It "contains scanner failure fallback text" {
-        ($content -match 'Scanner could not analyze') | Should Be $true
+        ($content -match 'Scanner could not analyze') | Should -Be $true
     }
 
     It "contains hybrid approve as-is option text" {
-        ($content -match 'Approve as-is') | Should Be $true
+        ($content -match 'Approve as-is') | Should -Be $true
     }
 
     It "contains overwrite guard for existing charter" {
-        ($content -match 'already exists.*overwrite|overwrite.*already exists') | Should Be $true
+        ($content -match 'already exists.*overwrite|overwrite.*already exists') | Should -Be $true
     }
 
     It "mentions .Rbuildignore update step" {
-        ($content -match '\.Rbuildignore') | Should Be $true
+        ($content -match '\.Rbuildignore') | Should -Be $true
     }
 
     It "contains scanner output sanitization instruction" {
-        ($content -match 'untrusted user data|SYSTEM:.*prefix|Sanitization') | Should Be $true
+        ($content -match 'untrusted user data|SYSTEM:.*prefix|Sanitization') | Should -Be $true
     }
 
     It "names specific injection trigger words (Ignore, Override, Forget)" {
-        ($content -match '(?i)\bIgnore\b') | Should Be $true
-        ($content -match '(?i)\bOverride\b') | Should Be $true
-        ($content -match '(?i)\bForget\b') | Should Be $true
+        ($content -match '(?i)\bIgnore\b') | Should -Be $true
+        ($content -match '(?i)\bOverride\b') | Should -Be $true
+        ($content -match '(?i)\bForget\b') | Should -Be $true
     }
 
     It "has roadmap.json existence guard (skip if already exists)" {
-        ($content -match 'roadmap\.json.*already exists.*skip|already exists.*roadmap') | Should Be $true
+        ($content -match 'roadmap\.json.*already exists.*skip|already exists.*roadmap') | Should -Be $true
     }
 
     It "falls back to ask when Setup Recommendations table is absent" {
-        ($content -match 'absent from the scanner report|Setup Recommendations.*absent') | Should Be $true
+        ($content -match 'absent from the scanner report|Setup Recommendations.*absent') | Should -Be $true
     }
 }
 
@@ -2727,43 +2727,43 @@ Describe "cg-setup.prompt.md - Mode B quality gate" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "Mode B contains B1.1.1 charter quality check step" {
-        ($content -match 'B1\.1\.1') | Should Be $true
+        ($content -match 'B1\.1\.1') | Should -Be $true
     }
 
     It "Mode B contains deferred-output instruction" {
-        ($content -match 'Store results internally|Do NOT output') | Should Be $true
+        ($content -match 'Store results internally|Do NOT output') | Should -Be $true
     }
 
     It "Mode B references the Charter Quality Gate template" {
-        ($content -match 'Charter Quality Gate') | Should Be $true
+        ($content -match 'Charter Quality Gate') | Should -Be $true
     }
 
     It "Mode B preserves B1 read config step" {
-        ($content -match 'B1\. Read existing config') | Should Be $true
+        ($content -match 'B1\. Read existing config') | Should -Be $true
     }
 
     It "Mode B preserves B3 context summary step" {
-        ($content -match 'B3\. Present context summary') | Should Be $true
+        ($content -match 'B3\. Present context summary') | Should -Be $true
     }
 
     It "Mode B B3 step includes instruction to append quality gate findings" {
-        ($content -match 'B3.*quality gate|quality gate.*B3|append.*quality gate|quality gate.*B1\.1\.1') | Should Be $true
+        ($content -match 'B3.*quality gate|quality gate.*B3|append.*quality gate|quality gate.*B1\.1\.1') | Should -Be $true
     }
 
     It "Mode B preserves B4.7 workspace folders step" {
-        ($content -match 'B4\.7') | Should Be $true
+        ($content -match 'B4\.7') | Should -Be $true
     }
 
     It "Mode B has B0.5 pre-load templates step" {
-        ($content -match 'B0\.5') | Should Be $true
+        ($content -match 'B0\.5') | Should -Be $true
     }
 
     It "Mode B B4 instructs carrying forward cg-schema-version on rewrite" {
-        ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should Be $true
+        ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should -Be $true
     }
 
     It "Mode B B3 instructs skipping B4.5 when blockers were fixed in B3" {
-        ($content -match 'skip.*B4\.5|charter was just updated') | Should Be $true
+        ($content -match 'skip.*B4\.5|charter was just updated') | Should -Be $true
     }
 }
 
@@ -2776,11 +2776,11 @@ Describe "link.ps1 - setup guidance in success message" {
     $content = Get-Content $linkScript -Raw -Encoding UTF8
 
     It "contains specific /cg-setup guidance text" {
-        ($content -match 'run /cg-setup in Copilot Chat to configure') | Should Be $true
+        ($content -match 'run /cg-setup in Copilot Chat to configure') | Should -Be $true
     }
 
     It "still contains the managed-by warning (not removed)" {
-        ($content -match 'managed by Compound GPID') | Should Be $true
+        ($content -match 'managed by Compound GPID') | Should -Be $true
     }
 }
 
@@ -2793,7 +2793,7 @@ Describe "cg-review-repos.prompt.md - file existence" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
 
     It "exists in the repository" {
-        Test-Path $promptFile | Should Be $true
+        Test-Path $promptFile | Should -Be $true
     }
 }
 
@@ -2803,11 +2803,11 @@ Describe "cg-review-repos.prompt.md - frontmatter" {
 
     Context "required frontmatter fields" {
         It "has a description in frontmatter" {
-            $frontmatter | Should Match 'description:'
+            $frontmatter | Should -Match 'description:'
         }
 
         It "has a model in frontmatter" {
-            $frontmatter | Should Match 'model:'
+            $frontmatter | Should -Match 'model:'
         }
     }
 }
@@ -2819,7 +2819,7 @@ Describe "cg-review-repos.prompt.md - no tool restriction" {
         $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
 
         It "does not have a tools: key" {
-            ($frontmatter -notmatch '(?m)^\s*tools:') | Should Be $true
+            ($frontmatter -notmatch '(?m)^\s*tools:') | Should -Be $true
         }
     }
 }
@@ -2829,16 +2829,16 @@ Describe "cg-review-repos.prompt.md - dev-repo guardrail" {
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "checks compound-gpid.md for project-name" {
-        ($content -match 'project-name') | Should Be $true
+        ($content -match 'project-name') | Should -Be $true
     }
 
     It "contains consumer-project warning message" {
-        ($content -match 'compound-gpid development only') | Should Be $true
+        ($content -match 'compound-gpid development only') | Should -Be $true
     }
 
     # P1.1: guardrail must check the exact case-sensitive value, not just key presence
     It "guardrail checks exact case-sensitive value 'Compound GPID'" {
-        ($content -match '"Compound GPID"') | Should Be $true
+        ($content -match '"Compound GPID"') | Should -Be $true
     }
 }
 
@@ -2847,109 +2847,109 @@ Describe "cg-review-repos.prompt.md - content structure" {
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "references --full flag for initial assessment mode" {
-        ($content -match '--full') | Should Be $true
+        ($content -match '--full') | Should -Be $true
     }
 
     # P3.5: case-insensitive --full flag matching must be documented
     It "specifies case-insensitive --full flag matching" {
-        ($content -match 'case-insensitive') | Should Be $true
+        ($content -match 'case-insensitive') | Should -Be $true
     }
 
     It "references repos.json registry file" {
-        ($content -match 'repos\.json') | Should Be $true
+        ($content -match 'repos\.json') | Should -Be $true
     }
 
     It "feature card template includes Compatibility field" {
-        ($content -match 'Compatibility:') | Should Be $true
+        ($content -match 'Compatibility:') | Should -Be $true
     }
 
     It "feature card template includes How we'd adapt it field" {
-        ($content -match "How we'd adapt it") | Should Be $true
+        ($content -match "How we'd adapt it") | Should -Be $true
     }
 
     It "mentions concept mapping table" {
-        ($content -match 'Concept Mapping') | Should Be $true
+        ($content -match 'Concept Mapping') | Should -Be $true
     }
 
     It "references assessment file path format" {
-        ($content -match 'competitive-reviews/.*-full-review\.md|competitive-reviews\\.*-full-review\.md') | Should Be $true
+        ($content -match 'competitive-reviews/.*-full-review\.md|competitive-reviews\\.*-full-review\.md') | Should -Be $true
     }
 
     It "references delta report file path format" {
-        ($content -match 'delta-review\.md') | Should Be $true
+        ($content -match 'delta-review\.md') | Should -Be $true
     }
 
     It "warns about null-baseline repos for delta mode" {
-        ($content -match 'lastReviewedRelease') | Should Be $true
+        ($content -match 'lastReviewedRelease') | Should -Be $true
     }
 
     It "instructs to run --full to recover null-baseline repos" {
-        ($content -match '--full.*first|Run.*--full') | Should Be $true
+        ($content -match '--full.*first|Run.*--full') | Should -Be $true
     }
 
     It "stops when registry file is missing" {
-        ($content -match 'Stop if the registry is missing') | Should Be $true
+        ($content -match 'Stop if the registry is missing') | Should -Be $true
     }
 
     # P1.2: injection guard for fetch_webpage content
     It "contains injection guard for fetch_webpage content" {
-        ($content -match 'untrusted data') | Should Be $true
+        ($content -match 'untrusted data') | Should -Be $true
     }
 
     # P1.3: URL validation — only https://github.com/ permitted
     It "requires https://github.com/ URLs only" {
-        ($content -match 'https://github\.com/') | Should Be $true
+        ($content -match 'https://github\.com/') | Should -Be $true
     }
 
     # P1.4: repo ID validation — alphanumeric + hyphens only
     It "validates repo IDs are alphanumeric with hyphens only" {
-        ($content -match 'alphanumeric.*hyphens|hyphens only') | Should Be $true
+        ($content -match 'alphanumeric.*hyphens|hyphens only') | Should -Be $true
     }
 
     # P1.5: feature card limit per repo in full mode
     It "limits feature cards to 25 per repo in full mode" {
-        ($content -match '25 most significant') | Should Be $true
+        ($content -match '25 most significant') | Should -Be $true
     }
 
     # P1.6a: registry write strategy — per-repo immediately
     It "instructs updating registry per-repo immediately (not at end)" {
-        ($content -match 'per-repo immediately') | Should Be $true
+        ($content -match 'per-repo immediately') | Should -Be $true
     }
 
     # P1.6b: registry write strategy — replace entire file
     It "instructs replacing the entire repos.json file on each write" {
-        ($content -match 'entire file') | Should Be $true
+        ($content -match 'entire file') | Should -Be $true
     }
 
     # P2.4: lastFullReviewNote behavior on partial failure
     It "specifies lastFullReviewNote behavior on partial failure" {
-        ($content -match 'lastFullReviewNote') | Should Be $true
+        ($content -match 'lastFullReviewNote') | Should -Be $true
     }
 
     # P3.2: lastFullReviewNote must be removed on successful full review
     It "specifies lastFullReviewNote is removed on successful full review" {
-        ($content -match 'remove.*lastFullReviewNote|lastFullReviewNote.*removed') | Should Be $true
+        ($content -match 'remove.*lastFullReviewNote|lastFullReviewNote.*removed') | Should -Be $true
     }
 
     # P2.12: branch-specific tests for new validation paths
     It "validates releasesUrl ends with /releases" {
-        ($content -match 'ends with.*releases|/releases') | Should Be $true
+        ($content -match 'ends with.*releases|/releases') | Should -Be $true
     }
 
     It "validates date formats as YYYY-MM-DD" {
-        ($content -match 'YYYY-MM-DD') | Should Be $true
+        ($content -match 'YYYY-MM-DD') | Should -Be $true
     }
 
     It "validates shortName uniqueness" {
-        ($content -match 'shortName.*unique|unique.*shortName|Duplicate shortName') | Should Be $true
+        ($content -match 'shortName.*unique|unique.*shortName|Duplicate shortName') | Should -Be $true
     }
 
     It "specifies collision policy for same-day re-runs" {
-        ($content -match 'same-day re-run|-2.*-3|-3.*-2') | Should Be $true
+        ($content -match 'same-day re-run|-2.*-3|-3.*-2') | Should -Be $true
     }
 
     It "validates root-level lastFullReview date separately from per-repo dates" {
-        ($content -match 'root-level|registry root') | Should Be $true
+        ($content -match 'root-level|registry root') | Should -Be $true
     }
 }
 
@@ -2961,11 +2961,11 @@ Describe "competitive-reviews/repos.json - registry" {
     $registryFile = Join-Path $repoRoot ".cg-docs\competitive-reviews\repos.json"
 
     It "exists in the repository" {
-        Test-Path $registryFile | Should Be $true
+        Test-Path $registryFile | Should -Be $true
     }
 
     It "is valid JSON" {
-        { Get-Content $registryFile -Raw -Encoding UTF8 | ConvertFrom-Json } | Should Not Throw
+        { Get-Content $registryFile -Raw -Encoding UTF8 | ConvertFrom-Json } | Should -Not -Throw
     }
 
     $json = if (Test-Path $registryFile) {
@@ -2973,30 +2973,30 @@ Describe "competitive-reviews/repos.json - registry" {
     } else { $null }
 
     It "has schemaVersion field" {
-        $json.schemaVersion | Should Not BeNullOrEmpty
+        $json.schemaVersion | Should -Not -BeNullOrEmpty
     }
 
     # P2.3: value must match the constant expected by the prompt (case-sensitive)
     It "schemaVersion equals expected constant" {
-        $json.schemaVersion.Trim() | Should BeExactly 'compound-gpid-competitive-reviews-v1'
+        $json.schemaVersion.Trim() | Should -BeExactly 'compound-gpid-competitive-reviews-v1'
     }
 
     # P2.5: schemaVersion must not have leading/trailing whitespace (invisible in failure messages)
     It "schemaVersion has no leading or trailing whitespace" {
-        $json.schemaVersion | Should Be $json.schemaVersion.Trim()
+        $json.schemaVersion | Should -Be $json.schemaVersion.Trim()
     }
 
     # P2.2: count sentinel — update when adding a new repo to repos.json
     It "has repos array with exactly 3 entries" {
-        $json.repos.Count | Should Be 3
+        $json.repos.Count | Should -Be 3
     }
 
     foreach ($repoEntry in @(if ($null -ne $json) { $json.repos } else { @() })) {
         It "repo '$($repoEntry.id)' has required fields" {
-            $repoEntry.id | Should Not BeNullOrEmpty
-            $repoEntry.url | Should Not BeNullOrEmpty
-            $repoEntry.releasesUrl | Should Not BeNullOrEmpty
-            $repoEntry.shortName | Should Not BeNullOrEmpty
+            $repoEntry.id | Should -Not -BeNullOrEmpty
+            $repoEntry.url | Should -Not -BeNullOrEmpty
+            $repoEntry.releasesUrl | Should -Not -BeNullOrEmpty
+            $repoEntry.shortName | Should -Not -BeNullOrEmpty
         }
     }
 }
@@ -3010,67 +3010,67 @@ Describe "cg-review.prompt.md - mode:verify argument" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "documents mode:verify argument" {
-        ($content -match 'mode:verify') | Should Be $true
+        ($content -match 'mode:verify') | Should -Be $true
     }
 
     It "includes Step 1.7 for verification context" {
-        ($content -match 'Step 1\.7') | Should Be $true
+        ($content -match 'Step 1\.7') | Should -Be $true
     }
 
     It "suppression policy never suppresses P0/P1" {
-        ($content -match '(?s)P0/P1.*[Nn]ever suppress') | Should Be $true
+        ($content -match '(?s)P0/P1.*[Nn]ever suppress') | Should -Be $true
     }
 
     It "suppression policy suppresses P2/P3 on fixed-finding scope" {
-        ($content -match '(?s)P2/P3.*fixed-finding scope|P2/P3.*fix-consequence') | Should Be $true
+        ($content -match '(?s)P2/P3.*fixed-finding scope|P2/P3.*fix-consequence') | Should -Be $true
     }
 
     It "suppression policy always reports cross-file breakage" {
-        ($content -match '(?s)[Cc]ross-file breakage.*[Aa]lways report') | Should Be $true
+        ($content -match '(?s)[Cc]ross-file breakage.*[Aa]lways report') | Should -Be $true
     }
 
     It "forces light depth in verify mode" {
-        ($content -match '(?si)Force depth to.*light|light.*forced') | Should Be $true
+        ($content -match '(?si)Force depth to.*light|light.*forced') | Should -Be $true
     }
 
     It "verify review filename pattern documented" {
-        ($content -match 'verify-review\.md') | Should Be $true
+        ($content -match 'verify-review\.md') | Should -Be $true
     }
 
     It "instructs to skip Step 1.5 overrides in verify mode" {
-        ($content -match '(?si)Step 1\.5.*[Ss]kip.*mode:verify|[Ss]kip this step if.*mode:verify') | Should Be $true
+        ($content -match '(?si)Step 1\.5.*[Ss]kip.*mode:verify|[Ss]kip this step if.*mode:verify') | Should -Be $true
     }
 
     It "documents parent-review frontmatter for verify reviews" {
-        ($content -match 'parent-review') | Should Be $true
+        ($content -match 'parent-review') | Should -Be $true
     }
 
     It "documents type: verification frontmatter field" {
-        ($content -match 'type: verification') | Should Be $true
+        ($content -match 'type: verification') | Should -Be $true
     }
 
     It "unrecognized-argument warning lists mode:verify" {
-        ($content -match 'Recognized:.*mode:verify') | Should Be $true
+        ($content -match 'Recognized:.*mode:verify') | Should -Be $true
     }
 
     It "documents mutual exclusion of mode:autofix and mode:verify" {
-        ($content -match '(?s)mode:autofix.*mode:verify.*mutually exclusive|Cannot combine.*mode:autofix.*mode:verify') | Should Be $true
+        ($content -match '(?s)mode:autofix.*mode:verify.*mutually exclusive|Cannot combine.*mode:autofix.*mode:verify') | Should -Be $true
     }
 
     It "mutual exclusion resolves in favour of mode:verify" {
-        ($content -match 'using.*mode:verify|ignore.*mode:autofix') | Should Be $true
+        ($content -match 'using.*mode:verify|ignore.*mode:autofix') | Should -Be $true
     }
 
     It "warns when no prior review with fixed findings found" {
-        ($content -match '[Nn]o prior review with fixed findings found') | Should Be $true
+        ($content -match '[Nn]o prior review with fixed findings found') | Should -Be $true
     }
 
     It "verify mode dispatches only cg-code-quality and cg-testing" {
-        ($content -match '(?s)[Vv]erify mode.*cg-code-quality.*cg-testing|cg-code-quality.*cg-testing.*light.*forced') | Should Be $true
+        ($content -match '(?s)[Vv]erify mode.*cg-code-quality.*cg-testing|cg-code-quality.*cg-testing.*light.*forced') | Should -Be $true
     }
 
     It "excludes -verify-review.md files from prior review scan" {
-        ($content -match '-review\.md.*NOT.*-verify-review\.md|verify-review\.md.*[Ss]kip|[Ss]kip.*verify-review\.md') | Should Be $true
+        ($content -match '-review\.md.*NOT.*-verify-review\.md|verify-review\.md.*[Ss]kip|[Ss]kip.*verify-review\.md') | Should -Be $true
     }
 }
 
@@ -3083,7 +3083,7 @@ Describe "cg-fix-triage.prompt.md - mode:verify handoff" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "suggests mode:verify instead of review light in Step 5" {
-        ($content -match '(?s)Step 5.*mode:verify') | Should Be $true
+        ($content -match '(?s)Step 5.*mode:verify') | Should -Be $true
     }
 }
 
@@ -3095,36 +3095,36 @@ Describe "cg-release-scanner.agent.md - existence and structure" {
     $agentFile = Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md"
 
     It "exists in the repository" {
-        Test-Path $agentFile | Should Be $true
+        Test-Path $agentFile | Should -Be $true
     }
 
     Context "required frontmatter fields" {
         $frontmatter = Get-Frontmatter -FilePath $agentFile
 
         It "has user-invocable: false in frontmatter" {
-            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+            ($frontmatter -match 'user-invocable:\s*false') | Should -Be $true
         }
 
         It "has tools: restricted to read and search (not write)" {
-            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should Be $true
+            ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should -Be $true
         }
 
         It "has a model in frontmatter" {
-            ($frontmatter -match 'model:') | Should Be $true
+            ($frontmatter -match 'model:') | Should -Be $true
         }
     }
 
     $agentContent = Get-Content $agentFile -Raw -Encoding UTF8
 
     It "documents Highest impact: none for empty commit log" {
-        ($agentContent -match 'Highest impact: none') | Should Be $true
+        ($agentContent -match 'Highest impact: none') | Should -Be $true
     }
 
     It "uses window-days (hyphen, not underscore) in window-start description" {
-        ($agentContent -match 'window-days') | Should Be $true
+        ($agentContent -match 'window-days') | Should -Be $true
     }
     It "uses tag-date (hyphen, not underscore) in window-start description" {
-        ($agentContent -match 'tag-date') | Should Be $true
+        ($agentContent -match 'tag-date') | Should -Be $true
     }
 }
 
@@ -3133,31 +3133,31 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "cg-release.prompt.md references @cg-release-scanner" {
-        ($content -match '@cg-release-scanner') | Should Be $true
+        ($content -match '@cg-release-scanner') | Should -Be $true
     }
 
     It "warns when window-start is on or after today (zero-doc-context guard)" {
-        ($content -match 'window-start.*today|All.*cg-docs.*entries will be excluded') | Should Be $true
+        ($content -match 'window-start.*today|All.*cg-docs.*entries will be excluded') | Should -Be $true
     }
 
     It "warns and falls back when --since ISO date is in the future" {
-        ($content -match 'after today.*fall back|parsed.*after today') | Should Be $true
+        ($content -match 'after today.*fall back|parsed.*after today') | Should -Be $true
     }
 
     It "warns when commit log exceeds 500 lines" {
-        ($content -match '500 lines|exceeds 500') | Should Be $true
+        ($content -match '500 lines|exceeds 500') | Should -Be $true
     }
 
     It "warns on shallow clone and falls back to window-days formula" {
-        ($content -match 'shallow clone') | Should Be $true
+        ($content -match 'shallow clone') | Should -Be $true
     }
 
     It "catch-all when release-result.txt is absent or unrecognized" {
-        ($content -match 'may have failed|release-result\.txt.*absent|neither.*CREATED') | Should Be $true
+        ($content -match 'may have failed|release-result\.txt.*absent|neither.*CREATED') | Should -Be $true
     }
 
     It "documents halt condition when scanner returns no output" {
-        ($content -match 'no output|does not contain.*Scan Summary|Scanner returned no output') | Should Be $true
+        ($content -match 'no output|does not contain.*Scan Summary|Scanner returned no output') | Should -Be $true
     }
 }
 
@@ -3170,62 +3170,62 @@ Describe "cg-skill-project-scanner - existence and structure" {
     $skillFile = Join-Path $skillDir "SKILL.md"
 
     It "skill directory exists" {
-        Test-Path $skillDir | Should Be $true
+        Test-Path $skillDir | Should -Be $true
     }
 
     It "SKILL.md exists" {
-        Test-Path $skillFile | Should Be $true
+        Test-Path $skillFile | Should -Be $true
     }
 
     Context "frontmatter fields" {
         $frontmatter = if (Test-Path $skillFile) { Get-Frontmatter -FilePath $skillFile } else { "" }
 
         It "has a name: field in frontmatter" {
-            ($frontmatter -match 'name:') | Should Be $true
+            ($frontmatter -match 'name:') | Should -Be $true
         }
 
         It "has a description: field in frontmatter" {
-            ($frontmatter -match 'description:') | Should Be $true
+            ($frontmatter -match 'description:') | Should -Be $true
         }
 
         It "has a schema-version: field in frontmatter" {
-            ($frontmatter -match 'schema-version:') | Should Be $true
+            ($frontmatter -match 'schema-version:') | Should -Be $true
         }
     }
 
     $skillContent = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
 
     It "contains Tier 1 heading (Language and Framework Detection)" {
-        ($skillContent -match 'Tier 1') | Should Be $true
+        ($skillContent -match 'Tier 1') | Should -Be $true
     }
 
     It "contains Tier 2 heading (Project Type and Convention)" {
-        ($skillContent -match 'Tier 2') | Should Be $true
+        ($skillContent -match 'Tier 2') | Should -Be $true
     }
 
     It "contains Tier 3 heading (Charter-Relevant Content)" {
-        ($skillContent -match 'Tier 3') | Should Be $true
+        ($skillContent -match 'Tier 3') | Should -Be $true
     }
 
     It "contains Tier 4 heading (Out of Scope)" {
-        ($skillContent -match 'Tier 4') | Should Be $true
+        ($skillContent -match 'Tier 4') | Should -Be $true
     }
 
     It "contains confidence threshold table with high/medium/low rows" {
-        ($skillContent -match '(?i)\|\s*(high|medium|low)\s*\|') | Should Be $true
+        ($skillContent -match '(?i)\|\s*(high|medium|low)\s*\|') | Should -Be $true
     }
 
     It "contains output schema section" {
-        ($skillContent -match 'Output Schema') | Should Be $true
+        ($skillContent -match 'Output Schema') | Should -Be $true
     }
 
     It "contains prompt injection safety rule" {
-        ($skillContent -match 'data, not instructions|prompt injection') | Should Be $true
+        ($skillContent -match 'data, not instructions|prompt injection') | Should -Be $true
     }
 
     It "signal catalog is non-empty (Tier 1 has at least one row)" {
         # After the Tier 1 heading there should be at least one table row with a pipe character
-        ($skillContent -match 'Tier 1[\s\S]+?\|[^\n]+\|') | Should Be $true
+        ($skillContent -match 'Tier 1[\s\S]+?\|[^\n]+\|') | Should -Be $true
     }
 }
 
@@ -3239,62 +3239,62 @@ Describe "cg-project-scanner.agent.md - existence and structure" {
     $agentFile = Join-Path $repoRoot ".github\agents\cg-project-scanner.agent.md"
 
     It "exists in the repository" {
-        Test-Path $agentFile | Should Be $true
+        Test-Path $agentFile | Should -Be $true
     }
 
     Context "required frontmatter fields" {
         $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
 
         It "has user-invocable: false in frontmatter" {
-            ($frontmatter -match 'user-invocable:\s*false') | Should Be $true
+            ($frontmatter -match 'user-invocable:\s*false') | Should -Be $true
         }
 
         It "has tools: restricted to read and search (not write)" {
             $tools = Get-ToolsList $frontmatter
-            ($tools -contains 'read') -and ($tools -contains 'search') -and (-not ($tools -contains 'write')) | Should Be $true
+            ($tools -contains 'read') -and ($tools -contains 'search') -and (-not ($tools -contains 'write')) | Should -Be $true
         }
 
         It "has model: Claude Haiku 4.5 (copilot) in frontmatter" {
-            ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should Be $true
+            ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should -Be $true
         }
     }
 
     $agentContent = if (Test-Path $agentFile) { Get-Content $agentFile -Raw -Encoding UTF8 } else { "" }
 
     It "references cg-skill-project-scanner (loads the signal catalog)" {
-        ($agentContent -match 'cg-skill-project-scanner') | Should Be $true
+        ($agentContent -match 'cg-skill-project-scanner') | Should -Be $true
     }
 
     It "contains prompt injection guard (data not instructions)" {
-        ($agentContent -match 'data, not instructions|prompt injection') | Should Be $true
+        ($agentContent -match 'data, not instructions|prompt injection') | Should -Be $true
     }
 
     It "output schema includes Scan Summary section" {
-        ($agentContent -match 'Scan Summary') | Should Be $true
+        ($agentContent -match 'Scan Summary') | Should -Be $true
     }
 
     It "output schema includes Language Detection section" {
-        ($agentContent -match 'Language Detection') | Should Be $true
+        ($agentContent -match 'Language Detection') | Should -Be $true
     }
 
     It "output schema includes Project Type section" {
-        ($agentContent -match 'Project Type') | Should Be $true
+        ($agentContent -match 'Project Type') | Should -Be $true
     }
 
     It "output schema includes Framework and Tooling section" {
-        ($agentContent -match 'Framework.*Tooling|Tooling.*Framework') | Should Be $true
+        ($agentContent -match 'Framework.*Tooling|Tooling.*Framework') | Should -Be $true
     }
 
     It "output schema includes Charter Draft Content section" {
-        ($agentContent -match 'Charter Draft Content') | Should Be $true
+        ($agentContent -match 'Charter Draft Content') | Should -Be $true
     }
 
     It "output schema includes Setup Recommendations section" {
-        ($agentContent -match 'Setup Recommendations') | Should Be $true
+        ($agentContent -match 'Setup Recommendations') | Should -Be $true
     }
 
     It "does not reference write or terminal tools" {
-        ($agentContent -match 'editFiles|runInTerminal|createFile') | Should Be $false
+        ($agentContent -match 'editFiles|runInTerminal|createFile') | Should -Be $false
     }
 }
 
@@ -3310,14 +3310,14 @@ Describe "cg-brainstorm.prompt.md - Branch Offer appears before Step 2" {
 
     It "has a Branch Offer step between Step 1.5 and Step 2 (Step 1.7)" {
         $branchOfferIdx = $content.IndexOf('### Step 1.7:')
-        $branchOfferIdx | Should BeGreaterThan -1
+        $branchOfferIdx | Should -BeGreaterThan -1
     }
 
     It "Branch Offer (Step 1.7) appears before Step 2 Clarifying Questions" {
         $branchOfferIdx = $content.IndexOf('### Step 1.7:')
         $step2Idx       = $content.IndexOf('### Step 2:')
-        $branchOfferIdx | Should BeGreaterThan -1
-        $step2Idx       | Should BeGreaterThan $branchOfferIdx
+        $branchOfferIdx | Should -BeGreaterThan -1
+        $step2Idx       | Should -BeGreaterThan $branchOfferIdx
     }
 }
 
@@ -3344,59 +3344,59 @@ Describe "cg-skill-stata-testing - skill file structure" {
 
     foreach ($file in $expectedFiles) {
         It "file '$file' exists" {
-            Test-Path (Join-Path $skillRoot $file) | Should Be $true
+            Test-Path (Join-Path $skillRoot $file) | Should -Be $true
         }
     }
 
     It "SKILL.md has a description: field" {
-        ($skillFm -match 'description:') | Should Be $true
+        ($skillFm -match 'description:') | Should -Be $true
     }
 
     It "SKILL.md description is non-empty" {
-        ($skillContent -match 'description:\s*[>|]?\s*\S') | Should Be $true
+        ($skillContent -match 'description:\s*[>|]?\s*\S') | Should -Be $true
     }
 
     It "SKILL.md is 100 lines or fewer (thin routing table)" {
-        $skillLineCount | Should BeLessThan 101
+        $skillLineCount | Should -BeLessThan 101
     }
 
     It "SKILL.md references cg-skill-stata-best-practices (cross-reference)" {
-        ($skillContent -match 'cg-skill-stata-best-practices') | Should Be $true
+        ($skillContent -match 'cg-skill-stata-best-practices') | Should -Be $true
     }
 
     It "SKILL.md has user-invokable: false (P2.3)" {
-        ($skillFm -match 'user-invokable:\s*false') | Should Be $true
+        ($skillFm -match 'user-invokable:\s*false') | Should -Be $true
     }
 
     It "SKILL.md description trigger mentions assertion blocks (P2.4)" {
-        ($skillFm -match 'assertion blocks') | Should Be $true
+        ($skillFm -match 'assertion blocks') | Should -Be $true
     }
 
     It "anti-patterns.md references coding-principles (cross-reference)" {
         $antiFile = Join-Path $skillRoot "references\anti-patterns.md"
         $content = if (Test-Path $antiFile) { Get-Content $antiFile -Raw -Encoding UTF8 } else { "" }
-        ($content -match 'coding-principles') | Should Be $true
+        ($content -match 'coding-principles') | Should -Be $true
     }
 
     It "data-validation.md uses r(balanced) not e(balanced) (P0.2 guard)" {
         $dv = Get-Content (Join-Path $skillRoot "references\data-validation.md") -Raw -Encoding UTF8
-        ($dv -match 'e\(balanced\)') | Should Be $false
-        ($dv -match 'r\(balanced\)') | Should Be $true
+        ($dv -match 'e\(balanced\)') | Should -Be $false
+        ($dv -match 'r\(balanced\)') | Should -Be $true
     }
 
     It "data-validation.md has no assert with inline string message (P0.1 guard)" {
         $dv = Get-Content (Join-Path $skillRoot "references\data-validation.md") -Raw -Encoding UTF8
         # assert[^()\r\n]+,\s*" matches assert without parens before the comma (excludes inlist(), inrange() etc.)
-        ($dv -match 'assert\b[^()\r\n]+,\s*"') | Should Be $false
+        ($dv -match 'assert\b[^()\r\n]+,\s*"') | Should -Be $false
     }
 
     It "result-verification.md stores spec coefficient before reldif (P0.3 guard)" {
         $rv = Get-Content (Join-Path $skillRoot "references\result-verification.md") -Raw -Encoding UTF8
-        ($rv -match 'local\s+b\d\s*=\s*_b\[') | Should Be $true
+        ($rv -match 'local\s+b\d\s*=\s*_b\[') | Should -Be $true
     }
 
     It "SKILL.md routing table lists 9 anti-patterns (P2.1 guard)" {
-        ($skillContent -match '9 testing-specific anti-patterns') | Should Be $true
+        ($skillContent -match '9 testing-specific anti-patterns') | Should -Be $true
     }
 }
 
@@ -3409,29 +3409,29 @@ Describe "stata.instructions.md - skill routing" {
     $content = if (Test-Path $instrFile) { Get-Content $instrFile -Raw -Encoding UTF8 } else { "" }
 
     It "stata.instructions.md exists" {
-        Test-Path $instrFile | Should Be $true
+        Test-Path $instrFile | Should -Be $true
     }
 
     It "has applyTo covering .do files" {
         $fm = Get-Frontmatter -FilePath $instrFile
-        ($fm -match '\.do') | Should Be $true
+        ($fm -match '\.do') | Should -Be $true
     }
 
     It "has applyTo covering .ado files" {
         $fm = Get-Frontmatter -FilePath $instrFile
-        ($fm -match '\.ado') | Should Be $true
+        ($fm -match '\.ado') | Should -Be $true
     }
 
     It "routes to cg-skill-stata-best-practices" {
-        ($content -match 'cg-skill-stata-best-practices') | Should Be $true
+        ($content -match 'cg-skill-stata-best-practices') | Should -Be $true
     }
 
     It "routes to cg-skill-stata-testing" {
-        ($content -match 'cg-skill-stata-testing') | Should Be $true
+        ($content -match 'cg-skill-stata-testing') | Should -Be $true
     }
 
     It "uses conditional trigger language for stata-testing" {
-        ($content -match 'cg-skill-stata-testing.*when writing|when writing.*cg-skill-stata-testing') | Should Be $true
+        ($content -match 'cg-skill-stata-testing.*when writing|when writing.*cg-skill-stata-testing') | Should -Be $true
     }
 }
 
@@ -3444,7 +3444,7 @@ Describe "docs/reference.md - cg-skill-stata-testing registration" {
     $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
 
     It "docs/reference.md lists cg-skill-stata-testing" {
-        ($content -match 'cg-skill-stata-testing') | Should Be $true
+        ($content -match 'cg-skill-stata-testing') | Should -Be $true
     }
 }
 
@@ -3457,7 +3457,7 @@ Describe "copilot-instructions.md - cg-skill-stata-testing registration" {
     $content = if (Test-Path $instrFile) { Get-Content $instrFile -Raw -Encoding UTF8 } else { "" }
 
     It "copilot-instructions.md registers cg-skill-stata-testing" {
-        ($content -match 'cg-skill-stata-testing') | Should Be $true
+        ($content -match 'cg-skill-stata-testing') | Should -Be $true
     }
 }
 
@@ -3472,123 +3472,123 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "Step 0.7 Branch Offer exists in the prompt" {
-        ($content -match '### Step 0\.7:.*Branch Offer') | Should Be $true
+        ($content -match '### Step 0\.7:.*Branch Offer') | Should -Be $true
     }
 
     It "File Permissions references branch creation at Step 0.7" {
-        ($content -match 'create a git branch.*Step 0\.7') | Should Be $true
+        ($content -match 'create a git branch.*Step 0\.7') | Should -Be $true
     }
 
     It "Step 0.7 Branch Offer appears after Step 0.5" {
         $step05Idx  = $content.IndexOf('### Step 0.5:')
         $step07Idx  = $content.IndexOf('### Step 0.7:')
-        $step05Idx  | Should BeGreaterThan -1
-        $step07Idx  | Should BeGreaterThan -1
-        $step07Idx  | Should BeGreaterThan $step05Idx
+        $step05Idx  | Should -BeGreaterThan -1
+        $step07Idx  | Should -BeGreaterThan -1
+        $step07Idx  | Should -BeGreaterThan $step05Idx
     }
 
     It "Step 1 Gather Context appears after Step 0.7 Branch Offer" {
         $step07Idx = $content.IndexOf('### Step 0.7:')
         $step1Idx  = $content.IndexOf('### Step 1:')
-        $step07Idx | Should BeGreaterThan -1
-        $step1Idx  | Should BeGreaterThan -1
-        $step1Idx  | Should BeGreaterThan $step07Idx
+        $step07Idx | Should -BeGreaterThan -1
+        $step1Idx  | Should -BeGreaterThan -1
+        $step1Idx  | Should -BeGreaterThan $step07Idx
     }
 
     It "Branch Offer skips silently when already on a feature branch" {
-        ($content -match 'already on a.*branch.*skip silently') | Should Be $true
+        ($content -match 'already on a.*branch.*skip silently') | Should -Be $true
     }
 
     It "Branch Offer warns on uncommitted changes" {
-        ($content -match 'uncommitted changes') | Should Be $true
+        ($content -match 'uncommitted changes') | Should -Be $true
     }
 
     # P1.1 — type derivation rule must appear before the offer block
     It "Branch type derivation rule appears before the offer block" {
         $derivationIdx = $content.IndexOf('Derive the branch name')
         $offerIdx      = $content.IndexOf('Suggested name:')
-        $derivationIdx | Should BeGreaterThan -1
-        $offerIdx      | Should BeGreaterThan -1
-        $derivationIdx | Should BeLessThan $offerIdx
+        $derivationIdx | Should -BeGreaterThan -1
+        $offerIdx      | Should -BeGreaterThan -1
+        $derivationIdx | Should -BeLessThan $offerIdx
     }
 
     # P1.2 — uncommitted-changes check must appear before the offer block
     It "Uncommitted-changes check appears before the offer block" {
         $uncommittedIdx = $content.IndexOf('uncommitted changes')
         $offerIdx       = $content.IndexOf('Suggested name:')
-        $uncommittedIdx | Should BeGreaterThan -1
-        $offerIdx       | Should BeGreaterThan -1
-        $uncommittedIdx | Should BeLessThan $offerIdx
+        $uncommittedIdx | Should -BeGreaterThan -1
+        $offerIdx       | Should -BeGreaterThan -1
+        $uncommittedIdx | Should -BeLessThan $offerIdx
     }
 
     # P1.3 — error handling when branch already exists
     It "Handles git checkout -b failure when branch already exists" {
-        ($content -match 'already exists.*switch to it') | Should Be $true
+        ($content -match 'already exists.*switch to it') | Should -Be $true
     }
 
     # P1.4 — cleanup path for orphaned branches
     It "Provides cleanup instruction for orphaned branch when planning abandoned" {
-        ($content -match 'git branch -d') | Should Be $true
+        ($content -match 'git branch -d') | Should -Be $true
     }
 
     # P1.5 — extended type taxonomy covers all conventional-commit types
     It "Branch type taxonomy includes extended types (test, docs, chore, data, analysis)" {
-        ($content -match 'test/.*testing work') | Should Be $true
-        ($content -match 'analysis/.*analysis work') | Should Be $true
-        ($content -match 'chore/.*maintenance') | Should Be $true
-        ($content -match 'docs/.*documentation') | Should Be $true
-        ($content -match 'data/.*data work')      | Should Be $true
+        ($content -match 'test/.*testing work') | Should -Be $true
+        ($content -match 'analysis/.*analysis work') | Should -Be $true
+        ($content -match 'chore/.*maintenance') | Should -Be $true
+        ($content -match 'docs/.*documentation') | Should -Be $true
+        ($content -match 'data/.*data work')      | Should -Be $true
     }
 
     # P2.3 — dynamic default branch detection via git symbolic-ref
     It "Uses git symbolic-ref for dynamic default branch detection" {
-        ($content -match 'git symbolic-ref refs/remotes/origin/HEAD') | Should Be $true
+        ($content -match 'git symbolic-ref refs/remotes/origin/HEAD') | Should -Be $true
     }
 
     # P2.4 — non-git workspace guard
     It "Skips silently when git command fails or returns empty (non-git workspace)" {
-        ($content -match 'fails or returns empty.*non-git|non-git workspace.*skip') | Should Be $true
+        ($content -match 'fails or returns empty.*non-git|non-git workspace.*skip') | Should -Be $true
     }
 
     # P2.5 — branch name sanitization
     It "Branch name normalization rule is present" {
-        ($content -match 'Normalize the branch name') | Should Be $true
-        ($content -match 'truncate to 60') | Should Be $true
+        ($content -match 'Normalize the branch name') | Should -Be $true
+        ($content -match 'truncate to 60') | Should -Be $true
     }
 
     # P2.6 — Refine path skips branch offer
     It "Refine decision at Step 0.5 skips the branch offer" {
-        ($content -match 'Refine.*decision.*skip|Refine.*skip.*branch') | Should Be $true
+        ($content -match 'Refine.*decision.*skip|Refine.*skip.*branch') | Should -Be $true
     }
 
     # P3.1 — placeholder matches cg-brainstorm style with 'from-your-request'
     It "Offer placeholder uses 'from-your-request' suffix to match cg-brainstorm style" {
-        ($content -match 'short-description-from-your-request') | Should Be $true
+        ($content -match 'short-description-from-your-request') | Should -Be $true
     }
 
     # P3.2 — user-facing language matches cg-brainstorm 'If the user accepts/declines'
     It "Uses 'If the user accepts' and 'If the user declines' phrasing" {
-        ($content -match 'If the user accepts') | Should Be $true
-        ($content -match 'If the user declines') | Should Be $true
+        ($content -match 'If the user accepts') | Should -Be $true
+        ($content -match 'If the user declines') | Should -Be $true
     }
 
     # P3.6 — branch name convention and creation command are tested
     It "Branch type convention covers feat, fix, refactor" {
-        ($content -match '(?s)feat/.*fix/.*refactor/') | Should Be $true
+        ($content -match '(?s)feat/.*fix/.*refactor/') | Should -Be $true
     }
 
     It "Branch creation uses git checkout -b" {
-        ($content -match 'git checkout -b') | Should Be $true
+        ($content -match 'git checkout -b') | Should -Be $true
     }
 
     # P2.2 — "other errors → report verbatim" path is tested
     It "Reports git error verbatim and skips branching on other checkout failures" {
-        ($content -match 'other errors.*verbatim|report the git error verbatim') | Should Be $true
+        ($content -match 'other errors.*verbatim|report the git error verbatim') | Should -Be $true
     }
 
     # P2.3 — "empty after normalization → ask user" fallback is tested
     It "Asks user for branch name when normalization yields empty string" {
-        ($content -match 'empty after normalization.*ask the user') | Should Be $true
+        ($content -match 'empty after normalization.*ask the user') | Should -Be $true
     }
 }
 

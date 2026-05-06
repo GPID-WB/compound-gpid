@@ -265,19 +265,19 @@ Describe "roadmap.json schema" {
             milestones    = @()
         }
         $errors = Test-RoadmapSchema $roadmap
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "requires schemaVersion field" {
         $roadmap = @{ milestones = @() }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "schemaVersion"
+        ($errors -join " ") | Should -Match "schemaVersion"
     }
 
     It "rejects wrong schemaVersion value" {
         $roadmap = @{ schemaVersion = "wrong-v99"; milestones = @() }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "schemaVersion"
+        ($errors -join " ") | Should -Match "schemaVersion"
     }
 
     It "rejects milestones as a string instead of array" {
@@ -286,7 +286,7 @@ Describe "roadmap.json schema" {
             milestones    = "not-an-array"
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "must be an array"
+        ($errors -join " ") | Should -Match "must be an array"
     }
 
     It "rejects features as a string instead of array" {
@@ -297,7 +297,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "must be an array"
+        ($errors -join " ") | Should -Match "must be an array"
     }
 
     It "rejects invalid milestone status" {
@@ -308,7 +308,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "invalid status"
+        ($errors -join " ") | Should -Match "invalid status"
     }
 
     It "rejects milestone with null status" {
@@ -319,7 +319,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "status"
+        ($errors -join " ") | Should -Match "status"
     }
 
     It "rejects milestone missing title" {
@@ -330,7 +330,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "title"
+        ($errors -join " ") | Should -Match "title"
     }
 
     It "rejects milestone missing objective" {
@@ -341,7 +341,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "objective"
+        ($errors -join " ") | Should -Match "objective"
     }
 
     It "rejects milestone missing features array" {
@@ -352,7 +352,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "features"
+        ($errors -join " ") | Should -Match "features"
     }
 
     It "rejects invalid feature status" {
@@ -368,7 +368,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "invalid status"
+        ($errors -join " ") | Should -Match "invalid status"
     }
 
     It "rejects feature with null status" {
@@ -384,7 +384,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "status"
+        ($errors -join " ") | Should -Match "status"
     }
 
     It "rejects feature missing title" {
@@ -400,7 +400,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "title"
+        ($errors -join " ") | Should -Match "title"
     }
 
     It "rejects duplicate milestone IDs" {
@@ -412,7 +412,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "Duplicate milestone id"
+        ($errors -join " ") | Should -Match "Duplicate milestone id"
     }
 
     It "rejects duplicate feature IDs within a milestone" {
@@ -429,7 +429,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "Duplicate feature id"
+        ($errors -join " ") | Should -Match "Duplicate feature id"
     }
 
     It "rejects duplicate feature IDs across milestones" {
@@ -447,7 +447,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "multiple milestones"
+        ($errors -join " ") | Should -Match "multiple milestones"
     }
 
     It "rejects invalid kebab-case milestone IDs" {
@@ -460,7 +460,7 @@ Describe "roadmap.json schema" {
                 )
             }
             $errors = Test-RoadmapSchema $roadmap
-            ($errors -join " ") | Should Match "not valid kebab-case"
+            ($errors -join " ") | Should -Match "not valid kebab-case"
         }
     }
 
@@ -477,7 +477,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "plan must be a string or null"
+        ($errors -join " ") | Should -Match "plan must be a string or null"
     }
 
     It "rejects done feature with null plan" {
@@ -493,7 +493,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "done.*plan|plan.*done|completed feature"
+        ($errors -join " ") | Should -Match "done.*plan|plan.*done|completed feature"
     }
 
     It "passes for done feature with valid plan path" {
@@ -509,7 +509,7 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "rejects feature with plan path outside .cg-docs/" {
@@ -525,25 +525,25 @@ Describe "roadmap.json schema" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "pattern|\.cg-docs"
+        ($errors -join " ") | Should -Match "pattern|\.cg-docs"
     }
 }
 
 Describe "Milestone Status Calculation" {
     It "empty features -> planned" {
-        Get-MilestoneStatus @() | Should Be "planned"
+        Get-MilestoneStatus @() | Should -Be "planned"
     }
 
     It "single done feature -> done" {
-        Get-MilestoneStatus @(@{ status = "done" }) | Should Be "done"
+        Get-MilestoneStatus @(@{ status = "done" }) | Should -Be "done"
     }
 
     It "single active feature -> in-progress" {
-        Get-MilestoneStatus @(@{ status = "active" }) | Should Be "in-progress"
+        Get-MilestoneStatus @(@{ status = "active" }) | Should -Be "in-progress"
     }
 
     It "single idea feature -> planned" {
-        Get-MilestoneStatus @(@{ status = "idea" }) | Should Be "planned"
+        Get-MilestoneStatus @(@{ status = "idea" }) | Should -Be "planned"
     }
 
     It "all done -> done" {
@@ -551,7 +551,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "done" }
             @{ status = "done" }
         )
-        Get-MilestoneStatus $features | Should Be "done"
+        Get-MilestoneStatus $features | Should -Be "done"
     }
 
     It "any active -> in-progress" {
@@ -559,7 +559,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "active" }
             @{ status = "idea" }
         )
-        Get-MilestoneStatus $features | Should Be "in-progress"
+        Get-MilestoneStatus $features | Should -Be "in-progress"
     }
 
     It "mix of done + active -> in-progress" {
@@ -567,7 +567,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "done" }
             @{ status = "active" }
         )
-        Get-MilestoneStatus $features | Should Be "in-progress"
+        Get-MilestoneStatus $features | Should -Be "in-progress"
     }
 
     It "mix of done + idea (no active) -> in-progress" {
@@ -575,7 +575,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "done" }
             @{ status = "idea" }
         )
-        Get-MilestoneStatus $features | Should Be "in-progress"
+        Get-MilestoneStatus $features | Should -Be "in-progress"
     }
 
     It "mix of done + planned (no active) -> in-progress" {
@@ -583,7 +583,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "done" }
             @{ status = "planned" }
         )
-        Get-MilestoneStatus $features | Should Be "in-progress"
+        Get-MilestoneStatus $features | Should -Be "in-progress"
     }
 
     It "all idea -> planned" {
@@ -591,7 +591,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "idea" }
             @{ status = "idea" }
         )
-        Get-MilestoneStatus $features | Should Be "planned"
+        Get-MilestoneStatus $features | Should -Be "planned"
     }
 
     It "all planned -> planned" {
@@ -599,7 +599,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "planned" }
             @{ status = "planned" }
         )
-        Get-MilestoneStatus $features | Should Be "planned"
+        Get-MilestoneStatus $features | Should -Be "planned"
     }
 
     It "mix of planned + idea -> planned" {
@@ -607,7 +607,7 @@ Describe "Milestone Status Calculation" {
             @{ status = "planned" }
             @{ status = "idea" }
         )
-        Get-MilestoneStatus $features | Should Be "planned"
+        Get-MilestoneStatus $features | Should -Be "planned"
     }
 }
 
@@ -618,7 +618,7 @@ Describe "/cg-resume scope health" {
             1..61 | ForEach-Object { @{ status = "idea" } }
             1..39 | ForEach-Object { @{ status = "done" } }
         )
-        Get-ScopeHealthNudge $features | Should Be $true
+        Get-ScopeHealthNudge $features | Should -Be $true
     }
 
     It "nudge does not fire when exactly 60% are unstarted (at threshold)" {
@@ -627,7 +627,7 @@ Describe "/cg-resume scope health" {
             1..60 | ForEach-Object { @{ status = "idea" } }
             1..40 | ForEach-Object { @{ status = "done" } }
         )
-        Get-ScopeHealthNudge $features | Should Be $false
+        Get-ScopeHealthNudge $features | Should -Be $false
     }
 
     It "nudge does not fire when below 60%" {
@@ -637,11 +637,11 @@ Describe "/cg-resume scope health" {
             @{ status = "done" }
         )
         # 1/3 = 33% unstarted
-        Get-ScopeHealthNudge $features | Should Be $false
+        Get-ScopeHealthNudge $features | Should -Be $false
     }
 
     It "empty feature list -> no divide-by-zero, returns false" {
-        Get-ScopeHealthNudge @() | Should Be $false
+        Get-ScopeHealthNudge @() | Should -Be $false
     }
 
     It "all features unstarted -> nudge fires" {
@@ -650,69 +650,69 @@ Describe "/cg-resume scope health" {
             @{ status = "planned" }
             @{ status = "idea" }
         )
-        Get-ScopeHealthNudge $features | Should Be $true
+        Get-ScopeHealthNudge $features | Should -Be $true
     }
 }
 
 Describe "Structural validation" {
     It "only @cg-roadmap has user-invocable: true" {
         $agentFiles = Get-ChildItem -Path ".github\agents\*.agent.md" -ErrorAction SilentlyContinue
-        @($agentFiles).Count | Should BeGreaterThan 0
+        @($agentFiles).Count | Should -BeGreaterThan 0
 
         $invokable = $agentFiles | Where-Object {
             (Get-Content $_.FullName -Raw) -match 'user-invocable:\s*true'
         }
-        $invokable.Count | Should Be 1
-        $invokable[0].Name | Should Be "cg-roadmap.agent.md"
+        $invokable.Count | Should -Be 1
+        $invokable[0].Name | Should -Be "cg-roadmap.agent.md"
     }
 
     It "roadmap.json is NOT in .gitignore" {
         $gitignore = Get-Content ".gitignore" -ErrorAction SilentlyContinue
         $isIgnored = $gitignore | Where-Object { $_ -match 'roadmap\.json' }
-        @($isIgnored).Count | Should Be 0
+        @($isIgnored).Count | Should -Be 0
     }
 
     It "cg-setup scaffolds roadmap.json" {
         $setupContent = Get-Content ".github\prompts\cg-setup.prompt.md" -Raw
-        ($setupContent -match 'roadmap\.json') | Should Be $true
+        ($setupContent -match 'roadmap\.json') | Should -Be $true
     }
 
     It "cg-plan references @cg-roadmap" {
         $content = Get-Content ".github\prompts\cg-plan.prompt.md" -Raw
-        ($content -match 'cg-roadmap') | Should Be $true
+        ($content -match 'cg-roadmap') | Should -Be $true
     }
 
     It "cg-work references @cg-roadmap" {
         $content = Get-Content ".github\prompts\cg-work.prompt.md" -Raw
-        ($content -match 'cg-roadmap') | Should Be $true
+        ($content -match 'cg-roadmap') | Should -Be $true
     }
 
     It "cg-brainstorm references @cg-roadmap" {
         $content = Get-Content ".github\prompts\cg-brainstorm.prompt.md" -Raw
-        ($content -match 'cg-roadmap') | Should Be $true
+        ($content -match 'cg-roadmap') | Should -Be $true
     }
 
     It "cg-resume reads roadmap.json" {
         $content = Get-Content ".github\prompts\cg-resume.prompt.md" -Raw
-        ($content -match 'roadmap\.json') | Should Be $true
+        ($content -match 'roadmap\.json') | Should -Be $true
     }
 
     It "agent uses schemaVersion (not dollar-schema)" {
         $content = Get-Content ".github\agents\cg-roadmap.agent.md" -Raw
-        ($content -match 'schemaVersion') | Should Be $true
-        ($content -match '\$schema') | Should Be $false
+        ($content -match 'schemaVersion') | Should -Be $true
+        ($content -match '\$schema') | Should -Be $false
     }
 
     It "cg-roadmap requires confirmation before removing features or milestones" {
         $content = Get-Content ".github\agents\cg-roadmap.agent.md" -Raw
-        ($content -match 'Confirm.*user.*before|before.*delete|before.*remov') | Should Be $true
+        ($content -match 'Confirm.*user.*before|before.*delete|before.*remov') | Should -Be $true
     }
 
     It "cg-setup and cg-roadmap agree on the empty JSON skeleton schemaVersion" {
         $setupTemplates = Get-Content (Join-Path $repoRoot ".github\prompts\setup-templates.md") -Raw
         $roadmapContent = Get-Content ".github\agents\cg-roadmap.agent.md" -Raw
-        ($setupTemplates  -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should Be $true
-        ($roadmapContent -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should Be $true
+        ($setupTemplates  -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should -Be $true
+        ($roadmapContent -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should -Be $true
     }
 }
 
@@ -730,7 +730,7 @@ Describe "roadmap.json schema -- additional coverage" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "rejects milestone whose stored status does not match derived status" {
@@ -744,21 +744,21 @@ Describe "roadmap.json schema -- additional coverage" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "derived"
+        ($errors -join " ") | Should -Match "derived"
     }
 
     It "validates a one-milestone roadmap parsed from JSON (ConvertFrom-Json coercion)" {
         $json = '{"schemaVersion":"compound-gpid-roadmap-v1","milestones":[{"id":"m1","title":"M","objective":"o","status":"planned","features":[]}]}'
         $roadmap = $json | ConvertFrom-Json
         $errors = Test-RoadmapSchema $roadmap
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "validates a roadmap with one feature parsed from JSON (ConvertFrom-Json coercion)" {
         $json = '{"schemaVersion":"compound-gpid-roadmap-v1","milestones":[{"id":"m1","title":"M","objective":"o","status":"planned","features":[{"id":"f1","title":"F","status":"idea","plan":null}]}]}'
         $roadmap = $json | ConvertFrom-Json
         $errors = Test-RoadmapSchema $roadmap
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "rejects milestone missing id" {
@@ -769,7 +769,7 @@ Describe "roadmap.json schema -- additional coverage" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "missing id"
+        ($errors -join " ") | Should -Match "missing id"
     }
 
     It "rejects feature missing id" {
@@ -785,7 +785,7 @@ Describe "roadmap.json schema -- additional coverage" {
             )
         }
         $errors = Test-RoadmapSchema $roadmap
-        ($errors -join " ") | Should Match "missing id"
+        ($errors -join " ") | Should -Match "missing id"
     }
 
     It "rejects invalid kebab-case feature IDs" {
@@ -803,7 +803,7 @@ Describe "roadmap.json schema -- additional coverage" {
                 )
             }
             $errors = Test-RoadmapSchema $roadmap
-            ($errors -join " ") | Should Match "not valid kebab-case"
+            ($errors -join " ") | Should -Match "not valid kebab-case"
         }
     }
 
@@ -820,35 +820,35 @@ Describe "roadmap.json schema -- additional coverage" {
                 }
             )
         }
-        { Test-RoadmapSchema $roadmap } | Should Not Throw
+        { Test-RoadmapSchema $roadmap } | Should -Not -Throw
         $errors = Test-RoadmapSchema $roadmap
         # single "idea" feature -> derived "planned" which matches stored "planned" -> valid
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 }
 
 Describe "Milestone Status Calculation -- additional coverage" {
     It "single planned feature -> planned" {
-        Get-MilestoneStatus @(@{ status = "planned" }) | Should Be "planned"
+        Get-MilestoneStatus @(@{ status = "planned" }) | Should -Be "planned"
     }
 }
 
 Describe "roadmap.json file validation" {
     It "actual roadmap.json passes schema validation" {
         $roadmapPath = Join-Path (Join-Path $PSScriptRoot "..") "roadmap.json"
-        (Test-Path $roadmapPath) | Should Be $true
+        (Test-Path $roadmapPath) | Should -Be $true
         $roadmap = Get-Content $roadmapPath -Raw | ConvertFrom-Json
         $errors = Test-RoadmapSchema $roadmap
         if ($errors.Count -gt 0) {
             $msg = "roadmap.json has $($errors.Count) schema error(s):`n" + ($errors -join "`n")
             throw $msg
         }
-        $errors.Count | Should Be 0
+        $errors.Count | Should -Be 0
     }
 
     It "plan files referenced in done features exist on disk" {
         $roadmapPath = Join-Path (Join-Path $PSScriptRoot "..") "roadmap.json"
-        (Test-Path $roadmapPath) | Should Be $true
+        (Test-Path $roadmapPath) | Should -Be $true
         $roadmap = Get-Content $roadmapPath -Raw | ConvertFrom-Json
         $root = Split-Path $roadmapPath -Parent
         $milestones = @($roadmap.milestones)
@@ -857,7 +857,7 @@ Describe "roadmap.json file validation" {
             foreach ($f in $features) {
                 if ($f.status -eq "done" -and $null -ne $f.plan) {
                     $planPath = Join-Path $root $f.plan
-                    Test-Path $planPath | Should Be $true
+                    Test-Path $planPath | Should -Be $true
                 }
             }
         }
@@ -883,66 +883,66 @@ Describe "roadmap.json - pushback plan features must be done and linked (Bug 202
 
     It "honest-pushback-in-brainstorm-strategy has status done" {
         $f = $qlFeatures | Where-Object { $_.id -eq "honest-pushback-in-brainstorm-strategy" }
-        @($f).Count | Should BeGreaterThan 0
-        (@($f))[0].status | Should Be "done"
+        @($f).Count | Should -BeGreaterThan 0
+        (@($f))[0].status | Should -Be "done"
     }
 
     It "honest-pushback-in-brainstorm-strategy is linked to the pushback plan" {
         $f = $qlFeatures | Where-Object { $_.id -eq "honest-pushback-in-brainstorm-strategy" }
-        (@($f))[0].plan | Should Be $planPath
+        (@($f))[0].plan | Should -Be $planPath
     }
 
     It "side-idea-capture-in-brainstorm has status done" {
         $f = $qlFeatures | Where-Object { $_.id -eq "side-idea-capture-in-brainstorm" }
-        @($f).Count | Should BeGreaterThan 0
-        (@($f))[0].status | Should Be "done"
+        @($f).Count | Should -BeGreaterThan 0
+        (@($f))[0].status | Should -Be "done"
     }
 
     It "side-idea-capture-in-brainstorm is linked to the pushback plan" {
         $f = $qlFeatures | Where-Object { $_.id -eq "side-idea-capture-in-brainstorm" }
-        (@($f))[0].plan | Should Be $planPath
+        (@($f))[0].plan | Should -Be $planPath
     }
 
     It "plan-review-agent-and-prompt feature exists in quality-loop" {
         $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
-        ($f | Measure-Object).Count | Should BeGreaterThan 0
+        ($f | Measure-Object).Count | Should -BeGreaterThan 0
     }
 
     It "plan-review-agent-and-prompt has status done" {
         $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
-        (@($f))[0].status | Should Be "done"
+        (@($f))[0].status | Should -Be "done"
     }
 
     It "plan-review-agent-and-prompt is linked to the pushback plan" {
         $f = $qlFeatures | Where-Object { $_.id -eq "plan-review-agent-and-prompt" }
-        (@($f))[0].plan | Should Be $planPath
+        (@($f))[0].plan | Should -Be $planPath
     }
 
     It "schema-bypass-in-cg-resume feature exists in quality-loop" {
         $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
-        ($f | Measure-Object).Count | Should BeGreaterThan 0
+        ($f | Measure-Object).Count | Should -BeGreaterThan 0
     }
 
     It "schema-bypass-in-cg-resume has status done" {
         $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
-        (@($f))[0].status | Should Be "done"
+        (@($f))[0].status | Should -Be "done"
     }
 
     It "schema-bypass-in-cg-resume is linked to the pushback plan" {
         $f = $qlFeatures | Where-Object { $_.id -eq "schema-bypass-in-cg-resume" }
-        (@($f))[0].plan | Should Be $planPath
+        (@($f))[0].plan | Should -Be $planPath
     }
 }
 
 Describe "/cg-resume scope health -- additional coverage" {
     It "single unstarted feature (idea) -> nudge fires" {
         $features = @(@{ status = "idea" })
-        Get-ScopeHealthNudge $features | Should Be $true
+        Get-ScopeHealthNudge $features | Should -Be $true
     }
 
     It "single started feature (done) -> nudge does not fire" {
         $features = @(@{ status = "done" })
-        Get-ScopeHealthNudge $features | Should Be $false
+        Get-ScopeHealthNudge $features | Should -Be $false
     }
 }
 
@@ -1011,39 +1011,39 @@ Describe "Test-RecentStrategyDocument helper" {
     }
 
     It "returns false when directory does not exist" {
-        Test-RecentStrategyDocument (Join-Path $tmpDir "nonexistent") -ReferenceDate $refDate | Should Be $false
+        Test-RecentStrategyDocument (Join-Path $tmpDir "nonexistent") -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns false when directory is empty" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns false when directory contains only non-.md files" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir ".gitkeep") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns false when only file is older than 60 days" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         $oldDate = $refDate.AddDays(-61).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$oldDate-old-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 
     It "returns true when a file is exactly today (reference date)" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         $todayDate = $refDate.ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$todayDate-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "returns true when a file is 30 days old (within 60-day window)" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         $recentDate = $refDate.AddDays(-30).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$recentDate-session.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "returns true when mixed old and recent files exist" {
@@ -1052,19 +1052,19 @@ Describe "Test-RecentStrategyDocument helper" {
         $recentDate = $refDate.AddDays(-10).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$oldDate-old.md")    | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir "$recentDate-new.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "returns true when a file is exactly 60 days old (inclusive boundary)" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         $boundaryDate = $refDate.AddDays(-60).ToString("yyyy-MM-dd")
         New-Item -ItemType File -Path (Join-Path $tmpDir "$boundaryDate-boundary.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $true
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $true
     }
 
     It "ignores .md files without a date prefix" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir "session-notes.md") | Out-Null
-        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should Be $false
+        Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
     }
 }

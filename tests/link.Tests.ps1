@@ -11,7 +11,7 @@ $script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
 # Windows-only. Skip all tests on macOS/Linux with a passing placeholder.
 if (-not $script:OnWindows) {
     Describe "link.ps1 - Windows-only tests (skipped on macOS/Linux)" {
-        It "platform check: junction tests require Windows" { $true | Should Be $true }
+        It "platform check: junction tests require Windows" { $true | Should -Be $true }
     }
     return
 }
@@ -21,12 +21,12 @@ Describe "link.ps1 - pre-condition checks" {
         It "passes when install path exists" {
             $installDir = Join-Path $TestDrive "compound-gpid"
             New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-            Test-Path $installDir | Should Be $true
+            Test-Path $installDir | Should -Be $true
         }
 
         It "fails when install path does not exist" {
             $installDir = Join-Path $TestDrive "does-not-exist"
-            Test-Path $installDir | Should Be $false
+            Test-Path $installDir | Should -Be $false
         }
     }
 }
@@ -36,8 +36,8 @@ Describe "link.ps1 - .github directory setup" {
         It "can be created as a real directory" {
             $githubDir = Join-Path $TestDrive "new-github"
             New-Item -ItemType Directory -Path $githubDir -Force | Out-Null
-            Test-Path $githubDir | Should Be $true
-            (Get-Item $githubDir).LinkType | Should BeNullOrEmpty
+            Test-Path $githubDir | Should -Be $true
+            (Get-Item $githubDir).LinkType | Should -BeNullOrEmpty
         }
     }
 
@@ -47,7 +47,7 @@ Describe "link.ps1 - .github directory setup" {
             $junction = Join-Path $TestDrive "legacy-github"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            (Get-Item $junction).LinkType | Should Be "Junction"
+            (Get-Item $junction).LinkType | Should -Be "Junction"
         }
 
         It "removing a junction does not delete the target directory" {
@@ -56,8 +56,8 @@ Describe "link.ps1 - .github directory setup" {
             New-Item -ItemType Directory -Path $target  -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
             Remove-Item -Path $junction -Force
-            Test-Path $junction | Should Be $false
-            Test-Path $target   | Should Be $true
+            Test-Path $junction | Should -Be $false
+            Test-Path $target   | Should -Be $true
         }
     }
 
@@ -75,8 +75,8 @@ Describe "link.ps1 - .github directory setup" {
             New-Item -ItemType Junction  -Path $junctionPath -Value $target | Out-Null
 
             # User content is still present
-            Test-Path (Join-Path $workflowDir "ci.yml") | Should Be $true
-            (Get-Item $junctionPath).LinkType | Should Be "Junction"
+            Test-Path (Join-Path $workflowDir "ci.yml") | Should -Be $true
+            (Get-Item $junctionPath).LinkType | Should -Be "Junction"
         }
     }
 
@@ -102,7 +102,7 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             $junction = Join-Path $TestDrive "dst-prompts"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            (Get-Item $junction).LinkType | Should Be "Junction"
+            (Get-Item $junction).LinkType | Should -Be "Junction"
         }
 
         It "creates a junction for skills/" {
@@ -110,7 +110,7 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             $junction = Join-Path $TestDrive "dst-skills"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            (Get-Item $junction).LinkType | Should Be "Junction"
+            (Get-Item $junction).LinkType | Should -Be "Junction"
         }
 
         It "creates a junction for agents/" {
@@ -118,7 +118,7 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             $junction = Join-Path $TestDrive "dst-agents"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            (Get-Item $junction).LinkType | Should Be "Junction"
+            (Get-Item $junction).LinkType | Should -Be "Junction"
         }
 
         It "creates a junction for instructions/" {
@@ -126,7 +126,7 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             $junction = Join-Path $TestDrive "dst-instructions"
             New-Item -ItemType Directory -Path $target -Force | Out-Null
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
-            (Get-Item $junction).LinkType | Should Be "Junction"
+            (Get-Item $junction).LinkType | Should -Be "Junction"
         }
     }
 
@@ -138,9 +138,9 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             New-Item -ItemType Junction  -Path $junction -Value $target | Out-Null
 
             $item = Get-Item $junction
-            $item.LinkType | Should Be "Junction"
+            $item.LinkType | Should -Be "Junction"
             # Simulate the compound-gpid target check
-            $item.Target -like "*cg-prompts*" | Should Be $true
+            $item.Target -like "*cg-prompts*" | Should -Be $true
         }
     }
 
@@ -149,7 +149,7 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             $conflicting = Join-Path $TestDrive "conflict-prompts"
             New-Item -ItemType Directory -Path $conflicting -Force | Out-Null
             $item = Get-Item $conflicting
-            $item.LinkType | Should BeNullOrEmpty
+            $item.LinkType | Should -BeNullOrEmpty
             # A real directory (no LinkType) signals a conflict - cg-link should error
         }
     }
@@ -178,7 +178,7 @@ Describe "link.ps1 - copilot-instructions.md management" {
             Set-Content -Path $dest -Value ($marker + "`n" + $generatedBody)
 
             $lines = Get-Content $dest
-            $lines[0] | Should Be $marker
+            $lines[0] | Should -Be $marker
         }
     }
 
@@ -189,11 +189,11 @@ Describe "link.ps1 - copilot-instructions.md management" {
             Set-Content -Path $dest -Value ($marker + "`n" + "# Old content")
 
             $content = Get-Content $dest -Raw
-            $content -match [regex]::Escape($marker) | Should Be $true
+            $content -match [regex]::Escape($marker) | Should -Be $true
 
             # Simulate overwrite with new content
             Set-Content -Path $dest -Value ($marker + "`n" + "# New content")
-            (Get-Content $dest -Raw) -match "New content" | Should Be $true
+            (Get-Content $dest -Raw) -match "New content" | Should -Be $true
         }
     }
 
@@ -204,7 +204,7 @@ Describe "link.ps1 - copilot-instructions.md management" {
 
             $content = Get-Content $dest -Raw
             $marker  = "<!-- compound-gpid:managed -->"
-            $content -match [regex]::Escape($marker) | Should Be $false
+            $content -match [regex]::Escape($marker) | Should -Be $false
             # cg-link should skip this file
         }
     }
@@ -223,11 +223,11 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             )
             Set-Content -Path $gi -Value ($entries -join "`n")
             $content = Get-Content $gi -Raw
-            $content -match "\.github/prompts/"       | Should Be $true
-            $content -match "\.github/skills/"        | Should Be $true
-            $content -match "\.github/agents/"        | Should Be $true
-            $content -match "\.github/instructions/"  | Should Be $true
-            $content -match "copilot-instructions\.md" | Should Be $true
+            $content -match "\.github/prompts/"       | Should -Be $true
+            $content -match "\.github/skills/"        | Should -Be $true
+            $content -match "\.github/agents/"        | Should -Be $true
+            $content -match "\.github/instructions/"  | Should -Be $true
+            $content -match "copilot-instructions\.md" | Should -Be $true
         }
     }
 
@@ -238,8 +238,8 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Add-Content -Path $gi -Value ".github/prompts/"
 
             $content = Get-Content $gi -Raw
-            $content -match "\.log"              | Should Be $true
-            $content -match "\.github/prompts/"  | Should Be $true
+            $content -match "\.log"              | Should -Be $true
+            $content -match "\.github/prompts/"  | Should -Be $true
         }
     }
 
@@ -270,12 +270,12 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value ($existing + $sep + $block)
 
             $after = Get-Content $gi
-            ($after | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
-            ($after | Where-Object { $_ -match "Compound GPID managed items" } | Measure-Object).Count | Should Be 1
+            ($after | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -match "Compound GPID managed items" } | Measure-Object).Count | Should -Be 1
         }
 
         It "removes .cg-docs/ from old CG block on upgrade (institutional knowledge must be committed)" {
@@ -298,10 +298,10 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 
             $lines = Get-Content $gi
             # .cg-docs/ must be gone after upgrade
-            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should -Be 0
             # Active entries survive exactly once
-            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"  } | Measure-Object).Count | Should -Be 1
         }
 
         It "does not gitignore .cg-docs/ -- it is committed institutional memory" {
@@ -321,13 +321,13 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 
             $lines = Get-Content $gi
             # .cg-docs/ must NOT appear after a fresh link run
-            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -eq ".cg-docs/" } | Measure-Object).Count | Should -Be 0
             # All expected entries present
-            ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/prompts/"            } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should -Be 1
         }
 
         It "preserves user content preceding the CG block (regex safety)" {
@@ -349,7 +349,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 
             $lines = Get-Content $gi
             # User content before the block must survive
-            ($lines | Where-Object { $_ -eq "*.log" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq "*.log" } | Measure-Object).Count | Should -Be 1
         }
 
         It "does not delete user content following the CG block (regex safety)" {
@@ -371,7 +371,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 
             $lines = Get-Content $gi
             # User content must survive the rewrite
-            ($lines | Where-Object { $_ -eq "*.pyc" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq "*.pyc" } | Measure-Object).Count | Should -Be 1
         }
 
         It "does not leave orphaned entries when CG block has no trailing newline (EOF edge case)" {
@@ -396,9 +396,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 
             $lines = Get-Content $gi
             # The old last entry (.github/skills/) must NOT appear as an orphan
-            ($lines | Where-Object { $_ -eq ".github/skills/" } | Measure-Object).Count | Should Be 0
+            ($lines | Where-Object { $_ -eq ".github/skills/" } | Measure-Object).Count | Should -Be 0
             # The new entry must be present
-            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".github/prompts/" } | Measure-Object).Count | Should -Be 1
         }
     }
 
@@ -408,7 +408,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value "# CG entries`n.github/prompts/"
             $content = Get-Content $gi -Raw
             # The blanket ".github" entry (without a slash or subdirectory) should not be present
-            $content -match "(?m)^\.github\s*$" | Should Be $false
+            $content -match "(?m)^\.github\s*$" | Should -Be $false
         }
     }
 
@@ -433,16 +433,16 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value "*.log`n# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/`n"
             & $CleanStaleCgDocs $gi
             $lines = Get-Content $gi
-            ($lines | Where-Object { $_ -eq ".cg-docs/"                                                    } | Measure-Object).Count | Should Be 0
-            ($lines | Where-Object { $_ -match "Compound GPID knowledge base"                              } | Measure-Object).Count | Should Be 0
-            ($lines | Where-Object { $_ -eq "*.log"                                                        } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".cg-docs/"                                                    } | Measure-Object).Count | Should -Be 0
+            ($lines | Where-Object { $_ -match "Compound GPID knowledge base"                              } | Measure-Object).Count | Should -Be 0
+            ($lines | Where-Object { $_ -eq "*.log"                                                        } | Measure-Object).Count | Should -Be 1
         }
 
         It "deletes the .gitignore file when it becomes empty after cleanup" {
             $gi = Join-Path $TestDrive "only-stale-entry.gitignore"
             Set-Content -Path $gi -Value "# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/"
             & $CleanStaleCgDocs $gi
-            Test-Path $gi | Should Be $false
+            Test-Path $gi | Should -Be $false
         }
 
         It "preserves other entries when removing the stale block" {
@@ -450,9 +450,9 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             Set-Content -Path $gi -Value "*.log`n# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/`n*.tmp"
             & $CleanStaleCgDocs $gi
             $lines = Get-Content $gi
-            ($lines | Where-Object { $_ -eq ".cg-docs/"  } | Measure-Object).Count | Should Be 0
-            ($lines | Where-Object { $_ -eq "*.log"      } | Measure-Object).Count | Should Be 1
-            ($lines | Where-Object { $_ -eq "*.tmp"      } | Measure-Object).Count | Should Be 1
+            ($lines | Where-Object { $_ -eq ".cg-docs/"  } | Measure-Object).Count | Should -Be 0
+            ($lines | Where-Object { $_ -eq "*.log"      } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq "*.tmp"      } | Measure-Object).Count | Should -Be 1
         }
 
         It "does nothing when the stale entry is absent" {
@@ -461,7 +461,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $before = Get-Content $gi -Raw
             & $CleanStaleCgDocs $gi
             $after = Get-Content $gi -Raw
-            $after | Should Be $before
+            $after | Should -Be $before
         }
     }
 }
@@ -485,7 +485,7 @@ Describe "link.ps1 - update.ps1 call failure handling" {
             }
             # Code after the try/catch must be reachable
             $linkContinued = $true
-            $linkContinued | Should Be $true
+            $linkContinued | Should -Be $true
         }
 
         It "CG_INTERNAL_CALL env var is cleaned up even when update throws" {
@@ -497,7 +497,7 @@ Describe "link.ps1 - update.ps1 call failure handling" {
             } finally {
                 Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
             }
-            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $true
         }
     }
 }
@@ -514,7 +514,7 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
             $checkPath = Join-Path $TestDrive "cg-setup.prompt.md"
             New-Item -ItemType File -Path $checkPath -Force | Out-Null
             $verified = Test-Path $checkPath
-            $verified | Should Be $true
+            $verified | Should -Be $true
         }
     }
 
@@ -523,7 +523,7 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
             # link.ps1 shows Write-Warning and continues; this test verifies the check condition.
             $checkPath = Join-Path $TestDrive "missing-subdir\cg-setup.prompt.md"
             $verified = Test-Path $checkPath
-            $verified | Should Be $false
+            $verified | Should -Be $false
         }
 
         It "verification failure does not abort the link process (non-fatal guard)" {
@@ -534,7 +534,7 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
             }
             # Execution must continue beyond the if/else
             $linkCompleted = $true
-            $linkCompleted | Should Be $true
+            $linkCompleted | Should -Be $true
         }
     }
 }
@@ -558,15 +558,15 @@ Describe "link.ps1 - compound-gpid.context.md is not gitignored" {
                    @(".github/copilot-instructions.md")
 
         It "extracted at least one entry from link.ps1 (guard against empty extraction)" {
-            ($entries | Measure-Object).Count | Should BeGreaterThan 0
+            ($entries | Measure-Object).Count | Should -BeGreaterThan 0
         }
 
         It "the CG gitignore entry list does not contain compound-gpid.context.md" {
-            ($entries -contains "compound-gpid.context.md") | Should Be $false
+            ($entries -contains "compound-gpid.context.md") | Should -Be $false
         }
 
         It "copilot-instructions.md IS in the CG gitignore entry list (sanity check)" {
-            ($entries -contains ".github/copilot-instructions.md") | Should Be $true
+            ($entries -contains ".github/copilot-instructions.md") | Should -Be $true
         }
     }
 }

@@ -22,14 +22,25 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       # -------------------------------------------------------------------
-      # Windows: PowerShell 5.1 ships Pester 3.4 built in — no install needed.
-      # The safe runner (. tests\Run-Tests.ps1) uses the built-in module.
+      # Windows: install Pester 5.6.1 via pwsh (PowerShell 7) so both
+      # platforms use the same runner. PS 5.1 ships a built-in Pester 3.4,
+      # but recent windows-2022 runner images also have Pester 5 in the
+      # global module path, which overrides the built-in and breaks the
+      # legacy parameter set. Pinning 5.6.1 on pwsh gives a deterministic,
+      # identical setup to macOS.
       # -------------------------------------------------------------------
-      - name: Run tests (Windows PS 5.1 + built-in Pester 3.4)
+      - name: Install Pester 5.6.1 (Windows)
         if: runner.os == 'Windows'
-        shell: powershell
+        shell: pwsh
         run: |
-          . tests\Run-Tests.ps1
+          Install-Module Pester -RequiredVersion 5.6.1 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Run tests (Windows pwsh + Pester 5.6.1)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 5.6.1
+          . tests/Run-Tests.ps1
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       # -------------------------------------------------------------------

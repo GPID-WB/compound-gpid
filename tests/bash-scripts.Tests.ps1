@@ -14,7 +14,7 @@ $script:OnMacOS   = ($IsMacOS -eq $true)
 # scripts target). On Windows, emit a single passing placeholder and return.
 if (-not $script:OnMacOS) {
     Describe "bash-scripts (macOS-only tests, skipped on Windows)" {
-        It "platform check: bash-scripts tests require macOS" { $true | Should Be $true }
+        It "platform check: bash-scripts tests require macOS" { $true | Should -Be $true }
     }
     return
 }
@@ -43,10 +43,10 @@ Describe "bash-scripts - scripts exist with executable bit" {
     foreach ($script in $bashScripts) {
         $scriptPath = Join-Path $repoRoot $script
         It "$script exists" {
-            Test-Path $scriptPath | Should Be $true
+            Test-Path $scriptPath | Should -Be $true
         }
         It "$script is executable" {
-            Test-Executable $scriptPath | Should Be $true
+            Test-Executable $scriptPath | Should -Be $true
         }
     }
 }
@@ -60,14 +60,14 @@ Describe "bash-scripts - bin/ wrappers exist with executable bit" {
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
         It "$wrapper exists" {
-            Test-Path $wrapperPath | Should Be $true
+            Test-Path $wrapperPath | Should -Be $true
         }
         It "$wrapper is executable" {
-            Test-Executable $wrapperPath | Should Be $true
+            Test-Executable $wrapperPath | Should -Be $true
         }
         It "$wrapper has shebang line" {
             $firstLine = & bash -c "head -1 '$wrapperPath' 2>/dev/null"
-            $firstLine | Should Match "^#!/"
+            $firstLine | Should -Match "^#!/"
         }
     }
 }
@@ -80,47 +80,47 @@ Describe "install.sh - script structure" {
     $content   = Get-Content $installSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "starts with #!/usr/bin/env bash shebang" {
-        $content | Should Match "^#!/usr/bin/env bash"
+        $content | Should -Match "^#!/usr/bin/env bash"
     }
 
     It "uses set -euo pipefail" {
-        $content | Should Match "set -euo pipefail"
+        $content | Should -Match "set -euo pipefail"
     }
 
     It "resolves SCRIPT_DIR from script location (not pwd)" {
-        $content | Should Match 'SCRIPT_DIR=.*dirname'
+        $content | Should -Match 'SCRIPT_DIR=.*dirname'
     }
 
     It "defines COMPOUND_GPID_DIR as parent of scripts/" {
-        $content | Should Match 'COMPOUND_GPID_DIR=.*dirname.*SCRIPT_DIR'
+        $content | Should -Match 'COMPOUND_GPID_DIR=.*dirname.*SCRIPT_DIR'
     }
 
     It "verifies git is available" {
-        $content | Should Match 'command -v git'
+        $content | Should -Match 'command -v git'
     }
 
     It "tests symlink capability" {
-        $content | Should Match 'ln -s'
+        $content | Should -Match 'ln -s'
     }
 
     It "creates bin/ directory wrappers" {
-        $content | Should Match 'BIN_DIR'
-        $content | Should Match 'cg-link'
-        $content | Should Match 'cg-unlink'
-        $content | Should Match 'cg-update'
+        $content | Should -Match 'BIN_DIR'
+        $content | Should -Match 'cg-link'
+        $content | Should -Match 'cg-unlink'
+        $content | Should -Match 'cg-update'
     }
 
     It "initializes .cg-version" {
-        $content | Should Match '\.cg-version'
+        $content | Should -Match '\.cg-version'
     }
 
     It "supports --uninstall flag" {
-        $content | Should Match '\-\-uninstall'
+        $content | Should -Match '\-\-uninstall'
     }
 
     It "adds PATH block with CG markers" {
-        $content | Should Match 'Compound GPID'
-        $content | Should Match 'PROFILE_FILE'
+        $content | Should -Match 'Compound GPID'
+        $content | Should -Match 'PROFILE_FILE'
     }
 }
 
@@ -160,10 +160,10 @@ Describe "install.sh - PATH block is idempotent" {
 
             # Count occurrences of the start marker
             $markerCount = ([regex]::Matches($profileContent, [regex]::Escape("# --- Compound GPID ---"))).Count
-            $markerCount | Should Be 1
+            $markerCount | Should -Be 1
 
             # Verify PATH entry uses $HOME-relative form, not absolute path (P3.15)
-            $profileContent | Should Match 'export PATH=.*\$HOME/'
+            $profileContent | Should -Match 'export PATH=.*\$HOME/'
         } finally {
             Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
             Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
@@ -181,39 +181,39 @@ Describe "link.sh - script structure" {
     $content = Get-Content $linkSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "starts with #!/usr/bin/env bash shebang" {
-        $content | Should Match "^#!/usr/bin/env bash"
+        $content | Should -Match "^#!/usr/bin/env bash"
     }
 
     It "uses set -euo pipefail" {
-        $content | Should Match "set -euo pipefail"
+        $content | Should -Match "set -euo pipefail"
     }
 
     It "invokes update.sh with CG_INTERNAL_CALL=1" {
-        $content | Should Match "CG_INTERNAL_CALL=1.*update\.sh"
+        $content | Should -Match "CG_INTERNAL_CALL=1.*update\.sh"
     }
 
     It "creates symlinks for managed directories" {
-        $content | Should Match 'ln -s'
+        $content | Should -Match 'ln -s'
     }
 
     It "manages copilot-instructions.md" {
-        $content | Should Match 'copilot-instructions'
+        $content | Should -Match 'copilot-instructions'
     }
 
     It "updates .gitignore" {
-        $content | Should Match '\.gitignore'
+        $content | Should -Match '\.gitignore'
     }
 
     It "uses generate_copilot_instructions function with python3" {
-        $content | Should Match 'generate_copilot_instructions'
-        $content | Should Match 'python3'
+        $content | Should -Match 'generate_copilot_instructions'
+        $content | Should -Match 'python3'
     }
 
     It "defines generate_copilot_instructions before the main body calls it" {
         # Function definition must appear before first call in bash
         $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
         $funcCallLine = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
-        $funcDefLine | Should BeLessThan $funcCallLine
+        $funcDefLine | Should -BeLessThan $funcCallLine
     }
 }
 
@@ -225,34 +225,34 @@ Describe "unlink.sh - script structure" {
     $content  = Get-Content $unlinkSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "starts with #!/usr/bin/env bash shebang" {
-        $content | Should Match "^#!/usr/bin/env bash"
+        $content | Should -Match "^#!/usr/bin/env bash"
     }
 
     It "uses set -euo pipefail" {
-        $content | Should Match "set -euo pipefail"
+        $content | Should -Match "set -euo pipefail"
     }
 
     It "uses [ -L ] to test for symlinks" {
-        $content | Should Match '\-L '
+        $content | Should -Match '\-L '
     }
 
     It "uses readlink without -f flag (BSD-safe)" {
         # Ensure readlink is used but NOT readlink -f
-        $content | Should Match 'readlink '
-        ($content -match 'readlink -f') | Should Be $false
+        $content | Should -Match 'readlink '
+        ($content -match 'readlink -f') | Should -Be $false
     }
 
     It "matches symlinks against compound-gpid" {
-        $content | Should Match 'compound-gpid'
+        $content | Should -Match 'compound-gpid'
     }
 
     It "removes copilot-instructions.md only when marker is present" {
-        $content | Should Match 'copilot-instructions'
-        $content | Should Match 'compound-gpid:managed'
+        $content | Should -Match 'copilot-instructions'
+        $content | Should -Match 'compound-gpid:managed'
     }
 
     It "removes .gitignore CG entries" {
-        $content | Should Match '\.gitignore'
+        $content | Should -Match '\.gitignore'
     }
 }
 
@@ -264,47 +264,47 @@ Describe "update.sh - script structure" {
     $content  = Get-Content $updateSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "starts with #!/usr/bin/env bash shebang" {
-        $content | Should Match "^#!/usr/bin/env bash"
+        $content | Should -Match "^#!/usr/bin/env bash"
     }
 
     It "uses set -euo pipefail" {
-        $content | Should Match "set -euo pipefail"
+        $content | Should -Match "set -euo pipefail"
     }
 
     It "supports --list flag" {
-        $content | Should Match '\-\-list'
+        $content | Should -Match '\-\-list'
     }
 
     It "supports --fix flag" {
-        $content | Should Match '\-\-fix'
+        $content | Should -Match '\-\-fix'
     }
 
     It "checks CG_INTERNAL_CALL before refreshing copilot-instructions.md" {
-        $content | Should Match 'CG_INTERNAL_CALL'
+        $content | Should -Match 'CG_INTERNAL_CALL'
     }
 
     It "reads .cg-version for version mode" {
-        $content | Should Match '\.cg-version'
+        $content | Should -Match '\.cg-version'
     }
 
     It "supports 'latest' mode (git pull)" {
-        $content | Should Match 'git pull'
+        $content | Should -Match 'git pull'
     }
 
     It "supports pinned mode (git checkout tag)" {
-        $content | Should Match 'git checkout'
+        $content | Should -Match 'git checkout'
     }
 
     It "validates version format before pinning" {
-        $content | Should Match 'VERSION_ACCEPT_PATTERN'
+        $content | Should -Match 'VERSION_ACCEPT_PATTERN'
     }
 
     It "defines generate_copilot_instructions for post-update refresh" {
-        $content | Should Match 'generate_copilot_instructions'
+        $content | Should -Match 'generate_copilot_instructions'
     }
 
     It "handles structural migration docs/ -> .cg-docs/" {
-        $content | Should Match '\.cg-docs'
+        $content | Should -Match '\.cg-docs'
     }
 }
 
@@ -322,7 +322,7 @@ Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
         $wrapperContent = Get-Content (Join-Path $repoRoot $case.Wrapper) -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $scriptName = $case.Script.Split("/")[-1]
         It "$($case.Wrapper) references $($case.Script)" {
-            $wrapperContent | Should Match [regex]::Escape($scriptName)
+            $wrapperContent | Should -Match [regex]::Escape($scriptName)
         }
     }
 }
@@ -335,22 +335,22 @@ Describe "bash-scripts - .gitattributes enforces LF for bash files" {
     $content       = if (Test-Path $gitattributes) { Get-Content $gitattributes -Raw -Encoding UTF8 } else { "" }
 
     It ".gitattributes exists" {
-        Test-Path $gitattributes | Should Be $true
+        Test-Path $gitattributes | Should -Be $true
     }
 
     It ".gitattributes sets eol=lf for scripts/*.sh" {
-        $content | Should Match "scripts/\*\.sh.*eol=lf"
+        $content | Should -Match "scripts/\*\.sh.*eol=lf"
     }
 
     It ".gitattributes sets eol=lf for bin/cg-* wrappers" {
-        $content | Should Match "bin/cg-\*.*eol=lf"
+        $content | Should -Match "bin/cg-\*.*eol=lf"
     }
 
     It ".gitattributes sets eol=lf for *.yml files" {
-        $content | Should Match "\*\.yml.*eol=lf"
+        $content | Should -Match "\*\.yml.*eol=lf"
     }
 
     It ".gitattributes sets eol=lf for *.yaml files" {
-        $content | Should Match "\*\.yaml.*eol=lf"
+        $content | Should -Match "\*\.yaml.*eol=lf"
     }
 }

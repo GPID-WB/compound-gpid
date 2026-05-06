@@ -72,54 +72,54 @@ Describe "New-CopilotInstructions - basic generation" {
 
     Context "output structure" {
         It "returns a non-empty string" {
-            [string]::IsNullOrWhiteSpace($result) | Should Be $false
+            [string]::IsNullOrWhiteSpace($result) | Should -Be $false
         }
 
         It "first line is the management marker" {
             $lines = $result -split '\r?\n'
-            $lines[0] | Should Be "<!-- compound-gpid:managed -->"
+            $lines[0] | Should -Be "<!-- compound-gpid:managed -->"
         }
     }
 
     Context "placeholder substitution" {
         It "setup succeeded (guard: result is not null)" {
-            [string]::IsNullOrWhiteSpace($result) | Should Be $false
+            [string]::IsNullOrWhiteSpace($result) | Should -Be $false
         }
 
         It "replaces {{project-name}} with charter project-name" {
-            ($result -match 'Poverty Analysis') | Should Be $true
+            ($result -match 'Poverty Analysis') | Should -Be $true
         }
 
         It "does not contain unreplaced {{project-name}} placeholder" {
-            ($result -match '\{\{project-name\}\}') | Should Be $false
+            ($result -match '\{\{project-name\}\}') | Should -Be $false
         }
 
         It "replaces {{project-type}} with local config value" {
-            ($result -match 'analytical') | Should Be $true
+            ($result -match 'analytical') | Should -Be $true
         }
 
         It "does not contain unreplaced {{project-type}} placeholder" {
-            ($result -match '\{\{project-type\}\}') | Should Be $false
+            ($result -match '\{\{project-type\}\}') | Should -Be $false
         }
 
         It "replaces {{languages}} with local config language" {
-            ($result -match '\bR\b') | Should Be $true
+            ($result -match '\bR\b') | Should -Be $true
         }
 
         It "does not contain unreplaced {{languages}} placeholder" {
-            ($result -match '\{\{languages\}\}') | Should Be $false
+            ($result -match '\{\{languages\}\}') | Should -Be $false
         }
 
         It "replaces {{review-depth}} with local config value" {
-            ($result -match 'standard') | Should Be $true
+            ($result -match 'standard') | Should -Be $true
         }
 
         It "does not contain unreplaced {{review-depth}} placeholder" {
-            ($result -match '\{\{review-depth\}\}') | Should Be $false
+            ($result -match '\{\{review-depth\}\}') | Should -Be $false
         }
 
         It "does not append R dialect annotation when r-syntax is not configured" {
-            ($result -match '\(R dialect:') | Should Be $false
+            ($result -match '\(R dialect:') | Should -Be $false
         }
 
         It "handles project names containing dollar signs (literal, not regex backreferences)" {
@@ -134,7 +134,7 @@ Describe "New-CopilotInstructions - basic generation" {
                                 -ReviewDepth "standard"
             $dollarResult = New-CopilotInstructions -TemplateDir $dollarDir -ProjectRoot $dollarProj
             # $0 must appear literally — if -replace was used it would be substituted away
-            ($dollarResult -match '\$0') | Should Be $true
+            ($dollarResult -match '\$0') | Should -Be $true
         }
     }
 }
@@ -155,11 +155,11 @@ Describe "New-CopilotInstructions - R dialect in languages string" {
     $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
 
     It "appends R dialect info when r-syntax is set" {
-        ($result -match 'data\.table-collapse') | Should Be $true
+        ($result -match 'data\.table-collapse') | Should -Be $true
     }
 
     It "includes both R and dialect in the languages string" {
-        ($result -match 'R.*data\.table-collapse|data\.table-collapse.*R') | Should Be $true
+        ($result -match 'R.*data\.table-collapse|data\.table-collapse.*R') | Should -Be $true
     }
 }
 
@@ -179,11 +179,11 @@ Describe "New-CopilotInstructions - r-syntax does not annotate non-R language" {
     $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
 
     It "does not append R dialect info when language is Python" {
-        ($result -match 'data\.table-collapse') | Should Be $false
+        ($result -match 'data\.table-collapse') | Should -Be $false
     }
 
     It "does not inject '(R dialect:' for non-R language" {
-        ($result -match '\(R dialect:') | Should Be $false
+        ($result -match '\(R dialect:') | Should -Be $false
     }
 }
 
@@ -203,11 +203,11 @@ Describe "New-CopilotInstructions - fallback when compound-gpid.md is missing" {
     $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
 
     It "uses <project-name> fallback when charter is absent" {
-        ($result -match '<project-name>') | Should Be $true
+        ($result -match '<project-name>') | Should -Be $true
     }
 
     It "still fills local config values (project-type)" {
-        ($result -match 'technical') | Should Be $true
+        ($result -match 'technical') | Should -Be $true
     }
 }
 
@@ -226,15 +226,15 @@ Describe "New-CopilotInstructions - fallback when compound-gpid.local.md is miss
     $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
 
     It "uses project-name from charter" {
-        ($result -match 'Charter Only') | Should Be $true
+        ($result -match 'Charter Only') | Should -Be $true
     }
 
     It "uses <not configured> fallback for project-type" {
-        ($result -match '<not configured>') | Should Be $true
+        ($result -match '<not configured>') | Should -Be $true
     }
 
     It "all three unconfigured fields (project-type, language, review-depth) fall back" {
-        ([regex]::Matches($result, [regex]::Escape('<not configured>')).Count) | Should Be 3
+        ([regex]::Matches($result, [regex]::Escape('<not configured>')).Count) | Should -Be 3
     }
 }
 
@@ -252,16 +252,16 @@ Describe "New-CopilotInstructions - fallback when both charter and local config 
     $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
 
     It "uses <project-name> fallback" {
-        ($result -match '<project-name>') | Should Be $true
+        ($result -match '<project-name>') | Should -Be $true
     }
 
     It "uses <not configured> fallback for language/project-type/review-depth" {
-        ($result -match '<not configured>') | Should Be $true
+        ($result -match '<not configured>') | Should -Be $true
     }
 
     It "still prepends the management marker" {
         $lines = $result -split '\r?\n'
-        $lines[0] | Should Be "<!-- compound-gpid:managed -->"
+        $lines[0] | Should -Be "<!-- compound-gpid:managed -->"
     }
 }
 
@@ -278,7 +278,7 @@ Describe "New-CopilotInstructions - throws when template file is missing" {
 
     It "throws when copilot-instructions.template.md is not found" {
         { New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot } |
-            Should Throw
+            Should -Throw
     }
 }
 
@@ -290,7 +290,7 @@ Describe "copilot-instructions.template.md - file exists and contains all placeh
     $templateFile = Join-Path (Join-Path $repoRoot ".github") "copilot-instructions.template.md"
 
     It "template file exists" {
-        Test-Path $templateFile | Should Be $true
+        Test-Path $templateFile | Should -Be $true
     }
 
     $content = if (Test-Path $templateFile) {
@@ -298,27 +298,27 @@ Describe "copilot-instructions.template.md - file exists and contains all placeh
     } else { "" }
 
     It "contains {{project-name}} placeholder" {
-        ($content -match '\{\{project-name\}\}') | Should Be $true
+        ($content -match '\{\{project-name\}\}') | Should -Be $true
     }
 
     It "contains {{project-type}} placeholder" {
-        ($content -match '\{\{project-type\}\}') | Should Be $true
+        ($content -match '\{\{project-type\}\}') | Should -Be $true
     }
 
     It "contains {{languages}} placeholder" {
-        ($content -match '\{\{languages\}\}') | Should Be $true
+        ($content -match '\{\{languages\}\}') | Should -Be $true
     }
 
     It "contains {{review-depth}} placeholder" {
-        ($content -match '\{\{review-depth\}\}') | Should Be $true
+        ($content -match '\{\{review-depth\}\}') | Should -Be $true
     }
 
     It "does not contain {{workspace-section}} (removed per P1.2 - workspace lives in context.md)" {
-        ($content -match '\{\{workspace-section\}\}') | Should Be $false
+        ($content -match '\{\{workspace-section\}\}') | Should -Be $false
     }
 
     It "does not contain {{essential-rules}} (static text in template, not a placeholder)" {
-        ($content -match '\{\{essential-rules\}\}') | Should Be $false
+        ($content -match '\{\{essential-rules\}\}') | Should -Be $false
     }
 }
 
@@ -329,33 +329,33 @@ Describe "copilot-instructions.template.md - file exists and contains all placeh
 Describe "Get-ToolsList helper - edge cases" {
     It "returns empty array for empty string" {
         $result = Get-ToolsList -Frontmatter ""
-        @($result).Count | Should Be 0
+        @($result).Count | Should -Be 0
     }
 
     It "returns empty array when no tools key present" {
         $fm = "plan: null`ndate: 2026-01-01"
         $result = Get-ToolsList -Frontmatter $fm
-        @($result).Count | Should Be 0
+        @($result).Count | Should -Be 0
     }
 
     It "parses inline array correctly" {
         $fm = "tools: ['agent', 'read', 'write']"
         $result = Get-ToolsList -Frontmatter $fm
-        ($result -contains 'agent') | Should Be $true
-        ($result -contains 'read') | Should Be $true
-        ($result -contains 'write') | Should Be $true
+        ($result -contains 'agent') | Should -Be $true
+        ($result -contains 'read') | Should -Be $true
+        ($result -contains 'write') | Should -Be $true
     }
 
     It "does not match comment-prefixed tools line" {
         $fm = "# tools: 'fake'"
         $result = Get-ToolsList -Frontmatter $fm
-        @($result).Count | Should Be 0
+        @($result).Count | Should -Be 0
     }
 
     It "returns only first tools line when multiple tools: keys present (dedup guard)" {
         $fm = "tools: ['agent']`ntools: ['read', 'write']"
         $result = Get-ToolsList -Frontmatter $fm
-        @($result).Count | Should Be 1
-        ($result -contains 'agent') | Should Be $true
+        @($result).Count | Should -Be 1
+        ($result -contains 'agent') | Should -Be $true
     }
 }

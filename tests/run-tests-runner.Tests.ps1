@@ -28,11 +28,11 @@ $gitignoreContent = if (Test-Path $gitignorePath) { Get-Content $gitignorePath -
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - .gitignore entries for artifact files" {
     It ".gitignore contains tests/last-run.json" {
-        ($gitignoreContent -match 'tests/last-run\.json') | Should Be $true
+        ($gitignoreContent -match 'tests/last-run\.json') | Should -Be $true
     }
 
     It ".gitignore contains tests/.last-run.tmp" {
-        ($gitignoreContent -match 'tests/\.last-run\.tmp') | Should Be $true
+        ($gitignoreContent -match 'tests/\.last-run\.tmp') | Should -Be $true
     }
 }
 
@@ -41,7 +41,7 @@ Describe "Run-Tests.ps1 - .gitignore entries for artifact files" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - run-tests-runner is registered in `$testNames" {
     It "`$testNames includes 'run-tests-runner'" {
-        ($runnerContent -match "'run-tests-runner'") | Should Be $true
+        ($runnerContent -match "'run-tests-runner'") | Should -Be $true
     }
 }
 
@@ -50,7 +50,7 @@ Describe "Run-Tests.ps1 - run-tests-runner is registered in `$testNames" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - 'bash-scripts' is registered in `$testNames" {
     It "`$testNames includes 'bash-scripts'" {
-        ($runnerContent -match "'bash-scripts'") | Should Be $true
+        ($runnerContent -match "'bash-scripts'") | Should -Be $true
     }
 }
 
@@ -59,15 +59,15 @@ Describe "Run-Tests.ps1 - 'bash-scripts' is registered in `$testNames" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - -File parameter support" {
     It "param block declares `$File parameter" {
-        ($runnerContent -match '\[string\[\]\]\$File') | Should Be $true
+        ($runnerContent -match '\[string\[\]\]\$File') | Should -Be $true
     }
 
     It "script filters testNames when -File is provided" {
-        ($runnerContent -match '\$File.*-and.*\$File\.Count') | Should Be $true
+        ($runnerContent -match '\$File.*-and.*\$File\.Count') | Should -Be $true
     }
 
     It "junction tests are always placed last in -File mode" {
-        ($runnerContent -match 'junctionLast') | Should Be $true
+        ($runnerContent -match 'junctionLast') | Should -Be $true
     }
 }
 
@@ -76,27 +76,27 @@ Describe "Run-Tests.ps1 - -File parameter support" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - artifact construction keywords" {
     It "script contains ConvertTo-Json (artifact serialization)" {
-        ($runnerContent -match 'ConvertTo-Json') | Should Be $true
+        ($runnerContent -match 'ConvertTo-Json') | Should -Be $true
     }
 
     It "script contains Move-Item (atomic rename)" {
-        ($runnerContent -match 'Move-Item') | Should Be $true
+        ($runnerContent -match 'Move-Item') | Should -Be $true
     }
 
     It "script contains failFast field in artifact" {
-        ($runnerContent -match 'failFast') | Should Be $true
+        ($runnerContent -match 'failFast') | Should -Be $true
     }
 
     It "artifact includes ranAt timestamp field" {
-        ($runnerContent -match 'ranAt') | Should Be $true
+        ($runnerContent -match 'ranAt') | Should -Be $true
     }
 
     It "artifact includes passed boolean field" {
-        ($runnerContent -match 'passed\s*=') | Should Be $true
+        ($runnerContent -match 'passed\s*=') | Should -Be $true
     }
 
     It "script exits with code 1 when failures are present" {
-        ($runnerContent -match 'exit 1') | Should Be $true
+        ($runnerContent -match 'exit 1') | Should -Be $true
     }
 }
 
@@ -105,11 +105,11 @@ Describe "Run-Tests.ps1 - artifact construction keywords" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - undeclared test file detection" {
     It "script detects undeclared test files not in `$testNames" {
-        ($runnerContent -match 'Get-ChildItem.*Tests.*ps1') | Should Be $true
+        ($runnerContent -match 'Get-ChildItem.*Tests.*ps1') | Should -Be $true
     }
 
     It "script warns about undeclared test files" {
-        ($runnerContent -match 'undeclared') | Should Be $true
+        ($runnerContent -match 'undeclared') | Should -Be $true
     }
 }
 
@@ -118,7 +118,7 @@ Describe "Run-Tests.ps1 - undeclared test file detection" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - -File unregistered name warning" {
     It "warns when a -File name is not registered in `$testNames" {
-        ($runnerContent -match 'Write-Warning.*not a registered test name') | Should Be $true
+        ($runnerContent -match 'Write-Warning.*not a registered test name') | Should -Be $true
     }
 }
 
@@ -127,11 +127,11 @@ Describe "Run-Tests.ps1 - -File unregistered name warning" {
 # ---------------------------------------------------------------------------
 Describe "Run-Tests.ps1 - git SHA audit trail" {
     It "script captures git rev-parse for SHA" {
-        ($runnerContent -match 'git.*rev-parse') | Should Be $true
+        ($runnerContent -match 'git.*rev-parse') | Should -Be $true
     }
 
     It "script falls back to 'unknown' when not in a git repo" {
-        ($runnerContent -match '"unknown"') | Should Be $true
+        ($runnerContent -match '"unknown"') | Should -Be $true
     }
 }
 
@@ -143,7 +143,7 @@ Describe "Run-Tests.ps1 - TestResult pipeline safety comment" {
         # The comment explains the subprocess isolation exemption. If this test
         # fails, someone removed the comment — add it back to prevent future
         # scan extensions from creating false positives.
-        ($runnerContent -match 'TestResult.*pipeline.*safe|safe.*TestResult.*pipeline|subprocess.*NOT.*VS Code|NOT.*extension host') | Should Be $true
+        ($runnerContent -match 'TestResult.*pipeline.*safe|safe.*TestResult.*pipeline|subprocess.*NOT.*VS Code|NOT.*extension host') | Should -Be $true
     }
 }
 
@@ -157,7 +157,7 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
         It "artifact schema tests skipped - no artifact from a previous run" {
             # Run the suite once to generate tests/last-run.json, then re-run
             # to validate its schema. This is expected on the first clean run.
-            $true | Should Be $true
+            $true | Should -Be $true
         }
     } else {
         $json = $null
@@ -169,71 +169,71 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
         }
 
         It "last-run.json is valid JSON" {
-            $parseError | Should BeNullOrEmpty
+            $parseError | Should -BeNullOrEmpty
         }
 
         It "last-run.json has 'passed' field" {
-            ($null -ne $json.passed) | Should Be $true
+            ($null -ne $json.passed) | Should -Be $true
         }
 
         It "last-run.json has 'totalCount' field" {
-            ($null -ne $json.totalCount) | Should Be $true
+            ($null -ne $json.totalCount) | Should -Be $true
         }
 
         It "last-run.json has 'passedCount' field" {
-            ($null -ne $json.passedCount) | Should Be $true
+            ($null -ne $json.passedCount) | Should -Be $true
         }
 
         It "last-run.json has 'failedCount' field" {
-            ($null -ne $json.failedCount) | Should Be $true
+            ($null -ne $json.failedCount) | Should -Be $true
         }
 
         It "last-run.json has 'failFast' field" {
-            ($null -ne $json.failFast) | Should Be $true
+            ($null -ne $json.failFast) | Should -Be $true
         }
 
         It "last-run.json has 'gitSha' field" {
-            ($null -ne $json.gitSha) | Should Be $true
+            ($null -ne $json.gitSha) | Should -Be $true
         }
 
         It "last-run.json gitSha is a non-empty string" {
-            ($json.gitSha -is [string] -and $json.gitSha.Length -gt 0) | Should Be $true
+            ($json.gitSha -is [string] -and $json.gitSha.Length -gt 0) | Should -Be $true
         }
 
         It "last-run.json has 'ranAt' field" {
-            ($null -ne $json.ranAt) | Should Be $true
+            ($null -ne $json.ranAt) | Should -Be $true
         }
 
         It "last-run.json ranAt is a valid ISO 8601 UTC timestamp" {
-            ($json.ranAt -match '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') | Should Be $true
+            ($json.ranAt -match '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') | Should -Be $true
         }
 
         It "last-run.json has 'files' array" {
-            ($null -ne $json.files) | Should Be $true
+            ($null -ne $json.files) | Should -Be $true
         }
 
         It "last-run.json has 'failures' array" {
-            ($null -ne $json.failures) | Should Be $true
+            ($null -ne $json.failures) | Should -Be $true
         }
 
         It "last-run.json has 'skipped' array field" {
-            ($null -ne $json.skipped) | Should Be $true
+            ($null -ne $json.skipped) | Should -Be $true
         }
 
         It "last-run.json totalCount is greater than 0" {
-            $json.totalCount | Should BeGreaterThan 0
+            $json.totalCount | Should -BeGreaterThan 0
         }
 
         It "last-run.json totalCount equals passedCount plus failedCount" {
-            ($json.passedCount + $json.failedCount) | Should Be $json.totalCount
+            ($json.passedCount + $json.failedCount) | Should -Be $json.totalCount
         }
 
         It "last-run.json files is an array type" {
-            ($json.files -is [array]) | Should Be $true
+            ($json.files -is [array]) | Should -Be $true
         }
 
         It "last-run.json failures is an array type" {
-            ($json.failures -is [array]) | Should Be $true
+            ($json.failures -is [array]) | Should -Be $true
         }
     }
 }
