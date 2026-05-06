@@ -162,6 +162,33 @@ tags: [<relevant tags>]
 <What we're explicitly NOT doing in this iteration>
 ```
 
+### Step 3.5: Phase Structure
+
+Offer phase organization based on scope:
+
+- **Deep** scope: "This plan has N steps. I recommend organizing them into phases for cross-session execution. Do you have a phase breakdown in mind, or should I suggest one? (Last phase defaults to testing/validation/polish unless you override.)"
+- **Standard** scope: "Would you like to organize this plan into phases for cross-session execution? (optional — skip if the plan is short enough for one session)"
+- **Lightweight** scope: skip silently.
+
+If the user wants phases:
+1. **Pre-flight**: Check if the plan frontmatter already has a non-empty `completed-phases` field. If so, warn: "This plan has completed phases recorded. Restructuring phases will invalidate the completion history. Continue anyway? [yes/no]" — halt if user declines.
+2. Restructure the **Implementation Steps** section into `## Phase N: <title>` wrapper sections. Steps retain global numbering (1, 2, 3… across phases — do not restart numbering inside each phase).
+3. Add `phases: N` to frontmatter (convenience hint — the authoritative phase count is always derived from `## Phase` headers in the document body, not from this field).
+4. Example phased structure:
+   ```markdown
+   phases: 2  # convenience hint — may be stale; always recount from ## Phase headers
+
+   ## Phase 1: Core implementation
+   ### 1. <Step Name>
+   ### 2. <Step Name>
+
+   ## Phase 2: Tests and polish
+   ### 3. <Step Name>
+   ### 4. <Step Name>
+   ```
+
+If the user declines phases: skip restructuring — no Phase sections, no `phases:` field in frontmatter.
+
 ### Step 4: Save and Validate
 
 1. Save to `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md`.

@@ -79,6 +79,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Resume interrupted work | `/cg-resume` |
 | Diagnose VS Code crash | `/cg-diagnose` |
 | Implement a plan | `/cg-work` |
+| Implement a specific phase | `/cg-work phaseX` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
 | Fix VS Code problems | `/cg-fix-problems` |

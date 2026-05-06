@@ -48,7 +48,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-brainstorm` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions. **Branch offer at Step 1.7** — before any clarifying questions, offers to create a git branch derived from your initial description. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. After proposing approaches, runs an always-on devil's advocate challenge covering problem validity, simplicity, effort-value, and charter alignment before the decision is finalized. |
 | `/cg-plan` | Claude Opus 4.6 | Research + structured implementation plan. **Branch offer at Step 0.7** — before gathering context, offers to create a git branch derived from your request. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. Includes confidence check before finalizing. |
 | `/cg-plan-review` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Can review existing plans standalone or be run right after `/cg-plan`. Dispatches `@cg-plan-critic`. |
-| `/cg-work` | Claude Sonnet 4.6 | Step-by-step implementation from plan. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. If all features in a milestone are marked done, marks the milestone complete via `@cg-roadmap` (Step 3.8) and notifies the user to run `/cg-strategy` to review direction. |
+| `/cg-work [phaseX]` | Claude Sonnet 4.6 | Step-by-step implementation from plan. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) to execute a specific phase of a phased plan; without an argument, executes all remaining phases sequentially. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. If all features in a milestone are marked done, marks the milestone complete via `@cg-roadmap` (Step 3.8) and notifies the user to run `/cg-strategy` to review direction. |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: intake → reproduce (hard stop) → diagnose → fix (hard stop) → document. Checks prior bug solutions at intake. |
 | `/cg-review [light\|standard\|thorough] [mode:autofix\|mode:verify]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Depth overrides config; content-based auto-escalation applies automatically (pipeline files, statistical functions, secrets, large diffs). `mode:autofix` applies safe mechanical fixes automatically. `mode:verify` switches to verification mode — re-runs a `light` review with suppression of expected fix-consequence P2/P3 findings; P0/P1 and new cross-file breakage are always reported. Arguments can be combined: `/cg-review light mode:autofix`. Note: `mode:autofix` and `mode:verify` are mutually exclusive — if both are passed, `mode:verify` wins. When `mode:verify` is active, any depth argument is ignored — verify always runs at `light`. |
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. If the report has more than 15 open findings and no arguments are given, warns before proceeding and recommends priority batches (`P0 P1`, `P2`, `P3`); respond `batch` to get the commands and stop, or `yes` to proceed. Use `--migrate` to backfill per-finding status tracking on legacy review files (pre-v0.4.3). |
@@ -195,9 +195,9 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 
 | Agent | Focus | Model | User-invocable |
 |-------|-------|-------|----------------|
-| `@cg-plan-critic` | Plan review: assumptions, over-engineering, missing edge cases, scope creep, dependency accuracy | Sonnet 4.6 | No |
+| `@cg-plan-critic` | Plan review: assumptions, over-engineering, missing edge cases, scope creep, dependency accuracy, and phase structure (logical ordering, independent testability, completion criteria, cross-phase handoffs) | Sonnet 4.6 | No |
 
-> `@cg-plan-critic` is dispatched exclusively by `/cg-plan-review`. It is **not user-invokable** directly. It reads the plan and actual codebase to verify assumptions, checking for over-engineering, missing edge cases, scope creep, and flawed dependencies.
+> `@cg-plan-critic` is dispatched exclusively by `/cg-plan-review`. It is **not user-invokable** directly. It reads the plan and actual codebase to verify assumptions, checking for over-engineering, missing edge cases, scope creep, flawed dependencies, and (for phased plans) phase structure quality.
 
 ---
 
@@ -358,4 +358,14 @@ by convention now and will be validated automatically in a future `evals` milest
 | Solution | `.cg-docs/solutions/` | `draft`, `applied` |
 | Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |
 | Verify Review | `.cg-docs/reviews/` (filename: `<stem>-verify-review.md`) | Same `findings:` map as Review, plus `parent-review: <path>` (prior review file) and `type: verification` |
+
+### Plan Frontmatter: Phase Fields
+
+Phased plans (created with `/cg-plan` when the user requests phases) carry additional frontmatter fields for tracking cross-session execution:
+
+| Field | Type | Written by | Read by | Notes |
+|-------|------|-----------|---------|-------|
+| `phases` | integer | `/cg-plan` Step 3.5 | (not read at runtime — informational only for human readers) | **Convenience hint** — may become stale if phases are restructured. The authoritative phase count is always derived by counting `## Phase` headers in the document body. Never use this field as the source of truth for validation. |
+| `completed-phases` | YAML flow sequence of unquoted integers, e.g. `[1, 2]` | `/cg-work` Step 2.5 | `/cg-work` Step 1.2, `/cg-resume` Step 2a | **Authoritative completion record.** Written first at phase boundary (before `current-phase`). A plan with a non-empty list and `status: active` is "paused between phases" — this is the normal cross-session state. |
+| `current-phase` | integer | `/cg-work` Step 2.5 | (informational only) | Written after `completed-phases`. Set to N+1 after completing phase N; removed when the final phase completes. |
 

@@ -90,6 +90,13 @@ Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each an
 
 For each, extract: `date`, `title`, `scope`, `estimated-effort`, `tags`.
 
+For plans that have a `completed-phases:` field, display phase progress:
+- If `completed-phases` is a non-empty list (e.g., `[1, 2]`): read the plan body to count `## Phase` headers (M = authoritative header count; do not use the `phases:` frontmatter hint as the source of truth for M). Before computing X, deduplicate the list and discard any entries that are not positive integers; if any entries were discarded, warn: "Unexpected values in `completed-phases` — frontmatter may have been edited manually. Proceeding with valid entries: [...]" Then:
+  - If `completed-phases` contains all integers 1..M (all phases complete): display "All M phases completed. Final quality checks ran at the end of the last phase. To re-run the final phase and its quality checks: `/cg-work phaseM`." Do not display a phaseX suggestion.
+  - Otherwise: display "Phase progress: N/M phases completed. Next: `/cg-work phaseX`" where X = smallest integer ≥ 1 not in the `completed-phases` list.
+- If `completed-phases` is present but empty (`[]`): display "Phase progress: 0/M phases completed. Next: `/cg-work phase1`".
+- If `completed-phases` is absent: display no phase info (non-phased plan or phase tracking not yet started).
+
 #### 2b. Unplanned brainstorms
 
 Scan `.cg-docs/brainstorms/` for all `.md` files with `status: decided`. For each, check if a corresponding plan file exists in `.cg-docs/plans/` (match by date and title similarity, or a `brainstorm:` frontmatter field in plan files). Collect any decided brainstorms that have no corresponding plan.

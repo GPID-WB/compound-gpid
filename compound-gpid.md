@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Workflow Maturity — improving the plan→execute cycle with branch creation from /cg-plan, phased plan structure and execution (/cg-work phase1), smarter test-awareness in /cg-fixbug, and optional GitHub Issues integration for team coordination via gh CLI.
+Workflow Maturity — improving the plan→execute cycle with branch creation from /cg-plan, smarter test-awareness in /cg-fixbug, and optional GitHub Issues integration for team coordination via gh CLI.
