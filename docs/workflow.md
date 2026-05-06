@@ -211,7 +211,8 @@ The prompt scans its own output for:
 - *Normal implementation*: Load the plan, implement step by step, commit at each checkpoint.
 - *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete.
 - *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan before starting.
-- *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time; each phase has its own commit checkpoint.
+- *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint. `/cg-resume` shows phase progress and the next command when you return to a paused phased plan.
+- *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). To re-run a completed phase, manually remove N from `completed-phases` in the plan frontmatter, then run `/cg-work phaseN`.
 - *Roadmap-linked feature*: The roadmap feature transitions automatically: idea → planned (on `/cg-plan`) → active (on `/cg-work` start) → done (when you complete the plan).
 
 **Handoff options**: `/cg-review` (review the changes), `/cg-compound` (capture learnings), `/cg-fixbug` (discovered a bug mid-implementation), `/cg-plan` (next feature).
@@ -419,7 +420,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - After VS Code or the conversation was interrupted and you need to reload context
 - To get a quick overview of what is in progress across all workflow artifacts
 
-**What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-docs/reviews/` for open and skipped findings, and inspects `git status`/`git log` for in-progress code changes. Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it displays milestone progress with completion counts, surfaces roadmap/plan status drift, and surfaces unstarted roadmap ideas from active milestones.
+**What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-docs/reviews/` for open and skipped findings, and inspects `git status`/`git log` for in-progress code changes. For phased plans, displays phase progress (e.g., "Phase progress: 2/4 phases completed. Next: `/cg-work phase3`"). Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it displays milestone progress with completion counts, surfaces roadmap/plan status drift, and surfaces unstarted roadmap ideas from active milestones.
 
 **Scenarios**:
 - *Normal session start*: Run `/cg-resume` to see: active plans, open review findings, pending brainstorms, and current git state in one view.
