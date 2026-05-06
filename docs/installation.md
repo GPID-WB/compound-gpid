@@ -148,6 +148,18 @@ Open your project in VS Code and run in Copilot Chat:
 cg-update
 ```
 
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
+
+**Version pinning**: the same pinning commands work on macOS:
+
+```bash
+cg-update --list       # browse available releases
+cg-update v0.2.0      # pin to a specific release
+cg-update latest      # return to tracking main
+```
+
+Version preference is stored in `~/.compound-gpid/.cg-version` (or your chosen install path). See [Version Management](versioning.md) for full details.
+
 ### macOS — Uninstalling
 
 ```bash
@@ -161,13 +173,17 @@ This removes the PATH block from your shell profile and deletes the `bin/cg-*` w
 
 ## Updating
 
-From any terminal:
-
+**Windows** (from any terminal):
 ```powershell
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project - no per-project update step is needed.
+**macOS** (from any terminal):
+```bash
+cg-update
+```
+
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks (junctions on Windows, symlinks on macOS) to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
 
 ---
 
@@ -179,7 +195,7 @@ By default `cg-update` tracks `main` and always pulls the latest commit. If you 
 
 ### Browse available releases
 
-```powershell
+```bash
 cg-update --list
 ```
 
@@ -187,7 +203,7 @@ Fetches the latest tag list and displays it with your current version marked.
 
 ### Pin to a specific release
 
-```powershell
+```bash
 cg-update v0.2.0
 ```
 
@@ -195,13 +211,17 @@ Checks out that release tag and writes `v0.2.0` to `.cg-version` in your install
 
 ### Return to tracking main
 
-```powershell
+```bash
 cg-update latest
 ```
 
 Unpins and resumes pulling `main` on every `cg-update` call.
 
-> **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory (`C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`). This file is gitignored and never committed — each machine keeps its own preference independently.
+> **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory:
+> - **Windows**: `C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`
+> - **macOS**: `~/.compound-gpid/.cg-version` (or your chosen install path)
+>
+> This file is gitignored and never committed — each machine keeps its own preference independently.
 
 > **Full details on version management**: see the dedicated [Version Management](versioning.md) page for command output examples, when to use each mode, multi-machine scenarios, and troubleshooting.
 
@@ -211,14 +231,28 @@ Unpins and resumes pulling `main` on every `cg-update` call.
 
 If `cg-update` fails (e.g. untracked files blocking `git pull`, or local changes in the global clone), use the built-in repair command:
 
+```bash
+# macOS
+cg-update --fix
+```
 ```powershell
+# Windows
 cg-update --fix
 ```
 
 This cleans untracked files, discards local changes, and pulls the latest code.
 
-**If `cg-update --fix` itself fails** (e.g. the installed copy is too old to have `--fix`), run the equivalent commands manually:
+**If `cg-update --fix` itself fails** (e.g. the installed copy is too old), run the equivalent commands manually:
 
+**macOS:**
+```bash
+cg="$HOME/.compound-gpid"   # adjust if you chose a different install path
+git -C "$cg" clean -fd
+git -C "$cg" checkout .
+git -C "$cg" pull --ff-only
+```
+
+**Windows:**
 ```powershell
 # Uncomment your install path:
 $cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)

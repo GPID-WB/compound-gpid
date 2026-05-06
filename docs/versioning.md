@@ -17,7 +17,7 @@ By default `cg-update` tracks the `main` branch and always pulls the newest comm
 | Return to tracking main | `cg-update latest` |
 | Check (and update) current preference | `cg-update` |
 
-Because all linked projects share the same global clone via directory junctions, **pinning affects every linked project on the machine simultaneously** — there is no per-project version setting.
+Because all linked projects share the same global clone via symlinks (junctions on Windows, symlinks on macOS), **pinning affects every linked project on the machine simultaneously** — there is no per-project version setting.
 
 ---
 
@@ -25,10 +25,17 @@ Because all linked projects share the same global clone via directory junctions,
 
 Version preference is stored per-machine in a single file:
 
+**Windows:**
 ```
 C:\WBG\.compound-gpid\.cg-version          # local machine (OneDrive)
 $env:USERPROFILE\.compound-gpid\.cg-version # remote server
 ```
+
+**macOS:**
+```
+~/.compound-gpid/.cg-version                # default install path
+```
+(Substitute your chosen install path if you cloned elsewhere.)
 
 This file contains either the string `latest` or a tag name such as `v0.2.0`. It is gitignored and never committed — each team member keeps their own preference independently.
 
@@ -88,7 +95,7 @@ Checking out v0.2.0...
 Pinned to v0.2.0.
 
 Managed subdirectories (prompts/, skills/, agents/, instructions/) are
-updated in all linked projects immediately via junctions.
+updated in all linked projects immediately via symlinks.
 
 Run: cg-update latest   to return to tracking main.
 ```
@@ -119,7 +126,7 @@ Changes:
 fix(update): correct Set-Content placement after checkout
 
 Managed subdirectories (prompts/, skills/, agents/, instructions/) are
-updated in all linked projects immediately via junctions.
+updated in all linked projects immediately via symlinks.
 ```
 
 ---
@@ -184,14 +191,22 @@ There is no synchronisation between machines — this is intentional.
 **"Release 'v9.9.9' not found"** — the tag does not exist. Run `cg-update --list` to see available tags. Check for typos.
 
 **`cg-update` re-pins unexpectedly** — your `.cg-version` file may have been overwritten or corrupted. Check its contents:
+
+**Windows:**
 ```powershell
 Get-Content "C:\WBG\.compound-gpid\.cg-version"
 # or
 Get-Content "$env:USERPROFILE\.compound-gpid\.cg-version"
 ```
+
+**macOS:**
+```bash
+cat ~/.compound-gpid/.cg-version
+```
+
 If missing or corrupted, delete it and run `cg-update` — it defaults to `latest`. See the [Troubleshooting](troubleshooting.md#cg-version-missing-or-corrupted) page for the full fix.
 
-**Pinned but still seeing new files** — prompts, skills, and agents live inside junction directories that always point to the checked-out commit. If you pinned to an old tag, those files will reflect that tag's content. This is expected behaviour.
+**Pinned but still seeing new files** — prompts, skills, and agents live inside symlink directories that always point to the checked-out commit. If you pinned to an old tag, those files will reflect that tag's content. This is expected behaviour.
 
 ---
 
