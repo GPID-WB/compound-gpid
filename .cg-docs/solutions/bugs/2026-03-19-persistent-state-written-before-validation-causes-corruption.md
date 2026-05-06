@@ -111,3 +111,4 @@ It "does NOT write .cg-version when the tag does not exist" {
 
 - [`.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md`](../git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md) — the try/catch + LASTEXITCODE pattern used in the checkout step
 - [`.cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md`](../testing-patterns/2026-03-19-testing-powershell-switch-parameters.md) — the related test API fix discovered alongside this bug
+- [`.cg-docs/solutions/bugs/2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md`](./2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md) — bash analog: a display helper writing to stdout inside a command substitution silently corrupts the captured variable; same theme of a "harmless" operation causing persistent state failure
