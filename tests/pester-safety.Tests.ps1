@@ -43,7 +43,7 @@ Describe "Pester safety - no directory-form Invoke-Pester" {
             $violations = ($content -split '\r?\n') |
                 Where-Object { $_ -notmatch '^\s*#' } |
                 Where-Object { $_ -match 'Invoke-Pester\s+"?tests[/\\]"?\s*(?:#|$)' }
-            $violations.Count | Should Be 0
+            $violations.Count | Should -Be 0
         }
     }
 }
@@ -69,7 +69,7 @@ Describe "Pester safety - no ExpandProperty TestResult pipeline" {
             $violations = ($content -split '\r?\n') |
                 Where-Object { $_ -notmatch '^\s*#' } |
                 Where-Object { $_ -match 'ExpandProperty\s+TestResult' }
-            $violations.Count | Should Be 0
+            $violations.Count | Should -Be 0
         }
     }
 }
@@ -104,7 +104,7 @@ Describe "Pester safety - PassThru output must be assigned before use" {
                 Where-Object { $_ -notmatch '^\s*#' } |
                 Where-Object { $_ -match 'Invoke-Pester\b[^\r\n]*-PassThru[^\r\n]*\|' } |
                 Where-Object { $_ -notmatch '\$\w+\s*=\s*Invoke-Pester' }
-            $violations.Count | Should Be 0
+            $violations.Count | Should -Be 0
         }
     }
 }
@@ -131,7 +131,7 @@ Describe "Pester safety - no 2>&1 piped Invoke-Pester output" {
             $violations = ($content -split '\r?\n') |
                 Where-Object { $_ -notmatch '^\s*#' } |
                 Where-Object { $_ -match 'Invoke-Pester\b.*2>&1\s*\|' }
-            $violations.Count | Should Be 0
+            $violations.Count | Should -Be 0
         }
     }
 }

@@ -34,7 +34,7 @@ Describe "Model assignments - prompt files" {
     }
 
     It "contains exactly 18 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should Be 18
+        $promptFiles.Count | Should -Be 18
     }
 
     foreach ($file in $promptFiles) {
@@ -44,13 +44,13 @@ Describe "Model assignments - prompt files" {
         # P1.2 - explicit existence check so a missing file is a clear test failure,
         # not a scope-level exception from Get-Content
         It "$relPath exists" {
-            Test-Path $filePath | Should Be $true
+            Test-Path $filePath | Should -Be $true
         }
 
         It "$relPath has a model: frontmatter key with a non-empty value" {
             $frontmatter = Get-Frontmatter -FilePath $filePath
             # Anchored to key with non-empty value; -cmatch for case-sensitive matching
-            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should Be $true
+            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
         }
     }
 }
@@ -66,7 +66,7 @@ Describe "Model assignments - agent files" {
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
     It "contains exactly 15 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should Be 15
+        $agentFiles.Count | Should -Be 15
     }
 
     foreach ($file in $agentFiles) {
@@ -75,13 +75,13 @@ Describe "Model assignments - agent files" {
 
         # P1.2 - same rationale as prompt files above
         It "$relPath exists" {
-            Test-Path $filePath | Should Be $true
+            Test-Path $filePath | Should -Be $true
         }
 
         It "$relPath has a model: frontmatter key with a non-empty value" {
             $frontmatter = Get-Frontmatter -FilePath $filePath
             # Anchored to key with non-empty value; -cmatch for case-sensitive matching
-            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should Be $true
+            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
         }
     }
 }
@@ -96,7 +96,7 @@ Describe "docs/model-guide.md - structure and sync" {
     $guideFile = Join-Path $repoRoot "docs\model-guide.md"
 
     It "docs/model-guide.md exists" {
-        Test-Path $guideFile | Should Be $true
+        Test-Path $guideFile | Should -Be $true
     }
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
@@ -112,7 +112,7 @@ Describe "docs/model-guide.md - structure and sync" {
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
-            ($content -match ([regex]::Escape($stem) + '\.prompt\.md')) | Should Be $true
+            ($content -match ([regex]::Escape($stem) + '\.prompt\.md')) | Should -Be $true
         }
     }
 
@@ -126,7 +126,7 @@ Describe "docs/model-guide.md - structure and sync" {
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {
-            ($content -match ([regex]::Escape($stem) + '\.agent\.md')) | Should Be $true
+            ($content -match ([regex]::Escape($stem) + '\.agent\.md')) | Should -Be $true
         }
     }
 }
@@ -154,7 +154,7 @@ Describe "Prompt/agent files - frontmatter delimiters" {
             $content = Get-Content $file.FullName -Raw -Encoding UTF8
             # At least two --- delimiters means both opening and closing are present
             ($content -split '\r?\n' | Where-Object { $_ -match '^---\s*$' }).Count |
-                Should BeGreaterThan 1
+                Should -BeGreaterThan 1
         }
     }
 }

@@ -12,19 +12,19 @@ Describe "update.ps1 - pre-condition checks" {
         It "passes when a simulated install directory exists" {
             $installDir = Join-Path $TestDrive "compound-gpid-install"
             New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-            Test-Path $installDir | Should Be $true
+            Test-Path $installDir | Should -Be $true
         }
 
         It "would prompt to run install when path missing" {
             $installDir = Join-Path $TestDrive "does-not-exist"
-            Test-Path $installDir | Should Be $false
+            Test-Path $installDir | Should -Be $false
         }
     }
 
     Context "git availability" {
         It "git is available on this machine" {
             $result = Get-Command git -ErrorAction SilentlyContinue
-            $result | Should Not BeNullOrEmpty
+            $result | Should -Not -BeNullOrEmpty
         }
     }
 }
@@ -36,9 +36,9 @@ Describe "update.ps1 - directory navigation" {
             $tempDir = Join-Path $TestDrive "nav-test"
             New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
             Push-Location $tempDir
-            (Get-Location).Path | Should Be $tempDir
+            (Get-Location).Path | Should -Be $tempDir
             Pop-Location
-            (Get-Location).Path | Should Be $original.Path
+            (Get-Location).Path | Should -Be $original.Path
         }
 
         It "restores the original location even when an error is simulated" {
@@ -54,8 +54,8 @@ Describe "update.ps1 - directory navigation" {
             } finally {
                 Pop-Location
             }
-            $err | Should Be "Simulated error"
-            (Get-Location).Path | Should Be $original.Path
+            $err | Should -Be "Simulated error"
+            (Get-Location).Path | Should -Be $original.Path
         }
     }
 }
@@ -66,14 +66,14 @@ Describe "update.ps1 - git hash comparison" {
             $before = "abc123def456"
             $after  = "abc123def456"
             $updated = $before -ne $after
-            $updated | Should Be $false
+            $updated | Should -Be $false
         }
 
         It "reports an update when hashes differ" {
             $before = "abc123def456"
             $after  = "def456abc123"
             $updated = $before -ne $after
-            $updated | Should Be $true
+            $updated | Should -Be $true
         }
     }
 }
@@ -82,12 +82,12 @@ Describe "update.ps1 - exit code handling" {
     Context "LASTEXITCODE from git pull" {
         It "treats exit code 0 as success" {
             $global:LASTEXITCODE = 0
-            ($LASTEXITCODE -ne 0) | Should Be $false
+            ($LASTEXITCODE -ne 0) | Should -Be $false
         }
 
         It "treats non-zero exit code as failure" {
             $global:LASTEXITCODE = 1
-            ($LASTEXITCODE -ne 0) | Should Be $true
+            ($LASTEXITCODE -ne 0) | Should -Be $true
             $global:LASTEXITCODE = 0  # reset
         }
     }
@@ -100,13 +100,13 @@ Describe "update.ps1 - git checkout . before pull" {
             # Running git checkout . against ~\.compound-gpid in tests would
             # silently discard any uncommitted developer changes.
             $global:LASTEXITCODE = 0
-            ($LASTEXITCODE -ne 0) | Should Be $false
+            ($LASTEXITCODE -ne 0) | Should -Be $false
             $global:LASTEXITCODE = 0  # reset
         }
 
         It "non-zero exit code triggers a warning but does not abort" {
             $global:LASTEXITCODE = 1
-            ($LASTEXITCODE -ne 0) | Should Be $true
+            ($LASTEXITCODE -ne 0) | Should -Be $true
             $global:LASTEXITCODE = 0  # reset
         }
     }
@@ -144,9 +144,9 @@ Describe "update.ps1 - git checkout . before pull" {
                 $ErrorActionPreference = "Continue"
             }
 
-            $checkoutAttempted | Should Be $true
-            $pullAttempted     | Should Be $true
-            $threw             | Should Be $false
+            $checkoutAttempted | Should -Be $true
+            $pullAttempted     | Should -Be $true
+            $threw             | Should -Be $false
         }
 
         It "does not suppress a real checkout failure (non-zero LASTEXITCODE)" {
@@ -157,7 +157,7 @@ Describe "update.ps1 - git checkout . before pull" {
             try { throw "Simulated stderr" } catch { <# ignore #> }
             if ($LASTEXITCODE -ne 0) { $warnTriggered = $true }
 
-            $warnTriggered | Should Be $true
+            $warnTriggered | Should -Be $true
             $global:LASTEXITCODE = 0  # reset
         }
     }
@@ -182,8 +182,8 @@ Describe "update.ps1 - copilot-instructions.md refresh" {
 
             $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
                 -TemplateDir $templateDir -ProjectRoot $projectRoot
-            $outcome | Should Be "refreshed"
-            (Get-Content $dest -Raw) -match [regex]::Escape($marker) | Should Be $true
+            $outcome | Should -Be "refreshed"
+            (Get-Content $dest -Raw) -match [regex]::Escape($marker) | Should -Be $true
         }
     }
 
@@ -194,18 +194,18 @@ Describe "update.ps1 - copilot-instructions.md refresh" {
 
             $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
                 -TemplateDir $TestDrive -ProjectRoot $TestDrive
-            $outcome | Should Be "skipped"
-            (Get-Content $dest -Raw) -match "My custom instructions" | Should Be $true
+            $outcome | Should -Be "skipped"
+            (Get-Content $dest -Raw) -match "My custom instructions" | Should -Be $true
         }
     }
 
     Context "when copilot-instructions.md does not exist in CWD" {
         It "does not attempt to refresh a non-existent file" {
             $nonexistent = Join-Path $TestDrive "no-copilot-instructions.md"
-            Test-Path $nonexistent | Should Be $false
+            Test-Path $nonexistent | Should -Be $false
             # Simulates the guard condition in update.ps1
             $shouldRefresh = (Test-Path $nonexistent)
-            $shouldRefresh | Should Be $false
+            $shouldRefresh | Should -Be $false
         }
     }
 }
@@ -225,8 +225,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 Move-Item -Path $src -Destination $dst
             }
 
-            Test-Path "$root\.cg-docs\brainstorms\2025-01-01-test.md" | Should Be $true
-            Test-Path "$root\docs\brainstorms" | Should Be $false
+            Test-Path "$root\.cg-docs\brainstorms\2025-01-01-test.md" | Should -Be $true
+            Test-Path "$root\docs\brainstorms" | Should -Be $false
         }
     }
 
@@ -243,8 +243,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 Move-Item -Path $src -Destination $dst
             }
 
-            Test-Path "$root\.cg-docs\plans\2025-01-01-plan.md" | Should Be $true
-            Test-Path "$root\docs\plans" | Should Be $false
+            Test-Path "$root\.cg-docs\plans\2025-01-01-plan.md" | Should -Be $true
+            Test-Path "$root\docs\plans" | Should -Be $false
         }
     }
 
@@ -261,8 +261,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 Move-Item -Path $src -Destination $dst
             }
 
-            Test-Path "$root\.cg-docs\solutions\build-errors\fix.md" | Should Be $true
-            Test-Path "$root\docs\solutions" | Should Be $false
+            Test-Path "$root\.cg-docs\solutions\build-errors\fix.md" | Should -Be $true
+            Test-Path "$root\docs\solutions" | Should -Be $false
         }
     }
 
@@ -278,7 +278,7 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 Move-Item -Path $src -Destination $dst
             }
 
-            Test-Path $dst | Should Be $false
+            Test-Path $dst | Should -Be $false
         }
     }
 
@@ -312,9 +312,9 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 }
             }
 
-            Test-Path "$root\.cg-docs\brainstorms\existing-file.md" | Should Be $true
-            Test-Path "$root\.cg-docs\brainstorms\new-file.md"      | Should Be $true
-            Test-Path "$root\docs\brainstorms"                       | Should Be $false
+            Test-Path "$root\.cg-docs\brainstorms\existing-file.md" | Should -Be $true
+            Test-Path "$root\.cg-docs\brainstorms\new-file.md"      | Should -Be $true
+            Test-Path "$root\docs\brainstorms"                       | Should -Be $false
         }
     }
 
@@ -332,8 +332,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 Move-Item -Path $src -Destination $dst
             }
 
-            Test-Path "$root\docs\manual.md"            | Should Be $true
-            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should Be $true
+            Test-Path "$root\docs\manual.md"            | Should -Be $true
+            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should -Be $true
         }
     }
 
@@ -352,7 +352,7 @@ Describe "update.ps1 - docs to .cg-docs migration" {
             }
 
             # Destination unchanged
-            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should Be $true
+            Test-Path "$root\.cg-docs\brainstorms\note.md" | Should -Be $true
         }
     }
 
@@ -378,8 +378,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 }
             }
 
-            Test-Path "$root\docs" | Should Be $false
-            Test-Path "$root\.cg-docs\brainstorms" | Should Be $true
+            Test-Path "$root\docs" | Should -Be $false
+            Test-Path "$root\.cg-docs\brainstorms" | Should -Be $true
         }
 
         It "keeps docs/ when non-cg files remain (e.g. manual.md)" {
@@ -404,8 +404,8 @@ Describe "update.ps1 - docs to .cg-docs migration" {
                 }
             }
 
-            Test-Path "$root\docs"          | Should Be $true
-            Test-Path "$root\docs\manual.md" | Should Be $true
+            Test-Path "$root\docs"          | Should -Be $true
+            Test-Path "$root\docs\manual.md" | Should -Be $true
         }
     }
 
@@ -413,13 +413,12 @@ Describe "update.ps1 - docs to .cg-docs migration" {
         It "writes cg-schema-version to compound-gpid.local.md when the field exists" {
             $root = Join-Path $TestDrive "schema-stamp"
             New-Item -ItemType Directory -Path $root -Force | Out-Null
-            $localMd = "$root\compound-gpid.local.md"
+            $localMd = Join-Path $root "compound-gpid.local.md"
             Set-Content -Path $localMd -Value "# Compound GPID`ncg-schema-version: `"`""
 
             $schemaVersion = "2026-03-05-cg-docs"  # MUST match $SchemaVersion in scripts/update.ps1
 
             # Simulate stamping logic
-            $localMd = "$root\compound-gpid.local.md"
             $original = "# Custom config without schema field`ncg-language: R"
             Set-Content -Path $localMd -Value $original
 
@@ -432,7 +431,7 @@ Describe "update.ps1 - docs to .cg-docs migration" {
             }
 
             $result = [System.IO.File]::ReadAllText($localMd)
-            $result -match [regex]::Escape($schemaVersion) | Should Be $false
+            $result -match [regex]::Escape($schemaVersion) | Should -Be $false
         }
     }
 }
@@ -451,7 +450,7 @@ Describe "update.ps1 - charter migration notice" {
             New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
             $charter = Join-Path $testRoot "compound-gpid.md"
             $shouldNotify = -not (Test-Path $charter)
-            $shouldNotify | Should Be $true
+            $shouldNotify | Should -Be $true
         }
     }
 
@@ -462,7 +461,7 @@ Describe "update.ps1 - charter migration notice" {
             $charter = Join-Path $testRoot "compound-gpid.md"
             New-Item -ItemType File -Path $charter -Force | Out-Null
             $shouldNotify = -not (Test-Path $charter)
-            $shouldNotify | Should Be $false
+            $shouldNotify | Should -Be $false
         }
     }
 }
@@ -475,22 +474,22 @@ Describe "update.ps1 - argument parsing" {
     Context "no argument supplied" {
         It "treats no argument as null (reads from .cg-version)" {
             $Version = $null
-            $Version -eq $null | Should Be $true
+            $Version -eq $null | Should -Be $true
         }
     }
 
     Context "explicit 'latest' argument" {
         It "recognises 'latest' as the unpin keyword" {
             $Version = "latest"
-            $Version | Should Be "latest"
-            $Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$' | Should Be $true
+            $Version | Should -Be "latest"
+            $Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$' | Should -Be $true
         }
     }
 
     Context "tag argument" {
         It "recognises a tag string as a pin target" {
             $Version = "v0.1.0"
-            $Version | Should Match '^v\d+\.\d+\.\d+(\.\d+)?$'
+            $Version | Should -Match '^v\d+\.\d+\.\d+(\.\d+)?$'
         }
     }
 
@@ -500,8 +499,8 @@ Describe "update.ps1 - argument parsing" {
             $List    = [switch]$true
             $Version = ""
             # The --list branch exits early; $Version is empty so writes are skipped
-            $List.IsPresent                       | Should Be $true
-            [string]::IsNullOrEmpty($Version)     | Should Be $true
+            $List.IsPresent                       | Should -Be $true
+            [string]::IsNullOrEmpty($Version)     | Should -Be $true
         }
     }
 
@@ -509,55 +508,55 @@ Describe "update.ps1 - argument parsing" {
         It "trims leading and trailing whitespace" {
             $Version = "  v0.2.0  "
             $Version = $Version.Trim()
-            $Version | Should Be "v0.2.0"
+            $Version | Should -Be "v0.2.0"
         }
 
         It "trimmed value still passes format validation" {
             $Version = "  v0.2.0  "
             $Version = $Version.Trim()
-            ($Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -match '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
     }
 
     Context "version format validation" {
         It "accepts a valid 3-segment tag" {
             $Version = "v0.2.0"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $false
         }
 
         It "accepts the 'latest' keyword" {
             $Version = "latest"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $false
         }
 
         It "accepts a 4-segment dev tag (v0.2.0.9000 convention)" {
             $Version = "v0.2.0.9000"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $false
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $false
         }
 
         It "rejects a 2-segment tag missing the patch number" {
             $Version = "v0.2"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
 
         It "rejects a tag without leading 'v'" {
             $Version = "0.2.0"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
 
         It "rejects arbitrary strings" {
             $Version = "main"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
 
         It "rejects a 4-segment tag with trailing dot (malformed)" {
             $Version = "v0.2.0."
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
 
         It "rejects a 5-segment tag" {
             $Version = "v0.2.0.9000.1"
-            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should Be $true
+            ($Version -notmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$') | Should -Be $true
         }
     }
 }
@@ -575,7 +574,7 @@ Describe "update.ps1 - .cg-version read" {
             $versionMode = (Get-Content $versionFile -Raw).Trim()
             if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
 
-            $versionMode | Should Be "latest"
+            $versionMode | Should -Be "latest"
         }
     }
 
@@ -587,7 +586,7 @@ Describe "update.ps1 - .cg-version read" {
             $versionMode = (Get-Content $versionFile -Raw).Trim()
             if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
 
-            $versionMode | Should Be "v0.2.0"
+            $versionMode | Should -Be "v0.2.0"
         }
     }
 
@@ -600,7 +599,7 @@ Describe "update.ps1 - .cg-version read" {
                 (Get-Content $versionFile -Raw).Trim()
             } else { "latest" }
 
-            $versionMode | Should Be "latest"
+            $versionMode | Should -Be "latest"
         }
     }
 
@@ -612,7 +611,7 @@ Describe "update.ps1 - .cg-version read" {
             $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue).Trim()
             $versionMode = if ([string]::IsNullOrWhiteSpace($raw)) { "latest" } else { $raw }
 
-            $versionMode | Should Be "latest"
+            $versionMode | Should -Be "latest"
         }
     }
 
@@ -626,7 +625,7 @@ Describe "update.ps1 - .cg-version read" {
             $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
             if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
 
-            $versionMode | Should Be "v0.2.0"
+            $versionMode | Should -Be "v0.2.0"
         }
 
         It "falls back to 'latest' when all lines are blank" {
@@ -637,7 +636,7 @@ Describe "update.ps1 - .cg-version read" {
             $versionMode = (($raw -split "`n" | Where-Object { $_.Trim() -ne "" } | Select-Object -First 1) + "").Trim()
             if ([string]::IsNullOrWhiteSpace($versionMode)) { $versionMode = "latest" }
 
-            $versionMode | Should Be "latest"
+            $versionMode | Should -Be "latest"
         }
     }
 
@@ -647,31 +646,31 @@ Describe "update.ps1 - .cg-version read" {
             # with values like 'main' or 'v1.0' that bypass the CLI argument guard.
             $rawMode = "main"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $true
+            $isInvalid | Should -Be $true
         }
 
         It "rejects a 2-segment tag read from .cg-version" {
             $rawMode = "v1.0"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $true
+            $isInvalid | Should -Be $true
         }
 
         It "accepts a valid 3-segment tag from .cg-version" {
             $rawMode = "v0.2.0"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $false
+            $isInvalid | Should -Be $false
         }
 
         It "accepts a valid 4-segment dev tag from .cg-version" {
             $rawMode = "v0.1.0.9000"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $false
+            $isInvalid | Should -Be $false
         }
 
         It "rejects a 5-segment tag from .cg-version (too many segments)" {
             $rawMode = "v1.0.0.0.0"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $true
+            $isInvalid | Should -Be $true
         }
 
         It "rejects a version with uppercase V (case-sensitive validation)" {
@@ -679,7 +678,7 @@ Describe "update.ps1 - .cg-version read" {
             # with an unhelpful 'pathspec did not match' error.
             $rawMode = "V0.2.0"
             $isInvalid = ($rawMode -cnotmatch '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$')
-            $isInvalid | Should Be $true
+            $isInvalid | Should -Be $true
         }
     }
 }
@@ -694,7 +693,7 @@ Describe "update.ps1 - .cg-version write" {
             $versionMode = "v0.2.0"
             Set-Content -Path $versionFile -Value $versionMode -NoNewline
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.2.0"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "v0.2.0"
         }
     }
 
@@ -709,7 +708,7 @@ Describe "update.ps1 - .cg-version write" {
                 Set-Content -Path $versionFile -Value "latest" -NoNewline
             }
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "latest"
         }
 
         It "does NOT overwrite when no $Version argument was supplied (file already correct)" {
@@ -722,7 +721,7 @@ Describe "update.ps1 - .cg-version write" {
                 Set-Content -Path $versionFile -Value "latest" -NoNewline
             }
             # File content should remain unchanged
-            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "latest"
         }
     }
 
@@ -735,7 +734,7 @@ Describe "update.ps1 - .cg-version write" {
             $versionMode = "v0.2.0"
             Set-Content -Path $versionFile -Value $versionMode -NoNewline
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.2.0"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "v0.2.0"
         }
     }
 
@@ -750,7 +749,7 @@ Describe "update.ps1 - .cg-version write" {
                 Set-Content -Path $versionFile -Value "should-not-appear" -NoNewline
             }
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "v0.1.0"
         }
     }
 
@@ -772,8 +771,8 @@ Describe "update.ps1 - .cg-version write" {
                 $wrote = $true
             } catch { <# expected #> }
 
-            $wrote                                 | Should Be $false
-            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+            $wrote                                 | Should -Be $false
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "v0.1.0"
         }
     }
 }
@@ -787,12 +786,12 @@ Describe "update.ps1 - detached HEAD detection" {
         It "identifies 'HEAD' as a detached HEAD state" {
             # git rev-parse --abbrev-ref HEAD returns "HEAD" in detached state
             $headBranch = "HEAD"   # simulated output from git in detached state
-            ($headBranch -eq "HEAD") | Should Be $true
+            ($headBranch -eq "HEAD") | Should -Be $true
         }
 
         It "identifies a branch name as NOT detached" {
             $headBranch = "main"
-            ($headBranch -eq "HEAD") | Should Be $false
+            ($headBranch -eq "HEAD") | Should -Be $false
         }
     }
 
@@ -803,7 +802,7 @@ Describe "update.ps1 - detached HEAD detection" {
             if ($headBranch -eq "HEAD") {
                 $switchAttempted = $true
             }
-            $switchAttempted | Should Be $true
+            $switchAttempted | Should -Be $true
         }
 
         It "skips git checkout main when already on a branch" {
@@ -812,7 +811,7 @@ Describe "update.ps1 - detached HEAD detection" {
             if ($headBranch -eq "HEAD") {
                 $switchAttempted = $true
             }
-            $switchAttempted | Should Be $false
+            $switchAttempted | Should -Be $false
         }
     }
 
@@ -823,7 +822,7 @@ Describe "update.ps1 - detached HEAD detection" {
                 if ($LASTEXITCODE -ne 0) {
                     throw "Could not determine current branch (git rev-parse failed with exit code $LASTEXITCODE)"
                 }
-            } | Should Throw "Could not determine current branch"
+            } | Should -Throw "Could not determine current branch"
             $global:LASTEXITCODE = 0
         }
     }
@@ -839,7 +838,7 @@ Describe "update.ps1 - tag validation" {
             # Simulate: git tag --list "v0.2.0" returns "v0.2.0"
             $tagResult = "v0.2.0"
             $tagExists = -not [string]::IsNullOrWhiteSpace($tagResult)
-            $tagExists | Should Be $true
+            $tagExists | Should -Be $true
         }
     }
 
@@ -848,7 +847,7 @@ Describe "update.ps1 - tag validation" {
             # Simulate: git tag --list "v9.9.9" returns nothing
             $tagResult = $null
             $tagExists = -not [string]::IsNullOrWhiteSpace($tagResult)
-            $tagExists | Should Be $false
+            $tagExists | Should -Be $false
         }
 
         It "builds a helpful error hint from similar tags" {
@@ -858,9 +857,9 @@ Describe "update.ps1 - tag validation" {
             $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
             $errorMsg = "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
 
-            $errorMsg -match "v9\.9\.9"    | Should Be $true
-            $errorMsg -match "v0\.2\.0"    | Should Be $true
-            $errorMsg -match "cg-update --list" | Should Be $true
+            $errorMsg -match "v9\.9\.9"    | Should -Be $true
+            $errorMsg -match "v0\.2\.0"    | Should -Be $true
+            $errorMsg -match "cg-update --list" | Should -Be $true
         }
 
         It "omits the similar-tags section when no tags exist at all" {
@@ -873,8 +872,8 @@ Describe "update.ps1 - tag validation" {
 
             # Use the section-header pattern (with trailing colon+newline) to avoid
             # matching "all available releases" in the body of the error message.
-            $errorMsg -match "Available releases:`n" | Should Be $false
-            $errorMsg -match "cg-update --list"      | Should Be $true
+            $errorMsg -match "Available releases:`n" | Should -Be $false
+            $errorMsg -match "cg-update --list"      | Should -Be $true
         }
 
         It "dev tags are excluded from the error hint (release-only filter applied to similar)" {
@@ -882,9 +881,9 @@ Describe "update.ps1 - tag validation" {
             $allTags = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
             $similar = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 5
             $hint = "`n`nAvailable releases:`n" + ($similar | ForEach-Object { "  $_" } | Out-String).TrimEnd()
-            $hint -match "9000" | Should Be $false
-            $hint -match "9001" | Should Be $false
-            $hint -match "v0\.2\.0" | Should Be $true
+            $hint -match "9000" | Should -Be $false
+            $hint -match "9001" | Should -Be $false
+            $hint -match "v0\.2\.0" | Should -Be $true
         }
 
         It "throws when a non-existent tag is validated against the tag list" {
@@ -894,7 +893,7 @@ Describe "update.ps1 - tag validation" {
                 if ($versionMode -notin $allTags) {
                     throw "Release '$versionMode' not found."
                 }
-            } | Should Throw "not found"
+            } | Should -Throw "not found"
         }
     }
 }
@@ -928,14 +927,14 @@ Describe "update.ps1 - PS5.1-safe checkout" {
                 $ErrorActionPreference = "Continue"
             }
 
-            $checkoutAttempted | Should Be $true
-            $threw             | Should Be $false
+            $checkoutAttempted | Should -Be $true
+            $threw             | Should -Be $false
         }
 
         It "still detects a real checkout failure via LASTEXITCODE" {
             $global:LASTEXITCODE = 1
             try { throw "Simulated stderr" } catch { <# ignore #> }
-            ($LASTEXITCODE -ne 0) | Should Be $true
+            ($LASTEXITCODE -ne 0) | Should -Be $true
             $global:LASTEXITCODE = 0  # reset
         }
     }
@@ -956,25 +955,25 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
         It "detects .cg-docs/ with forward slash" {
             $lines = @("*.log", ".cg-docs/", "*.tmp")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 1
         }
 
         It "detects .cg-docs\ with backslash (Windows path variant)" {
             $lines = @("*.log", ".cg-docs\", "*.tmp")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 1
         }
 
         It "detects .cg-docs/ with surrounding whitespace" {
             $lines = @("  .cg-docs/  ")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 1
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 1
         }
 
         It "detects .cg-docs/ in mixed case (case-insensitive regex)" {
             $lines = @(".CG-DOCS/", ".Cg-Docs\")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 2
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 2
         }
     }
 
@@ -982,13 +981,13 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
         It "does not trigger on an empty .gitignore" {
             $lines = @()
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
 
         It "does not trigger when .cg-docs/ is absent" {
             $lines = @("*.log", "compound-gpid.local.md", ".github/prompts/")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
 
         It "does not trigger on a .cg-docs/ entry that is a comment" {
@@ -996,7 +995,7 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
             # '# .cg-docs/' is a comment and does NOT gitignore the directory.
             $lines = @("# .cg-docs/")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
 
         It "does not trigger on .cg-docs without trailing slash (slash required by /cg-setup)" {
@@ -1005,7 +1004,7 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
             # pattern that would have been written by the tool.
             $lines = @(".cg-docs")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
 
         It "does not trigger on the CG managed block marker line itself (no .cg-docs/ in block after v0.1.1)" {
@@ -1018,7 +1017,7 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
                 ".github/skills/"
             )
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
 
         It "does not match .cg-docs/ with trailing non-whitespace content ($ anchor)" {
@@ -1026,7 +1025,7 @@ Describe "update.ps1 - stale .cg-docs/ gitignore warning" {
             # which are not valid gitignore patterns written by the tool.
             $lines = @(".cg-docs/ # note", ".cg-docs/ extra")
             $staleCgDocsLines = $lines | Where-Object { $_ -match '(?i)^\s*\.cg-docs[/\\]\s*$' }
-            ($staleCgDocsLines | Measure-Object).Count | Should Be 0
+            ($staleCgDocsLines | Measure-Object).Count | Should -Be 0
         }
     }
 }
@@ -1044,9 +1043,9 @@ Describe "update.ps1 - --list formatting" {
                 $marker = if ($_ -eq $currentPin) { "  <-- current" } else { "" }
                 "$_$marker"
             }
-            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 1
-            ($lines | Where-Object { $_ -match "v0\.1\.0.*<-- current" }).Count | Should Be 1
-            ($lines | Where-Object { $_ -match "v0\.2\.0.*<-- current" }).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should -Be 1
+            ($lines | Where-Object { $_ -match "v0\.1\.0.*<-- current" }).Count | Should -Be 1
+            ($lines | Where-Object { $_ -match "v0\.2\.0.*<-- current" }).Count | Should -Be 0
         }
 
         It "appends '<-- current' marker to the HEAD tag when mode is 'latest'" {
@@ -1064,9 +1063,9 @@ Describe "update.ps1 - --list formatting" {
                 "$_$marker"
             }
 
-            ($lines | Where-Object { $_ -match "<-- current" }).Count        | Should Be 1
-            ($lines | Where-Object { $_ -match "v0\.4\.3.*<-- current" }).Count | Should Be 1
-            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "<-- current" }).Count        | Should -Be 1
+            ($lines | Where-Object { $_ -match "v0\.4\.3.*<-- current" }).Count | Should -Be 1
+            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count | Should -Be 0
         }
 
         It "shows no arrow when mode is 'latest' and HEAD is not at a tagged release (between releases)" {
@@ -1081,7 +1080,7 @@ Describe "update.ps1 - --list formatting" {
                 "$_$marker"
             }
 
-            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should -Be 0
         }
 
         It "selects first tag when multiple release tags point to the same HEAD commit" {
@@ -1098,8 +1097,8 @@ Describe "update.ps1 - --list formatting" {
                 $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
                 "$_$marker"
             }
-            ($lines | Where-Object { $_ -match "v0\.4\.3[^-].*<-- current" }).Count | Should Be 1
-            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count    | Should Be 0
+            ($lines | Where-Object { $_ -match "v0\.4\.3[^-].*<-- current" }).Count | Should -Be 1
+            ($lines | Where-Object { $_ -match "v0\.3\.0.*<-- current" }).Count    | Should -Be 0
         }
 
         It "shows no arrow when git tag --points-at HEAD fails (no tags returned)" {
@@ -1115,7 +1114,7 @@ Describe "update.ps1 - --list formatting" {
                 $marker = if ($_ -eq $currentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
                 "$_$marker"
             }
-            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should -Be 0
         }
 
         It "shows no arrow when HEAD points to a dev tag in latest mode" {
@@ -1133,7 +1132,7 @@ Describe "update.ps1 - --list formatting" {
                 $marker = if ($_ -eq $CurrentPin -or $_ -eq $installedTag) { "  <-- current" } else { "" }
                 "$_$marker"
             }
-            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should Be 0
+            ($lines | Where-Object { $_ -match "<-- current" }).Count | Should -Be 0
         }
 
         # P3.2: The '^v\d+\.\d+\.\d+$' pattern used below MUST match $ReleaseTagPattern
@@ -1142,7 +1141,7 @@ Describe "update.ps1 - --list formatting" {
         It "marks 'latest' mode correctly in the mode label" {
             $currentPin = "latest"
             $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" } else { "$currentPin (pinned)" }
-            $modeLabel | Should Be "main (latest)"
+            $modeLabel | Should -Be "main (latest)"
         }
 
         It "marks a pinned tag correctly in the mode label" {
@@ -1151,7 +1150,7 @@ Describe "update.ps1 - --list formatting" {
             $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
                           elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
                           else                           { "$currentPin (pinned)" }
-            $modeLabel | Should Be "v0.2.0 (pinned)"
+            $modeLabel | Should -Be "v0.2.0 (pinned)"
         }
 
         It "marks a dev-tag pin with '(dev -- not listed above)' in the mode label" {
@@ -1160,7 +1159,7 @@ Describe "update.ps1 - --list formatting" {
             $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
                           elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
                           else                           { "$currentPin (pinned)" }
-            $modeLabel | Should Be "v0.1.0.9000 (dev -- not listed above)"
+            $modeLabel | Should -Be "v0.1.0.9000 (dev -- not listed above)"
         }
 
         It "shows correct mode label when dev pin no longer exists on remote (orphaned dev tag)" {
@@ -1172,9 +1171,9 @@ Describe "update.ps1 - --list formatting" {
             $modeLabel  = if ($currentPin -eq "latest") { "main (latest)" }
                           elseif ($isDevPin)             { "$currentPin (dev -- not listed above)" }
                           else                           { "$currentPin (pinned)" }
-            $modeLabel | Should Be "v0.1.0.9000 (dev -- not listed above)"
+            $modeLabel | Should -Be "v0.1.0.9000 (dev -- not listed above)"
             # Confirm the tag is indeed absent from remote
-            $currentPin -notin $allTags | Should Be $true
+            $currentPin -notin $allTags | Should -Be $true
         }
     }
 
@@ -1182,24 +1181,24 @@ Describe "update.ps1 - --list formatting" {
         It "filters out 4-component dev tags from the display list" {
             $allTags     = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
             $releaseTags = @($allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
-            $releaseTags.Count | Should Be 2
-            ($releaseTags | Where-Object { $_ -match '\.\d+\.\d+\.\d+$' }).Count | Should Be 0
-            $releaseTags -contains "v0.2.0" | Should Be $true
-            $releaseTags -contains "v0.1.0" | Should Be $true
+            $releaseTags.Count | Should -Be 2
+            ($releaseTags | Where-Object { $_ -match '\.\d+\.\d+\.\d+$' }).Count | Should -Be 0
+            $releaseTags -contains "v0.2.0" | Should -Be $true
+            $releaseTags -contains "v0.1.0" | Should -Be $true
         }
 
         It "produces an empty release list when all tags are dev tags" {
             $allTags     = @("v0.1.0.9001", "v0.1.0.9000")
             $releaseTags = @($allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' })
-            $releaseTags.Count | Should Be 0
+            $releaseTags.Count | Should -Be 0
         }
     }
 
     Context "no releases available" {
         It "produces an empty tag array when no tags match" {
             $tags = @()
-            $tags.Count | Should Be 0
-            [bool]$tags | Should Be $false
+            $tags.Count | Should -Be 0
+            [bool]$tags | Should -Be $false
         }
     }
 }
@@ -1213,13 +1212,13 @@ Describe "update.ps1 - version status display" {
         It "formats upfront line as 'Mode: tracking main (latest)' in latest mode" {
             $versionMode = "latest"
             $line = if ($versionMode -eq "latest") { "Mode: tracking main (latest)" } else { "Mode: pinned ($versionMode)" }
-            $line | Should Be "Mode: tracking main (latest)"
+            $line | Should -Be "Mode: tracking main (latest)"
         }
 
         It "formats upfront line as 'Mode: pinned (<tag>)' in pinned mode" {
             $versionMode = "v0.2.0"
             $line = if ($versionMode -eq "latest") { "Mode: tracking main (latest)" } else { "Mode: pinned ($versionMode)" }
-            $line | Should Be "Mode: pinned (v0.2.0)"
+            $line | Should -Be "Mode: pinned (v0.2.0)"
         }
     }
 
@@ -1227,7 +1226,7 @@ Describe "update.ps1 - version status display" {
         It "formats status line as 'main (latest)'" {
             $versionMode = "latest"
             $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode (pinned)" }
-            $statusLine | Should Be "Current version: main (latest)"
+            $statusLine | Should -Be "Current version: main (latest)"
         }
     }
 
@@ -1237,7 +1236,7 @@ Describe "update.ps1 - version status display" {
             $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
             $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
             $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode ($pinLabel)" }
-            $statusLine | Should Be "Current version: v0.2.0 (pinned)"
+            $statusLine | Should -Be "Current version: v0.2.0 (pinned)"
         }
 
         It "formats status line as '<tag> (dev-pinned)' for a dev tag" {
@@ -1245,7 +1244,7 @@ Describe "update.ps1 - version status display" {
             $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
             $pinLabel = if ($isDevPin) { "dev-pinned" } else { "pinned" }
             $statusLine  = if ($versionMode -eq "latest") { "Current version: main (latest)" } else { "Current version: $versionMode ($pinLabel)" }
-            $statusLine | Should Be "Current version: v0.1.0.9000 (dev-pinned)"
+            $statusLine | Should -Be "Current version: v0.1.0.9000 (dev-pinned)"
         }
     }
 
@@ -1254,21 +1253,21 @@ Describe "update.ps1 - version status display" {
             $versionMode = "v0.1.0"
             $latestTag   = "v0.2.0"
             $showHint    = $latestTag -and $latestTag -ne $versionMode
-            $showHint | Should Be $true
+            $showHint | Should -Be $true
         }
 
         It "suppresses hint when already on the latest release" {
             $versionMode = "v0.2.0"
             $latestTag   = "v0.2.0"
             $showHint    = $latestTag -and $latestTag -ne $versionMode
-            $showHint | Should Be $false
+            $showHint | Should -Be $false
         }
 
         It "suppresses hint when no tags exist (latestTag is null)" {
             $versionMode = "v0.2.0"
             $latestTag   = $null
             $showHint    = $latestTag -and $latestTag -ne $versionMode
-            $showHint | Should Be $false
+            $showHint | Should -Be $false
         }
 
         It "suppresses hint in latest mode regardless of available tags" {
@@ -1276,7 +1275,7 @@ Describe "update.ps1 - version status display" {
             $latestTag   = "v0.2.0"
             # Hint is only shown in the else branch (versionMode -ne "latest")
             $inPinnedBranch = $versionMode -ne "latest"
-            $inPinnedBranch | Should Be $false
+            $inPinnedBranch | Should -Be $false
         }
 
         It "skips dev tags when computing latestTag -- hint shows next release only" {
@@ -1284,13 +1283,13 @@ Describe "update.ps1 - version status display" {
             # latestTag must be derived from release-only tags.
             $allTags   = @("v0.2.0.9001", "v0.2.0.9000", "v0.2.0", "v0.1.0")
             $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
-            $latestTag | Should Be "v0.2.0"
+            $latestTag | Should -Be "v0.2.0"
         }
 
         It "suppresses hint when only dev tags exist (latestTag becomes null)" {
             $allTags   = @("v0.1.0.9001", "v0.1.0.9000")
             $latestTag = $allTags | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | Select-Object -First 1
-            $latestTag | Should BeNullOrEmpty
+            $latestTag | Should -BeNullOrEmpty
         }
     }
 }
@@ -1315,7 +1314,7 @@ Describe "update.ps1 - --fix repair partial failure handling" {
             $pullStage = $false
             # No LASTEXITCODE check between clean and checkout -- execution reaches pull
             if ($cleanRan) { $pullStage = $true }
-            $pullStage | Should Be $true
+            $pullStage | Should -Be $true
             $global:LASTEXITCODE = 0
         }
     }
@@ -1327,7 +1326,7 @@ Describe "update.ps1 - --fix repair partial failure handling" {
                 if ($LASTEXITCODE -ne 0) {
                     throw "git pull --ff-only failed with exit code $LASTEXITCODE"
                 }
-            } | Should Throw "git pull --ff-only failed"
+            } | Should -Throw "git pull --ff-only failed"
         }
 
         It "does not throw when git pull succeeds (exit code 0)" {
@@ -1340,7 +1339,7 @@ Describe "update.ps1 - --fix repair partial failure handling" {
             } catch {
                 $threw = $true
             }
-            $threw | Should Be $false
+            $threw | Should -Be $false
         }
     }
 
@@ -1358,7 +1357,7 @@ Describe "update.ps1 - --fix repair partial failure handling" {
             } finally {
                 Pop-Location
             }
-            (Get-Location).Path | Should Be $original.Path
+            (Get-Location).Path | Should -Be $original.Path
         }
 
         It "restores location even when the inner try succeeds" {
@@ -1374,7 +1373,7 @@ Describe "update.ps1 - --fix repair partial failure handling" {
             } finally {
                 Pop-Location
             }
-            (Get-Location).Path | Should Be $original.Path
+            (Get-Location).Path | Should -Be $original.Path
         }
     }
 }
@@ -1385,7 +1384,7 @@ Describe "update.ps1 - CG_INTERNAL_CALL guard" {
             $env:CG_INTERNAL_CALL = "1"
             $shouldRun = -not $env:CG_INTERNAL_CALL
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
-            $shouldRun | Should Be $false
+            $shouldRun | Should -Be $false
         }
 
         It "guard condition is truthy for any non-empty value" {
@@ -1393,7 +1392,7 @@ Describe "update.ps1 - CG_INTERNAL_CALL guard" {
                 $env:CG_INTERNAL_CALL = $val
                 $guardHolds = [bool]$env:CG_INTERNAL_CALL
                 Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
-                $guardHolds | Should Be $true
+                $guardHolds | Should -Be $true
             }
         }
     }
@@ -1402,12 +1401,12 @@ Describe "update.ps1 - CG_INTERNAL_CALL guard" {
         It "guard condition evaluates to true so refresh/migration runs" {
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
             $shouldRun = -not $env:CG_INTERNAL_CALL
-            $shouldRun | Should Be $true
+            $shouldRun | Should -Be $true
         }
 
         It "variable is absent (null/empty) when the env var is not set" {
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
-            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $true
         }
     }
 
@@ -1415,14 +1414,14 @@ Describe "update.ps1 - CG_INTERNAL_CALL guard" {
         It "removing a non-existent env var with SilentlyContinue does not throw" {
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
             # If we got here without an exception, the pattern is safe
-            $true | Should Be $true
+            $true | Should -Be $true
         }
 
         It "correctly clears the variable after simulated internal call" {
             $env:CG_INTERNAL_CALL = "1"
-            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $false
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $false
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
-            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should Be $true
+            [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $true
         }
     }
 }

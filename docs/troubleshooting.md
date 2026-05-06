@@ -8,12 +8,18 @@ Known issues and step-by-step fixes for Compound GPID.
 
 ## `cg-update` (or `cg-link`, `cg-unlink`) not recognized after install
 
-**Symptom**:
+**Windows symptom**:
 ```
 cg-update: The term 'cg-update' is not recognized as a name of a cmdlet,
 function, script file, or executable program.
 ```
-This happens right after running `install.ps1`, even in a "new" terminal tab.
+
+**macOS symptom**:
+```
+bash: cg-update: command not found
+```
+
+This happens right after running the installer, even in a "new" terminal tab.
 
 **Cause**: `install.ps1` writes `C:\WBG\.compound-gpid\bin` (or `$env:USERPROFILE\.compound-gpid\bin`) to your user `PATH` in the Windows registry. However, VS Code's integrated terminal inherits its environment from the VS Code process, which in turn inherits from **Explorer.exe**. Explorer only re-reads the registry when it receives a `WM_SETTINGCHANGE` message. Until Explorer gets that broadcast, every new terminal tab — including ones opened after `install.ps1` ran — will be missing the new entry.
 
@@ -57,6 +63,32 @@ Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
 > ```
 > Then re-run `install.ps1` to trigger the broadcast.
 
+**macOS cause**: `install.sh` writes a PATH block to `~/.zshrc` (or `~/.bashrc`). The PATH change only takes effect in **new shell processes** — terminal tabs that were already open when you installed won't see it.
+
+**macOS fix**: Open a new terminal window (not tab in the same window), then run `cg-update`. Or source your profile in the current session:
+```bash
+source ~/.zshrc    # for zsh users (default on macOS)
+# or
+source ~/.bashrc   # for bash users
+```
+
+**Verify the PATH is set (macOS)**:
+```bash
+echo $PATH | tr ':' '\n' | grep compound
+# Should print: /Users/<you>/.compound-gpid/bin
+```
+
+**Verify the bin directory exists (macOS)**:
+```bash
+ls ~/.compound-gpid/bin
+# Should list: cg-link  cg-unlink  cg-update
+```
+
+> **Unrecognized shell warning**: if you use fish, nushell, or another non-bash/zsh shell, `install.sh` will warn that your shell is unrecognized and default to `~/.bashrc`. The PATH block is written there, but your actual shell may not source it. Add the export manually to your shell's config file:
+> ```
+> export PATH="$HOME/.compound-gpid/bin:$PATH"
+> ```
+
 ---
 
 ## `.cg-version` missing or corrupted
@@ -67,11 +99,18 @@ Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
 
 **Fix**: Delete the file and run `cg-update`. It defaults to `latest` (tracking `main`) when the file is absent.
 
+**Windows:**
 ```powershell
 # Uncomment your install path:
 $cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
 # $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
 Remove-Item (Join-Path $cg ".cg-version") -ErrorAction SilentlyContinue
+cg-update
+```
+
+**macOS:**
+```bash
+rm -f ~/.compound-gpid/.cg-version   # adjust path if you chose a different install location
 cg-update
 ```
 
@@ -119,8 +158,8 @@ If the issue persists, open a [GitHub Issue](https://github.com/GPID-WB/compound
 
 **Symptom**: `cg-update` fails with messages about untracked files, merge conflicts, or local changes in the global clone.
 
-**Fix**: Use the built-in repair command:
-```powershell
+**Fix**: Use the built-in repair command (works on both Windows and macOS):
+```bash
 cg-update --fix
 ```
 
@@ -196,10 +235,19 @@ Restart your terminal **and VS Code / Positron** to pick up the PATH change, the
 
 ## `cg-link` fails with a junction/symlink error
 
-**Cause**: Windows requires Developer Mode to create directory junctions without admin rights on some configurations.
+**Windows cause**: Windows requires Developer Mode to create directory junctions without admin rights on some configurations.
 
-**Fix**: Enable Developer Mode:
+**Windows fix**: Enable Developer Mode:
 Settings → System → For developers → Developer Mode → On
+
+**macOS cause**: macOS symlink creation (`ln -s`) requires that the filesystem supports symlinks. On most APFS/HFS+ volumes this works without admin rights. Failures are most common when the install or project directory is on a network share, external FAT drive, or inside a cloud-synced folder that doesn't support symlinks (some configurations of OneDrive for Mac).
+
+**macOS fix**: Move your install directory to a local APFS volume (e.g., `~/.compound-gpid`) and re-run:
+```bash
+bash ~/.compound-gpid/scripts/install.sh
+# then from your project root:
+cg-link
+```
 
 Then retry `cg-link` from your project root.
 
@@ -380,8 +428,14 @@ The combination reaches a tipping point where the renderer thread becomes unresp
 
 When VS Code crashes or freezes, the logs are at:
 
+**Windows:**
 ```
 %APPDATA%\Code\logs\<session-folder>\
+```
+
+**macOS:**
+```
+~/Library/Application Support/Code/logs/<session-folder>/
 ```
 
 Key files:
@@ -395,6 +449,8 @@ Key files:
 | `window<N>\exthost\GitHub.copilot-chat\GitHub Copilot Chat.log` | Copilot request timing, model calls |
 
 To find the most recent logs:
+
+**Windows:**
 ```powershell
 Get-ChildItem "$env:APPDATA\Code\logs" -Recurse -Filter "*.log" |
     Where-Object { $_.Length -gt 0 } |
@@ -412,22 +468,45 @@ Write-Host "Session: $($session.Name)"
 Write-Host "Window:  $($window.FullName)"
 ```
 
+**macOS:**
+```bash
+# Find the most recent session folder and list large logs
+logbase="$HOME/Library/Application Support/Code/logs"
+ls -t "$logbase" | head -1 | xargs -I{} find "$logbase/{}" -name '*.log' -size +0c | head -20
+```
+
+To open the logs folder directly:
+```bash
+open "$HOME/Library/Application Support/Code/logs"
+```
+
 ---
 
 ## `cg-update` silently skips refreshing `copilot-instructions.md`
 
 **Symptom**: Running `cg-update` from a linked project completes without errors, but `copilot-instructions.md` is not refreshed even though the management marker is present.
 
-**Cause**: `cg-link` sets `$env:CG_INTERNAL_CALL = "1"` inside its PowerShell subprocess to suppress the refresh step (to avoid doing it twice). The variable is cleared in a `finally` block before the subprocess exits. In normal usage this is transparent. The symptom appears when `$env:CG_INTERNAL_CALL` is set in your current terminal session — for example, if you dot-sourced `link.ps1` directly (`. .\scripts\link.ps1`) and it exited before the `finally` block ran, or if the variable was set manually. Subsequent `cg-update` calls in that terminal inherit the variable and silently skip the refresh.
+**Cause**: `cg-link` sets `CG_INTERNAL_CALL=1` in the environment of the subprocess that calls `update` to suppress the refresh step (to avoid doing it twice). The variable is cleared when the subprocess exits. The symptom appears when `CG_INTERNAL_CALL` is set in your current shell session — for example, if you sourced `link.sh` (`. scripts/link.sh`) and it exited abnormally, or if the variable was set manually. Subsequent `cg-update` calls in that shell inherit the variable and silently skip the refresh.
 
 **Fix**: Open a new terminal — environment variables do not persist across sessions. Then run `cg-update` from your project root.
 
+**Windows:**
 ```powershell
 # Verify the stale variable is the cause (in the affected terminal):
 $env:CG_INTERNAL_CALL   # prints "1" if stale
 
 # Clear it manually (if you don't want to open a new terminal):
 Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
+cg-update
+```
+
+**macOS:**
+```bash
+# Verify the stale variable is the cause:
+echo $CG_INTERNAL_CALL   # prints "1" if stale
+
+# Clear it manually:
+unset CG_INTERNAL_CALL
 cg-update
 ```
 

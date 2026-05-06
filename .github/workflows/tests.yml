@@ -1,0 +1,84 @@
+name: Pester tests
+
+on:
+  push:
+    branches: [ main, 'feat/**', 'fix/**', 'chore/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Pester on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2022, macos-14 ]
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      # -------------------------------------------------------------------
+      # Windows: install Pester 4.10.1 via pwsh so both platforms use the
+      # same runner. Pester 4.x supports 'Should -Be' dash syntax and
+      # single-phase execution (no scope isolation), which is required by
+      # tests that set shared variables in Describe/top-level scope.
+      # Recent windows-2022 runner images also carry Pester 5 in the global
+      # module path which would override the built-in Pester 3.4 — pinning
+      # 4.10.1 ensures a deterministic, identical setup to macOS.
+      # -------------------------------------------------------------------
+      - name: Install Pester 4.10.1 (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Run tests (Windows pwsh + Pester 4.10.1)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 4.10.1
+          . tests/Run-Tests.ps1
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      # -------------------------------------------------------------------
+      # macOS: pwsh (PowerShell 7) does not ship Pester; install 4.10.1 explicitly.
+      # Pin to 4.10.1 for reproducibility; -SkipPublisherCheck avoids cert errors
+      # in GitHub Actions sandbox. -Scope CurrentUser avoids sudo.
+      # Pester 4.x: supports 'Should -Be' and single-phase execution (no scope
+      # isolation), matching the test authoring style used across this suite.
+      # -------------------------------------------------------------------
+      - name: Install Pester 4.10.1 (macOS)
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Make bash scripts executable (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          chmod +x scripts/install.sh scripts/link.sh scripts/unlink.sh scripts/update.sh
+          chmod +x bin/cg-link bin/cg-unlink bin/cg-update
+
+      - name: Run tests (macOS pwsh + Pester 4.10.1)
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 4.10.1
+          . tests/Run-Tests.ps1
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      # -------------------------------------------------------------------
+      # Upload the test result artifact for diagnostics.
+      # -------------------------------------------------------------------
+      - name: Upload test result artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: test-results-${{ matrix.os }}
+          path: tests/last-run.json
+          if-no-files-found: ignore

@@ -37,8 +37,8 @@ param(
 $repoRoot = Split-Path $PSScriptRoot -Parent
 
 # Artifact paths — written atomically after every run.
-$artifactPath = Join-Path $repoRoot "tests\last-run.json"
-$artifactTmp  = Join-Path $repoRoot "tests\.last-run.tmp"
+$artifactPath = Join-Path (Join-Path $repoRoot "tests") "last-run.json"
+$artifactTmp  = Join-Path (Join-Path $repoRoot "tests") ".last-run.tmp"
 
 # Capture git SHA for audit trail. Allows /cg-diagnose to verify which commit was tested.
 $gitSha = (git -C $repoRoot rev-parse --short HEAD 2>$null)
@@ -56,6 +56,7 @@ $testNames = @(
     'pester-safety',
     'ps51-compat',
     'create-release',
+    'bash-scripts',   # macOS bash script tests (platform-guarded, safe on Windows)
     'install',
     'run-tests-runner',
     'update',
@@ -114,6 +115,13 @@ $failedNames = @()
 $skippedNames = @()
 $earlyExit   = $false  # set to $true only when -FailFast breaks the loop early
 
+# Detect Pester major version once. Pester 5+ requires the PesterConfiguration
+# API; the legacy positional-argument invocation (used for Pester 3/4) triggers
+# a deprecated-parameter-set warning in Pester 5 and may misreport PassedCount.
+$pesterMod   = Get-Module Pester -ErrorAction SilentlyContinue
+if (-not $pesterMod) { Import-Module Pester -ErrorAction SilentlyContinue; $pesterMod = Get-Module Pester }
+$pesterMajor = if ($pesterMod) { [int]$pesterMod.Version.Major } else { 3 }
+
 # Artifact data — initialized before the loop.
 # Use ArrayList instead of @() + += to prevent single-element array coercion in PS 5.1
 # ConvertTo-Json (PS 5.1) serialises a single-element @() as an object, not an array.
@@ -125,7 +133,7 @@ Write-Host "Compound GPID - Pester test suite" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 
 foreach ($name in $testNames) {
-    $filePath = Join-Path $repoRoot "tests\$name.Tests.ps1"
+    $filePath = Join-Path (Join-Path $repoRoot "tests") "$name.Tests.ps1"
 
     if (-not (Test-Path $filePath)) {
         Write-Host "  [SKIP] $name (file not found)" -ForegroundColor Yellow
@@ -134,7 +142,17 @@ foreach ($name in $testNames) {
     }
 
     # SAFE PATTERN: assign to $r first — never pipeline Invoke-Pester output directly.
-    $r = Invoke-Pester $filePath -PassThru -Quiet
+    # Pester 5+: use PesterConfiguration to avoid the deprecated legacy parameter set
+    # that misreports PassedCount. Pester 3/4: use the classic positional invocation.
+    if ($pesterMajor -ge 5) {
+        $cfg = New-PesterConfiguration
+        $cfg.Run.Path     = $filePath
+        $cfg.Run.PassThru = $true
+        $cfg.Output.Verbosity = 'None'
+        $r = Invoke-Pester -Configuration $cfg
+    } else {
+        $r = Invoke-Pester $filePath -PassThru -Quiet
+    }
 
     # Guard: Invoke-Pester can return $null on a fatal load error (missing module at
     # global scope). Without this check, $r.FailedCount throws and exits the loop,
@@ -162,19 +180,35 @@ foreach ($name in $testNames) {
     }) | Out-Null
 
     if ($r.FailedCount -gt 0) {
-        # .TestResult pipeline is safe here: Run-Tests.ps1 executes in a terminal
-        # subprocess, NOT in the VS Code extension host. The object graph stays in
-        # the terminal process and never floods the extension host memory.
-        # pester-safety.Tests.ps1 scans this file but its current patterns do not
-        # flag $r.TestResult — they target Invoke-Pester | ... pipelines only.
-        $r.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
-            $failuresArray.Add([pscustomobject]@{
-                file     = $name
-                describe = $_.Describe
-                context  = if ($_.Context) { $_.Context } else { "" }
-                name     = $_.Name
-                message  = $_.FailureMessage
-            }) | Out-Null
+        # $r.TestResult pipeline is safe — this script runs in a terminal subprocess,
+        # NOT in the VS Code extension host. Neither Pester 3/4 ($r.TestResult) nor
+        # Pester 5 ($r.Tests) paths pipeline through ExpandProperty TestResult.
+        if ($pesterMajor -ge 5) {
+            # Pester 5: each item in $r.Tests has .Name, .Result, .Path[], .ErrorRecord
+            $r.Tests | Where-Object { $_.Result -eq 'Failed' } | ForEach-Object {
+                $t = $_
+                $describe = if ($t.Path -and $t.Path.Count -gt 0) { $t.Path[0] } else { '' }
+                $context  = if ($t.Path -and $t.Path.Count -gt 1) { $t.Path[1] } else { '' }
+                $message  = if ($t.ErrorRecord) { $t.ErrorRecord.Exception.Message } else { '' }
+                $failuresArray.Add([pscustomobject]@{
+                    file     = $name
+                    describe = $describe
+                    context  = $context
+                    name     = $t.Name
+                    message  = $message
+                }) | Out-Null
+            }
+        } else {
+            # Pester 3/4: each item in $r.TestResult has .Describe, .Context, .Name, .FailureMessage
+            $r.TestResult | Where-Object { -not $_.Passed } | ForEach-Object {
+                $failuresArray.Add([pscustomobject]@{
+                    file     = $name
+                    describe = $_.Describe
+                    context  = if ($_.Context) { $_.Context } else { '' }
+                    name     = $_.Name
+                    message  = $_.FailureMessage
+                }) | Out-Null
+            }
         }
 
         $failedNames += $name
@@ -199,6 +233,22 @@ if ($failedNames.Count -gt 0) {
         Write-Host "    Invoke-Pester tests\$name.Tests.ps1" -ForegroundColor Red
     }
     Write-Host "  Run the command above to see the full failure details." -ForegroundColor DarkGray
+
+    # Inline failure summary — visible in CI logs without downloading the artifact.
+    if ($failuresArray.Count -gt 0) {
+        Write-Host ""
+        Write-Host "  Failure details:" -ForegroundColor Red
+        foreach ($f in $failuresArray) {
+            $loc = "$($f.file) > $($f.describe)"
+            if ($f.context) { $loc += " > $($f.context)" }
+            $loc += " > $($f.name)"
+            Write-Host "    FAIL: $loc" -ForegroundColor Red
+            if ($f.message) {
+                $msg = ($f.message -split '\r?\n')[0]   # first line only
+                Write-Host "         $msg" -ForegroundColor DarkGray
+            }
+        }
+    }
 }
 
 # Warn about test files not in $testNames -- prevents silent coverage gaps when

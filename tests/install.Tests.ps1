@@ -1,21 +1,33 @@
 ﻿# tests/install.Tests.ps1
-# Pester tests for install.ps1
+# Pester tests for install.ps1 (Windows-specific: .cmd wrappers, PATH via registry)
 #
 # Run with: Invoke-Pester tests/install.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
+
+# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
+$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+
+# install.ps1 manages .cmd wrappers and the Windows registry PATH. Skip all
+# tests on macOS/Linux. install.sh is tested in bash-scripts.Tests.ps1.
+if (-not $script:OnWindows) {
+    Describe "install.ps1 - Windows-only tests (skipped on macOS/Linux)" {
+        It "platform check: install.ps1 tests require Windows" { $true | Should -Be $true }
+    }
+    return
+}
 
 Describe "install.ps1 - Git check" {
     Context "when a command does not exist" {
         It "Get-Command returns null for a missing command" {
             $result = Get-Command "this-command-does-not-exist-xyz" -ErrorAction SilentlyContinue
-            $result | Should BeNullOrEmpty
+            $result | Should -BeNullOrEmpty
         }
     }
 
     Context "when git is available" {
         It "detects git on a properly configured machine" {
             $result = Get-Command git -ErrorAction SilentlyContinue
-            $result | Should Not BeNullOrEmpty
+            $result | Should -Not -BeNullOrEmpty
         }
     }
 }
@@ -25,15 +37,15 @@ Describe "install.ps1 - .cmd wrapper creation" {
         It "each wrapper contains the powershell.exe invocation with -NoProfile" {
             foreach ($script in @("link", "unlink", "update")) {
                 $content = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\$script.ps1`" %*`r`n"
-                ($content -match 'powershell\.exe') | Should Be $true
-                ($content -match 'NoProfile')       | Should Be $true
-                ($content -match "$script\.ps1")    | Should Be $true
+                ($content -match 'powershell\.exe') | Should -Be $true
+                ($content -match 'NoProfile')       | Should -Be $true
+                ($content -match "$script\.ps1")    | Should -Be $true
             }
         }
 
         It "wrapper uses %~dp0 for self-relative path resolution" {
             $content = "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -File `"%~dp0..\scripts\link.ps1`" %*`r`n"
-            ($content -match '%~dp0') | Should Be $true
+            ($content -match '%~dp0') | Should -Be $true
         }
     }
 
@@ -48,9 +60,9 @@ Describe "install.ps1 - .cmd wrapper creation" {
                 Set-Content -Path $cmdPath -Value $content -NoNewline
             }
 
-            Test-Path (Join-Path $binDir "cg-link.cmd")   | Should Be $true
-            Test-Path (Join-Path $binDir "cg-unlink.cmd") | Should Be $true
-            Test-Path (Join-Path $binDir "cg-update.cmd") | Should Be $true
+            Test-Path (Join-Path $binDir "cg-link.cmd")   | Should -Be $true
+            Test-Path (Join-Path $binDir "cg-unlink.cmd") | Should -Be $true
+            Test-Path (Join-Path $binDir "cg-update.cmd") | Should -Be $true
         }
     }
 }
@@ -60,13 +72,13 @@ Describe "install.ps1 - PATH manipulation" {
         It "detects when bin dir is not yet on PATH" {
             $currentPath = "C:\Windows\system32;C:\Windows"
             $binDir      = "C:\WBG\.compound-gpid\bin"
-            ($currentPath -notlike "*$binDir*") | Should Be $true
+            ($currentPath -notlike "*$binDir*") | Should -Be $true
         }
 
         It "detects when bin dir is already on PATH (idempotency)" {
             $binDir      = "C:\WBG\.compound-gpid\bin"
             $currentPath = "C:\Windows\system32;$binDir;C:\Windows"
-            ($currentPath -notlike "*$binDir*") | Should Be $false
+            ($currentPath -notlike "*$binDir*") | Should -Be $false
         }
     }
 
@@ -75,14 +87,14 @@ Describe "install.ps1 - PATH manipulation" {
             $existing = "C:\Windows\system32"
             $binDir   = "C:\WBG\.compound-gpid\bin"
             $newPath  = if ($existing.Length -gt 0) { "$existing;$binDir" } else { $binDir }
-            $newPath | Should Be "C:\Windows\system32;C:\WBG\.compound-gpid\bin"
+            $newPath | Should -Be "C:\Windows\system32;C:\WBG\.compound-gpid\bin"
         }
 
         It "handles empty PATH without a leading semicolon" {
             $existing = ""
             $binDir   = "C:\WBG\.compound-gpid\bin"
             $newPath  = if ($existing.Length -gt 0) { "$existing;$binDir" } else { $binDir }
-            $newPath | Should Be "C:\WBG\.compound-gpid\bin"
+            $newPath | Should -Be "C:\WBG\.compound-gpid\bin"
         }
     }
 }
@@ -97,16 +109,16 @@ Describe "install.ps1 - old profile cleanup" {
             $raw     = Get-Content $testProfile -Raw
             $cleaned = ($raw -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "").TrimEnd()
 
-            ($cleaned -match "# --- Compound GPID") | Should Be $false
-            ($cleaned -match "# existing content")   | Should Be $true
-            ($cleaned -match "# more content")        | Should Be $true
+            ($cleaned -match "# --- Compound GPID") | Should -Be $false
+            ($cleaned -match "# existing content")   | Should -Be $true
+            ($cleaned -match "# more content")        | Should -Be $true
         }
     }
 
     Context "when profile has no Compound GPID block" {
         It "detects no cleanup is needed" {
             $content = "# My personal profile`nWrite-Host 'Hello'"
-            ($content -match "Compound GPID") | Should Be $false
+            ($content -match "Compound GPID") | Should -Be $false
         }
     }
 }
@@ -116,13 +128,13 @@ Describe "install.ps1 - Junction temp path naming" {
         It "generates a path matching the expected prefix and GUID pattern" {
             $guid = [System.Guid]::NewGuid().ToString('N')
             $tempPath = "cg-gpid-junction-target-$guid"
-            $tempPath | Should Match 'cg-gpid-junction-target-[a-f0-9]{32}'
+            $tempPath | Should -Match 'cg-gpid-junction-target-[a-f0-9]{32}'
         }
 
         It "two calls to NewGuid produce different paths" {
             $p1 = "cg-gpid-$([System.Guid]::NewGuid().ToString('N'))"
             $p2 = "cg-gpid-$([System.Guid]::NewGuid().ToString('N'))"
-            $p1 | Should Not Be $p2
+            $p1 | Should -Not -Be $p2
         }
     }
 
@@ -136,8 +148,8 @@ Describe "install.ps1 - Junction temp path naming" {
             if (Test-Path $junction) { Remove-Item -Path $junction -Force }
             if (Test-Path $target)   { Remove-Item -Path $target   -Force -Recurse }
 
-            Test-Path $target   | Should Be $false
-            Test-Path $junction | Should Be $false
+            Test-Path $target   | Should -Be $false
+            Test-Path $junction | Should -Be $false
         }
     }
 }
@@ -154,8 +166,8 @@ Describe "install.ps1 - .cg-version initialization" {
                 Set-Content -Path $versionFile -Value "latest" -NoNewline
             }
 
-            Test-Path $versionFile                          | Should Be $true
-            (Get-Content $versionFile -Raw).Trim()          | Should Be "latest"
+            Test-Path $versionFile                          | Should -Be $true
+            (Get-Content $versionFile -Raw).Trim()          | Should -Be "latest"
         }
     }
 
@@ -173,7 +185,7 @@ Describe "install.ps1 - .cg-version initialization" {
                 Set-Content -Path $versionFile -Value "latest" -NoNewline
             }
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "v0.1.0"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "v0.1.0"
         }
     }
 
@@ -189,7 +201,7 @@ Describe "install.ps1 - .cg-version initialization" {
                 Set-Content -Path $versionFile -Value "latest" -NoNewline
             }
 
-            (Get-Content $versionFile -Raw).Trim() | Should Be "latest"
+            (Get-Content $versionFile -Raw).Trim() | Should -Be "latest"
         }
     }
 
@@ -203,7 +215,7 @@ Describe "install.ps1 - .cg-version initialization" {
             Set-Content -Path $versionFile -Value "  v0.2.0  " -NoNewline
 
             $content = (Get-Content $versionFile -Raw).Trim()
-            $content | Should Be "v0.2.0"
+            $content | Should -Be "v0.2.0"
         }
 
         It "handles a file with Windows CRLF line endings" {
@@ -216,7 +228,7 @@ Describe "install.ps1 - .cg-version initialization" {
 
             # .Trim() must strip CRLF as well as plain LF and whitespace
             $content = (Get-Content $versionFile -Raw).Trim()
-            $content | Should Be "v0.2.0"
+            $content | Should -Be "v0.2.0"
         }
 
         It "handles a blank file by falling back to 'latest'" {
@@ -228,7 +240,7 @@ Describe "install.ps1 - .cg-version initialization" {
 
             $raw = (Get-Content $versionFile -Raw -ErrorAction SilentlyContinue)
             $content = if ([string]::IsNullOrWhiteSpace($raw)) { "latest" } else { $raw.Trim() }
-            $content | Should Be "latest"
+            $content | Should -Be "latest"
         }
     }
 }

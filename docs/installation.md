@@ -4,9 +4,14 @@ This page covers installing Compound GPID on a new machine, linking it to a proj
 
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
+**Platform**: Jump to your operating system:
+- [Windows installation](#windows-installation)
+- [macOS installation](#macos-installation)
+
 ---
 
-> **Choose your install path before Step 1:**
+## Windows installation
+
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -88,15 +93,97 @@ and creates three config files:
 
 ---
 
+## macOS installation
+
+> **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), python3 (pre-installed via Xcode tools), git.
+
+### Step 1 — Clone (once per machine)
+
+```bash
+git clone https://github.com/GPID-WB/compound-gpid.git ~/.compound-gpid
+```
+
+You can substitute any path you prefer, e.g. `~/tools/.compound-gpid`. The scripts are fully location-agnostic.
+
+### Step 2 — Install (once per machine)
+
+```bash
+bash ~/.compound-gpid/scripts/install.sh
+```
+
+This:
+- Creates bash wrappers (`cg-link`, `cg-unlink`, `cg-update`) in `~/.compound-gpid/bin/`
+- Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
+- Writes `.cg-version` (set to `latest`) in the install directory
+
+> ⚠️ **IMPORTANT — After install, restart your terminal and VS Code / Positron:**
+> - **Terminal restart**: the PATH change only takes effect in new processes.
+> - **VS Code / Positron restart**: Copilot must re-index the workspace to pick up new commands.
+
+### Step 3 — Link your project (once per project)
+
+From your project root:
+
+```bash
+cg-link
+```
+
+This creates **per-subdirectory symlinks** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template. Any existing `.github/` content (GitHub Actions workflows, issue templates, etc.) is preserved untouched.
+
+> ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
+> Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
+
+### Step 4 — Configure your project (once per project)
+
+Open your project in VS Code and run in Copilot Chat:
+```
+/cg-setup
+```
+
+> ⚠️ **Do not skip this step.** `/cg-setup` creates the `.cg-docs/` directory structure (brainstorms, plans, reviews, strategy, solutions, archive) required by all workflow prompts. If you skip it, `/cg-strategy`, `/cg-review`, and `/cg-compound` will fail to write their output artifacts.
+
+### macOS — Updating
+
+```bash
+cg-update
+```
+
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
+
+**Version pinning**: the same pinning commands work on macOS:
+
+```bash
+cg-update --list       # browse available releases
+cg-update v0.2.0      # pin to a specific release
+cg-update latest      # return to tracking main
+```
+
+Version preference is stored in `~/.compound-gpid/.cg-version` (or your chosen install path). See [Version Management](versioning.md) for full details.
+
+### macOS — Uninstalling
+
+```bash
+bash <your-install-path>/scripts/install.sh --uninstall
+# e.g. bash ~/.compound-gpid/scripts/install.sh --uninstall
+```
+
+This removes the PATH block from your shell profile and deletes the `bin/cg-*` wrappers. The install directory itself is not deleted — remove it manually if desired.
+
+---
+
 ## Updating
 
-From any terminal:
-
+**Windows** (from any terminal):
 ```powershell
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use junctions to the global clone, updates are instantly visible in every linked project - no per-project update step is needed.
+**macOS** (from any terminal):
+```bash
+cg-update
+```
+
+This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks (junctions on Windows, symlinks on macOS) to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
 
 ---
 
@@ -108,7 +195,7 @@ By default `cg-update` tracks `main` and always pulls the latest commit. If you 
 
 ### Browse available releases
 
-```powershell
+```bash
 cg-update --list
 ```
 
@@ -116,7 +203,7 @@ Fetches the latest tag list and displays it with your current version marked.
 
 ### Pin to a specific release
 
-```powershell
+```bash
 cg-update v0.2.0
 ```
 
@@ -124,13 +211,17 @@ Checks out that release tag and writes `v0.2.0` to `.cg-version` in your install
 
 ### Return to tracking main
 
-```powershell
+```bash
 cg-update latest
 ```
 
 Unpins and resumes pulling `main` on every `cg-update` call.
 
-> **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory (`C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`). This file is gitignored and never committed — each machine keeps its own preference independently.
+> **Version preference is per-machine.** It is stored in `.cg-version` inside your global install directory:
+> - **Windows**: `C:\WBG\.compound-gpid\.cg-version` or `$env:USERPROFILE\.compound-gpid\.cg-version`
+> - **macOS**: `~/.compound-gpid/.cg-version` (or your chosen install path)
+>
+> This file is gitignored and never committed — each machine keeps its own preference independently.
 
 > **Full details on version management**: see the dedicated [Version Management](versioning.md) page for command output examples, when to use each mode, multi-machine scenarios, and troubleshooting.
 
@@ -140,14 +231,28 @@ Unpins and resumes pulling `main` on every `cg-update` call.
 
 If `cg-update` fails (e.g. untracked files blocking `git pull`, or local changes in the global clone), use the built-in repair command:
 
+```bash
+# macOS
+cg-update --fix
+```
 ```powershell
+# Windows
 cg-update --fix
 ```
 
 This cleans untracked files, discards local changes, and pulls the latest code.
 
-**If `cg-update --fix` itself fails** (e.g. the installed copy is too old to have `--fix`), run the equivalent commands manually:
+**If `cg-update --fix` itself fails** (e.g. the installed copy is too old), run the equivalent commands manually:
 
+**macOS:**
+```bash
+cg="$HOME/.compound-gpid"   # adjust if you chose a different install path
+git -C "$cg" clean -fd
+git -C "$cg" checkout .
+git -C "$cg" pull --ff-only
+```
+
+**Windows:**
 ```powershell
 # Uncomment your install path:
 $cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
