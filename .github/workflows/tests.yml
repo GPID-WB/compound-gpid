@@ -1,0 +1,70 @@
+name: Pester tests
+
+on:
+  push:
+    branches: [ main, 'feat/**', 'fix/**', 'chore/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Pester on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2022, macos-14 ]
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      # -------------------------------------------------------------------
+      # Windows: PowerShell 5.1 ships Pester 3.4 built in — no install needed.
+      # The safe runner (. tests\Run-Tests.ps1) uses the built-in module.
+      # -------------------------------------------------------------------
+      - name: Run tests (Windows PS 5.1 + built-in Pester 3.4)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          . tests\Run-Tests.ps1
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      # -------------------------------------------------------------------
+      # macOS: pwsh (PowerShell 7) does not ship Pester; install 5.6.1 explicitly.
+      # Pin to 5.6.1 for reproducibility; -SkipPublisherCheck avoids cert errors
+      # in GitHub Actions sandbox. -Scope CurrentUser avoids sudo.
+      # -------------------------------------------------------------------
+      - name: Install Pester 5.6.1 (macOS)
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 5.6.1 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Make bash scripts executable (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          chmod +x scripts/install.sh scripts/link.sh scripts/unlink.sh scripts/update.sh
+          chmod +x bin/cg-link bin/cg-unlink bin/cg-update
+
+      - name: Run tests (macOS pwsh + Pester 5.6.1)
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: |
+          Import-Module Pester -RequiredVersion 5.6.1
+          . tests/Run-Tests.ps1
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      # -------------------------------------------------------------------
+      # Upload the test result artifact for diagnostics.
+      # -------------------------------------------------------------------
+      - name: Upload test result artifact
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f5f3b94524  # v4.6.2
+        with:
+          name: test-results-${{ matrix.os }}
+          path: tests/last-run.json
+          if-no-files-found: ignore

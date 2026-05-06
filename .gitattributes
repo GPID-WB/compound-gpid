@@ -1,0 +1,9 @@
+# Ensure bash scripts always use LF line endings in the repo
+# (prevents CRLF corruption when checked out on Windows)
+scripts/*.sh    text eol=lf
+bin/cg-*        text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+
+# Ensure Windows batch wrappers keep CRLF (required by CMD.EXE)
+bin/*.cmd       text eol=crlf
