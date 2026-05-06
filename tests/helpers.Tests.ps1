@@ -6,7 +6,7 @@
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
-. (Join-Path $repoRoot "scripts\helpers.ps1")
+. (Join-Path (Join-Path $repoRoot "scripts") "helpers.ps1")
 
 # ---------------------------------------------------------------------------
 # Fixture helpers
@@ -287,7 +287,7 @@ Describe "New-CopilotInstructions - throws when template file is missing" {
 # ---------------------------------------------------------------------------
 
 Describe "copilot-instructions.template.md - file exists and contains all placeholders" {
-    $templateFile = Join-Path $repoRoot ".github\copilot-instructions.template.md"
+    $templateFile = Join-Path (Join-Path $repoRoot ".github") "copilot-instructions.template.md"
 
     It "template file exists" {
         Test-Path $templateFile | Should Be $true

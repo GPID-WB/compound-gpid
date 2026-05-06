@@ -122,7 +122,7 @@ Describe ".cg-docs/archive/ - scaffold present" {
 }
 
 Describe "Charter archiving rules - format in copilot-instructions.md" {
-    $instructionsPath = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $instructionsPath = Join-Path (Join-Path $repoRoot ".github") "copilot-instructions.md"
     $content = if (Test-Path $instructionsPath) { Get-Content $instructionsPath -Raw } else { "" }
 
     It "copilot-instructions.md exists" {

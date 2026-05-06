@@ -1,0 +1,356 @@
+# tests/bash-scripts.Tests.ps1
+# Pester tests for macOS bash scripts: install.sh, link.sh, unlink.sh, update.sh
+# and the bin/ wrappers (bin/cg-link, bin/cg-unlink, bin/cg-update).
+#
+# Run with: Invoke-Pester tests/bash-scripts.Tests.ps1
+# Compatible with Pester 3.4+ (ships built-in on Windows)
+# On macOS CI, requires: pwsh + Pester 5.6.1
+
+# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
+$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+$script:OnMacOS   = ($IsMacOS -eq $true)
+
+# Bash integration tests only run on macOS (the platform that ships bash and the
+# scripts target). On Windows, emit a single passing placeholder and return.
+if (-not $script:OnMacOS) {
+    Describe "bash-scripts (macOS-only tests, skipped on Windows)" {
+        It "platform check: bash-scripts tests require macOS" { $true | Should Be $true }
+    }
+    return
+}
+
+$repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+
+# ---------------------------------------------------------------------------
+# Helper: assert a file is executable
+# ---------------------------------------------------------------------------
+function Test-Executable {
+    param([string]$Path)
+    (& bash -c "[ -x '$Path' ] && echo yes || echo no" 2>/dev/null).Trim() -eq "yes"
+}
+
+# ---------------------------------------------------------------------------
+# Bash script file existence and +x bit
+# ---------------------------------------------------------------------------
+Describe "bash-scripts - scripts exist with executable bit" {
+    $bashScripts = @(
+        "scripts/install.sh",
+        "scripts/link.sh",
+        "scripts/unlink.sh",
+        "scripts/update.sh"
+    )
+
+    foreach ($script in $bashScripts) {
+        $scriptPath = Join-Path $repoRoot $script
+        It "$script exists" {
+            Test-Path $scriptPath | Should Be $true
+        }
+        It "$script is executable" {
+            Test-Executable $scriptPath | Should Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# bin/ wrappers exist with executable bit
+# ---------------------------------------------------------------------------
+Describe "bash-scripts - bin/ wrappers exist with executable bit" {
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update")
+
+    foreach ($wrapper in $wrappers) {
+        $wrapperPath = Join-Path $repoRoot $wrapper
+        It "$wrapper exists" {
+            Test-Path $wrapperPath | Should Be $true
+        }
+        It "$wrapper is executable" {
+            Test-Executable $wrapperPath | Should Be $true
+        }
+        It "$wrapper has shebang line" {
+            $firstLine = & bash -c "head -1 '$wrapperPath' 2>/dev/null"
+            $firstLine | Should Match "^#!/"
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# install.sh - shebang and structure
+# ---------------------------------------------------------------------------
+Describe "install.sh - script structure" {
+    $installSh = Join-Path $repoRoot "scripts/install.sh"
+    $content   = Get-Content $installSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "starts with #!/usr/bin/env bash shebang" {
+        $content | Should Match "^#!/usr/bin/env bash"
+    }
+
+    It "uses set -euo pipefail" {
+        $content | Should Match "set -euo pipefail"
+    }
+
+    It "resolves SCRIPT_DIR from script location (not pwd)" {
+        $content | Should Match 'SCRIPT_DIR=.*dirname'
+    }
+
+    It "defines COMPOUND_GPID_DIR as parent of scripts/" {
+        $content | Should Match 'COMPOUND_GPID_DIR=.*dirname.*SCRIPT_DIR'
+    }
+
+    It "verifies git is available" {
+        $content | Should Match 'command -v git'
+    }
+
+    It "tests symlink capability" {
+        $content | Should Match 'ln -s'
+    }
+
+    It "creates bin/ directory wrappers" {
+        $content | Should Match 'BIN_DIR'
+        $content | Should Match 'cg-link'
+        $content | Should Match 'cg-unlink'
+        $content | Should Match 'cg-update'
+    }
+
+    It "initializes .cg-version" {
+        $content | Should Match '\.cg-version'
+    }
+
+    It "supports --uninstall flag" {
+        $content | Should Match '\-\-uninstall'
+    }
+
+    It "adds PATH block with CG markers" {
+        $content | Should Match 'Compound GPID'
+        $content | Should Match 'PROFILE_FILE'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# install.sh - idempotent PATH block (live smoke test)
+# ---------------------------------------------------------------------------
+Describe "install.sh - PATH block is idempotent" {
+    It "running install.sh twice does not duplicate the PATH block" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-install-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $fakeShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+
+        $env:HOME  = $tmpHome
+        $env:SHELL = $fakeShell
+
+        # Redirect install targets so bin/ and .cg-version writes go to temp dir.
+        # install.sh resolves COMPOUND_GPID_DIR from its own path, so we create
+        # a minimal temp install dir that points back to the real scripts/.
+        $tmpInstall = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-cgdir-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpInstallBin     = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+
+        try {
+            # First run — use temp install dir
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            # Second run (idempotent)
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+
+            $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
+
+            # Count occurrences of the start marker
+            $markerCount = ([regex]::Matches($profileContent, [regex]::Escape("# --- Compound GPID ---"))).Count
+            $markerCount | Should Be 1
+
+            # Verify PATH entry uses $HOME-relative form, not absolute path (P3.15)
+            $profileContent | Should Match 'export PATH=.*\$HOME/'
+        } finally {
+            Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# link.sh - shebang and structure
+# ---------------------------------------------------------------------------
+Describe "link.sh - script structure" {
+    $linkSh  = Join-Path $repoRoot "scripts/link.sh"
+    $content = Get-Content $linkSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "starts with #!/usr/bin/env bash shebang" {
+        $content | Should Match "^#!/usr/bin/env bash"
+    }
+
+    It "uses set -euo pipefail" {
+        $content | Should Match "set -euo pipefail"
+    }
+
+    It "invokes update.sh with CG_INTERNAL_CALL=1" {
+        $content | Should Match "CG_INTERNAL_CALL=1.*update\.sh"
+    }
+
+    It "creates symlinks for managed directories" {
+        $content | Should Match 'ln -s'
+    }
+
+    It "manages copilot-instructions.md" {
+        $content | Should Match 'copilot-instructions'
+    }
+
+    It "updates .gitignore" {
+        $content | Should Match '\.gitignore'
+    }
+
+    It "uses generate_copilot_instructions function with python3" {
+        $content | Should Match 'generate_copilot_instructions'
+        $content | Should Match 'python3'
+    }
+
+    It "defines generate_copilot_instructions before the main body calls it" {
+        # Function definition must appear before first call in bash
+        $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
+        $funcCallLine = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
+        $funcDefLine | Should BeLessThan $funcCallLine
+    }
+}
+
+# ---------------------------------------------------------------------------
+# unlink.sh - shebang and structure
+# ---------------------------------------------------------------------------
+Describe "unlink.sh - script structure" {
+    $unlinkSh = Join-Path $repoRoot "scripts/unlink.sh"
+    $content  = Get-Content $unlinkSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "starts with #!/usr/bin/env bash shebang" {
+        $content | Should Match "^#!/usr/bin/env bash"
+    }
+
+    It "uses set -euo pipefail" {
+        $content | Should Match "set -euo pipefail"
+    }
+
+    It "uses [ -L ] to test for symlinks" {
+        $content | Should Match '\-L '
+    }
+
+    It "uses readlink without -f flag (BSD-safe)" {
+        # Ensure readlink is used but NOT readlink -f
+        $content | Should Match 'readlink '
+        ($content -match 'readlink -f') | Should Be $false
+    }
+
+    It "matches symlinks against compound-gpid" {
+        $content | Should Match 'compound-gpid'
+    }
+
+    It "removes copilot-instructions.md only when marker is present" {
+        $content | Should Match 'copilot-instructions'
+        $content | Should Match 'compound-gpid:managed'
+    }
+
+    It "removes .gitignore CG entries" {
+        $content | Should Match '\.gitignore'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# update.sh - shebang and structure
+# ---------------------------------------------------------------------------
+Describe "update.sh - script structure" {
+    $updateSh = Join-Path $repoRoot "scripts/update.sh"
+    $content  = Get-Content $updateSh -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "starts with #!/usr/bin/env bash shebang" {
+        $content | Should Match "^#!/usr/bin/env bash"
+    }
+
+    It "uses set -euo pipefail" {
+        $content | Should Match "set -euo pipefail"
+    }
+
+    It "supports --list flag" {
+        $content | Should Match '\-\-list'
+    }
+
+    It "supports --fix flag" {
+        $content | Should Match '\-\-fix'
+    }
+
+    It "checks CG_INTERNAL_CALL before refreshing copilot-instructions.md" {
+        $content | Should Match 'CG_INTERNAL_CALL'
+    }
+
+    It "reads .cg-version for version mode" {
+        $content | Should Match '\.cg-version'
+    }
+
+    It "supports 'latest' mode (git pull)" {
+        $content | Should Match 'git pull'
+    }
+
+    It "supports pinned mode (git checkout tag)" {
+        $content | Should Match 'git checkout'
+    }
+
+    It "validates version format before pinning" {
+        $content | Should Match 'VERSION_ACCEPT_PATTERN'
+    }
+
+    It "defines generate_copilot_instructions for post-update refresh" {
+        $content | Should Match 'generate_copilot_instructions'
+    }
+
+    It "handles structural migration docs/ -> .cg-docs/" {
+        $content | Should Match '\.cg-docs'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# bin/ wrappers - correct target scripts
+# ---------------------------------------------------------------------------
+Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
+    $cases = @(
+        @{ Wrapper = "bin/cg-link";   Script = "scripts/link.sh"   }
+        @{ Wrapper = "bin/cg-unlink"; Script = "scripts/unlink.sh" }
+        @{ Wrapper = "bin/cg-update"; Script = "scripts/update.sh" }
+    )
+
+    foreach ($case in $cases) {
+        $wrapperContent = Get-Content (Join-Path $repoRoot $case.Wrapper) -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        $scriptName = $case.Script.Split("/")[-1]
+        It "$($case.Wrapper) references $($case.Script)" {
+            $wrapperContent | Should Match [regex]::Escape($scriptName)
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# .gitattributes - LF line endings for bash scripts
+# ---------------------------------------------------------------------------
+Describe "bash-scripts - .gitattributes enforces LF for bash files" {
+    $gitattributes = Join-Path $repoRoot ".gitattributes"
+    $content       = if (Test-Path $gitattributes) { Get-Content $gitattributes -Raw -Encoding UTF8 } else { "" }
+
+    It ".gitattributes exists" {
+        Test-Path $gitattributes | Should Be $true
+    }
+
+    It ".gitattributes sets eol=lf for scripts/*.sh" {
+        $content | Should Match "scripts/\*\.sh.*eol=lf"
+    }
+
+    It ".gitattributes sets eol=lf for bin/cg-* wrappers" {
+        $content | Should Match "bin/cg-\*.*eol=lf"
+    }
+
+    It ".gitattributes sets eol=lf for *.yml files" {
+        $content | Should Match "\*\.yml.*eol=lf"
+    }
+
+    It ".gitattributes sets eol=lf for *.yaml files" {
+        $content | Should Match "\*\.yaml.*eol=lf"
+    }
+}

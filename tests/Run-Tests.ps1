@@ -37,8 +37,8 @@ param(
 $repoRoot = Split-Path $PSScriptRoot -Parent
 
 # Artifact paths — written atomically after every run.
-$artifactPath = Join-Path $repoRoot "tests\last-run.json"
-$artifactTmp  = Join-Path $repoRoot "tests\.last-run.tmp"
+$artifactPath = Join-Path (Join-Path $repoRoot "tests") "last-run.json"
+$artifactTmp  = Join-Path (Join-Path $repoRoot "tests") ".last-run.tmp"
 
 # Capture git SHA for audit trail. Allows /cg-diagnose to verify which commit was tested.
 $gitSha = (git -C $repoRoot rev-parse --short HEAD 2>$null)
@@ -56,6 +56,7 @@ $testNames = @(
     'pester-safety',
     'ps51-compat',
     'create-release',
+    'bash-scripts',   # macOS bash script tests (platform-guarded, safe on Windows)
     'install',
     'run-tests-runner',
     'update',
@@ -125,7 +126,7 @@ Write-Host "Compound GPID - Pester test suite" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 
 foreach ($name in $testNames) {
-    $filePath = Join-Path $repoRoot "tests\$name.Tests.ps1"
+    $filePath = Join-Path (Join-Path $repoRoot "tests") "$name.Tests.ps1"
 
     if (-not (Test-Path $filePath)) {
         Write-Host "  [SKIP] $name (file not found)" -ForegroundColor Yellow

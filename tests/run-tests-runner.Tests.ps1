@@ -16,9 +16,9 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
 $repoRoot     = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
-$runnerPath   = Join-Path $repoRoot "tests\Run-Tests.ps1"
+$runnerPath   = Join-Path (Join-Path $repoRoot "tests") "Run-Tests.ps1"
 $gitignorePath = Join-Path $repoRoot ".gitignore"
-$artifactPath = Join-Path $repoRoot "tests\last-run.json"
+$artifactPath = Join-Path (Join-Path $repoRoot "tests") "last-run.json"
 
 $runnerContent   = if (Test-Path $runnerPath)   { Get-Content $runnerPath   -Raw -Encoding UTF8 } else { "" }
 $gitignoreContent = if (Test-Path $gitignorePath) { Get-Content $gitignorePath -Raw -Encoding UTF8 } else { "" }
@@ -42,6 +42,15 @@ Describe "Run-Tests.ps1 - .gitignore entries for artifact files" {
 Describe "Run-Tests.ps1 - run-tests-runner is registered in `$testNames" {
     It "`$testNames includes 'run-tests-runner'" {
         ($runnerContent -match "'run-tests-runner'") | Should Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# $testNames membership — bash-scripts (R16)
+# ---------------------------------------------------------------------------
+Describe "Run-Tests.ps1 - 'bash-scripts' is registered in `$testNames" {
+    It "`$testNames includes 'bash-scripts'" {
+        ($runnerContent -match "'bash-scripts'") | Should Be $true
     }
 }
 

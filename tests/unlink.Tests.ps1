@@ -1,8 +1,20 @@
 # tests/unlink.Tests.ps1
-# Pester tests for scripts/unlink.ps1 logic
+# Pester tests for scripts/unlink.ps1 logic (Windows-specific: junction operations)
 #
 # Run with: Invoke-Pester tests/unlink.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
+
+# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
+$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+
+# unlink.ps1 uses junction operations (Remove-Item on junctions), which are
+# Windows-only. Skip all tests on macOS/Linux with a passing placeholder.
+if (-not $script:OnWindows) {
+    Describe "unlink.ps1 - Windows-only tests (skipped on macOS/Linux)" {
+        It "platform check: junction tests require Windows" { $true | Should Be $true }
+    }
+    return
+}
 
 Describe "unlink.ps1 - pre-condition checks" {
     Context "when .github does not exist" {
