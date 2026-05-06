@@ -144,7 +144,7 @@ Describe "install.sh - PATH block is idempotent" {
         # Redirect install targets so bin/ and .cg-version writes go to temp dir.
         # install.sh resolves COMPOUND_GPID_DIR from its own path, so we create
         # a minimal temp install dir that points back to the real scripts/.
-        $tmpInstall = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-cgdir-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpInstall = Join-Path $tmpHome ".compound-gpid"
         $tmpInstallBin     = Join-Path $tmpInstall "bin"
         $tmpInstallScripts = Join-Path $tmpInstall "scripts"
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
@@ -322,7 +322,7 @@ Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
         $wrapperContent = Get-Content (Join-Path $repoRoot $case.Wrapper) -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $scriptName = $case.Script.Split("/")[-1]
         It "$($case.Wrapper) references $($case.Script)" {
-            $wrapperContent | Should -Match [regex]::Escape($scriptName)
+            $wrapperContent | Should -Match ([regex]::Escape($scriptName))
         }
     }
 }

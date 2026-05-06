@@ -413,13 +413,12 @@ Describe "update.ps1 - docs to .cg-docs migration" {
         It "writes cg-schema-version to compound-gpid.local.md when the field exists" {
             $root = Join-Path $TestDrive "schema-stamp"
             New-Item -ItemType Directory -Path $root -Force | Out-Null
-            $localMd = "$root\compound-gpid.local.md"
+            $localMd = Join-Path $root "compound-gpid.local.md"
             Set-Content -Path $localMd -Value "# Compound GPID`ncg-schema-version: `"`""
 
             $schemaVersion = "2026-03-05-cg-docs"  # MUST match $SchemaVersion in scripts/update.ps1
 
             # Simulate stamping logic
-            $localMd = "$root\compound-gpid.local.md"
             $original = "# Custom config without schema field`ncg-language: R"
             Set-Content -Path $localMd -Value $original
 
