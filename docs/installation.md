@@ -4,9 +4,14 @@ This page covers installing Compound GPID on a new machine, linking it to a proj
 
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
+**Platform**: Jump to your operating system:
+- [Windows installation](#windows-installation)
+- [macOS installation](#macos-installation)
+
 ---
 
-> **Choose your install path before Step 1:**
+## Windows installation
+
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -85,6 +90,72 @@ and creates three config files:
 - `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot should know on every task (data sources, variable caveats, workspace folder descriptions, domain vocabulary). All prompts read this in Step 0. Grows over time via `/cg-compound`.
 
 > **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
+
+---
+
+## macOS installation
+
+> **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), python3 (pre-installed via Xcode tools), git.
+
+### Step 1 — Clone (once per machine)
+
+```bash
+git clone https://github.com/GPID-WB/compound-gpid.git ~/.compound-gpid
+```
+
+You can substitute any path you prefer, e.g. `~/tools/.compound-gpid`. The scripts are fully location-agnostic.
+
+### Step 2 — Install (once per machine)
+
+```bash
+bash ~/.compound-gpid/scripts/install.sh
+```
+
+This:
+- Creates bash wrappers (`cg-link`, `cg-unlink`, `cg-update`) in `~/.compound-gpid/bin/`
+- Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
+- Writes `.cg-version` (set to `latest`) in the install directory
+
+> ⚠️ **IMPORTANT — After install, restart your terminal and VS Code / Positron:**
+> - **Terminal restart**: the PATH change only takes effect in new processes.
+> - **VS Code / Positron restart**: Copilot must re-index the workspace to pick up new commands.
+
+### Step 3 — Link your project (once per project)
+
+From your project root:
+
+```bash
+cg-link
+```
+
+This creates **per-subdirectory symlinks** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template. Any existing `.github/` content (GitHub Actions workflows, issue templates, etc.) is preserved untouched.
+
+> ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
+> Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
+
+### Step 4 — Configure your project (once per project)
+
+Open your project in VS Code and run in Copilot Chat:
+```
+/cg-setup
+```
+
+> ⚠️ **Do not skip this step.** `/cg-setup` creates the `.cg-docs/` directory structure (brainstorms, plans, reviews, strategy, solutions, archive) required by all workflow prompts. If you skip it, `/cg-strategy`, `/cg-review`, and `/cg-compound` will fail to write their output artifacts.
+
+### macOS — Updating
+
+```bash
+cg-update
+```
+
+### macOS — Uninstalling
+
+```bash
+bash <your-install-path>/scripts/install.sh --uninstall
+# e.g. bash ~/.compound-gpid/scripts/install.sh --uninstall
+```
+
+This removes the PATH block from your shell profile and deletes the `bin/cg-*` wrappers. The install directory itself is not deleted — remove it manually if desired.
 
 ---
 

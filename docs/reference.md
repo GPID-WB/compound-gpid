@@ -6,7 +6,9 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 
 ---
 
-## PowerShell Commands
+## Shell Commands
+
+> Available from PowerShell on Windows and from bash/zsh on macOS.
 
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
