@@ -84,8 +84,10 @@ If zero findings: > "No significant issues found. The plan is well-structured an
 
 Before presenting the final handoff, check whether the review surfaced adjacent ideas:
 
-- **If the review discussion raised adjacent ideas**: Ask:
-  > "During our review, we touched on [briefly summarize any adjacent topics raised]. These could be added as ideas to [suggest the most relevant milestone from `roadmap.json`]. Want me to add any of them?"
+- **If the review discussion raised adjacent ideas**: Dispatch `@cg-roadmap-view`
+  with `view: summary` to show current milestones, then ask:
+  > "During our review, we touched on [briefly summarize any adjacent topics raised]. Which milestone should these ideas go into?"
+  <!-- Display via @cg-roadmap-view; structural milestone writes via @cg-roadmap -->
 - **If nothing notable arose**: Ask:
   > "No adjacent ideas surfaced during this review. Want to add anything to the roadmap anyway?"
 

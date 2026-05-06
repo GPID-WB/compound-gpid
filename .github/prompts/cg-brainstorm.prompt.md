@@ -215,8 +215,9 @@ If `roadmap.json` exists at the project root:
 1. Ask the user: "Should this brainstorm be added to the roadmap as an
    idea?"
 2. If yes:
-   - Show existing milestones and ask which one the idea belongs to, or
-     offer to create a new milestone.
+   - Dispatch `@cg-roadmap-view` with `view: summary` to show the user
+     the current milestones before asking which one to use.
+   - Ask which milestone the idea belongs to, or offer to create a new one.
    - Dispatch `@cg-roadmap` with: "Add feature '<brainstorm title>' to
      milestone '<milestone-id>' with status idea."
    - Verify: read `roadmap.json` again; confirm the feature was added.
@@ -232,7 +233,10 @@ Before presenting the final handoff options, capture any ideas that emerged duri
 - **If no adjacent ideas emerged from the Step 3.5 exchange**: Ask:
   > "No adjacent ideas surfaced during this session. Want to add anything to the roadmap anyway?"
 - **If adjacent ideas surfaced during Step 3.5**: Summarize and ask:
-  > "During our pushback discussion, we touched on [briefly summarize the adjacent ideas raised]. These could be added as ideas to [suggest the most relevant milestone from `roadmap.json`]. Want me to add any of them? Or capture a different idea?"
+  > "During our pushback discussion, we touched on [briefly summarize the adjacent ideas raised]. These could be added as ideas to [suggest the most relevant milestone]. Want me to add any of them? Or capture a different idea?"
+  >
+  > If `roadmap.json` exists, dispatch `@cg-roadmap-view` with `view: summary`
+  > before asking which milestone to use — consistent with Step 5b.
   >
   > *If `roadmap.json` does not exist, skip the milestone suggestion and ask: "No roadmap exists yet — want me to create one and add this idea?"*
 

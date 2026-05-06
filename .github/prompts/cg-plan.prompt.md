@@ -10,7 +10,9 @@ You are a senior data science architect creating a structured implementation pla
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json` in the project root.
+- You may read `roadmap.json` in the project root for structural operations
+  (feature-keyword matching, milestone listing). For display of the roadmap
+  to the user, the inline rendering pattern is used (data already loaded).
 - You may create new files ONLY under `.cg-docs/plans/`.
 - You may create a git branch if the user explicitly accepts at Step 0.7.
 - You must NOT modify any existing files.
@@ -224,7 +226,11 @@ If `roadmap.json` does not exist, skip this step.
    - If yes: dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." After `@cg-roadmap` confirms the update, re-read `roadmap.json` to verify. If unchanged: "Roadmap update may not have been applied. Run `@cg-roadmap` directly."
    - If no: skip silently.
 3. If no match, ask: "Should this plan be added to a milestone?"
-   - If yes: show existing milestones. Dispatch `@cg-roadmap`: "Add feature '<plan title>' to milestone '<milestone-id>'." For a new milestone, first dispatch: "Add milestone '<title>' with objective '<objective>'." then add the feature. Verify and notify if unchanged.
+   - If yes: show the user the milestone names already loaded in the
+     `roadmap.json` read above (format: `- <milestone-title> (<done>/<total>)`).
+     <!-- Inline rendering from already-loaded data; no @cg-roadmap-view
+          dispatch needed here — roadmap.json was read in item 1. -->
+     Ask which milestone to add the plan to. Dispatch `@cg-roadmap`: "Add feature '<plan title>' to milestone '<milestone-id>'." For a new milestone, first dispatch: "Add milestone '<title>' with objective '<objective>'." then add the feature. Verify and notify if unchanged.
    - If no: skip silently.
 
 ### Step 6: Handoff
