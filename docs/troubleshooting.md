@@ -6,6 +6,46 @@ Known issues and step-by-step fixes for Compound GPID.
 
 ---
 
+## Python not found
+
+> **Added in v0.10** — `install.ps1` and `install.sh` now require Python 3.8+. This is a breaking change for users who have never installed Python.
+
+**Windows symptom** (during `install.ps1`):
+```
+Python is required but not found (checked: python3, python, py).
+```
+
+**Windows symptom** (when running `cg-index` directly):
+```
+ERROR: Python is not available (checked: python3, python, py).
+```
+
+**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. It requires Python 3.8+. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python.
+
+**Fix (Windows)**:
+```powershell
+# Option 1: winget (recommended)
+winget install Python.Python.3.11
+
+# Option 2: direct download
+# https://www.python.org/downloads/
+# Check "Add python.exe to PATH" during install
+```
+After installing, open a new terminal and verify: `python --version`. Then re-run `install.ps1`.
+
+**Fix (macOS)**:
+```bash
+# Install Xcode Command Line Tools (ships python3)
+xcode-select --install
+
+# Or install via Homebrew
+brew install python@3.11
+```
+
+**Note**: if Python is absent, the core Compound GPID workflow (prompts, agents, skills) continues to work. Only `cg-index` is unavailable, which means `DIGEST.md` and `search-index.json` won't be generated. `cg-learnings-researcher` falls back to direct directory scanning automatically.
+
+---
+
 ## `cg-update` (or `cg-link`, `cg-unlink`) not recognized after install
 
 **Windows symptom**:
