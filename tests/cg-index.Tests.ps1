@@ -406,7 +406,7 @@ Describe "cg-index.py - frontmatter parser" {
         $pyDir   = ($env:_CG_TEST_PYDIR).Trim()
         $pathLine = "sys.path.insert(0, '" + $pyDir + "')"
         $allLines = @("import sys", $pathLine) + $Lines
-        $pyFile = Join-Path $env:TEMP ("pyfm-" + [System.Guid]::NewGuid().ToString('N') + ".py")
+        $pyFile = Join-Path ([System.IO.Path]::GetTempPath()) ("pyfm-" + [System.Guid]::NewGuid().ToString('N') + ".py")
         Set-Content -Path $pyFile -Value ($allLines -join "`n") -Encoding UTF8 -NoNewline
         return ("$(& $script:Python $pyFile 2>&1)").Trim()
     }
@@ -451,7 +451,7 @@ Describe "cg-index.py - extract_summary" {
         $pyDir   = ($env:_CG_TEST_PYDIR).Trim()
         $pathLine = "sys.path.insert(0, '" + $pyDir + "')"
         $allLines = @("import sys", $pathLine) + $Lines
-        $pyFile = Join-Path $env:TEMP ("pysum-" + [System.Guid]::NewGuid().ToString('N') + ".py")
+        $pyFile = Join-Path ([System.IO.Path]::GetTempPath()) ("pysum-" + [System.Guid]::NewGuid().ToString('N') + ".py")
         Set-Content -Path $pyFile -Value ($allLines -join "`n") -Encoding UTF8 -NoNewline
         return ("$(& $script:Python $pyFile 2>&1)").Trim()
     }

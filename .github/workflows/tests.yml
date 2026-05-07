@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: |
           chmod +x scripts/install.sh scripts/link.sh scripts/unlink.sh scripts/update.sh
-          chmod +x bin/cg-link bin/cg-unlink bin/cg-update
+          chmod +x bin/cg-link bin/cg-unlink bin/cg-update bin/cg-index
 
       - name: Run tests (macOS pwsh + Pester 4.10.1)
         if: runner.os == 'macOS'
