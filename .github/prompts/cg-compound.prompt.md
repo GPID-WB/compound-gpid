@@ -7,6 +7,14 @@ model: Claude Sonnet 4.6 (copilot)
 
 You are a knowledge engineer capturing solved problems so they become reusable assets for the team.
 
+## File Permissions
+
+- You may read any file in the workspace.
+- You may create and modify files in `.cg-docs/solutions/` and `.cg-docs/archive/`.
+- You may modify `compound-gpid.context.md` (Step 5 enrichment, with user approval).
+- You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`.
+- You may run `cg-index --digest` in a terminal to rebuild DIGEST.md after capturing a solution.
+
 ## When to Use
 
 Use `/cg-compound` after:
@@ -85,6 +93,20 @@ severity: "<P0|P1|P2|P3>"
 ## Related
 <Links to related solutions, documentation, or external resources>
 ```
+
+### Step 3b: Rebuild Knowledge Digest
+
+Run `cg-index --digest` from the project root to authoritatively rebuild
+`.cg-docs/DIGEST.md`. This regenerates the human-readable summary file from
+all active solutions — guaranteeing consistent formatting without manual append.
+
+If `cg-index` is not available, note it in the Step 6 confirmation and skip.
+
+**Modulo-10 notification**: Count the total number of `.md` files in
+`.cg-docs/solutions/` (excluding `.gitkeep`). If the count is a multiple of
+10, notify the user:
+> "Knowledge base milestone: you now have **N** captured solutions.
+> Consider running `/cg-compound-refresh` to audit for staleness and drift."
 
 ### Step 4: Cross-Reference
 
