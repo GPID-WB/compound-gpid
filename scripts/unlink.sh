@@ -6,6 +6,9 @@
 # Handles both the legacy whole-directory symlink (old cg-link behaviour)
 # and the current per-subdirectory symlink approach.
 #
+# Requirements:
+#   - python3 (used to safely remove the Compound GPID block from .gitignore)
+#
 # Run this from your project root:
 #   cg-unlink
 
@@ -19,7 +22,7 @@ TARGET_GITHUB_DIR="$PROJECT_ROOT/.github"
 GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
 
 # Subdirectories managed by Compound GPID
-MANAGED_DIRS=("prompts" "skills" "agents" "instructions")
+MANAGED_DIRS=("prompts" "skills" "agents" "instructions" "shared")
 
 # Management marker used in copilot-instructions.md
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
