@@ -58,6 +58,7 @@ $testNames = @(
     'create-release',
     'bash-scripts',   # macOS bash script tests (platform-guarded, safe on Windows)
     'install',
+    'cg-index',       # Python indexer tests (Python-availability-guarded, safe on Windows)
     'run-tests-runner',
     'update',
     'link',     # creates junctions — must be last

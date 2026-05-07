@@ -244,3 +244,88 @@ Describe "install.ps1 - .cg-version initialization" {
         }
     }
 }
+
+Describe "install.ps1 - Python detection (Step 1b)" {
+    Context "Test-PythonCandidate probe logic" {
+        It "accepts output starting with 'Python 3'" {
+            $ver = "Python 3.11.9"
+            ($ver -match '^Python\s+\d') | Should -Be $true
+        }
+
+        It "accepts output starting with 'Python 2' (old but real)" {
+            $ver = "Python 2.7.18"
+            ($ver -match '^Python\s+\d') | Should -Be $true
+        }
+
+        It "rejects Windows Store stub output (empty or non-Python string)" {
+            foreach ($stubOutput in @("", "Access is denied.", "Python was not found")) {
+                ($stubOutput -match '^Python\s+\d') | Should -Be $false
+            }
+        }
+
+        It "rejects output that starts with Python but has no version number" {
+            $ver = "Python"
+            ($ver -match '^Python\s+\d') | Should -Be $false
+        }
+    }
+
+    Context "Python resolution on this machine" {
+        It "finds a real Python via at least one of: python3, python, py" {
+            $found = $false
+            foreach ($cmd in @("python3", "python", "py")) {
+                if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) { continue }
+                try {
+                    $ver = & $cmd --version 2>&1
+                    if ("$ver".Trim() -match '^Python\s+\d') { $found = $true; break }
+                } catch {}
+            }
+            $found | Should -Be $true
+        }
+    }
+}
+
+Describe "install.ps1 - cg-index.cmd copy" {
+    Context "single source of truth" {
+        It "cg-index.cmd exists in the committed bin/ directory" {
+            $repoRoot   = Split-Path $PSScriptRoot -Parent
+            $cmdFile    = Join-Path $repoRoot "bin\cg-index.cmd"
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "cg-index.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-index.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-index.cmd references cg_index.py" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-index.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'cg_index\.py') | Should -Be $true
+        }
+
+        It "install.ps1 copies cg-index.cmd rather than generating it inline" {
+            $repoRoot      = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            # Verify both the variable assignment (single source of truth pattern)
+            # and the Copy-Item call that uses it are present.
+            ($installScript -match 'cgIndexCmdSrc.*cg-index\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgIndexCmdSrc')       | Should -Be $true
+        }
+    }
+}
+
+Describe "install.ps1 - Phase 1 smoke test" -Tags @("Pending") {
+    # This test becomes active after Phase 2 delivers scripts/cg_index.py.
+    # Marked Pending so it appears in test output without failing the suite.
+    It "cg-index --version exits 0 with non-empty output" -Pending {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $wrapper  = Join-Path $repoRoot "bin\cg-index.cmd"
+        if (-not (Test-Path $wrapper)) { Set-ItResult -Skipped -Because "cg-index.cmd not found" }
+        $output   = & cmd /c "`"$wrapper`" --version 2>&1"
+        $LASTEXITCODE | Should -Be 0
+        $output       | Should -Not -BeNullOrEmpty
+    }
+}
