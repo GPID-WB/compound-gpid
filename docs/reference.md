@@ -18,6 +18,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-update <version>` | Anywhere | Pin to a specific release tag, e.g. `cg-update v0.2.0` |
 | `cg-update latest` | Anywhere | Unpin and return to tracking main |
 | `cg-update --list` | Anywhere | Browse available GitHub Releases |
+| `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
 
 ---
 
@@ -31,6 +32,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `cg-update v0.2.0` | Pin to release `v0.2.0` | Yes — writes to `.cg-version` |
 | `cg-update latest` | Unpin and track `main` | Yes — writes to `.cg-version` |
 | `cg-update --list` | Browse available releases | No |
+| `cg-update --fix` | Repair broken installation (clean + pull) | No |
 
 **How it works:** the version preference is stored per-machine in `.cg-version` inside your global install directory. This file is gitignored. Pinned users see a yellow hint when a newer release is available at the end of every `cg-update` run.
 

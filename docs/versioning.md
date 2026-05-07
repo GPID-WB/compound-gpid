@@ -16,6 +16,7 @@ By default `cg-update` tracks the `main` branch and always pulls the newest comm
 | Pin to a specific release | `cg-update v0.2.0` |
 | Return to tracking main | `cg-update latest` |
 | Check (and update) current preference | `cg-update` |
+| Repair a broken installation | `cg-update --fix` |
 
 Because all linked projects share the same global clone via symlinks (junctions on Windows, symlinks on macOS), **pinning affects every linked project on the machine simultaneously** — there is no per-project version setting.
 
@@ -146,6 +147,44 @@ or
 ```
 Mode: pinned (v0.2.0)
 ```
+
+---
+
+### `cg-update --fix` — repair a broken installation
+
+```powershell
+cg-update --fix   # Windows
+cg-update --fix   # macOS
+```
+
+Repairs a corrupted or inconsistent global clone without losing your version preference. Performs three steps in order:
+
+1. **Clean** — removes untracked files and stale artifacts left from old project links (`git clean -fd`)
+2. **Reset** — discards any local modifications to tracked files (`git checkout .`)
+3. **Pull** — fetches and applies the latest code for your current mode (`git pull --ff-only`)
+
+**Example output:**
+```
+Repairing compound-gpid installation...
+  Install dir: C:\WBG\.compound-gpid
+
+  Cleaning untracked files...
+  Discarding local changes...
+  Pulling latest...
+Repair complete.
+```
+
+**When to use**:
+- `cg-update` fails with "untracked files would be overwritten" or merge conflicts
+- The global clone has unexpected local changes that you want to discard
+- Scripts error with "corrupted installation" messages and suggest `cg-update --fix`
+- After a failed partial update left the clone in an inconsistent state
+
+**When NOT to use**:
+- If you intentionally modified files in the global clone — `--fix` discards those changes
+- As a first response to a PATH or authentication issue — those need different fixes (see [Troubleshooting](troubleshooting.md))
+
+> **If `--fix` itself fails** (e.g. the installed copy predates this feature): see [Repairing a broken installation](installation.md#repairing-a-broken-installation) for the equivalent manual commands.
 
 ---
 

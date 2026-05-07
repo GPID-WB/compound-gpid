@@ -355,7 +355,7 @@ Invoke-Pester tests\prompt-tools.Tests.ps1  # no -Quiet during long fix-triage
 
 **VS Code task**: `Ctrl+Shift+P` → **Tasks: Run Task** → **Run all Pester tests (safe)** runs `tests/Run-Tests.ps1` automatically and can never use any forbidden pattern.
 
-**Note on `-Output Minimal` / `-Output None`**: These flags are Pester 5 syntax and fail on the Pester 3.4 that ships with Windows ("ambiguous parameter" error). Use `-Quiet` instead.
+**Note on Pester version**: This project requires **Pester 4.10.1**. The Windows built-in Pester 3.4.0 cannot run the test suite — all assertions use `Should -Be` syntax (Pester 4+). Install with: `Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser`. `-Output Minimal` and `-Output None` are Pester 5 flags that don't work on Pester 4 — use `-Quiet` instead (it shows a deprecation warning on Pester 4 but works correctly).
 
 **Full diagnosis**:
 - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — forbidden PowerShell patterns
