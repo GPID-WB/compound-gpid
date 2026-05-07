@@ -16,7 +16,7 @@ $TargetGithubDir = Join-Path $ProjectRoot ".github"
 $gitignorePath   = Join-Path $ProjectRoot ".gitignore"
 
 # Subdirectories managed by Compound GPID
-$ManagedDirs = @("prompts", "skills", "agents", "instructions")
+$ManagedDirs = @("prompts", "skills", "agents", "instructions", "shared")
 
 # The management marker used in copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
