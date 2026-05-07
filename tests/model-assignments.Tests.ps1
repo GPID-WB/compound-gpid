@@ -36,7 +36,6 @@ Describe "Model assignments - prompt files" {
     It "contains exactly 19 prompt files - update this sentinel when adding a new prompt" {
         $promptFiles.Count | Should -Be 19
     }
-    }
 
     foreach ($file in $promptFiles) {
         $filePath = $file.FullName
@@ -68,7 +67,6 @@ Describe "Model assignments - agent files" {
 
     It "contains exactly 16 agent files - update this sentinel when adding a new agent" {
         $agentFiles.Count | Should -Be 16
-    }
     }
 
     foreach ($file in $agentFiles) {
