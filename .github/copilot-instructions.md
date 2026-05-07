@@ -10,7 +10,7 @@ Running Pester incorrectly in this project causes VS Code to freeze and crash. T
    ```powershell
    Invoke-Pester tests/roadmap.Tests.ps1 -Quiet
    ```
-   > ⚠️ `-Output Minimal` and `-Output None` are **Pester 5 flags** — they fail on Pester 3.4 (Windows built-in). Use `-Quiet` instead.
+   > ⚠️ **Pester version**: This project requires **Pester 4.10.1**. All test assertions use `Should -Be` (Pester 4+ syntax). The Windows built-in Pester 3.4.0 cannot run this suite. Install with: `Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser`. `-Output Minimal` and `-Output None` are Pester 5 flags — use `-Quiet` with Pester 4.
 4. **Safe pattern — check for failures only** (if `-PassThru` is needed):
    ```powershell
    $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Quiet
