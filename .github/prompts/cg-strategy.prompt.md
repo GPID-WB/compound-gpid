@@ -50,6 +50,9 @@ produce concrete decisions.
 4. If `roadmap.json` exists, read it. Note: current milestones, features,
    their statuses. Compute: how many features are unstarted vs. in
    progress vs. done.
+   <!-- Direct read required for structural computation (unstarted/done
+        counts, milestone status). Display is handled by @cg-roadmap-view
+        dispatch in Step 0 item 6 below. Do NOT eliminate this direct read. -->
 
 5. *(Deferred)* Recent brainstorm and plan context is loaded in Step 2 if
    the trigger is mid-project or post-milestone (triggers 2 or 3). Do not
@@ -66,6 +69,10 @@ produce concrete decisions.
                (<done> done, <active> active, <unstarted> unstarted)
    **Recent work**: <brief summary or "no recent plans found">
    ```
+
+   If `roadmap.json` exists and has milestones, dispatch `@cg-roadmap-view`
+   with `view: summary` to show the milestone progress table below the
+   summary header.
 
 ### Step 1: Understand the Trigger
 

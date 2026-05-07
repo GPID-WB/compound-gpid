@@ -109,6 +109,9 @@ If git is not available or this is not a git repo, skip this step.
 
 #### 2d. Milestone progress
 
+<!-- Direct read required for cross-checks (stale refs, plan-drift, scope
+     health, active feature detection). WIP display is handled inline in
+     Step 3 using data already loaded here. Do NOT eliminate this direct read. -->
 If `roadmap.json` exists at the project root, read it and compute:
 - For each milestone: count of done/total features, overall status.
 - Any features with `status: "active"` (work currently underway).
@@ -175,6 +178,23 @@ Focus text (extracted in Step 0a) against milestone statuses:
 Do NOT auto-modify the charter — only surface the nudge.
 
 ### Step 3: Present Context Summary
+
+If `roadmap.json` exists and any milestones are `in-progress`, render the
+in-progress milestones inline using the data already loaded in Step 2d.
+Use the compact table format below — do **not** dispatch `@cg-roadmap-view`
+for this step; the data is already in context and an extra agent round-trip
+adds latency at the most time-sensitive point of a session.
+
+Compact WIP table format:
+
+```
+## 🔄 Work In Progress
+
+| Milestone | Features |
+|---|---|
+| <milestone-title> | <done>/<total> — active: <active-feature-titles or "none"> |
+...
+```
 
 Read `resume-templates.md` for the **Session Context Header** format. Present a structured summary using data from Steps 0–2.
 

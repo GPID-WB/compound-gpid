@@ -75,6 +75,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Known task to plan | `/cg-plan` |
 | Review a plan before implementing | `/cg-plan-review` |
 | Direct roadmap edit | `@cg-roadmap` |
+| View roadmap progress | `/cg-roadmap-view` |
 | Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
 | Diagnose VS Code crash | `/cg-diagnose` |
