@@ -55,7 +55,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -108,6 +108,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
         $content | Should -Match 'cg-update'
+        $content | Should -Match 'cg-index'
     }
 
     It "initializes .cg-version" {
@@ -214,6 +215,10 @@ Describe "link.sh - script structure" {
         $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
         $funcCallLine = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
         $funcDefLine | Should -BeLessThan $funcCallLine
+    }
+
+    It "includes 'shared' in MANAGED_DIRS" {
+        $content | Should -Match '"shared"'
     }
 }
 
@@ -324,6 +329,32 @@ Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
         It "$($case.Wrapper) references $($case.Script)" {
             $wrapperContent | Should -Match ([regex]::Escape($scriptName))
         }
+    }
+}
+
+Describe "bash-scripts - bin/cg-index wrapper content" {
+    $wrapperPath    = Join-Path $repoRoot "bin/cg-index"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-index references cg_index.py" {
+        $wrapperContent | Should -Match 'cg_index\.py'
+    }
+
+    It "bin/cg-index invokes python3" {
+        $wrapperContent | Should -Match '\bpython3\b'
+    }
+
+    It "bin/cg-index passes arguments via `"`$@`"" {
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "bin/cg-index uses SCRIPT_DIR for self-relative path" {
+        $wrapperContent | Should -Match 'SCRIPT_DIR'
+    }
+
+    It "install.sh generates a cg-index wrapper" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        $installSh | Should -Match 'cg-index'
     }
 }
 

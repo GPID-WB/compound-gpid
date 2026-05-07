@@ -6,10 +6,16 @@
 #
 # What this does:
 #   1. Verifies Git is available.
+#   1b. Verifies Python is available (python3, python, or py -- required for cg-index).
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
-#      so cg-link, cg-unlink, cg-update are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-index are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
+#
+# Python requirement: Python 3.8+ is required (used by cg-index for knowledge indexing).
+# The Windows Store installs Python stub launchers that are not real Python -- this
+# script detects and skips them. Install from https://www.python.org/downloads/ or
+# via winget: winget install Python.Python.3.11
 #
 # This script is idempotent - running it again updates the wrappers
 # and PATH entry without creating duplicates. An existing .cg-version
@@ -42,6 +48,53 @@ Then re-run this script.
 }
 $gitVersion = git --version
 Write-Host "  Found: $gitVersion" -ForegroundColor DarkGray
+
+# -----------------------------------------------------------------------
+# Step 1b: Verify Python is available
+# -----------------------------------------------------------------------
+# Required for cg-index (knowledge indexing). Probes python3 -> python -> py.
+# All three candidates are verified against the Windows Store stub: Store stubs
+# register aliases (including python3 on Windows 11) that open the Store App
+# instead of running Python. Verification runs `<cmd> --version` and checks
+# that the output starts with "Python".
+Write-Host "Checking for Python..." -ForegroundColor DarkGray
+
+function Test-PythonCandidate {
+    param([string]$Cmd)
+    if (-not (Get-Command $Cmd -ErrorAction SilentlyContinue)) { return $false }
+    try {
+        $ver = & $Cmd --version 2>&1
+        # $ver may be a string or ErrorRecord; normalise to string
+        $verStr = "$ver".Trim()
+        return $verStr -match '^Python\s+\d'
+    } catch {
+        return $false
+    }
+}
+
+$pythonFound = $false
+foreach ($candidate in @("python3", "python", "py")) {
+    if (Test-PythonCandidate $candidate) {
+        $pythonVersion = & $candidate --version 2>&1
+        Write-Host "  Found: $pythonVersion (via $candidate)" -ForegroundColor DarkGray
+        $pythonFound = $true
+        break
+    }
+}
+
+if (-not $pythonFound) {
+    Write-Error @"
+Python is required but not found (checked: python3, python, py).
+
+Install Python from: https://www.python.org/downloads/
+Or via Microsoft Store: search for "Python 3" in the Store.
+Or via winget: winget install Python.Python.3.11
+
+Ensure python3, python, or py is on your PATH after installation.
+Then re-run this script.
+"@
+    exit 1
+}
 
 # -----------------------------------------------------------------------
 # Step 2: Test junction capability
@@ -115,6 +168,19 @@ foreach ($script in $scripts) {
 }
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
 
+# Copy cg-index.cmd from the committed file (single source of truth).
+# Unlike the simple PS1-calling wrappers above, cg-index.cmd contains
+# non-trivial Python resolver logic -- it lives in bin/ as the authoritative
+# copy; install.ps1 copies it rather than generating from an inline string.
+$cgIndexCmdSrc = Join-Path $CompoundGpidDir "bin\cg-index.cmd"
+$cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
+if (Test-Path $cgIndexCmdSrc) {
+    Copy-Item -Path $cgIndexCmdSrc -Destination $cgIndexCmdDst -Force
+    Write-Host "  Copied:  cg-index in $binDir" -ForegroundColor DarkGray
+} else {
+    Write-Warning "  bin\cg-index.cmd not found in installation -- skipping cg-index wrapper."
+}
+
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
 # Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
 # is blocked by Constrained Language Mode on enterprise machines.
@@ -157,7 +223,7 @@ if (Test-Path $PROFILE -ErrorAction SilentlyContinue) {
     }
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -195,6 +261,7 @@ Write-Host "  cg-update  -- Pull latest updates                    (run from any
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
+Write-Host "  cg-index   -- Build knowledge index from .cg-docs/   (run from project root)"
 Write-Host ""
 Write-Host "Quick start:"
 Write-Host "  1. Restart VS Code / Positron and your terminal"

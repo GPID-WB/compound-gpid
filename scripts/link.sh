@@ -30,7 +30,7 @@ PROJECT_ROOT="$(pwd)"
 TARGET_GITHUB_DIR="$PROJECT_ROOT/.github"
 
 # Subdirectories managed by Compound GPID (each gets its own symlink)
-MANAGED_DIRS=("prompts" "skills" "agents" "instructions")
+MANAGED_DIRS=("prompts" "skills" "agents" "instructions" "shared")
 
 # Management marker and destination for copilot-instructions.md
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
@@ -391,4 +391,19 @@ printf '\n'
 printf 'Run in VS Code / Positron Copilot Chat:\n'
 printf '  \033[0;36m/cg-setup\033[0m\n'
 printf '\n'
+
+# Bootstrap offer: build initial knowledge index
+# Only offered in interactive sessions: [ -t 0 ] tests whether stdin is a TTY.
+# This avoids 'read' hanging or silently accepting in non-interactive CI contexts.
+if [ -t 0 ] && command -v cg-index > /dev/null 2>&1; then
+    printf '\033[0;36mWould you like to build the initial knowledge index now? (y/N)\033[0m '
+    read -r index_answer
+    case "$index_answer" in
+        y|Y|yes|Yes)
+            printf 'Building knowledge index...\n'
+            cg-index --all || printf 'WARNING: cg-index failed (non-fatal).\n' >&2
+            ;;
+    esac
+fi
+
 exit 0

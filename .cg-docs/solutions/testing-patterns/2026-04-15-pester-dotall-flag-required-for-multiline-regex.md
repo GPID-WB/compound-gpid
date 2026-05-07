@@ -122,3 +122,5 @@ Get-Content tests\*.Tests.ps1 -Raw |
   — from the same review; adversarial prompt logic patterns
 - `.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md`
   — the companion `(?m)` case: `^`/`$` anchors silently only match string start/end without `(?m)`
+- `.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md`
+  — related PS 5.1 gotcha: here-string + `python -c` is unreliable due to interpolation and CRLF; write a temp `.py` file instead

@@ -6,6 +6,7 @@
 #
 # What this does:
 #   1. Verifies Git is available.
+#   1b. Verifies python3 is available (required for cg-index knowledge indexing).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
 #      so cg-link, cg-unlink, cg-update are available from any terminal.
@@ -194,6 +195,20 @@ EOF
     chmod +x "$WRAPPER"
     print_gray "Created: $WRAPPER"
 done
+
+# cg-index calls python3 directly (not a .sh script), so it's generated
+# separately rather than inside the loop above.
+WRAPPER="$BIN_DIR/cg-index"
+cat > "$WRAPPER" <<'EOF'
+#!/bin/bash
+# bin/cg-index — Compound GPID knowledge indexer (macOS)
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/cg_index.py" "$@"
+EOF
+chmod +x "$WRAPPER"
+print_gray "Created: $WRAPPER"
 
 # ---------------------------------------------------------------------------
 # Step 4: Add bin/ to PATH via shell profile (idempotent)

@@ -35,7 +35,7 @@ $TargetGithubDir  = Join-Path $ProjectRoot ".github"
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
 # Subdirectories managed by Compound GPID (each gets its own junction)
-$ManagedDirs = @("prompts", "skills", "agents", "instructions")
+$ManagedDirs = @("prompts", "skills", "agents", "instructions", "shared")
 
 # The management marker that marks copilot-instructions.md as CG-owned
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
@@ -269,3 +269,24 @@ Write-Host ""
 Write-Host "Run in VS Code / Positron Copilot Chat:"
 Write-Host "  /cg-setup" -ForegroundColor Cyan
 Write-Host ""
+
+# --- Bootstrap offer: build initial knowledge index ---
+# Only offered in interactive sessions (TTY check avoids Read-Host hanging CI).
+# [Environment]::UserInteractive is true in interactive terminals and false in
+# headless environments (CI, non-interactive PowerShell pipes).
+if ([Environment]::UserInteractive) {
+    $cgIndexCmd = Get-Command cg-index -ErrorAction SilentlyContinue
+    if ($cgIndexCmd) {
+        Write-Host "Would you like to build the initial knowledge index now? (y/N)" -ForegroundColor Cyan
+        $indexAnswer = (Read-Host "").Trim().ToLower()
+        if ($indexAnswer -eq 'y' -or $indexAnswer -eq 'yes') {
+            Write-Host "Building knowledge index..." -ForegroundColor DarkGray
+            try {
+                & cg-index --all
+                Write-Host "  Knowledge index built." -ForegroundColor DarkGray
+            } catch {
+                Write-Warning "  cg-index failed: $_"
+            }
+        }
+    }
+}

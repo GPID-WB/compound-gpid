@@ -12,6 +12,8 @@ This page covers installing Compound GPID on a new machine, linking it to a proj
 
 ## Windows installation
 
+> **Requirements**: Windows 10/11, PowerShell 5.1+, git, **Python 3.8+**.
+> Python is required by the `cg-index` knowledge indexer (added in v0.10). Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](#python-not-found) in Troubleshooting if you run into issues.
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -95,7 +97,8 @@ and creates three config files:
 
 ## macOS installation
 
-> **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), python3 (pre-installed via Xcode tools), git.
+> **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), git, **Python 3.8+**.
+> `python3` ships with Xcode Command Line Tools (installed automatically on most Macs). If you have never installed Xcode tools, run `xcode-select --install` first. Python is required by the `cg-index` knowledge indexer (added in v0.10). If `python3` is not on your PATH, `install.sh` will fail and print install instructions.
 
 ### Step 1 — Clone (once per machine)
 
