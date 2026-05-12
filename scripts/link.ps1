@@ -278,7 +278,7 @@ if ([Environment]::UserInteractive) {
     $cgIndexCmd = Get-Command cg-index -ErrorAction SilentlyContinue
     if ($cgIndexCmd) {
         Write-Host "Would you like to build the initial knowledge index now? (y/N)" -ForegroundColor Cyan
-        $indexAnswer = (Read-Host "").Trim().ToLower()
+        $indexAnswer = (Read-Host).Trim().ToLower()
         if ($indexAnswer -eq 'y' -or $indexAnswer -eq 'yes') {
             Write-Host "Building knowledge index..." -ForegroundColor DarkGray
             try {
