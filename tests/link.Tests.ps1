@@ -571,3 +571,26 @@ Describe "link.ps1 - compound-gpid.context.md is not gitignored" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Regression guard: Read-Host empty-string prompt crash (bootstrap index offer)
+# Bug: link.ps1 called Read-Host "" which throws PSArgumentException
+#      "name cannot be null or empty" whenever the bootstrap index offer is shown.
+# Fix: Read-Host with no argument reads stdin without displaying a duplicate prompt.
+# ---------------------------------------------------------------------------
+
+Describe "link.ps1 - bootstrap index Read-Host prompt" {
+    Context "Read-Host empty-string argument is the root cause of the PSArgumentException" {
+        It "Read-Host with empty string prompt throws PSArgumentException [reproduces bug]" {
+            # PowerShell does not accept an empty string as the -Prompt parameter.
+            # This is the exact call that crashed cg-link at the bootstrap index offer.
+            { Read-Host "" } | Should -Throw
+        }
+
+        It "link.ps1 bootstrap prompt does not use Read-Host with an empty string [regression guard]" {
+            # Fails on the buggy code (contains Read-Host ""), passes after the fix.
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw
+            $content | Should -Not -Match 'Read-Host\s+""'
+        }
+    }
+}
+
