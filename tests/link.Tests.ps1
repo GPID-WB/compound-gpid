@@ -594,3 +594,37 @@ Describe "link.ps1 - bootstrap index Read-Host prompt" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Bug: cg-link bootstrap index offer fires on empty projects with no .cg-docs/solutions/
+# cg-index always fails on a freshly-linked project because .cg-docs/solutions/ does
+# not exist yet. The offer is misleading and unhelpful at link time; indexing belongs
+# in /cg-setup once the project has been configured.
+# Fix: remove the bootstrap index offer from link.ps1 and link.sh entirely.
+# ---------------------------------------------------------------------------
+
+Describe "link.ps1 - no bootstrap index offer at link time" {
+    It "link.ps1 does not prompt to run cg-index during cg-link [regression guard]" {
+        # Fails on the current code (bootstrap offer present), passes after the fix.
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw
+        ($content -match 'Would you like to build the initial knowledge index') | Should -Be $false
+    }
+
+    It "link.ps1 does not call cg-index in the bootstrap block [regression guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw
+        ($content -match '& cg-index') | Should -Be $false
+    }
+}
+
+Describe "link.sh - no bootstrap index offer at link time" {
+    It "link.sh does not prompt to run cg-index during cg-link [regression guard]" {
+        # Fails on the current code (bootstrap offer present), passes after the fix.
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw
+        ($content -match 'Would you like to build the initial knowledge index') | Should -Be $false
+    }
+
+    It "link.sh does not call cg-index in the bootstrap block [regression guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw
+        ($content -match 'cg-index --all') | Should -Be $false
+    }
+}
+
