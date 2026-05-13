@@ -99,4 +99,5 @@ Add the guard to the test file that already covers the modified script:
 ## Related
 
 - `.cg-docs/solutions/bugs/2026-05-12-link-read-host-empty-string-throws-psargumentexception.md` — the bug this pattern was introduced to prevent from recurring
+- `.cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md` — follow-up bug in the same bootstrap block; the source-scanning pattern was extended to assert the entire block is absent from both `link.ps1` and `link.sh`
 - `.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md` — related source-simulation regression test pattern

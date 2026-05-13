@@ -43,6 +43,10 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Command substitution functions must be stdout-clean**: Any bash function whose return value is captured via `VAR="$(fn)"` must write only the return value to stdout. All warnings and progress messages must go to `>&2`. Color helpers (`print_yellow`, `print_gray`, etc.) are **not** stderr-safe by default — always add `>&2` when calling them inside a function used via command substitution. Without `>&2`, the warning text is captured into the variable alongside the intended return value, corrupting every downstream file operation silently (exit code 0, no error). See `.cg-docs/solutions/bugs/2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md`.
 
+## Install/Link Script Conventions
+
+- **Gate interactive offers on preconditions, not just command availability**: `cg-link` runs before `/cg-setup` — `.cg-docs/` does not exist yet on a freshly-linked project. Any post-link offer must verify its own preconditions (e.g., required directories exist) before prompting the user, not just check whether the command is installed. Offering `cg-index` at link time always fails on new projects because `.cg-docs/solutions/` is absent. The rule: if an action requires project content created by `/cg-setup`, it belongs in `/cg-setup` — not in `cg-link`. See `.cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md`.
+
 ## Agent Design Conventions
 
 - **Path validation is mandatory for agent file reads**: Any agent that reads a file from a user-controlled path must validate: (1) path starts with the expected prefix (e.g., `.cg-docs/plans/`), (2) ends with expected suffix (`.md`), (3) contains no `..`, (4) is not absolute. Reject and emit a fixed error message without reading. An unrestricted `tools: ['read']` + user-controlled path = path traversal. Discovered as P0.1 in roadmap-visualization review.
