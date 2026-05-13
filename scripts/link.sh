@@ -357,16 +357,15 @@ PYEOF
 fi
 
 # ---------------------------------------------------------------------------
-# Step 6: Verify managed directories are accessible
+# Step 6: Verify managed directories are accessible via a known file
 # ---------------------------------------------------------------------------
-VERIFY_FAILED=false
-for dir in "${MANAGED_DIRS[@]}"; do
-    if [[ ! -d "$TARGET_GITHUB_DIR/$dir" ]]; then
-        print_warn "Verification failed — $dir/ not accessible at $TARGET_GITHUB_DIR/$dir"
-        VERIFY_FAILED=true
-    fi
-done
-if [[ "$VERIFY_FAILED" == "false" ]]; then
+# Check a specific file through the prompts symlink, not just directory
+# existence. A directory check passes even when the symlink target is on
+# cloud storage with inaccessible contents (matches link.ps1 Step 6 behaviour).
+VERIFY_CHECK="$TARGET_GITHUB_DIR/prompts/cg-setup.prompt.md"
+if [[ ! -f "$VERIFY_CHECK" ]]; then
+    print_warn "Verification failed - prompts not visible at expected path: $VERIFY_CHECK"
+else
     print_gray "Symlinks verified."
 fi
 

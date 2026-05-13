@@ -508,6 +508,25 @@ Describe "link.ps1 - update.ps1 call failure handling" {
 # link.ps1 Step 6 does a Test-Path check on cg-setup.prompt.md through the
 # junction, emitting a Warning on failure and continuing (non-fatal).
 
+Describe "link.ps1 - Windows platform guard" {
+    Context "script content" {
+        $linkPs1 = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts/link.ps1"
+        $linkPs1Content = Get-Content $linkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+        It "contains a Windows platform check to prevent accidental use on macOS/Linux" {
+            # Regression: link.ps1 ran on macOS because it had no platform guard.
+            # Junctions are Windows-only; macOS users must use link.sh instead.
+            $linkPs1Content | Should -Match 'IsWindows|Windows_NT'
+        }
+
+        It "directs non-Windows users to link.sh" {
+            # The error message or comment must reference link.sh so the user knows
+            # what to run instead.
+            $linkPs1Content | Should -Match 'link\.sh'
+        }
+    }
+}
+
 Describe "link.ps1 - junction accessibility verification (Step 6)" {
     Context "when cg-setup.prompt.md is accessible through the junction" {
         It "treats Test-Path returning true as verification success" {

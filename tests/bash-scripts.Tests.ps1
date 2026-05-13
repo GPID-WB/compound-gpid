@@ -220,6 +220,14 @@ Describe "link.sh - script structure" {
     It "includes 'shared' in MANAGED_DIRS" {
         $content | Should -Match '"shared"'
     }
+
+    It "Step 6 verification checks file accessibility not just directory existence" {
+        # Regression: link.sh Step 6 only checked -d (directory exists), which passes
+        # even when the symlink target is on cloud storage with inaccessible files.
+        # Fix: check that cg-setup.prompt.md is reachable through the prompts symlink,
+        # matching link.ps1's stronger Test-Path verification (link.ps1 Step 6).
+        $content | Should -Match 'cg-setup\.prompt\.md'
+    }
 }
 
 # ---------------------------------------------------------------------------

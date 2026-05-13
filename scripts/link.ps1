@@ -24,6 +24,22 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# --- Platform guard: Windows only ---
+# link.ps1 uses directory junctions (New-Item -ItemType Junction) which are a
+# Windows-only filesystem feature. On macOS and Linux, use link.sh instead.
+# Without this guard, running link.ps1 via pwsh on macOS fails Step 6's
+# path verification because backslash path separators are not valid on macOS.
+$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+if (-not $onWindows) {
+    Write-Error @"
+link.ps1 is Windows-only (it uses directory junctions).
+On macOS/Linux, use link.sh instead:
+  cg-link
+(which calls scripts/link.sh automatically via the bash wrapper in bin/)
+"@
+    exit 1
+}
+
 # --- Configuration ---
 # Resolve the install location relative to this script's own directory
 # (scripts/ -> parent = compound-gpid root). Works with any install path.
@@ -243,7 +259,7 @@ if (Test-Path $gitignorePath) {
 }
 
 # --- Step 6: Verify a known file is accessible ---
-$checkPath = Join-Path $TargetGithubDir "prompts\cg-setup.prompt.md"
+$checkPath = Join-Path $TargetGithubDir "prompts" "cg-setup.prompt.md"
 if (-not (Test-Path $checkPath)) {
     Write-Warning "Verification failed - prompts not visible at expected path: $checkPath"
 } else {

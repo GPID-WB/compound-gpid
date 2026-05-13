@@ -1,6 +1,56 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-07 · 99 active solutions_
+_Generated 2026-05-13 · 105 active solutions_
+
+## cg-link bootstrap index offer always fails on empty projects
+
+date: 2026-05-13
+category: bugs
+status: 
+tags: link, cg-index, bootstrap, empty-project, link.ps1, link.sh, ux
+path: .cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md
+
+Running `cg-link` on a new empty project completed the symlink/junction setup but then prompted to build the knowledge index. When the user answered `y`, the command failed:
+
+## Join-Path with embedded backslash path separator is Windows-only
+
+date: 2026-05-13
+category: environment-issues
+status: 
+tags: powershell, cross-platform, join-path, path-separator, macos, linux, platform-guard, scripts
+path: .cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md
+
+On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on macOS/Linux resolves to `$base/subdir\file.txt` — a single path component named `subdir\file.txt` (a literal backslash in the filename). `Test-Path`, `Get-Content`, and other cmdlets then fail silently: `Test-Path` returns `$false`, `Get-Content` throws "file not found", and there is no error at the `Join-Path` call site. This was the root cause of the `cg-link` macOS verification warning: ```
+
+## link.ps1 runs on macOS via pwsh, Step 6 verification fails due to backslash path separator
+
+date: 2026-05-13
+category: bugs
+status: 
+tags: cg-link, link.ps1, link.sh, macos, symlinks, junctions, platform-guard, path-separator, verification
+path: .cg-docs/solutions/bugs/2026-05-13-link-ps1-runs-on-macos-verification-fails.md
+
+After running `cg-link` on macOS the terminal shows:
+
+## Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt
+
+date: 2026-05-12
+category: bugs
+status: 
+tags: link, Read-Host, bootstrap, cg-index, PSArgumentException, interactive
+path: .cg-docs/solutions/bugs/2026-05-12-link-read-host-empty-string-throws-psargumentexception.md
+
+Running `cg-link` in an interactive terminal completed the junction setup but then crashed at the "Would you like to build the initial knowledge index now? (y/N)" prompt:
+
+## Source-scanning regression guard for PowerShell scripting anti-patterns
+
+date: 2026-05-12
+category: testing-patterns
+status: 
+tags: powershell, pester, regression-guard, source-scanning, Read-Host, anti-pattern, link
+path: .cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md
+
+A scripting anti-pattern (`Read-Host ""`) was introduced during a feature addition to `scripts/link.ps1`. The anti-pattern threw `PSArgumentException: name cannot be null or empty` at runtime — preventing users from answering the interactive prompt entirely. Because the pattern looked superficially correct (the intent was to read input without printing a second prompt), it could easily re-enter on the next edit.
 
 ## PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests
 
@@ -21,6 +71,16 @@ tags: python, atomic-write, file-io, stdlib, mkstemp, crash-safety, data-integri
 path: .cg-docs/solutions/bugs/2026-05-07-python-nonatomic-path-write-use-mkstemp-replace.md
 
 `Path.write_text(content)` and `open(path, 'w')` are not atomic. The OS truncates the destination file to zero bytes **before** writing any content. If the process is interrupted mid-write (SIGKILL, power failure, out-of-disk, exception after truncation), the destination file is left empty or partially written — the previous content is gone with no recovery path. This was flagged as P2.4 in the `cg_index.py` code review. The indexer wrote `search-index.json` and `DIGEST.md` using `path.write_text()`, meaning a crash during indexing would silently destroy the knowledge base files.
+
+## scripts/link.sh missing executable bit in git index
+
+date: 2026-05-07
+category: bugs
+status: 
+tags: bash, git, permissions, install, cg-link, executable-bit
+path: .cg-docs/solutions/bugs/2026-05-07-link-sh-missing-executable-bit.md
+
+Running `cg-link` after a fresh install fails immediately with:
 
 ## Cross-prompt user journey must be validated end-to-end, not just per-prompt
 
