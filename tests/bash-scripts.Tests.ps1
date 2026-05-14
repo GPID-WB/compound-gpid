@@ -4,7 +4,7 @@
 #
 # Run with: Invoke-Pester tests/bash-scripts.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
-# On macOS CI, requires: pwsh + Pester 5.6.1
+# On macOS CI, requires: pwsh + Pester 4.10.1
 
 # Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
 $script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
@@ -228,6 +228,20 @@ Describe "link.sh - script structure" {
         # matching link.ps1's stronger Test-Path verification (link.ps1 Step 6).
         $content | Should -Match 'cg-setup\.prompt\.md'
     }
+
+    It "supports --yes / -y flag for non-interactive Relink prompt [regression guard]" {
+        $content | Should -Match '\-\-yes'
+        $content | Should -Match '(?<![\w])-y[)\s]'
+        $content | Should -Match 'FORCE'
+    }
+
+    It "Relink prompt is guarded by FORCE check (1 guard required) [regression guard]" {
+        # Exactly 1 if [[ ... FORCE guard exists (the Relink symlink-conflict branch).
+        # unlink.sh has 2 guards; link.sh has 1. Asserting the count catches
+        # the guard being silently removed while --yes/-y declarations remain.
+        ([regex]::Matches($content, 'if\s+\[\[.*FORCE') | Measure-Object).Count |
+            Should -Be 1
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -266,6 +280,23 @@ Describe "unlink.sh - script structure" {
 
     It "removes .gitignore CG entries" {
         $content | Should -Match '\.gitignore'
+    }
+
+    It "supports --yes / -y flag for non-interactive use [regression guard]" {
+        # cg-unlink is called with --yes in E2E CI smoke tests where there is no
+        # /dev/tty available. Without this flag, `read -r answer </dev/tty` hangs
+        # or receives empty input, silently aborting the unlink.
+        $content | Should -Match '\-\-yes'
+        $content | Should -Match '(?<![\w])-y[)\s]'  # -y) short form in case block
+        $content | Should -Match 'FORCE'
+    }
+
+    It "guards read confirmation calls with FORCE check [regression guard]" {
+        # Both confirmation read calls (legacy symlink path + per-subdirectory path)
+        # must be inside a FORCE guard. Should -Match passes on the first occurrence;
+        # counting confirms both guards are present.
+        ([regex]::Matches($content, 'if\s+\[\[.*FORCE') | Measure-Object).Count |
+            Should -Be 2
     }
 }
 
