@@ -38,12 +38,14 @@ language: "<r|python|stata|both|all|other>"
 r-syntax: "<data.table-collapse|tidyverse>"
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
+modules: "engineering"
 created: "YYYY-MM-DD"
 cg-schema-version: ""
 ---
 ```
 
 > **Note**: Only include `r-syntax` if language is **R**, **Both**, or **All**. Omit this field for Python, Stata, or Other projects.
+> **Note**: `modules:` accepts `"engineering"` (default), `"research"`, or `"engineering, research"`. If absent, defaults to `"engineering"`.
 > **Note**: `cg-schema-version` is intentionally blank for new projects. `cg-update`
 > populates this field with the current schema version when run from the project root.
 > `/cg-resume` will nudge the user to run `cg-update` if this field is blank or
@@ -56,6 +58,7 @@ This file configures Compound GPID for this project. It is gitignored and local 
 ## Language: <language>
 ## Project Type: <project-type>
 ## Review Depth: <review-depth>
+## Modules: <modules>
 
 ## Notes
 <Any additional project-specific notes the user mentioned>

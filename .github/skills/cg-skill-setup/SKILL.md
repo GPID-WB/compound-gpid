@@ -1,5 +1,6 @@
 ---
 name: cg-skill-setup
+module: shared
 description: "Configure Compound GPID for your project. Sets language preferences, project type, and review depth."
 ---
 
@@ -93,6 +94,7 @@ language: "<r|python|stata|both|all|other>"
 r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
+modules: "engineering"             # Options: engineering, research, or both (comma-separated). Default: "engineering".
 created: "YYYY-MM-DD"
 cg-schema-version: ""
 ---
@@ -104,6 +106,7 @@ This file configures Compound GPID for this project. It is gitignored and local 
 ## Language: <language>
 ## Project Type: <project-type>
 ## Review Depth: <review-depth>
+## Modules: <modules>
 
 ## Notes
 <Any additional project-specific notes or preferences>
@@ -158,6 +161,32 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
         └── .gitkeep
 ```
 
+### Step 5.5: Research Directory Scaffold (research module only)
+
+If `modules:` includes `research`, additionally create:
+
+```
+.cg-docs/research/
+├── derivations/        # LaTeX or Markdown derivations
+│   └── .gitkeep
+├── specifications/     # Specification decision memos
+│   └── .gitkeep
+├── results/            # Estimation outputs; manifest.json auto-created by /cr-work
+│   └── .gitkeep
+├── manuscript/         # Working paper drafts
+│   └── .gitkeep
+└── replication/        # Journal replication materials
+    └── .gitkeep
+
+.cg-docs/solutions/identification/.gitkeep
+.cg-docs/solutions/specification/.gitkeep
+.cg-docs/solutions/derivation/.gitkeep
+.cg-docs/solutions/ml-methodology/.gitkeep
+.cg-docs/solutions/reproducibility/.gitkeep
+```
+
+Skip this step for engineering-only projects (`modules: "engineering"`).
+
 ### Step 6: Confirm
 
 ```markdown
@@ -166,6 +195,7 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
 **Language**: <language>
 **Project Type**: <project-type>
 **Review Depth**: <review-depth>
+**Modules**: <modules>
 
 ### Available Commands
 - `/cg-brainstorm` — Clarify fuzzy requirements

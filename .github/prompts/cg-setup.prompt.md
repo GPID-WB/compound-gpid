@@ -2,6 +2,7 @@
 description: "Configure Compound GPID for this project and load context for returning projects."
 model: Claude Haiku 4.5 (copilot)
 # Model: Haiku 4.5 — configuration task; reasoning=2, creativity=1. See docs/model-guide.md (2026-04-07 audit).
+module: shared
 ---
 
 # Setup
@@ -113,6 +114,25 @@ If the user selected **Package** and language is **R**, **Both**, or **All**: ch
 ^\.cg-docs$
 ```
 
+#### A5.6.5. Research directory scaffold (research module only)
+
+If `modules:` includes `research`, create the following directories and `.gitkeep` files if they do not already exist:
+
+```
+.cg-docs/research/derivations/.gitkeep
+.cg-docs/research/specifications/.gitkeep
+.cg-docs/research/results/.gitkeep
+.cg-docs/research/manuscript/.gitkeep
+.cg-docs/research/replication/.gitkeep
+.cg-docs/solutions/identification/.gitkeep
+.cg-docs/solutions/specification/.gitkeep
+.cg-docs/solutions/derivation/.gitkeep
+.cg-docs/solutions/ml-methodology/.gitkeep
+.cg-docs/solutions/reproducibility/.gitkeep
+```
+
+Skip this step entirely for engineering-only projects (`modules: "engineering"`).
+
 #### A5.7. Roadmap bootstrap
 
 Using the **Roadmap Bootstrap from Charter** section from `setup-templates.md`:
@@ -165,6 +185,18 @@ If the user selects **R**, **Both**, or **All**: ask a follow-up before Question
 > 4. **API** (REST API, web service)
 > 5. **Tool** (CLI tool, utility, automation)
 > 6. **Other** (specify)
+
+**Question 2b — Active modules**
+
+> What workflows does this project need?
+>
+> 1. **Engineering only** — data pipelines, infrastructure, production code *(default)*
+> 2. **Research only** — economics/econometric research, paper writing, derivations
+> 3. **Both** — engineering and research workflows
+
+Map answers to `modules:` values: Engineering only → `"engineering"`, Research only → `"research"`, Both → `"engineering, research"`.
+
+If `modules:` includes `research`, also create the `.cg-docs/research/` directory tree (see Step 5.5 below).
 
 **Question 3 — Review depth**
 
