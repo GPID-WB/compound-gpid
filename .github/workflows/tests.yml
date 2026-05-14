@@ -92,6 +92,10 @@ jobs:
               }
           }
           Write-Host "E2E smoke test passed." -ForegroundColor Green
+          # link.ps1 may leave $LASTEXITCODE != 0 from internal git auto-update
+          # operations (expected in CI detached-HEAD context). All assertions above
+          # use throw, so reaching this line means the test passed. Reset explicitly.
+          $global:LASTEXITCODE = 0
 
       - name: E2E smoke test teardown (Windows)
         if: always() && runner.os == 'Windows'
