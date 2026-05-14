@@ -350,3 +350,266 @@ Describe "cg-skill-setup/SKILL.md - research directory layout" {
         ($content -match '(?m)^\s*modules:') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# CR agent files — structural checks
+# ---------------------------------------------------------------------------
+
+Describe "CR agent files - structural checks" {
+    $crAgents = @(
+        'cr-research-integrity.agent.md',
+        'cr-mathematical-verification.agent.md',
+        'cr-identification-audit.agent.md',
+        'cr-econometric-reasoning.agent.md'
+    )
+
+    $agentsDir = Join-Path $repoRoot ".github\agents"
+
+    foreach ($name in $crAgents) {
+        $path = Join-Path $agentsDir $name
+
+        Context "$name - existence and frontmatter" {
+            It "[$name] exists" {
+                Test-Path $path | Should -Be $true
+            }
+
+            It "[$name] has a description: field in frontmatter" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match 'description:') | Should -Be $true
+            }
+
+            It "[$name] has module: research" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+            }
+
+            It "[$name] has tools: ['read', 'search'] (no write)" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match "tools:.*'read'") | Should -Be $true
+                ($fm -notmatch "'write'") | Should -Be $true
+            }
+
+            It "[$name] has user-invocable: false" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match '(?m)^\s*user-invocable:\s*false') | Should -Be $true
+            }
+
+            It "[$name] has a model: field in frontmatter" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match '(?m)^\s*model:') | Should -Be $true
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-research-integrity.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-research-integrity.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-research-integrity.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "references Code-Math Mismatch error class" {
+        ($content -match '(?i)code.math mismatch') | Should -Be $true
+    }
+
+    It "references Specification Searching error class" {
+        ($content -match '(?i)specification searching') | Should -Be $true
+    }
+
+    It "references Identification Theater error class" {
+        ($content -match '(?i)identification theater') | Should -Be $true
+    }
+
+    It "references Unseeded Randomness error class" {
+        ($content -match '(?i)unseeded randomness') | Should -Be $true
+    }
+
+    It "references Asymptotic assumption violation check" {
+        ($content -match '(?i)asymptotic') | Should -Be $true
+    }
+
+    It "references Wrong SE Clustering check" {
+        ($content -match '(?i)clustering') | Should -Be $true
+    }
+
+    It "references Distributional assumption check" {
+        ($content -match '(?i)distributional assumption') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-research-integrity] tag" {
+        ($content -match '\[cr-research-integrity\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-mathematical-verification.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-mathematical-verification.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-mathematical-verification.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "references .cg-docs/research/derivations/" {
+        ($content -match '\.cg-docs[/\\]research[/\\]derivations') | Should -Be $true
+    }
+
+    It "contains variable mapping table concept" {
+        ($content -match '(?i)variable mapping table') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "uses Claude Opus 4.6 model" {
+        $fm = Get-Frontmatter -FilePath $path
+        ($fm -match 'Claude Opus 4\.6') | Should -Be $true
+    }
+
+    It "output format includes [cr-mathematical-verification] tag" {
+        ($content -match '\[cr-mathematical-verification\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-identification-audit.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-identification-audit.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-identification-audit.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "covers IV/2SLS identification strategy" {
+        ($content -match '(?i)IV/2SLS|ivreg') | Should -Be $true
+    }
+
+    It "covers RDD identification strategy" {
+        ($content -match '(?i)RDD|regression discontinuity') | Should -Be $true
+    }
+
+    It "covers DiD identification strategy" {
+        ($content -match '(?i)DiD|difference.in.differences') | Should -Be $true
+    }
+
+    It "covers control function approach" {
+        ($content -match '(?i)control function') | Should -Be $true
+    }
+
+    It "contains required diagnostic table (first-stage F)" {
+        ($content -match '(?i)first.stage') | Should -Be $true
+    }
+
+    It "contains McCrary/density test requirement for RDD" {
+        ($content -match '(?i)McCrary|rddensity') | Should -Be $true
+    }
+
+    It "contains parallel trends requirement for DiD" {
+        ($content -match '(?i)parallel trends') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-identification-audit] tag" {
+        ($content -match '\[cr-identification-audit\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-econometric-reasoning.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-econometric-reasoning.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-econometric-reasoning.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "references DGP (data-generating process)" {
+        ($content -match '\bDGP\b') | Should -Be $true
+    }
+
+    It "references MLE estimation strategy" {
+        ($content -match '\bMLE\b') | Should -Be $true
+    }
+
+    It "references GMM estimation strategy" {
+        ($content -match '\bGMM\b') | Should -Be $true
+    }
+
+    It "contains assumption-data consistency section" {
+        ($content -match '(?i)assumption.data consistency') | Should -Be $true
+    }
+
+    It "contains PhD student scaffolding reference" {
+        ($content -match '(?i)PhD student') | Should -Be $true
+    }
+
+    It "uses Claude Opus 4.6 model" {
+        $fm = Get-Frontmatter -FilePath $path
+        ($fm -match 'Claude Opus 4\.6') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-econometric-reasoning] tag" {
+        ($content -match '\[cr-econometric-reasoning\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-review.prompt.md - Phase 3 wiring verification
+# ---------------------------------------------------------------------------
+
+Describe "cr-review.prompt.md - Phase 3 wiring" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain umbrella Phase 2/3 skip paragraph" {
+        ($content -match 'For Phase 2, they are not yet available') | Should -Be $false
+    }
+
+    It "does NOT contain Phase 3 annotation on @cr-research-integrity" {
+        # The line for cr-research-integrity must not say Phase 3
+        $lines = $content -split "`n"
+        $riLine = $lines | Where-Object { $_ -match 'cr-research-integrity' } | Select-Object -First 1
+        ($riLine -match 'Phase 3') | Should -Be $false
+    }
+
+    It "does NOT contain Phase 3 annotation on @cr-mathematical-verification" {
+        $lines = $content -split "`n"
+        $mvLine = $lines | Where-Object { $_ -match 'cr-mathematical-verification' } | Select-Object -First 1
+        ($mvLine -match 'Phase 3') | Should -Be $false
+    }
+
+    It "does NOT contain Phase 3 annotation on @cr-identification-audit" {
+        $lines = $content -split "`n"
+        $iaLine = $lines | Where-Object { $_ -match 'cr-identification-audit' -and $_ -notmatch 'Phase 4' } | Select-Object -First 1
+        ($iaLine -match 'Phase 3') | Should -Be $false
+    }
+
+    It "does NOT contain Phase 4 annotation on @cr-econometric-reasoning" {
+        $lines = $content -split "`n"
+        $erLine = $lines | Where-Object { $_ -match 'cr-econometric-reasoning' } | Select-Object -First 1
+        ($erLine -match 'Phase 4') | Should -Be $false
+    }
+
+    It "still contains Phase 4 annotation for @cr-specification-analysis (future agent)" {
+        ($content -match 'cr-specification-analysis.*Phase 4') | Should -Be $true
+    }
+
+    It "still contains Phase 5 annotation for @cr-ml-methodology (future agent)" {
+        ($content -match 'cr-ml-methodology.*Phase 5') | Should -Be $true
+    }
+
+    It "contains availability guard message" {
+        ($content -match '(?i)not available.*skip') | Should -Be $true
+    }
+}
