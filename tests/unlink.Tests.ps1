@@ -26,6 +26,14 @@ Describe "unlink.ps1 - pre-condition checks" {
 }
 
 Describe "unlink.ps1 - legacy whole-directory junction" {
+    AfterAll {
+        # Remove any junctions left by individual It blocks.
+        # Pester's $TestDrive cleanup uses Remove-Item -Recurse -Force which
+        # follows junctions — explicit removal here avoids errors on cleanup.
+        Get-ChildItem -Path $TestDrive -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.LinkType -eq 'Junction' } |
+            ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+    }
     Context "when .github/ is a whole-directory junction to compound-gpid" {
         It "identifies the legacy junction by its LinkType" {
             $target   = Join-Path $TestDrive "cg-source"
@@ -56,6 +64,12 @@ Describe "unlink.ps1 - legacy whole-directory junction" {
 }
 
 Describe "unlink.ps1 - per-subdirectory junction removal" {
+    AfterAll {
+        # Remove any junctions left by individual It blocks.
+        Get-ChildItem -Path $TestDrive -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.LinkType -eq 'Junction' } |
+            ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+    }
     Context "removing junctions for each managed subdirectory" {
         It "removes a prompts/ junction pointing to compound-gpid" {
             $target   = Join-Path $TestDrive "compound-gpid-prompts"
@@ -200,3 +214,61 @@ Describe "unlink.ps1 - idempotency" {
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# Regression guard: -Force parameter for non-interactive / CI use
+# ---------------------------------------------------------------------------
+# E2E smoke tests invoke unlink.ps1 -Force to skip confirmation prompts in CI
+# where Read-Host returns empty, silently aborting the unlink operation.
+# These tests verify the flag exists in source and is wired to both prompts.
+
+# ---------------------------------------------------------------------------
+# Windows platform guard (mirrors link.Tests.ps1 "link.ps1 - Windows platform guard")
+# ---------------------------------------------------------------------------
+Describe "unlink.ps1 - Windows platform guard" {
+    Context "script content" {
+        $unlinkPs1 = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts/unlink.ps1"
+        $unlinkPs1Content = Get-Content $unlinkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+        It "contains a Windows platform check to prevent accidental use on macOS/Linux" {
+            $unlinkPs1Content | Should -Match 'IsWindows|Windows_NT'
+        }
+
+        It "directs non-Windows users to unlink.sh" {
+            $unlinkPs1Content | Should -Match 'unlink\.sh'
+        }
+    }
+}
+
+Describe "unlink.ps1 - -Force flag for non-interactive use" {
+    $unlinkPs1 = Join-Path $PSScriptRoot "..\scripts\unlink.ps1"
+    $content   = Get-Content $unlinkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "declares a [switch]`$Force parameter [regression guard]" {
+        $content | Should -Match '\[switch\]\$Force'
+    }
+
+    It "both confirmation paths are guarded by -not `$Force (2 guards required) [regression guard]" {
+        # Both the legacy-junction path and the per-subdirectory path need an
+        # independent if (-not $Force) guard. Should -Match passes on the first
+        # occurrence; counting ensures both guards are present.
+        ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
+            Should -Be 2
+    }
+
+    It "does not call Read-Host unconditionally for either confirmation [regression guard]" {
+        # Exactly 2 Read-Host calls exist, both inside (-not $Force) guards.
+        # Should -BeLessThan 3 passes vacuously with 0 calls — use -Be 2 to
+        # assert both the minimum and the maximum.
+        ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
+            Should -Be 2    # exactly 2: one per confirmation path (legacy + per-subdir)
+    }
+
+    It "does not use Read-Host with an empty string argument [regression guard]" {
+        # Read-Host '' / Read-Host "" throws PSArgumentException in PS 5.1.
+        # See .cg-docs/solutions/bugs/2026-05-12-link-read-host-empty-string-throws-psargumentexception.md
+        $content | Should -Not -Match 'Read-Host\s+""'
+        $content | Should -Not -Match "Read-Host\s+''"
+    }
+}
+

@@ -1,0 +1,51 @@
+name: Conventional commits lint
+
+# Validates that every PR title follows the Conventional Commits format used
+# by this project: type(scope): description
+# (e.g.  feat(link): add -Force parameter  or  fix(ci): correct matrix paths)
+#
+# Only the PR *title* is checked — individual commit messages are not linted.
+# The PR title becomes the squash-merge commit message, so keeping it
+# conventional makes the project history machine-readable.
+#
+# Reference: https://www.conventionalcommits.org/
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title-lint:
+    name: PR title follows Conventional Commits
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017  # v5.5.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Allowed commit types (must match copilot-instructions.md conventions)
+          types: |
+            feat
+            fix
+            docs
+            test
+            refactor
+            chore
+            data
+            analysis
+          # Scope is optional (e.g. feat(link): ... or feat: ...)
+          requireScope: false
+          # Subject must not be empty
+          subjectPattern: ^.+$
+          subjectPatternError: |
+            The subject of your PR title must not be empty.
+            Use the format: type(optional-scope): description
+            Example: fix(link): handle empty Read-Host on macOS

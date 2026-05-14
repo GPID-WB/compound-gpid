@@ -508,6 +508,50 @@ Describe "link.ps1 - update.ps1 call failure handling" {
 # link.ps1 Step 6 does a Test-Path check on cg-setup.prompt.md through the
 # junction, emitting a Warning on failure and continuing (non-fatal).
 
+# ---------------------------------------------------------------------------
+# -Force flag for non-interactive use (mirrors unlink.Tests.ps1)
+# ---------------------------------------------------------------------------
+Describe "link.ps1 - -Force flag for non-interactive use" {
+    $linkPs1 = Join-Path $PSScriptRoot "..\scripts\link.ps1"
+    $content = Get-Content $linkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "declares a [switch]`$Force parameter [regression guard]" {
+        $content | Should -Match '\[switch\]\$Force'
+    }
+
+    It "Relink prompt is guarded by -not `$Force (1 guard required) [regression guard]" {
+        # The junction-conflict branch Read-Host must be inside if (-not $Force).
+        # Counting guards prevents the guard from being removed while the param declaration remains.
+        ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
+            Should -Be 1
+    }
+
+    It "does not call Read-Host unconditionally [regression guard]" {
+        # Exactly 1 Read-Host call (Relink prompt), must be inside the -Force guard.
+        ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
+            Should -Be 1
+    }
+}
+
+Describe "link.ps1 - Windows platform guard" {
+    Context "script content" {
+        $linkPs1 = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts/link.ps1"
+        $linkPs1Content = Get-Content $linkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+        It "contains a Windows platform check to prevent accidental use on macOS/Linux" {
+            # Regression: link.ps1 ran on macOS because it had no platform guard.
+            # Junctions are Windows-only; macOS users must use link.sh instead.
+            $linkPs1Content | Should -Match 'IsWindows|Windows_NT'
+        }
+
+        It "directs non-Windows users to link.sh" {
+            # The error message or comment must reference link.sh so the user knows
+            # what to run instead.
+            $linkPs1Content | Should -Match 'link\.sh'
+        }
+    }
+}
+
 Describe "link.ps1 - junction accessibility verification (Step 6)" {
     Context "when cg-setup.prompt.md is accessible through the junction" {
         It "treats Test-Path returning true as verification success" {
