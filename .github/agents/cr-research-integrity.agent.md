@@ -38,6 +38,11 @@ Scan for random operations without explicit seeds:
 
 Flag as P0 if ANY random operation lacks a preceding explicit seed.
 
+**Seed scope**: A seed set at the global script scope covers top-level calls.
+For functions that encapsulate random operations, `set.seed()` / `set seed`
+must appear within the function body, or must be explicitly documented as
+controlled by the caller.
+
 ### Check 2: Code-Math Mismatch (P0)
 
 If `.cg-docs/research/derivations/` exists and contains `.tex` or `.md` files:
@@ -58,9 +63,16 @@ Count estimation commands in the code:
 - **Python**: `.fit(`, `sm.OLS(`, `LogisticRegression(`
 - **Stata**: `reg `, `regress `, `ivregress `, `reghdfe `, `xtregress `
 
-If count > 1, check for manifest logging in `.cg-docs/research/results/manifest.json`.
-If manifest is absent or does not log all specifications: flag as P0.
-If only one specification: pass.
+**IV/2SLS adjustment**: When IV/2SLS patterns are also detected (Check 4),
+subtract expected first-stage commands from the count — standard 2SLS always
+produces exactly 2 estimation commands (first stage + second stage) and this
+is NOT specification searching.
+
+- **If count > 1** (after IV adjustment): Check for manifest logging in
+  `.cg-docs/research/results/manifest.json`. If manifest is absent or does not
+  log all specifications: flag as P0.
+- **If count = 1** (or all commands are part of an IV first/second stage):
+  pass — no manifest required.
 
 ### Check 4: Identification Theater (P0)
 
