@@ -3,29 +3,29 @@ plan: .cg-docs/plans/2026-05-14-compound-research-phase3-agents.md
 date: 2026-05-14
 depth: standard
 findings:
-  P1.1: open
-  P1.2: open
-  P1.3: open
-  P1.4: open
-  P1.5: open
-  P1.6: open
-  P1.7: open
-  P2.1: open
-  P2.2: open
-  P2.3: open
-  P2.4: open
-  P2.5: open
-  P2.6: open
-  P2.7: open
-  P2.8: open
+  P1.1: fixed
+  P1.2: fixed
+  P1.3: fixed
+  P1.4: fixed
+  P1.5: fixed
+  P1.6: fixed
+  P1.7: fixed
+  P2.1: fixed
+  P2.2: fixed
+  P2.3: fixed
+  P2.4: fixed
+  P2.5: fixed
+  P2.6: fixed
+  P2.7: fixed
+  P2.8: fixed
   P2.9: open
-  P2.10: open
-  P2.11: open
-  P3.1: open
-  P3.2: open
-  P3.3: open
+  P2.10: fixed
+  P2.11: fixed
+  P3.1: fixed
+  P3.2: fixed
+  P3.3: fixed
   P3.4: open
-  P3.5: open
+  P3.5: fixed
 ---
 
 ## Review Report
