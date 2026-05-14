@@ -1,6 +1,36 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-13 · 105 active solutions_
+_Generated 2026-05-14 · 108 active solutions_
+
+## Depth-restricted review modes silently bypass domain-specific agents — add forced-dispatch exception for open P0s
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: prompt-design, cg-review, mode-verify, domain-agents, cr-research-integrity, bypass, depth-restriction, review-convergence, security
+path: .cg-docs/solutions/testing-patterns/2026-05-14-depth-restricted-mode-bypasses-domain-agents-need-forced-dispatch-exception.md
+
+`/cg-review mode:verify` was designed to terminate the fix-review cycle: it runs a `light` depth pass (only `@cg-code-quality` and `@cg-testing`), suppresses expected P2/P3 re-findings, and reports convergence. The bypass gap: **mode:verify's light-depth restriction completely omits all `cr-*` research agents**. A researcher who has an open P0 research-integrity finding can: 1. Edit the review report frontmatter to mark the finding `fixed` 2. Run `/cg-review mode:verify` 3. Receive a clean "no new issues" pass from the two code-quality agents 4. Merge No `@cr-research-integrity` check ever ran. The P0 silent research error remains in the codebase but the review system reports convergence. This was...
+
+## Dispatch table driven by a taxonomy must cover all taxonomy entries — missing rows fall through to wrong default
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: prompt-design, dispatch-table, taxonomy, task-type, cr-review, completeness-check, enumeration, default-fallback, agent-dispatch
+path: .cg-docs/solutions/testing-patterns/2026-05-14-dispatch-table-must-cover-all-taxonomy-entries.md
+
+`cr-review.prompt.md` Step 3 contained a dispatch table routing task types to research agents: ``` `cr-skill-research-workflow` defines **8** task types. The table covers **6**. Missing: `EDA` and `Implementation`. When the task type is `EDA` or `Implementation`, the agent falls through to: > "Task type cannot be determined → dispatch `@cr-econometric-reasoning` by default" This dispatches a structural econometrics reviewer to EDA and implementation work — no findings on theory or model structure, but also no `@cg-performance` or `@cg-data-quality` which are the natural agents for those task types. Found as **P2.11** in the 2026-05-14 thorough review of Compound Research Phase 3.
+
+## Zero-byte/near-empty files bypass graceful-skip guards and produce false-negative clean results in scan agents
+
+date: 2026-05-14
+category: bugs
+status: 
+tags: agent-design, input-validation, graceful-skip, empty-file, false-negative, cr-mathematical-verification, cr-identification-audit, scan-agent, zero-byte
+path: .cg-docs/solutions/bugs/2026-05-14-empty-file-bypasses-graceful-skip-produces-false-negative.md
+
+Scan agents in this project use a graceful-skip pattern: ``` The gap: graceful-skip is triggered by **absence** (`no files found`), but a zero-byte `.tex` or `.md` file satisfies the "file found" condition. The agent: 1. Detects the file in Step 1 → proceeds (no graceful skip) 2. Builds a variable mapping table in Step 2 → table is empty (no content) 3. Runs verification checks in Step 3 → nothing to check 4. Returns "No discrepancies found" or silently passes This was found in `@cr-mathematical-verification` (P0.4) and similar gaps in `@cr-identification-audit` (P2.12) and `@cr-econometric-reasoning` (P2.13) in the 2026-05-14 thorough review....
 
 ## cg-link bootstrap index offer always fails on empty projects
 
