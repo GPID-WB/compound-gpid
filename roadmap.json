@@ -471,6 +471,13 @@
           "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive — not a replacement for the existing roadmap feature.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "pr-verification-pipeline",
+          "title": "PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)",
+          "description": "Cross-platform E2E smoke tests in CI (cg-link/cg-unlink on fresh project dirs), automated cross-script parity checks (link.ps1 ↔ link.sh), conventional-commits lint, docs-staleness warning, CONTRIBUTING.md for contributors, and PR template with seven-dimension review checklist. Motivated by first external PR passing CI but failing on real macOS machine.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-13-pr-verification-pipeline.md"
         }
       ]
     }
