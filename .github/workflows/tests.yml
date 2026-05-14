@@ -45,6 +45,68 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       # -------------------------------------------------------------------
+      # Windows E2E smoke test
+      # Verifies that link.ps1 creates junctions in a fresh project dir,
+      # is idempotent on a second run, and that unlink.ps1 cleans up.
+      # Catches path-separator bugs (e.g., hardcoded backslashes) that
+      # pass unit tests but fail against a real directory tree.
+      # -------------------------------------------------------------------
+      - name: E2E smoke test (Windows)
+        if: success() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Pre-clean any stale e2e-project from a prior run (handles self-hosted
+          # runner reuse where $RUNNER_TEMP persists between jobs).
+          $e2eDir = "$env:RUNNER_TEMP\e2e-project"
+          if (Test-Path $e2eDir) { cmd /c rmdir /s /q "$e2eDir" 2>&1 | Out-Null }
+          New-Item -ItemType Directory -Path $e2eDir | Out-Null
+          Set-Location $e2eDir
+
+          # 1. Link
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+
+          # 2. Assert junction and file accessibility
+          $junction = Get-Item ".github\prompts" -ErrorAction Stop
+          if ($junction.LinkType -ne 'Junction') {
+              throw "Expected .github\prompts to be a Junction, got: $($junction.LinkType)"
+          }
+          if (-not (Test-Path ".github\prompts\cg-setup.prompt.md")) {
+              throw "cg-setup.prompt.md not accessible through the junction"
+          }
+
+          # 3. Idempotency: link a second time - must not error
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+
+          # 4. Unlink (-Force skips interactive confirmation in CI)
+          & "$env:GITHUB_WORKSPACE\scripts\unlink.ps1" -Force
+
+          # 5. Assert clean state: junction removed
+          if (Test-Path ".github\prompts") {
+              throw "Expected .github\prompts to be removed after unlink, but it still exists"
+          }
+          # 6. Assert .gitignore was cleaned up after unlink
+          if (Test-Path ".gitignore") {
+              $gi = Get-Content ".gitignore" -Raw
+              if ($gi -match '\.github/prompts/') {
+                  throw "Expected .gitignore to be cleaned up after unlink, but CG entries remain"
+              }
+          }
+          Write-Host "E2E smoke test passed." -ForegroundColor Green
+
+      - name: E2E smoke test teardown (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # cmd rmdir /s /q treats directory junctions as atomic entries and does
+          # NOT recurse through them into their target directories. This is critical:
+          # Remove-Item -Recurse follows surviving junctions and would delete files
+          # in GITHUB_WORKSPACE if any junction removal failed during the test.
+          $e2eDir = "$env:RUNNER_TEMP\e2e-project"
+          if (Test-Path $e2eDir) {
+              cmd /c rmdir /s /q "$e2eDir" 2>&1 | Out-Null
+          }
+
+      # -------------------------------------------------------------------
       # macOS: pwsh (PowerShell 7) does not ship Pester; install 4.10.1 explicitly.
       # Pin to 4.10.1 for reproducibility; -SkipPublisherCheck avoids cert errors
       # in GitHub Actions sandbox. -Scope CurrentUser avoids sudo.
@@ -73,6 +135,57 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
       # -------------------------------------------------------------------
+      # macOS E2E smoke test
+      # Verifies that link.sh creates symlinks in a fresh project dir,
+      # is idempotent on a second run, and that unlink.sh cleans up.
+      # Catches BSD-readlink incompatibilities and symlink path bugs.
+      # -------------------------------------------------------------------
+      - name: E2E smoke test (macOS)
+        if: success() && runner.os == 'macOS'
+        shell: bash
+        run: |
+          # Pre-clean any stale e2e-project from a prior run (handles self-hosted
+          # runner reuse). rm -rf on macOS does not follow symlinks.
+          E2E_DIR="$RUNNER_TEMP/e2e-project"
+          rm -rf "$E2E_DIR"
+          mkdir -p "$E2E_DIR"
+          cd "$E2E_DIR"
+
+          # 1. Link
+          bash "$GITHUB_WORKSPACE/scripts/link.sh"
+
+          # 2. Assert symlink and file accessibility
+          if [[ ! -L ".github/prompts" ]]; then
+              echo "ERROR: Expected .github/prompts to be a symlink" >&2; exit 1
+          fi
+          if [[ ! -f ".github/prompts/cg-setup.prompt.md" ]]; then
+              echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
+          fi
+
+          # 3. Idempotency: link a second time - must not error
+          bash "$GITHUB_WORKSPACE/scripts/link.sh"
+
+          # 4. Unlink (--yes skips interactive confirmation in CI)
+          bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
+
+          # 5. Assert clean state: symlink removed
+          if [[ -e ".github/prompts" ]]; then
+              echo "ERROR: Expected .github/prompts to be removed after unlink, but it still exists" >&2; exit 1
+          fi
+          # 6. Assert .gitignore was cleaned up after unlink
+          if [[ -f ".gitignore" ]] && grep -q '\.github/prompts/' ".gitignore"; then
+              echo "ERROR: .gitignore CG entries not cleaned after unlink" >&2; exit 1
+          fi
+          echo "E2E smoke test passed."
+
+      - name: E2E smoke test teardown (macOS)
+        if: always() && runner.os == 'macOS'
+        shell: bash
+        run: |
+          # On macOS, rm -rf does not follow symlinks — safe to call directly.
+          rm -rf "$RUNNER_TEMP/e2e-project" || true
+
+      # -------------------------------------------------------------------
       # Upload the test result artifact for diagnostics.
       # -------------------------------------------------------------------
       - name: Upload test result artifact
@@ -82,3 +195,47 @@ jobs:
           name: test-results-${{ matrix.os }}
           path: tests/last-run.json
           if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # Docs staleness check
+  # Non-blocking: emits a ::warning annotation when scripts/ changes are not
+  # accompanied by any docs/ change. Reviewers see the annotation in the PR
+  # checks summary. Does not fail the build.
+  #
+  # Requires full history (fetch-depth: 0): git diff origin/$base...HEAD needs
+  # the common ancestor commit reachable from both refs; a shallow clone omits
+  # it and produces an empty diff.
+  # -------------------------------------------------------------------------
+  docs-staleness:
+    name: Docs staleness check
+    runs-on: ubuntu-latest
+    # Only meaningful on pull requests (no base branch to diff against on push)
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-depth: 0  # Full history needed for accurate diff against base
+
+      - name: Check for docs updates when scripts change
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.base_ref }}
+        run: |
+          CHANGED=$(git diff --name-only "origin/${DEFAULT_BRANCH}...HEAD" 2>/dev/null || true)
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          SCRIPTS_CHANGED=$(echo "$CHANGED" | grep -c '^scripts/' || true)
+          DOCS_CHANGED=$(echo   "$CHANGED" | grep -c '^docs/'    || true)
+          README_CHANGED=$(echo "$CHANGED" | grep -c '^README'   || true)
+
+          if [[ "$SCRIPTS_CHANGED" -gt 0 && "$DOCS_CHANGED" -eq 0 && "$README_CHANGED" -eq 0 ]]; then
+              echo "::warning::$SCRIPTS_CHANGED file(s) in scripts/ changed but no docs/ or README were updated. If the change affects user-facing behavior, flags, or error messages, please update the relevant docs (docs/installation.md, docs/manual.md, or README.md)."
+          else
+              echo "Docs staleness check passed."
+          fi
+
