@@ -74,11 +74,12 @@ function New-CopilotInstructions {
         }
     }
 
-    # --- Read language, project-type, review-depth, r-syntax from compound-gpid.local.md ---
+    # --- Read language, project-type, review-depth, r-syntax, modules from compound-gpid.local.md ---
     $localPath   = Join-Path $ProjectRoot "compound-gpid.local.md"
     $language    = "<not configured>"
     $projectType = "<not configured>"
     $reviewDepth = "<not configured>"
+    $modules     = "engineering"
     $rSyntax     = $null
     if (Test-Path $localPath) {
         $localContent = Get-Content $localPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
@@ -88,6 +89,7 @@ function New-CopilotInstructions {
             if ($fm -match '(?m)^\s*project-type:\s*["\x27]?([^"''\r\n]+)["\x27]?\s*$')  { $projectType = $Matches[1].Trim() }
             if ($fm -match '(?m)^\s*review-depth:\s*["\x27]?([^"''\r\n]+)["\x27]?\s*$')  { $reviewDepth = $Matches[1].Trim() }
             if ($fm -match '(?m)^\s*r-syntax:\s*["\x27]?([^"''\r\n]+)["\x27]?\s*$')      { $rSyntax     = $Matches[1].Trim() }
+            if ($fm -match '(?m)^\s*modules:\s*["\x27]?([^"''\r\n]+)["\x27]?\s*$')       { $modules     = $Matches[1].Trim() }
         }
     }
 
@@ -103,7 +105,7 @@ function New-CopilotInstructions {
     # regex backreferences and would silently corrupt values like "R$0 Pipeline").
     # Guard: reject config values that contain placeholder tokens to prevent
     # cross-injection (e.g. a project-name of "{{project-type}}" would corrupt the output).
-    foreach ($val in @($projectName, $projectType, $languages, $reviewDepth)) {
+    foreach ($val in @($projectName, $projectType, $languages, $reviewDepth, $modules)) {
         if ($val -match '\{\{') {
             throw "A config value contains a placeholder token ('{{') which would corrupt the generated output. Check compound-gpid.md and compound-gpid.local.md."
         }
@@ -114,6 +116,7 @@ function New-CopilotInstructions {
     $output = $output.Replace('{{project-type}}', $projectType)
     $output = $output.Replace('{{languages}}',    $languages)
     $output = $output.Replace('{{review-depth}}', $reviewDepth)
+    $output = $output.Replace('{{modules}}',      $modules)
 
     # Prepend the managed marker so cg-link/cg-update can identify managed files
     # Match the template's line-ending style to avoid mixed line endings.

@@ -88,6 +88,7 @@ project_name = extract_fm_value(charter_path, 'project-name') or '<project-name>
 language     = extract_fm_value(local_path, 'language')     or '<not configured>'
 project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
 review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
+modules      = extract_fm_value(local_path, 'modules')      or 'engineering'
 r_syntax     = extract_fm_value(local_path, 'r-syntax')
 
 # Build languages string — append R dialect when configured
@@ -96,7 +97,7 @@ if r_syntax and re.search(r'\bR\b', language, re.IGNORECASE):
     languages = f'{language} (R dialect: {r_syntax})'
 
 # Guard: reject config values that contain placeholder tokens
-for val in (project_name, project_type, languages, review_depth):
+for val in (project_name, project_type, languages, review_depth, modules):
     if '{{' in val:
         print('ERROR: A config value contains a placeholder token which would corrupt the output.'
               ' Check compound-gpid.md and compound-gpid.local.md.', file=sys.stderr)
@@ -116,6 +117,7 @@ output = output.replace('{{project-name}}', project_name)
 output = output.replace('{{project-type}}', project_type)
 output = output.replace('{{languages}}',    languages)
 output = output.replace('{{review-depth}}', review_depth)
+output = output.replace('{{modules}}',      modules)
 
 # Prepend the management marker, matching the template's line-ending style
 sep = '\r\n' if '\r\n' in output else '\n'
