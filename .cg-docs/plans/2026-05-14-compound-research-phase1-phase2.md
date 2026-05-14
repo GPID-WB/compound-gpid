@@ -1,7 +1,9 @@
 ---
 date: 2026-05-14
 title: "Compound Research — Phase 1 (Module System) & Phase 2 (Research Workflow Scaffolding)"
-status: active
+status: completed
+completed-date: 2026-05-14
+completed-phases: [1, 2]
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md"
 language: "PowerShell, Python, Markdown"
