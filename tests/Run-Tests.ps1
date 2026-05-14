@@ -120,8 +120,14 @@ $earlyExit   = $false  # set to $true only when -FailFast breaks the loop early
 # Detect Pester major version once. Pester 5+ requires the PesterConfiguration
 # API; the legacy positional-argument invocation (used for Pester 3/4) triggers
 # a deprecated-parameter-set warning in Pester 5 and may misreport PassedCount.
+# This project requires Pester 4.10.1 — all test files use Pester 4 syntax.
+# Force-load 4.10.1 when no Pester is loaded or when the wrong version is loaded
+# (e.g. Pester 5 auto-loads as the newest version on systems with both installed).
 $pesterMod   = Get-Module Pester -ErrorAction SilentlyContinue
-if (-not $pesterMod) { Import-Module Pester -ErrorAction SilentlyContinue; $pesterMod = Get-Module Pester }
+if (-not $pesterMod -or $pesterMod.Version.Major -ne 4) {
+    Import-Module Pester -RequiredVersion 4.10.1 -Force -ErrorAction SilentlyContinue
+    $pesterMod = Get-Module Pester
+}
 $pesterMajor = if ($pesterMod) { [int]$pesterMod.Version.Major } else { 3 }
 
 # Artifact data — initialized before the loop.
