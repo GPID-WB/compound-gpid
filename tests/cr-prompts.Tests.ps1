@@ -475,6 +475,10 @@ Describe "cr-mathematical-verification.agent.md - content" {
     It "output format includes [cr-mathematical-verification] tag" {
         ($content -match '\[cr-mathematical-verification\]') | Should -Be $true
     }
+
+    It "contains graceful skip message for no derivation files" {
+        ($content -match 'No derivation files found') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -485,16 +489,28 @@ Describe "cr-identification-audit.agent.md - content" {
     $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-identification-audit.agent.md"
     $content = Get-Content $path -Raw -Encoding UTF8
 
-    It "covers IV/2SLS identification strategy" {
-        ($content -match '(?i)IV/2SLS|ivreg') | Should -Be $true
+    It "covers IV/2SLS terminology" {
+        ($content -match '(?i)IV/2SLS') | Should -Be $true
     }
 
-    It "covers RDD identification strategy" {
-        ($content -match '(?i)RDD|regression discontinuity') | Should -Be $true
+    It "contains ivreg command indicator" {
+        ($content -match 'ivreg') | Should -Be $true
     }
 
-    It "covers DiD identification strategy" {
-        ($content -match '(?i)DiD|difference.in.differences') | Should -Be $true
+    It "covers RDD terminology" {
+        ($content -match '(?i)\bRDD\b') | Should -Be $true
+    }
+
+    It "covers regression discontinuity terminology" {
+        ($content -match '(?i)regression discontinuity') | Should -Be $true
+    }
+
+    It "covers DiD terminology" {
+        ($content -match '(?i)\bDiD\b') | Should -Be $true
+    }
+
+    It "covers difference-in-differences terminology" {
+        ($content -match '(?i)difference.in.differences') | Should -Be $true
     }
 
     It "covers control function approach" {
@@ -505,8 +521,12 @@ Describe "cr-identification-audit.agent.md - content" {
         ($content -match '(?i)first.stage') | Should -Be $true
     }
 
-    It "contains McCrary/density test requirement for RDD" {
-        ($content -match '(?i)McCrary|rddensity') | Should -Be $true
+    It "contains McCrary density test requirement for RDD" {
+        ($content -match '(?i)McCrary') | Should -Be $true
+    }
+
+    It "contains rddensity command reference" {
+        ($content -match 'rddensity') | Should -Be $true
     }
 
     It "contains parallel trends requirement for DiD" {
@@ -519,6 +539,10 @@ Describe "cr-identification-audit.agent.md - content" {
 
     It "output format includes [cr-identification-audit] tag" {
         ($content -match '\[cr-identification-audit\]') | Should -Be $true
+    }
+
+    It "contains graceful skip message for no identification strategy" {
+        ($content -match 'No identification strategy detected') | Should -Be $true
     }
 }
 
@@ -611,5 +635,9 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
 
     It "contains availability guard message" {
         ($content -match '(?i)not available.*skip') | Should -Be $true
+    }
+
+    It "@cr-identification-audit appears in Theory/Modeling dispatch row" {
+        ($content -match 'Theory/Modeling.*cr-identification-audit') | Should -Be $true
     }
 }
