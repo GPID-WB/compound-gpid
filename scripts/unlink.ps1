@@ -8,8 +8,28 @@
 # Run this from your project root:
 #   cg-unlink
 
+param(
+    # Skip all interactive confirmation prompts. Used by CI (cg-unlink in E2E
+    # smoke tests) and any automation that cannot supply keyboard input.
+    [switch]$Force
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+# --- Platform guard: Windows only ---
+# unlink.ps1 removes directory junctions, which are a Windows-only filesystem
+# feature. On macOS and Linux, use unlink.sh instead.
+$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+if (-not $onWindows) {
+    Write-Error @"
+unlink.ps1 is Windows-only (it manages directory junctions).
+On macOS/Linux, use unlink.sh instead:
+  cg-unlink
+(which calls scripts/unlink.sh automatically via the bash wrapper in bin/)
+"@
+    exit 1
+}
 
 $ProjectRoot     = Get-Location
 $TargetGithubDir = Join-Path $ProjectRoot ".github"
@@ -39,11 +59,13 @@ if ($githubItem.LinkType -eq "Junction") {
         exit 1
     }
 
-    Write-Host "Found legacy whole-directory junction. Removing..."
-    $answer = Read-Host "Remove the .github junction from this project? [y/N]"
-    if ($answer -notmatch "^[Yy]$") {
-        Write-Host "Aborted." -ForegroundColor Yellow
-        exit 0
+    Write-Host "Found legacy whole-directory junction."
+    if (-not $Force) {
+        $answer = Read-Host "Remove the .github junction from this project? [y/N]"
+        if ($answer -notmatch "^[Yy]$") {
+            Write-Host "Aborted." -ForegroundColor Yellow
+            exit 0
+        }
     }
     # Remove-Item on a junction removes the link only, not the target contents
     Remove-Item -Path $TargetGithubDir -Force
@@ -61,10 +83,12 @@ Write-Host "======================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "This will remove Compound GPID junctions from .github/ in this project."
 Write-Host "The global Compound GPID installation is NOT affected."
-$answer = Read-Host "Proceed? [y/N]"
-if ($answer -notmatch "^[Yy]$") {
-    Write-Host "Aborted." -ForegroundColor Yellow
-    exit 0
+if (-not $Force) {
+    $answer = Read-Host "Proceed? [y/N]"
+    if ($answer -notmatch "^[Yy]$") {
+        Write-Host "Aborted." -ForegroundColor Yellow
+        exit 0
+    }
 }
 
 $removedAny = $false
@@ -123,7 +147,7 @@ if (Test-Path $gitignorePath) {
         $updated = $giContent -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", ""
         $updated = $updated -replace "(?m)^# Compound GPID \(junction \+ backup.*\r?\n(\.github.*\r?\n)*", ""
         if ($updated -ne $giContent) {
-            Set-Content -Path $gitignorePath -Value $updated.TrimEnd()
+            Set-Content -Path $gitignorePath -Value $updated.TrimEnd() -Encoding utf8
             Write-Host "  .gitignore - CG entries removed" -ForegroundColor DarkGray
         }
     }

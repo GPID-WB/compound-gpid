@@ -15,6 +15,19 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
+# Parse arguments
+# ---------------------------------------------------------------------------
+# --yes / -y  Skip all interactive confirmation prompts.
+#             Used by CI (cg-unlink in E2E smoke tests) and any automation
+#             that cannot supply keyboard input.
+FORCE=0
+for arg in "$@"; do
+    case "$arg" in
+        --yes|-y) FORCE=1 ;;
+    esac
+done
+
+# ---------------------------------------------------------------------------
 # Resolve paths
 # ---------------------------------------------------------------------------
 PROJECT_ROOT="$(pwd)"
@@ -68,11 +81,13 @@ if [[ -L "$TARGET_GITHUB_DIR" ]]; then
 
     printf '\n'
     print_cyan "Found legacy whole-directory symlink. Removing..."
-    printf 'Remove the .github symlink from this project? [y/N] '
-    read -r answer </dev/tty
-    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-        print_yellow "Aborted."
-        exit 0
+    if [[ "$FORCE" -eq 0 ]]; then
+        printf 'Remove the .github symlink from this project? [y/N] '
+        read -r answer </dev/tty
+        if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+            print_yellow "Aborted."
+            exit 0
+        fi
     fi
     rm -f "$TARGET_GITHUB_DIR"
     print_green "Legacy symlink removed."
@@ -91,11 +106,13 @@ print_cyan "======================"
 printf '\n'
 printf 'This will remove Compound GPID symlinks from .github/ in this project.\n'
 printf 'The global Compound GPID installation is NOT affected.\n'
-printf 'Proceed? [y/N] '
-read -r answer </dev/tty
-if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-    print_yellow "Aborted."
-    exit 0
+if [[ "$FORCE" -eq 0 ]]; then
+    printf 'Proceed? [y/N] '
+    read -r answer </dev/tty
+    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+        print_yellow "Aborted."
+        exit 0
+    fi
 fi
 
 REMOVED_ANY=false

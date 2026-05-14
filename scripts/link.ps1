@@ -21,6 +21,12 @@
 #   - Compound GPID must be installed (default: C:\WBG\.compound-gpid)
 #   - Developer Mode enabled OR directory junctions available (default on Win10/11)
 
+param(
+    # Skip the interactive re-link confirmation when a non-CG junction is found.
+    # Used by CI and any automation that cannot supply keyboard input.
+    [switch]$Force
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -141,10 +147,12 @@ foreach ($dir in $ManagedDirs) {
             } else {
                 # Junction points somewhere unexpected - ask to relink
                 Write-Warning "  $dir/ is a junction pointing to: $($existing.Target)"
-                $answer = Read-Host "  Relink $dir/ to Compound GPID instead? [y/N]"
-                if ($answer -notmatch "^[Yy]$") {
-                    Write-Host "  Skipping $dir/" -ForegroundColor Yellow
-                    continue
+                if (-not $Force) {
+                    $answer = Read-Host "  Relink $dir/ to Compound GPID instead? [y/N]"
+                    if ($answer -notmatch "^[Yy]$") {
+                        Write-Host "  Skipping $dir/" -ForegroundColor Yellow
+                        continue
+                    }
                 }
                 Remove-Item -Path $junctionPath -Force
             }
@@ -259,7 +267,7 @@ if (Test-Path $gitignorePath) {
 }
 
 # --- Step 6: Verify a known file is accessible ---
-$checkPath = Join-Path $TargetGithubDir "prompts" "cg-setup.prompt.md"
+$checkPath = Join-Path (Join-Path $TargetGithubDir "prompts") "cg-setup.prompt.md"
 if (-not (Test-Path $checkPath)) {
     Write-Warning "Verification failed - prompts not visible at expected path: $checkPath"
 } else {

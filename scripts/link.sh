@@ -21,6 +21,16 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
+# Parse arguments
+# ---------------------------------------------------------------------------
+FORCE=0
+for arg in "$@"; do
+    case "$arg" in
+        --yes|-y) FORCE=1 ;;
+    esac
+done
+
+# ---------------------------------------------------------------------------
 # Resolve paths
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -217,11 +227,13 @@ for dir in "${MANAGED_DIRS[@]}"; do
             continue
         else
             print_warn "$dir/ is a symlink pointing to: $EXISTING_TARGET"
-            printf '  Relink %s/ to Compound GPID instead? [y/N] ' "$dir"
-            read -r answer </dev/tty
-            if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-                print_gray "Skipping $dir/"
-                continue
+            if [[ "$FORCE" -eq 0 ]]; then
+                printf '  Relink %s/ to Compound GPID instead? [y/N] ' "$dir"
+                read -r answer </dev/tty
+                if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+                    print_gray "Skipping $dir/"
+                    continue
+                fi
             fi
             rm -f "$SYMLINK_PATH"
         fi
