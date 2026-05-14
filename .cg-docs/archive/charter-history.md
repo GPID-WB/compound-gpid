@@ -4,6 +4,10 @@ Archived "Current Focus" entries from `compound-gpid.md`.
 
 ---
 
+## 2026-05-05 → 2026-05-14
+
+> Workflow Maturity — improving the plan→execute cycle with branch creation from /cg-plan, smarter test-awareness in /cg-fixbug, and optional GitHub Issues integration for team coordination via gh CLI.
+
 ## 2026-04-29 → 2026-05-05
 
 > Onboarding & Setup — making the first interaction with compound-gpid intelligent by scanning existing projects, drafting a charter from scanner results, validating charter quality, bootstrapping the roadmap, and guiding new users through the workflow with a tour prompt.

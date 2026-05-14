@@ -473,6 +473,62 @@
           "plan": null
         }
       ]
+    },
+    {
+      "id": "compound-research",
+      "title": "Compound Research",
+      "objective": "Extend compound-gpid with a research module for economics and econometrics — modular plugin system, research-aware workflow loop (/cr-*), specialized agents and skills for structural econometrics and ML, and P0 research-integrity enforcement for silent-error detection.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "cr-module-system",
+          "title": "Phase 1: Module system foundation (module tagging, filtered copilot-instructions.md generation, cg-link/cg-setup integration)",
+          "status": "planned",
+          "plan": ".cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md"
+        },
+        {
+          "id": "cr-workflow-scaffolding",
+          "title": "Phase 2: Research workflow scaffolding (/cr-brainstorm, /cr-plan, /cr-work, /cr-review, /cr-compound + task-type classifier + .cg-docs/research/ layout)",
+          "status": "planned",
+          "plan": ".cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md"
+        },
+        {
+          "id": "cr-core-agents",
+          "title": "Phase 3: Core research agents (@cr-research-integrity, @cr-mathematical-verification, @cr-identification-audit, @cr-econometric-reasoning + /cr-review orchestration)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-structural-econometrics-skills",
+          "title": "Phase 4: Structural econometrics skills (cr-skill-structural-econometrics, mathematical-derivation, symbolic-verification, identification-strategies, theory-data-dialogue, research-eda + latex/math instructions)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-ml-economics",
+          "title": "Phase 5: ML in economics (cr-skill-ml-economics, @cr-ml-methodology, @cr-specification-analysis)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-writing-publication",
+          "title": "Phase 6: Writing & publication output (cr-skill-academic-writing, cr-skill-publication-output, @cr-academic-writing)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-reproducibility-replication",
+          "title": "Phase 7: Reproducibility & replication package (cr-skill-replication-standards, @cr-replication-package + @cg-reproducibility integration)",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-integration-docs",
+          "title": "Phase 8: Integration polish & documentation (charter update, README, docs, copilot-instructions template, full test pass)",
+          "status": "idea",
+          "plan": null
+        }
+      ]
     }
   ]
 }
