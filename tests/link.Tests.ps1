@@ -513,7 +513,7 @@ Describe "link.ps1 - update.ps1 call failure handling" {
 # ---------------------------------------------------------------------------
 Describe "link.ps1 - -Force flag for non-interactive use" {
     $linkPs1 = Join-Path $PSScriptRoot "..\scripts\link.ps1"
-    $content = Get-Content $linkPs1 -Raw
+    $content = Get-Content $linkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "declares a [switch]`$Force parameter [regression guard]" {
         $content | Should -Match '\[switch\]\$Force'

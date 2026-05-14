@@ -242,7 +242,7 @@ Describe "unlink.ps1 - Windows platform guard" {
 
 Describe "unlink.ps1 - -Force flag for non-interactive use" {
     $unlinkPs1 = Join-Path $PSScriptRoot "..\scripts\unlink.ps1"
-    $content   = Get-Content $unlinkPs1 -Raw
+    $content   = Get-Content $unlinkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
     It "declares a [switch]`$Force parameter [regression guard]" {
         $content | Should -Match '\[switch\]\$Force'
