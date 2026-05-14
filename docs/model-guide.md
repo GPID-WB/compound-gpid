@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 35 Compound GPID prompt and agent files.
+Reference for model assignments across all 39 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 35 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 39 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -58,6 +58,10 @@ files" and "Model assignments — agent files" describe blocks) validate all 35 
 | `cg-release-scanner.agent.md` | Claude Haiku 4.5 | Classify commits and scan .cg-docs entries within a time window for /cg-release | Reasoning 3, creativity 1; mechanical classification and categorization — Haiku appropriate | confirmed |
 | `cg-project-scanner.agent.md` | Claude Haiku 4.5 | Scan project files to detect languages, frameworks, and charter content for /cg-setup | Reasoning 3, creativity 1; mechanical file-based classification — Haiku appropriate | confirmed |
 | `cg-roadmap-view.agent.md` | Claude Haiku 4.5 | Read-only roadmap renderer — reads `roadmap.json` and formats milestone/feature data as Markdown tables | Reasoning 1, creativity 1; pure template-filling with no judgment — Haiku appropriate | confirmed |
+| `cr-research-integrity.agent.md` | Claude Sonnet 4.6 | P0 silent-error detection — unseeded randomness, code-math mismatch, specification searching, identification theater, wrong SE clustering, asymptotic violations, untested distributional assumptions | Reasoning 4, precision 5 — pattern matching across 7 error classes; Sonnet sufficient | confirmed |
+| `cr-mathematical-verification.agent.md` | Claude Opus 4.6 | Symbolic verification of code against LaTeX/markdown derivations — variable mapping, functional forms, gradient computations, moment conditions | Reasoning 5, precision 5 — deep mathematical reasoning; LaTeX-to-code comparison requires Opus | confirmed |
+| `cr-identification-audit.agent.md` | Claude Sonnet 4.6 | Identification strategy audit — IV/2SLS, RDD, DiD, control function diagnostics (first-stage F, McCrary, parallel trends) | Reasoning 4, precision 4 — structured diagnostic checklist; Sonnet sufficient | confirmed |
+| `cr-econometric-reasoning.agent.md` | Claude Opus 4.6 | Structural econometric model logic review — theory-specification consistency, estimation strategy appropriateness, assumption-data consistency, PhD scaffolding | Reasoning 5, creativity 4 — structural model assessment requires deep economic reasoning; Opus required | confirmed |
 
 ---
 
