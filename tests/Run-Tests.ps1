@@ -52,6 +52,7 @@ $testNames = @(
     'helpers',
     'roadmap',
     'prompt-tools',
+    'cr-prompts',     # compound-research /cr-* prompts and skills
     'model-assignments',
     'pester-safety',
     'ps51-compat',
