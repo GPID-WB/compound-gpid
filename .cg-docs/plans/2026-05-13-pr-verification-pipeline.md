@@ -252,10 +252,10 @@ template that encodes the project's seven verification dimensions.
 
 ## Documentation Checklist
 
-- [ ] `CONTRIBUTING.md` (Step 6 — is the documentation)
-- [ ] `docs/installation.md` — no changes needed
-- [ ] PR template (Step 7 — is the documentation)
-- [ ] README.md — add a "Contributing" section linking to `CONTRIBUTING.md`
+- [x] `CONTRIBUTING.md` (Step 6 — is the documentation)
+- [x] `docs/installation.md` — no changes needed
+- [x] PR template (Step 7 — is the documentation)
+- [x] README.md — add a "Contributing" section linking to `CONTRIBUTING.md`
 
 ## Risks & Mitigations
 

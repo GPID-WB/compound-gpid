@@ -66,7 +66,7 @@ findings:
 
 - **[P2.1]** [cg-code-quality, cg-architecture, cg-adversarial] `scripts/link.ps1:148` — `Read-Host "Relink $dir/ to Compound GPID instead? [y/N]"` in the junction-conflict branch has no `-Force` bypass. If a pre-existing non-CG junction is found in CI (e.g., from a prior failed teardown), the runner hangs indefinitely.  
   **Fix**: Add `[switch]$Force` to `link.ps1` param block; wrap this `Read-Host` in `if (-not $Force)`. Mirror in `link.sh` with `--yes`/`-y`.  
-  **Status**: open
+  **Status**: fixed
 
 - **[P2.2]** [cg-adversarial] `.github/workflows/tests.yml:207` — `DEFAULT_BRANCH="${{ github.base_ref }}"` embeds a GitHub Actions expression directly in shell source. Flagged by CodeQL `actions/expression-injection`.  
   **Fix**: Moved to `env: DEFAULT_BRANCH: ${{ github.base_ref }}` and reference as `${DEFAULT_BRANCH}` in the shell script.  
@@ -114,15 +114,15 @@ findings:
 
 - **[P2.13]** [cg-documentation] `.github/PULL_REQUEST_TEMPLATE.md` — No "Tests added/updated" checkbox. Project standards require tests for all behavioral changes; the PR template is the enforcement surface.  
   **Fix**: Add a "Tests added / updated" checkbox between E2E verified and Cross-script parity.  
-  **Status**: open
+  **Status**: fixed
 
 - **[P2.14]** [cg-version-control] `.github/workflows/link-check.yml` — Pre-existing issue: `actions/checkout@v4` and `lycheeverse/lychee-action@v2` use mutable tag references. Not introduced by this PR.  
   **Fix**: Replace with SHA-pinned references (SHA lookup required for lychee-action@v2).  
-  **Status**: open
+  **Status**: fixed
 
 - **[P2.15]** [cg-learnings-researcher] `scripts/unlink.ps1` — No Windows platform guard (`$IsWindows` / `$env:OS -eq 'Windows_NT'` check). `LinkType -eq "Junction"` never matches macOS symlinks, silently skipping all removals when `cg-unlink` is run via `pwsh` on macOS. `link.ps1` has this guard (added in this PR); `unlink.ps1` does not.  
   **Fix**: Add `if (-not ($IsWindows -or $env:OS -eq 'Windows_NT')) { Write-Error "...use cg-unlink (unlink.sh)..."; exit 1 }` at the top.  
-  **Status**: open
+  **Status**: fixed
 
 - **[P2.16]** [cg-learnings-researcher] `tests/unlink.Tests.ps1` — No `Read-Host ""` regression guard; gap relative to the equivalent guard in `link.Tests.ps1`.  
   **Fix**: Added `$content | Should -Not -Match 'Read-Host\s+""'` and `$content | Should -Not -Match "Read-Host\s+''"`.  
@@ -137,7 +137,7 @@ findings:
   **Status**: fixed
 
 - **[P3.3]** [cg-code-quality] `.github/workflows/tests.yml:56` — `pwsh -File "$env:GITHUB_WORKSPACE\scripts\link.ps1"` spawns a child `pwsh` process within a `shell: pwsh` step. Idiomatic form is `& "$env:GITHUB_WORKSPACE\scripts\link.ps1"`.  
-  **Status**: open (advisory)
+  **Status**: fixed
 
 - **[P3.4]** [cg-architecture] `tests/bash-scripts.Tests.ps1:7` — Header comment said "requires: pwsh + Pester 5.6.1"; CI installs 4.10.1.  
   **Fix**: Changed to `4.10.1`.  
@@ -148,7 +148,7 @@ findings:
   **Status**: fixed
 
 - **[P3.6]** [cg-testing] `tests/parity.Tests.ps1:72` — `-y` short form missing from "bypass flag" test in parity suite. Covered more thoroughly in bash-scripts.Tests.ps1.  
-  **Status**: open (advisory — redundant with bash-scripts coverage)
+  **Status**: fixed
 
 ---
 
