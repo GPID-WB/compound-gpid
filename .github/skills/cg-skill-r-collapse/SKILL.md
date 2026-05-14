@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-collapse
+module: shared
 description: "collapse fast statistical computing for R. Load when writing or reviewing grouped/weighted statistics, aggregation, or panel data operations with the collapse package. Covers fmean/fsum/fmedian/fnth and all Fast Statistical Functions, GRP objects, TRA transformation types, fwithin/fbetween/fscale, flag/fdiff/fgrowth, collap(), fsummarise/fmutate, qsu/descr, and collapse anti-patterns. Dialect-neutral: collapse works on data.table, tibble, and data.frame equally."
 user-invocable: false
 ---

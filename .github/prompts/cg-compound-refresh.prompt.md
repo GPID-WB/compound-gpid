@@ -1,6 +1,7 @@
 ---
 description: "Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities."
 model: Claude Sonnet 4.6 (copilot)
+module: shared
 ---
 
 # Compound Refresh

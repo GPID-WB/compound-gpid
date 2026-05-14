@@ -1,5 +1,6 @@
 ---
 name: cg-skill-project-scanner
+module: shared
 description: "Project scanner signal catalog for intelligent /cg-setup. Defines what files to look for, what they mean, and confidence levels. Loaded by @cg-project-scanner agent. Can also be loaded directly by prompts that need signal definitions without a full scan."
 user-invocable: false
 schema-version: "1.0"

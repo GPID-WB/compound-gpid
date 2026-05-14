@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.do,**/*.ado"
+module: shared
 ---
 
 # Stata Coding Standards

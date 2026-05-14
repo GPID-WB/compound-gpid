@@ -1,6 +1,7 @@
 ---
 description: "Create a structured implementation plan with research. Use after brainstorming or when requirements are clear."
 model: Claude Opus 4.6 (copilot)
+module: shared
 ---
 
 # Plan

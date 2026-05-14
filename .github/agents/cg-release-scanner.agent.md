@@ -3,6 +3,7 @@ description: "Classifies commits and scans .cg-docs/ entries within a time windo
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 # Release Scanner

@@ -1,6 +1,7 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
+module: engineering
 ---
 
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):

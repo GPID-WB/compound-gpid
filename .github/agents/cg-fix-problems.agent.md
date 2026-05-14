@@ -3,6 +3,7 @@ description: "Fixes VS Code diagnostics (errors, warnings, type errors, lint). S
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search', 'editFiles', 'terminalLastCommand', 'get_errors']
 user-invocable: false
+module: engineering
 ---
 
 # Fix Problems Agent

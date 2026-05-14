@@ -1,5 +1,6 @@
 ---
 name: cg-skill-brainstorming
+module: shared
 description: "Requirement elicitation and decision capture. Helps clarify fuzzy requirements through guided questions."
 ---
 

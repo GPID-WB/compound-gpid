@@ -1,6 +1,7 @@
 ---
 description: "Review external repos for features to integrate into compound-gpid. Developer-only."
 model: Claude Opus 4.6 (copilot)
+module: engineering
 ---
 
 # Review External Repos

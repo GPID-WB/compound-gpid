@@ -1,6 +1,7 @@
 ---
 description: "Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes."
 model: Claude Opus 4.6 (copilot)
+module: shared
 ---
 
 # Strategy

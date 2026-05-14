@@ -1,6 +1,7 @@
 ---
 description: "Capture a solved problem as reusable knowledge. Use after fixing a non-trivial issue."
 model: Claude Sonnet 4.6 (copilot)
+module: shared
 ---
 
 # Compound

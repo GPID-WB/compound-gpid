@@ -1,5 +1,6 @@
 ---
 name: cg-skill-stata-best-practices
+module: shared
 description: >
   Comprehensive Stata best-practices reference for writing correct .do files.
   Covers universal coding principles (compound quotes, macro expansion traps,

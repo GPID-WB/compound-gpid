@@ -1,6 +1,7 @@
 ---
 description: "Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering."
 model: Claude Haiku 4.5 (copilot)
+module: shared
 ---
 
 # Roadmap View

@@ -1,6 +1,7 @@
 ---
 description: "Implement a plan step by step. Use after /plan has created an implementation plan. Supports /cg-work [phaseX]."
 model: Claude Sonnet 4.6 (copilot)
+module: engineering
 ---
 
 # Work

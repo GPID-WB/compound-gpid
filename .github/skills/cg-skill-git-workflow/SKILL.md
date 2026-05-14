@@ -1,5 +1,6 @@
 ---
 name: cg-skill-git-workflow
+module: shared
 description: "Git workflow conventions: branching strategy, commit messages, PR templates, and .gitignore patterns for data science projects."
 ---
 

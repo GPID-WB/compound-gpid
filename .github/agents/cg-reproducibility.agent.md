@@ -3,6 +3,7 @@ description: "Reviews reproducibility: environment lockfiles, relative paths, ra
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are a reproducibility reviewer for R, Python, and Stata data science projects.

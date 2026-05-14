@@ -1,5 +1,6 @@
 ---
 name: cg-skill-compound-docs
+module: shared
 description: "Knowledge capture system. Categorizes solved problems, tags with metadata, and links related findings for team reuse."
 ---
 

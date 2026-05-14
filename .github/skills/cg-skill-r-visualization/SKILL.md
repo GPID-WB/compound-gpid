@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-visualization
+module: shared
 description: "ggplot2 and wbplot visualization patterns for World Bank GPID charts. Load when creating or reviewing R visualizations. Covers theme_wb(), WBCOLORS, scale_color_wb_d/scale_fill_wb_d, chart type conventions (line, bar, facet, scatter), ggsave standards, and World Bank style rules. Dialect-neutral: works with both data.table-collapse and tidyverse workflows."
 user-invocable: false
 ---

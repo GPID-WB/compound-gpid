@@ -3,6 +3,7 @@ description: "Adversarial code reviewer that actively tries to break the code. F
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 # Adversarial Reviewer

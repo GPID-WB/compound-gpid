@@ -1,6 +1,7 @@
 ---
 description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
 model: Claude Sonnet 4.6 (copilot)
+module: engineering
 ---
 
 # Fix Bug

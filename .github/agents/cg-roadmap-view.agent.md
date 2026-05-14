@@ -3,6 +3,7 @@ description: "Read-only roadmap renderer. Dispatched by /cg-roadmap-view and oth
 model: Claude Haiku 4.5 (copilot)
 tools: ['read']
 user-invocable: false
+module: shared
 ---
 
 # Roadmap View

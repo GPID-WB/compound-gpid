@@ -1,5 +1,6 @@
 ---
 name: cg-skill-stata-testing
+module: shared
 user-invokable: false
 description: >
   Testing and reproducibility best practices for Stata. Covers inline

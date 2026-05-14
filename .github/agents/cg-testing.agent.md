@@ -3,6 +3,7 @@ description: "Reviews test coverage, edge cases, test quality, and testing patte
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are a testing specialist for R, Python, and Stata data science projects.

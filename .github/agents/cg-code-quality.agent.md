@@ -3,6 +3,7 @@ description: "Reviews code for style consistency, linting issues, DRY violations
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are a code quality reviewer specializing in R, Python, and Stata data science projects.

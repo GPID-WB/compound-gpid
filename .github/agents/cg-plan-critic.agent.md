@@ -3,6 +3,7 @@ description: "Reviews implementation plans for risks, over-engineering, missing 
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 # Plan Critic

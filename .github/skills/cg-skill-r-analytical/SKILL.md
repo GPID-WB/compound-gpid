@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-analytical
+module: shared
 description: "R patterns for analytical work: haven for Stata migration, fixest for econometrics, modelsummary for tables, ggplot2+wbplot for World Bank visualizations, and welfare/poverty measurement patterns. Covers domain knowledge for survey analysis, FGT poverty indices, inequality measures, and econometric workflows."
 ---
 

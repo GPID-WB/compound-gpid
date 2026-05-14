@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-tidyverse
+module: shared
 description: "Modern tidyverse patterns for R. Load when r-syntax is 'tidyverse' in compound-gpid.local.md, or when writing/reviewing R code using dplyr, tidyr, readr, stringr, or purrr. Covers dplyr 1.2+ patterns (.by grouping, join_by, pick/across/reframe), native pipe |>, pivot_longer/pivot_wider, stringr, readr I/O, and GPID-specific patterns in tidyverse style. Note: even in tidyverse mode, collapse functions (fmean, fsum, etc.) are used for weighted statistics since they work natively on tibbles."
 user-invocable: false
 ---

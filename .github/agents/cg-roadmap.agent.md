@@ -3,6 +3,7 @@ description: "Handles atomic roadmap.json writes: add/remove milestones and feat
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'write']
 user-invocable: true
+module: shared
 ---
 
 # Roadmap Manager

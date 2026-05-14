@@ -3,6 +3,7 @@ description: "Reviews data input validation, type checking, missing value handli
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are a data quality reviewer for R, Python, and Stata data science projects.

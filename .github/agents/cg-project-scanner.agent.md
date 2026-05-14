@@ -3,6 +3,7 @@ description: "Scans project file structure to detect languages, frameworks, proj
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 # Project Scanner

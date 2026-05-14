@@ -3,6 +3,7 @@ description: "Searches .cg-docs/solutions/ and .cg-docs/brainstorms/ for relevan
 model: Claude Haiku 4.5 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are a learnings researcher that mines the project's knowledge base to surface relevant past solutions and decisions.

@@ -1,5 +1,6 @@
 ---
 name: cg-skill-r-datatable
+module: shared
 description: "data.table patterns for R data manipulation. Load when r-syntax is 'data.table-collapse' in compound-gpid.local.md, or when writing/reviewing R code using DT[i,j,by] syntax, :=, fread/fwrite, joins, reshaping, or any data.table manipulation. Covers filtering, column creation by reference, joins (equi, non-equi, rolling), melt/dcast reshaping, fifelse/fcase, .SD/.SDcols, set()/setkey(), performance patterns, and data.table anti-patterns. Use alongside cg-skill-r-collapse for statistical computing."
 user-invocable: false
 ---

@@ -3,6 +3,7 @@ description: "Reviews project structure, modularity, separation of concerns, and
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search']
 user-invocable: false
+module: shared
 ---
 
 You are an architecture reviewer for R, Python, and Stata data science projects.
