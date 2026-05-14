@@ -1,7 +1,8 @@
 ---
 date: 2026-05-14
 title: "Compound Research — Phase 3: Core Research Agents"
-status: active
+status: completed
+completed-date: 2026-05-14
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md"
 language: "Markdown, PowerShell"
