@@ -37,6 +37,11 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local test setup, cross-platform
+requirements, commit conventions, and the PR workflow.
+
 ## License
 
 MIT
