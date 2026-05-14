@@ -22,6 +22,7 @@ function New-TemplateDir {
 project-type: {{project-type}}
 languages: {{languages}}
 review-depth: {{review-depth}}
+modules: {{modules}}
 '@
     }
     Set-Content -Path (Join-Path $githubDir "copilot-instructions.template.md") `
@@ -43,13 +44,14 @@ Test project.
 
 function New-LocalConfigFile {
     param([string]$Root, [string]$Language = "R", [string]$ProjectType = "analytical",
-          [string]$ReviewDepth = "standard", [string]$RSyntax = $null)
+          [string]$ReviewDepth = "standard", [string]$RSyntax = $null, [string]$Modules = $null)
     $rSyntaxLine = if ($RSyntax) { "`nr-syntax: $RSyntax" } else { "" }
+    $modulesLine = if ($Modules) { "`nmodules: $Modules" } else { "" }
     $content = @"
 ---
 language: $Language
 project-type: $ProjectType
-review-depth: $ReviewDepth$rSyntaxLine
+review-depth: $ReviewDepth$rSyntaxLine$modulesLine
 ---
 "@
     Set-Content -Path (Join-Path $Root "compound-gpid.local.md") -Value $content -Encoding UTF8
@@ -357,5 +359,72 @@ Describe "Get-ToolsList helper - edge cases" {
         $result = Get-ToolsList -Frontmatter $fm
         @($result).Count | Should -Be 1
         ($result -contains 'agent') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# New-CopilotInstructions - modules: substitution (Phase 1)
+# ---------------------------------------------------------------------------
+
+Describe "New-CopilotInstructions - modules substitution" {
+    Context "with modules: engineering in local config" {
+        $templateDir = Join-Path $TestDrive "modules-eng-template"
+        $projectRoot = Join-Path $TestDrive "modules-eng-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "Test Project"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard" -Modules "engineering"
+        $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
+
+        It "output contains 'engineering'" {
+            ($result -match 'engineering') | Should -Be $true
+        }
+
+        It "does not contain unreplaced {{modules}} placeholder" {
+            ($result -match '\{\{modules\}\}') | Should -Be $false
+        }
+    }
+
+    Context "with modules: engineering, research in local config" {
+        $templateDir = Join-Path $TestDrive "modules-both-template"
+        $projectRoot = Join-Path $TestDrive "modules-both-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "Research Project"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard" -Modules '"engineering, research"'
+        $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
+
+        It "output contains 'engineering'" {
+            ($result -match 'engineering') | Should -Be $true
+        }
+
+        It "output contains 'research'" {
+            ($result -match 'research') | Should -Be $true
+        }
+
+        It "does not contain unreplaced {{modules}} placeholder" {
+            ($result -match '\{\{modules\}\}') | Should -Be $false
+        }
+    }
+
+    Context "with no modules: field in local config (defaults to engineering)" {
+        $templateDir = Join-Path $TestDrive "modules-default-template"
+        $projectRoot = Join-Path $TestDrive "modules-default-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "Default Project"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard"
+        $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
+
+        It "output contains 'engineering' (default)" {
+            ($result -match 'engineering') | Should -Be $true
+        }
+
+        It "does not contain unreplaced {{modules}} placeholder" {
+            ($result -match '\{\{modules\}\}') | Should -Be $false
+        }
     }
 }
