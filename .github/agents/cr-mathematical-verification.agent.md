@@ -70,8 +70,10 @@ code implementation:
 **3b. Gradient / score computations**
 - If the derivation includes a score function `∂l/∂θ`, verify the gradient
   code computes the same analytical expression
-- If numerical gradients are used instead of analytical: flag as P1
-  (may be intentional for robustness, but must be documented)
+- If the derivation contains an analytical gradient/score expression AND the
+  code uses numerical gradients instead: flag as P1 (may be intentional for
+  robustness, but must be documented). Do NOT flag numerical gradients when
+  the derivation does not contain an analytical gradient expression.
 
 **3c. Moment conditions**
 - For GMM: verify E[g(θ, data)] = 0 moment conditions in the derivation
