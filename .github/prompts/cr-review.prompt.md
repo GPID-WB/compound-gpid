@@ -45,22 +45,21 @@ For each agent: "Review files [list]. Return findings using the priority format
 
 ### Step 2: Dispatch Research-Specific Agents
 
-Dispatch these CR agents when they exist. For Phase 2, they are not yet available —
-mark each as **[Phase 3 — not yet available]** and skip.
+Dispatch these CR agents. If an agent is not available (returns an error or
+is not registered), note in the review output: '@cr-X not available — skip'
+and continue.
 
-**Always dispatch (when available)**:
+**Always dispatch**:
 - **@cr-research-integrity** — P0 silent-error detection (code-math mismatch,
   specification searching, identification theater, unseeded randomness)
 - **@cr-mathematical-verification** — symbolic checks against derivation files
-  *(Phase 3 — not yet available)*
+  (skips gracefully if no derivation files exist)
 
 **Conditionally dispatch based on task type in the plan**:
-- **@cr-identification-audit** — checks identification strategy and diagnostic
-  *(Phase 3 — not yet available)*
+- **@cr-identification-audit** — checks identification strategy and diagnostics
 - **@cr-specification-analysis** — specification searching detection
   *(Phase 4 — not yet available)*
 - **@cr-econometric-reasoning** — structural model logic review
-  *(Phase 4 — not yet available)*
 - **@cr-ml-methodology** — ML methodology and evaluation
   *(Phase 5 — not yet available)*
 - **@cr-academic-writing** — academic prose and argument structure
@@ -74,7 +73,7 @@ Based on the task type identified in the plan:
 
 | Task Type | Additional Agents |
 |-----------|------------------|
-| Theory/Modeling | @cr-econometric-reasoning *(Phase 4)*, @cg-adversarial |
+| Theory/Modeling | @cr-econometric-reasoning, @cg-adversarial |
 | Specification Analysis | @cr-specification-analysis *(Phase 4)* |
 | ML/Prediction | @cr-ml-methodology *(Phase 5)*, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
