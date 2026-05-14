@@ -1,8 +1,8 @@
 ---
 description: "Research review — multi-agent code and methodology review.
   Orchestrates cg-* agents (code quality, testing, reproducibility) and
-  cr-* agents (research integrity, mathematical verification, identification audit).
-  Produces prioritized P0/P1/P2/P3 findings."
+  cr-* agents (research integrity, mathematical verification, identification audit,
+  econometric reasoning). Produces prioritized P0/P1/P2/P3 findings."
 model: Claude Sonnet 4.6 (copilot)
 module: research
 ---
@@ -17,7 +17,7 @@ their findings.
 
 - You may read any file in the workspace.
 - You may write review reports to `.cg-docs/reviews/`.
-- You may NOT directly modify source files — that is the role of `/cr-fix-triage`.
+- You may NOT directly modify source files — that is the role of `/cg-fix-triage`.
 - You may NOT modify `roadmap.json` directly.
 
 ## Process
@@ -53,13 +53,16 @@ and continue.
 - **@cr-research-integrity** — P0 silent-error detection (code-math mismatch,
   specification searching, identification theater, unseeded randomness)
 - **@cr-mathematical-verification** — symbolic checks against derivation files
-  (skips gracefully if no derivation files exist)
+  (dispatch only if `.cg-docs/research/derivations/` contains `.tex` or `.md` files;
+  if absent, skip and note: '@cr-mathematical-verification skipped — no derivation files found')
 
-**Conditionally dispatch based on task type in the plan**:
-- **@cr-identification-audit** — checks identification strategy and diagnostics
+<!-- All conditional cr-* dispatch lives in Step 3 only. Do not add conditional agents to Step 2. -->
+**Conditionally dispatch based on task type** (see Step 3 task-type table):
+- **@cr-identification-audit** — identification strategy and diagnostics
 - **@cr-specification-analysis** — specification searching detection
   *(Phase 4 — not yet available)*
 - **@cr-econometric-reasoning** — structural model logic review
+  *(dispatched via Step 3 task-type table — not directly from this list)*
 - **@cr-ml-methodology** — ML methodology and evaluation
   *(Phase 5 — not yet available)*
 - **@cr-academic-writing** — academic prose and argument structure
@@ -73,7 +76,7 @@ Based on the task type identified in the plan:
 
 | Task Type | Additional Agents |
 |-----------|------------------|
-| Theory/Modeling | @cr-econometric-reasoning, @cg-adversarial |
+| Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
 | Specification Analysis | @cr-specification-analysis *(Phase 4)* |
 | ML/Prediction | @cr-ml-methodology *(Phase 5)*, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
@@ -82,6 +85,11 @@ Based on the task type identified in the plan:
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
+
+**If no plan context is available**, infer task type from code content:
+- Presence of `feols`/`ivreg`/`rdrobust`/`DiD` patterns → dispatch `@cr-identification-audit`
+- Files in `.cg-docs/research/derivations/` exist → dispatch `@cr-mathematical-verification`
+- Task type cannot be determined → dispatch `@cr-econometric-reasoning` by default
 
 ### Step 4: Merge and Prioritize Findings
 
@@ -109,7 +117,7 @@ Collect all agent findings. Sort by priority (P0 first, then P1, P2, P3):
 
 If an agent returned "no issues found", do not include its section.
 
-### Step 3.5: Write Review Report
+### Step 5: Write Review Report
 
 **Do NOT delegate this write — perform it directly.**
 
@@ -134,10 +142,12 @@ findings: N
 > After writing, confirm: "Review report saved to `.cg-docs/reviews/<filename>.md`.
 > Use `/cg-fix-triage` to apply findings by ID (e.g., `/cg-fix-triage [P0.1]`)."
 
-### Step 5: Monte Carlo Verification Offer
+### Step 6: Monte Carlo Verification Offer
 
-If the review found P0 errors related to estimator correctness, or if the task
-type is Theory/Modeling or Implementation:
+Only offer this if no P0 errors remain open. If P0s are present, note:
+"Monte Carlo verification deferred until P0 findings are resolved."
+
+If no P0 errors are open AND the task type is Theory/Modeling or Implementation:
 
 > "Would you like me to run a Monte Carlo simulation to verify the estimator?
 > This checks that the estimator recovers known parameters from simulated data
@@ -145,9 +155,9 @@ type is Theory/Modeling or Implementation:
 
 - If yes: generate the simulation code and run it, reporting bias, RMSE, and
   coverage probability.
-- If no: proceed to Step 6.
+- If no: proceed to Step 7.
 
-### Step 6: Handoff
+### Step 7: Handoff
 
 > **What would you like to do next?**
 > 1. **`/cg-fix-triage`** — Apply review findings by ID
