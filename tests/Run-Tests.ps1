@@ -61,6 +61,7 @@ $testNames = @(
     'cg-index',       # Python indexer tests (Python-availability-guarded, safe on Windows)
     'run-tests-runner',
     'update',
+    'parity',   # cross-script parity: link/unlink ps1<->sh must define same dirs
     'link',     # creates junctions — must be last
     'unlink'    # creates junctions — must be last
 )
