@@ -31,7 +31,12 @@ After Step 1.3 identifies which file types appear in findings, load applicable s
 - `.R`/`.Rmd` files in findings → `cg-skill-r-technical` and/or `cg-skill-r-analytical` (load both if unsure)
 - `.py` files in findings → `cg-skill-python-best-practices`
 - `.do`/`.ado` files in findings → `cg-skill-stata-best-practices`
-If all in-scope findings reference only `.md`, `.json`, or `.ps1` files, skip skill loading.
+- Findings tagged `[cr-research-integrity]`, `[cr-mathematical-verification]`,
+  `[cr-identification-audit]`, or `[cr-econometric-reasoning]` → load
+  `cr-skill-research-integrity` and `cr-skill-research-workflow` (required to
+  correctly scope seed placement, IV diagnostic thresholds, and identification
+  remediation patterns regardless of file type)
+If all in-scope findings reference only `.md`, `.json`, or `.ps1` files AND no `[cr-*]` tags are present, skip skill loading.
 
 ### Step 1: Load Review Report
 

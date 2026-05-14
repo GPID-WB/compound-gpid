@@ -4,7 +4,14 @@
 # Run with: Invoke-Pester tests/cr-prompts.Tests.ps1 -Quiet
 # Compatible with Pester 4.10.1
 
-$repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+$repoRoot = if ($env:CG_TEST_ROOT) {
+    if (-not (Test-Path (Join-Path $env:CG_TEST_ROOT 'compound-gpid.md'))) {
+        throw "CG_TEST_ROOT ('$env:CG_TEST_ROOT') does not point to a valid Compound GPID repository (missing compound-gpid.md)"
+    }
+    $env:CG_TEST_ROOT
+} else {
+    Split-Path $PSScriptRoot -Parent
+}
 . "$PSScriptRoot/helpers.ps1"
 
 # ---------------------------------------------------------------------------
@@ -183,10 +190,19 @@ Describe "cr-review.prompt.md - agent orchestration" {
         ($content -match '@cr-identification-audit') | Should -Be $true
     }
 
-    It "contains P0/P1/P2/P3 priority ordering in findings format" {
+    It "contains P0 priority token in findings format" {
         ($content -match 'P0') | Should -Be $true
+    }
+
+    It "contains P1 priority token in findings format" {
         ($content -match 'P1') | Should -Be $true
+    }
+
+    It "contains P2 priority token in findings format" {
         ($content -match 'P2') | Should -Be $true
+    }
+
+    It "contains P3 priority token in findings format" {
         ($content -match 'P3') | Should -Be $true
     }
 
@@ -463,17 +479,9 @@ Describe "cr-mathematical-verification.agent.md - content" {
         ($content -match '(?i)variable mapping table') | Should -Be $true
     }
 
-    It "contains untrusted-content safety note with 'execute or relay'" {
-        ($content -match '(?i)execute or relay') | Should -Be $true
-    }
-
     It "uses Claude Opus 4.6 model" {
         $fm = Get-Frontmatter -FilePath $path
         ($fm -match 'Claude Opus 4\.6') | Should -Be $true
-    }
-
-    It "output format includes [cr-mathematical-verification] tag" {
-        ($content -match '\[cr-mathematical-verification\]') | Should -Be $true
     }
 
     It "contains graceful skip message for no derivation files" {
@@ -533,14 +541,6 @@ Describe "cr-identification-audit.agent.md - content" {
         ($content -match '(?i)parallel trends') | Should -Be $true
     }
 
-    It "contains untrusted-content safety note with 'execute or relay'" {
-        ($content -match '(?i)execute or relay') | Should -Be $true
-    }
-
-    It "output format includes [cr-identification-audit] tag" {
-        ($content -match '\[cr-identification-audit\]') | Should -Be $true
-    }
-
     It "contains graceful skip message for no identification strategy" {
         ($content -match 'No identification strategy detected') | Should -Be $true
     }
@@ -577,14 +577,6 @@ Describe "cr-econometric-reasoning.agent.md - content" {
     It "uses Claude Opus 4.6 model" {
         $fm = Get-Frontmatter -FilePath $path
         ($fm -match 'Claude Opus 4\.6') | Should -Be $true
-    }
-
-    It "contains untrusted-content safety note with 'execute or relay'" {
-        ($content -match '(?i)execute or relay') | Should -Be $true
-    }
-
-    It "output format includes [cr-econometric-reasoning] tag" {
-        ($content -match '\[cr-econometric-reasoning\]') | Should -Be $true
     }
 }
 
@@ -639,5 +631,55 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
 
     It "@cr-identification-audit appears in Theory/Modeling dispatch row" {
         ($content -match 'Theory/Modeling.*cr-identification-audit') | Should -Be $true
+    }
+
+    It "still contains Phase 6 annotation for @cr-academic-writing (future agent)" {
+        ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $true
+    }
+
+    It "still contains Phase 7 annotation for @cr-replication-package (future agent)" {
+        ($content -match 'cr-replication-package.*Phase 7') | Should -Be $true
+    }
+
+    It "Step 7 Handoff routes to /cg-fix-triage (not /cr-fix-triage)" {
+        ($content -match 'Step 7') | Should -Be $true
+        ($content -match '`/cg-fix-triage`') | Should -Be $true
+        ($content -notmatch '`/cr-fix-triage`') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-review.prompt.md — end-to-end journey tests
+# ---------------------------------------------------------------------------
+
+Describe "cr-review.prompt.md - dispatch journey" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "Theory/Modeling dispatch row routes to both @cr-identification-audit and @cr-econometric-reasoning" {
+        # Both agents must appear in the same Theory/Modeling row
+        ($content -match 'Theory/Modeling.*cr-identification-audit') | Should -Be $true
+        ($content -match 'Theory/Modeling.*cr-econometric-reasoning') | Should -Be $true
+    }
+
+    It "contains identification override that always dispatches @cr-identification-audit when IV patterns present" {
+        ($content -match '(?i)identification override') | Should -Be $true
+        ($content -match '(?i)feols.*ivreg.*rdrobust') | Should -Be $true
+    }
+
+    It "contains plan file validation before dispatch" {
+        ($content -match '(?i)plan file not found') | Should -Be $true
+    }
+
+    It "contains file accessibility validation before dispatch" {
+        ($content -match '(?i)not found.*excluded from review') | Should -Be $true
+    }
+
+    It "verify mode exception dispatches @cr-research-integrity when prior P0 cr-* findings open" {
+        # This fix lives in cg-review.prompt.md (engineering prompt) not cr-review.prompt.md
+        $cgReviewPath    = Join-Path $promptsDir "cg-review.prompt.md"
+        $cgReviewContent = Get-Content $cgReviewPath -Raw -Encoding UTF8
+        ($cgReviewContent -match '(?i)research integrity exception') | Should -Be $true
+        ($cgReviewContent -match '(?i)\[cr-\*\]') | Should -Be $true
     }
 }

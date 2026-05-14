@@ -54,6 +54,18 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: intake → reproduce (hard stop) → diagnose → fix (hard stop) → document. Checks prior bug solutions at intake. |
 | `/cg-review [light\|standard\|thorough] [mode:autofix\|mode:verify]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Depth overrides config; content-based auto-escalation applies automatically (pipeline files, statistical functions, secrets, large diffs). `mode:autofix` applies safe mechanical fixes automatically. `mode:verify` switches to verification mode — re-runs a `light` review with suppression of expected fix-consequence P2/P3 findings; P0/P1 and new cross-file breakage are always reported. Arguments can be combined: `/cg-review light mode:autofix`. Note: `mode:autofix` and `mode:verify` are mutually exclusive — if both are passed, `mode:verify` wins. When `mode:verify` is active, any depth argument is ignored — verify always runs at `light`. |
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. If the report has more than 15 open findings and no arguments are given, warns before proceeding and recommends priority batches (`P0 P1`, `P2`, `P3`); respond `batch` to get the commands and stop, or `yes` to proceed. Use `--migrate` to backfill per-finding status tracking on legacy review files (pre-v0.4.3). |
+
+### Research Workflow Prompts
+
+These prompts are available when `modules: [research]` is set in `compound-gpid.local.md`.
+
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cr-brainstorm` | Claude Opus 4.6 | Classify and clarify research tasks using the 8-type taxonomy. Routes to the appropriate review agents based on task type. |
+| `/cr-plan` | Claude Opus 4.6 | Generate a structured research plan with identification strategy, derivation file structure, and specification logging. |
+| `/cr-work [phaseX]` | Claude Sonnet 4.6 | Execute a research plan phase-by-phase with P0 enforcement (seed checks, manifest logging, derivation cross-referencing). |
+| `/cr-review [standard\|thorough]` | Claude Sonnet 4.6 | Multi-agent research methodology review. Dispatches all 6 shared `cg-*` agents plus research-specific `cr-*` agents based on task type. Produces P0–P3 findings. |
+| `/cr-compound` | Claude Sonnet 4.6 | Capture methodology lessons (identification strategies, derivation decisions, estimation rationale) to `.cg-docs/solutions/`. Extends standard `/cg-compound` with research-specific categories. |
 | `/cg-fix-problems` | Claude Sonnet 4.6 | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets you select scope and severity, then dispatches `@cg-fix-problems` to apply fixes. Auto mode is dispatched silently by `/cg-work` when `get_errors` returns errors in files touched by the current implementation step (errors only, 2-round budget). |
 | `/cg-compound` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. |
 | `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
@@ -61,7 +73,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 35 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 39 prompt and agent files.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -144,6 +156,19 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 > All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
+
+### Research Review Agents
+
+Dispatched by `/cr-review`. Require `modules: [research]` in `compound-gpid.local.md`.
+
+| Agent | Focus | Model |
+|-------|-------|-------|
+| `cr-research-integrity` | P0 silent-error detection: code-math mismatch, specification searching, identification theater, unseeded randomness, wrong SE clustering, asymptotic violations, distributional assumptions | Sonnet 4.6 |
+| `cr-mathematical-verification` | Symbolic checks against `.cg-docs/research/derivations/` | Opus 4.6 |
+| `cr-identification-audit` | IV/RDD/DiD diagnostic verification (first-stage F, McCrary test, parallel trends) | Sonnet 4.6 |
+| `cr-econometric-reasoning` | Structural model logic: DGP consistency, estimation strategy selection, assumption-data fit | Opus 4.6 |
+
+> All `cr-*` research agents are dispatched exclusively by `/cr-review`. They are NOT user-invokable.
 
 ### Auto-Escalation Rules
 

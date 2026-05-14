@@ -119,6 +119,8 @@ Include the suppression context from Step 1.7 in each agent's dispatch.
 Do NOT apply content-based depth overrides — the verify pass stays at light depth regardless of file content.
 Language-specific skill loading still applies — see R/Python/Stata skill checks above.
 
+**Verify mode — research integrity exception**: If the prior review file (from Step 1.7) contains any `P0` finding with a `[cr-*]` agent tag that is still marked `open`, always dispatch `@cr-research-integrity` in addition to the light-depth agents above, regardless of depth. P0 research-integrity violations must be verified directly — they cannot be waived by a verify pass. Include the suppression context in its dispatch.
+
 ### Step 2.5: Subagent Output Quality Check
 
 After each subagent returns, check for **usable** output:

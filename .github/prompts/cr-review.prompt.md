@@ -25,9 +25,16 @@ their findings.
 ### Step 0: Get Bearings
 
 1. Read `compound-gpid.md`, `compound-gpid.local.md`. Check `modules:` includes `research`.
+   If `compound-gpid.local.md` does not exist, proceed with defaults: review-depth = standard.
+   If the `modules:` field is absent from `compound-gpid.md`, treat as unset and proceed normally.
 2. Read review depth from `compound-gpid.local.md` (`review-depth:`).
 3. Load `cr-skill-research-workflow` and `cr-skill-research-integrity`.
 4. Identify the files to review (changed since last commit, or user-specified).
+   Verify each file is accessible. If any file cannot be read, exclude it from dispatch
+   and note: "`[file]` not found — excluded from review."
+5. If a plan file was specified, attempt to read it. If the read fails, halt and report:
+   "Plan file not found at `[path]`. Correct the path or remove it to allow task-type
+   inference from code content."
 
 ### Step 1: Dispatch Shared Code-Quality Agents
 
@@ -49,14 +56,18 @@ Dispatch these CR agents. If an agent is not available (returns an error or
 is not registered), note in the review output: '@cr-X not available — skip'
 and continue.
 
-**Always dispatch**:
+**Unconditionally dispatch**:
 - **@cr-research-integrity** — P0 silent-error detection (code-math mismatch,
   specification searching, identification theater, unseeded randomness)
+
+<!-- @cr-mathematical-verification is dispatched here because it applies
+     regardless of task type (derivation files are content-neutral).
+     All *task-type-conditional* agents belong in Step 3 only. -->
+**Conditionally dispatch (file-presence)**:
 - **@cr-mathematical-verification** — symbolic checks against derivation files
   (dispatch only if `.cg-docs/research/derivations/` contains `.tex` or `.md` files;
   if absent, skip and note: '@cr-mathematical-verification skipped — no derivation files found')
 
-<!-- All conditional cr-* dispatch lives in Step 3 only. Do not add conditional agents to Step 2. -->
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
 - **@cr-identification-audit** — identification strategy and diagnostics
 - **@cr-specification-analysis** — specification searching detection
@@ -80,16 +91,22 @@ Based on the task type identified in the plan:
 | Specification Analysis | @cr-specification-analysis *(Phase 4)* |
 | ML/Prediction | @cr-ml-methodology *(Phase 5)*, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
-| Reproducibility | @cr-replication-package *(Phase 7)*, @cg-reproducibility |
+| Reproducibility | @cr-replication-package *(Phase 7)* |
 | Tables/Figures | @cg-documentation |
+| EDA | @cg-performance, @cg-data-quality |
+| Implementation | @cg-performance |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
 
 **If no plan context is available**, infer task type from code content:
 - Presence of `feols`/`ivreg`/`rdrobust`/`DiD` patterns → dispatch `@cr-identification-audit`
-- Files in `.cg-docs/research/derivations/` exist → dispatch `@cr-mathematical-verification`
 - Task type cannot be determined → dispatch `@cr-econometric-reasoning` by default
+
+**Identification override (always applies)**: Regardless of any plan `task-type:` value,
+context-scan all reviewed files for `feols`, `ivreg`, `ivreghdfe`, `rdrobust`, `att_gt`,
+`did_imputation`, or DiD-related patterns. If any are found, always dispatch
+`@cr-identification-audit` — even when a plan exists with a non-Theory/Modeling task type.
 
 ### Step 4: Merge and Prioritize Findings
 
