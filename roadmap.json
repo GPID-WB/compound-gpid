@@ -497,8 +497,8 @@
         {
           "id": "cr-core-agents",
           "title": "Phase 3: Core research agents (@cr-research-integrity, @cr-mathematical-verification, @cr-identification-audit, @cr-econometric-reasoning + /cr-review orchestration)",
-          "status": "idea",
-          "plan": null
+          "status": "planned",
+          "plan": ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md"
         },
         {
           "id": "cr-structural-econometrics-skills",
