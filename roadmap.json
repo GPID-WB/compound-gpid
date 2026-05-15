@@ -478,6 +478,54 @@
           "description": "Cross-platform E2E smoke tests in CI (cg-link/cg-unlink on fresh project dirs), automated cross-script parity checks (link.ps1 ↔ link.sh), conventional-commits lint, docs-staleness warning, CONTRIBUTING.md for contributors, and PR template with seven-dimension review checklist. Motivated by first external PR passing CI but failing on real macOS machine.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-13-pr-verification-pipeline.md"
+        },
+        {
+          "id": "cg-commit-push-pr",
+          "title": "/cg-commit-push-pr — logical commit splitting, push, and PR creation",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md"
+        },
+        {
+          "id": "cg-verify-pr",
+          "title": "/cg-verify-pr — CI check verification and auto-fix dispatch",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md"
+        }
+      ]
+    },
+    {
+      "id": "ongoing-ideas",
+      "title": "Ongoing Ideas",
+      "objective": "Catch-all for standalone improvements and ideas that don't fit an existing milestone.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "command-default-behaviors",
+          "title": "Command default behaviors (auto-branch, phases, autofix, context enrichment)",
+          "description": "Establish opinionated defaults for the five main workflow commands so users get the most common behavior without flags. /cg-brainstorm: if the user is on the main or default branch, automatically create a new feature branch before starting (no prompt); if on any other branch, prompt the user whether to stay or create a new branch — branching is still the default unless overridden with a --no-branch flag. /cg-plan: default output is a phased plan (numbered phases with self-contained task lists) unless the user explicitly requests a flat plan via --no-phases. /cg-work: default is to run all plan phases sequentially (equivalent to current behavior without a phaseN argument); single-phase execution remains available via '/cg-work phase1'. /cg-review: default to autofix mode (automatically apply safe fixes from findings) rather than report-only; a --report-only flag disables autofix. /cg-compound: after capturing the solution, automatically add all key findings from the compound iteration to compound-gpid.context.md and any other relevant project files (skills, instructions), as long as they fit the project's structure and objectives — no manual prompting required.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "outcome-criteria-in-plans",
+          "title": "Outcome criteria in plans (verifiable acceptance criteria)",
+          "description": "When a user runs /cg-plan or /cg-brainstorm, the output must specify not only what to build (objectives, tasks) but also how the finished result should appear — concrete acceptance criteria that are verifiable during /cg-work and /cg-review. This includes: specific requirements the implementation must satisfy (e.g., 'function returns X when given Y'), observable behaviors or outputs (e.g., 'API responds with 200 and JSON schema Z'), structural constraints (e.g., 'no new dependencies added'), and measurable thresholds where applicable (e.g., 'test coverage above N%'). During /cg-work, the agent checks criteria as it completes each phase. During /cg-review, the agent explicitly verifies each criterion and reports pass/fail status. This closes the gap between 'plan says build X' and 'review can confirm X was built correctly'.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "conversation-audit-trail",
+          "title": "Conversation audit trail across workflow stages",
+          "description": "Persist the main ideas from conversations between the user and compound-gpid throughout the entire workflow lifecycle: brainstorm, plan, work, review, and compound stages. The audit trail captures: the user's original request and how it was interpreted, clarifying questions asked by the agent and the user's answers, how the plan was adjusted based on those answers, decisions made during implementation (why approach A was chosen over B), review findings and how they were resolved, and any scope changes that occurred mid-session. This record is stored alongside the plan/brainstorm artifacts (not in a separate system) so that any future session can understand not just what was decided but why. Serves two purposes: (1) traceability — if a decision is questioned later, the reasoning is recoverable; (2) continuity — if a session is interrupted and resumed days later, the context is preserved without relying on the user's memory.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "attribution-documentation",
+          "title": "Attribution documentation (source repos and websites)",
+          "description": "Create a dedicated documentation space (e.g., docs/attribution.md or CREDITS.md) that credits all repositories, websites, blog posts, and other resources used for researching and informing compound-gpid's design. This includes: the three competitive review repos (compound-engineering-plugin, superpowers, GSD-2), any additional repos the user provides, blog posts or articles that influenced prompt design patterns, documentation sources for tools and frameworks (Pester, PowerShell, GitHub Actions), and any community discussions or forum threads that contributed ideas. Each entry should include: the resource name/URL, what it contributed (specific pattern, idea, or validation), and when it was referenced. This serves both as professional attribution and as a reference index for future research sessions.",
+          "status": "idea",
+          "plan": null
         }
       ]
     }

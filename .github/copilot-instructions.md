@@ -86,6 +86,8 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Fix VS Code problems | `/cg-fix-problems` |
 | Capture a solution | `/cg-compound` |
 | Refresh knowledge base | `/cg-compound-refresh` |
+| Ready to commit, push, and open PR | `/cg-commit-push-pr` |
+| CI checks failing on PR | `/cg-verify-pr` |
 
 > **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
 
