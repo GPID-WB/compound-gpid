@@ -229,12 +229,12 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     }
 
     It "documents /cg-work phaseX for implementing a specific phase (P3.6)" {
-        ($section -match '/cg-work phaseX|cg-work phase') | Should Be $true
+        ($section -match '/cg-work phaseX|cg-work phase') | Should -Be $true
     }
 
     # P2.1 — /cg-roadmap-view in Workflow Entry Points
     It "references /cg-roadmap-view in Workflow Entry Points" {
-        ($section -match '/cg-roadmap-view') | Should Be $true
+        ($section -match '/cg-roadmap-view') | Should -Be $true
     }
 
     It "references /cg-commit-push-pr in Workflow Entry Points" {
@@ -243,6 +243,11 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
 
     It "references /cg-verify-pr in Workflow Entry Points" {
         ($section -match '/cg-verify-pr') | Should -Be $true
+    }
+
+    # P2.6 — /cg-wiki added to Workflow Entry Points
+    It "references /cg-wiki in Workflow Entry Points" {
+        ($section -match '/cg-wiki') | Should -Be $true
     }
 }
 
@@ -469,8 +474,10 @@ Describe "skill file cross-links resolve" {
 
     foreach ($skillFile in $skillFiles) {
         $content = Get-Content $skillFile.FullName -Raw -Encoding UTF8
+        # Strip inline code spans before extracting links (backtick content = examples, not real cross-links)
+        $contentForLinks = $content -replace '`[^`\r\n]+`', ''
         # Extract markdown links: [text](path) — skip anchors and external URLs
-        $links = [regex]::Matches($content, '\[[^\]]*\]\(([^)#]+\.md)\)')
+        $links = [regex]::Matches($contentForLinks, '\[[^\]]*\]\(([^)#]+\.md)\)')
         foreach ($link in $links) {
             $target = $link.Groups[1].Value
             if ($target -match '^https?://') { continue }
@@ -867,7 +874,8 @@ Describe "Agent files - tools restriction enforcement" {
 
     # Review-only agents must not include the 'write' tool
     # cg-roadmap.agent.md uses write for roadmap updates; cg-fix-problems.agent.md uses editFiles (not write)
-    $reviewAgents = $agentFiles | Where-Object { $_.Name -ne 'cg-roadmap.agent.md' -and $_.Name -ne 'cg-fix-problems.agent.md' }
+    # cg-wiki.agent.md uses write for wiki page creation and updates
+    $reviewAgents = $agentFiles | Where-Object { $_.Name -ne 'cg-roadmap.agent.md' -and $_.Name -ne 'cg-fix-problems.agent.md' -and $_.Name -ne 'cg-wiki.agent.md' }
 
     foreach ($file in $reviewAgents) {
         $filePath = $file.FullName

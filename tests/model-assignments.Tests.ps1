@@ -33,8 +33,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 21 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should -Be 21
+    It "contains exactly 22 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should -Be 22
     }
 
     foreach ($file in $promptFiles) {
@@ -65,8 +65,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 16 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should -Be 16
+    It "contains exactly 17 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should -Be 17
     }
 
     foreach ($file in $agentFiles) {
@@ -101,7 +101,7 @@ Describe "docs/model-guide.md - structure and sync" {
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    # All 21 prompt file stems must appear in the guide
+    # All 22 prompt file stems must appear in the guide
     $promptStems = @(
         'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
         'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
@@ -109,7 +109,7 @@ Describe "docs/model-guide.md - structure and sync" {
         'cg-compound-refresh', 'cg-ideate',
         'cg-diagnose', 'cg-fix-problems', 'cg-plan-review',
         'cg-review-repos', 'cg-roadmap-view',
-        'cg-commit-push-pr', 'cg-verify-pr'
+        'cg-commit-push-pr', 'cg-verify-pr', 'cg-wiki'
     )
     foreach ($stem in $promptStems) {
         It "guide references prompt stem '$stem'" {
@@ -117,13 +117,13 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 16 agent file stems must appear in the guide
+    # All 17 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
         'cg-learnings-researcher', 'cg-roadmap',
         'cg-adversarial', 'cg-fix-problems', 'cg-plan-critic',
-        'cg-release-scanner', 'cg-project-scanner', 'cg-roadmap-view'
+        'cg-release-scanner', 'cg-project-scanner', 'cg-roadmap-view', 'cg-wiki'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {
