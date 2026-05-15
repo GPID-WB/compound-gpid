@@ -4434,6 +4434,14 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
     It "reads untracked files via Get-Content when git diff returns empty (P2.10)" {
         ($content -match 'Get-Content.*untracked|untracked.*Get-Content|\?\?.*Get-Content') | Should -Be $true
     }
+
+    It "supports --ask flag to enable interactive confirmation mode (default is auto-proceed)" {
+        ($content -match '--ask|--wait') | Should -Be $true
+    }
+
+    It "states default mode proceeds without confirmation unless --ask is set" {
+        ($content -match 'auto.proceed|without.*confirm|unless.*--ask|by default.*proceed|--ask.*confirm') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------

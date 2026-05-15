@@ -13,6 +13,10 @@ You are a senior developer helping the user package their work into well-structu
 - **EXECUTE**: `git add`, `git commit`, `git push`, `gh pr create`.
 - **NEVER**: Modify `.cg-docs/` files, plan files, or `roadmap.json` directly.
 
+## Flags
+
+- **`--ask`** (or **`--wait`**): Enable interactive confirmation mode. When set, pause after proposing the commit structure (Step 2) and after generating commit messages (Step 3) to wait for user approval before proceeding. **Default (no flag): auto-proceed without confirmation** — classify, generate messages, commit, push, and open the PR in one uninterrupted pass.
+
 ## Process
 
 ### Step 0: Get Bearings
@@ -77,7 +81,7 @@ You are a senior developer helping the user package their work into well-structu
 
    - If all changes fall into one group: propose a single commit.
    - If `.cg-docs/plans/` files are present: group them separately as Plans/Knowledge.
-   - Wait for user confirmation or adjustments before continuing.
+   - **If `--ask` (or `--wait`) was passed**: wait for user confirmation or adjustments before continuing. **Otherwise (default): auto-proceed** to Step 3 with the proposed grouping.
 
 ### Step 3: Generate Commit Messages
 
@@ -91,7 +95,7 @@ For each confirmed group:
    - **Types**: `feat` (new feature), `fix` (bug fix), `docs` (documentation), `test` (tests), `refactor` (restructuring), `chore` (maintenance), `data` (data changes), `analysis` (analysis work).
    - **Scope**: the most changed module, directory, or component (e.g., `link`, `tests`, `ci`).
    - **Body** (if diff is non-trivial): bullet list of key changes, separated from subject by a blank line.
-3. Present all messages together for review before any `git commit` is run.
+3. **If `--ask` (or `--wait`) was passed**: present all messages together and wait for user approval before any `git commit` is run. **Otherwise (default): auto-proceed** to Step 4 immediately after generating the messages.
 4. If the project has `compound-gpid.md` with a Constraints section, use the declared commit-type taxonomy if documented there.
 
 ### Step 4: Execute Commits
