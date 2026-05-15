@@ -134,7 +134,7 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
   1. Determine the wiki folder: check `## Wiki Configuration` in
      `compound-gpid.context.md` for `<!-- folder: ... -->`. Default: `wiki`.
   2. Check if `<folder>/_wiki.yml` exists. If not:
-     > "No wiki manifest found — run `/cg-wiki rebuild` to initialize."
+     > "No wiki manifest found — run `/cg-wiki init` to initialize."
      Skip silently.
   3. Dispatch `@cg-wiki` with:
      - `mode: update`

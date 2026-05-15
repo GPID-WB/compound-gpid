@@ -268,7 +268,7 @@ If `compound-gpid.md` exists, scan headings for deprecated sections: Architectur
 Determine the wiki folder: check `## Wiki Configuration` in `compound-gpid.context.md` for `<!-- folder: ... -->`. Default: `wiki`.
 
 If `<folder>/_wiki.yml` does not exist: note after the context summary:
-> "No project wiki found. Run `/cg-setup` to initialize the wiki for this project."
+> "No project wiki found. Run `/cg-wiki init` to initialize the wiki for this project."
 
 If `<folder>/_wiki.yml` exists: skip silently.
 

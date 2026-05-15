@@ -39,7 +39,7 @@ Before any operation:
    empty string. Set a non-empty relative path in `## Wiki Configuration`."
 3. For all modes except `init`: read `_wiki.yml` from `<folder>/_wiki.yml`.
    If `<folder>/_wiki.yml` does not exist, halt: "Wiki manifest not found at
-   `<folder>/_wiki.yml`. Run `/cg-setup` or `/cg-wiki rebuild` to initialize."
+   `<folder>/_wiki.yml`. Run `/cg-wiki init` to initialize the wiki for this project."
    Validate `schemaVersion === "compound-gpid-wiki-v1"`. If missing or
    mismatched: halt with the schema mismatch warning from `cg-skill-wiki` and
    do not proceed.

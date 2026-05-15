@@ -21,6 +21,7 @@ restructure, check status, or convert the project wiki.
 
 ```
 /cg-wiki                      # Show wiki status (pages, ownership, last updated)
+/cg-wiki init                 # Initialize the wiki for this project (creates _wiki.yml and wiki/ pages)
 /cg-wiki rebuild              # Rebuild all auto-managed pages from current state
 /cg-wiki rebuild <page-id>    # Rebuild a specific page (e.g., /cg-wiki rebuild usage)
 /cg-wiki restructure          # Interactive: add/remove/reorder pages
@@ -53,6 +54,7 @@ Parse the user's input:
 | Input | Subcommand | Extra |
 |-------|-----------|-------|
 | *(no args)* or `status` | `status` | — |
+| `init` | `init` | — |
 | `rebuild` | `rebuild` | — |
 | `rebuild <id>` | `rebuild` | `page-id: <id>` |
 | `restructure` | `restructure` | — |
@@ -69,10 +71,19 @@ Determine wiki folder from `compound-gpid.context.md` → `## Wiki Configuration
 Check if `<folder>/_wiki.yml` exists:
 - If missing → respond:
   > "No wiki manifest found (`<folder>/_wiki.yml` does not exist). Run
-  > `/cg-setup` to initialize the wiki."
-  Stop. (Exception: `help` subcommand always proceeds without this check.)
+  > `/cg-wiki init` to initialize the wiki for this project."
+  Stop. (Exception: `help` and `init` subcommands always proceed without this check.)
 
 ### Step 3: Dispatch by Subcommand
+
+#### `init`
+
+Read `compound-gpid.local.md` for `project-type`. Read `compound-gpid.md` for charter content.
+
+Dispatch `@cg-wiki` with:
+- `mode: init`
+- `project-type: <value from compound-gpid.local.md>`
+- `charter-content: <content of compound-gpid.md>`
 
 #### `status` (default)
 
