@@ -60,8 +60,10 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
 | `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
+| `/cg-commit-push-pr` | Claude Sonnet 4.6 | Stage changes into logical commits (grouped by file type: code, tests, docs, config, plans), generate conventional commit messages, push, and open a PR with a plan-driven description. Proposes commit splits interactively. Requires `gh` CLI for PR creation — degrades gracefully with install instructions if missing. |
+| `/cg-verify-pr [--propose]` | Claude Sonnet 4.6 | Check CI status on the current branch's PR and auto-fix failures. Classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific). One fix round per invocation; 2-round cap tracked via `fix(ci):` commit count. Re-invoke after CI re-runs to apply a second round. Use `--propose` for observe-only diagnosis (no commits or pushes). |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 35 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 37 prompt and agent files.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -141,7 +143,7 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
 | `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (thorough only) | Sonnet 4.6 |
 
-> All review agents are dispatched exclusively by `/cg-review`. They are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+> Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 

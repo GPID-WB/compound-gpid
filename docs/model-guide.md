@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 35 Compound GPID prompt and agent files.
+Reference for model assignments across all 37 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 35 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 37 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -37,6 +37,8 @@ files" and "Model assignments — agent files" describe blocks) validate all 35 
 | `cg-plan-review.prompt.md` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions — dispatches `@cg-plan-critic` | Orchestration 4, reasoning 4 — interactive triage and dispatch; matches `/cg-plan` tier | confirmed |
 | `cg-review-repos.prompt.md` | Claude Opus 4.6 | Multi-repo competitive analysis with registry write — fetches releases pages, generates feature cards, updates `repos.json` | Orchestration 4, reasoning 4 — multi-step web-fetching and registry mutation across 3 repos in one session; Opus handles multi-tool-loop orchestration more reliably than Sonnet at this breadth | confirmed |
 | `cg-roadmap-view.prompt.md` | Claude Haiku 4.5 | User-facing roadmap visualizer — parses flags, dispatches `@cg-roadmap-view` agent | Orchestration 1, reasoning 1 — pure flag dispatch with no judgment required; Haiku appropriate | confirmed |
+| `cg-commit-push-pr.prompt.md` | Claude Sonnet 4.6 | Logical commit splitting, push, and PR creation with plan-driven description | Reasoning 3, orchestration 3 — diff analysis, group classification, conventional commit generation, and conditional gh CLI dispatch needs Sonnet | confirmed |
+| `cg-verify-pr.prompt.md` | Claude Sonnet 4.6 | CI check verification and auto-fix loop — classifies failures, dispatches agents, manages rebase and 2-round cap | Reasoning 4, orchestration 4 — log classification, multi-agent dispatch, and rebase conflict resolution needs Sonnet | confirmed |
 
 ### Agents
 

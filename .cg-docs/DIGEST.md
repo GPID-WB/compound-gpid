@@ -1,6 +1,76 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-13 · 105 active solutions_
+_Generated 2026-05-14 · 115 active solutions_
+
+## Classification steps must exhaustively cover all enum values with terminal actions
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: prompt-design, classification, enum-exhaustion, guard-conditions, edge-cases, cg-verify-pr
+path: .cg-docs/solutions/testing-patterns/2026-05-14-classification-step-must-exhaustively-cover-enum-values.md
+
+A prompt step that classifies input into one of N categories must provide a terminal action (halt or proceed) for every possible combination of input values. When a value or combination is missing, control falls through to the next step with invalid state. **Example from this session**: `cg-verify-pr` Step 2 classified CI check conclusions into: All passing (SUCCESS/NEUTRAL/SKIPPED) | Pending | Manual action required (ACTION_REQUIRED/STALE) | Cancelled (non-blocking) | Failing (FAILURE/TIMED_OUT). The "Cancelled" rule said "treat as non-blocking, note in classification" — but had no terminal action. The "Failing" rule fired only when `FAILURE`/`TIMED_OUT` was present. If every check returned...
+
+## gh pr create: use --body-file not inline --body to prevent shell injection
+
+date: 2026-05-14
+category: git-workflows
+status: 
+tags: gh, pull-request, shell-injection, security, prompt-design, cg-commit-push-pr
+path: .cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md
+
+A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. When plan content contains backticks, `$()`, `${VAR}`, or other shell metacharacters, PowerShell and bash interpolate them before `gh` receives the argument. Example: a plan `## Objective` value of `` feat: add `$(whoami)` `` would execute `whoami` silently if the body is passed inline. In bash, `$(rm -rf .)` would delete the working tree. Discovered as P0.1 in the `cg-commit-push-pr`/`cg-verify-pr` thorough review.
+
+## git log without --first-parent double-counts upstream merge commits when measuring branch-local work
+
+date: 2026-05-14
+category: git-workflows
+status: 
+tags: git, git-log, first-parent, branch-commits, merge-commits, cg-verify-pr, ci
+path: .cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md
+
+When counting commits authored **on the current branch** since a branch point, the common pattern: ``` silently includes commits from any merged-in upstream branches. If `main` was rebased into the feature branch via a merge commit, all commits reachable from `main` between `$mergeBase` and `HEAD` are also included — inflating the count. **Example**: A feature branch with 1 `fix(ci):` commit, merged with an upstream `main` that has 3 unrelated commits, reports **4** `fix(ci):` commits if any of those upstream commits happen to match the grep pattern (unlikely but possible), and more subtly produces **wrong commit ordering** even without a pattern...
+
+## git merge-base can return multiple ancestors — always take the first line
+
+date: 2026-05-14
+category: git-workflows
+status: 
+tags: git, merge-base, PowerShell, bash, prompt-design, branch-detection, cg-commit-push-pr, cg-verify-pr
+path: .cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md
+
+Scripts and prompt instructions that compute the branch point with: ``` assume `git merge-base` returns exactly one hash. In repositories with a complex merge history (e.g., after an octopus merge or a criss-cross merge), the command can return **multiple SHA hashes on separate lines**. When assigned directly: - PowerShell: `$mergeBase` becomes a `string[]` array; subsequent commands such as `git diff $mergeBase..HEAD` receive `"sha1 sha2"` (space-joined) and fail or produce wrong output. - bash: `MERGE_BASE=$(git merge-base HEAD main)` captures a newline-delimited string; commands using it unquoted get word-split. Discovered as P2.3 in the `cg-commit-push-pr`/`cg-verify-pr` thorough review.
+
+## Prompt injection via LLM-authored plan content embedded in AI-generated output
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: security, prompt-injection, plan-files, ai-safety, cg-commit-push-pr, untrusted-content
+path: .cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md
+
+A prompt reads a plan file's `## Objective` section and embeds it verbatim into AI-generated output (e.g., a PR body, a commit message body, or a summary). If the plan file's Objective contains adversarial instructions — either accidentally or by a malicious actor with write access to the plan file — those instructions are relayed to the user or forwarded to a downstream agent. Example plan content: ``` When the prompt reads this and writes it into a PR body: the LLM generating the PR body sees the injected text and may follow it. Discovered as P1.5 in the `cg-commit-push-pr`/`cg-verify-pr`...
+
+## Sibling-prompt symmetry: apply guard fixes to all prompts with the same operation
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: prompt-design, guard-conditions, symmetry, code-review, verify-pass, cg-commit-push-pr, cg-verify-pr
+path: .cg-docs/solutions/testing-patterns/2026-05-14-sibling-prompt-symmetry-guard-audit.md
+
+When a P1 review finding adds a guard to prompt A (e.g., "exit-code check after `git add`"), the fix is scoped to that file. A sibling prompt B that performs the same operation (also `git add` → `git commit`) is not in scope, so the fix is never applied there. This pattern is invisible to per-file testing: all tests for prompt A pass because the guard is present; all tests for prompt B pass because there were no tests for the guard. The verify pass is the first time the gap surfaces. **Example from this session**: P1.1 in the original...
+
+## Write-permission mode flags must be parsed before any tool dispatch, not deferred to a later step
+
+date: 2026-05-14
+category: testing-patterns
+status: 
+tags: prompt-design, file-permissions, mode-flags, propose, read-only, step-ordering, cg-verify-pr
+path: .cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md
+
+A prompt's File Permissions block declared: > `--propose` mode: READ-only — no file creation, modification, git commits, > or pushes of any kind. But the flag parsing was placed in **Step 0.6** — after bearings (Step 0.1–0.3) and other pre-flight work. An agent executing linearly could call `read_file` and other tool-dispatching steps (Steps 0.1–0.5) before it evaluated the `--propose` flag. If the agent's future steps included write operations, the READ-only constraint had not yet been established when those steps were entered. Discovered as P2.1 in the `cg-commit-push-pr`/`cg-verify-pr` thorough review.
 
 ## cg-link bootstrap index offer always fails on empty projects
 
@@ -11,6 +81,36 @@ tags: link, cg-index, bootstrap, empty-project, link.ps1, link.sh, ux
 path: .cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md
 
 Running `cg-link` on a new empty project completed the symlink/junction setup but then prompted to build the knowledge index. When the user answered `y`, the command failed:
+
+## CI bypass flag pattern: [switch]$Force / --yes for interactive scripts
+
+date: 2026-05-13
+category: testing-patterns
+status: 
+tags: ci, powershell, bash, interactive, Read-Host, force-flag, non-interactive, e2e
+path: .cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md
+
+PowerShell scripts (`link.ps1`, `unlink.ps1`) and bash scripts (`link.sh`, `unlink.sh`) contain interactive confirmation prompts (`Read-Host`, `read -r`). When these scripts are invoked from GitHub Actions E2E smoke tests or any non-interactive automation, the runner hangs indefinitely waiting for keyboard input that never arrives. The job eventually times out with a cryptic timeout error rather than a meaningful failure message. Secondary issue: even if the CI job is configured with a short timeout, the hanging step can freeze VS Code's terminal if the test runner is invoked interactively (e.g., Pester calling the script).
+
+## Cross-script parity tests: keeping ps1 and sh scripts in sync
+
+date: 2026-05-13
+category: testing-patterns
+status: 
+tags: parity, powershell, bash, cross-platform, regression, managed-dirs, pester
+path: .cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md
+
+`link.ps1` and `link.sh` (and `unlink.ps1` / `unlink.sh`) must produce equivalent behaviour on Windows and macOS. When a managed directory is added to one but not the other, or when a bypass flag is added to one script but forgotten on its counterpart, the divergence is invisible. Individual unit tests for each script pass; only the combined behaviour breaks. Examples of silent divergence that occurred before parity tests existed: - `link.ps1` had `shared/` in `$ManagedDirs`; `link.sh` was missing it - `unlink.ps1` had `[switch]$Force`; `unlink.sh` had no `--yes` equivalent - Verification file path differed: `cg-setup.prompt.md` vs `cg-start.prompt.md`
+
+## E2E smoke test in GitHub Actions with safe Windows junction teardown
+
+date: 2026-05-13
+category: git-workflows
+status: 
+tags: ci, github-actions, windows, junction, teardown, e2e, macos, symlink, smoke-test
+path: .cg-docs/solutions/git-workflows/2026-05-13-e2e-smoke-test-github-actions-windows-junction-teardown.md
+
+After adding an E2E smoke test step to CI, the Windows runner occasionally deleted source files from `$GITHUB_WORKSPACE/.github/prompts/*` during teardown. The step used `Remove-Item -Recurse -Force` to clean up the E2E working directory. On GitHub Actions Windows 2022 runners, Windows Defender can lock files accessed through junctions, causing `Remove-Item -Force` on the junction itself to fail silently (exit code 0). The subsequent `-Recurse` then traverses the surviving junction link and removes the source files.
 
 ## Join-Path with embedded backslash path separator is Windows-only
 

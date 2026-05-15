@@ -9,9 +9,9 @@ This page explains the Compound GPID workflow loop and how to use each step — 
 ## The Loop
 
 ```
-Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> Compound
-                ^           ^            ^                                ^          ^
-       (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh
+Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> [Commit+Push -> Verify PR] -> Compound
+                ^           ^            ^                                ^          ^                                    ^
+       (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh                             Refresh
 Resume (re-entry at any stage)
 Roadmap View (read-only snapshot at any stage)
 ```
@@ -655,4 +655,61 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 - Without checking for open P0/P1 review findings
 
 **Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
+
+---
+
+### Commit, Push, and Open PR (`/cg-commit-push-pr`)
+
+**When to use**: After completing a feature or fix on a branch and you want to package the work into well-structured commits, push the branch, and open a pull request.
+
+**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conventional commit messages. After your confirmation, executes the commits in order, pushes the branch, and opens a PR with a plan-driven description — reading `## Objective` and requirements from any `.cg-docs/plans/` files added on the branch. If `gh` CLI is not installed, degrades gracefully: completes all commits and push, then prints the manual `gh pr create` command.
+
+**Key behaviors**:
+- `git add` exit code is checked before each commit — halts on failure rather than committing an empty or partial stage
+- Push rejections (non-fast-forward) are surfaced with clear options: rebase, `--force-with-lease`, or cancel
+- Plan content is written to a temp file and passed via `--body-file` (never inline) to prevent shell injection
+- Detached HEAD state is detected early with a clear recovery command
+- If on the default branch, warns and asks before proceeding
+
+**Scenarios**:
+- *Normal feature work*: After `/cg-work` + `/cg-review` + `/cg-fix-triage`, run `/cg-commit-push-pr` to ship.
+- *No `gh` CLI*: Run on any machine — commit and push still happen; you get the manual PR command.
+- *Multiple logical changes*: Files are split into up to 4 commits (feat/fix, test, docs, plans) so reviewers see a clean history.
+
+**When NOT to use**:
+- On the default branch for experimental work — create a feature branch first
+- When you only want to commit without pushing — use `git commit` directly
+- When CI is already failing on a previous push — use `/cg-verify-pr` instead
+
+**Output**: N commits on the current branch + push + PR URL (or manual command if `gh` unavailable)
+
+---
+
+### Verify PR (`/cg-verify-pr [--propose]`)
+
+**When to use**: After opening a PR (via `/cg-commit-push-pr` or manually) to check CI status and auto-fix any failures.
+
+**What happens**: Reads the current branch's open PR and fetches `statusCheckRollup` from `gh`. Classifies each check conclusion into one of five buckets — passing, pending, cancelled (non-blocking), action-required/stale, or failing. For failing checks, fetches the `gh run` log, classifies the failure type (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific failures → manual diagnosis), and dispatches the appropriate agent. After fixes, commits as `fix(ci): <description>` and pushes. Tracks a **2-round cap** via `fix(ci):` commit count — stops after 2 rounds and asks for manual review.
+
+**Key behaviors**:
+- `--propose` flag makes the prompt READ-only: diagnoses failures and proposes fixes without committing or pushing
+- All-CANCELLED check state is detected as a terminal condition (no action needed)
+- `--first-parent` is used in git log calls to count branch-local commits accurately
+- `git merge-base` output is guarded with `Select-Object -First 1` for repos with multiple merge bases
+- Detached HEAD state halts immediately with a recovery command
+- `git add` exit code is checked before each `fix(ci):` commit
+
+**Scenarios**:
+- *CI passing*: Confirms ✅ status and offers next steps.
+- *CI failing (first round)*: Classifies failures, dispatches agents, commits fixes, pushes.
+- *CI failing (second round)*: Same as first round — 2-round cap applies.
+- *After 2 rounds*: Halts with summary — manual review required; a third automated round risks an infinite fix loop.
+- *Diagnosis only*: Run with `--propose` to see what's failing before committing to a fix.
+
+**When NOT to use**:
+- When no PR is open on the current branch — open one with `/cg-commit-push-pr` first
+- When CI is still running (pending) — wait for it to complete, then re-invoke
+- After 2 `fix(ci):` commits — automated fixing is capped; escalate manually
+
+**Output**: Classification report of CI checks + (unless `--propose`) `fix(ci):` commit(s) pushed to the branch
 
