@@ -503,8 +503,8 @@
         {
           "id": "cr-structural-econometrics-skills",
           "title": "Phase 4: Structural econometrics skills (cr-skill-structural-econometrics, mathematical-derivation, symbolic-verification, identification-strategies, theory-data-dialogue, research-eda + latex/math instructions)",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-14-compound-research-phase4-skills.md"
         },
         {
           "id": "cr-ml-economics",

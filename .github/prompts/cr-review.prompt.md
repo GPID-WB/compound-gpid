@@ -72,7 +72,7 @@ and continue.
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
 - **@cr-identification-audit** — identification strategy and diagnostics
 - **@cr-specification-analysis** — specification searching detection
-  *(Phase 4 — not yet available)*
+  *(Phase 5 — not yet available)*
 - **@cr-econometric-reasoning** — structural model logic review
   *(dispatched via Step 3 task-type table — not directly from this list)*
 - **@cr-ml-methodology** — ML methodology and evaluation
@@ -89,7 +89,7 @@ Based on the task type identified in the plan:
 | Task Type | Additional Agents |
 |-----------|------------------|
 | Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
-| Specification Analysis | @cr-specification-analysis *(Phase 4)* |
+| Specification Analysis | @cr-specification-analysis *(Phase 5)* |
 | ML/Prediction | @cr-ml-methodology *(Phase 5)*, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
 | Reproducibility | @cr-replication-package *(Phase 7)* |

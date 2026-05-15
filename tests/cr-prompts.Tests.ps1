@@ -617,8 +617,8 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
         ($erLine -match 'Phase 4') | Should -Be $false
     }
 
-    It "still contains Phase 4 annotation for @cr-specification-analysis (future agent)" {
-        ($content -match 'cr-specification-analysis.*Phase 4') | Should -Be $true
+    It "still contains Phase 5 annotation for @cr-specification-analysis (future agent)" {
+        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $true
     }
 
     It "still contains Phase 5 annotation for @cr-ml-methodology (future agent)" {
@@ -793,5 +793,347 @@ Describe "CR files - module: research frontmatter" {
         It "$agent.agent.md has module: research in frontmatter" {
             ($frontmatter -match 'module:\s*research') | Should -Be $true
         }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4 skills — existence and frontmatter
+# ---------------------------------------------------------------------------
+
+Describe "Phase 4 skills - existence and frontmatter" {
+    $phase4Skills = @(
+        'cr-skill-structural-econometrics',
+        'cr-skill-mathematical-derivation',
+        'cr-skill-symbolic-verification',
+        'cr-skill-identification-strategies',
+        'cr-skill-theory-data-dialogue',
+        'cr-skill-research-eda'
+    )
+
+    foreach ($skill in $phase4Skills) {
+        $path = Join-Path $skillsDir "$skill\SKILL.md"
+
+        Context "$skill/SKILL.md" {
+            It "[$skill] exists" {
+                Test-Path $path | Should -Be $true
+            }
+
+            It "[$skill] has module: research" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+            }
+
+            It "[$skill] has a name: field matching the skill directory" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match "name:\s*$skill") | Should -Be $true
+            }
+
+            It "[$skill] has a description: field" {
+                $fm = Get-Frontmatter -FilePath $path
+                ($fm -match 'description:') | Should -Be $true
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4 skills — key content sections
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-structural-econometrics/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-structural-econometrics\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Discrete Choice section" {
+        ($content -match '(?i)discrete choice') | Should -Be $true
+    }
+
+    It "contains Dynamic Programming section" {
+        ($content -match '(?i)dynamic programming') | Should -Be $true
+    }
+
+    It "contains Simulation-Based Estimation section" {
+        ($content -match '(?i)simulation.based estimation|MSM|SMM') | Should -Be $true
+    }
+
+    It "contains GMM section" {
+        ($content -match '\bGMM\b') | Should -Be $true
+    }
+
+    It "contains Standard Errors section" {
+        ($content -match '(?i)standard errors') | Should -Be $true
+    }
+
+    It "contains Identification section" {
+        ($content -match '(?i)identification') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-skill-mathematical-derivation/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-mathematical-derivation\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Notation Discipline section" {
+        ($content -match '(?i)notation discipline') | Should -Be $true
+    }
+
+    It "contains FOC Derivation section" {
+        ($content -match '(?i)FOC') | Should -Be $true
+    }
+
+    It "contains Code-Math Variable Mapping section" {
+        ($content -match '(?i)variable mapping') | Should -Be $true
+    }
+
+    It "references .cg-docs/research/derivations/" {
+        ($content -match '\.cg-docs[/\\]research[/\\]derivations') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-skill-symbolic-verification/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-symbolic-verification\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains SymPy gradient verification section" {
+        ($content -match '(?i)sympy') | Should -Be $true
+    }
+
+    It "contains Hessian verification section" {
+        ($content -match '(?i)hessian') | Should -Be $true
+    }
+
+    It "contains Moment Condition Verification section" {
+        ($content -match '(?i)moment condition') | Should -Be $true
+    }
+
+    It "references @cr-mathematical-verification" {
+        ($content -match '@cr-mathematical-verification') | Should -Be $true
+    }
+
+    It "contains numerical verification harness" {
+        ($content -match '(?i)numerical verification harness') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-skill-identification-strategies/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-identification-strategies\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains IV/2SLS section" {
+        ($content -match 'IV/2SLS') | Should -Be $true
+    }
+
+    It "contains RDD section" {
+        ($content -match '\bRDD\b') | Should -Be $true
+    }
+
+    It "contains DiD section" {
+        ($content -match '(?i)difference.in.differences') | Should -Be $true
+    }
+
+    It "contains Synthetic Control section" {
+        ($content -match '(?i)synthetic control') | Should -Be $true
+    }
+
+    It "contains Matching/IPW section" {
+        ($content -match '(?i)matching|IPW') | Should -Be $true
+    }
+
+    It "references @cr-identification-audit" {
+        ($content -match '@cr-identification-audit') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-skill-theory-data-dialogue/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-theory-data-dialogue\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Theory-Data Dialogue Pattern section" {
+        ($content -match '(?i)theory.data dialogue') | Should -Be $true
+    }
+
+    It "contains Distributional Tests section" {
+        ($content -match '(?i)distributional tests') | Should -Be $true
+    }
+
+    It "contains Reduced-Form Regressions section" {
+        ($content -match '(?i)reduced.form') | Should -Be $true
+    }
+
+    It "references .cg-docs/research/specifications/" {
+        ($content -match '\.cg-docs[/\\]research[/\\]specifications') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-skill-research-eda/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-research-eda\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Research-Framed EDA Philosophy section" {
+        ($content -match '(?i)research.framed eda') | Should -Be $true
+    }
+
+    It "contains weighted descriptive statistics using collapse" {
+        ($content -match '(?i)collapse|fmean|fsd|fmedian') | Should -Be $true
+    }
+
+    It "contains Missingness Patterns section" {
+        ($content -match '(?i)missingness') | Should -Be $true
+    }
+
+    It "contains Sample Restriction Documentation section" {
+        ($content -match '(?i)sample restriction') | Should -Be $true
+    }
+
+    It "contains anti-patterns table" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4 — instruction files existence and frontmatter
+# ---------------------------------------------------------------------------
+
+Describe "Phase 4 instruction files - existence and frontmatter" {
+    $instructionsDir = Join-Path $repoRoot ".github\instructions"
+
+    Context "latex.instructions.md" {
+        $path = Join-Path $instructionsDir "latex.instructions.md"
+
+        It "exists" {
+            Test-Path $path | Should -Be $true
+        }
+
+        It "has module: research in frontmatter" {
+            $fm = Get-Frontmatter -FilePath $path
+            ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+        }
+
+        It "applyTo includes .tex files" {
+            $fm = Get-Frontmatter -FilePath $path
+            ($fm -match '\.tex') | Should -Be $true
+        }
+
+        It "references cr-skill-mathematical-derivation" {
+            $content = Get-Content $path -Raw -Encoding UTF8
+            ($content -match 'cr-skill-mathematical-derivation') | Should -Be $true
+        }
+    }
+
+    Context "math.instructions.md" {
+        $path = Join-Path $instructionsDir "math.instructions.md"
+
+        It "exists" {
+            Test-Path $path | Should -Be $true
+        }
+
+        It "has module: research in frontmatter" {
+            $fm = Get-Frontmatter -FilePath $path
+            ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+        }
+
+        It "references cr-skill-mathematical-derivation" {
+            $content = Get-Content $path -Raw -Encoding UTF8
+            ($content -match 'cr-skill-mathematical-derivation') | Should -Be $true
+        }
+
+        It "references cr-skill-symbolic-verification" {
+            $content = Get-Content $path -Raw -Encoding UTF8
+            ($content -match 'cr-skill-symbolic-verification') | Should -Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4 — agent skill-load assertions
+# ---------------------------------------------------------------------------
+
+Describe "Phase 4 agent skill-load assertions" {
+    $agentsDir = Join-Path $repoRoot ".github\agents"
+
+    It "cr-mathematical-verification loads cr-skill-symbolic-verification" {
+        $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
+        ($content -match 'cr-skill-symbolic-verification') | Should -Be $true
+    }
+
+    It "cr-mathematical-verification loads cr-skill-mathematical-derivation" {
+        $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
+        ($content -match 'cr-skill-mathematical-derivation') | Should -Be $true
+    }
+
+    It "cr-identification-audit loads cr-skill-identification-strategies" {
+        $content = Get-Content (Join-Path $agentsDir "cr-identification-audit.agent.md") -Raw -Encoding UTF8
+        ($content -match 'cr-skill-identification-strategies') | Should -Be $true
+    }
+
+    It "cr-econometric-reasoning loads cr-skill-structural-econometrics" {
+        $content = Get-Content (Join-Path $agentsDir "cr-econometric-reasoning.agent.md") -Raw -Encoding UTF8
+        ($content -match 'cr-skill-structural-econometrics') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4 — prompt cleanup assertions (stale name removal + phase relabeling)
+# ---------------------------------------------------------------------------
+
+Describe "Phase 4 prompt cleanup - cr-brainstorm" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain stale cr-skill-specification-analysis reference" {
+        ($content -match 'cr-skill-specification-analysis') | Should -Be $false
+    }
+
+    It "does NOT contain 'Phase 4, not yet available' annotation" {
+        ($content -match 'Phase 4, not yet available') | Should -Be $false
+    }
+
+    It "references cr-skill-structural-econometrics as live skill" {
+        # Must reference it WITHOUT 'not yet available' annotation
+        $lines = ($content -split "`n") | Where-Object { $_ -match 'cr-skill-structural-econometrics' }
+        $lines | ForEach-Object {
+            ($_ -match 'not yet available') | Should -Be $false
+        }
+        ($content -match 'cr-skill-structural-econometrics') | Should -Be $true
+    }
+
+    It "references cr-skill-theory-data-dialogue" {
+        ($content -match 'cr-skill-theory-data-dialogue') | Should -Be $true
+    }
+
+    It "references cr-skill-research-eda" {
+        ($content -match 'cr-skill-research-eda') | Should -Be $true
+    }
+}
+
+Describe "Phase 4 prompt cleanup - cr-review" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "@cr-specification-analysis is labeled Phase 5 (not Phase 4)" {
+        # Must NOT match Phase 4 annotation next to cr-specification-analysis
+        ($content -match 'cr-specification-analysis.*Phase 4') | Should -Be $false
+        # Must match Phase 5 annotation
+        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $true
     }
 }

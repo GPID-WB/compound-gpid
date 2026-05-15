@@ -43,10 +43,10 @@ Wait for confirmation before proceeding.
 
 Based on the confirmed task type, note which specialized skills would be loaded
 (from Phase 3 onward). For Phase 2, state them as planned:
-- Theory/Modeling → `cr-skill-structural-econometrics` *(Phase 4, not yet available)*
-- Specification Analysis → `cr-skill-specification-analysis` *(Phase 4, not yet available)*
-- EDA → standard analysis skills
-- Implementation → `cr-skill-research-integrity` (available now)
+- Theory/Modeling → `cr-skill-structural-econometrics`, `cr-skill-mathematical-derivation`, `cr-skill-symbolic-verification`
+- Specification Analysis → `cr-skill-theory-data-dialogue`, `cr-skill-research-eda`
+- EDA → `cr-skill-research-eda`
+- Implementation → `cr-skill-research-integrity`, `cr-skill-structural-econometrics`, `cr-skill-mathematical-derivation`
 - ML/Prediction → `cr-skill-ml-methodology` *(Phase 5, not yet available)*
 - Writing → `cr-skill-academic-writing` *(Phase 6, not yet available)*
 - Tables/Figures → `cr-skill-r-visualization`, `cr-skill-r-analytical`
