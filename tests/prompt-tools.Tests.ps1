@@ -4450,6 +4450,14 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
     It "skips PR creation and reports existing PR URL when PR is already open" {
         ($content -match 'existingPR|existing.*PR.*URL|already.*open|included automatically') | Should -Be $true
     }
+
+    It "falls back to VS Code GitHub Pull Request extension when gh CLI is not found" {
+        ($content -match 'GitHub Pull Request.*extension|vscode.*github|github-pull-request_create|VS Code.*extension.*PR|extension.*PR.*creation') | Should -Be $true
+    }
+
+    It "gives actionable next-time setup instructions when no PR tool is available" {
+        ($content -match 'next.time|to enable.*PR|install.*gh.*next|winget.*GitHub\.cli.*next|for.*future.*runs|next run') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------

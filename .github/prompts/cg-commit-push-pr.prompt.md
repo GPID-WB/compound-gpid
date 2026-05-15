@@ -43,17 +43,20 @@ You are a senior developer helping the user package their work into well-structu
    > Continue anyway? (yes/no)"
    - If user declines: halt.
 
-5. Check `gh` CLI availability:
+5. Detect the best available PR creation tool — check in priority order and store as `$prTool`:
+
+   **Priority 1 — `gh` CLI**
    - PowerShell: `Get-Command gh -ErrorAction SilentlyContinue`
    - bash/zsh: `command -v gh`
-   - If `gh` is not found:
-     > "`gh` CLI not found. Install it for full PR creation support:
-     > - Windows: `winget install GitHub.cli`
-     > - macOS: `brew install gh`
-     > - Linux: see https://cli.github.com/
-     >
-     > Continuing — will commit and push, then provide the manual `gh pr create` command."
-   - Store availability as `$ghAvailable` for later steps.
+   - If found: set `$prTool = "gh"` and continue.
+
+   **Priority 2 — VS Code GitHub Pull Request extension**
+   - If running inside VS Code (i.e., the agent has access to VS Code tools such as `github-pull-request_create_pull_request`): set `$prTool = "vscode-extension"` and continue.
+   - This extension is installed automatically with the GitHub Pull Request extension and requires no extra setup.
+
+   **Priority 3 — No tool found**
+   - If neither is available: set `$prTool = "none"`.
+   - Do **not** halt — continue to commit and push. Step 7 will give the user actionable next-time instructions.
 
 ### Step 2: Analyze Changes and Propose Commits
 
@@ -127,14 +130,13 @@ For each confirmed commit group, in order:
 
 ### Step 6: Open PR
 
-*(Skip this step if `$ghAvailable` is false — jump to Step 7 with manual instructions.)*
+*(Skip this step if `$prTool = "none"` — jump to Step 7 with manual instructions and next-time setup guidance.)*
 
 1. **Check for an existing PR** on this branch:
-   ```
-   gh pr view --json url,title 2>$null
-   ```
-   - If a PR already exists: set `$existingPR = <url>`. Skip sub-steps 2–4 — the new commits are automatically included in the open PR. Jump to Step 7.
-   - If no PR exists (command returns empty or non-zero): proceed to sub-step 2.
+   - If `$prTool = "gh"`: run `gh pr view --json url,title 2>$null`
+   - If `$prTool = "vscode-extension"`: call the `github-pull-request_pullRequestInViewport` tool or equivalent to check for an open PR on this branch.
+   - If a PR already exists: set `$existingPR = <url>`. Skip sub-steps 2–5 — the new commits are automatically included in the open PR. Jump to Step 7.
+   - If no PR exists: proceed to sub-step 2.
 
 2. Detect plans added since the branch point:
    ```
@@ -159,16 +161,18 @@ For each confirmed commit group, in order:
 
 4. Derive PR title from the branch name (replace `feat/`, `fix/`, etc. prefix, convert hyphens to spaces, title-case) or from the primary commit subject.
 
-5. Run: `gh pr create --title "<title>" --body "<body>"`
+5. Create the PR using the detected tool:
+   - If `$prTool = "gh"`: run `gh pr create --title "<title>" --body "<body>"`
+   - If `$prTool = "vscode-extension"`: call `github-pull-request_create_pull_request` with the composed title and body.
    - On success: report the PR URL.
-   - On failure: show the git/gh error verbatim and provide the equivalent manual command:
+   - On failure: show the error verbatim and provide the manual fallback command:
      ```
      gh pr create --title "<title>" --body "<body>"
      ```
 
 ### Step 7: Handoff
 
-- **If `gh` was available and a PR already existed (`$existingPR` is set)**:
+- **If a PR already existed (`$existingPR` is set)**:
   > "✅ Done.
   > - N commits pushed to `<branch>`
   > - PR already open — new commits included automatically: <existingPR URL>
@@ -177,7 +181,7 @@ For each confirmed commit group, in order:
   > 1. `/cg-verify-pr` — Check CI status and auto-fix failures
   > 2. Wait for reviewer approval"
 
-- **If `gh` was available and a new PR was created**:
+- **If a new PR was just created (via `gh` or VS Code extension)**:
   > "✅ Done.
   > - N commits pushed to `<branch>`
   > - PR: <URL>
@@ -186,11 +190,17 @@ For each confirmed commit group, in order:
   > 1. `/cg-verify-pr` — Check CI status and auto-fix failures
   > 2. Wait for reviewer approval"
 
-- **If `gh` was unavailable or PR creation failed**:
+- **If `$prTool = "none"` (no PR tool found)**:
   > "✅ Commits pushed to `<branch>`.
   >
-  > Open a PR manually:
-  > ```
-  > gh pr create --title "<title>" --body "<body>"
-  > ```
-  > Or visit: `https://github.com/<org>/<repo>/compare/<branch>`"
+  > No PR creation tool was found. Open a PR manually:
+  > - Visit: `https://github.com/<org>/<repo>/compare/<branch>`
+  > - Or run: `gh pr create --title "<title>" --body "<body>"`
+  >
+  > **To enable automatic PR creation for next time**, install one of:
+  > - **VS Code GitHub Pull Request extension** (recommended — no extra config needed):
+  >   Search for `GitHub Pull Request` in the VS Code Extensions panel (`Ctrl+Shift+X`) and install it.
+  > - **`gh` CLI**:
+  >   - Windows: `winget install GitHub.cli`, then `gh auth login`
+  >   - macOS: `brew install gh`, then `gh auth login`
+  >   - Linux: see https://cli.github.com/, then `gh auth login`"
