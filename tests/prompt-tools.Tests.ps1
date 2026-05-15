@@ -4442,6 +4442,14 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
     It "states default mode proceeds without confirmation unless --ask is set" {
         ($content -match 'auto.proceed|without.*confirm|unless.*--ask|by default.*proceed|--ask.*confirm') | Should -Be $true
     }
+
+    It "handles re-run when PR already exists (checks for existing PR before creating)" {
+        ($content -match 'existing.*PR|PR.*already|gh pr view') | Should -Be $true
+    }
+
+    It "skips PR creation and reports existing PR URL when PR is already open" {
+        ($content -match 'existingPR|existing.*PR.*URL|already.*open|included automatically') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------

@@ -129,14 +129,21 @@ For each confirmed commit group, in order:
 
 *(Skip this step if `$ghAvailable` is false — jump to Step 7 with manual instructions.)*
 
-1. Detect plans added since the branch point:
+1. **Check for an existing PR** on this branch:
+   ```
+   gh pr view --json url,title 2>$null
+   ```
+   - If a PR already exists: set `$existingPR = <url>`. Skip sub-steps 2–4 — the new commits are automatically included in the open PR. Jump to Step 7.
+   - If no PR exists (command returns empty or non-zero): proceed to sub-step 2.
+
+2. Detect plans added since the branch point:
    ```
    $mergeBase = (git merge-base HEAD <default-branch>) | Select-Object -First 1
    git diff --name-only $mergeBase..HEAD -- .cg-docs/plans/
    ```
    This produces the list of plan files added or modified on this branch.
 
-2. Compose PR body:
+3. Compose PR body:
    - **If plan files found**: read each plan's `## Objective` section (and `## Requirements` table if present). Aggregate into PR body under sections:
      ```
      ## What this PR does
@@ -150,9 +157,9 @@ For each confirmed commit group, in order:
      ```
    - **If no plan files found**: generate PR body from commit subjects as a bullet list.
 
-3. Derive PR title from the branch name (replace `feat/`, `fix/`, etc. prefix, convert hyphens to spaces, title-case) or from the primary commit subject.
+4. Derive PR title from the branch name (replace `feat/`, `fix/`, etc. prefix, convert hyphens to spaces, title-case) or from the primary commit subject.
 
-4. Run: `gh pr create --title "<title>" --body "<body>"`
+5. Run: `gh pr create --title "<title>" --body "<body>"`
    - On success: report the PR URL.
    - On failure: show the git/gh error verbatim and provide the equivalent manual command:
      ```
@@ -161,7 +168,16 @@ For each confirmed commit group, in order:
 
 ### Step 7: Handoff
 
-- **If `gh` was available and PR was created**:
+- **If `gh` was available and a PR already existed (`$existingPR` is set)**:
+  > "✅ Done.
+  > - N commits pushed to `<branch>`
+  > - PR already open — new commits included automatically: <existingPR URL>
+  >
+  > **Next steps:**
+  > 1. `/cg-verify-pr` — Check CI status and auto-fix failures
+  > 2. Wait for reviewer approval"
+
+- **If `gh` was available and a new PR was created**:
   > "✅ Done.
   > - N commits pushed to `<branch>`
   > - PR: <URL>
