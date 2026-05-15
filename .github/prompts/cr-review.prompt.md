@@ -39,7 +39,9 @@ their findings.
 
 ### Step 1: Dispatch Shared Code-Quality Agents
 
-Always dispatch all shared agents regardless of task type or review depth:
+Always dispatch all shared agents regardless of task type or review depth.
+If any agent is not available (returns an error or is not registered), note
+in the review output: '@cg-X not available — skip' and continue:
 
 1. **@cg-code-quality** — style, naming, DRY violations
 2. **@cg-testing** — test coverage, edge cases, test quality

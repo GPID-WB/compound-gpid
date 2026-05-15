@@ -722,23 +722,25 @@ Describe "cr-plan.prompt.md - research planning process" {
 # ---------------------------------------------------------------------------
 
 Describe "CR handoff chain" {
+    # Hoist reads to Describe scope to avoid per-It disk reads
+    $bsContent     = Get-Content (Join-Path $promptsDir "cr-brainstorm.prompt.md") -Raw -Encoding UTF8
+    $planContent   = Get-Content (Join-Path $promptsDir "cr-plan.prompt.md")       -Raw -Encoding UTF8
+    $workContent   = Get-Content (Join-Path $promptsDir "cr-work.prompt.md")       -Raw -Encoding UTF8
+    $reviewContent = Get-Content (Join-Path $promptsDir "cr-review.prompt.md")     -Raw -Encoding UTF8
+
     It "cr-brainstorm handoff reaches /cr-plan" {
-        $bsContent = Get-Content (Join-Path $promptsDir "cr-brainstorm.prompt.md") -Raw -Encoding UTF8
         ($bsContent -match '/cr-plan') | Should -Be $true
     }
 
     It "cr-plan handoff reaches /cr-work" {
-        $planContent = Get-Content (Join-Path $promptsDir "cr-plan.prompt.md") -Raw -Encoding UTF8
         ($planContent -match '/cr-work') | Should -Be $true
     }
 
     It "cr-work handoff reaches /cr-review" {
-        $workContent = Get-Content (Join-Path $promptsDir "cr-work.prompt.md") -Raw -Encoding UTF8
         ($workContent -match '/cr-review') | Should -Be $true
     }
 
     It "cr-review handoff reaches /cr-compound or /cg-compound" {
-        $reviewContent = Get-Content (Join-Path $promptsDir "cr-review.prompt.md") -Raw -Encoding UTF8
         ($reviewContent -match '/cr-compound|/cg-compound') | Should -Be $true
     }
 }
@@ -856,6 +858,10 @@ Describe "cr-skill-structural-econometrics/SKILL.md - content" {
         ($content -match '(?i)simulation.based estimation|MSM|SMM') | Should -Be $true
     }
 
+    It "contains Maximum Likelihood section" {
+        ($content -match '(?i)maximum likelihood|MLE for structural') | Should -Be $true
+    }
+
     It "contains GMM section" {
         ($content -match '\bGMM\b') | Should -Be $true
     }
@@ -869,7 +875,7 @@ Describe "cr-skill-structural-econometrics/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -881,12 +887,28 @@ Describe "cr-skill-mathematical-derivation/SKILL.md - content" {
         ($content -match '(?i)notation discipline') | Should -Be $true
     }
 
+    It "contains Equation Conventions section" {
+        ($content -match '(?i)equation convention|equation numbering') | Should -Be $true
+    }
+
     It "contains FOC Derivation section" {
         ($content -match '(?i)FOC') | Should -Be $true
     }
 
+    It "contains Common Derivation Techniques section" {
+        ($content -match '(?i)envelope theorem|leibniz|change of variable') | Should -Be $true
+    }
+
+    It "contains Asymptotic Expansions section" {
+        ($content -match '(?i)asymptotic expansion|sandwich variance') | Should -Be $true
+    }
+
     It "contains Code-Math Variable Mapping section" {
         ($content -match '(?i)variable mapping') | Should -Be $true
+    }
+
+    It "contains Derivation File Organization section" {
+        ($content -match '(?i)derivation file organization|derivation.*organization') | Should -Be $true
     }
 
     It "references .cg-docs/research/derivations/" {
@@ -894,7 +916,7 @@ Describe "cr-skill-mathematical-derivation/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -923,7 +945,7 @@ Describe "cr-skill-symbolic-verification/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -943,6 +965,10 @@ Describe "cr-skill-identification-strategies/SKILL.md - content" {
         ($content -match '(?i)difference.in.differences') | Should -Be $true
     }
 
+    It "contains Event Studies section" {
+        ($content -match '(?i)event stud') | Should -Be $true
+    }
+
     It "contains Synthetic Control section" {
         ($content -match '(?i)synthetic control') | Should -Be $true
     }
@@ -951,12 +977,16 @@ Describe "cr-skill-identification-strategies/SKILL.md - content" {
         ($content -match '(?i)matching|IPW') | Should -Be $true
     }
 
+    It "contains Strategy Selection Guide section" {
+        ($content -match '(?i)strategy selection') | Should -Be $true
+    }
+
     It "references @cr-identification-audit" {
         ($content -match '@cr-identification-audit') | Should -Be $true
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -981,7 +1011,7 @@ Describe "cr-skill-theory-data-dialogue/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -993,20 +1023,37 @@ Describe "cr-skill-research-eda/SKILL.md - content" {
         ($content -match '(?i)research.framed eda') | Should -Be $true
     }
 
+    It "contains Targeted Distributional Checks section" {
+        ($content -match '(?im)^##.*distributional check') | Should -Be $true
+    }
+
+    It "contains Conditional Moment Plots section" {
+        ($content -match '(?im)^##.*conditional moment') | Should -Be $true
+    }
+
     It "contains weighted descriptive statistics using collapse" {
-        ($content -match '(?i)collapse|fmean|fsd|fmedian') | Should -Be $true
+        # Match fmean/fsd/fmedian with w= argument in code (distinct from frontmatter description)
+        ($content -match '(?i)fmean\([^)]+w\s*=|fsd\([^)]+w\s*=|fmedian\([^)]+w\s*=') | Should -Be $true
     }
 
     It "contains Missingness Patterns section" {
         ($content -match '(?i)missingness') | Should -Be $true
     }
 
+    It "contains Outlier Analysis section" {
+        ($content -match '(?im)^##.*outlier analysis') | Should -Be $true
+    }
+
     It "contains Sample Restriction Documentation section" {
         ($content -match '(?i)sample restriction') | Should -Be $true
     }
 
+    It "contains Subgroup Analysis section" {
+        ($content -match '(?im)^##.*subgroup analysis') | Should -Be $true
+    }
+
     It "contains anti-patterns table" {
-        ($content -match '(?i)anti.pattern') | Should -Be $true
+        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
     }
 }
 
@@ -1061,6 +1108,11 @@ Describe "Phase 4 instruction files - existence and frontmatter" {
             $content = Get-Content $path -Raw -Encoding UTF8
             ($content -match 'cr-skill-symbolic-verification') | Should -Be $true
         }
+
+        It "contains path-based glob risk note" {
+            $content = Get-Content $path -Raw -Encoding UTF8
+            ($content -match '(?i)risk note|path.based|applyTo') | Should -Be $true
+        }
     }
 }
 
@@ -1073,22 +1125,22 @@ Describe "Phase 4 agent skill-load assertions" {
 
     It "cr-mathematical-verification loads cr-skill-symbolic-verification" {
         $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
-        ($content -match 'cr-skill-symbolic-verification') | Should -Be $true
+        ($content -match '(?is)load.*cr-skill-symbolic-verification') | Should -Be $true
     }
 
     It "cr-mathematical-verification loads cr-skill-mathematical-derivation" {
         $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
-        ($content -match 'cr-skill-mathematical-derivation') | Should -Be $true
+        ($content -match '(?is)load.*cr-skill-mathematical-derivation') | Should -Be $true
     }
 
     It "cr-identification-audit loads cr-skill-identification-strategies" {
         $content = Get-Content (Join-Path $agentsDir "cr-identification-audit.agent.md") -Raw -Encoding UTF8
-        ($content -match 'cr-skill-identification-strategies') | Should -Be $true
+        ($content -match '(?is)load.*cr-skill-identification-strategies') | Should -Be $true
     }
 
     It "cr-econometric-reasoning loads cr-skill-structural-econometrics" {
         $content = Get-Content (Join-Path $agentsDir "cr-econometric-reasoning.agent.md") -Raw -Encoding UTF8
-        ($content -match 'cr-skill-structural-econometrics') | Should -Be $true
+        ($content -match '(?is)load.*cr-skill-structural-econometrics') | Should -Be $true
     }
 }
 

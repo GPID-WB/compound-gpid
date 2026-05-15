@@ -42,7 +42,7 @@ summary(iv_fit, diagnostics = TRUE)  # includes Weak Instruments, Wu-Hausman, Sa
 
 # fixest (preferred for FE)
 library(fixest)
-feols(y ~ controls | fe1 | x ~ z1 + z2, data = df, cluster = ~cluster_var)
+iv_feols <- feols(y ~ controls | fe1 | x ~ z1 + z2, data = df, cluster = ~cluster_var)
 fitstat(iv_feols, ~ivf)  # first-stage F
 
 # Stata
@@ -55,6 +55,11 @@ estat endogenous                  // Durbin-Wu-Hausman
 **LATE vs. ATE**: IV identifies LATE (Local Average Treatment Effect) for
 compliers only. Document the complier sub-population and discuss external
 validity.
+
+> **PPP vintage consistency**: When instruments or controls include income or
+> welfare aggregates, ensure all series use the same PPP vintage (2011 or 2017).
+> Mixing vintages invalidates cross-country or cross-period comparisons.
+> Document the vintage in the data section of the plan.
 
 **Anti-patterns**:
 - Using F-statistic on all first-stage regressors (should be F on excluded instruments only)
@@ -255,12 +260,17 @@ that explain treatment assignment.
 | Trimming rule | Document any trimming of extreme propensity scores |
 
 ```r
-# R — MatchIt
+# R — MatchIt (requires MatchIt >= 4.0; v3 → v4 has breaking API changes)
 library(MatchIt)
 m_out <- matchit(treat ~ x1 + x2 + x3, data = df, method = "nearest",
                   distance = "logit", ratio = 1)
 summary(m_out, standardize = TRUE)   # balance table
 love.plot(m_out, threshold = 0.1)     # Love plot
+
+# Matched-sample N validation
+matched_n <- nrow(match.data(m_out))
+message("Matched sample N: ", matched_n, " of ", nrow(df), " original observations")
+stopifnot("Matching dropped >50% of sample" = matched_n > nrow(df) * 0.5)
 
 # IPW with WeightIt
 library(WeightIt)
@@ -268,9 +278,9 @@ w_out <- weightit(treat ~ x1 + x2 + x3, data = df,
                    method = "ps", estimand = "ATE")
 summary(w_out)
 
-# Stata
-psmatch2 treat x1 x2 x3, outcome(y) neighbor(1) ties common
-pstest x1 x2 x3, both                // balance test
+# Stata — prefer teffects psmatch over psmatch2 (psmatch2 has known caliper/ties bugs)
+teffects psmatch (y) (treat x1 x2 x3), atet nn(1)
+tebalance summarize                      // balance table
 ```
 
 **Doubly-robust estimator** (preferred):

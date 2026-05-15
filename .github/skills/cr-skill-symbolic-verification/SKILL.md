@@ -55,9 +55,11 @@ def numerical_gradient(fn, theta, eps=1e-6):
     """Finite-difference gradient check."""
     n = len(theta)
     grad = np.zeros(n)
+    e    = np.zeros(n)     # pre-allocate once; reset each iteration
     for k in range(n):
-        e = np.zeros(n); e[k] = eps
+        e[k] = eps
         grad[k] = (fn(theta + e) - fn(theta - e)) / (2 * eps)
+        e[k] = 0.0         # reset for next iteration
     return grad
 
 # Compare analytical gradient to numerical gradient at test point

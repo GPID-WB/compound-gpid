@@ -122,6 +122,13 @@ one is consistent.
 Flag as P0 for broken identification conditions (support failure, insufficient moments).
 Flag as P1 for unverified but likely important issues (stationarity, overlap).
 
+> **P0 deferral policy**: Do NOT defer P0 findings to `@cr-research-integrity`.
+> If you detect a P0 condition (broken support, insufficient moments, asymptotic
+> violation), emit it directly as a `[P0.{N}] [cr-econometric-reasoning]` finding
+> and note: 'Cross-reference: `@cr-research-integrity` Check {N} also covers this
+> class of error.' The finding must appear in your output regardless of whether
+> `@cr-research-integrity` is dispatched.
+
 ### Step 5: PhD Student Scaffolding Check
 
 The model should be documented so a PhD student can learn from the reasoning trail:

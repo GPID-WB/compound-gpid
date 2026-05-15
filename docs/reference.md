@@ -290,6 +290,14 @@ Milestone status is computed by `@cg-roadmap` from feature statuses (never set d
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
 | `cg-skill-fix-triage-migrate` | Migration mode for `/cg-fix-triage --migrate`: backfills `findings:` tracking frontmatter on legacy review files. Does NOT apply fixes. |
 | `cg-skill-project-scanner` | Project scanner signal catalog for `/cg-setup`: language/framework detection (Tier 1), project type signals (Tier 2), charter-draft content extraction (Tier 3). Dispatched by `@cg-project-scanner`. |
+| `cr-skill-research-workflow` | **Research workflow conventions**: 8 task types (Theory/Modeling, Specification Analysis, EDA, Implementation, ML/Prediction, Writing, Tables/Figures, Reproducibility), Research Integrity Priority System (P0\u2013P3), `.cg-docs/research/` directory layout, specification manifest format. **Always load for any `/cr-*` command.** |
+| `cr-skill-research-integrity` | **P0 silent-error catalog**: code-math mismatch, specification searching, identification theater, unseeded randomness, asymptotic-assumption violations, wrong SE clustering, untested distributional assumptions. Loaded by all CR agents and `/cr-review`. |
+| `cr-skill-structural-econometrics` | **Structural econometrics reference**: discrete choice (logit/probit/nested/mixed/BLP), dynamic programming (Rust NFXP, Hotz-Miller CCP), simulation-based estimation (MSM, SMM, indirect inference), MLE, GMM, standard errors, identification. Loaded by `@cr-econometric-reasoning`. |
+| `cr-skill-mathematical-derivation` | **LaTeX/markdown derivation conventions**: notation discipline, equation numbering, FOC derivation patterns, code-math variable mapping tables, derivation file organization. Loaded by `@cr-mathematical-verification` and `latex.instructions.md`. |
+| `cr-skill-symbolic-verification` | **SymPy verification patterns**: gradient/Hessian verification, moment condition checks, second-order conditions, numerical verification harnesses. Loaded by `@cr-mathematical-verification`. |
+| `cr-skill-identification-strategies` | **Causal identification reference**: IV/2SLS, RDD, DiD, event studies, synthetic control, matching/IPW, strategy selection guide. Each strategy includes required diagnostics (P0 if missing) and code patterns. Loaded by `@cr-identification-audit`. |
+| `cr-skill-theory-data-dialogue` | **Theory-data dialogue patterns**: distributional assumption tests, conditional moment checks, support analysis, reduced-form regressions before structural estimation, exclusion restriction validation. References `.cg-docs/research/specifications/`. |
+| `cr-skill-research-eda` | **Research-framed EDA**: targeted distributional checks, conditional moment plots, weighted descriptive statistics (`fmean`/`fsd`/`fmedian` with `w=`), missingness patterns, outlier analysis, sample restriction documentation, subgroup analysis. |
 
 ---
 

@@ -98,8 +98,8 @@ binsreg(y = df$log_wage, x = df$education,
         weights = df$weight,
         nbins = 20)
 
-# Alternatively: LOESS with ggplot
-ggplot(df, aes(x = education, y = log_wage)) +
+# Alternatively: LOESS with ggplot (add survey weights)
+ggplot(df, aes(x = education, y = log_wage, weight = weight)) +
   geom_point(alpha = 0.1, size = 0.5) +
   geom_smooth(method = "loess", se = TRUE,
               color = WBCOLORS["navy"]) +
@@ -107,7 +107,8 @@ ggplot(df, aes(x = education, y = log_wage)) +
               color = WBCOLORS["red"], linetype = "dashed") +
   theme_wb() +
   labs(title = "E[log wage | education]: LOESS vs. Linear",
-       subtitle = "Red dashed = OLS fit; check for non-linearity")
+       subtitle = "Survey-weighted. Red dashed = OLS fit; check for non-linearity")
+# Note: for formal analysis, prefer binsreg(weights=) which also handles weights correctly.
 
 # Stata
 binsreg log_wage education [pw=weight], controls(age female) nbins(20)
@@ -155,6 +156,21 @@ props <- fmean(model.matrix(~ factor(region) - 1, data = df),
 # Or: wtd.table from Hmisc
 ```
 
+> **Design-based SEs**: `fmean(x, w = weight)` gives correct **point estimates**
+> but ignores survey design (clustering, stratification). For design-based
+> standard errors, use `survey::svymean()` with a `svydesign()` object:
+> ```r
+> library(survey)
+> design <- svydesign(ids = ~psu, strata = ~strata, weights = ~weight, data = df)
+> svymean(~log_wage, design)
+> ```
+
+> **collapse `na.rm` default**: `fmean`, `fsum`, and all Fast Statistical
+> Functions default to `na.rm = TRUE`. If `set_collapse(na.rm = FALSE)` was
+> called anywhere in the session, all subsequent FSF calls silently propagate
+> NAs. Run `get_collapse()$na.rm` to verify the current setting before any
+> welfare/poverty computation.
+
 **Stata**:
 ```stata
 svyset psu [pw=weight], strata(strata) vce(linearized)
@@ -173,8 +189,10 @@ implications for identification.
 
 ```r
 # Count and proportion missing per variable
-miss_summary <- sapply(df, function(x)
-  c(n_miss = sum(is.na(x)), pct_miss = mean(is.na(x))))
+miss_summary <- sapply(df, function(x) {
+  na_x <- is.na(x)  # cache to avoid double computation
+  c(n_miss = sum(na_x), pct_miss = mean(na_x))
+})
 t(miss_summary)
 
 # Check if missingness is random with respect to key variables
@@ -211,6 +229,10 @@ df[, std_resid := rstandard(fit)]
 outliers <- df[abs(std_resid) > 3]
 message(nrow(outliers), " observations with |std_resid| > 3")
 
+# Welfare non-negativity guard (required before any FGT/Gini calculation)
+# Zero or negative welfare silently inflates FGT indices beyond [0,1]
+stopifnot("Welfare variable contains zero or negative values" = all(df$welfare > 0))
+
 # Weighted boxplot of key variables
 boxplot(df$log_wage, weights = df$weight, main = "Log Wage — Outliers")
 
@@ -224,6 +246,11 @@ boxplot(df$log_wage, weights = df$weight, main = "Log Wage — Outliers")
 df[log_wage < log(min_wage_threshold)]  # below minimum wage
 df[age < 16 & employed == 1]            # impossible age-employment combination
 ```
+
+> **PPP vintage consistency**: When welfare or income variables involve cross-country
+> comparisons, ensure all series use the same PPP vintage (2011 or 2017). Mixing
+> vintages invalidates poverty headcounts and international comparisons. Document
+> the vintage in the data section of the plan.
 
 ---
 
@@ -247,6 +274,11 @@ Each restriction should have an economic or data-quality justification.
 
 Store the R/Stata code for each step in `data/clean/sample-restrictions.R`.
 Never apply restrictions silently in the middle of analysis code.
+
+```r
+# Guard: verify no restriction produces an empty dataset
+stopifnot("Sample restriction produced empty dataset" = nrow(df) > 0)
+```
 
 ---
 

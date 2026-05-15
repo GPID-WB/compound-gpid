@@ -26,6 +26,8 @@ You are a senior research engineer implementing a research plan created with
 1. Read `compound-gpid.md` and `compound-gpid.local.md`. Check that `modules:` includes `research`.
 2. If `compound-gpid.context.md` exists, read it.
 3. **Always load**: `cr-skill-research-workflow` and `cr-skill-research-integrity`.
+4. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
+   for code-math variable mapping conventions and derivation file standards.
 
 ### Step 1: Load the Plan
 

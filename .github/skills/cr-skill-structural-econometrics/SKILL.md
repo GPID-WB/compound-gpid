@@ -43,6 +43,15 @@ asclogit choice price quality, case(id) alternatives(alt) casevars(income)
 **IIA test**: Use Hausman-McFadden test for logit; violation suggests nested or
 mixed logit.
 
+> **Survey design note**: `mlogit`, `asclogit`, and `xtlogit` do not account
+> for survey clustering or stratification by default. For survey data, use
+> `svyglm()` (binary outcomes) or pass `weights` and cluster-robust SEs.
+> Unweighted estimates on survey data represent the sample, not the population.
+
+> **PPP vintage consistency**: When utility or budget-share variables include
+> income or welfare aggregates, ensure all series use the same PPP vintage
+> (2011 or 2017). Mixing vintages invalidates cross-country comparisons.
+
 ```r
 # Hausman test for IIA (mlogit)
 hmftest(ml, alt.subset = c("alt1", "alt2"))
@@ -159,9 +168,21 @@ W_opt <- solve(var(moment_matrix(data)))
 - Smoothness: simulator must be differentiable w.r.t. θ for gradient-based
   optimization; use antithetic variates or common random numbers
 - Bias: MSM is unbiased for the moments but biased for the parameters;
-  bias correction: multiply S by (S-1)/S
+  the only remedy is increasing S
 - Number of simulations: S ≥ 5N (N = sample size) for low bias; more for
   complex models
+
+**Memory note**: For S ≥ 5,000, `replicate()` materialises the full
+`n_moments × S` matrix before `rowMeans()` reduces it (~20 MB+ per optimizer
+call at scale). Prefer the streaming accumulator:
+```r
+# Streaming alternative for large S — avoids n_moments × S matrix
+m_sim <- numeric(length(compute_data_moments(data)))
+for (s in seq_len(n_sims)) {
+  m_sim <- m_sim + simulate_model(theta)
+}
+m_sim <- m_sim / n_sims
+```
 
 **Anti-patterns**:
 - Unseeded simulation (P0 — results are not reproducible)
@@ -183,7 +204,7 @@ function of structural parameters.
 # R — optim with BFGS; use log-likelihood, maximize by minimizing negative
 log_lik <- function(theta, data) {
   ll <- sum(log(model_density(data, theta)))
-  if (!is.finite(ll)) return(-1e10)  # guard against numerical failures
+  if (!is.finite(ll)) return(1e10)  # large positive penalty — tells minimizer to avoid this region
   -ll  # minimize negative log-likelihood
 }
 
@@ -193,6 +214,11 @@ result <- optim(theta0, log_lik, data = df,
                 hessian = TRUE)
 
 # Standard errors from Hessian (information matrix)
+stopifnot("Optimizer did not converge" = result$convergence == 0)
+eigenvalues <- eigen(result$hessian, only.values = TRUE)$values
+if (any(eigenvalues <= 0))
+  stop("Hessian not positive-definite at solution — SEs are invalid. ",
+       "Check for boundary solutions or local optima.")
 se <- sqrt(diag(solve(result$hessian)))
 ```
 
@@ -244,9 +270,13 @@ fit <- gmm(g_fn, data, theta0 = c(0, 0), wmatrix = "optimal")
 
 **Optimal weighting matrix**:
 ```r
-# S = Avar(n^{-1/2} Σ g_i(θ)) — HAC if serial correlation present
-S_hat <- NeweyWest(residuals, lag = floor(4*(n/100)^(2/9)))
+# S = Avar(n^{-1/2} Σ g_i(θ)) — use moment matrix directly for HAC
+# First-step: get moment conditions at first-step estimates
+g_mat <- g_fn(coef(step1_fit), data)              # n × k moment conditions
+S_hat <- (1/nrow(g_mat)) * t(g_mat) %*% g_mat    # k × k (HAC-consistent)
 W_opt <- solve(S_hat)
+# Note: sandwich::NeweyWest() requires a fitted model object, not a raw vector;
+# passing residuals directly returns a 1×1 scalar, not a k×k weighting matrix.
 ```
 
 **Overidentification (Hansen J-test)**:

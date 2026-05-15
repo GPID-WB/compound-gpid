@@ -11,10 +11,20 @@ module: research
 > mapping tables, and numerical verification patterns.
 
 > **Risk note (P2.1)**: The `applyTo` glob in this file uses a path-based
-> pattern (`**/.cg-docs/research/derivations/**`). If VS Code does not apply
-> these instructions automatically, load `cr-skill-mathematical-derivation`
-> and `cr-skill-symbolic-verification` manually for any file in
-> `.cg-docs/research/derivations/`.
+> pattern (`**/.cg-docs/research/derivations/**`). VS Code may not apply these
+> instructions automatically in all cases, particularly when `.cg-docs/` exists
+> at a non-root depth in multi-root workspaces (the leading `**/` matches at
+> any depth).
+>
+> **If this instruction file does not apply automatically**:
+> 1. Run `/cg-link` to rebuild the instruction index and reload the window.
+> 2. Load `cr-skill-mathematical-derivation` and `cr-skill-symbolic-verification`
+>    manually in Copilot Chat for the file you are working on.
+> 3. If the problem persists, open a GitHub issue at GPID-WB/compound-gpid.
+>
+> **Multi-depth risk**: The glob matches `.cg-docs/research/derivations/` at
+> any workspace depth. If you use nested project directories, ensure only
+> derivation files live under this path to avoid unintended instruction loading.
 
 ---
 

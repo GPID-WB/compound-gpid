@@ -103,7 +103,7 @@ Scan code files for these functions/patterns WITHOUT a preceding seed:
 | Language | Random Functions to Check | Seed Function |
 |----------|--------------------------|---------------|
 | R | `sample()`, `rnorm()`, `runif()`, `boot()`, `cv.glm()`, `randomForest()`, `sample_n()`, `createFolds()` | `set.seed(N)` |
-| Python | `np.random.*`, `random.*`, `sklearn.model_selection.*`, `torch.*`, `keras.*` | `np.random.seed(N)`, `random.seed(N)`, `torch.manual_seed(N)` |
+| Python | `np.random.*`, `random.*`, `sklearn.model_selection.*`, `torch.*`, `keras.*` | `rng = np.random.default_rng(N)` (modern, preferred) or `np.random.seed(N)` (legacy, accepted) |
 | Stata | `bootstrap`, `simulate`, `permute` | `set seed N` |
 
 **Remediation**:
