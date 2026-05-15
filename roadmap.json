@@ -526,6 +526,20 @@
           "description": "Create a dedicated documentation space (e.g., docs/attribution.md or CREDITS.md) that credits all repositories, websites, blog posts, and other resources used for researching and informing compound-gpid's design. This includes: the three competitive review repos (compound-engineering-plugin, superpowers, GSD-2), any additional repos the user provides, blog posts or articles that influenced prompt design patterns, documentation sources for tools and frameworks (Pester, PowerShell, GitHub Actions), and any community discussions or forum threads that contributed ideas. Each entry should include: the resource name/URL, what it contributed (specific pattern, idea, or validation), and when it was referenced. This serves both as professional attribution and as a reference index for future research sessions.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "strategy-add-shortcut",
+          "title": "/cg-strategy --add <idea> quick-add mode for roadmap ideas",
+          "description": "Add a --add flag to /cg-strategy that provides a streamlined path for capturing a single idea into the roadmap without running a full strategy session. When the user runs '/cg-strategy --add <idea text>', the flow is: (1) Parse the idea from the inline argument. (2) If the idea is vague or underspecified, ask targeted clarifying questions to develop it — what problem does it solve, who benefits, what does the finished result look like. (3) Once the agent has a clear understanding, explain the idea back to the user in its own words and ask for confirmation that it captured the intent correctly. (4) Suggest an existing milestone where the idea fits best, explaining why, or propose creating a new milestone if none fits. (5) On user approval, dispatch @cg-roadmap to add the feature with a detailed description (matching the level of detail in other Ongoing Ideas features). This bypasses the full strategy conversation (trigger selection, structured Q&A, proposal iteration) when the user already knows what they want — it's a fast lane for 'I have one idea, put it on the roadmap'. The full /cg-strategy flow remains available for sessions that need broader thinking.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "project-wiki-auto-documentation",
+          "title": "Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)",
+          "description": "Create and continuously maintain a user-readable documentation wiki (similar to compound-gpid's own docs/ folder) that serves as the canonical reference for any project using the plugin — whether it's a research paper, R package, data pipeline, or tool. The wiki is initialized during /cg-setup based on the project charter, scanner results, and project type: for an R package it might include installation, API reference, and vignettes sections; for a research paper it might cover methodology, data sources, and replication instructions; for a tool it might cover setup, usage, and configuration. After initialization, /cg-compound automatically updates the wiki whenever a completed task produces knowledge that belongs in user-facing documentation — new features get documented, changed behaviors get updated, resolved bugs that affect usage get noted. The wiki is distinct from .cg-docs/ (which is internal compound-gpid knowledge) — this is external-facing documentation that end users and collaborators read. Flexibility mechanisms: the user can customize the wiki structure via a configuration section in compound-gpid.context.md (e.g., preferred sections, tone, audience), can run a dedicated command to restructure or regenerate specific sections, and can manually edit wiki pages without the plugin overwriting their changes (the plugin appends or proposes diffs, never force-overwrites). The wiki should also support a table of contents and cross-linking between pages.",
+          "status": "idea",
+          "plan": null
         }
       ]
     }
