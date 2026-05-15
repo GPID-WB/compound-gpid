@@ -478,4 +478,70 @@ Describe "cg-compound.prompt.md - wiki integration" {
     It "Step 3c gracefully skips when _wiki.yml missing" {
         ($content -match '_wiki\.yml') | Should -Be $true
     }
+
+    It "Step 3c no-manifest message directs user to /cg-wiki init (not rebuild)" {
+        ($content -match '/cg-wiki\s+init') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-wiki init subcommand — user-facing bootstrap path for existing projects
+# ---------------------------------------------------------------------------
+
+Describe "cg-wiki.prompt.md - init subcommand" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-wiki.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents the init subcommand in the Usage section" {
+        ($content -match '/cg-wiki\s+init') | Should -Be $true
+    }
+
+    It "includes init in the Step 1 parse table" {
+        ($content -match '\|\s*`?init`?\s*\|') | Should -Be $true
+    }
+
+    It "dispatches @cg-wiki with mode: init" {
+        ($content -match 'mode:\s*init') | Should -Be $true
+    }
+
+    It "allows init subcommand to bypass the missing-manifest guard" {
+        ($content -match '(?i)(exception|bypass|skip).*init|init.*(exception|bypass|skip)') | Should -Be $true
+    }
+}
+
+Describe "cg-setup.prompt.md - B1.1.6 references /cg-wiki init" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "B1.1.6 no-wiki message directs user to /cg-wiki init (not /cg-setup)" {
+        ($content -match '/cg-wiki\s+init') | Should -Be $true
+    }
+}
+
+Describe "docs/reference.md - /cg-wiki entry includes init subcommand" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = Get-Content $refFile -Raw -Encoding UTF8
+
+    It "documents init subcommand in /cg-wiki reference entry" {
+        ($content -match 'cg-wiki.*init|init.*cg-wiki') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-wiki.agent.md — Pre-Flight halt message must not be circular (P2.1)
+# ---------------------------------------------------------------------------
+
+Describe "cg-wiki.agent.md - Pre-Flight halt message is non-circular" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-wiki.agent.md"
+    $content = Get-Content $agentFile -Raw -Encoding UTF8
+
+    It "manifest-not-found halt message does not suggest /cg-wiki rebuild (circular)" {
+        # 'rebuild' in the halt message would send the user into an infinite loop
+        # because rebuild itself requires _wiki.yml to exist
+        ($content -match 'manifest not found[\.\s\S]{0,120}/cg-wiki rebuild') | Should -Be $false
+    }
+
+    It "manifest-not-found halt message suggests /cg-wiki init" {
+        ($content -match 'manifest not found[\.\s\S]{0,120}/cg-wiki init') | Should -Be $true
+    }
 }
