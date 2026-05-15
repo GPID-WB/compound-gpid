@@ -61,8 +61,8 @@ These prompts are available when `modules: [research]` is set in `compound-gpid.
 
 | Prompt | Model | Purpose |
 |--------|-------|---------|
-| `/cr-brainstorm` | Claude Opus 4.6 | Classify and clarify research tasks using the 8-type taxonomy. Routes to the appropriate review agents based on task type. |
-| `/cr-plan` | Claude Opus 4.6 | Generate a structured research plan with identification strategy, derivation file structure, and specification logging. |
+| `/cr-brainstorm` | Claude Opus 4.6 | Classify and clarify research tasks using the 8-type taxonomy (Theory/Modeling, Specification Analysis, EDA, Implementation, ML/Prediction, Writing, Tables/Figures, Reproducibility). Assesses scope (Lightweight / Standard / Deep). **Branch offer at Step 1.7** — for Standard+ scope, offers to create a feature branch (`research/<topic>`). Automatically checks `.cg-docs/brainstorms/` for prior work before starting fresh. Proposes 2–3 alternative approaches with trade-off analysis and runs an always-on devil's advocate challenge (problem validity, simplicity, effort-value, charter alignment) before the decision is finalized. |
+| `/cr-plan` | Claude Opus 4.6 | Generate structured research implementation plan with P0 enforcement (seed requirements, specification logging, derivation cross-references). **Branch offer at Step 0.7** — offers to create a git branch before gathering context. Automatically checks `.cg-docs/plans/` for prior work. Assesses scope (Lightweight / Standard / Deep) and adapts plan depth. Includes confidence check before finalizing. |
 | `/cr-work [phaseX]` | Claude Sonnet 4.6 | Execute a research plan phase-by-phase with P0 enforcement (seed checks, manifest logging, derivation cross-referencing). |
 | `/cr-review [standard\|thorough]` | Claude Sonnet 4.6 | Multi-agent research methodology review. Dispatches all 6 shared `cg-*` agents plus research-specific `cr-*` agents based on task type. Produces P0–P3 findings. |
 | `/cr-compound` | Claude Sonnet 4.6 | Capture methodology lessons (identification strategies, derivation decisions, estimation rationale) to `.cg-docs/solutions/`. Extends standard `/cg-compound` with research-specific categories. |
@@ -263,6 +263,7 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 |-------|------|--------|
 | `milestones[].status` | derived | `planned`, `in-progress`, `done` |
 | `features[].status` | set | `idea`, `planned`, `active`, `done` |
+| `features[].completed-date` | optional string | `YYYY-MM-DD` — set when status is `done`. Written by `/cg-work` Step 3.7 via `@cg-roadmap`. |
 
 Milestone status is computed by `@cg-roadmap` from feature statuses (never set directly by users). Feature `active` maps to milestone `in-progress`. After all features in a milestone are marked `done`, `/cg-work` dispatches `@cg-roadmap` to mark the milestone as `done` (see Step 3.8). IDs are kebab-case and immutable after creation. `features[].plan` is a nullable path to a `.cg-docs/plans/` file.
 
@@ -315,6 +316,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
 | `review-depth` | `"light"`, `"standard"`, `"thorough"` | Depth of `/cg-review` (see Review Depth Tiers in `copilot-instructions.md`) |
+| `modules` | `"engineering"`, `"research"`, or `"engineering, research"` | Enables workflow modules. `"engineering"` (default) provides `/cg-*` prompts. `"research"` adds `/cr-*` research and econometrics prompts. Set to `"engineering, research"` for both. Configure via `/cg-setup` Q4 or edit manually. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
 ### `compound-gpid.context.md`

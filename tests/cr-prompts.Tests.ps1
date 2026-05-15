@@ -683,3 +683,115 @@ Describe "cr-review.prompt.md - dispatch journey" {
         ($cgReviewContent -match '(?i)\[cr-\*\]') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# P2.4 — cr-plan.prompt.md content tests
+# ---------------------------------------------------------------------------
+
+Describe "cr-plan.prompt.md - research planning process" {
+    $path    = Join-Path $promptsDir "cr-plan.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Step 0 (Get Bearings) that reads compound-gpid.md" {
+        ($content -match 'compound-gpid\.md') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "enforces P0 seed requirement in plan template" {
+        ($content -match '(?i)seed') | Should -Be $true
+    }
+
+    It "enforces P0 derivation file structure" {
+        ($content -match '(?i)derivation') | Should -Be $true
+    }
+
+    It "enforces P0 specification logging" {
+        ($content -match '(?i)specification') | Should -Be $true
+    }
+
+    It "handoff at end routes toward /cr-work (not /cg-work)" {
+        ($content -match '/cr-work') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 — CR handoff chain tests
+# ---------------------------------------------------------------------------
+
+Describe "CR handoff chain" {
+    It "cr-brainstorm handoff reaches /cr-plan" {
+        $bsContent = Get-Content (Join-Path $promptsDir "cr-brainstorm.prompt.md") -Raw -Encoding UTF8
+        ($bsContent -match '/cr-plan') | Should -Be $true
+    }
+
+    It "cr-plan handoff reaches /cr-work" {
+        $planContent = Get-Content (Join-Path $promptsDir "cr-plan.prompt.md") -Raw -Encoding UTF8
+        ($planContent -match '/cr-work') | Should -Be $true
+    }
+
+    It "cr-work handoff reaches /cr-review" {
+        $workContent = Get-Content (Join-Path $promptsDir "cr-work.prompt.md") -Raw -Encoding UTF8
+        ($workContent -match '/cr-review') | Should -Be $true
+    }
+
+    It "cr-review handoff reaches /cr-compound or /cg-compound" {
+        $reviewContent = Get-Content (Join-Path $promptsDir "cr-review.prompt.md") -Raw -Encoding UTF8
+        ($reviewContent -match '/cr-compound|/cg-compound') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.9 — cr-brainstorm: availability guard when modules: research absent
+# ---------------------------------------------------------------------------
+
+Describe "cr-brainstorm.prompt.md - modules availability guard" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "instructs checking modules includes research before proceeding" {
+        ($content -match '(?i)modules.*research|research.*module') | Should -Be $true
+    }
+
+    It "warns or asks confirmation when research module not enabled" {
+        ($content -match '(?i)not enabled|run.*cg-setup|proceed anyway') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.5 — CR files must declare module: research in frontmatter
+# ---------------------------------------------------------------------------
+
+Describe "CR files - module: research frontmatter" {
+    $crPrompts = @('cr-brainstorm', 'cr-plan', 'cr-work', 'cr-review', 'cr-compound')
+    foreach ($name in $crPrompts) {
+        $promptFile  = Join-Path $promptsDir "$name.prompt.md"
+        $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
+
+        It "$name.prompt.md has module: research in frontmatter" {
+            ($frontmatter -match 'module:\s*research') | Should -Be $true
+        }
+    }
+
+    $crSkills = @('cr-skill-research-workflow', 'cr-skill-research-integrity')
+    foreach ($skill in $crSkills) {
+        $skillFile   = Join-Path $repoRoot ".github\skills\$skill\SKILL.md"
+        $frontmatter = if (Test-Path $skillFile) { Get-Frontmatter -FilePath $skillFile } else { "" }
+
+        It "$skill/SKILL.md has module: research in frontmatter" {
+            ($frontmatter -match 'module:\s*research') | Should -Be $true
+        }
+    }
+
+    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning')
+    foreach ($agent in $crAgents) {
+        $agentFile   = Join-Path $repoRoot ".github\agents\$agent.agent.md"
+        $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
+
+        It "$agent.agent.md has module: research in frontmatter" {
+            ($frontmatter -match 'module:\s*research') | Should -Be $true
+        }
+    }
+}

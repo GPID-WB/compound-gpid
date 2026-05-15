@@ -27,12 +27,13 @@ their findings.
 1. Read `compound-gpid.md`, `compound-gpid.local.md`. Check `modules:` includes `research`.
    If `compound-gpid.local.md` does not exist, proceed with defaults: review-depth = standard.
    If the `modules:` field is absent from `compound-gpid.md`, treat as unset and proceed normally.
-2. Read review depth from `compound-gpid.local.md` (`review-depth:`).
-3. Load `cr-skill-research-workflow` and `cr-skill-research-integrity`.
-4. Identify the files to review (changed since last commit, or user-specified).
+2. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+3. Read review depth from `compound-gpid.local.md` (`review-depth:`).
+4. Load `cr-skill-research-workflow` and `cr-skill-research-integrity`.
+5. Identify the files to review (changed since last commit, or user-specified).
    Verify each file is accessible. If any file cannot be read, exclude it from dispatch
    and note: "`[file]` not found — excluded from review."
-5. If a plan file was specified, attempt to read it. If the read fails, halt and report:
+6. If a plan file was specified, attempt to read it. If the read fails, halt and report:
    "Plan file not found at `[path]`. Correct the path or remove it to allow task-type
    inference from code content."
 

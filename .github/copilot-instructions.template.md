@@ -19,6 +19,10 @@ skills: `.github/skills/`.
 
 - **Modules**: {{modules}}
 
+> `engineering` provides software development workflows (`/cg-*` prompts). `research` adds
+> econometrics and research workflows (`/cr-*` prompts). Configure via `/cg-setup` or by editing
+> the `modules:` field in `compound-gpid.local.md`.
+
 ## Essential Context
 
 - Read `compound-gpid.md` for the project charter (objective, constraints,

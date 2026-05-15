@@ -2165,6 +2165,30 @@ Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
 }
 
 # ---------------------------------------------------------------------------
+# P2.16 — Context Layer — cr-* prompts reference compound-gpid.context.md
+# ---------------------------------------------------------------------------
+
+Describe "context layer - cr-* prompts reference compound-gpid.context.md" {
+    # cr-review and cr-compound are covered after their P2.14/P2.15 fixes.
+    # cr-brainstorm, cr-plan, cr-work may reference context.md if applicable.
+    # This test verifies that at minimum cr-review and cr-compound reference it.
+    $crPromptsWithContext = @("cr-review", "cr-compound")
+
+    foreach ($name in $crPromptsWithContext) {
+        $promptFile = Join-Path $repoRoot ".github\prompts\$name.prompt.md"
+        $content    = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+        It "$name.prompt.md references compound-gpid.context.md" {
+            ($content -match 'compound-gpid\.context\.md') | Should -Be $true
+        }
+
+        It "$name.prompt.md instructs to skip silently when context.md is absent" {
+            ($content -match 'skip silently|proceed without project context') | Should -Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Context Layer — .gitignore must NOT contain compound-gpid.context.md
 # (it is institutional knowledge and must be committed)
 # ---------------------------------------------------------------------------

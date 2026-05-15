@@ -53,16 +53,22 @@ research-specific enforcement:
 
 Before executing any code that involves randomness, check for an explicit seed:
 - R: `set.seed(<n>)` immediately before the random block
-- Python: `np.random.seed(<n>)` or `random.seed(<n>)` before the random block
+- Python: `np.random.seed(<n>)` or `random.seed(<n>)` before the random block; also add
+  `torch.manual_seed(<n>)` when using PyTorch and `tensorflow.random.set_seed(<n>)` when using
+  TensorFlow — both must be set when both frameworks are imported
 - Stata: `set seed <n>` before the random block
 
 **If seed is missing**: halt, add the seed, document it in the specification manifest.
 **Seed value**: use a deterministic value (e.g., 42, 12345) and note it in comments.
 
+**Lockfile verification**: Before running estimation, confirm the environment lockfile is
+committed and current (`renv.lock` for R, `requirements.txt` / `pyproject.toml` / `uv.lock` for
+Python, `code/ado/` for Stata via `repado`). If absent or out-of-date, flag and halt.
+
 #### P0: Specification Logging (active during work)
 
 When running estimation code, append to `.cg-docs/research/results/manifest.json`.
-Create the file if absent. Format:
+Create the file and the `.cg-docs/research/results/` directory if absent. Format:
 ```json
 [
   {
@@ -74,6 +80,13 @@ Create the file if absent. Format:
 ]
 ```
 If seed is not applicable (e.g., deterministic OLS), set `"seed": null`.
+All four fields (`date`, `description`, `file`, `seed`) are **required**.
+**Idempotency**: check whether an entry with the same (`file`, `date`) already exists before
+appending. If it does, update it in-place rather than creating a duplicate.
+
+<!-- Manifest schema is also documented in cr-skill-research-workflow/SKILL.md
+     Section "Active P0 Detection Mechanisms > 2. Specification Logging".
+     Keep both in sync when modifying the schema. -->
 
 #### P0: Derivation Cross-Reference (Implementation tasks only)
 

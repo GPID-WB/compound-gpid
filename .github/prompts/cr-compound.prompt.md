@@ -22,8 +22,11 @@ econometrics work.
 
 ### Step 0: Get Bearings
 
-1. Read `compound-gpid.md` and `compound-gpid.local.md`.
-2. Load `cg-skill-compound-docs` for the capture conventions.
+1. Read `compound-gpid.md` and `compound-gpid.local.md`. Check that `modules:` includes `research`.
+   If `compound-gpid.local.md` does not exist or `modules:` does not include `research`, warn:
+   > "Research module is not enabled. Run `/cg-setup` to add it, or proceed anyway?"
+2. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+3. Load `cg-skill-compound-docs` for the capture conventions.
 
 ### Step 1: Capture the Problem
 

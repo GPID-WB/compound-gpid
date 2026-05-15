@@ -84,6 +84,15 @@ Check if `compound-gpid.local.md` already exists in the project root.
 > 2. **Standard** — All 8 review agents. Best for most work. *(recommended)*
 > 3. **Thorough** — All 8 agents + cross-referencing past learnings. Best for major features and refactors.
 
+**Question 4: Workflow Modules**
+
+> Which workflow modules do you want enabled for this project?
+> 1. **Engineering only** — `/cg-*` software development workflows (planning, review, roadmap). *(recommended default)*
+> 2. **Research only** — `/cr-*` econometrics and research workflows (task classification, P0 seed enforcement, specification logging, review agents).
+> 3. **Both** — Engineering + Research. Enables all `/cg-*` and `/cr-*` prompts.
+>
+> If you choose Research (2 or 3), Compound GPID will also scaffold the `.cg-docs/research/` directory structure.
+
 ### Step 3: Write Config
 
 Create `compound-gpid.local.md` in the project root with the following format:
@@ -94,7 +103,7 @@ language: "<r|python|stata|both|all|other>"
 r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
-modules: "engineering"             # Options: engineering, research, or both (comma-separated). Default: "engineering".
+modules: "<engineering|research|engineering, research>"  # From Q4. Default: "engineering".
 created: "YYYY-MM-DD"
 cg-schema-version: ""
 ---

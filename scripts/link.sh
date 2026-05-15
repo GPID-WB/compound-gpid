@@ -58,7 +58,10 @@ generate_copilot_instructions() {
     local project_root="$2"
     local marker="$3"
 
-    python3 - "$template_path" "$project_root" "$marker" <<'PYEOF'
+    python3 - "$template_path" "$project_root" "$marker" <<'PYEOF' || {
+        print_error "Failed to generate copilot-instructions.md from template."
+        exit 1
+    }
 import sys, re, os
 
 template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -75,7 +78,9 @@ def extract_fm_value(path, key):
         if not m:
             return ''
         fm = m.group(1)
-        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\']?([^"\'\\r\\n]+)["\']?\s*$'
+        # Use \x27 for single-quote and \r\n for line terminators to avoid
+        # raw-string double-backslash confusion (r'\\r' = literal \r not CR).
+        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\x27]?([^"\x27\r\n]+)["\x27]?\s*$'
         vm = re.search(pattern, fm)
         return vm.group(1).strip() if vm else ''
     except Exception:
@@ -89,6 +94,18 @@ language     = extract_fm_value(local_path, 'language')     or '<not configured>
 project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
 review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
 modules      = extract_fm_value(local_path, 'modules')      or 'engineering'
+
+# Validate modules: field — reject YAML list notation and unrecognised values
+if modules.startswith('['):
+    print('ERROR: Invalid modules format in compound-gpid.local.md: YAML list notation is not '
+          'supported. Use a quoted string: modules: "engineering, research"', file=sys.stderr)
+    sys.exit(1)
+VALID_MODULES = {'engineering', 'research', 'engineering, research', 'research, engineering'}
+if modules not in VALID_MODULES:
+    print(f'ERROR: Invalid modules value "{modules}" in compound-gpid.local.md. '
+          f'Valid values: {", ".join(sorted(VALID_MODULES))}', file=sys.stderr)
+    sys.exit(1)
+
 r_syntax     = extract_fm_value(local_path, 'r-syntax')
 
 # Build languages string — append R dialect when configured
@@ -336,7 +353,8 @@ else
 fi
 
 # Remove stale .cg-docs/ gitignore entry from older setups
-if [[ -f "$GITIGNORE_PATH" ]]; then
+# Guard: only spawn a second Python process if the stale marker is actually present
+if [[ -f "$GITIGNORE_PATH" ]] && grep -qF "# Compound GPID knowledge base" "$GITIGNORE_PATH"; then
     python3 - "$GITIGNORE_PATH" <<'PYEOF'
 import sys, re, tempfile, os
 path = sys.argv[1]

@@ -93,6 +93,18 @@ function New-CopilotInstructions {
         }
     }
 
+    # Validate modules: field
+    # Reject YAML list/array notation (e.g. modules: [engineering, research] or modules:\n  - research)
+    # which the single-line regex would either miss entirely or capture with brackets verbatim.
+    if ($modules -match '^\[') {
+        throw "Invalid modules format in compound-gpid.local.md: YAML list notation is not supported. Use a quoted string: modules: ""engineering, research"""
+    }
+    # Allowlist: only recognized module names are accepted
+    $validModules = @('engineering', 'research', 'engineering, research', 'research, engineering')
+    if ($validModules -notcontains $modules) {
+        throw "Invalid modules value '$modules' in compound-gpid.local.md. Valid values: $($validModules -join ', ')"
+    }
+
     # Build languages string -- append R dialect when configured
     $languages = $language
     if ($null -ne $rSyntax -and $language -match '(?i)\bR\b') {

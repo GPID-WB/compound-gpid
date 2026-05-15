@@ -87,11 +87,26 @@ Before executing any code involving randomness, check for an explicit seed:
 **If missing**: halt, add seed, log seed value in the specification manifest.
 
 ### 2. Specification Logging
-When running estimation code, append to `.cg-docs/research/results/manifest.json`:
+When running estimation code, append to `.cg-docs/research/results/manifest.json`.
+The file contains an array of objects — one entry per estimation run:
 ```json
-{"date": "YYYY-MM-DD", "description": "...", "file": "...", "seed": null_or_N}
+[
+  {"date": "YYYY-MM-DD", "description": "...", "file": "relative/path/to/script.R", "seed": 42},
+  {"date": "YYYY-MM-DD", "description": "...", "file": "relative/path/to/script.R", "seed": null}
+]
 ```
-Create the file if absent. This enables specification-search detection during review.
+Use `"seed": 42` (a numeric value) when random code was executed.
+Use `"seed": null` when estimation is deterministic (e.g., OLS with no sampling).
+All four fields (`date`, `description`, `file`, `seed`) are **required**. If `file` is unknown,
+halt and resolve the path before writing the entry.
+**Idempotency**: check whether an entry with the same (`file`, `date`) already exists before
+appending. If it does, update it rather than creating a duplicate — prevents manifest pollution
+on re-runs.
+Create the file and `.cg-docs/research/results/` directory if absent.
+This enables specification-search detection during review.
+
+<!-- The manifest schema above is mirrored in cr-work.prompt.md under
+     "P0: Specification Logging". Keep both in sync when modifying. -->
 
 ### 3. Derivation Cross-Reference
 When implementing from a derivation, load the corresponding

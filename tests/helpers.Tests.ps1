@@ -315,6 +315,10 @@ Describe "copilot-instructions.template.md - file exists and contains all placeh
         ($content -match '\{\{review-depth\}\}') | Should -Be $true
     }
 
+    It "contains {{modules}} placeholder" {
+        ($content -match '\{\{modules\}\}') | Should -Be $true
+    }
+
     It "does not contain {{workspace-section}} (removed per P1.2 - workspace lives in context.md)" {
         ($content -match '\{\{workspace-section\}\}') | Should -Be $false
     }
@@ -423,8 +427,60 @@ Describe "New-CopilotInstructions - modules substitution" {
             ($result -match 'engineering') | Should -Be $true
         }
 
+        It "default is 'engineering', not 'research'" {
+            ($result -match '\bengineering\b') | Should -Be $true
+            ($result -match '\bresearch\b') | Should -Be $false
+        }
+
         It "does not contain unreplaced {{modules}} placeholder" {
             ($result -match '\{\{modules\}\}') | Should -Be $false
+        }
+    }
+
+    Context "with modules: research only" {
+        $templateDir = Join-Path $TestDrive "modules-research-template"
+        $projectRoot = Join-Path $TestDrive "modules-research-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "Research Only"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard" -Modules "research"
+        $result = New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot
+
+        It "output contains 'research'" {
+            ($result -match 'research') | Should -Be $true
+        }
+
+        It "does not contain unreplaced {{modules}} placeholder" {
+            ($result -match '\{\{modules\}\}') | Should -Be $false
+        }
+    }
+
+    Context "with invalid modules value (throws)" {
+        $templateDir = Join-Path $TestDrive "modules-invalid-template"
+        $projectRoot = Join-Path $TestDrive "modules-invalid-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "Invalid Project"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard" -Modules "banana"
+
+        It "throws an error for unrecognised modules value" {
+            { New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot } | Should -Throw
+        }
+    }
+
+    Context "with YAML list notation for modules (throws)" {
+        $templateDir = Join-Path $TestDrive "modules-list-template"
+        $projectRoot = Join-Path $TestDrive "modules-list-project"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-TemplateDir -Root $templateDir | Out-Null
+        New-CharterFile -Root $projectRoot -ProjectName "List Project"
+        New-LocalConfigFile -Root $projectRoot -Language "R" -ProjectType "analysis" `
+                            -ReviewDepth "standard" -Modules '[engineering, research]'
+
+        It "throws an error for YAML list notation" {
+            { New-CopilotInstructions -TemplateDir $templateDir -ProjectRoot $projectRoot } | Should -Throw
         }
     }
 }
