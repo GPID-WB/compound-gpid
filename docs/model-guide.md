@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 37 Compound GPID prompt and agent files.
+Reference for model assignments across all 39 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 37 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 39 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -31,6 +31,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 37 
 | `cg-devtag.prompt.md` | Claude Haiku 4.5 | Create a pre-release dev tag and push to origin (developer-only) | 3 git commands with clear rules — Haiku sufficient | **changed** |
 | `cg-resume.prompt.md` | Claude Haiku 4.5 | Load context, scan pending work, resume interrupted sessions | Reasoning 3, mechanical context scanning — Haiku appropriate | confirmed |
 | `cg-compound-refresh.prompt.md` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation | Orchestration 3, precision 4 — multi-step audit with conditional actions needs Sonnet | confirmed |
+| `cg-wiki.prompt.md` | Claude Sonnet 4.6 | Manage the project wiki: scaffold, rebuild, restructure, and convert pages | Orchestration 3, creativity 3 — multi-mode dispatch with conditional section merging and conflict resolution needs Sonnet | confirmed |
 | `cg-ideate.prompt.md` | Claude Opus 4.6 | Generate, critique, and filter project improvement ideas | Creativity 5, reasoning 4 — divergent idea generation and adversarial filtering needs Opus | confirmed |
 | `cg-diagnose.prompt.md` | Claude Sonnet 4.6 | Diagnose VS Code crashes — inspect logs, classify crash category, recommend recovery | Reasoning 4, precision 4 — log analysis and decision-tree classification needs Sonnet | confirmed |
 | `cg-fix-problems.prompt.md` | Claude Sonnet 4.6 | Interactive VS Code diagnostics fixer — scan, user-select scope/severity, dispatch agent | Reasoning 4, precision 4 — multi-step orchestration with conditional scope selection needs Sonnet | confirmed |
@@ -60,6 +61,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 37 
 | `cg-release-scanner.agent.md` | Claude Haiku 4.5 | Classify commits and scan .cg-docs entries within a time window for /cg-release | Reasoning 3, creativity 1; mechanical classification and categorization — Haiku appropriate | confirmed |
 | `cg-project-scanner.agent.md` | Claude Haiku 4.5 | Scan project files to detect languages, frameworks, and charter content for /cg-setup | Reasoning 3, creativity 1; mechanical file-based classification — Haiku appropriate | confirmed |
 | `cg-roadmap-view.agent.md` | Claude Haiku 4.5 | Read-only roadmap renderer — reads `roadmap.json` and formats milestone/feature data as Markdown tables | Reasoning 1, creativity 1; pure template-filling with no judgment — Haiku appropriate | confirmed |
+| `cg-wiki.agent.md` | Claude Sonnet 4.6 | Create and maintain the project wiki — scaffold from templates, apply solution-driven updates, rebuild pages, convert to GitHub Wiki format | Orchestration 3, creativity 3 — multi-mode template rendering and section-marker merging with conflict resolution needs Sonnet | confirmed |
 
 ---
 
