@@ -103,3 +103,4 @@ Check whether the first branch alone would satisfy the assertion.
 - `.cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md` — regex flags in Pester
 - Original P1.1 fix (from `2026-05-01-smart-setup-phase2-revised-review.md`): unescaped `|` in `'| skip'` — structurally similar but different failure mode (always true vs. never true)
 - `2026-05-05-stale-alternation-after-prompt-refactoring.md` — variant where alternation was correct at creation time but became stale after prompt text changed (first branch becomes permanently non-matching)
+- `.cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md` — related pitfall: single common-word patterns (not alternation) pass trivially because the word appears in unrelated prose

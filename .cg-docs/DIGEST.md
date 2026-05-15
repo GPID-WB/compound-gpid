@@ -1,6 +1,56 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-14 · 115 active solutions_
+_Generated 2026-05-15 · 120 active solutions_
+
+## cg-commit-push-pr always paused for user confirmation — no auto-proceed mode
+
+date: 2026-05-15
+category: bugs
+status: 
+tags: cg-commit-push-pr, ux, confirmation, interactive, flag, default-behavior, prompts
+path: .cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-always-waits-for-confirmation.md
+
+`/cg-commit-push-pr` always halted twice mid-execution: 1. **Step 2.3** — after proposing the commit grouping: "Wait for user confirmation or adjustments before continuing." 2. **Step 3.3** — after generating commit messages: "Present all messages together for review before any `git commit` is run." There was no way to run the command non-interactively. Even routine, unambiguous commits required two interactive round-trips before any `git commit` was issued.
+
+## cg-commit-push-pr skipped PR creation when gh not found — VS Code extension never tried
+
+date: 2026-05-15
+category: bugs
+status: 
+tags: cg-commit-push-pr, gh, vscode-extension, pr-creation, tool-detection, fallback, github-pull-request
+path: .cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-gh-only-tool-detection.md
+
+When `gh` CLI was not installed, `/cg-commit-push-pr` set `$ghAvailable = false`, skipped Step 6 entirely, and dumped a manual `gh pr create` command in the handoff — even though the VS Code GitHub Pull Request extension was installed and fully capable of creating the PR. Users got a degraded experience with no actionable path to fix it for future runs.
+
+## Circular error recovery: halt message suggests a command that itself requires the precondition that caused the halt
+
+date: 2026-05-15
+category: bugs
+status: 
+tags: prompt-design, agent-design, error-messages, ux, cg-wiki, pre-flight, bootstrap-trap
+path: .cg-docs/solutions/bugs/2026-05-15-circular-error-recovery-command-in-halt-message.md
+
+`@cg-wiki` halts in Pre-Flight when `_wiki.yml` is absent: ``` But `rebuild` mode is dispatched through `@cg-wiki` — which runs the **same Pre-Flight** and halts on the identical check. Following the suggested recovery: 1. User runs `/cg-wiki rebuild` 2. Pre-Flight: `_wiki.yml` not found → halt with the same message 3. User is stuck in an infinite loop with no forward path The same pattern appeared in `cg-wiki.prompt.md` Step 2 (fixed as P3.7 in the original review) and survived undetected in the **agent's own Pre-Flight halt message** — found only by the subsequent verify pass (P2.1 in verify review).
+
+## Common-word regex false positives in security and behavioral test assertions
+
+date: 2026-05-15
+category: testing-patterns
+status: 
+tags: pester, regex, false-positive, security-tests, -match, wiki, injection-scan, behavioral-testing
+path: .cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md
+
+After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivially rather than meaningfully: **Injection scan test** (P3.2 in verify review): ``` `Ignore`, `Override`, and `Forget` are ordinary English words. Any agent file containing "do not override user preferences" or "ignore this field when empty" passes this test regardless of whether an injection scan rule exists. **Nested marker test** (P3.3): ``` "Nested" appears in documentation for nested YAML, nested lists, nested JSON, and dozens of other contexts. The test passes without verifying the marker- nesting rule. **Code-block marker test** (P3.5): ``` "Code...
+
+## Injection scan required for every agent that reads user-adjacent files, including 'internal' cg-docs/ solution files
+
+date: 2026-05-15
+category: testing-patterns
+status: 
+tags: prompt-injection, security, agent-design, ai-safety, cg-wiki, solution-files, cg-docs
+path: .cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md
+
+`@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wiki pages. The initial implementation had only a policy-level "treat as untrusted" declaration — no phrase-level scan before the content entered the synthesis step. A `.cg-docs/solutions/` file containing: ``` would pass the path validation (`starts with .cg-docs/solutions/`, `ends with .md`, no `..`) and reach the wiki synthesis step with the injected instruction in context.
 
 ## Classification steps must exhaustively cover all enum values with terminal actions
 

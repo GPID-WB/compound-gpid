@@ -116,3 +116,4 @@ When writing instructions for an AI agent that reads user-controlled files:
 - `.github/agents/cg-project-scanner.agent.md` — reference implementation of the two-phase guard
 - `.github/skills/cg-skill-project-scanner/SKILL.md` (Prompt Injection Safety section) — injection pattern vocabulary with examples
 - `.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md` — general agent addition checklist
+- `.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md` — extension: injection scan must cover agents reading internal `.cg-docs/` files too, not just external user files

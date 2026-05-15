@@ -98,3 +98,5 @@ If yes, the exception is self-defeating. Convert it to require:
   — related prompt-design pitfall: unreachable steps after user-wait pauses
 - `.cg-docs/solutions/bugs/2026-04-15-loop-early-exit-skips-per-iteration-cleanup.md`
   — related: loop early-exit directive skips per-iteration cleanup steps
+- `.cg-docs/solutions/bugs/2026-05-15-circular-error-recovery-command-in-halt-message.md`
+  — variant: recovery suggestion in a halt message is itself blocked by the same missing precondition (bootstrap trap)
