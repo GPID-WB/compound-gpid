@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-14 · 108 active solutions_
+_Generated 2026-05-14 · 110 active solutions_
 
 ## Depth-restricted review modes silently bypass domain-specific agents — add forced-dispatch exception for open P0s
 
@@ -21,6 +21,26 @@ tags: prompt-design, dispatch-table, taxonomy, task-type, cr-review, completenes
 path: .cg-docs/solutions/testing-patterns/2026-05-14-dispatch-table-must-cover-all-taxonomy-entries.md
 
 `cr-review.prompt.md` Step 3 contained a dispatch table routing task types to research agents: ``` `cr-skill-research-workflow` defines **8** task types. The table covers **6**. Missing: `EDA` and `Implementation`. When the task type is `EDA` or `Implementation`, the agent falls through to: > "Task type cannot be determined → dispatch `@cr-econometric-reasoning` by default" This dispatches a structural econometrics reviewer to EDA and implementation work — no findings on theory or model structure, but also no `@cg-performance` or `@cg-data-quality` which are the natural agents for those task types. Found as **P2.11** in the 2026-05-14 thorough review of Compound Research Phase 3.
+
+## Python regex raw-string double-backslash silently excludes literal letters
+
+date: 2026-05-14
+category: bugs
+status: 
+tags: python, regex, raw-string, backslash, character-class, frontmatter-parser
+path: .cg-docs/solutions/bugs/2026-05-14-python-regex-raw-string-double-backslash-excludes-letters.md
+
+`extract_fm_value` in `scripts/link.sh` silently returned `''` (empty string) for any YAML frontmatter value containing the letters `r` or `n` — including `research`, `r-syntax`, `project-name`, etc. The symptom was `modules: research` being read back as the default value `engineering` instead of `research`. The test: ``` The function appeared to work for simple values like `"r"`, `"standard"`, `"analysis"` — none of which happen to contain `r` or `n` in positions that trigger the exclusion clearly — masking the bug through the entire Phase 1+2 development cycle.
+
+## YAML frontmatter allowlist validation pattern for module/config fields
+
+date: 2026-05-14
+category: data-quality
+status: 
+tags: yaml, frontmatter, validation, allowlist, modules, configuration, powershell, python
+path: .cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md
+
+`scripts/helpers.ps1` and `scripts/link.sh` both extracted `modules:` from `compound-gpid.local.md` and passed any string silently downstream. An invalid value like `modules: banana` would fall through to template substitution, producing `**Modules**: banana` in the generated `copilot-instructions.md` with no error. Similarly, YAML list notation (`modules: [engineering, research]` or block sequence) would either parse to a bracketed string `[engineering, research]` or fall through to the default `engineering`, with no indication that the format was wrong.
 
 ## Zero-byte/near-empty files bypass graceful-skip guards and produce false-negative clean results in scan agents
 
