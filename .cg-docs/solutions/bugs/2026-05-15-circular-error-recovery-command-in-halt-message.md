@@ -51,10 +51,12 @@ the inconsistency survived code review and only surfaced during the verify pass.
 Wiki manifest not found at wiki/_wiki.yml.
 Run `/cg-setup` or `/cg-wiki rebuild` to initialize.
 
-# After (correct)
+# After (correct — current state)
 Wiki manifest not found at wiki/_wiki.yml.
-Run `/cg-setup` to initialize the wiki (it dispatches @cg-wiki init automatically).
+Run `/cg-wiki init` to initialize the wiki for this project.
 ```
+
+> **2026-05-15 update**: The original fix pointed users to `/cg-setup`, which solved the infinite loop but required full re-setup. A follow-on fix (`2026-05-15-cg-wiki-no-user-facing-init-path-for-existing-projects.md`) added `/cg-wiki init` as a direct user-facing subcommand and updated all recovery messages accordingly.
 
 ### Design Rule: Verify Recovery Commands Before Writing Them
 
@@ -77,9 +79,10 @@ prompt and agent often produce the same error under different execution paths.
 
 - Write error messages as: "X failed because Y is missing. To create Y, run Z."
   Then verify Z doesn't also require Y.
-- For wiki-class agents: only `init` mode (triggered by `/cg-setup`) creates
-  `_wiki.yml`. All other modes require it. Never suggest `rebuild`, `update`,
-  or `convert` as recovery when the manifest is absent.
+- For wiki-class agents: `init` mode (triggered by `/cg-setup` or directly via
+  `/cg-wiki init`) creates `_wiki.yml`. All other modes require it. When the
+  manifest is absent, suggest `/cg-wiki init` as recovery — never `rebuild`,
+  `update`, or `convert`.
 - Add a Pester test that checks the Pre-Flight halt message does not contain
   `rebuild` in the "manifest not found" branch.
 

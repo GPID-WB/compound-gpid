@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-15 · 120 active solutions_
+_Generated 2026-05-15 · 121 active solutions_
 
 ## cg-commit-push-pr always paused for user confirmation — no auto-proceed mode
 
@@ -51,6 +51,16 @@ tags: prompt-injection, security, agent-design, ai-safety, cg-wiki, solution-fil
 path: .cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md
 
 `@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wiki pages. The initial implementation had only a policy-level "treat as untrusted" declaration — no phrase-level scan before the content entered the synthesis step. A `.cg-docs/solutions/` file containing: ``` would pass the path validation (`starts with .cg-docs/solutions/`, `ends with .md`, no `..`) and reach the wiki synthesis step with the injected instruction in context.
+
+## No user-facing path to initialize wiki on existing projects
+
+date: 2026-05-15
+category: bugs
+status: 
+tags: prompt-design, cg-wiki, ux, bootstrap-trap, agent-design, subcommand-gap
+path: .cg-docs/solutions/bugs/2026-05-15-cg-wiki-no-user-facing-init-path-for-existing-projects.md
+
+On a project with no `_wiki.yml`, every wiki entry point either skips silently or halts with no forward path:
 
 ## Classification steps must exhaustively cover all enum values with terminal actions
 
