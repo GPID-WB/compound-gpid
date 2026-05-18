@@ -23,6 +23,11 @@ this file is committed to git and shared with the team.
 
 ## Workspace Notes
 <!-- Related folders, dependencies on other projects in the VS Code workspace -->
+
+## Wiki Configuration
+<!-- folder: wiki -->
+<!-- audience: developers | researchers | end-users -->
+<!-- tone: technical | conversational | formal -->
 ```
 
 > This file is committed to git. Do NOT add it to `.gitignore`.

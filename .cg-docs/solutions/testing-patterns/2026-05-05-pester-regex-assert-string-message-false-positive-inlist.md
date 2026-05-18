@@ -82,3 +82,4 @@ When writing Pester regex guards for Stata syntax errors:
 - `.cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md` — multiline regex behaviour in Pester
 - `.cg-docs/solutions/testing-patterns/2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md` — related regex pitfall in test assertions
 - `tests/prompt-tools.Tests.ps1` — the P0.1 guard test was affected
+- `.cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md` — related: common English words in security assertions pass trivially regardless of whether the specific rule is present

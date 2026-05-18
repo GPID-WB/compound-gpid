@@ -497,7 +497,7 @@
       "id": "ongoing-ideas",
       "title": "Ongoing Ideas",
       "objective": "Catch-all for standalone improvements and ideas that don't fit an existing milestone.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "command-default-behaviors",
@@ -538,8 +538,8 @@
           "id": "project-wiki-auto-documentation",
           "title": "Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)",
           "description": "Create and continuously maintain a user-readable documentation wiki (similar to compound-gpid's own docs/ folder) that serves as the canonical reference for any project using the plugin — whether it's a research paper, R package, data pipeline, or tool. The wiki is initialized during /cg-setup based on the project charter, scanner results, and project type: for an R package it might include installation, API reference, and vignettes sections; for a research paper it might cover methodology, data sources, and replication instructions; for a tool it might cover setup, usage, and configuration. After initialization, /cg-compound automatically updates the wiki whenever a completed task produces knowledge that belongs in user-facing documentation — new features get documented, changed behaviors get updated, resolved bugs that affect usage get noted. The wiki is distinct from .cg-docs/ (which is internal compound-gpid knowledge) — this is external-facing documentation that end users and collaborators read. Flexibility mechanisms: the user can customize the wiki structure via a configuration section in compound-gpid.context.md (e.g., preferred sections, tone, audience), can run a dedicated command to restructure or regenerate specific sections, and can manually edit wiki pages without the plugin overwriting their changes (the plugin appends or proposes diffs, never force-overwrites). The wiki should also support a table of contents and cross-linking between pages.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md"
         }
       ]
     }

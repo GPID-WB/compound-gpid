@@ -123,6 +123,20 @@ Using the **Roadmap Bootstrap from Charter** section from `setup-templates.md`:
 - If the charter was written (A4.5 completed) with a substantive `## Current Focus`: create `roadmap.json` with the seeded milestone structure.
 - If the charter was skipped (A4.5 was skipped or declined): create `roadmap.json` using the **roadmap.json Initial Skeleton** from `setup-templates.md`.
 
+#### A5.8. Wiki scaffold
+
+Dispatch `@cg-wiki` with:
+- `mode: init`
+- `project-type`: the value from `compound-gpid.local.md`
+- `charter-content`: the text of `compound-gpid.md` (or empty string if charter was skipped in A4.5)
+- `scanner-results`: the scanner output from Step A1 (if available; omit if scanner failed)
+
+If the wiki folder already exists and `_wiki.yml` is present with pages: skip silently — do not re-initialize.
+
+If `@cg-wiki` dispatch fails or returns an error: note:
+> "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
+and proceed silently.
+
 #### A6. Print Setup Complete
 
 Using the **Setup Complete Message** from `setup-templates.md`, display it with the user's configured language, project type, and review depth.
@@ -248,6 +262,15 @@ If `compound-gpid.md` exists, scan headings for deprecated sections: Architectur
 > - **Related Resources** → `copilot-instructions.md` or a skill file
 >
 > Removed content should be archived to `.cg-docs/archive/charter-history.md`. The user should manually perform this archiving — this prompt does not do it."
+
+#### B1.1.6. Check for project wiki
+
+Determine the wiki folder: check `## Wiki Configuration` in `compound-gpid.context.md` for `<!-- folder: ... -->`. Default: `wiki`.
+
+If `<folder>/_wiki.yml` does not exist: note after the context summary:
+> "No project wiki found. Run `/cg-wiki init` to initialize the wiki for this project."
+
+If `<folder>/_wiki.yml` exists: skip silently.
 
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 

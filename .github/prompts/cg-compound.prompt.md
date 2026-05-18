@@ -12,7 +12,11 @@ You are a knowledge engineer capturing solved problems so they become reusable a
 - You may read any file in the workspace.
 - You may create and modify files in `.cg-docs/solutions/` and `.cg-docs/archive/`.
 - You may modify `compound-gpid.context.md` (Step 5 enrichment, with user approval).
-- You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`.
+- You may dispatch `@cg-wiki` to create or modify files under the wiki folder
+  (default `wiki/`, configurable in `compound-gpid.context.md`). This is a
+  delegated write — the agent operates under its own permissions.
+- You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`
+  and delegated wiki writes via `@cg-wiki`.
 - You may run `cg-index --digest` in a terminal to rebuild DIGEST.md after capturing a solution.
 
 ## When to Use
@@ -37,6 +41,15 @@ Use `/cg-compound` after:
 4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
+
+### Step 0.5: Parse Flags
+
+Check the user's invocation for the `--propose` flag:
+- If `--propose` is present: set `wiki-propose = true`.
+- Otherwise: set `wiki-propose = false`.
+
+This flag controls wiki update behavior in Step 3c. It must be evaluated here—
+before any tool dispatch — following the write-permission flag convention.
 
 ### Step 1: Gather Context
 
@@ -107,6 +120,28 @@ If `cg-index` is not available, note it in the Step 6 confirmation and skip.
 10, notify the user:
 > "Knowledge base milestone: you now have **N** captured solutions.
 > Consider running `/cg-compound-refresh` to audit for staleness and drift."
+
+### Step 3c: Update Project Wiki
+
+Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
+1. Did the solution change a public function signature or API surface?
+2. Did it add or remove a CLI command, flag, or configuration key?
+3. Did it change user-visible output, behavior, or error messages?
+4. Did it add a new dependency or remove one that users must know about?
+
+- If **ALL are NO**: skip silently.
+- If **ANY is YES**:
+  1. Determine the wiki folder: check `## Wiki Configuration` in
+     `compound-gpid.context.md` for `<!-- folder: ... -->`. Default: `wiki`.
+  2. Check if `<folder>/_wiki.yml` exists. If not:
+     > "No wiki manifest found — run `/cg-wiki init` to initialize."
+     Skip silently.
+  3. Dispatch `@cg-wiki` with:
+     - `mode: update`
+     - `solution-path`: the path of the solution file captured in Step 3
+     - `wiki-manifest`: `<folder>/_wiki.yml`
+     - `propose`: value of `wiki-propose` from Step 0.5
+  4. Report: `"Wiki updated: wiki/<page>.md — <brief description of change>."`
 
 ### Step 4: Cross-Reference
 

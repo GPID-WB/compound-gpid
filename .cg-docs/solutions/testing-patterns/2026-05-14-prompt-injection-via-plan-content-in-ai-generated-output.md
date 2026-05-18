@@ -90,3 +90,4 @@ rich PR description.
 - `.cg-docs/solutions/testing-patterns/2026-04-29-two-phase-injection-guard-for-agent-file-reads.md`
 - `.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md` — shell injection via the same plan content
 - `compound-gpid.context.md` — Agent Design Conventions: "Declare all JSON field values as untrusted"
+- `.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md` — extension: the pattern applied to `@cg-wiki` update mode reading solution files for synthesis

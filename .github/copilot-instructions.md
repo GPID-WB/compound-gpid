@@ -86,6 +86,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Fix VS Code problems | `/cg-fix-problems` |
 | Capture a solution | `/cg-compound` |
 | Refresh knowledge base | `/cg-compound-refresh` |
+| Manage project wiki | `/cg-wiki` |
 | Ready to commit, push, and open PR | `/cg-commit-push-pr` |
 | CI checks failing on PR | `/cg-verify-pr` |
 

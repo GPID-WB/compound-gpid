@@ -23,6 +23,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Sibling-prompt guard symmetry**: When a guard is added to a `.prompt.md` file (exit-code check, detached HEAD guard, null-result guard), immediately audit all sibling prompts that perform the same operation and apply the same fix. Verify-pass reviews have repeatedly found guard fixes applied to prompt A but missed in prompt B with the same operation. After any fix-triage session touching prompts with `git`/`gh` operations, `grep_search` the operation text across all `.github/prompts/` files to catch unseen siblings. See `.cg-docs/solutions/testing-patterns/2026-05-14-sibling-prompt-symmetry-guard-audit.md`.
 
+- **Agent mode coverage must match user-facing subcommands**: For every mode in an `*.agent.md`, the dispatching prompt must expose it as a named subcommand — or explicitly document it as intentionally internal-only. Designing a mode as "infrastructure dispatched only by `/cg-setup`" fails when projects add the feature mid-lifecycle and users have no non-destructive bootstrap path. Check: when adding a new agent mode, immediately verify a corresponding subcommand exists in the dispatching prompt (or add one). See `.cg-docs/solutions/bugs/2026-05-15-cg-wiki-no-user-facing-init-path-for-existing-projects.md`.
+
 ## Testing Conventions
 
 - **IndexOf guard pattern**: Block-scoped prompt tests that extract text via `$content.Substring($start, $end - $start)` must first assert both index values with `$start | Should BeGreaterThan -1` and `$end | Should BeGreaterThan $start`. Without guards, a missing section header throws `ArgumentOutOfRangeException`, obscuring which assertion failed.
