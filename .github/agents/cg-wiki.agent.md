@@ -47,7 +47,13 @@ Before any operation:
    `.md`. If any fail, halt: "Invalid page file path in `_wiki.yml`: `<value>`.
    Page file paths must be plain filenames ending in `.md`." After reading
    `_wiki.yml`, discard its `folder` field — all path construction uses
-   exclusively the Pre-Flight-validated `<folder>` value above.
+   exclusively the Pre-Flight-validated `<folder>` value above. If `_wiki.yml`
+   contains a `folder:` field whose value differs from the resolved `<folder>`,
+   emit an informational note:
+   > Note: `_wiki.yml` contains `folder: <value>` but the resolved wiki folder
+   > is `<resolved>` (from `compound-gpid.context.md`). The `folder` field in
+   > `_wiki.yml` is informational only — to move the wiki, update
+   > `<!-- folder: ... -->` in `compound-gpid.context.md`.
 
 ## Inputs
 

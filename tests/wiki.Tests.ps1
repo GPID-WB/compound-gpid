@@ -46,6 +46,11 @@ Describe "cg-skill-wiki/SKILL.md - schema section" {
     It "documents lastUpdated field and its update rule" {
         ($content -match 'lastUpdated') | Should -Be $true
     }
+
+    # R-2026-05-18-013: folder field must be documented as informational (not agent-readable)
+    It "documents folder field as informational mirror of context.md directive (R-013)" {
+        ($content -match 'informational.*context\.md|context\.md.*informational') | Should -Be $true
+    }
 }
 
 Describe "cg-skill-wiki/SKILL.md - section markers" {
@@ -61,13 +66,14 @@ Describe "cg-skill-wiki/SKILL.md - section markers" {
         ($content -match 'cg:auto:end') | Should -Be $true
     }
 
+    # R-2026-05-18-012: anchor to rule phrase, not common word [Nn]ested
     It "documents that nested markers are forbidden" {
-        ($content -match '[Nn]ested') | Should -Be $true
+        ($content -match 'Nested markers are forbidden') | Should -Be $true
     }
 
-    # P2.16 — fake cg:auto:end inside code blocks is ignored
-    It "specifies that cg:auto:end inside fenced code blocks is ignored (P2.16)" {
-        ($content -match 'code block|fenced code|inline code') | Should -Be $true
+    # P2.16 / R-2026-05-18-012: anchor to rule phrase, not common words
+    It "specifies that cg:auto:end inside fenced code blocks is ignored (P2.16, R-012)" {
+        ($content -match 'Fake markers in code blocks are ignored') | Should -Be $true
     }
 }
 
@@ -276,8 +282,19 @@ Describe "cg-wiki.agent.md - security rules" {
         ($content -match 'Injection scan|injection scan') | Should -Be $true
     }
 
-    It "flags SYSTEM: and Ignore/Override/Forget AI-redirect phrases (P1.4)" {
-        ($content -match 'SYSTEM:|Ignore|Override|Forget') | Should -Be $true
+    # R-2026-05-18-011: anchor to injection-scan context to avoid common-word false positive
+    It "flags SYSTEM: and Ignore/Override/Forget in injection-scan context (P1.4, R-011)" {
+        ($content -match 'Injection scan[\s\S]{0,400}SYSTEM:') | Should -Be $true
+    }
+
+    It "pre-flight discards _wiki.yml folder field in favor of context.md value" {
+        ($content -match 'discard its.*folder') | Should -Be $true
+    }
+
+    # R-2026-05-18-013: conflict-detection — agent emits note when _wiki.yml folder differs
+    It "notifies user when _wiki.yml folder field differs from context.md resolved folder (R-013)" {
+        # spans lines: 'folder' + 'informational only' within 300 chars
+        ($content -match 'folder[\s\S]{0,300}informational only') | Should -Be $true
     }
 }
 
@@ -538,10 +555,100 @@ Describe "cg-wiki.agent.md - Pre-Flight halt message is non-circular" {
     It "manifest-not-found halt message does not suggest /cg-wiki rebuild (circular)" {
         # 'rebuild' in the halt message would send the user into an infinite loop
         # because rebuild itself requires _wiki.yml to exist
-        ($content -match 'manifest not found[\.\s\S]{0,120}/cg-wiki rebuild') | Should -Be $false
+        ($content -match 'manifest not found[.\s\S]{0,500}/cg-wiki rebuild') | Should -Be $false
     }
 
     It "manifest-not-found halt message suggests /cg-wiki init" {
         ($content -match 'manifest not found[\.\s\S]{0,120}/cg-wiki init') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# compound-gpid repo self-configuration — docs/ folder as wiki target
+# ---------------------------------------------------------------------------
+
+Describe "compound-gpid.context.md - wiki configuration for this repo" {
+    $contextFile = Join-Path $repoRoot "compound-gpid.context.md"
+    $content = Get-Content $contextFile -Raw -Encoding UTF8
+
+    It "has a ## Wiki Configuration section" {
+        ($content -match '(?m)^## Wiki Configuration') | Should -Be $true
+    }
+
+    It "declares docs/ as the wiki folder" {
+        ($content -match '<!--\s*folder:\s*docs\s*-->') | Should -Be $true
+    }
+
+    # R-2026-05-18-014: path-traversal guard on folder directive
+    It "folder directive does not contain path traversal (..) (R-014)" {
+        ($content -match '<!--\s*folder:\s*[^-]*\.\.[^-]*-->') | Should -Be $false
+    }
+}
+
+# R-2026-05-18-001: path traversal guard — file: entries must be plain filenames
+Describe "docs/_wiki.yml - page file paths are traversal-free (R-001)" {
+    $manifestFile = Join-Path $repoRoot "docs\_wiki.yml"
+    $ymlContent = if (Test-Path $manifestFile) { Get-Content $manifestFile -Raw -Encoding UTF8 } else { "" }
+
+    It "no file: entry contains .. (path traversal prevention)" {
+        ($ymlContent -match '(?m)^\s*file:\s*[''"\s]*[^''"\s]*\.\.[^''"\s]*') | Should -Be $false
+    }
+
+    It "no file: entry contains forward slash (path traversal prevention)" {
+        ($ymlContent -match '(?m)^\s*file:\s*[''"\s]*[^''"\s]*/') | Should -Be $false
+    }
+
+    It "no file: entry contains backslash (path traversal prevention)" {
+        ($ymlContent -match '(?m)^\s*file:\s*[''"\s]*[^''"\s]*\\') | Should -Be $false
+    }
+}
+
+Describe "docs/_wiki.yml - manifest exists for docs/ folder" {
+    $manifestFile = Join-Path $repoRoot "docs\_wiki.yml"
+    $ymlContent = if (Test-Path $manifestFile) { Get-Content $manifestFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/_wiki.yml exists (wiki initialized against docs/)" {
+        Test-Path $manifestFile | Should -Be $true
+    }
+
+    It "docs/_wiki.yml declares schemaVersion compound-gpid-wiki-v1" {
+        ($ymlContent -match 'schemaVersion:\s*[''"]+compound-gpid-wiki-v1[''"]+') | Should -Be $true
+    }
+
+    It "docs/_wiki.yml declares folder as docs" {
+        ($ymlContent -match 'folder:\s*[''"]+docs[''"]+') | Should -Be $true
+    }
+
+    It "docs/_wiki.yml has a pages section" {
+        ($ymlContent -match 'pages:') | Should -Be $true
+    }
+}
+
+Describe "docs/_wiki.yml - folder matches compound-gpid.context.md declaration" {
+    $ctxFile   = Join-Path $repoRoot "compound-gpid.context.md"
+    $ymlFile   = Join-Path $repoRoot "docs\_wiki.yml"
+    $ctx       = if (Test-Path $ctxFile) { Get-Content $ctxFile -Raw -Encoding UTF8 } else { "" }
+    $yml       = if (Test-Path $ymlFile) { Get-Content $ymlFile -Raw -Encoding UTF8 } else { "" }
+    $ctxFolder = [regex]::Match($ctx, '<!--\s*folder:\s*(\S+?)\s*-->').Groups[1].Value
+    $ymlFolder = [regex]::Match($yml, '(?m)^folder:\s*"?([^"\s]+)"?').Groups[1].Value
+
+    It "folder in _wiki.yml matches folder declared in compound-gpid.context.md" {
+        $ctxFolder | Should -Not -BeNullOrEmpty   # guard: regex must have matched
+        $ymlFolder | Should -Not -BeNullOrEmpty   # guard: regex must have matched
+        $ymlFolder | Should -Be $ctxFolder
+    }
+}
+
+Describe "docs/workflow.md - /cg-wiki is documented in the workflow loop" {
+    $workflowFile = Join-Path $repoRoot "docs\workflow.md"
+    $content = Get-Content $workflowFile -Raw -Encoding UTF8
+
+    It "mentions /cg-wiki in the workflow" {
+        ($content -match '/cg-wiki') | Should -Be $true
+    }
+
+    # R-2026-05-18-015: anchor to the section heading, not just any occurrence
+    It "has a dedicated ### 6b. Wiki section in the workflow loop (R-015)" {
+        ($content -match '(?m)^###\s+6b\.\s+Wiki') | Should -Be $true
     }
 }

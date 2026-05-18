@@ -17,7 +17,7 @@ Every wiki is governed by a `_wiki.yml` file in the wiki root folder. Always val
 
 ```yaml
 schemaVersion: "compound-gpid-wiki-v1"
-folder: "wiki"          # root folder, relative to project root; configurable
+folder: "wiki"          # informational: reflects context.md <!-- folder --> directive; not read by the agent
 pages:
   - id: "readme"
     file: "README.md"
@@ -47,7 +47,7 @@ lastUpdated: "YYYY-MM-DD"  # ISO date; updated by agent after every successful w
 
 **Field rules:**
 - `schemaVersion`: always `"compound-gpid-wiki-v1"`.
-- `folder`: relative path from project root. Must not contain `..`, must not start with `/` or `\`, must not be an absolute path, must not be empty. Default: `"wiki"`.
+- `folder`: informational field — mirrors the `<!-- folder: ... -->` directive in `compound-gpid.context.md`. The agent reads the folder path exclusively from `compound-gpid.context.md` and discards this field at runtime. Update `compound-gpid.context.md` to change the wiki folder, not this field. Format: relative path from project root. Must not contain `..`, must not start with `/` or `\`, must not be an absolute path, must not be empty.
 - `pages[].id`: kebab-case, unique within the manifest.
 - `pages[].file`: filename only (no path prefix, no `..`, no `/`, no `\`), must end in `.md`. All wiki pages are flat in the wiki folder. Halt if any entry fails validation.
 - `pages[].order`: positive integer, unique within the manifest. Validate uniqueness on schema load; halt if duplicates found.
