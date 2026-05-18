@@ -9,9 +9,10 @@ This page explains the Compound GPID workflow loop and how to use each step — 
 ## The Loop
 
 ```
-Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> [Commit+Push -> Verify PR] -> Compound
-                ^           ^            ^                                ^          ^                                    ^
-       (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh                             Refresh
+Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> [Commit+Push -> Verify PR] -> Compound -> Wiki
+                ^           ^            ^                                ^          ^                                    ^           ^
+       (vision/rethink)  (discover)  (one task)                       Fix Bug    Refresh                             Refresh    (auto-updated
+                                                                                                                               by Compound)
 Resume (re-entry at any stage)
 Roadmap View (read-only snapshot at any stage)
 ```
@@ -55,7 +56,7 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - When you just want to resume interrupted work — use `/cg-resume` instead
 - To read the charter — all `/cg-*` prompts read it automatically
 
-**Output**: `compound-gpid.md` + `compound-gpid.local.md` + `compound-gpid.context.md` + `.cg-docs/` directories
+**Output**: `compound-gpid.md` + `compound-gpid.local.md` + `compound-gpid.context.md` + `.cg-docs/` directories + `_wiki.yml` (if wiki is initialized)
 
 ---
 
@@ -391,7 +392,48 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 
 ---
 
-### 6b. Compound Refresh (`/cg-compound-refresh`)
+### 6b. Wiki (`/cg-wiki`)
+
+**When to use**:
+- To check the current state of your project wiki (`/cg-wiki status`)
+- To manually rebuild auto-managed wiki pages after significant codebase changes (`/cg-wiki rebuild`)
+- To add, remove, or reorder pages interactively (`/cg-wiki restructure`)
+- To bootstrap a wiki on an existing project that has no `_wiki.yml` yet (`/cg-wiki init`)
+- To generate a GitHub Wiki–compatible layout (`/cg-wiki convert`)
+
+**What happens**: Manages the project wiki — a user-facing documentation folder (default: `wiki/`, configurable via `## Wiki Configuration` in `compound-gpid.context.md`). The wiki is governed by a `_wiki.yml` manifest that tracks pages, their order, and ownership (`auto` = plugin-managed, `manual` = user-written, never touched by the agent). Auto-managed sections are wrapped in `<!-- cg:auto:section-id -->` markers so user edits outside markers are always preserved.
+
+**Note**: `/cg-wiki` is automatically dispatched by `/cg-compound` whenever a captured solution has user-facing implications (new CLI command, changed behavior, new dependency). You rarely need to run it manually.
+
+**Subcommands**:
+
+| Command | What it does |
+|---------|-------------|
+| `/cg-wiki` or `/cg-wiki status` | Show a table of all wiki pages with ownership and section counts |
+| `/cg-wiki init` | Bootstrap the wiki — creates `_wiki.yml` and page stubs from project type template |
+| `/cg-wiki rebuild` | Regenerate all auto-managed pages from current codebase + charter |
+| `/cg-wiki rebuild <page-id>` | Regenerate a single auto-managed page |
+| `/cg-wiki restructure` | Interactive: add/remove/reorder pages or change ownership |
+| `/cg-wiki convert` | Generate GitHub Wiki–compatible layout (rename README→Home, generate `_Sidebar.md`) |
+| `/cg-wiki help` | Show subcommand reference |
+
+**Flag**: `--propose` — show proposed changes before writing (for any subcommand that writes).
+
+**Scenarios**:
+- *New project*: `/cg-setup` runs `@cg-wiki init` automatically — no manual step needed.
+- *Existing project without wiki*: Run `/cg-wiki init` to bootstrap from a project-type template.
+- *After a major refactor*: Run `/cg-wiki rebuild` to regenerate auto-managed pages.
+- *Publishing to GitHub Wiki*: Run `/cg-wiki convert` to produce `Home.md` and `_Sidebar.md`.
+
+**When NOT to use**:
+- As a substitute for `/cg-compound` — the wiki reflects current state; institutional knowledge goes in `.cg-docs/`
+- To write manual documentation — use `/cg-wiki restructure` to register a new `manual`-ownership page, then edit the file directly
+
+**Output**: Files in the configured wiki folder (default: `wiki/`), including the updated `_wiki.yml` manifest inside that folder.
+
+---
+
+### 6c. Compound Refresh (`/cg-compound-refresh`)
 
 **When to use**:
 - Periodically (e.g., monthly or after a major refactor) to keep the knowledge base from drifting

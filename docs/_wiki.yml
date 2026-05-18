@@ -1,0 +1,49 @@
+schemaVersion: "compound-gpid-wiki-v1"
+folder: "docs"
+pages:
+  - id: "installation"
+    file: "installation.md"
+    title: "Installation"
+    ownership: "manual"
+    order: 1
+  - id: "workflow"
+    file: "workflow.md"
+    title: "Workflow"
+    ownership: "manual"
+    order: 2
+  - id: "reference"
+    file: "reference.md"
+    title: "Reference"
+    ownership: "manual"
+    order: 3
+  - id: "context-files"
+    file: "context-files.md"
+    title: "Context Files"
+    ownership: "manual"
+    order: 4
+  - id: "model-guide"
+    file: "model-guide.md"
+    title: "Model Guide"
+    ownership: "manual"
+    order: 5
+  - id: "versioning"
+    file: "versioning.md"
+    title: "Versioning"
+    ownership: "manual"
+    order: 6
+  - id: "troubleshooting"
+    file: "troubleshooting.md"
+    title: "Troubleshooting"
+    ownership: "manual"
+    order: 7
+  - id: "manual"
+    file: "manual.md"
+    title: "Manual"
+    ownership: "manual"
+    order: 8
+  - id: "competitive-reviews"
+    file: "competitive-reviews.md"
+    title: "Competitive Reviews"
+    ownership: "manual"
+    order: 9
+lastUpdated: "2026-05-18"
