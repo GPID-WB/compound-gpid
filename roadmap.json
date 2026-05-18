@@ -503,8 +503,8 @@
           "id": "command-default-behaviors",
           "title": "Command default behaviors (auto-branch, phases, autofix, context enrichment)",
           "description": "Establish opinionated defaults for the five main workflow commands so users get the most common behavior without flags. /cg-brainstorm: if the user is on the main or default branch, automatically create a new feature branch before starting (no prompt); if on any other branch, prompt the user whether to stay or create a new branch — branching is still the default unless overridden with a --no-branch flag. /cg-plan: default output is a phased plan (numbered phases with self-contained task lists) unless the user explicitly requests a flat plan via --no-phases. /cg-work: default is to run all plan phases sequentially (equivalent to current behavior without a phaseN argument); single-phase execution remains available via '/cg-work phase1'. /cg-review: default to autofix mode (automatically apply safe fixes from findings) rather than report-only; a --report-only flag disables autofix. /cg-compound: after capturing the solution, automatically add all key findings from the compound iteration to compound-gpid.context.md and any other relevant project files (skills, instructions), as long as they fit the project's structure and objectives — no manual prompting required.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-18-command-default-behaviors.md"
         },
         {
           "id": "outcome-criteria-in-plans",
