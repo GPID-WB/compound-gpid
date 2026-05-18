@@ -27,6 +27,7 @@ You are a senior data science architect creating a structured implementation pla
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
 4. Verify the planned work aligns with the project's stated objective and constraints. If not, flag this before proceeding.
+5. Parse flags: if `--no-phases` is present in the user's invocation, set `phases-default = false`. Otherwise set `phases-default = true`.
 
 ### Step 0.5: Check for Prior Work
 
@@ -166,13 +167,14 @@ tags: [<relevant tags>]
 
 ### Step 3.5: Phase Structure
 
-Offer phase organization based on scope:
+Plans are organized into phases by default. Skip this step if:
+- `phases-default = false` (i.e., `--no-phases` was passed in Step 0), or
+- The plan has ≤ 2 implementation steps (too short to benefit from phasing — skip silently).
 
-- **Deep** scope: "This plan has N steps. I recommend organizing them into phases for cross-session execution. Do you have a phase breakdown in mind, or should I suggest one? (Last phase defaults to testing/validation/polish unless you override.)"
-- **Standard** scope: "Would you like to organize this plan into phases for cross-session execution? (optional — skip if the plan is short enough for one session)"
-- **Lightweight** scope: skip silently.
+Otherwise, automatically organize into phases (no user prompt needed):
 
-If the user wants phases:
+**Phase-splitting heuristic**: Split steps 50/50 by count, rounding the first phase up. For Deep scope plans, prefer grouping by concern: setup/foundation first, then core implementation, then tests and polish. For Standard scope, a 50/50 numeric split is sufficient. Either way, aim for cohesive phases where each phase produces a meaningful intermediate deliverable.
+
 1. **Pre-flight**: Check if the plan frontmatter already has a non-empty `completed-phases` field. If so, warn: "This plan has completed phases recorded. Restructuring phases will invalidate the completion history. Continue anyway? [yes/no]" — halt if user declines.
 2. Restructure the **Implementation Steps** section into `## Phase N: <title>` wrapper sections. Steps retain global numbering (1, 2, 3… across phases — do not restart numbering inside each phase).
 3. Add `phases: N` to frontmatter (convenience hint — the authoritative phase count is always derived from `## Phase` headers in the document body, not from this field).
@@ -188,8 +190,6 @@ If the user wants phases:
    ### 3. <Step Name>
    ### 4. <Step Name>
    ```
-
-If the user declines phases: skip restructuring — no Phase sections, no `phases:` field in frontmatter.
 
 ### Step 4: Save and Validate
 

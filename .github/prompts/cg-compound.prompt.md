@@ -11,9 +11,9 @@ You are a knowledge engineer capturing solved problems so they become reusable a
 
 - You may read any file in the workspace.
 - You may create and modify files in `.cg-docs/solutions/` and `.cg-docs/archive/`.
-- You may modify `compound-gpid.context.md` (Step 5 enrichment, with user approval).
+- You may create or modify `compound-gpid.context.md` in Step 5 (auto-enrichment, unless `--no-enrich` is passed).
 - You may dispatch `@cg-wiki` to create or modify files under the wiki folder
-  (default `wiki/`, configurable in `compound-gpid.context.md`). This is a
+  (default `wiki/`, configurable in `compound-gpid.context.md`), unless `--no-enrich` is passed. This is a
   delegated write — the agent operates under its own permissions.
 - You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`
   and delegated wiki writes via `@cg-wiki`.
@@ -44,12 +44,11 @@ Use `/cg-compound` after:
 
 ### Step 0.5: Parse Flags
 
-Check the user's invocation for the `--propose` flag:
-- If `--propose` is present: set `wiki-propose = true`.
-- Otherwise: set `wiki-propose = false`.
+Check the user's invocation for flags:
+- If `--propose` is present: set `wiki-propose = true`. Otherwise: set `wiki-propose = false`.
+- If `--no-enrich` is present: set `enrich = false`. Otherwise: set `enrich = true`.
 
-This flag controls wiki update behavior in Step 3c. It must be evaluated here—
-before any tool dispatch — following the write-permission flag convention.
+These flags control context enrichment and wiki update behavior in Steps 3c and 5. They must be evaluated here — before any tool dispatch — following the write-permission flag convention.
 
 ### Step 1: Gather Context
 
@@ -123,6 +122,8 @@ If `cg-index` is not available, note it in the Step 6 confirmation and skip.
 
 ### Step 3c: Update Project Wiki
 
+If `enrich = false` (i.e., `--no-enrich` was passed): skip this step entirely.
+
 Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
 1. Did the solution change a public function signature or API surface?
 2. Did it add or remove a CLI command, flag, or configuration key?
@@ -151,18 +152,17 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
 
 ### Step 5: Context Enrichment
 
+If `enrich = false` (i.e., `--no-enrich` was passed): skip this step entirely.
+
 1. Re-read `compound-gpid.context.md` (already loaded in Step 0 — re-read for
    the latest version).
 2. Assess: did this task reveal a domain rule, data source convention, or
    project-specific fact that would help in future tasks?
-3. If yes, propose a specific addition to the appropriate section:
-   > "This task revealed that [X]. I'd add this to the **[section]** section
-   > of `compound-gpid.context.md`:
-   > `[proposed text]`
-   > Should I add it?"
-4. If approved, insert into the correct section — place it logically within the
-   existing structure, not appended at the end.
-5. If `compound-gpid.context.md` does not exist, suggest creating it:
+3. If yes, append to the bottom of the matching section. Add a new `###`
+   subsection if needed — never insert within existing lines. Report:
+   "Context enriched: added [brief description] to the [section] section of
+   `compound-gpid.context.md`."
+4. If `compound-gpid.context.md` does not exist, suggest creating it:
    > "No `compound-gpid.context.md` found. Would you like me to create it
    > with this finding as the first entry?"
 

@@ -13,7 +13,8 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 - You may create new files ONLY under `.cg-docs/brainstorms/`.
 - You must NOT modify any existing files.
 - You must NOT create files outside `.cg-docs/brainstorms/`.
-- You may create a git branch if the user explicitly accepts at Step 1.7.
+- You may automatically create a git branch in Step 1.7 unless `--no-branch` is passed.
+- You may run `git init` in Step 1.7 when the user confirms in a non-git workspace.
 
 ## Process
 
@@ -31,6 +32,7 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 5. If `compound-gpid.md` exists, keep the project's constraints in mind
    throughout the brainstorm. If a proposed approach in Step 3 conflicts with
    declared constraints, flag this explicitly before the user chooses.
+6. Parse flags: if `--no-branch` is present, set `branch-enabled = false`. Otherwise set `branch-enabled = true`.
 
 ### Step 0.5: Check for Prior Work
 
@@ -88,27 +90,26 @@ Record the scope in the brainstorm frontmatter (see Step 4). If a brainstorm fro
 
 Adjust question depth and option detail accordingly.
 
-### Step 1.7: Branch Offer
+### Step 1.7: Branch Setup
 
-Before asking any clarifying questions, offer to create a new git branch for
-this work:
+**Pre-flight** (evaluate these guards in order before any branching action):
+- If the brainstorm is classified as **Thinking Partner mode** (Step 1.1): skip this step silently.
+- If `branch-enabled = false` (i.e., `--no-branch` was passed in Step 0): skip this step silently.
+- Run `git rev-parse --git-dir 2>$null`. If the command fails (non-git workspace): offer `git init` — "No git repository found. Initialize one now? (yes/no)". If yes: run `git init`, then continue. If no: skip this step silently.
+- Run `git branch --show-current`. If output is empty, the workspace is in a **detached HEAD** state. Warn: "Detected detached HEAD. Cannot safely auto-branch. Reattach to a branch first (`git checkout main`) or pass `--no-branch` to skip branching." Skip the rest of this step.
 
-> "Before we start, would you like to work on a new branch?
-> Suggested name: `feat/<short-description-from-your-request>`
->
-> 1. **Yes** — I'll create the branch now
-> 2. **No** — Stay on the current branch"
+**Derive the branch name** from the user's initial description using the project's convention: `type/short-description` (`feat/` for features, `fix/` for bugs, `refactor/` for restructuring). Normalize: replace spaces with `-`, remove characters in `~^:?*[\`, collapse `..` to `-`, strip `@{`, truncate to 60 characters. If empty after normalization, ask the user for a branch name.
 
-- Derive the branch name from the user's initial description using the
-  project's convention: `type/short-description` (`feat/` for features,
-  `fix/` for bugs, `refactor/` for restructuring).
-- If the user accepts: create the branch with `git checkout -b <branch-name>`
-  and confirm: "Switched to new branch `<branch-name>`. Let's continue."
-- If the user declines: proceed silently.
-- If the repo has uncommitted changes, warn before branching:
-  > "You have uncommitted changes. Want to stash them first, or branch anyway?"
-- If the brainstorm is classified as **Thinking Partner mode** (Step 1.1),
-  skip this step silently — non-software tasks don't need branches.
+**Determine the default branch**: run `git symbolic-ref refs/remotes/origin/HEAD --short 2>$null` (strips `origin/` prefix). If the command fails or returns empty, fall back to checking for `main` or `master`.
+
+**If on the default branch**:
+- If uncommitted changes exist: warn first — "You have uncommitted changes. Want to stash them first, or branch anyway?"
+- Automatically create and switch to the feature branch — no prompt. Confirm: "Created branch `<name>`. Let's continue."
+- If `git checkout -b` fails because the branch already exists: offer "Branch `<name>` already exists — switch to it? (yes/no)". For other errors, report the git error verbatim and skip branching.
+
+**If on a feature branch**: prompt the user: "You're already on `<current-branch>`. Stay here, or create a new branch? (stay/new — default: stay)."
+- If stay (or no response): proceed silently.
+- If new: derive and create a new branch name.
 
 ### Step 2: Clarifying Questions (One at a Time)
 
