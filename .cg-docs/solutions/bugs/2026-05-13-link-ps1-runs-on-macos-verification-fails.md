@@ -82,7 +82,8 @@ Both tests failed on the unfixed code.
 
 ```powershell
 # --- Platform guard: Windows only ---
-$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Note: $IsWindows is PS6+ only. Use Test-Path guard for PS 5.1 Set-StrictMode compatibility.
+$onWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
 if (-not $onWindows) {
     Write-Error @"
 link.ps1 is Windows-only (it uses directory junctions).
@@ -132,3 +133,4 @@ fi
 ## Related
 
 - `.cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md` — general pattern: why `Join-Path $base "dir\file"` is Windows-only and the cross-platform fix
+- `.cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md` — follow-on: the `$onWindows` guard pattern introduced here crashed PS 5.1 under `Set-StrictMode`; documents the `Test-Path variable:IsWindows` fix

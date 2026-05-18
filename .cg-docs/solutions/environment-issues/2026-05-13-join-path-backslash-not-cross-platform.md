@@ -85,7 +85,8 @@ Describe "scripts do not use backslash path separators in Join-Path" {
 guard at the top that exits with a clear error on macOS/Linux:
 
 ```powershell
-$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Note: $IsWindows is PS6+ only. Use Test-Path guard for PS 5.1 Set-StrictMode compatibility.
+$onWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
 if (-not $onWindows) {
     Write-Error "This script is Windows-only. On macOS/Linux, use <equivalent>.sh instead."
     exit 1

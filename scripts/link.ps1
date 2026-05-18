@@ -35,7 +35,8 @@ $ErrorActionPreference = "Stop"
 # Windows-only filesystem feature. On macOS and Linux, use link.sh instead.
 # Without this guard, running link.ps1 via pwsh on macOS fails Step 6's
 # path verification because backslash path separators are not valid on macOS.
-$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Note: $IsWindows is PS6+ only; Test-Path guard is required for PS 5.1 strict mode.
+$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 if (-not $onWindows) {
     Write-Error @"
 link.ps1 is Windows-only (it uses directory junctions).

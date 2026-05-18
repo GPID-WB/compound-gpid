@@ -20,7 +20,8 @@ $ErrorActionPreference = "Stop"
 # --- Platform guard: Windows only ---
 # unlink.ps1 removes directory junctions, which are a Windows-only filesystem
 # feature. On macOS and Linux, use unlink.sh instead.
-$onWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Note: $IsWindows is PS6+ only; Test-Path guard is required for PS 5.1 strict mode.
+$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 if (-not $onWindows) {
     Write-Error @"
 unlink.ps1 is Windows-only (it manages directory junctions).
