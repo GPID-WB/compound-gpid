@@ -800,6 +800,10 @@ Describe "docs/reference.md - R skills and r-syntax config" {
     It "column header uses User-invocable (not User-invokable)" {
         ($content -match 'User-invocable') | Should -Be $true
     }
+
+    It "/cg-compound description states user applies .github/ changes manually" {
+        ($content -match 'offers to suggest.*user applies.*manually|user applies.*manually') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -1313,10 +1317,10 @@ Describe "cg-review.prompt.md - protected artifacts guard" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.28 — cg-review mode:autofix argument parsing
+# P1.28 — cg-review mode:autofix backward compatibility
 # ---------------------------------------------------------------------------
 
-Describe "cg-review.prompt.md - mode:autofix argument" {
+Describe "cg-review.prompt.md - mode:autofix backward compatibility" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
@@ -2216,9 +2220,9 @@ Describe "cg-compound.prompt.md - context enrichment step" {
         ($content -match 'compound-gpid\.context\.md') | Should -Be $true
     }
 
-    It "proposes adding to compound-gpid.context.md when a finding is relevant" {
-        # The step must include language proposing additions to context.md sections
-        ($content -match 'I.d add this to the|propose.*addition|suggest.*add') | Should -Be $true
+    It "auto-writes to compound-gpid.context.md when a finding is relevant (no prompt)" {
+        # Step 5 now writes directly and reports the addition (no 'Should I add it?' ask)
+        ($content -match 'insert the finding directly|Context enriched:') | Should -Be $true
     }
 
     It "includes an offer to create compound-gpid.context.md when it does not exist" {
@@ -3665,12 +3669,13 @@ Describe "cg-plan.prompt.md - phase structure support" {
         ($content -match '## Phase') | Should Be $true
     }
 
-    It "offers phase breakdown for Deep scope" {
-        ($content -match '(?i)Deep.*phases|phases.*Deep') | Should Be $true
+    It "phases by default applies to Deep scope plans" {
+        ($content -match '(?s)Step 3\.5.*organized into phases by default') | Should Be $true
     }
 
-    It "offers optional phase breakdown for Standard scope" {
-        ($content -match '(?i)Standard.*phases|phases.*Standard|Would you like to organize') | Should Be $true
+    It "phases by default for all scopes (no optional offer for Standard scope)" {
+        # Phases are automatic now -- the old 'Would you like to organize' offer is gone
+        ($content -match 'organized into phases by default') | Should Be $true
     }
 
     It "silently skips phase offer for Lightweight scope" {
@@ -4611,5 +4616,209 @@ Describe "cg-verify-pr.prompt.md - structure" {
 
     It "halts on STALE conclusion (P1.7)" {
         ($content -match 'STALE') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Command default behaviors — cg-brainstorm.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-brainstorm.prompt.md - auto-branch default" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 1.7 is named 'Branch Setup' (not 'Branch Offer')" {
+        ($content -match 'Step 1\.7: Branch Setup') | Should -Be $true
+    }
+
+    It "auto-creates branch on default branch without prompting" {
+        ($content -match 'automatically create and switch to the feature branch') | Should -Be $true
+    }
+
+    It "does NOT show a Yes/No offer on the default branch" {
+        ($content -match '1\. \*\*Yes\*\*.*I.ll create the branch now') | Should -Be $false
+    }
+
+    It "prompts stay/new when already on a feature branch" {
+        ($content -match 'Stay here.*create a new branch|stay.*new.*default.*stay') | Should -Be $true
+    }
+
+    It "offers git init when workspace is not a git repo" {
+        ($content -match 'git init') | Should -Be $true
+    }
+
+    It "documents --no-branch flag to skip branching" {
+        ($content -match '\-\-no-branch') | Should -Be $true
+    }
+
+    It "determines default branch via git symbolic-ref" {
+        ($content -match 'symbolic-ref') | Should -Be $true
+    }
+
+    It "File Permissions mention auto-branch (not explicit acceptance)" {
+        ($content -match 'automatically create a git branch') | Should -Be $true
+    }
+
+    It "Step 1.7 uses git rev-parse --git-dir to detect non-git workspace" {
+        ($content -match 'git rev-parse.*--git-dir') | Should -Be $true
+    }
+
+    It "Step 1.7 handles detached HEAD state (empty git branch --show-current output)" {
+        ($content -match 'detached HEAD') | Should -Be $true
+    }
+
+    It "Step 1.7 normalizes branch names (strips special chars, truncates to 60)" {
+        ($content -match 'truncate to 60 characters|remove characters in.*~\^') | Should -Be $true
+    }
+
+    It "File Permissions include git init carve-out for non-git workspaces" {
+        ($content -match 'run.*git init.*Step 1\.7|git init.*non-git workspace') | Should -Be $true
+    }
+
+    It "branch-enabled variable is set from --no-branch flag at Step 0" {
+        ($content -match 'branch-enabled\s*=\s*false') | Should -Be $true
+    }
+
+    It "uncommitted-changes warning fires before auto-create action" {
+        $uncommittedPos = $content.IndexOf('uncommitted changes exist: warn first')
+        $autoCreatePos  = $content.IndexOf('Automatically create and switch')
+        $uncommittedPos | Should BeGreaterThan -1
+        $autoCreatePos  | Should BeGreaterThan -1
+        $uncommittedPos | Should BeLessThan $autoCreatePos
+    }
+
+    It "Thinking Partner mode skip is silently applied in Step 1.7 pre-flight" {
+        ($content -match 'Thinking Partner mode.*skip this step silently') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Command default behaviors — cg-plan.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - always-phase default" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 0 parses --no-phases flag" {
+        ($content -match '\-\-no-phases') | Should -Be $true
+    }
+
+    It "Step 3.5 states phases are organized by default (no prompt)" {
+        ($content -match 'organized into phases by default') | Should -Be $true
+    }
+
+    It "Step 3.5 does NOT contain a Would you like to organize offer" {
+        ($content -match 'Would you like to organize this plan into phases') | Should -Be $false
+    }
+
+    It "Step 3.5 does NOT contain Deep/Standard/Lightweight scope gating for phases" {
+        ($content -match 'Deep.*scope.*I recommend organizing|Standard.*scope.*Would you like') | Should -Be $false
+    }
+
+    It "Step 3.5 skips automatically for plans with 2 or fewer steps" {
+        ($content -match '2 implementation steps|\u2264 2') | Should -Be $true
+    }
+
+    It "phases-default variable is set from --no-phases flag in Step 0" {
+        ($content -match '--no-phases.*phases-default|phases-default.*false') | Should -Be $true
+    }
+
+    It "Step 3.5 includes a phase-splitting heuristic" {
+        ($content -match 'Phase-splitting heuristic|50/50 by count|grouping by concern') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Command default behaviors — cg-review.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-review.prompt.md - autofix default" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents --report-only flag" {
+        ($content -match '\-\-report-only') | Should -Be $true
+    }
+
+    It "states autofix is ON by default" {
+        ($content -match 'autofix is ON|Default.*autofix') | Should -Be $true
+    }
+
+    It "tagging instructions are always included (not gated by mode:autofix)" {
+        ($content -match 'Always include tagging instructions') | Should -Be $true
+    }
+
+    It "notes mode:autofix is now a no-op (backward compatibility)" {
+        ($content -match 'No-op.*autofix is now the default|autofix.*No-op') | Should -Be $true
+    }
+
+    It "statistical guardrail preserved: never safe_auto stats/welfare/weight" {
+        ($content -match 'statistical functions.*welfare.*weight|welfare.*income.*weight') | Should -Be $true
+    }
+
+    It "Step 4 default path is autofix (not report-only)" {
+        ($content -match 'Default \(autofix mode\)') | Should -Be $true
+    }
+
+    It "--report-only path presents findings one at a time" {
+        ($content -match 'report-only.*present findings one at a time|If.*report-only.*present findings') | Should -Be $true
+    }
+
+    It "--report-only is listed in the recognized arguments warning" {
+        ($content -match 'Recognized:.*--report-only') | Should -Be $true
+    }
+
+    It "mutual exclusion: --report-only + mode:verify resolves to mode:verify" {
+        ($content -match 'ignore.*--report-only') | Should -Be $true
+    }
+
+    It "mode flags are parsed at Step 0 before any file reads" {
+        ($content -match '(?s)Step 0:.*Parse mode flags') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Command default behaviors — cg-compound.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - auto-enrich default" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 0.5 parses --no-enrich flag" {
+        ($content -match '\-\-no-enrich') | Should -Be $true
+    }
+
+    It "Step 3c wiki dispatch is gated by enrich flag" {
+        ($content -match 'enrich = false.*skip this step') | Should -Be $true
+    }
+
+    It "enrich variable is set in Step 0.5" {
+        ($content -match 'enrich\s*=\s*(true|false)') | Should -Be $true
+    }
+
+    It "Step 5 skips entirely when --no-enrich is passed" {
+        ($content -match 'enrich = false.*skip this step') | Should -Be $true
+    }
+
+    It "enrich defaults to true when --no-enrich is absent" {
+        ($content -match 'enrich\s*=\s*true') | Should -Be $true
+    }
+
+    It "Step 5 no longer asks Should I add it before enriching context.md" {
+        ($content -match 'Should I add it\?') | Should -Be $false
+    }
+
+    It "Step 5 writes to context.md directly and reports the addition" {
+        ($content -match 'Context enriched:|Append to the bottom') | Should -Be $true
+    }
+
+    It "Step 5 uses append-only insertion (never inserts within existing lines)" {
+        ($content -match 'never insert within existing lines|Append to the bottom.*matching section') | Should -Be $true
+    }
+
+    It "File Permissions reflect auto-enrichment without user approval" {
+        ($content -match 'auto-enrichment') | Should -Be $true
     }
 }
