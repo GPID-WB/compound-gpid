@@ -4,8 +4,8 @@
 # Run with: Invoke-Pester tests/install.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
-# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
-$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
+$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
 
 # install.ps1 manages .cmd wrappers and the Windows registry PATH. Skip all
 # tests on macOS/Linux. install.sh is tested in bash-scripts.Tests.ps1.

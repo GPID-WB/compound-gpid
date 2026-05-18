@@ -33,10 +33,7 @@ Describe "PS 5.1 compat - no non-ASCII characters in production scripts" {
         $filePath = Join-Path $repoRoot $rel
         Context $rel {
             It "contains only ASCII characters (0x00-0x7F)" {
-                if (-not (Test-Path $filePath)) {
-                    
-                    return
-                }
+                $filePath | Should -Exist
                 $lines = Get-Content -Path $filePath
                 $violations = @()
                 for ($i = 0; $i -lt $lines.Count; $i++) {
@@ -59,10 +56,7 @@ Describe 'PS 5.1 compat - no $var = if() patterns in production scripts' {
         $filePath = Join-Path $repoRoot $rel
         Context $rel {
             It 'does not use $var = if (...) { } else { } assignment' {
-                if (-not (Test-Path $filePath)) {
-                    
-                    return
-                }
+                $filePath | Should -Exist
                 $lines = Get-Content -Path $filePath
                 $violations = @()
                 for ($i = 0; $i -lt $lines.Count; $i++) {
@@ -70,6 +64,43 @@ Describe 'PS 5.1 compat - no $var = if() patterns in production scripts' {
                     # Exclude comments
                     $line = $lines[$i]
                     if ($line -match '^\s*\$\w+\s*=\s*if\s*\(' -and $line -notmatch '^\s*#') {
+                        $violations += "L$($i+1): $($line.Trim())"
+                    }
+                }
+                $violations.Count | Should -Be 0
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# $IsWindows usage without Test-Path guard (strict mode breaks PS 5.1)
+# ---------------------------------------------------------------------------
+# Scripts that run Set-StrictMode -Version Latest must NOT access $IsWindows
+# directly because it is undefined in PS 5.1. Use:
+#   (Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT"
+# ($env:OS fallback handles PS 5.1 Windows where the Test-Path arm evaluates to $false)
+# instead of:
+#   $IsWindows -eq $true
+
+Describe "PS 5.1 compat - no bare IsWindows in production scripts" {
+    foreach ($rel in $productionScripts) {
+        $filePath = Join-Path $repoRoot $rel
+        Context $rel {
+            It 'does not access IsWindows without a Test-Path variable: guard' {
+                $filePath | Should -Exist
+                $lines = Get-Content -Path $filePath
+                $violations = @()
+                for ($i = 0; $i -lt $lines.Count; $i++) {
+                    $line = $lines[$i]
+                    if ($line -match '^\s*#') { continue }
+                    # Strip trailing inline comment before matching the guard phrase.
+                    # Prevents "# nb: Test-Path variable:IsWindows" from masking a bare access.
+                    # Note: guard phrase must appear on the same line as the access (single-line idiom only).
+                    $codePart = ($line -replace '#.*$', '').Trim()
+                    # Detect both $IsWindows and ${IsWindows} (valid equivalent brace syntax)
+                    if (($codePart -match '\$IsWindows|\$\{IsWindows\}') -and
+                        $codePart -notmatch 'Test-Path\s+variable:IsWindows') {
                         $violations += "L$($i+1): $($line.Trim())"
                     }
                 }

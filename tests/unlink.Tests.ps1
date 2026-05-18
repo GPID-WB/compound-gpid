@@ -4,8 +4,8 @@
 # Run with: Invoke-Pester tests/unlink.Tests.ps1
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
-# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
-$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
+$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
 
 # unlink.ps1 uses junction operations (Remove-Item on junctions), which are
 # Windows-only. Skip all tests on macOS/Linux with a passing placeholder.
@@ -232,6 +232,15 @@ Describe "unlink.ps1 - Windows platform guard" {
 
         It "contains a Windows platform check to prevent accidental use on macOS/Linux" {
             $unlinkPs1Content | Should -Match 'IsWindows|Windows_NT'
+        }
+
+        It "uses Test-Path variable:IsWindows guard for PS 5.1 strict mode compatibility [regression guard]" {
+            # Regression: bare $IsWindows under Set-StrictMode -Version Latest throws
+            # 'variable not set' on PS 5.1 because $IsWindows is a PS6+ automatic variable.
+            # Fix: (Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT"
+            # Belt-and-suspenders: ps51-compat.Tests.ps1 also covers this via full-suite scan.
+            # Note: Should -Match also matches comment text; the ps51 scanner checks code portions.
+            $unlinkPs1Content | Should -Match 'Test-Path\s+variable:IsWindows'
         }
 
         It "directs non-Windows users to unlink.sh" {

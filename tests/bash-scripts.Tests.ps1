@@ -6,8 +6,8 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 # On macOS CI, requires: pwsh + Pester 4.10.1
 
-# Platform detection (PS 5.1-safe: $IsWindows is undefined on PS 5.1)
-$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
+# Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows/$IsMacOS return $null rather than throwing)
+$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
 $script:OnMacOS   = ($IsMacOS -eq $true)
 
 # Bash integration tests only run on macOS (the platform that ships bash and the
