@@ -1,6 +1,16 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-18 · 126 active solutions_
+_Generated 2026-05-19 · 127 active solutions_
+
+## /cg-compound wiki update silently skipped — all docs/_wiki.yml pages were manual-ownership
+
+date: 2026-05-19
+category: bugs
+status: 
+tags: cg-compound, cg-wiki, wiki, ownership, manual, auto, reference, docs, notifications
+path: .cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md
+
+Running `/cg-compound` after a feature that added new command flags and changed user-visible behavior (e.g., `command-default-behaviors` — new `--no-branch`, `--no-phases`, `--report-only`, `--no-enrich` flags) produced no wiki updates and no notifications. `docs/reference.md` was never updated to reflect the new flags, and the user received no indication that any docs page needed attention.
 
 ## Append-only insertion prevents silent corruption in AI-written shared files
 

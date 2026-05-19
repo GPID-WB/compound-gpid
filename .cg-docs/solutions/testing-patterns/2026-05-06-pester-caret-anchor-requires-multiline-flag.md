@@ -89,3 +89,4 @@ When both `^` anchoring and `.`-across-newlines are needed, combine both flags:
 
 - [`2026-04-15-pester-dotall-flag-required-for-multiline-regex.md`](2026-04-15-pester-dotall-flag-required-for-multiline-regex.md) — `(?s)` for `.` crossing line breaks (distinct issue, often confused)
 - [`2026-03-02-prompt-file-permission-guardrails.md`](2026-03-02-prompt-file-permission-guardrails.md) — write-guard patterns for prompt files
+- [`2026-05-19-pester-yaml-entry-regex-boundary-and-heading-backtick-gotchas.md`](2026-05-19-pester-yaml-entry-regex-boundary-and-heading-backtick-gotchas.md) — sibling gotchas: `(?!-\s+id:)` boundary guard blocks YAML sub-entries; heading backticks break plain-text match
