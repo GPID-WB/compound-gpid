@@ -238,6 +238,12 @@ Describe "cg-wiki.agent.md - mode documentation" {
     It "documents convert mode" {
         ($content -match 'Mode: `convert`') | Should -Be $true
     }
+
+    It "init Step 6 emits the Post-init Checklist after the report line" {
+        # P2.7: The Post-init Checklist must be explicitly emitted by the agent
+        # after init completes, not left to the model to discover.
+        ($content -match '(?is)init Step 6.*Post-.*init.*Checklist|init Step 6.*Post-.*Checklist') | Should -Be $true
+    }
 }
 
 Describe "cg-wiki.agent.md - dispatch contract" {
@@ -650,5 +656,103 @@ Describe "docs/workflow.md - /cg-wiki is documented in the workflow loop" {
     # R-2026-05-18-015: anchor to the section heading, not just any occurrence
     It "has a dedicated ### 6b. Wiki section in the workflow loop (R-015)" {
         ($content -match '(?m)^###\s+6b\.\s+Wiki') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Bug: docs/_wiki.yml all-manual prevents auto-updates from /cg-compound
+# Root cause: all 9 pages have ownership: "manual" so @cg-wiki can never
+# write to any page, even when /cg-compound trigger criteria fire.
+# Fix: reference.md should be ownership: "auto" with cg:auto section markers
+# so command-flag/behavior changes captured by /cg-compound can be reflected
+# automatically. Also: cg-compound.prompt.md Step 3c must surface the
+# "Update manually" notifications from @cg-wiki back to the user.
+# ---------------------------------------------------------------------------
+
+Describe "docs/_wiki.yml - reference.md is auto-ownership for command-reference updates" {
+    $manifestFile = Join-Path $repoRoot "docs\_wiki.yml"
+    $ymlContent = if (Test-Path $manifestFile) { Get-Content $manifestFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/_wiki.yml has at least one auto-ownership page" {
+        # All pages being 'manual' means @cg-wiki can never write to any page.
+        # At minimum reference.md must be 'auto' so command-flag changes get auto-updated.
+        ($ymlContent -match "ownership:\s*['""]?auto['""]?") | Should -Be $true
+    }
+
+    It "reference.md entry has ownership: auto" {
+        # The reference page tracks command flags and defaults — exactly what
+        # /cg-compound updates when new flags are added. Must be auto-owned.
+        # Negative lookahead prevents crossing into the next YAML entry.
+        ($ymlContent -match '(?s)id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!-\s+id:).)*?ownership:\s*[''"]{0,1}auto[''"]{0,1}') | Should -Be $true
+    }
+
+    It "reference.md entry has a managed sections entry" {
+        # @cg-wiki needs sections: to know which part of the page to write.
+        # Without it, auto-writes silently fail even when ownership is auto.
+        # Anchor sections: inside reference entry; managed: true just needs to exist (only auto pages have it).
+        ($ymlContent -match '(?s)id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!-\s+id:).)*?sections:') | Should -Be $true
+        ($ymlContent -match 'managed:\s*true') | Should -Be $true
+    }
+}
+
+Describe "docs/reference.md - contains cg:auto section markers for plugin-managed content" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
+
+    It "docs/reference.md contains at least one cg:auto opening marker" {
+        # cg:auto markers delimit plugin-managed sections so @cg-wiki can update
+        # them without overwriting hand-authored prose around them.
+        ($content -match '<!--\s*cg:auto:') | Should -Be $true
+    }
+
+    It "docs/reference.md contains cg:auto:end closing marker" {
+        ($content -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
+    }
+}
+
+Describe "cg-compound.prompt.md - Step 3c surfaces manual-page notifications to user" {
+    $compoundFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = if (Test-Path $compoundFile) { Get-Content $compoundFile -Raw -Encoding UTF8 } else { "" }
+
+    It "Step 3c instructs agent to notify user when relevant pages are manual-ownership" {
+        # Without this, 'Update it manually' notifications from @cg-wiki are
+        # silently swallowed — the user never learns what docs to update.
+        ($content -match '(?is)step 3c.*manual.*notif|step 3c.*notif.*manual|manual.*ownership.*echo|echo.*manual.*notif') | Should -Be $true
+    }
+
+    It "Step 3c contains the verbatim notification template text" {
+        # Ensures the quoted template is present so @cg-wiki notifications
+        # surface with the correct message, not a paraphrase.
+        ($content -match 'Relevant update for.*manual.*ownership[.]\s*Update it manually') | Should -Be $true
+    }
+
+    It "Step 3c surfaces any notifications from @cg-wiki, not just manual-ownership" {
+        # P3.9: conflict detections and other @cg-wiki messages must also be
+        # surfaced — not only manual-ownership notifications.
+        ($content -match '(?is)any notifications.*@cg-wiki|any.*notif.*cg-wiki') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-wiki/SKILL.md - Post-init Checklist is present" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-wiki\SKILL.md"
+    $content = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+
+    It "SKILL.md contains a Post-init Checklist section heading" {
+        # The checklist is the primary prevention mechanism for the all-manual
+        # pages bug. Guards against silent deletion.
+        # Heading may be '## Post-`init` Checklist' (with backticks) — use flexible pattern.
+        ($content -match '(?m)^##\s+Post-.*Checklist') | Should -Be $true
+    }
+
+    It "Post-init Checklist mentions promoting ownership to auto" {
+        # The checklist must remind users to upgrade the reference page to
+        # auto-ownership after /cg-wiki init.
+        ($content -match '(?is)Post-.*Checklist.*ownership.*auto|Post-.*Checklist.*auto.*ownership') | Should -Be $true
+    }
+
+    It "Post-init Checklist mentions cg:auto section markers" {
+        # cg:auto markers are required for @cg-wiki to write to auto pages.
+        # Checklist must mention them so the setup step is not skipped.
+        ($content -match '(?is)Post-.*Checklist.*cg:auto:|cg:auto:.*Post-.*Checklist') | Should -Be $true
     }
 }
