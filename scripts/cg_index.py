@@ -35,9 +35,6 @@ if sys.version_info < (3, 8):
 
 import argparse
 import json
-import os
-import re
-import tempfile
 import warnings
 from dataclasses import dataclass, field
 from datetime import date
@@ -51,219 +48,21 @@ from typing import Any, Dict, List, Optional, Tuple
 __version__ = "0.1.0"
 
 # ---------------------------------------------------------------------------
-# Frontmatter parser (regex-based, best-effort, no PyYAML dependency)
+# sys.path bootstrap — brain sub-modules live in scripts/brain/
 # ---------------------------------------------------------------------------
 
-# Scalar YAML patterns
-_BARE_TRUE = re.compile(r"^(true|yes)$", re.IGNORECASE)
-_BARE_FALSE = re.compile(r"^(false|no)$", re.IGNORECASE)
-_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-_INT_RE = re.compile(r"^-?\d+$")
+_scripts_dir = str(Path(__file__).parent)
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
 
-# Inline list: [a, b, c] or ["a", "b"]
-_INLINE_LIST_RE = re.compile(r"^\[([^\]]*)\]$")
-_COMMA_SPLIT_RE = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
-
-
-def _coerce(value: str) -> Any:
-    """Coerce a YAML scalar string to a Python type."""
-    v = value.strip()
-    if _BARE_TRUE.match(v):
-        return True
-    if _BARE_FALSE.match(v):
-        return False
-    if _DATE_RE.match(v):
-        return v  # Keep dates as strings (ISO 8601)
-    if _INT_RE.match(v):
-        return int(v)
-    # Strip optional surrounding quotes
-    if (v.startswith('"') and v.endswith('"')) or \
-       (v.startswith("'") and v.endswith("'")):
-        return v[1:-1]
-    return v
-
-
-def _parse_inline_list(raw: str) -> Optional[List[Any]]:
-    """Parse an inline YAML list like [a, b] or ["x", "y"] into a Python list.
-    Returns None if the string does not look like an inline list.
-    """
-    m = _INLINE_LIST_RE.match(raw.strip())
-    if not m:
-        return None
-    inner = m.group(1).strip()
-    if not inner:
-        return []
-    # Split on commas NOT inside quotes (simple case -- no nested structures)
-    items: List[Any] = []
-    for item in _COMMA_SPLIT_RE.split(inner):
-        items.append(_coerce(item.strip()))
-    return items
-
-
-def parse_frontmatter(text: str) -> Dict[str, Any]:
-    """Extract YAML frontmatter from markdown text.
-
-    Handles only the simple key: value pairs used in .cg-docs/ files:
-      - Scalars (strings, booleans, integers, dates)
-      - Inline lists: [a, b, c]
-      - Quoted strings: "value" or 'value'
-      - Multi-line arrays (dash-prefixed) — emits a warning, collects items
-
-    Strips a leading UTF-8 BOM (\ufeff) and any leading blank lines before
-    the frontmatter delimiter, since PowerShell here-strings add a leading
-    \r\n before the first line of content.
-
-    Returns an empty dict if no frontmatter block is found.
-    """
-    # Strip leading BOM and blank lines (PowerShell here-strings add \r\n
-    # before the first content line; real files may have a UTF-8 BOM)
-    clean = text.lstrip("\ufeff\r\n")
-    if not clean.startswith("---"):
-        return {}
-
-    end = clean.find("\n---", 3)
-    if end == -1:
-        return {}
-
-    block = clean[3:end].strip()
-    result: Dict[str, Any] = {}
-    current_key: Optional[str] = None
-    current_list: Optional[List[str]] = None
-
-    for line in block.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        # Continuation of a block list (  - item)
-        if stripped.startswith("- ") and current_key is not None and current_list is not None:
-            current_list.append(_coerce(stripped[2:].strip()))
-            continue
-
-        # Flush any in-progress block list before processing new key
-        if current_list is not None:
-            if current_list:  # only store non-empty block lists
-                result[current_key] = current_list  # type: ignore[assignment]
-            current_key = None
-            current_list = None
-
-        if ":" not in stripped:
-            continue
-
-        key, _, raw_value = stripped.partition(":")
-        key = key.strip()
-        raw_value = raw_value.strip()
-
-        if not raw_value:
-            # Possibly a block-list key (next lines start with "- ")
-            current_key = key
-            current_list = []
-            warnings.warn(
-                f"Frontmatter key '{key}' has a multi-line value; "
-                "only simple scalars and inline lists are fully supported.",
-                stacklevel=2,
-            )
-            continue
-
-        inline = _parse_inline_list(raw_value)
-        if inline is not None:
-            result[key] = inline
-        else:
-            result[key] = _coerce(raw_value)
-
-    # Flush trailing block list
-    if current_list is not None and current_key is not None and current_list:
-        result[current_key] = current_list
-
-    return result
-
-
-# ---------------------------------------------------------------------------
-# Body parser: extract a plain-text summary (~100 words)
-# ---------------------------------------------------------------------------
-
-_HEADING_RE = re.compile(r"^#{1,6}\s+")
-_FENCED_RE = re.compile(r"^```")
-_PROBLEM_HEADING_RE = re.compile(r"^#{1,2}\s+Problem\b", re.IGNORECASE)
-
-
-def extract_summary(text: str, max_words: int = 100) -> str:
-    """Extract a ~100-word plain-text summary from markdown body.
-
-    Strategy (in order of preference):
-    1. Content immediately following a "## Problem" heading.
-    2. First non-heading, non-empty prose paragraph after frontmatter.
-
-    Skips heading lines, fenced code blocks, and blank lines at the start.
-    Truncates to max_words words, appending "..." if truncated.
-    """
-    # Strip leading BOM and blank lines (mirrors parse_frontmatter)
-    clean = text.lstrip("\ufeff\r\n")
-
-    # Strip frontmatter
-    body = clean
-    if clean.startswith("---"):
-        end = clean.find("\n---", 3)
-        if end != -1:
-            body = clean[end + 4:].lstrip("\n")
-
-    lines = body.splitlines()
-
-    # --- Pass 1: look for ## Problem section ---
-    problem_lines: List[str] = []
-    in_problem = False
-    in_fence = False
-
-    for line in lines:
-        if _FENCED_RE.match(line):
-            in_fence = not in_fence
-        if in_fence:
-            continue
-        if _HEADING_RE.match(line):
-            if in_problem:
-                break  # next heading ends the section
-            if _PROBLEM_HEADING_RE.match(line):
-                in_problem = True
-            continue
-        if in_problem and line.strip():
-            problem_lines.append(line.strip())
-
-    if problem_lines:
-        return _truncate(" ".join(problem_lines), max_words)
-
-    # --- Pass 2: first non-heading prose paragraph ---
-    prose_lines: List[str] = []
-    in_fence = False
-    in_prose = False
-
-    for line in lines:
-        if _FENCED_RE.match(line):
-            in_fence = not in_fence
-        if in_fence:
-            continue
-        if _HEADING_RE.match(line):
-            if in_prose:
-                break
-            continue
-        stripped = line.strip()
-        if stripped:
-            in_prose = True
-            prose_lines.append(stripped)
-        elif in_prose:
-            break  # blank line ends a paragraph
-
-    if prose_lines:
-        return _truncate(" ".join(prose_lines), max_words)
-
-    return ""
-
-
-def _truncate(text: str, max_words: int) -> str:
-    """Truncate text to at most max_words whitespace-delimited words, appending '...' if truncated."""
-    words = text.split()
-    if len(words) <= max_words:
-        return text
-    return " ".join(words[:max_words]) + "..."
+from brain.utils import (  # noqa: E402
+    _coerce,
+    _parse_inline_list,
+    parse_frontmatter,
+    extract_summary,
+    _write_atomic,
+    _truncate,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -429,24 +228,6 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
 # ---------------------------------------------------------------------------
 # Output builders
 # ---------------------------------------------------------------------------
-
-def _write_atomic(path: Path, content: str) -> None:
-    """Write content to path atomically using a temp file + os.replace().
-
-    Prevents partially written files on process kill or other interruptions.
-    """
-    fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            fh.write(content)
-        os.replace(tmp_path, path)
-    except Exception:
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
-        raise
-
 
 def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
     """Write search-index.json (metadata only, all statuses included)."""
