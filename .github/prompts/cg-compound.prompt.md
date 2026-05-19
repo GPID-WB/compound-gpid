@@ -142,7 +142,14 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
      - `solution-path`: the path of the solution file captured in Step 3
      - `wiki-manifest`: `<folder>/_wiki.yml`
      - `propose`: value of `wiki-propose` from Step 0.5
-  4. Report: `"Wiki updated: wiki/<page>.md — <brief description of change>."`
+  4. After the dispatch, surface **any notifications** from `@cg-wiki` to
+     the user verbatim — do not swallow them silently. This includes:
+     - **Manual-ownership notifications**: `"Relevant update for \`<folder>/<page>.md\` — this page is \`manual\` ownership. Update it manually."`
+     - **Conflict detections**: when new content conflicts with user-written prose outside managed sections.
+     - Any other message the agent emits that requires user action.
+     This ensures the user knows which docs need attention regardless of the reason.
+  5. Report: `"Wiki updated: <folder>/<page>.md — <brief description of change>."`
+     (Only for `auto` pages where `@cg-wiki` actually wrote content.)
 
 ### Step 4: Cross-Reference
 

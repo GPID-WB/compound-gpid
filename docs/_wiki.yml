@@ -14,8 +14,11 @@ pages:
   - id: "reference"
     file: "reference.md"
     title: "Reference"
-    ownership: "manual"
+    ownership: "auto"
     order: 3
+    sections:
+      - id: "commands"
+        managed: true
   - id: "context-files"
     file: "context-files.md"
     title: "Context Files"
@@ -46,4 +49,4 @@ pages:
     title: "Competitive Reviews"
     ownership: "manual"
     order: 9
-lastUpdated: "2026-05-18"
+lastUpdated: "2026-05-19"

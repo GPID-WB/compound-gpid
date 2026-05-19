@@ -121,6 +121,8 @@ from the template, all set to `ownership: "auto"`. Set `lastUpdated` to today's 
 > Pages: <comma-separated list of file names>
 > Run `/cg-wiki status` to review the wiki structure."
 
+After the report line, read `cg-skill-wiki` and emit the **Post-`init` Checklist** section verbatim so the user knows the required next steps (promoting the command/API reference page to `ownership: "auto"` and adding `cg:auto:` markers).
+
 ---
 
 ## Mode: `update`
