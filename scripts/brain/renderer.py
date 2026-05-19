@@ -46,6 +46,9 @@ from brain.utils import _write_atomic
 #: Words-to-tokens ratio (P3.3 fix: use 1.6 rather than 1.0).
 _WORDS_PER_TOKEN: float = 1.6
 
+#: Maximum characters for inline entity summaries in topic files.
+_SUMMARY_MAX_CHARS: int = 120
+
 
 def _estimate_tokens(text: str) -> int:
     """Estimate token count from word count using :data:`_WORDS_PER_TOKEN`.
@@ -97,7 +100,7 @@ def _entity_line(entity: Entity) -> str:
     Returns:
         Markdown string (2 lines if summary exists, 1 line otherwise).
     """
-    title = entity.title or entity.slug
+    title = (entity.title or entity.slug).replace("]", "\\]")
     path_str = str(entity.path).replace("\\", "/")
     status = entity.status or "—"
     date = entity.date_str or "—"
@@ -108,8 +111,8 @@ def _entity_line(entity: Entity) -> str:
     summary = entity.summary.strip()
     if summary:
         # Truncate long summaries to keep token cost low in topic files
-        if len(summary) > 120:
-            summary = summary[:117] + "…"
+        if len(summary) > _SUMMARY_MAX_CHARS:
+            summary = summary[:_SUMMARY_MAX_CHARS - 3] + "…"
         line += f"\n  > {summary}"
 
     return line
@@ -165,113 +168,72 @@ def _render_entity_section_for_topic(
 # ---------------------------------------------------------------------------
 
 
-def _partition_and_write_topic_files(
-    data: BrainData,
+def _split_oversized_topic(
+    topic: Topic,
     entity_map: Dict[Path, Entity],
-    out_dir: Path,
     token_cap: int,
-) -> List[Path]:
-    """Partition topics into numbered content files and write them.
+) -> List[List[Path]]:
+    """Split an oversized topic into entity-boundary chunks fitting within token_cap.
 
-    Algorithm:
-
-    1. For each topic, render its section and estimate tokens.
-    2. Accumulate sections into the current page.
-    3. If adding the next section would exceed ``token_cap``, flush the current
-       page to ``BRAIN-NN.md`` and start a new one.
-    4. If a **single topic** exceeds ``token_cap`` on its own, split it at
-       entity boundaries.  A continuation header is added to the next file.
+    Each returned chunk is a list of entity paths intended for one BRAIN-NN.md
+    page.  Splitting is greedy: entities are accumulated until adding the next
+    would exceed ``token_cap``, then a new chunk is started.
 
     Args:
-        data: Full brain data.
+        topic: Topic whose full content exceeds ``token_cap``.
         entity_map: Path → Entity lookup.
-        out_dir: Output directory.
-        token_cap: Target token cap per file.
+        token_cap: Target maximum token count per chunk.
 
     Returns:
-        List of written file paths.
+        List of chunks (each chunk is a list of entity paths).  Always returns
+        at least one chunk; returns ``[[]]`` only if ``entity_paths`` is empty.
+    """
+    chunks: List[List[Path]] = []
+    chunk: List[Path] = []
+    chunk_tokens = 0
+
+    for path in topic.entity_paths:
+        entity = entity_map.get(path)
+        if entity is None:
+            continue
+        line = _entity_line(entity)
+        line_tokens = _estimate_tokens(line)
+
+        if chunk and chunk_tokens + line_tokens > token_cap:
+            chunks.append(chunk)
+            chunk = [path]
+            chunk_tokens = line_tokens
+        else:
+            chunk.append(path)
+            chunk_tokens += line_tokens
+
+    if chunk:
+        chunks.append(chunk)
+
+    return chunks or [[]]
+
+
+def _flush_pages_to_files(
+    pages: List[List[str]],
+    out_dir: Path,
+    data: BrainData,
+    token_cap: int,
+) -> List[Path]:
+    """Write pre-packed page sections to ``BRAIN-NN.md`` files.
+
+    Each non-empty page in ``pages`` becomes one ``BRAIN-NN.md`` file.
+    Empty pages (no sections accumulated) are skipped.
+
+    Args:
+        pages: Packed pages — each entry is a list of pre-rendered section strings.
+        out_dir: Output directory.
+        data: Full brain data (provides the ``generated`` date for file headers).
+        token_cap: Cap used for overflow ``UserWarning`` emission.
+
+    Returns:
+        List of written file paths in page order.
     """
     written: List[Path] = []
-
-    # Each page is a list of (content_block, estimated_tokens)
-    pages: List[List[str]] = [[]]  # start with one empty page
-    page_tokens: List[int] = [0]
-
-    for topic in data.topics:
-        all_paths = topic.entity_paths
-
-        # Render the full topic section to check its token cost
-        full_section = _render_entity_section_for_topic(topic, entity_map)
-        full_tokens = _estimate_tokens(full_section)
-
-        if full_tokens <= token_cap:
-            # Topic fits in one page
-            current_idx = len(pages) - 1
-            if page_tokens[current_idx] + full_tokens > token_cap and pages[current_idx]:
-                # Would overflow — start a new page
-                pages.append([])
-                page_tokens.append(0)
-                current_idx += 1
-            pages[current_idx].append(full_section)
-            page_tokens[current_idx] += full_tokens
-        else:
-            # Topic exceeds token_cap — split at entity boundaries.
-            # If the current page already has content, start a fresh page so
-            # oversized topics from consecutive iterations don't pile up.
-            current_idx = len(pages) - 1
-            if pages[current_idx]:
-                pages.append([])
-                page_tokens.append(0)
-
-            chunk: List[Path] = []
-            chunk_tokens = 0
-
-            for i, path in enumerate(all_paths):
-                entity = entity_map.get(path)
-                if entity is None:
-                    continue
-                line = _entity_line(entity)
-                line_tokens = _estimate_tokens(line)
-
-                # Would this line overflow the current chunk?
-                if chunk and chunk_tokens + line_tokens > token_cap:
-                    # Flush chunk to current page
-                    current_idx = len(pages) - 1
-                    next_file_num = len(pages) + 1
-
-                    chunk_section = _render_entity_section_for_topic(
-                        topic,
-                        entity_map,
-                        entities_slice=chunk,
-                        continues_in=next_file_num,
-                    )
-                    pages[current_idx].append(chunk_section)
-                    page_tokens[current_idx] += chunk_tokens  # track tokens in flush
-
-                    # Start new page for continuation
-                    pages.append([])
-                    page_tokens.append(0)
-
-                    chunk = [path]
-                    chunk_tokens = line_tokens
-                else:
-                    chunk.append(path)
-                    chunk_tokens += line_tokens
-
-            # Write final chunk
-            if chunk:
-                current_idx = len(pages) - 1
-                prev_file_num = current_idx  # file N-1 (1-indexed is current_idx)
-                chunk_section = _render_entity_section_for_topic(
-                    topic,
-                    entity_map,
-                    entities_slice=chunk,
-                    continued_from=prev_file_num if prev_file_num >= 1 else None,
-                )
-                pages[current_idx].append(chunk_section)
-                page_tokens[current_idx] += chunk_tokens
-
-    # Write each page to a BRAIN-NN.md file
     for i, sections in enumerate(pages):
         if not sections:
             continue
@@ -300,6 +262,93 @@ def _partition_and_write_topic_files(
         written.append(out_path)
 
     return written
+
+
+def _partition_and_write_topic_files(
+    data: BrainData,
+    entity_map: Dict[Path, Entity],
+    out_dir: Path,
+    token_cap: int,
+) -> Tuple[List[Path], Dict[str, str]]:
+    """Partition topics into numbered content files and write them.
+
+    Algorithm:
+
+    1. For each topic, render its full section and estimate tokens.
+    2. If it fits, accumulate into the current page; start a new page on overflow.
+    3. If it exceeds ``token_cap``, split at entity boundaries via
+       :func:`_split_oversized_topic`, emitting continuation headers per chunk.
+    4. Flush all pages to disk via :func:`_flush_pages_to_files`.
+
+    The ``slug_to_file`` map is built during packing (not approximated after the
+    fact), so BRAIN.md navigation links are always accurate.
+
+    Args:
+        data: Full brain data.
+        entity_map: Path → Entity lookup.
+        out_dir: Output directory.
+        token_cap: Target token cap per file.
+
+    Returns:
+        Tuple of ``(written_paths, slug_to_file_map)`` where
+        ``slug_to_file_map`` maps each topic slug to its ``BRAIN-NN.md`` filename.
+    """
+    pages: List[List[str]] = [[]]  # each entry = list of section strings for one page
+    page_tokens: List[int] = [0]
+    slug_to_file: Dict[str, str] = {}
+
+    for topic in data.topics:
+        full_section = _render_entity_section_for_topic(topic, entity_map)
+        full_tokens = _estimate_tokens(full_section)
+
+        if full_tokens <= token_cap:
+            # Topic fits in a single page
+            current_idx = len(pages) - 1
+            if page_tokens[current_idx] + full_tokens > token_cap and pages[current_idx]:
+                # Would overflow the current page — start a fresh one
+                pages.append([])
+                page_tokens.append(0)
+                current_idx += 1
+            pages[current_idx].append(full_section)
+            page_tokens[current_idx] += full_tokens
+            slug_to_file[topic.slug] = f"BRAIN-{current_idx + 1:02d}.md"
+        else:
+            # Topic exceeds token_cap — split at entity boundaries
+            if pages[-1]:
+                # Current page already has content; isolate the oversized topic
+                # on its own fresh page so it is not interleaved with prior topics.
+                pages.append([])
+                page_tokens.append(0)
+
+            # Record the topic to the first page it will occupy (accurate).
+            slug_to_file[topic.slug] = f"BRAIN-{len(pages):02d}.md"
+
+            chunks = _split_oversized_topic(topic, entity_map, token_cap)
+            n_chunks = len(chunks)
+
+            for chunk_idx, chunk in enumerate(chunks):
+                # At the start of each iteration the last page is the current one.
+                # len(pages) is its 1-indexed file number.
+                prev_1indexed = (len(pages) - 1) if chunk_idx > 0 else None
+                next_1indexed = (len(pages) + 1) if chunk_idx < n_chunks - 1 else None
+
+                chunk_section = _render_entity_section_for_topic(
+                    topic,
+                    entity_map,
+                    entities_slice=chunk,
+                    continued_from=prev_1indexed,
+                    continues_in=next_1indexed,
+                )
+                current_idx = len(pages) - 1
+                pages[current_idx].append(chunk_section)
+                page_tokens[current_idx] += _estimate_tokens(chunk_section)
+
+                if next_1indexed is not None:
+                    pages.append([])
+                    page_tokens.append(0)
+
+    written = _flush_pages_to_files(pages, out_dir, data, token_cap)
+    return written, slug_to_file
 
 
 # ---------------------------------------------------------------------------
@@ -419,7 +468,7 @@ def _write_brain_log(data: BrainData, out_dir: Path) -> Path:
     """
 
     def _sort_key(e: Entity) -> Tuple[str, str]:
-        # Negate date string for descending sort; empty dates sort last
+        # "0000-00-00" sentinel pushes empty dates to the end; reverse=True gives newest-first
         d = e.date_str or "0000-00-00"
         return (d, e.title.lower())
 
@@ -567,14 +616,9 @@ def render_brain(
 
     written: List[Path] = []
 
-    # 1. Write topic content files (BRAIN-NN.md)
-    topic_files = _partition_and_write_topic_files(data, entity_map, out_dir, token_cap)
+    # 1. Write topic content files (BRAIN-NN.md) and get accurate topic→file map
+    topic_files, topic_file_map = _partition_and_write_topic_files(data, entity_map, out_dir, token_cap)
     written.extend(topic_files)
-
-    # Build topic slug → file mapping for the meta-index
-    # We need to map each topic to the file it lands in. Walk through the same
-    # partitioning logic at a high level: topics are written in order to pages.
-    topic_file_map = _build_topic_file_map(data.topics, topic_files)
 
     # 2. Write BRAIN.md meta-index
     brain_md = _write_brain_index_md(data, topic_file_map, out_dir)

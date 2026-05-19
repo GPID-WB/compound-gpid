@@ -40,7 +40,7 @@ from brain import Edge, Entity
 # Null-guard
 # ---------------------------------------------------------------------------
 
-_NULL_STRINGS: frozenset = frozenset({"", "null", "~", "none"})
+_NULL_STRINGS: FrozenSet[str] = frozenset({"", "null", "~", "none"})
 
 
 def _is_null(val: Any) -> bool:
@@ -103,7 +103,7 @@ def _resolve_path(val: str, root: Path) -> Path:
 # ---------------------------------------------------------------------------
 
 #: Stopwords filtered before computing token Jaccard between slug tokens.
-_JACCARD_STOPWORDS: frozenset = frozenset({"cg", "and", "the", "for", "in", "a", "an"})
+_JACCARD_STOPWORDS: FrozenSet[str] = frozenset({"cg", "and", "the", "for", "in", "a", "an"})
 
 _SLUG_SPLIT_RE = re.compile(r"[-_]")
 
@@ -204,19 +204,26 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
                 target = _resolve_path(bval, root)
                 _add_edge(source, target, "decided_from", target not in known_paths)
 
-        elif entity.entity_type in ("review", "brainstorm"):
-            # plan: <path>  →  review/brainstorm reviews plan
+        elif entity.entity_type == "review":
+            # plan: <path>  →  review reviews plan
             pval = fm.get("plan")
             if not _is_null(pval) and isinstance(pval, str):
                 target = _resolve_path(pval, root)
                 _add_edge(source, target, "reviews", target not in known_paths)
 
-            if entity.entity_type == "review":
-                # parent-review: <path>  →  review verifies parent-review
-                prval = fm.get("parent-review")
-                if not _is_null(prval) and isinstance(prval, str):
-                    target = _resolve_path(prval, root)
-                    _add_edge(source, target, "verifies", target not in known_paths)
+            # parent-review: <path>  →  review verifies parent-review
+            prval = fm.get("parent-review")
+            if not _is_null(prval) and isinstance(prval, str):
+                target = _resolve_path(prval, root)
+                _add_edge(source, target, "verifies", target not in known_paths)
+
+        elif entity.entity_type == "brainstorm":
+            # plan: <path>  →  brainstorm references plan
+            # A brainstorm precedes and informs a plan; it does not "review" one.
+            pval = fm.get("plan")
+            if not _is_null(pval) and isinstance(pval, str):
+                target = _resolve_path(pval, root)
+                _add_edge(source, target, "references", target not in known_paths)
 
         elif entity.entity_type == "solution":
             # plan: or brainstorm: <path>  →  solution references plan/brainstorm
@@ -250,12 +257,12 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
     plans = [e for e in entities if e.entity_type == "plan"]
     features = [e for e in entities if e.entity_type == "feature"]
 
+    feature_token_list = [(e, _slug_tokens(e.slug)) for e in features]
     for plan in plans:
         plan_tokens = _slug_tokens(plan.slug)
         if not plan_tokens:
             continue
-        for feature in features:
-            feature_tokens = _slug_tokens(feature.slug)
+        for feature, feature_tokens in feature_token_list:
             if not feature_tokens:
                 continue
             if _jaccard_tokens(plan_tokens, feature_tokens) >= _IMPLEMENTS_THRESHOLD:

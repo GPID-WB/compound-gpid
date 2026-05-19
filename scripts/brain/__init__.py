@@ -18,12 +18,12 @@ Usage::
 Architecture (modular single-pass)::
 
     cg_index.py --brain
-        └── build_brain(root)          # this module
-            ├── scanner.scan_all()     # entity discovery
-            ├── extractor.extract_keywords()  # content extraction
-            ├── clusterer.cluster_topics()    # topic clustering
-            └── edge_detector.detect_edges()  # relationship detection
-                    └── renderer.render_brain()   # output generation
+        ├── build_brain(root)              # this module
+        │   ├── scanner.scan_all()         # entity discovery
+        │   ├── extractor.extract_keywords()  # content extraction
+        │   ├── clusterer.cluster_topics()    # topic clustering
+        │   └── edge_detector.detect_edges()  # relationship detection
+        └── renderer.render_brain(data)    # output generation (separate step)
 """
 from __future__ import annotations
 
@@ -154,7 +154,7 @@ class BrainData:
 # ---------------------------------------------------------------------------
 
 
-def build_brain(root: Path) -> BrainData:
+def build_brain(root: Path, generated: str = "") -> BrainData:
     """Orchestrate the full brain pipeline.
 
     Scans all ``.cg-docs/`` artifacts and ``roadmap.json`` features, extracts
@@ -204,5 +204,5 @@ def build_brain(root: Path) -> BrainData:
         entities=entities,
         topics=topics,
         edges=edges,
-        generated=date.today().isoformat(),
+        generated=generated or date.today().isoformat(),
     )

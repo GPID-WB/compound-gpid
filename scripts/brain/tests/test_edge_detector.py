@@ -458,3 +458,51 @@ class TestEdgeCases:
         # No explicit edges; only potential inferred if same slug (they're not)
         explicit_types = {"decided_from", "reviews", "verifies"}
         assert all(e.edge_type not in explicit_types for e in edges)
+
+
+# ---------------------------------------------------------------------------
+# Regression: brainstorm → plan edge type must be "references" not "reviews"
+# ---------------------------------------------------------------------------
+
+
+class TestBrainstormPlanEdge:
+    """Regression guard for P2.9: brainstorm with plan: field should emit
+    a ``references`` edge, not a ``reviews`` edge."""
+
+    def test_brainstorm_plan_field_produces_references_not_reviews(
+        self, tmp_path: Path
+    ) -> None:
+        plan = Entity(
+            path=tmp_path / ".cg-docs/plans/plan.md",
+            entity_type="plan",
+            frontmatter={},
+        )
+        brainstorm = Entity(
+            path=tmp_path / ".cg-docs/brainstorms/idea.md",
+            entity_type="brainstorm",
+            frontmatter={"plan": str(tmp_path / ".cg-docs/plans/plan.md")},
+        )
+        edges = detect_edges([plan, brainstorm], root=tmp_path)
+        edge_types = {e.edge_type for e in edges if e.source == brainstorm.path}
+        # Brainstorm precedes a plan — it references it, not reviews it
+        assert "references" in edge_types, "brainstorm→plan should emit 'references'"
+        assert "reviews" not in edge_types, "brainstorm→plan must NOT emit 'reviews'"
+
+    def test_review_plan_field_still_produces_reviews(
+        self, tmp_path: Path
+    ) -> None:
+        plan = Entity(
+            path=tmp_path / ".cg-docs/plans/plan.md",
+            entity_type="plan",
+            frontmatter={},
+        )
+        review = Entity(
+            path=tmp_path / ".cg-docs/reviews/review.md",
+            entity_type="review",
+            frontmatter={"plan": str(tmp_path / ".cg-docs/plans/plan.md")},
+        )
+        edges = detect_edges([plan, review], root=tmp_path)
+        edge_types = {e.edge_type for e in edges if e.source == review.path}
+        # Review entities still use "reviews" edge type
+        assert "reviews" in edge_types
+        assert "references" not in edge_types
