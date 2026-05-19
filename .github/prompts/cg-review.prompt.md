@@ -21,17 +21,21 @@ You are a review orchestrator that coordinates multiple specialized review agent
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, depth overrides (`light`, `standard`, `thorough`). Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch.
 
 ### Step 1: Determine Scope
 
 1. Use review depth from `compound-gpid.local.md`. If no config, default to `standard`.
 2. Identify changed files (use git diff or ask the user).
-3. Parse arguments (case-insensitive):
-   - `mode:autofix` — Enable autofix mode (see Step 4). If `mode:autofix`, include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2. **Note**: argument must be `mode:autofix` with no spaces around `:` — `mode: autofix` is not recognized.
+3. Apply flags parsed at Step 0 (case-insensitive) — semantic reference:
+   - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
+   - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
    - `light`, `standard`, `thorough` — Override config depth.
-   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`."
-   `mode:autofix` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `mode:autofix` and `mode:verify` — using `mode:verify`." and ignore `mode:autofix`.
+   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`."
+   `--report-only` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `--report-only` and `mode:verify` — using `mode:verify`." and ignore `--report-only`.
+
+   **Default**: autofix is ON unless `--report-only` or `mode:verify` is passed. Always include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2, unless `--report-only` or `mode:verify` is active.
 
 ### Step 1.5: Content-Based Depth Overrides
 
@@ -207,7 +211,7 @@ Merge all agent findings into a single prioritized report:
 
 ### Step 4: Triage
 
-**If `mode:autofix`** (`mode:autofix` requires no spaces around `:` — see Step 1, item 3; skip this block if autofix was not passed): Tagging instructions were included in each agent dispatch at Step 2 (per Step 1, item 3). Apply the tagged findings:
+**Default (autofix mode)** — active unless `--report-only` or `mode:verify` was passed. Tagging instructions were included in each agent dispatch at Step 2. Apply the tagged findings:
 
 - **safe_auto**: Apply immediately. Never `safe_auto` findings touching statistical functions, welfare/income variables, or weight parameters — escalate to `manual`.
 - **manual**: Present to user for approval before applying.
@@ -217,7 +221,7 @@ Apply fixes directly — **do NOT delegate to a subagent**. For each `safe_auto`
 
 Report: > "Autofix complete: applied \<N\> safe fixes (files: <list of file:line changes>), \<M\> manual fixes need your review, \<K\> advisory notes filed."
 
-**If normal mode**, present findings one at a time (P0 first, then P1, then P2, then P3). For each ask: **Fix** / **Skip** / **Discuss**.
+**If `--report-only`** was passed, present findings one at a time (P0 first, then P1, then P2, then P3). For each ask: **Fix** / **Skip** / **Discuss**.
 
 ### Step 5: Summary
 

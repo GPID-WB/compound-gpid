@@ -1,6 +1,56 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-15 · 121 active solutions_
+_Generated 2026-05-18 · 126 active solutions_
+
+## Append-only insertion prevents silent corruption in AI-written shared files
+
+date: 2026-05-18
+category: testing-patterns
+status: 
+tags: prompt-design, context-md, markdown, corruption, append-only, structured-content
+path: .cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md
+
+`/cg-compound` Step 5 was instructed to enrich `compound-gpid.context.md` by inserting "directly into the correct section — place it logically within the existing structure, not appended at the end." This is semantically correct for a human editor but dangerous for an AI model: the model must identify a target location inside existing text, and it may insert mid-table, inside a fenced code block, or between YAML key-value pairs — all of which are syntactically valid text positions that are semantically destructive.
+
+## compound-gpid repo not wired as its own wiki consumer — docs/ folder ignored by /cg-wiki and /cg-compound
+
+date: 2026-05-18
+category: bugs
+status: 
+tags: cg-wiki, cg-compound, wiki-configuration, context-md, docs, bootstrap, self-referential
+path: .cg-docs/solutions/bugs/2026-05-18-compound-gpid-repo-not-wired-as-wiki-consumer.md
+
+Running `/cg-wiki` or `/cg-compound` (after a user-facing change) in the compound-gpid repo either reported "no manifest found" or silently skipped the wiki update step — even though `docs/` contains 9 hand-authored documentation pages that serve as the project's canonical user reference.
+
+## PS 5.1 Set-StrictMode crashes on bare $IsWindows access (variable not set)
+
+date: 2026-05-18
+category: bugs
+status: 
+tags: powershell, ps51, strict-mode, IsWindows, automatic-variables, platform-detection, Test-Path, variable-provider, link, unlink
+path: .cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md
+
+Running `cg-link` on a project using Windows PowerShell 5.1 produced:
+
+## Regex extraction vacuous pass — Groups[1].Value returns empty string on no match
+
+date: 2026-05-18
+category: testing-patterns
+status: 
+tags: pester, regex, vacuous-pass, false-positive, drift-detection, parse-guard, -match, comparison-test
+path: .cg-docs/solutions/testing-patterns/2026-05-18-regex-extraction-vacuous-pass-empty-string-comparison.md
+
+A drift-detection test in `tests/wiki.Tests.ps1` extracted a folder value from two files using `[regex]::Match(...).Groups[1].Value` and compared them with a single `Should -Be` assertion: ``` In the verify pass, `@cg-code-quality` and `@cg-testing` both independently flagged this: if either source file is absent or either regex pattern does not match, `.Groups[1].Value` returns `""` (not an exception, not `$null`). The test then evaluates `"" | Should -Be ""` — green, zero coverage. This is most dangerous exactly when it would matter most: if someone accidentally removes the `<!-- folder: docs -->` directive from `compound-gpid.context.md`, the test that was supposed to catch the drift...
+
+## Use git rev-parse for repo detection; guard against detached HEAD state
+
+date: 2026-05-18
+category: git-workflows
+status: 
+tags: git, branch, detached-head, prompt-design, guard, repo-detection
+path: .cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md
+
+Two prompts (`/cg-brainstorm` and `/cg-plan`) used `git branch --show-current` as a proxy for detecting whether the workspace is a git repository. The same command was used to obtain the current branch name. This conflates two operations that have different failure modes.
 
 ## cg-commit-push-pr always paused for user confirmation — no auto-proceed mode
 
