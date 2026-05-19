@@ -67,6 +67,7 @@ tests/*.txt
 .env
 *.env.local
 
-# Release automation (ephemeral — GitHub Release is the source of truth)
+# Release and PR automation (ephemeral — GitHub is the source of truth)
 RELEASE_NOTES.md
 release-result.txt
+pr-result.txt
