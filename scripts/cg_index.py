@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """cg-index — Compound GPID knowledge indexer.
 
-Scans .cg-docs/solutions/ and produces two artifacts:
-  - .cg-docs/search-index.json  (metadata-only, for quick lookups)
-  - .cg-docs/DIGEST.md          (human-readable summaries, active entries only)
+Scans .cg-docs/ artifacts and roadmap.json, then builds a rich multi-file
+brain knowledge index.
 
 Usage:
-    cg-index [--index] [--digest] [--all] [--root <path>] [--version] [--help]
+    cg-index [--brain] [--root <path>] [--version] [--help]
+
+    # Legacy (deprecated — use --brain):
+    cg-index [--index] [--digest] [--all] [--root <path>]
 
 Modes:
-    --index    Build search-index.json (default when no mode flag is given).
-    --digest   Build DIGEST.md.
-    --all      Build both artifacts (equivalent to --index --digest).
+    --brain    Build the full brain knowledge index: BRAIN.md, BRAIN-01.md,
+               BRAIN-log.md, brain-index.json.  Also removes legacy
+               DIGEST.md and search-index.json on success.
+    --index    (DEPRECATED) Build search-index.json only.
+    --digest   (DEPRECATED) Build DIGEST.md only.
+    --all      (DEPRECATED) Alias for --brain.
     --root     Override the project root (defaults to cwd).
     --version  Print version and exit.
 
 Exit codes:
     0  Success (even if some files were skipped due to parse warnings).
-    1  Fatal error (no .cg-docs/solutions/ directory, unwritable output, etc.).
+    1  Fatal error (no .cg-docs/ directory, unwritable output, etc.).
 
 Requirements: Python 3.8+, stdlib only (no third-party packages).
 """
@@ -45,7 +50,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # Version
 # ---------------------------------------------------------------------------
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # ---------------------------------------------------------------------------
 # sys.path bootstrap — brain sub-modules live in scripts/brain/
@@ -278,20 +283,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
         epilog=__doc__,
     )
     parser.add_argument(
+        "--brain",
+        action="store_true",
+        help="Build the full brain knowledge index (BRAIN.md, BRAIN-log.md, brain-index.json).",
+    )
+    parser.add_argument(
         "--index",
         action="store_true",
-        help="Build search-index.json (metadata only).",
+        help="[DEPRECATED] Build search-index.json (metadata only). Use --brain instead.",
     )
     parser.add_argument(
         "--digest",
         action="store_true",
-        help="Build DIGEST.md (active entries, human-readable summaries).",
+        help="[DEPRECATED] Build DIGEST.md (active entries). Use --brain instead.",
     )
     parser.add_argument(
         "--all",
         dest="all_",
         action="store_true",
-        help="Build both search-index.json and DIGEST.md.",
+        help="[DEPRECATED] Alias for --brain. Use --brain instead.",
     )
     parser.add_argument(
         "--root",
@@ -319,6 +329,64 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Resolve root
     root = Path(args.root).resolve() if args.root else Path.cwd()
 
+    # --all is deprecated; redirect to --brain
+    do_brain = getattr(args, "brain", False) or args.all_
+    do_index = args.index
+    do_digest = args.digest
+
+    # Emit deprecation notices for legacy flags
+    for flag, condition in (("--all", args.all_), ("--index", args.index), ("--digest", args.digest)):
+        if condition:
+            print(
+                f"[cg-index] DEPRECATED: {flag} is deprecated. Use --brain instead.",
+                file=sys.stderr,
+            )
+
+    # When --all is passed, suppress the legacy index/digest runs — brain only
+    if args.all_:
+        do_index = False
+        do_digest = False
+
+    # -----------------------------------------------------------------------
+    # Brain mode (--brain or --all redirect)
+    # -----------------------------------------------------------------------
+    if do_brain:
+        cg_docs_dir = root / ".cg-docs"
+        if not cg_docs_dir.is_dir():
+            print(
+                f"[cg-index] ERROR: {cg_docs_dir} does not exist.\n"
+                "Run cg-index from a project root containing a .cg-docs/ directory.",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            from brain import build_brain
+            from brain.renderer import render_brain
+            data = build_brain(root)
+            with warnings.catch_warnings(record=True) as captured:
+                warnings.simplefilter("always")
+                render_brain(data, out_dir=cg_docs_dir)
+                for w in captured:
+                    print(f"[cg-index] WARNING: {w.message}", file=sys.stderr)
+            print(
+                f"[cg-index] Brain index written to {cg_docs_dir} "
+                f"({len(data.entities)} entities, {len(data.topics)} topics, "
+                f"{len(data.edges)} edges)"
+            )
+            # Delete legacy files after successful brain render
+            for legacy_name in ("DIGEST.md", "search-index.json"):
+                legacy_path = cg_docs_dir / legacy_name
+                if legacy_path.exists():
+                    legacy_path.unlink()
+                    print(f"[cg-index] Removed legacy {legacy_name}")
+        except OSError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+        return 0
+
+    # -----------------------------------------------------------------------
+    # Legacy mode (--index / --digest / default)
+    # -----------------------------------------------------------------------
     solutions_dir = root / ".cg-docs" / "solutions"
     if not solutions_dir.is_dir():
         print(
@@ -329,8 +397,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     # Default: --index when no mode flag is given
-    do_index  = args.index or args.all_
-    do_digest = args.digest or args.all_
     if not do_index and not do_digest:
         do_index = True
 

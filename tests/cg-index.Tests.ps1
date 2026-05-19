@@ -307,7 +307,7 @@ Describe "cg-index.py --digest" {
 }
 
 # ---------------------------------------------------------------------------
-# --all mode
+# --all mode (deprecated -- now redirects to --brain)
 # ---------------------------------------------------------------------------
 Describe "cg-index.py --all" {
     $allRoot = Join-Path $TestDrive "all-root"
@@ -317,12 +317,28 @@ Describe "cg-index.py --all" {
 
     & $script:Python $cgIndex --all --root $allRoot 2>&1 | Out-Null
 
-    It "creates search-index.json" {
-        Test-Path (Join-Path $allRoot ".cg-docs\search-index.json") | Should -Be $true
+    It "exits 0" {
+        $LASTEXITCODE | Should -Be 0
     }
 
-    It "creates DIGEST.md" {
-        Test-Path (Join-Path $allRoot ".cg-docs\DIGEST.md") | Should -Be $true
+    It "creates BRAIN.md (--all now redirects to --brain)" {
+        Test-Path (Join-Path $allRoot ".cg-docs\BRAIN.md") | Should -Be $true
+    }
+
+    It "creates brain-index.json" {
+        Test-Path (Join-Path $allRoot ".cg-docs\brain-index.json") | Should -Be $true
+    }
+
+    It "creates BRAIN-log.md" {
+        Test-Path (Join-Path $allRoot ".cg-docs\BRAIN-log.md") | Should -Be $true
+    }
+
+    It "does not create legacy search-index.json" {
+        Test-Path (Join-Path $allRoot ".cg-docs\search-index.json") | Should -Be $false
+    }
+
+    It "does not create legacy DIGEST.md" {
+        Test-Path (Join-Path $allRoot ".cg-docs\DIGEST.md") | Should -Be $false
     }
 }
 
@@ -371,27 +387,39 @@ Describe "cg-index.py - files without frontmatter" {
 # ---------------------------------------------------------------------------
 # Idempotency: running twice produces the same output
 # ---------------------------------------------------------------------------
-Describe "cg-index.py - idempotency" {
+Describe "cg-index.py - idempotency (--index)" {
     $idemRoot = Join-Path $TestDrive "idem-root"
     New-FixtureRoot $idemRoot | Out-Null
     $bugsDir = Join-Path $idemRoot ".cg-docs\solutions\bugs"
     Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
 
-    & $script:Python $cgIndex --all --root $idemRoot 2>&1 | Out-Null
+    & $script:Python $cgIndex --index --root $idemRoot 2>&1 | Out-Null
     $index1  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw
-    $digest1 = Get-Content (Join-Path $idemRoot ".cg-docs\DIGEST.md") -Raw
 
     # Second run (same date, so generated field matches)
-    & $script:Python $cgIndex --all --root $idemRoot 2>&1 | Out-Null
+    & $script:Python $cgIndex --index --root $idemRoot 2>&1 | Out-Null
     $index2  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw
-    $digest2 = Get-Content (Join-Path $idemRoot ".cg-docs\DIGEST.md") -Raw
 
     It "search-index.json is identical on second run" {
         $index1 | Should -Be $index2
     }
+}
 
-    It "DIGEST.md is identical on second run" {
-        $digest1 | Should -Be $digest2
+Describe "cg-index.py - idempotency (--brain)" {
+    $idemBrainRoot = Join-Path $TestDrive "idem-brain-root"
+    New-FixtureRoot $idemBrainRoot | Out-Null
+    $bugsDir = Join-Path $idemBrainRoot ".cg-docs\solutions\bugs"
+    Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+
+    & $script:Python $cgIndex --brain --root $idemBrainRoot 2>&1 | Out-Null
+    $brain1 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw
+
+    # Second run (same date, deterministic scan order)
+    & $script:Python $cgIndex --brain --root $idemBrainRoot 2>&1 | Out-Null
+    $brain2 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw
+
+    It "BRAIN.md is identical on second run" {
+        $brain1 | Should -Be $brain2
     }
 }
 
@@ -514,5 +542,105 @@ Describe "cg-index.py - extract_summary" {
             "print('ok')"
         )
         $out | Should -Be "ok"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# --brain mode
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain" {
+    $brainRoot = Join-Path $TestDrive "brain-root"
+    New-FixtureRoot $brainRoot | Out-Null
+    $bugsDir = Join-Path $brainRoot ".cg-docs\solutions\bugs"
+    Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+
+    $output = & $script:Python $cgIndex --brain --root $brainRoot 2>&1
+
+    It "exits 0" {
+        $LASTEXITCODE | Should -Be 0
+    }
+
+    It "creates BRAIN.md" {
+        Test-Path (Join-Path $brainRoot ".cg-docs\BRAIN.md") | Should -Be $true
+    }
+
+    It "creates BRAIN-log.md" {
+        Test-Path (Join-Path $brainRoot ".cg-docs\BRAIN-log.md") | Should -Be $true
+    }
+
+    It "creates brain-index.json" {
+        Test-Path (Join-Path $brainRoot ".cg-docs\brain-index.json") | Should -Be $true
+    }
+
+    It "brain-index.json is valid JSON" {
+        { Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json } | Should -Not -Throw
+    }
+
+    It "brain-index.json contains a schema_version field" {
+        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        $json.schema_version | Should -Not -BeNullOrEmpty
+    }
+
+    It "brain-index.json entity_count matches scanned files" {
+        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        $json.entity_count | Should -BeGreaterThan 0
+    }
+
+    It "BRAIN.md contains generated date" {
+        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN.md") -Raw
+        $content | Should -Match '\d{4}-\d{2}-\d{2}'
+    }
+
+    It "BRAIN-log.md contains entity title" {
+        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN-log.md") -Raw
+        $content | Should -Match "Test Bug Fix"
+    }
+
+    It "prints a status line to stdout" {
+        "$output" | Should -Match '\[cg-index\]'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# --brain deletes legacy files when they pre-exist
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain removes legacy files" {
+    $legacyRoot = Join-Path $TestDrive "brain-legacy-root"
+    New-FixtureRoot $legacyRoot | Out-Null
+    $bugsDir = Join-Path $legacyRoot ".cg-docs\solutions\bugs"
+    Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+
+    # Pre-create legacy files
+    $cgDocsDir = Join-Path $legacyRoot ".cg-docs"
+    Set-Content (Join-Path $cgDocsDir "DIGEST.md")         "# Old Digest" -Encoding UTF8
+    Set-Content (Join-Path $cgDocsDir "search-index.json") "{}" -Encoding UTF8
+
+    & $script:Python $cgIndex --brain --root $legacyRoot 2>&1 | Out-Null
+
+    It "deletes legacy DIGEST.md" {
+        Test-Path (Join-Path $cgDocsDir "DIGEST.md") | Should -Be $false
+    }
+
+    It "deletes legacy search-index.json" {
+        Test-Path (Join-Path $cgDocsDir "search-index.json") | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# --brain missing .cg-docs/ directory
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain missing .cg-docs/" {
+    It "exits 1 when .cg-docs/ does not exist" {
+        $emptyBrainRoot = Join-Path $TestDrive "empty-brain-root"
+        New-Item -ItemType Directory -Path $emptyBrainRoot -Force | Out-Null
+        & $script:Python $cgIndex --brain --root $emptyBrainRoot 2>&1 | Out-Null
+        $LASTEXITCODE | Should -Be 1
+    }
+
+    It "prints ERROR to stderr when .cg-docs/ does not exist" {
+        $emptyBrainRoot2 = Join-Path $TestDrive "empty-brain-root2"
+        New-Item -ItemType Directory -Path $emptyBrainRoot2 -Force | Out-Null
+        $stderr = & $script:Python $cgIndex --brain --root $emptyBrainRoot2 2>&1
+        "$stderr" | Should -Match 'ERROR'
     }
 }
