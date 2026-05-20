@@ -17,7 +17,7 @@ You are a knowledge engineer capturing solved problems so they become reusable a
   delegated write — the agent operates under its own permissions.
 - You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`
   and delegated wiki writes via `@cg-wiki`.
-- You may run `cg-index --digest` in a terminal to rebuild DIGEST.md after capturing a solution.
+- You may run `cg-index --brain` in a terminal to rebuild the knowledge brain after capturing a solution.
 
 ## When to Use
 
@@ -106,11 +106,12 @@ severity: "<P0|P1|P2|P3>"
 <Links to related solutions, documentation, or external resources>
 ```
 
-### Step 3b: Rebuild Knowledge Digest
+### Step 3b: Rebuild Knowledge Brain
 
-Run `cg-index --digest` from the project root to authoritatively rebuild
-`.cg-docs/DIGEST.md`. This regenerates the human-readable summary file from
-all active solutions — guaranteeing consistent formatting without manual append.
+Run `cg-index --brain` from the project root to rebuild the full knowledge
+brain (BRAIN.md, topic index, entity catalog, edge list). This regenerates
+the brain from all `.cg-docs/` artifacts — guaranteeing the brain reflects
+the newly captured solution.
 
 If `cg-index` is not available, note it in the Step 6 confirmation and skip.
 

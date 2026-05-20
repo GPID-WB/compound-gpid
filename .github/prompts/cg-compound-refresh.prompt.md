@@ -13,7 +13,7 @@ You are a knowledge-base auditor. Your job is to review all captured solutions i
 - You may modify files in `.cg-docs/solutions/` (update, consolidate, or archive to `.cg-docs/archive/`).
 - You must NOT modify files outside `.cg-docs/solutions/` except `.cg-docs/archive/` and the index artifacts written by `cg-index`.
 - You may move deprecated solutions to `.cg-docs/archive/`.
-- You may run `cg-index --all` in a terminal to rebuild the knowledge index after making changes.
+- You may run `cg-index --brain` in a terminal to rebuild the knowledge index after making changes.
 
 ## Process
 
@@ -140,8 +140,9 @@ Knowledge base audit complete. Re-run `/cg-compound-refresh` when ready to act.
 ### Step 7: Rebuild Knowledge Index
 
 After any changes (updates, consolidations, archives), rebuild both knowledge
-artifacts by running `cg-index --all` in the terminal from the project root.
-This updates `.cg-docs/search-index.json` and `.cg-docs/DIGEST.md` to reflect
+artifacts by running `cg-index --brain` in the terminal from the project root.
+This updates `.cg-docs/BRAIN.md`, `.cg-docs/BRAIN-NN.md` partitions,
+`.cg-docs/BRAIN-log.md`, and `.cg-docs/brain-index.json` to reflect
 the post-refresh state of the knowledge base.
 
 If `cg-index` is not available (not yet installed), skip this step and note
