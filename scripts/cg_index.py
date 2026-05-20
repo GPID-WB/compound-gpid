@@ -439,15 +439,30 @@ def main(argv: Optional[List[str]] = None) -> int:
                 f"({len(data.entities)} entities, {len(data.topics)} topics, "
                 f"{len(data.edges)} edges)"
             )
-            # Delete legacy files after successful brain render
-            for legacy_name in ("DIGEST.md", "search-index.json"):
-                legacy_path = cg_docs_dir / legacy_name
-                if legacy_path.exists():
-                    legacy_path.unlink()
-                    print(f"[cg-index] Removed legacy {legacy_name}")
+        except ImportError as exc:
+            print(
+                f"[cg-index] ERROR: brain package not available ({exc}).\n"
+                "Reinstall compound-gpid or run: pip install -e scripts/",
+                file=sys.stderr,
+            )
+            return 1
         except OSError as exc:
             print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
             return 1
+        # Delete legacy files outside the brain-build try block so that a
+        # locked or missing legacy file does not cause a false exit-1 after
+        # a successful brain write.
+        for legacy_name in ("DIGEST.md", "search-index.json"):
+            legacy_path = cg_docs_dir / legacy_name
+            if legacy_path.exists():
+                try:
+                    legacy_path.unlink()
+                    print(f"[cg-index] Removed legacy {legacy_name}")
+                except OSError as exc:
+                    print(
+                        f"[cg-index] WARNING: could not remove legacy {legacy_name}: {exc}",
+                        file=sys.stderr,
+                    )
         return 0
 
     # -----------------------------------------------------------------------
