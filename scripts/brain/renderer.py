@@ -64,7 +64,10 @@ def _estimate_tokens(text: str) -> int:
         >>> _estimate_tokens("Hello world")  # 2 words × 1.6 ≈ 3
         3
     """
-    word_count = len(text.split())
+    # O(n) scan with no word-list allocation; handle empty string correctly
+    if not text:
+        return 1
+    word_count = text.count(" ") + text.count("\n") + 1  # O(n) scan, no allocation
     return int(word_count * _WORDS_PER_TOKEN) + 1
 
 
@@ -89,6 +92,7 @@ def _sanitize_inline(text: str) -> str:
     """
     return (
         text.replace("\n", " ")
+        .replace("[", "\\[")
         .replace("(", "\\(")
         .replace(")", "\\)")
         .replace("]", "\\]")
@@ -631,21 +635,25 @@ def render_brain(
     """
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Remove stale partition files from previous runs before writing new ones
-    for _stale in out_dir.glob("BRAIN-[0-9][0-9].md"):
-        try:
-            _stale.unlink()
-        except OSError:
-            pass
-
     # Build entity path → Entity lookup for fast access
     entity_map: Dict[Path, Entity] = {e.path: e for e in data.entities}
 
     written: List[Path] = []
 
-    # 1. Write topic content files (BRAIN-NN.md) and get accurate topic→file map
+    # 1. Write topic content files (BRAIN-NN.md) and get accurate topic→file map.
+    # Write-first: new files are fully written before any stale file is removed
+    # so readers never see an empty directory (adversarial P1.4 fix).
     topic_files, topic_file_map = _partition_and_write_topic_files(data, entity_map, out_dir, token_cap)
     written.extend(topic_files)
+
+    # Remove stale partition files from previous runs (only after new files are written)
+    new_brain_stems = {f.stem for f in topic_files}
+    for _stale in out_dir.glob("BRAIN-[0-9][0-9].md"):
+        if _stale.stem not in new_brain_stems:
+            try:
+                _stale.unlink()
+            except OSError:
+                pass
 
     # 2. Write BRAIN.md meta-index
     brain_md = _write_brain_index_md(data, topic_file_map, out_dir)

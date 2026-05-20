@@ -29,6 +29,8 @@ from __future__ import annotations
 
 __version__ = "0.2.0"
 
+__all__ = ["Entity", "Topic", "Edge", "BrainData", "build_brain", "__version__", "ClusterStrategy"]
+
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -89,10 +91,16 @@ class Entity:
 
     @property
     def tags(self) -> List[str]:
-        """List of tag strings from frontmatter; empty list if absent."""
+        """List of tag strings from frontmatter; empty list if absent.
+
+        Handles both list-form (``tags: [a, b]``) and scalar-form (``tags: pester``)
+        frontmatter values. A bare scalar tag is returned as a single-element list.
+        """
         raw = self.frontmatter.get("tags", [])
         if isinstance(raw, list):
             return [str(t) for t in raw]
+        if isinstance(raw, str) and raw.strip():
+            return [raw.strip()]  # scalar tag → single-element list
         return []
 
 
@@ -211,3 +219,20 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
         edges=edges,
         generated=generated or date.today().isoformat(),
     )
+
+
+# ---------------------------------------------------------------------------
+# Protocol re-export
+# ---------------------------------------------------------------------------
+
+
+def __getattr__(name: str) -> object:
+    """Lazy re-export of ClusterStrategy from brain.clusterer.
+
+    Avoids a circular import at module load time while still making
+    ``from brain import ClusterStrategy`` work (architecture P3.4 fix).
+    """
+    if name == "ClusterStrategy":
+        from brain.clusterer import ClusterStrategy  # noqa: PLC0415
+        return ClusterStrategy
+    raise AttributeError(f"module 'brain' has no attribute {name!r}")

@@ -47,10 +47,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
-# Version
+# Version — imported from brain to avoid duplication (architecture P1.11 fix)
 # ---------------------------------------------------------------------------
 
-__version__ = "0.2.0"
+# __version__ defined in brain/__init__.py; imported lazily after sys.path bootstrap below.
 
 # ---------------------------------------------------------------------------
 # sys.path bootstrap — brain sub-modules live in scripts/brain/
@@ -68,6 +68,7 @@ from brain.utils import (  # noqa: E402
     _write_atomic,
     _truncate,
 )
+from brain import __version__  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -485,19 +486,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         with warnings.catch_warnings(record=True) as captured:
             warnings.simplefilter("always")
             entries = scan_solutions(solutions_dir, root)
-            for w in captured:
-                print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
+            if do_index:
+                build_index(entries, root / ".cg-docs" / "search-index.json")
+            if do_digest:
+                build_digest(entries, root / ".cg-docs" / "DIGEST.md")
+        for w in captured:
+            print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
     except OSError as exc:
         print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
-        return 1
-
-    try:
-        if do_index:
-            build_index(entries, root / ".cg-docs" / "search-index.json")
-        if do_digest:
-            build_digest(entries, root / ".cg-docs" / "DIGEST.md")
-    except OSError as exc:
-        print(f"[cg-index] ERROR writing output: {exc}", file=sys.stderr)
         return 1
 
     return 0

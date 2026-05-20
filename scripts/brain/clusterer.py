@@ -25,7 +25,7 @@ import re
 import warnings
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Protocol, Tuple
+from typing import Dict, List, Optional, Protocol, Tuple
 
 from brain import Entity, Topic
 
@@ -39,6 +39,11 @@ _MERGE_THRESHOLD: float = 0.10
 
 #: Maximum number of keywords used to label a topic (slug + label).
 _LABEL_KEYWORDS: int = 3
+
+#: Maximum posting-list length for a single keyword before it is skipped.
+#: A keyword appearing in > _MAX_FANOUT entities generates O(d²) pairs;
+#: ubiquitous keywords ("pester", "fix") would dominate clustering at scale.
+_MAX_FANOUT: int = 100
 
 
 # ---------------------------------------------------------------------------
@@ -83,15 +88,18 @@ class _UnionFind:
     """Simple Union-Find (disjoint set) with path compression."""
 
     def __init__(self, n: int) -> None:
+        """Initialise parent array; each element is its own root."""
         self._parent = list(range(n))
 
     def find(self, x: int) -> int:
+        """Return the root of x’s set, flattening the path (halving compression)."""
         while self._parent[x] != x:
             self._parent[x] = self._parent[self._parent[x]]  # path compression
             x = self._parent[x]
         return x
 
     def union(self, x: int, y: int) -> None:
+        """Merge the sets containing x and y."""
         self._parent[self.find(x)] = self.find(y)
 
     def clusters(self) -> Dict[int, List[int]]:
@@ -108,7 +116,8 @@ class _UnionFind:
 
 
 def _weighted_jaccard(
-    kws_a: Dict[str, float], kws_b: Dict[str, float]
+    kws_a: Dict[str, float], kws_b: Dict[str, float],
+    sum_a: Optional[float] = None, sum_b: Optional[float] = None,
 ) -> float:
     """Compute weighted Jaccard similarity between two keyword score dicts.
 
@@ -130,8 +139,10 @@ def _weighted_jaccard(
     """
     if not kws_a or not kws_b:
         return 0.0
-    sum_a = sum(kws_a.values())
-    sum_b = sum(kws_b.values())
+    if sum_a is None:
+        sum_a = sum(kws_a.values())
+    if sum_b is None:
+        sum_b = sum(kws_b.values())
     numerator = sum(min(kws_a[k], kws_b[k]) for k in kws_a if k in kws_b)
     denominator = sum_a + sum_b - numerator
     return numerator / denominator if denominator > 0.0 else 0.0
@@ -211,6 +222,9 @@ class _GreedyAgglomerative:
         # Build per-entity keyword dicts for fast lookup
         kw_dicts: List[Dict[str, float]] = [dict(e.keywords) for e in entities]
 
+        # Pre-compute per-entity keyword sums once (P2.12: avoid O(n²) recomputation)
+        kw_sums: List[float] = [sum(kd.values()) for kd in kw_dicts]
+
         # Build inverted index: keyword → set of entity indices
         inv_index: Dict[str, List[int]] = defaultdict(list)
         for idx, kw_dict in enumerate(kw_dicts):
@@ -220,13 +234,17 @@ class _GreedyAgglomerative:
         # Collect candidate pairs (entities that share at least one keyword)
         candidate_pairs: Dict[Tuple[int, int], float] = {}
         for indices in inv_index.values():
+            if len(indices) > _MAX_FANOUT:
+                # Skip ubiquitous keywords: d>_MAX_FANOUT entities generate O(d²) pairs
+                # and provide low discriminative signal (performance P2.11 fix)
+                continue
             for i in range(len(indices)):
                 for j in range(i + 1, len(indices)):
                     a, b = indices[i], indices[j]
                     pair: Tuple[int, int] = (a, b) if a < b else (b, a)
                     if pair not in candidate_pairs:
                         candidate_pairs[pair] = _weighted_jaccard(
-                            kw_dicts[a], kw_dicts[b]
+                            kw_dicts[a], kw_dicts[b], kw_sums[a], kw_sums[b]
                         )
 
         # Sort pairs by Jaccard descending for greedy processing

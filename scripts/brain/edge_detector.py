@@ -187,16 +187,25 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
         >>> print(len(edges), "relationships detected")
     """
     # Build a set of known absolute paths for target-missing detection
+    root_resolved = root.resolve()  # pre-compute once (reproducibility P1.1 + performance P3.2 fix)
     known_paths: Set[Path] = set()
     for e in entities:
         if e.entity_type != "feature":  # virtual paths can't be resolved
-            known_paths.add(e.path.resolve() if e.path.is_absolute() else (root / e.path).resolve())
+            known_paths.add(e.path.resolve() if e.path.is_absolute() else (root_resolved / e.path).resolve())
 
     edges: List[Edge] = []
     # Deduplication key: (source_str, target_str, edge_type)
     seen: Set[Tuple[str, str, str]] = set()
 
-    def _add_edge(source: Path, target: Path, edge_type: str, target_missing: bool) -> None:
+    def _relativize(abs_path: Path) -> Path:
+        """Convert absolute path to root-relative for reproducible JSON output."""
+        try:
+            return abs_path.relative_to(root_resolved)
+        except ValueError:
+            return abs_path  # unreachable: _resolve_path traversal guard passed
+
+    def _add_edge(source: Path, target_abs: Path, edge_type: str, target_missing: bool) -> None:
+        target = _relativize(target_abs)
         key = (str(source), str(target), edge_type)
         if key not in seen:
             seen.add(key)

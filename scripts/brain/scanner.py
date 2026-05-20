@@ -79,7 +79,39 @@ def scan_all(root: Path) -> List[Entity]:
 
     entities: List[Entity] = []
 
+    # Pre-compute once outside the loop (P2.1 fix: avoid O(n) resolve() syscalls)
+    cg_docs_real = cg_docs.resolve()
+
     for md_path in sorted(cg_docs.rglob("*.md")):
+        # Guard: reject symlinks that escape the .cg-docs/ directory (P1.1 fix).
+        # Use relative_to() for component-level comparison — startswith() is vulnerable
+        # to sibling directories sharing the same string prefix (e.g. .cg-docs-evil).
+        try:
+            resolved_path = md_path.resolve()
+        except OSError:
+            continue
+        try:
+            resolved_path.relative_to(cg_docs_real)
+        except ValueError:
+            warnings.warn(
+                f"[brain.scanner] Skipping {md_path}: symlink escapes .cg-docs/ boundary.",
+                stacklevel=2,
+            )
+            continue
+
+        # Guard: reject files over 10 MB to prevent memory exhaustion (adversarial P2.1 fix)
+        try:
+            file_size = md_path.stat().st_size
+        except OSError:
+            continue
+        if file_size > 10 * 1024 * 1024:
+            warnings.warn(
+                f"[brain.scanner] Skipping {md_path}: file size {file_size // 1024 // 1024} MB "
+                "exceeds 10 MB limit.",
+                stacklevel=2,
+            )
+            continue
+
         # Determine the top-level directory under .cg-docs/
         try:
             rel_parts = md_path.relative_to(cg_docs).parts
