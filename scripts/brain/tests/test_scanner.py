@@ -290,3 +290,35 @@ class TestDirToTypeMapping:
         for dir_name in ("solutions", "plans", "brainstorms", "reviews", "strategy"):
             assert dir_name in _DIR_TO_TYPE
             assert _DIR_TO_TYPE[dir_name] is not None
+
+
+# ---------------------------------------------------------------------------
+# New tests added by cg-review (P2.13 — unreadable file emits warning)
+# ---------------------------------------------------------------------------
+
+
+class TestScanAllUnreadable:
+    def test_unreadable_file_skipped_with_warning(self, tmp_path: Path) -> None:
+        """P2.13 — permission-denied file should warn and continue scanning."""
+        import os
+        import stat
+        import sys
+        import warnings
+
+        good = _write(tmp_path / ".cg-docs/plans/good.md", _md("Good"))
+        bad = _write(tmp_path / ".cg-docs/plans/bad.md", _md("Bad"))
+
+        if sys.platform == "win32":
+            pytest.skip("chmod mode tests not reliable on Windows CI")
+
+        bad.chmod(stat.S_IWUSR)  # write-only: unreadable
+        try:
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                entities = scan_all(tmp_path)
+            slugs = [e.slug for e in entities]
+            assert "good" in slugs
+            assert "bad" not in slugs
+            assert any("Could not read" in str(w.message) for w in caught)
+        finally:
+            bad.chmod(stat.S_IRUSR | stat.S_IWUSR)

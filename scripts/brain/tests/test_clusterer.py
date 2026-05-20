@@ -308,3 +308,22 @@ class TestEdgeCases:
         # Should not raise; likely no clusters (no shared keywords)
         topics = cluster_topics(entities, min_cluster_size=2)
         assert isinstance(topics, list)
+
+
+class TestMaxFanout:
+    """P2.6 verify — keywords shared by > _MAX_FANOUT entities must be skipped."""
+
+    def test_ubiquitous_keyword_is_skipped(self) -> None:
+        """101 entities sharing only one ubiquitous keyword form no topics
+        because _MAX_FANOUT (100) prevents generating O(d²) candidate pairs."""
+        # Each entity has ONLY the ubiquitous keyword — no other shared signal.
+        entities = [
+            _entity_with_keywords(f"e{i}", [("ubiquitous", 5.0)])
+            for i in range(101)
+        ]
+        topics = cluster_topics(entities, min_cluster_size=2)
+        # Without _MAX_FANOUT all 101 would cluster; with it none should.
+        assert topics == [], (
+            "Ubiquitous keyword exceeded _MAX_FANOUT and should have been skipped; "
+            f"got {len(topics)} topic(s)"
+        )

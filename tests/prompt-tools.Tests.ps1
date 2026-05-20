@@ -731,8 +731,8 @@ Describe "SCHEMA_VERSION - dialect marker" {
         Test-Path $schemaFile | Should -Be $true
     }
 
-    It "SCHEMA_VERSION contains scope-fields marker" {
-        ($content -match 'scope-fields') | Should -Be $true
+    It "SCHEMA_VERSION contains brain-engine marker" {
+        ($content -match 'brain-engine') | Should -Be $true
     }
 }
 

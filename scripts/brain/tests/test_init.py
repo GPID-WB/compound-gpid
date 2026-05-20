@@ -37,6 +37,13 @@ class TestImports:
 
         assert brain.__version__ == "0.2.0"
 
+    def test_cluster_strategy_importable_from_brain(self) -> None:
+        """P3.4 re-export: from brain import ClusterStrategy must resolve via __getattr__."""
+        from brain import ClusterStrategy
+        from brain.clusterer import ClusterStrategy as _Direct
+
+        assert ClusterStrategy is _Direct
+
 
 # ---------------------------------------------------------------------------
 # Dataclass instantiation
@@ -415,3 +422,49 @@ class TestBuildBrainIntegration:
         assert re.match(r"\d{4}-\d{2}-\d{2}$", data.generated), (
             f"generated should be an ISO date string, got {data.generated!r}"
         )
+
+
+# ---------------------------------------------------------------------------
+# New tests added by cg-review (P2.5, P2.14, P3.10)
+# ---------------------------------------------------------------------------
+
+
+class TestEntityTagsScalar:
+    """P2.5 — scalar tag frontmatter value must return single-element list."""
+
+    def test_tags_scalar_string_single_element_list(self) -> None:
+        from brain import Entity
+
+        e = Entity(
+            path=Path("f.md"),
+            entity_type="solution",
+            frontmatter={"tags": "pester"},
+        )
+        assert e.tags == ["pester"]
+
+    def test_tags_scalar_empty_string_returns_empty(self) -> None:
+        from brain import Entity
+
+        e = Entity(
+            path=Path("f.md"),
+            entity_type="solution",
+            frontmatter={"tags": "   "},
+        )
+        assert e.tags == []
+
+
+class TestBomPrefixHandling:
+    """P2.14 — BOM prefix (\ufeff) in file should not break frontmatter parsing."""
+
+    def test_bom_prefix_does_not_break_frontmatter(self, tmp_path: Path) -> None:
+        from brain import build_brain
+
+        content = "\ufeff---\ntitle: BOM Test\ndate: 2026-05-01\nstatus: active\n---\n\nBody.\n"
+        p = tmp_path / ".cg-docs" / "plans" / "bom.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(content, encoding="utf-8")
+
+        data = build_brain(root=tmp_path)
+        assert len(data.entities) == 1
+        # BOM should not appear in the title
+        assert "\ufeff" not in data.entities[0].title
