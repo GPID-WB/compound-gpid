@@ -109,6 +109,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **`sorted(reverse=True)` on a compound tuple key reverses ALL components**: `sorted(items, key=lambda e: (primary, secondary), reverse=True)` reverses both `primary` (intended) and `secondary` (often unintended). For mixed-direction sorts (e.g., date DESC, title ASC), use a two-pass stable sort: `items.sort(key=secondary)` then `items.sort(key=primary, reverse=True)`. Python's sort is guaranteed stable — the first-pass order is preserved within equal primary-key groups. For integer primary keys, numeric negation (`-int(date)`) achieves the same in a single pass. See `.cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md`.
 
+- **Cleanup code must be in its own `try/except` — never inside the main operation's block**: Putting optional cleanup (file deletion, temp-file removal) inside the same `try/except` as the main operation causes cleanup failures to set the exit code to 1 even when the main operation succeeded. Cleanup that fails should warn, never abort. Pattern: main operation in one `try/except` that returns 1 on failure; cleanup in a separate `try/except` that only prints `WARNING:`. Also: `except OSError` does NOT catch `ImportError` — deferred imports (`from pkg import thing` inside a function) need their own `except ImportError` handler with a user-actionable message, listed before the `OSError` clause. See `.cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md`.
+
 ## Wiki Configuration
 
 Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directives — preserve the `<!-- key: value -->` format exactly.

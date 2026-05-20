@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-19 · 308 artifacts (newest first) + 88 roadmap features_
+_Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 ## undated
 
@@ -98,6 +98,8 @@ _Generated 2026-05-19 · 308 artifacts (newest first) + 88 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 17 (11 modified, 6 new) **Mode**: mode:autofix **Findings**: 30 (P0: 0…
 - **[2026-05-19-knowledge-brain-engine-batch-a-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md)** · `review` · _—_ · `—`
   > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
+- **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
+  > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
 
 ## 2026-05-19
 
@@ -107,14 +109,20 @@ _Generated 2026-05-19 · 308 artifacts (newest first) + 88 roadmap features_
   > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
 - **[2026-05-19-knowledge-brain-engine-batch-a-verify-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md)** · `review` · _—_ · `2026-05-19`
   > **Date**: 2026-05-19 **Type**: verification **Prior review**: `.cg-docs/reviews/2026-05-19-knowledge-brain-engine-bat…
+- **[2026-05-19-knowledge-brain-triggers-batch-b-verify-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md)** · `review` · _—_ · `2026-05-19`
+  > **Review depth**: light (verify mode) **Files reviewed**: 7 **Findings**: 8 (P0: 0, P1: 0, P2: 4, P3: 4)
 - **[2026-05-19-wiki-silent-skip-fix-review](.cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md)** · `review` · _—_ · `2026-05-19`
   > **Reviewed by**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-architecture, cg-reproducibili…
 - **[Knowledge Brain Engine — Batch A](.cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md)** · `plan` · _complete_ · `2026-05-19`
   > Extend `cg_index.py` into a modular brain engine that indexes all `.cg-docs/` artifacts (solutions, plans, brainstorm…
 - **[Knowledge Brain Engine — Batch A Design](.cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md)** · `brainstorm` · _decided_ · `2026-05-19`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Knowledge Brain Triggers — Batch B](.cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md)** · `plan` · _completed_ · `2026-05-19`
+  > Wire the brain rebuild into two user-facing entry points: an explicit `/cg-brain-rebuild` command for on-demand use, …
 - **[Pester YAML-entry regex: negative lookahead blocks sub-entries; heading backticks break plain-text match](.cg-docs/solutions/testing-patterns/2026-05-19-pester-yaml-entry-regex-boundary-and-heading-backtick-gotchas.md)** · `solution` · _—_ · `2026-05-19`
   > When writing Pester assertions that must match a specific field within one YAML entry (without falsely matching a fie…
+- **[Python try/except scope: cleanup code inside try causes false exit-1; ImportError not caught by OSError-only handler](.cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md)** · `solution` · _—_ · `2026-05-19`
+  > Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit …
 - **[sorted(reverse=True) on compound tuple key reverses all components — use two-pass stable sort for mixed direction](.cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md)** · `solution` · _—_ · `2026-05-19`
   > `_write_brain_log()` in `renderer.py` sorted entities newest-first by date, then alphabetically by title. The impleme…
 - **[warnings.catch_warnings() context must wrap the root call, not just its callees](.cg-docs/solutions/bugs/2026-05-19-python-warnings-catch-warnings-scope-excludes-root-call.md)** · `solution` · _—_ · `2026-05-19`
@@ -776,7 +784,7 @@ _Generated 2026-05-19 · 308 artifacts (newest first) + 88 roadmap features_
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
 - **[Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
   > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
-- **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _planned_ · `—`
+- **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _done_ · `—`
   > Auto-trigger brain rebuild on /cg-compound
 - **[Full-scope indexer (all .cg-docs/ + roadmap features)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
@@ -786,7 +794,7 @@ _Generated 2026-05-19 · 308 artifacts (newest first) + 88 roadmap features_
   > Prompt integration — Consult Brain in Step 0
 - **[cg-skill-brain-query (agent brain search patterns)](roadmap.json#brain-query-skill)** · `feature` · _planned_ · `—`
   > cg-skill-brain-query (agent brain search patterns)
-- **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _planned_ · `—`
+- **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _done_ · `—`
   > /cg-brain-rebuild explicit rebuild command
 - **[Relationship/edge detection (full typed edge set)](roadmap.json#brain-relationship-detection)** · `feature` · _done_ · `—`
   > Relationship/edge detection (full typed edge set)

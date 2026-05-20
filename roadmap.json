@@ -531,15 +531,15 @@
           "id": "brain-rebuild-command",
           "title": "/cg-brain-rebuild explicit rebuild command",
           "description": "Create a /cg-brain-rebuild command that explicitly triggers a full brain rebuild (re-runs the indexer, topic extraction, relationship detection, and BRAIN.md generation). This is the escape hatch for when the user wants an up-to-date brain without running /cg-compound. Batch B — develop together with brain-auto-rebuild-on-compound.",
-          "status": "planned",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md"
         },
         {
           "id": "brain-auto-rebuild-on-compound",
           "title": "Auto-trigger brain rebuild on /cg-compound",
           "description": "Wire brain rebuild into the /cg-compound workflow so the brain stays current automatically. After a solution is captured and saved, the compound command triggers a full brain rebuild before completing. This ensures BRAIN.md always reflects the latest knowledge state. Batch B — develop together with brain-rebuild-command.",
-          "status": "planned",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md"
         },
         {
           "id": "brain-prompt-integration",

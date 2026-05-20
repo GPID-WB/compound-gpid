@@ -1,19 +1,19 @@
 {
   "generated": "2026-05-19",
   "schema_version": "0.2.0",
-  "entity_count": 396,
-  "topic_count": 4,
-  "edge_count": 150,
+  "entity_count": 400,
+  "topic_count": 3,
+  "edge_count": 152,
   "topics": [
     {
-      "slug": "roadmap-json-should-be-copilot-instructions-md",
-      "label": "Roadmap.Json / Should Be / Copilot-Instructions.Md",
+      "slug": "roadmap-json-prompt-tools-tests-ps1-should-be",
+      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Should Be",
       "keywords": [
         "roadmap.json",
-        "should be",
-        "copilot-instructions.md"
+        "prompt-tools.tests.ps1",
+        "should be"
       ],
-      "entity_count": 260,
+      "entity_count": 272,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -42,10 +42,12 @@
         ".cg-docs/brainstorms/2026-05-05-cross-platform-macos-support.md",
         ".cg-docs/brainstorms/2026-05-05-phased-plan-and-execution.md",
         ".cg-docs/brainstorms/2026-05-06-roadmap-visualization.md",
+        ".cg-docs/brainstorms/2026-05-07-python-utility-layer-cg-index.md",
         ".cg-docs/brainstorms/2026-05-13-pr-verification-strategy-cross-platform.md",
         ".cg-docs/brainstorms/2026-05-14-commit-push-pr-and-verify-pr-commands.md",
         ".cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md",
         ".cg-docs/brainstorms/2026-05-18-command-default-behaviors.md",
+        ".cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -91,10 +93,13 @@
         ".cg-docs/plans/2026-05-05-cross-platform-macos-support.md",
         ".cg-docs/plans/2026-05-05-phased-plan-and-execution.md",
         ".cg-docs/plans/2026-05-06-roadmap-visualization.md",
+        ".cg-docs/plans/2026-05-07-python-utility-layer-cg-index.md",
         ".cg-docs/plans/2026-05-13-pr-verification-pipeline.md",
         ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md",
         ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md",
         ".cg-docs/plans/2026-05-18-command-default-behaviors.md",
+        ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md",
+        ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
         ".cg-docs/reviews/2026-04-01-charter-maintenance-review.md",
@@ -153,6 +158,7 @@
         ".cg-docs/reviews/2026-05-05-phased-plan-and-execution-thorough-verify-review.md",
         ".cg-docs/reviews/2026-05-06-roadmap-visualization-review.md",
         ".cg-docs/reviews/2026-05-06-roadmap-visualization-verify-review.md",
+        ".cg-docs/reviews/2026-05-07-python-utility-layer-cg-index-review.md",
         ".cg-docs/reviews/2026-05-13-pr-verification-pipeline-review.md",
         ".cg-docs/reviews/2026-05-13-pr-verification-pipeline-verify-review-2.md",
         ".cg-docs/reviews/2026-05-13-pr-verification-pipeline-verify-review.md",
@@ -166,6 +172,10 @@
         ".cg-docs/reviews/2026-05-18-iswindows-ps51-bugfix-verify-review.md",
         ".cg-docs/reviews/2026-05-18-wiki-self-configuration-review.md",
         ".cg-docs/reviews/2026-05-18-wiki-self-configuration-verify-review.md",
+        ".cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md",
+        ".cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md",
+        ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
+        ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
         ".cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -197,6 +207,7 @@
         ".cg-docs/solutions/bugs/2026-05-18-compound-gpid-repo-not-wired-as-wiki-consumer.md",
         ".cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md",
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
+        ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -274,7 +285,8 @@
         ".cg-docs/strategy/2026-04-28-post-context-layer-refocus.md",
         ".cg-docs/strategy/2026-04-29-onboarding-milestone-expansion.md",
         ".cg-docs/strategy/2026-05-05-workflow-maturity.md",
-        ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md"
+        ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
+        ".cg-docs/strategy/2026-05-19-knowledge-brain.md"
       ]
     },
     {
@@ -397,26 +409,6 @@
         ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
         ".cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md",
         ".cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md"
-      ]
-    },
-    {
-      "slug": "brain-cg-index-digest-md",
-      "label": "Brain / Cg-Index / Digest.Md",
-      "keywords": [
-        "brain",
-        "cg-index",
-        "digest.md"
-      ],
-      "entity_count": 8,
-      "entity_paths": [
-        ".cg-docs/brainstorms/2026-05-07-python-utility-layer-cg-index.md",
-        ".cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md",
-        ".cg-docs/plans/2026-05-07-python-utility-layer-cg-index.md",
-        ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md",
-        ".cg-docs/reviews/2026-05-07-python-utility-layer-cg-index-review.md",
-        ".cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md",
-        ".cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md",
-        ".cg-docs/strategy/2026-05-19-knowledge-brain.md"
       ]
     }
   ],
@@ -2998,6 +2990,35 @@
       ]
     },
     {
+      "path": ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
+      "entity_type": "plan",
+      "slug": "2026-05-19-knowledge-brain-triggers-batch-b",
+      "title": "Knowledge Brain Triggers — Batch B",
+      "date": "2026-05-19",
+      "status": "completed",
+      "tags": [
+        "brain",
+        "rebuild",
+        "compound",
+        "prompt",
+        "cg-index",
+        "triggers"
+      ],
+      "summary": "Wire the brain rebuild into two user-facing entry points: an explicit `/cg-brain-rebuild` command for on-demand use, and automatic triggering after `/cg-compound` captures a solution. This ensures `BRAIN.md` stays current without manual intervention.",
+      "top_keywords": [
+        "cg-compound.prompt.md",
+        "cg-brain-rebuild",
+        "cg-index --brain",
+        "brain.md",
+        "/cg-brain-rebuild",
+        "--digest",
+        "cg-compound",
+        "cg-index",
+        "brain",
+        "/cg-compound"
+      ]
+    },
+    {
       "path": ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
       "entity_type": "review",
       "slug": "2026-03-30-fix-triage-prompt-review",
@@ -4670,6 +4691,50 @@
       ]
     },
     {
+      "path": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
+      "entity_type": "review",
+      "slug": "2026-05-19-knowledge-brain-triggers-batch-b-review",
+      "title": "2026-05-19-knowledge-brain-triggers-batch-b-review",
+      "date": "",
+      "status": "",
+      "tags": [],
+      "summary": "**Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-instructions.md`, `.github/prompts/cg-compound.prompt.md`, `tests/prompt-tools.Tests.ps1`, `tests/model-assignments.Tests.ps1`, `roadmap.json`, `.cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md`) **Findings**: 16 (P0: 0, P1: 2, P2: 10, P3: 4)",
+      "top_keywords": [
+        "cg-brain-rebuild.prompt.md",
+        "brain.md",
+        "digest.md",
+        "tests/prompt-tools.tests.ps1",
+        ".cg-docs/",
+        "/cg-setup",
+        "search-index.json",
+        "cg-learnings-researcher.agent.md",
+        "prompt-tools.tests.ps1",
+        "model:"
+      ]
+    },
+    {
+      "path": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
+      "entity_type": "review",
+      "slug": "2026-05-19-knowledge-brain-triggers-batch-b-verify-review",
+      "title": "2026-05-19-knowledge-brain-triggers-batch-b-verify-review",
+      "date": "2026-05-19",
+      "status": "",
+      "tags": [],
+      "summary": "**Review depth**: light (verify mode) **Files reviewed**: 7 **Findings**: 8 (P0: 0, P1: 0, P2: 4, P3: 4)",
+      "top_keywords": [
+        "digest.md",
+        "brain-index.json",
+        "brain.md",
+        "brain-log.md",
+        "brain-nn.md",
+        "prompt-tools.tests.ps1",
+        "cg-setup",
+        "--brain",
+        "/cg-setup",
+        "docs/model-guide.md"
+      ]
+    },
+    {
       "path": ".cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md",
       "entity_type": "review",
       "slug": "2026-05-19-wiki-silent-skip-fix-review",
@@ -5873,6 +5938,40 @@
         "title",
         "date",
         "stable"
+      ]
+    },
+    {
+      "path": ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
+      "entity_type": "solution",
+      "slug": "2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror",
+      "title": "Python try/except scope: cleanup code inside try causes false exit-1; ImportError not caught by OSError-only handler",
+      "date": "2026-05-19",
+      "status": "",
+      "tags": [
+        "python",
+        "cg-index",
+        "try-except",
+        "exception-handling",
+        "ImportError",
+        "OSError",
+        "cleanup",
+        "false-exit-code",
+        "file-lock",
+        "Windows",
+        "brain-mode"
+      ],
+      "summary": "Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit code 1 even though `BRAIN.md` was written successfully and the stats line `[cg-index] Brain index written to ...` had already been printed to stdout. Separately, if the `brain` package was absent (e.g., after a partial install, corrupted `sys.path`, or `pip install -e` not re-run after updating), Python raised an unhandled `ImportError` traceback. The prompt's error handler then told the user to \"check cg-index PATH\" — the wrong diagnosis for a missing Python package.",
+      "top_keywords": [
+        "importerror",
+        "try",
+        "oserror",
+        "cleanup",
+        "cg-brain-rebuild.prompt.md",
+        "digest.md",
+        "block",
+        "cg-index",
+        "inside",
+        "brain.md"
       ]
     },
     {
@@ -10509,7 +10608,7 @@
       "slug": "brain-rebuild-command",
       "title": "/cg-brain-rebuild explicit rebuild command",
       "date": "",
-      "status": "planned",
+      "status": "done",
       "tags": [],
       "summary": "/cg-brain-rebuild explicit rebuild command",
       "top_keywords": [
@@ -10531,7 +10630,7 @@
       "slug": "brain-auto-rebuild-on-compound",
       "title": "Auto-trigger brain rebuild on /cg-compound",
       "date": "",
-      "status": "planned",
+      "status": "done",
       "tags": [],
       "summary": "Auto-trigger brain rebuild on /cg-compound",
       "top_keywords": [
@@ -11450,6 +11549,18 @@
     {
       "source": ".cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md",
       "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md",
+      "edge_type": "verifies",
+      "target_missing": false
+    },
+    {
+      "source": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
+      "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
+      "edge_type": "reviews",
+      "target_missing": false
+    },
+    {
+      "source": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
+      "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
       "edge_type": "verifies",
       "target_missing": false
     },

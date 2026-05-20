@@ -84,3 +84,4 @@ outside the block.
 - `scripts/cg_index.py` — the fixed call site
 - `scripts/brain/scanner.py`, `clusterer.py`, `edge_detector.py` — warning emission sites
 - [Python docs: `warnings.catch_warnings`](https://docs.python.org/3/library/warnings.html#warnings.catch_warnings)
+- `.cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md` — companion bug in the same file: cleanup inside try block causes false exit-1; `ImportError` not caught by `OSError`-only handler

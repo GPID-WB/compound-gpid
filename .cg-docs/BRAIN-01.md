@@ -2,9 +2,9 @@
 
 _Generated 2026-05-19_
 
-## Roadmap.Json / Should Be / Copilot-Instructions.Md
+## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Should Be
 
-_Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `should be`_ · 272 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -60,6 +60,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > Large plans (8+ steps, Deep scope) cannot always be completed in a single Copilot session. The context window fills u…
 - **[Roadmap Visualization — Agent + Prompt Wrapper](.cg-docs/brainstorms/2026-05-06-roadmap-visualization.md)** · `brainstorm` · _decided_ · `2026-05-06`
   > The project roadmap lives in `roadmap.json` — a ~500-line JSON file with 9 milestones and ~57 features. It's too diff…
+- **[Cross-platform Python utility layer — Stage 1: cg-index.py](.cg-docs/brainstorms/2026-05-07-python-utility-layer-cg-index.md)** · `brainstorm` · _decided_ · `2026-05-07`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[PR verification strategy for cross-platform CLI tool](.cg-docs/brainstorms/2026-05-13-pr-verification-strategy-cross-platform.md)** · `brainstorm` · _decided_ · `2026-05-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Commit-push-PR and verify-PR commands](.cg-docs/brainstorms/2026-05-14-commit-push-pr-and-verify-pr-commands.md)** · `brainstorm` · _decided_ · `2026-05-14`
@@ -68,6 +70,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Command default behaviors for main workflow commands](.cg-docs/brainstorms/2026-05-18-command-default-behaviors.md)** · `brainstorm` · _decided_ · `2026-05-18`
   > The five main workflow commands (`/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`) currently as…
+- **[Knowledge Brain Engine — Batch A Design](.cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md)** · `brainstorm` · _decided_ · `2026-05-19`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -158,6 +162,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > Add phase-awareness to `/cg-plan` (output phased plans) and `/cg-work` (execute by phase, track progress in frontmatt…
 - **[Roadmap visualization — hidden agent + /cg-roadmap-view prompt](.cg-docs/plans/2026-05-06-roadmap-visualization.md)** · `plan` · _completed_ · `2026-05-06`
   > Create a fast, zero-dependency roadmap visualization system with two components: a hidden read-only agent (`cg-roadma…
+- **[Cross-platform Python utility layer — Stage 1: cg-index.py](.cg-docs/plans/2026-05-07-python-utility-layer-cg-index.md)** · `plan` · _completed_ · `2026-05-07`
+  > Build `scripts/cg-index.py` — a stdlib-only Python script that produces two artifacts from a project's `.cg-docs/` di…
 - **[PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)](.cg-docs/plans/2026-05-13-pr-verification-pipeline.md)** · `plan` · _completed_ · `2026-05-13`
   > Add automated cross-platform verification to the CI pipeline so that PRs which pass unit tests but fail on real machi…
 - **[Two new workflow commands: /cg-commit-push-pr and /cg-verify-pr](.cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md)** · `plan` · _completed_ · `2026-05-14`
@@ -166,6 +172,10 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > Build a dedicated `@cg-wiki` agent and supporting infrastructure that creates and maintains a user-facing project wik…
 - **[Command default behaviors for main workflow commands](.cg-docs/plans/2026-05-18-command-default-behaviors.md)** · `plan` · _completed_ · `2026-05-18`
   > Flip the five main workflow commands to opinionated defaults so users get the most common behavior without flags. Eac…
+- **[Knowledge Brain Engine — Batch A](.cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md)** · `plan` · _complete_ · `2026-05-19`
+  > Extend `cg_index.py` into a modular brain engine that indexes all `.cg-docs/` artifacts (solutions, plans, brainstorm…
+- **[Knowledge Brain Triggers — Batch B](.cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md)** · `plan` · _completed_ · `2026-05-19`
+  > Wire the brain rebuild into two user-facing entry points: an explicit `/cg-brain-rebuild` command for on-demand use, …
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
   > **Review depth**: light **Date**: 2026-03-30 **Plan**: `.cg-docs/plans/2026-03-30-fix-triage-prompt.md` **Branch**: `…
 - **[2026-04-01-cg-strategy-and-roadmap-fix-review](.cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md)** · `review` · _—_ · `—`
@@ -282,6 +292,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > Files reviewed: - `.github/agents/cg-roadmap-view.agent.md` (new) - `.github/prompts/cg-roadmap-view.prompt.md` (new)…
 - **[2026-05-06-roadmap-visualization-verify-review](.cg-docs/reviews/2026-05-06-roadmap-visualization-verify-review.md)** · `review` · _—_ · `2026-05-06`
   > **Review depth**: light (verify mode) **Files reviewed**: 14 (12 modified + 2 new untracked) **Prior review**: `.cg-d…
+- **[2026-05-07-python-utility-layer-cg-index-review](.cg-docs/reviews/2026-05-07-python-utility-layer-cg-index-review.md)** · `review` · _—_ · `2026-05-07`
+  > **Review depth**: thorough **Files reviewed**: 19 (12 modified tracked + 7 new/untracked) **Findings**: 31 (P0: 0, P1…
 - **[2026-05-13-pr-verification-pipeline-review](.cg-docs/reviews/2026-05-13-pr-verification-pipeline-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 15 **Findings**: 25 (P0: 0, P1: 3, P2: 16, P3: 6) **Mode**: autofix — …
 - **[2026-05-13-pr-verification-pipeline-verify-review-2](.cg-docs/reviews/2026-05-13-pr-verification-pipeline-verify-review-2.md)** · `review` · _—_ · `2026-05-13`
@@ -308,6 +320,14 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > **Date**: 2026-05-18 **Scope**: uncommitted changes from `fix/compound-gpid-repo-not-wired-as-wiki-consumer` **Depth*…
 - **[2026-05-18-wiki-self-configuration-verify-review](.cg-docs/reviews/2026-05-18-wiki-self-configuration-verify-review.md)** · `review` · _—_ · `2026-05-18`
   > **Review depth**: light (mode:verify) **Files reviewed**: 6 (tests/wiki.Tests.ps1, docs/workflow.md, compound-gpid.co…
+- **[2026-05-19-knowledge-brain-engine-batch-a-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md)** · `review` · _—_ · `—`
+  > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
+- **[2026-05-19-knowledge-brain-engine-batch-a-verify-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md)** · `review` · _—_ · `2026-05-19`
+  > **Date**: 2026-05-19 **Type**: verification **Prior review**: `.cg-docs/reviews/2026-05-19-knowledge-brain-engine-bat…
+- **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
+  > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
+- **[2026-05-19-knowledge-brain-triggers-batch-b-verify-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md)** · `review` · _—_ · `2026-05-19`
+  > **Review depth**: light (verify mode) **Files reviewed**: 7 **Findings**: 8 (P0: 0, P1: 0, P2: 4, P3: 4)
 - **[2026-05-19-wiki-silent-skip-fix-review](.cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md)** · `review` · _—_ · `2026-05-19`
   > **Reviewed by**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-architecture, cg-reproducibili…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
@@ -370,6 +390,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > Running `cg-link` on a project using Windows PowerShell 5.1 produced:
 - **[/cg-compound wiki update silently skipped — all docs/_wiki.yml pages were manual-ownership](.cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md)** · `solution` · _—_ · `2026-05-19`
   > Running `/cg-compound` after a feature that added new command flags and changed user-visible behavior (e.g., `command…
+- **[Python try/except scope: cleanup code inside try causes false exit-1; ImportError not caught by OSError-only handler](.cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md)** · `solution` · _—_ · `2026-05-19`
+  > Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit …
 - **[Get-Item .Target property is string[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -526,6 +548,8 @@ _Keywords: `roadmap.json` · `should be` · `copilot-instructions.md`_ · 260 en
   > - 8 milestones, 58 features (28 done, 0 active, 30 unstarted) - Two milestones in-progress: Skills Enhancement, Onboa…
 - **[Ongoing Ideas milestone for standalone improvements](.cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md)** · `strategy` · _—_ · `2026-05-14`
   > Workflow Maturity milestone nearly complete (5/7 done). v0.10.3 just released with CI bypass flags and E2E smoke test…
+- **[2026-05-19-knowledge-brain](.cg-docs/strategy/2026-05-19-knowledge-brain.md)** · `strategy` · _approved_ · `2026-05-19`
+  > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
 
 ## Knowledge Brain
 Objective / Quality Loop
@@ -683,9 +707,9 @@ objective`_ · 88 entities
   > Relationship/edge detection (full typed edge set)
 - **[BRAIN.md generation (topic index + entity catalog + edges)](roadmap.json#brain-md-generation)** · `feature` · _done_ · `—`
   > BRAIN.md generation (topic index + entity catalog + edges)
-- **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _planned_ · `—`
+- **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _done_ · `—`
   > /cg-brain-rebuild explicit rebuild command
-- **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _planned_ · `—`
+- **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _done_ · `—`
   > Auto-trigger brain rebuild on /cg-compound
 - **[Prompt integration — Consult Brain in Step 0](roadmap.json#brain-prompt-integration)** · `feature` · _planned_ · `—`
   > Prompt integration — Consult Brain in Step 0
@@ -738,24 +762,3 @@ _Keywords: `run-tests.ps1` · `last-run.json` · `execution_subagent`_ · 10 ent
   > VS Code crashed **twice in a single fix-triage session** (2026-04-15) even though all terminal commands exited with c…
 - **[Canonical Run-Tests.ps1 + last-run.json artifact decouples test results from agent context window](.cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md)** · `solution` · _—_ · `2026-04-17`
   > Despite 18+ documented VS Code crashes and a comprehensive `cg-skill-pester-safety` skill, agents continued to compos…
-
-## Brain / Cg-Index / Digest.Md
-
-_Keywords: `brain` · `cg-index` · `digest.md`_ · 8 entities
-
-- **[Cross-platform Python utility layer — Stage 1: cg-index.py](.cg-docs/brainstorms/2026-05-07-python-utility-layer-cg-index.md)** · `brainstorm` · _decided_ · `2026-05-07`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Knowledge Brain Engine — Batch A Design](.cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md)** · `brainstorm` · _decided_ · `2026-05-19`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Cross-platform Python utility layer — Stage 1: cg-index.py](.cg-docs/plans/2026-05-07-python-utility-layer-cg-index.md)** · `plan` · _completed_ · `2026-05-07`
-  > Build `scripts/cg-index.py` — a stdlib-only Python script that produces two artifacts from a project's `.cg-docs/` di…
-- **[Knowledge Brain Engine — Batch A](.cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md)** · `plan` · _complete_ · `2026-05-19`
-  > Extend `cg_index.py` into a modular brain engine that indexes all `.cg-docs/` artifacts (solutions, plans, brainstorm…
-- **[2026-05-07-python-utility-layer-cg-index-review](.cg-docs/reviews/2026-05-07-python-utility-layer-cg-index-review.md)** · `review` · _—_ · `2026-05-07`
-  > **Review depth**: thorough **Files reviewed**: 19 (12 modified tracked + 7 new/untracked) **Findings**: 31 (P0: 0, P1…
-- **[2026-05-19-knowledge-brain-engine-batch-a-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md)** · `review` · _—_ · `—`
-  > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
-- **[2026-05-19-knowledge-brain-engine-batch-a-verify-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-verify-review.md)** · `review` · _—_ · `2026-05-19`
-  > **Date**: 2026-05-19 **Type**: verification **Prior review**: `.cg-docs/reviews/2026-05-19-knowledge-brain-engine-bat…
-- **[2026-05-19-knowledge-brain](.cg-docs/strategy/2026-05-19-knowledge-brain.md)** · `strategy` · _approved_ · `2026-05-19`
-  > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
