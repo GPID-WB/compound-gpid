@@ -87,7 +87,7 @@ except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
 **Agents**: cg-adversarial, cg-reproducibility  
 **Tag**: [safe_auto]
 
-`root` is always `.resolve()`d (absolute) in `main()`. `cg_docs.rglob("*.md")` yields absolute paths. These are stored as `entity.path` and written verbatim by `_entity_line()` into every `BRAIN-NN.md` and by `_write_brain_json()` into `brain-index.json`. Committed output files contain machine-specific paths like `E:/PovcalNet/01.personal/wb384996/...` that are non-functional in any browser, editor, or GitHub viewer.
+`root` is always `.resolve()`d (absolute) in `main()`. `cg_docs.rglob("*.md")` yields absolute paths. These are stored as `entity.path` and written verbatim by `_entity_line()` into every `BRAIN-NN.md` and by `_write_brain_json()` into `brain-index.json`. Committed output files contain machine-specific paths like `<machine-root>/GPID-team/compound-gpid/...` that are non-functional in any browser, editor, or GitHub viewer.
 
 **Fix** — in `scan_all()`:
 ```python
