@@ -20,6 +20,7 @@ You are a senior developer applying fixes from a previously saved review report.
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+4. Parse flags: if `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 <!-- Execute AFTER Step 1.3 — do not load skills before findings are parsed. -->
 ### Step 0.5: Load Language Skills
@@ -43,6 +44,15 @@ If all in-scope findings reference only `.md`, `.json`, or `.ps1` files, skip sk
    If no `findings:`, treat all as `open` (legacy file — run `/cg-fix-triage --migrate` to add tracking frontmatter).
 5. Display a summary: total, resolved, open count with descriptions.
 
+### Step 1.3: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: known fixes for the
+specific findings in this report, solutions that address the same code
+patterns flagged by reviewers, past fix-triage sessions that resolved
+similar issues. Incorporate as fix guidance for each finding.
+
 ### Step 2: Determine Scope
 
 - **No arguments**: Fix all findings.
@@ -51,7 +61,7 @@ If all in-scope findings reference only `.md`, `.json`, or `.ps1` files, skip sk
 - **Mixed** (`P1 P2.3`): All P1 findings plus P2.3.
 - **`--migrate`**: Migration mode (see bottom). Adds `findings:` tracking frontmatter; does NOT apply fixes.
 
-If unrecognized: > "Unrecognized argument '`<arg>`' — ignoring. Recognized: `P0`, `P1`, `P2`, `P3`, individual IDs (e.g., `P1.2`), or `--migrate`."
+If unrecognized: > "Unrecognized argument '`<arg>`' — ignoring. Recognized: `P0`, `P1`, `P2`, `P3`, individual IDs (e.g., `P1.2`), `--migrate`, or `--no-brain`."
 
 **Large report notice**: If there are more than 15 open findings and no arguments were provided, warn:
 > "This report has N open findings. Fixing all at once may hit response length limits.

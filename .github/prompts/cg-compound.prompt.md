@@ -47,6 +47,7 @@ Use `/cg-compound` after:
 Check the user's invocation for flags:
 - If `--propose` is present: set `wiki-propose = true`. Otherwise: set `wiki-propose = false`.
 - If `--no-enrich` is present: set `enrich = false`. Otherwise: set `enrich = true`.
+- If `--no-brain` is present: set `brain-enabled = false`. Otherwise: set `brain-enabled = true`.
 
 These flags control context enrichment and wiki update behavior in Steps 3c and 5. They must be evaluated here — before any tool dispatch — following the write-permission flag convention.
 
@@ -55,6 +56,15 @@ These flags control context enrichment and wiki update behavior in Steps 3c and 
 1. Ask the user what problem was solved (or detect from recent conversation).
 2. Read relevant files that were changed.
 3. Understand the root cause and the solution.
+
+### Step 1.5: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: existing solutions that
+this new entry might supersede or contradict, related entries that should
+cross-reference this solution, patterns this solution contributes to.
+Flag any supersession or contradiction for the user before writing.
 
 ### Step 2: Categorize
 

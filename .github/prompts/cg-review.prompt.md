@@ -21,7 +21,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
-4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, depth overrides (`light`, `standard`, `thorough`). Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch.
+4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, depth overrides (`light`, `standard`, `thorough`). Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
 
@@ -32,10 +32,19 @@ You are a review orchestrator that coordinates multiple specialized review agent
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
    - `light`, `standard`, `thorough` — Override config depth.
-   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`."
+   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`, `--no-brain`."
    `--report-only` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `--report-only` and `mode:verify` — using `mode:verify`." and ignore `--report-only`.
 
    **Default**: autofix is ON unless `--report-only` or `mode:verify` is passed. Always include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2, unless `--report-only` or `mode:verify` is active.
+
+### Step 1.3: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: known mistakes and
+anti-patterns documented for the file types and domains being reviewed,
+past review findings in similar code areas, patterns that reviewers should
+verify. Pass relevant findings to review agents as additional context.
 
 ### Step 1.5: Content-Based Depth Overrides
 

@@ -156,4 +156,8 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 
 After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `bugs`, `build-errors`, `data-quality`, `environment-issues`, `git-workflows`, `performance-issues`, `testing-patterns`.
 
+## Brain Consultation
+
+When a prompt contains a "Consult Brain" step, load `cg-skill-brain-query` — it teaches how to navigate BRAIN.md, extract relevant takeaways and gotchas, evaluate and prioritize findings, resolve contradictions, and detect stale entries. The calling prompt's step provides the search directive (what to look for); the skill provides the protocol (how to search and apply findings).
+
 <!-- Pester Safety Rules appear at the top of this file -->

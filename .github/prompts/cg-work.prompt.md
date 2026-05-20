@@ -22,6 +22,7 @@ You are a senior developer implementing a plan that was previously created with 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+4. Parse flags: if `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Load the Plan
 
@@ -86,6 +87,15 @@ You are a senior developer implementing a plan that was previously created with 
   > Or review the plan: \`/cg-plan-review\`"
 
   Halt — do not proceed to Step 2.
+
+### Step 1.3: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: gotchas and edge cases
+from similar implementation work, patterns that apply to the files being
+modified, known pitfalls in the technology area of this plan. Incorporate
+relevant findings as constraints for your implementation.
 
 ### Step 1.5: Mark Work Started
 

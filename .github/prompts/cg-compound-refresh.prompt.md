@@ -145,6 +145,13 @@ This updates `.cg-docs/BRAIN.md`, `.cg-docs/BRAIN-NN.md` partitions,
 `.cg-docs/BRAIN-log.md`, and `.cg-docs/brain-index.json` to reflect
 the post-refresh state of the knowledge base.
 
+After the command completes, scan stdout for a line matching
+`[cg-index] Brain index written to` and parse the entity, topic, and edge
+counts from the parenthesised suffix (e.g., `(127 entities, 18 topics, 43 edges)`).
+Report the counts in the Step 7 summary:
+> "Knowledge index rebuilt: **X** entities, **Y** topics, **Z** edges."
+If the stats line is absent despite exit 0, report counts as 'unavailable'.
+
 If `cg-index` is not available (not yet installed), skip this step and note
 it in the summary.
 
