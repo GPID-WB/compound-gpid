@@ -71,8 +71,10 @@ def _coerce(value: str) -> Any:
     if _INT_RE.match(v):
         return int(v)
     # Strip optional surrounding quotes
-    if (v.startswith('"') and v.endswith('"')) or \
-       (v.startswith("'") and v.endswith("'")):
+    if (
+        (v.startswith('"') and v.endswith('"'))
+        or (v.startswith("'") and v.endswith("'"))
+    ):
         return v[1:-1]
     return v
 
@@ -158,9 +160,9 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
             continue
 
         # Flush any in-progress block list before processing new key
-        if current_list is not None:
+        if current_list is not None and current_key is not None:
             if current_list:  # only store non-empty block lists
-                result[current_key] = current_list  # type: ignore[assignment]
+                result[current_key] = current_list
             current_key = None
             current_list = None
 
@@ -170,6 +172,9 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
         key, _, raw_value = stripped.partition(":")
         key = key.strip()
         raw_value = raw_value.strip()
+        # Strip inline YAML comments (e.g. "status: active # deprecated" → "active")
+        if " #" in raw_value:
+            raw_value = raw_value.split(" #")[0].rstrip()
 
         if not raw_value:
             # Possibly a block-list key (next lines start with "- ")
@@ -182,6 +187,8 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
             )
             continue
 
+        if key in result:
+            warnings.warn(f"Duplicate frontmatter key '{key}'", stacklevel=2)
         inline = _parse_inline_list(raw_value)
         if inline is not None:
             result[key] = inline
@@ -245,6 +252,7 @@ def extract_summary(text: str, max_words: int = 100) -> str:
     for line in lines:
         if _FENCED_RE.match(line):
             in_fence = not in_fence
+            continue  # skip fence delimiter lines (both opening and closing)
         if in_fence:
             continue
         if _HEADING_RE.match(line):
@@ -267,6 +275,7 @@ def extract_summary(text: str, max_words: int = 100) -> str:
     for line in lines:
         if _FENCED_RE.match(line):
             in_fence = not in_fence
+            continue  # skip fence delimiter lines (both opening and closing)
         if in_fence:
             continue
         if _HEADING_RE.match(line):

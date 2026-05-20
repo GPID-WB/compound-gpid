@@ -86,11 +86,9 @@ class TestHeadingSignal:
 
     def test_heading_stopwords_excluded(self) -> None:
         scores = _kw_dict("## How To Use The File\n\n")
-        # "how", "the", "file", "use" are stopwords → shouldn't appear from heading
+        # "how", "the", "file", "use" are stopwords — must not be boosted by heading signal
         for sw in ("how", "the", "file", "use"):
-            # they might appear from body frequency but score should be low
-            # (stopwords are excluded from heading signal)
-            pass  # just verify no KeyError — stop words aren't boosted
+            assert scores.get(sw, 0) == 0, f"Stopword '{sw}' should not be boosted by heading signal"
 
 
 # ---------------------------------------------------------------------------

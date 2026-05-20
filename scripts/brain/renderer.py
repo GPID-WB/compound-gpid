@@ -43,7 +43,7 @@ from brain.utils import _write_atomic
 # Token estimation
 # ---------------------------------------------------------------------------
 
-#: Words-to-tokens ratio (P3.3 fix: use 1.6 rather than 1.0).
+#: ~1.6 words per GPT-4 token (empirical for English prose; P3.1 named constant).
 _WORDS_PER_TOKEN: float = 1.6
 
 #: Maximum characters for inline entity summaries in topic files.
@@ -467,15 +467,14 @@ def _write_brain_log(data: BrainData, out_dir: Path) -> Path:
         Path of written file.
     """
 
-    def _sort_key(e: Entity) -> Tuple[str, str]:
-        # "0000-00-00" sentinel pushes empty dates to the end; reverse=True gives newest-first
-        d = e.date_str or "0000-00-00"
-        return (d, e.title.lower())
-
     non_features = [e for e in data.entities if e.entity_type != "feature"]
     features = [e for e in data.entities if e.entity_type == "feature"]
 
-    sorted_entities = sorted(non_features, key=_sort_key, reverse=True)
+    # Two-pass stable sort: A→Z title first, then newest-first date.
+    # A single-pass reverse=True on a (date, title) tuple would reverse both
+    # components, producing Z→A titles within the same date.
+    sorted_entities = sorted(non_features, key=lambda e: e.title.lower())
+    sorted_entities.sort(key=lambda e: e.date_str or "0000-00-00", reverse=True)
     # Group by date
     by_date: Dict[str, List[Entity]] = defaultdict(list)
     for e in sorted_entities:
@@ -635,30 +634,4 @@ def render_brain(
     return written
 
 
-def _build_topic_file_map(
-    topics: List[Topic],
-    topic_files: List[Path],
-) -> Dict[str, str]:
-    """Map each topic slug to its BRAIN-NN.md filename.
 
-    Since we can't re-run the partitioning cheaply, we assign topics to files
-    in order: topics in ``BRAIN-01.md``, then ``BRAIN-02.md``, etc.  This is
-    an approximation — the exact mapping depends on token counts — but is good
-    enough for the navigation index.
-
-    Args:
-        topics: All topics in order.
-        topic_files: Ordered list of written BRAIN-NN.md paths.
-
-    Returns:
-        Dict mapping topic slug → file name (e.g. ``"BRAIN-01.md"``).
-    """
-    if not topic_files:
-        return {}
-    result: Dict[str, str] = {}
-    # Assign topics evenly across files
-    n_files = len(topic_files)
-    for i, topic in enumerate(topics):
-        file_idx = min(i * n_files // max(len(topics), 1), n_files - 1)
-        result[topic.slug] = topic_files[file_idx].name
-    return result

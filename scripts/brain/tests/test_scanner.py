@@ -117,10 +117,11 @@ class TestScanAllContent:
         e = scan_all(tmp_path)[0]
         assert e.text == content
 
-    def test_path_is_absolute(self, tmp_path: Path) -> None:
+    def test_path_is_relative(self, tmp_path: Path) -> None:
         _write(tmp_path / ".cg-docs/plans/p.md", _md())
         e = scan_all(tmp_path)[0]
-        assert e.path.is_absolute()
+        assert not e.path.is_absolute()
+        assert str(e.path).replace("\\", "/") == ".cg-docs/plans/p.md"
 
     def test_null_frontmatter_values_coerced(self, tmp_path: Path) -> None:
         """brainstorm: null or ~ must parse to None, not a path string."""

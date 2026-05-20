@@ -506,3 +506,19 @@ class TestBrainstormPlanEdge:
         # Review entities still use "reviews" edge type
         assert "reviews" in edge_types
         assert "references" not in edge_types
+
+    def test_null_plan_field_produces_no_edge(self, tmp_path: Path) -> None:
+        brainstorm = Entity(
+            path=tmp_path / ".cg-docs/brainstorms/idea.md",
+            entity_type="brainstorm",
+            frontmatter={"plan": None},
+        )
+        assert _edges_of_type(detect_edges([brainstorm], root=tmp_path), "references") == []
+
+    def test_tilde_plan_field_produces_no_edge(self, tmp_path: Path) -> None:
+        brainstorm = Entity(
+            path=tmp_path / ".cg-docs/brainstorms/idea.md",
+            entity_type="brainstorm",
+            frontmatter={"plan": "~"},
+        )
+        assert _edges_of_type(detect_edges([brainstorm], root=tmp_path), "references") == []

@@ -18,7 +18,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, FrozenSet, List, Tuple
 
 from brain import Entity
 
@@ -58,7 +58,7 @@ _WORD_RE = re.compile(r"[a-z][a-z0-9_-]{2,}")
 # Stopword list (~150 words)
 # ---------------------------------------------------------------------------
 
-_STOPWORDS: frozenset = frozenset(
+_STOPWORDS: FrozenSet[str] = frozenset(
     {
         # Common English function words
         "a",

@@ -301,3 +301,115 @@ class TestParseFrontmatter:
         fm = parse_frontmatter(text)
         assert fm["active"] is True
         assert fm["archived"] is False
+
+
+# ---------------------------------------------------------------------------
+# _write_atomic tests  (P2.6)
+# ---------------------------------------------------------------------------
+
+
+class TestWriteAtomic:
+    def test_creates_file(self, tmp_path: Path) -> None:
+        from brain.utils import _write_atomic
+
+        p = tmp_path / "out.md"
+        _write_atomic(p, "hello")
+        assert p.read_text(encoding="utf-8") == "hello"
+
+    def test_overwrites_existing(self, tmp_path: Path) -> None:
+        from brain.utils import _write_atomic
+
+        p = tmp_path / "out.md"
+        _write_atomic(p, "first")
+        _write_atomic(p, "second")
+        assert p.read_text(encoding="utf-8") == "second"
+
+    def test_utf8_encoding(self, tmp_path: Path) -> None:
+        from brain.utils import _write_atomic
+
+        p = tmp_path / "out.md"
+        content = "# Héllo wörld — résumé"
+        _write_atomic(p, content)
+        assert p.read_text(encoding="utf-8") == content
+
+
+# ---------------------------------------------------------------------------
+# extract_summary tests  (P2.7)
+# ---------------------------------------------------------------------------
+
+
+class TestExtractSummary:
+    def test_problem_section_preferred(self) -> None:
+        from brain.utils import extract_summary
+
+        text = "---\ntitle: X\n---\n## Overview\nOther stuff.\n## Problem\nThis is the fix.\n"
+        result = extract_summary(text)
+        assert "fix" in result
+
+    def test_falls_back_to_first_paragraph(self) -> None:
+        from brain.utils import extract_summary
+
+        text = "---\ntitle: X\n---\n\nFirst real paragraph here.\n"
+        result = extract_summary(text)
+        assert "paragraph" in result
+
+    def test_truncated_to_max_words(self) -> None:
+        from brain.utils import extract_summary
+
+        body = "word " * 200
+        text = f"---\ntitle: X\n---\n\n{body}\n"
+        result = extract_summary(text, max_words=50)
+        assert len(result.split()) <= 51  # up to 50 words + "..."
+
+    def test_skips_fenced_code(self) -> None:
+        from brain.utils import extract_summary
+
+        text = "---\ntitle: X\n---\n\n```python\nprint('skip')\n```\n\nReal summary here.\n"
+        result = extract_summary(text)
+        assert "Real summary" in result
+        assert "print" not in result
+
+    def test_empty_when_no_body(self) -> None:
+        from brain.utils import extract_summary
+
+        text = "---\ntitle: X\n---\n"
+        assert extract_summary(text) == ""
+
+
+# ---------------------------------------------------------------------------
+# build_brain integration tests  (P2.8)
+# ---------------------------------------------------------------------------
+
+
+class TestBuildBrainIntegration:
+    def test_returns_brain_data_from_fixture(self, tmp_path: Path) -> None:
+        from brain import BrainData, build_brain
+
+        (tmp_path / ".cg-docs" / "solutions" / "bugs").mkdir(parents=True)
+        (tmp_path / ".cg-docs" / "solutions" / "bugs" / "fix.md").write_text(
+            "---\ntitle: My Fix\ndate: 2026-05-01\nstatus: active\n---\n\nFixed the crash.\n",
+            encoding="utf-8",
+        )
+        data = build_brain(root=tmp_path, generated="2026-05-01")
+        assert isinstance(data, BrainData)
+        assert len(data.entities) == 1
+        assert data.entities[0].entity_type == "solution"
+        assert len(data.entities[0].keywords) > 0
+        assert data.generated == "2026-05-01"
+
+    def test_empty_project_returns_empty_brain(self, tmp_path: Path) -> None:
+        from brain import BrainData, build_brain
+
+        data = build_brain(root=tmp_path)
+        assert isinstance(data, BrainData)
+        assert data.entities == []
+        assert data.topics == []
+        assert data.edges == []
+
+    def test_generated_defaults_to_today(self, tmp_path: Path) -> None:
+        from datetime import date
+
+        from brain import build_brain
+
+        data = build_brain(root=tmp_path)
+        assert data.generated == date.today().isoformat()

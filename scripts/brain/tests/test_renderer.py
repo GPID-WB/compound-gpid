@@ -10,9 +10,9 @@ import pytest
 from brain import BrainData, Edge, Entity, Topic
 from brain.renderer import (
     _anchor,
-    _build_topic_file_map,
     _entity_line,
     _estimate_tokens,
+    _split_oversized_topic,
     render_brain,
 )
 
@@ -542,26 +542,61 @@ class TestTokenCapSplitting:
 # ---------------------------------------------------------------------------
 
 
-class TestBuildTopicFileMap:
-    def test_empty_topics_returns_empty(self):
-        result = _build_topic_file_map([], [])
-        assert result == {}
+# ---------------------------------------------------------------------------
+# _split_oversized_topic
+# ---------------------------------------------------------------------------
 
-    def test_single_topic_maps_to_first_file(self):
-        topic = _make_topic(slug="my-topic")
-        files = [Path("out/BRAIN-01.md")]
-        result = _build_topic_file_map([topic], files)
-        assert result["my-topic"] == "BRAIN-01.md"
 
-    def test_all_topics_assigned(self):
-        topics = [_make_topic(slug=f"topic-{i}") for i in range(4)]
-        files = [Path(f"out/BRAIN-0{i+1}.md") for i in range(2)]
-        result = _build_topic_file_map(topics, files)
-        assert len(result) == 4
-        for slug in result:
-            assert result[slug] in {"BRAIN-01.md", "BRAIN-02.md"}
+class TestSplitOversizedTopic:
+    """Unit tests for the entity-boundary topic splitter."""
 
-    def test_no_files_returns_empty(self):
-        topics = [_make_topic()]
-        result = _build_topic_file_map(topics, [])
-        assert result == {}
+    def _make_topic_with_entities(
+        self, n: int
+    ) -> tuple:  # (Topic, Dict[Path, Entity])
+        entities = [
+            _make_entity(
+                path=f".cg-docs/solutions/2026-01-{i + 1:02d}-e{i}.md",
+                title=f"Entity {i}",
+            )
+            for i in range(n)
+        ]
+        topic = Topic(
+            slug="big-topic",
+            label="Big Topic",
+            keywords=["big", "topic"],
+            entity_paths=[Path(e.path) if isinstance(e.path, str) else e.path for e in entities],
+        )
+        entity_map = {e.path if isinstance(e.path, Path) else Path(e.path): e for e in entities}
+        return topic, entity_map
+
+    def test_all_fit_single_chunk(self) -> None:
+        topic, entity_map = self._make_topic_with_entities(3)
+        chunks = _split_oversized_topic(topic, entity_map, token_cap=10_000)
+        assert len(chunks) == 1
+        assert len(chunks[0]) == 3
+
+    def test_splits_at_entity_boundary(self) -> None:
+        # token_cap=1 forces each entity line into its own chunk
+        topic, entity_map = self._make_topic_with_entities(4)
+        chunks = _split_oversized_topic(topic, entity_map, token_cap=1)
+        assert len(chunks) == 4
+        assert all(len(c) == 1 for c in chunks)
+
+    def test_entity_missing_from_map_is_skipped(self) -> None:
+        topic, entity_map = self._make_topic_with_entities(3)
+        missing_path = topic.entity_paths[1]
+        del entity_map[missing_path]
+        chunks = _split_oversized_topic(topic, entity_map, token_cap=10_000)
+        all_paths = [p for chunk in chunks for p in chunk]
+        assert missing_path not in all_paths
+        assert len(all_paths) == 2
+
+    def test_all_entities_missing_returns_sentinel(self) -> None:
+        topic, _ = self._make_topic_with_entities(2)
+        chunks = _split_oversized_topic(topic, {}, token_cap=10_000)
+        assert chunks == [[]]
+
+    def test_empty_entity_paths_returns_sentinel(self) -> None:
+        empty_topic = Topic(slug="t", label="T", keywords=[], entity_paths=[])
+        chunks = _split_oversized_topic(empty_topic, {}, token_cap=10_000)
+        assert chunks == [[]]

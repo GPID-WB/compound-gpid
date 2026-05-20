@@ -164,13 +164,25 @@ class SolutionEntry:
 def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
     """Recursively scan solutions_dir for *.md files and return parsed entries.
 
-    Files are skipped (with a warning) if:
-      - They cannot be read.
-      - They have no parseable frontmatter.
+    Files are skipped (with a warning) if they cannot be read, have no
+    parseable frontmatter, or are missing required ``title``/``date`` fields.
+    Slug collisions (two files with the same stem in different categories)
+    emit a warning.
 
-    Returns entries sorted by date descending, then title ascending.
-    Low probability of slug collision (two different categories with the same
-    filename stem); if it happens, a warning is emitted with both paths.
+    Args:
+        solutions_dir: Root directory of the solutions tree (e.g.
+            ``.cg-docs/solutions/``).
+        root: Project root — used to compute relative paths in output.
+
+    Returns:
+        List of :class:`SolutionEntry` objects sorted by date descending,
+        then title ascending.  Empty-date entries sort last.
+
+    Example:
+        >>> from pathlib import Path
+        >>> from scripts.cg_index import scan_solutions
+        >>> entries = scan_solutions(Path(".cg-docs/solutions"), Path("."))
+        >>> print(len(entries), "solutions found")
     """
     entries: List[SolutionEntry] = []
     seen_slugs: Dict[str, Path] = {}
@@ -178,15 +190,16 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
     for md_file in sorted(solutions_dir.rglob("*.md")):
         try:
             text = md_file.read_text(encoding="utf-8")
-        except OSError as exc:
-            warnings.warn(f"Skipping {md_file}: {exc}")
+        except (OSError, UnicodeDecodeError) as exc:
+            warnings.warn(f"Skipping {md_file}: {exc}", stacklevel=2)
             continue
 
         fm = parse_frontmatter(text)
         if not fm:
             warnings.warn(
                 f"Skipping {md_file}: no frontmatter found. "
-                "Add a --- block with at least a 'title' and 'date' field."
+                "Add a --- block with at least a 'title' and 'date' field.",
+                stacklevel=2,
             )
             continue
 
@@ -194,7 +207,8 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
         if missing_fields:
             warnings.warn(
                 f"{md_file}: missing required field(s): {', '.join(missing_fields)}. "
-                "Add them to prevent silent fallback behaviour."
+                "Add them to prevent silent fallback behaviour.",
+                stacklevel=2,
             )
 
         summary = extract_summary(text)
@@ -212,7 +226,8 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
             warnings.warn(
                 f"Slug collision: '{entry.slug}' appears in both "
                 f"'{seen_slugs[entry.slug]}' and '{rel}'. "
-                "Consider renaming one file to make slugs unique across all categories."
+                "Consider renaming one file to make slugs unique across all categories.",
+                stacklevel=2,
             )
         seen_slugs[entry.slug] = rel
 
@@ -235,7 +250,22 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
 # ---------------------------------------------------------------------------
 
 def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write search-index.json (metadata only, all statuses included)."""
+    """Write ``search-index.json`` containing metadata for all entries.
+
+    All entries are included regardless of status.  The output is an atomic
+    write via a temp file + ``os.replace()`` to prevent partial files.
+
+    Args:
+        entries: List of :class:`SolutionEntry` objects to serialise.
+        out_path: Destination path for ``search-index.json``.
+            Parent directories are created automatically.
+
+    Returns:
+        None.  Prints a confirmation line to stdout.
+
+    Example:
+        >>> build_index(entries, Path(".cg-docs/search-index.json"))
+    """
     records = [e.to_index_record() for e in entries]
     payload = {
         "generated": date.today().isoformat(),
@@ -248,7 +278,23 @@ def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
 
 
 def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write DIGEST.md (active entries only, one-field-per-line format)."""
+    """Write ``DIGEST.md`` containing only active solution entries.
+
+    Entries with ``status: active`` or no status field are included.  All
+    other statuses (``archived``, ``draft``, etc.) are silently excluded.
+    Entries with no status field emit a warning.
+
+    Args:
+        entries: Full list of :class:`SolutionEntry` objects.
+        out_path: Destination path for ``DIGEST.md``.
+            Parent directories are created automatically.
+
+    Returns:
+        None.  Prints a confirmation line to stdout.
+
+    Example:
+        >>> build_digest(entries, Path(".cg-docs/DIGEST.md"))
+    """
     for e in entries:
         if e.status == "":
             warnings.warn(
@@ -275,7 +321,19 @@ def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    """Build and return the CLI argument parser for cg-index."""
+    """Build and return the CLI argument parser for ``cg-index``.
+
+    Returns:
+        Configured :class:`argparse.ArgumentParser` with ``--brain``,
+        ``--index``, ``--digest``, ``--all``, ``--root``, and ``--version``
+        flags.
+
+    Example:
+        >>> parser = build_arg_parser()
+        >>> args = parser.parse_args(["--brain"])
+        >>> args.brain
+        True
+    """
     parser = argparse.ArgumentParser(
         prog="cg-index",
         description="Compound GPID knowledge indexer.",
@@ -318,10 +376,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    """Run cg-index CLI.
+    """Run the ``cg-index`` CLI.
 
-    argv defaults to sys.argv[1:] when None. Returns an int exit code
-    (0 on success, 1 on fatal error).
+    Args:
+        argv: Argument list to parse.  Defaults to ``sys.argv[1:]`` when
+            ``None``.
+
+    Returns:
+        Integer exit code: ``0`` on success, ``1`` on fatal error.
+
+    Example:
+        >>> import sys
+        >>> sys.exit(main(["--brain"]))
     """
     parser = build_arg_parser()
     args = parser.parse_args(argv)
@@ -362,12 +428,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         try:
             from brain import build_brain
             from brain.renderer import render_brain
-            data = build_brain(root)
             with warnings.catch_warnings(record=True) as captured:
                 warnings.simplefilter("always")
+                data = build_brain(root)
                 render_brain(data, out_dir=cg_docs_dir)
-                for w in captured:
-                    print(f"[cg-index] WARNING: {w.message}", file=sys.stderr)
+            for w in captured:
+                print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
             print(
                 f"[cg-index] Brain index written to {cg_docs_dir} "
                 f"({len(data.entities)} entities, {len(data.topics)} topics, "
@@ -405,7 +471,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             warnings.simplefilter("always")
             entries = scan_solutions(solutions_dir, root)
             for w in captured:
-                print(f"[cg-index] WARNING: {w.message}", file=sys.stderr)
+                print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
     except OSError as exc:
         print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
         return 1

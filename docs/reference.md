@@ -64,6 +64,20 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 | `/cg-commit-push-pr` | Claude Sonnet 4.6 | Stage changes into logical commits (grouped by file type: code, tests, docs, config, plans), generate conventional commit messages, push, and open a PR with a plan-driven description. Proposes commit splits interactively. Requires `gh` CLI for PR creation — degrades gracefully with install instructions if missing. |
 | `/cg-verify-pr [--propose]` | Claude Sonnet 4.6 | Check CI status on the current branch's PR and auto-fix failures. Classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific). One fix round per invocation; 2-round cap tracked via `fix(ci):` commit count. Re-invoke after CI re-runs to apply a second round. Use `--propose` for observe-only diagnosis (no commits or pushes). |
+
+### `cg-index --brain` — Diagnostic Warnings
+
+`cg-index --brain` writes scan-pass warnings to **stderr** during execution:
+
+| Message | Meaning |
+|---------|---------|
+| `[cg-index] WARNING: Skipping <file>: …` | File could not be read (UnicodeDecodeError, OSError) — excluded from brain index. |
+| `[cg-index] WARNING: Skipping <file>: no frontmatter found` | File lacks a `---` YAML block — excluded from index. |
+| `[cg-index] WARNING: <file>: missing required field(s): …` | Frontmatter is missing `title` or `date` — included but may sort incorrectly. |
+| `[cg-index] WARNING: Duplicate frontmatter key '<key>'` | Frontmatter has a repeated key — only the last value is used. |
+| `[cg-index] WARNING: roadmap feature … has no 'id'; skipping` | Roadmap feature entry lacks an `id` field — not linked in the brain. |
+
+To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 <!-- cg:auto:end -->
 
 > **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 37 prompt and agent files.

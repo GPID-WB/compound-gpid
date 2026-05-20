@@ -24,7 +24,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Protocol, Tuple
+from typing import Dict, List, Protocol, Tuple
 
 from brain import Entity, Topic
 
@@ -128,13 +128,13 @@ def _weighted_jaccard(
     all_keys = set(kws_a.keys()) | set(kws_b.keys())
     if not all_keys:
         return 0.0
-    intersection = sum(
-        min(kws_a.get(k, 0.0), kws_b.get(k, 0.0)) for k in all_keys
-    )
-    union = sum(
-        max(kws_a.get(k, 0.0), kws_b.get(k, 0.0)) for k in all_keys
-    )
-    return intersection / union if union > 0.0 else 0.0
+    total_min = 0.0
+    total_max = 0.0
+    for k in all_keys:
+        va, vb = kws_a.get(k, 0.0), kws_b.get(k, 0.0)
+        total_min += min(va, vb)
+        total_max += max(va, vb)
+    return total_min / total_max if total_max > 0.0 else 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -218,13 +218,13 @@ class _GreedyAgglomerative:
                 inv_index[kw].append(idx)
 
         # Collect candidate pairs (entities that share at least one keyword)
-        candidate_pairs: Dict[FrozenSet[int], float] = {}
+        candidate_pairs: Dict[Tuple[int, int], float] = {}
         for indices in inv_index.values():
             for i in range(len(indices)):
                 for j in range(i + 1, len(indices)):
-                    pair = frozenset((indices[i], indices[j]))
+                    a, b = indices[i], indices[j]
+                    pair: Tuple[int, int] = (a, b) if a < b else (b, a)
                     if pair not in candidate_pairs:
-                        a, b = indices[i], indices[j]
                         candidate_pairs[pair] = _weighted_jaccard(
                             kw_dicts[a], kw_dicts[b]
                         )
@@ -239,7 +239,7 @@ class _GreedyAgglomerative:
         for pair, similarity in sorted_pairs:
             if similarity < _MERGE_THRESHOLD:
                 break  # pairs are sorted; no need to continue
-            a, b = tuple(pair)
+            a, b = pair
             uf.union(a, b)
 
         # Build clusters; discard those below min_cluster_size

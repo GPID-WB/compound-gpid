@@ -97,21 +97,19 @@ def scan_all(root: Path) -> List[Entity]:
 
         try:
             text = md_path.read_text(encoding="utf-8")
-        except OSError as exc:
+        except (OSError, UnicodeDecodeError) as exc:
             warnings.warn(
                 f"[brain.scanner] Could not read {md_path}: {exc}",
                 stacklevel=2,
             )
             continue
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            frontmatter = parse_frontmatter(text)
-            summary = extract_summary(text)
+        frontmatter = parse_frontmatter(text)
+        summary = extract_summary(text)
 
         entities.append(
             Entity(
-                path=md_path,
+                path=md_path.relative_to(root),
                 entity_type=entity_type,
                 frontmatter=frontmatter,
                 summary=summary,
@@ -151,9 +149,16 @@ def scan_roadmap(root: Path) -> List[Entity]:
 
     try:
         data = json.loads(roadmap_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         warnings.warn(
             f"[brain.scanner] Could not parse roadmap.json: {exc}",
+            stacklevel=2,
+        )
+        return []
+
+    if not isinstance(data, dict):
+        warnings.warn(
+            "[brain.scanner] roadmap.json is not a JSON object — skipping.",
             stacklevel=2,
         )
         return []
@@ -167,6 +172,10 @@ def scan_roadmap(root: Path) -> List[Entity]:
         for feature in milestone.get("features", []):
             feature_id: str = feature.get("id", "")
             if not feature_id:
+                warnings.warn(
+                    f"[brain.scanner] roadmap feature in milestone '{m_title}' has no 'id'; skipping.",
+                    stacklevel=2,
+                )
                 continue
 
             feature_title: str = feature.get("title", feature_id)

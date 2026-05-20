@@ -103,6 +103,12 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **After `/cg-wiki init`, promote the command/API reference page from `manual` to `auto`**: `_wiki.yml` bootstraps all pages as `ownership: "manual"`. A `manual` page is never written by the plugin — the agent can only produce "update manually" notifications, which are silently discarded unless the parent prompt surfaces them. For command/API reference pages that track CLI flags and behaviors, change the entry to `ownership: "auto"` with a `sections:` list, then add `<!-- cg:auto:<id> -->` / `<!-- cg:auto:end -->` markers to the page. Without this, `/cg-compound` can never auto-update docs even when trigger criteria fire. See the **Post-`init` Checklist** in `cg-skill-wiki` for step-by-step instructions, and `.cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md` for full diagnosis.
 
+## Python Coding Conventions
+
+- **`warnings.catch_warnings()` context must wrap the root call**: When using `with warnings.catch_warnings(record=True)` to funnel pipeline warnings, the entry-point call must be the **first** statement inside the `with` block — never before it. Any call made before the block opens is processed by Python's default `once`-per-location filter, silently suppressing repeated warnings on subsequent runs. Diagnostic: if `captured` is unexpectedly empty after a run that should emit warnings, the entry point is outside the block. Move the `for w in captured:` loop outside the `with` block after the context exits. See `.cg-docs/solutions/bugs/2026-05-19-python-warnings-catch-warnings-scope-excludes-root-call.md`.
+
+- **`sorted(reverse=True)` on a compound tuple key reverses ALL components**: `sorted(items, key=lambda e: (primary, secondary), reverse=True)` reverses both `primary` (intended) and `secondary` (often unintended). For mixed-direction sorts (e.g., date DESC, title ASC), use a two-pass stable sort: `items.sort(key=secondary)` then `items.sort(key=primary, reverse=True)`. Python's sort is guaranteed stable — the first-pass order is preserved within equal primary-key groups. For integer primary keys, numeric negation (`-int(date)`) achieves the same in a single pass. See `.cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md`.
+
 ## Wiki Configuration
 
 Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directives — preserve the `<!-- key: value -->` format exactly.
