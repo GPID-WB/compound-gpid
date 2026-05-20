@@ -644,3 +644,19 @@ Describe "cg-index.py --brain missing .cg-docs/" {
         "$stderr" | Should -Match 'ERROR'
     }
 }
+
+# ---------------------------------------------------------------------------
+# --brain source: ImportError handler (P1.1 fix)
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain ImportError handling" {
+    $cgIndexSource = Join-Path $repoRoot "scripts\cg_index.py"
+    $source = Get-Content $cgIndexSource -Raw -Encoding UTF8
+
+    It "catches ImportError separately from OSError in brain mode" {
+        ($source -match 'except ImportError') | Should -Be $true
+    }
+
+    It "emits a 'brain package not available' message for ImportError" {
+        ($source -match 'brain package not available') | Should -Be $true
+    }
+}

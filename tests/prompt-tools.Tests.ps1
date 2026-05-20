@@ -4822,3 +4822,143 @@ Describe "cg-compound.prompt.md - auto-enrich default" {
         ($content -match 'auto-enrichment') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# Batch B — cg-brain-rebuild.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-brain-rebuild.prompt.md - file existence" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brain-rebuild.prompt.md"
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should -Be $true
+    }
+}
+
+Describe "cg-brain-rebuild.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brain-rebuild.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    It "has a description in frontmatter" {
+        $frontmatter | Should -Match 'description:'
+    }
+
+    It "has a model in frontmatter" {
+        $frontmatter | Should -Match 'model:'
+    }
+}
+
+Describe "cg-brain-rebuild.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brain-rebuild.prompt.md"
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
+        ($frontmatter -notmatch 'tools:') | Should -Be $true
+    }
+}
+
+Describe "cg-brain-rebuild.prompt.md - content" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brain-rebuild.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has Step 0 Get Bearings" {
+        ($content -match '### Step 0') | Should -Be $true
+    }
+
+    It "references cg-index --brain command" {
+        ($content -match 'cg-index --brain') | Should -Be $true
+    }
+
+    It "references BRAIN.md as an output to verify" {
+        ($content -match 'BRAIN\.md') | Should -Be $true
+    }
+
+    It "documents the secondary stdout success pattern" {
+        ($content -match '\[cg-index\] Brain index written to') | Should -Be $true
+    }
+
+    It "uses exit code as primary success signal (not file existence)" {
+        ($content -match 'exit code|non-zero') | Should -Be $true
+    }
+
+    It "has a When to Use section" {
+        ($content -match 'When to Use') | Should -Be $true
+    }
+
+    It "includes action when BRAIN.md absent despite successful exit" {
+        ($content -match 'absent despite|not found despite') | Should -Be $true
+    }
+
+    It "includes error handling guidance for cg-index not on PATH" {
+        ($content -match 'not on PATH|cg-index --version') | Should -Be $true
+    }
+
+    It "includes /cg-setup recommendation in Step 3 error handling" {
+        ($content -match '/cg-setup') | Should -Be $true
+    }
+
+    It "includes error handling guidance for missing .cg-docs/ (wrong working directory)" {
+        ($content -match '\.cg-docs|project root') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Batch B — copilot-instructions.md must include /cg-brain-rebuild
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - /cg-brain-rebuild in Workflow Entry Points" {
+    $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $rawContent = Get-Content $instructionsFile -Raw -Encoding UTF8
+    $section = if ($rawContent -match '(?s)(## Workflow Entry Points.*?)(\r?\n## |\z)') { $Matches[1] } else { "" }
+
+    It "references /cg-brain-rebuild in Workflow Entry Points" {
+        ($section -match '/cg-brain-rebuild') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Batch B — cg-compound.prompt.md uses --brain not --digest
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - uses cg-index --brain (Batch B)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 3b references cg-index --brain" {
+        ($content -match 'cg-index --brain') | Should -Be $true
+    }
+
+    It "Step 3b title references Brain not Digest" {
+        ($content -match 'Rebuild Knowledge Brain') | Should -Be $true
+    }
+
+    It "does not reference cg-index --digest (legacy flag removed)" {
+        ($content -match 'cg-index --digest') | Should -Be $false
+    }
+
+    It "File Permissions references cg-index --brain not --digest" {
+        ($content -match '--digest') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Batch B — docs/reference.md and docs/model-guide.md list /cg-brain-rebuild
+# ---------------------------------------------------------------------------
+
+Describe "docs/reference.md - /cg-brain-rebuild registration" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = Get-Content $refFile -Raw -Encoding UTF8
+
+    It "docs/reference.md lists /cg-brain-rebuild" {
+        ($content -match '/cg-brain-rebuild') | Should -Be $true
+    }
+}
+
+Describe "docs/model-guide.md - cg-brain-rebuild model assignment" {
+    $guideFile = Join-Path $repoRoot "docs\model-guide.md"
+    $content = Get-Content $guideFile -Raw -Encoding UTF8
+
+    It "docs/model-guide.md lists cg-brain-rebuild.prompt.md" {
+        ($content -match 'cg-brain-rebuild\.prompt\.md') | Should -Be $true
+    }
+}
