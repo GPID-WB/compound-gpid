@@ -1,19 +1,19 @@
 {
-  "generated": "2026-05-19",
+  "generated": "2026-05-20",
   "schema_version": "0.2.0",
-  "entity_count": 400,
+  "entity_count": 405,
   "topic_count": 3,
-  "edge_count": 152,
+  "edge_count": 156,
   "topics": [
     {
-      "slug": "roadmap-json-prompt-tools-tests-ps1-should-be",
-      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Should Be",
+      "slug": "roadmap-json-prompt-tools-tests-ps1-copilot-instructions-md",
+      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md",
       "keywords": [
         "roadmap.json",
         "prompt-tools.tests.ps1",
-        "should be"
+        "copilot-instructions.md"
       ],
-      "entity_count": 272,
+      "entity_count": 277,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -48,6 +48,7 @@
         ".cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md",
         ".cg-docs/brainstorms/2026-05-18-command-default-behaviors.md",
         ".cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md",
+        ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -100,6 +101,7 @@
         ".cg-docs/plans/2026-05-18-command-default-behaviors.md",
         ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md",
         ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
+        ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
         ".cg-docs/reviews/2026-04-01-charter-maintenance-review.md",
@@ -177,6 +179,8 @@
         ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
         ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
         ".cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md",
+        ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
+        ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -208,6 +212,7 @@
         ".cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md",
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
+        ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -1419,6 +1424,35 @@
         "brain-01.md",
         "brain-02.md",
         "brain-log.md"
+      ]
+    },
+    {
+      "path": ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "entity_type": "brainstorm",
+      "slug": "2026-05-20-knowledge-brain-read-path-batch-c",
+      "title": "Knowledge Brain Read Path — Batch C Design",
+      "date": "2026-05-20",
+      "status": "decided",
+      "tags": [
+        "brain",
+        "read-path",
+        "prompt-integration",
+        "skill",
+        "brain-query",
+        "knowledge-brain"
+      ],
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "top_keywords": [
+        "consult brain",
+        "cg-skill-brain-query",
+        "--no-brain",
+        "/cg-compound",
+        "brain.md",
+        "skill",
+        "brain",
+        "approach",
+        "/cg-brainstorm",
+        "/cg-plan"
       ]
     },
     {
@@ -3016,6 +3050,35 @@
         "cg-index",
         "brain",
         "/cg-compound"
+      ]
+    },
+    {
+      "path": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "entity_type": "plan",
+      "slug": "2026-05-20-knowledge-brain-read-path-batch-c",
+      "title": "Knowledge Brain Read Path — Batch C",
+      "date": "2026-05-20",
+      "status": "completed",
+      "tags": [
+        "brain",
+        "read-path",
+        "prompt-integration",
+        "skill",
+        "brain-query",
+        "knowledge-brain"
+      ],
+      "summary": "Wire the brain read path so that every major command consults `.cg-docs/BRAIN.md` before acting, surfacing relevant institutional knowledge (takeaways, gotchas, patterns, edge cases) adapted to the current task. Create a `cg-skill-brain-query` skill that teaches agents *how* to navigate, extract, evaluate, and prioritize brain entries, while each prompt specifies *what* to search for.",
+      "top_keywords": [
+        "consult brain",
+        "cg-skill-brain-query",
+        "--no-brain",
+        "test scenarios",
+        "brain",
+        "brain-enabled = false",
+        "cg-review",
+        "cg-fix-triage",
+        "consult",
+        "/cg-review"
       ]
     },
     {
@@ -4757,6 +4820,50 @@
       ]
     },
     {
+      "path": ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
+      "entity_type": "review",
+      "slug": "2026-05-20-knowledge-brain-read-path-batch-c-review",
+      "title": "2026-05-20-knowledge-brain-read-path-batch-c-review",
+      "date": "2026-05-20",
+      "status": "",
+      "tags": [],
+      "summary": "**Review depth**: thorough **Files reviewed**: 54 (42 committed + 12 uncommitted working-tree changes) **Branch**: `feat/knowledge-brain-engine` (PR #42) **Findings**: 24 (P0: 0, P1: 4, P2: 14, P3: 6)",
+      "top_keywords": [
+        "[safe_auto]",
+        "[manual]",
+        "[advisory]",
+        "brain-index.json",
+        "roadmap.json",
+        "brain.md",
+        "renderer.py",
+        "scripts/brain/renderer.py",
+        "warnings.warn(...)",
+        "scripts/brain/clusterer.py"
+      ]
+    },
+    {
+      "path": ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md",
+      "entity_type": "review",
+      "slug": "2026-05-20-knowledge-brain-read-path-batch-c-verify-review",
+      "title": "2026-05-20-knowledge-brain-read-path-batch-c-verify-review",
+      "date": "2026-05-20",
+      "status": "",
+      "tags": [],
+      "summary": "**Review depth**: light (forced by `mode:verify`) **Files reviewed**: 10 (scripts/brain/renderer.py, edge_detector.py, scanner.py, clusterer.py, tests/test_edge_detector.py, tests/test_clusterer.py, tests/test_scanner.py, tests/test_renderer.py, tests/cg-index.Tests.ps1, tests/prompt-tools.Tests.ps1) **Findings**: 7 (P0: 0, P1: 3, P2: 2, P3: 2) **Agents**: cg-code-quality, cg-testing",
+      "top_keywords": [
+        "_entity_line()",
+        "test_renderer.py",
+        "test_clusterer.py",
+        "test_edge_detector.py",
+        "scanner.py",
+        "clusterer.py",
+        "quote()",
+        "_sanitize_inline()",
+        "_sanitize_inline",
+        "_resolve_path()"
+      ]
+    },
+    {
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
       "entity_type": "solution",
       "slug": "2026-03-17-run-in-threadpool-does-not-bypass-gil",
@@ -6001,6 +6108,39 @@
         "catch_warnings",
         "cg_index.py",
         "with warnings.catch_warnings()"
+      ]
+    },
+    {
+      "path": ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+      "entity_type": "solution",
+      "slug": "2026-05-20-fix-helper-written-but-not-wired-into-call-site",
+      "title": "Security fix helpers written but never called from the protected call site",
+      "date": "2026-05-20",
+      "status": "",
+      "tags": [
+        "refactor",
+        "dead-code",
+        "call-site",
+        "security",
+        "url-encoding",
+        "sanitization",
+        "path-traversal",
+        "verify-pass",
+        "renderer",
+        "edge-detector"
+      ],
+      "summary": "A `/cg-review` thorough pass on `scripts/brain/renderer.py` identified two security findings: - **P1.2** — Paths in markdown links must be URL-encoded (e.g. `fix(v2).md` terminates the link early at the `)`) - **P2.4** — Titles in markdown links must escape `(`, `)`, `]`, and strip newlines to prevent link-attribute injection The fix session added the protective helpers: But `_entity_line()` — the only function that builds `[title](path)` links — was never updated: Both functions were dead code. The vulnerabilities were still present. The prior review session marked both findings as `fixed` in the frontmatter — incorrectly. A companion bug in `edge_detector.py`: `_resolve_path()` correctly...",
+      "top_keywords": [
+        "_entity_line()",
+        "quote",
+        "renderer.py",
+        "edge_detector.py",
+        ".resolve()",
+        "security",
+        "dotdot",
+        "site",
+        "fix",
+        "called"
       ]
     },
     {
@@ -10652,7 +10792,7 @@
       "slug": "brain-prompt-integration",
       "title": "Prompt integration — Consult Brain in Step 0",
       "date": "",
-      "status": "planned",
+      "status": "done",
       "tags": [],
       "summary": "Prompt integration — Consult Brain in Step 0",
       "top_keywords": [
@@ -10674,7 +10814,7 @@
       "slug": "brain-query-skill",
       "title": "cg-skill-brain-query (agent brain search patterns)",
       "date": "",
-      "status": "planned",
+      "status": "done",
       "tags": [],
       "summary": "cg-skill-brain-query (agent brain search patterns)",
       "top_keywords": [
@@ -11145,6 +11285,12 @@
       "target_missing": false
     },
     {
+      "source": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "edge_type": "decided_from",
+      "target_missing": false
+    },
+    {
       "source": ".cg-docs/reviews/2026-04-06-review-finding-status-tracking-review.md",
       "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "edge_type": "reviews",
@@ -11565,6 +11711,18 @@
       "target_missing": false
     },
     {
+      "source": ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
+      "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "edge_type": "reviews",
+      "target_missing": false
+    },
+    {
+      "source": ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md",
+      "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
+      "edge_type": "verifies",
+      "target_missing": false
+    },
+    {
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": "E:/PovcalNet/01.personal/wb384996/GPID-team/compound-gpid/.cg-docs/plans/2026-04-07-full-model-audit.md",
       "edge_type": "references",
@@ -11741,6 +11899,12 @@
     {
       "source": ".cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md",
       "target": ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md",
+      "edge_type": "references",
+      "target_missing": false
+    },
+    {
+      "source": ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
+      "target": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
       "edge_type": "references",
       "target_missing": false
     },

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
+_Generated 2026-05-20 · 317 artifacts (newest first) + 88 roadmap features_
 
 ## undated
 
@@ -101,6 +101,19 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 - **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
 
+## 2026-05-20
+
+- **[2026-05-20-knowledge-brain-read-path-batch-c-review](.cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md)** · `review` · _—_ · `2026-05-20`
+  > **Review depth**: thorough **Files reviewed**: 54 (42 committed + 12 uncommitted working-tree changes) **Branch**: `f…
+- **[2026-05-20-knowledge-brain-read-path-batch-c-verify-review](.cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md)** · `review` · _—_ · `2026-05-20`
+  > **Review depth**: light (forced by `mode:verify`) **Files reviewed**: 10 (scripts/brain/renderer.py, edge_detector.py…
+- **[Knowledge Brain Read Path — Batch C](.cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md)** · `plan` · _completed_ · `2026-05-20`
+  > Wire the brain read path so that every major command consults `.cg-docs/BRAIN.md` before acting, surfacing relevant i…
+- **[Knowledge Brain Read Path — Batch C Design](.cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md)** · `brainstorm` · _decided_ · `2026-05-20`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Security fix helpers written but never called from the protected call site](.cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md)** · `solution` · _—_ · `2026-05-20`
+  > A `/cg-review` thorough pass on `scripts/brain/renderer.py` identified two security findings: - **P1.2** — Paths in m…
+
 ## 2026-05-19
 
 - **[/cg-compound wiki update silently skipped — all docs/_wiki.yml pages were manual-ownership](.cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md)** · `solution` · _—_ · `2026-05-19`
@@ -123,9 +136,9 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > When writing Pester assertions that must match a specific field within one YAML entry (without falsely matching a fie…
 - **[Python try/except scope: cleanup code inside try causes false exit-1; ImportError not caught by OSError-only handler](.cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md)** · `solution` · _—_ · `2026-05-19`
   > Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit …
-- **[sorted(reverse=True) on compound tuple key reverses all components — use two-pass stable sort for mixed direction](.cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md)** · `solution` · _—_ · `2026-05-19`
+- **[sorted\(reverse=True\) on compound tuple key reverses all components — use two-pass stable sort for mixed direction](.cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md)** · `solution` · _—_ · `2026-05-19`
   > `_write_brain_log()` in `renderer.py` sorted entities newest-first by date, then alphabetically by title. The impleme…
-- **[warnings.catch_warnings() context must wrap the root call, not just its callees](.cg-docs/solutions/bugs/2026-05-19-python-warnings-catch-warnings-scope-excludes-root-call.md)** · `solution` · _—_ · `2026-05-19`
+- **[warnings.catch_warnings\(\) context must wrap the root call, not just its callees](.cg-docs/solutions/bugs/2026-05-19-python-warnings-catch-warnings-scope-excludes-root-call.md)** · `solution` · _—_ · `2026-05-19`
   > `cg_index.py` wrapped only `render_brain()` in a `with warnings.catch_warnings(record=True)` block — `build_brain()` …
 
 ## 2026-05-18
@@ -150,7 +163,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Flip the five main workflow commands to opinionated defaults so users get the most common behavior without flags. Eac…
 - **[compound-gpid repo not wired as its own wiki consumer — docs/ folder ignored by /cg-wiki and /cg-compound](.cg-docs/solutions/bugs/2026-05-18-compound-gpid-repo-not-wired-as-wiki-consumer.md)** · `solution` · _—_ · `2026-05-18`
   > Running `/cg-wiki` or `/cg-compound` (after a user-facing change) in the compound-gpid repo either reported "no manif…
-- **[PS 5.1 Set-StrictMode crashes on bare $IsWindows access (variable not set)](.cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md)** · `solution` · _—_ · `2026-05-18`
+- **[PS 5.1 Set-StrictMode crashes on bare $IsWindows access \(variable not set\)](.cg-docs/solutions/bugs/2026-05-18-ps51-strict-mode-iswindows-variable-not-set-crash.md)** · `solution` · _—_ · `2026-05-18`
   > Running `cg-link` on a project using Windows PowerShell 5.1 produced:
 - **[Regex extraction vacuous pass — Groups[1\].Value returns empty string on no match](.cg-docs/solutions/testing-patterns/2026-05-18-regex-extraction-vacuous-pass-empty-string-comparison.md)** · `solution` · _—_ · `2026-05-18`
   > A drift-detection test in `tests/wiki.Tests.ps1` extracted a folder value from two files using `[regex]::Match(...).G…
@@ -163,7 +176,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > **Review depth**: light (forced by mode:verify) **Files reviewed**: 19 (12 modified, 7 new) **Mode**: mode:verify **P…
 - **[Auto-generated project wiki](.cg-docs/plans/2026-05-15-auto-generated-project-wiki.md)** · `plan` · _completed_ · `2026-05-15`
   > Build a dedicated `@cg-wiki` agent and supporting infrastructure that creates and maintains a user-facing project wik…
-- **[Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)](.cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md)** · `brainstorm` · _decided_ · `2026-05-15`
+- **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](.cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md)** · `brainstorm` · _decided_ · `2026-05-15`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[cg-commit-push-pr always paused for user confirmation — no auto-proceed mode](.cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-always-waits-for-confirmation.md)** · `solution` · _—_ · `2026-05-15`
   > `/cg-commit-push-pr` always halted twice mid-execution: 1. **Step 2.3** — after proposing the commit grouping: "Wait …
@@ -221,7 +234,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
 - **[link.ps1 runs on macOS via pwsh, Step 6 verification fails due to backslash path separator](.cg-docs/solutions/bugs/2026-05-13-link-ps1-runs-on-macos-verification-fails.md)** · `solution` · _—_ · `2026-05-13`
   > After running `cg-link` on macOS the terminal shows:
-- **[PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)](.cg-docs/plans/2026-05-13-pr-verification-pipeline.md)** · `plan` · _completed_ · `2026-05-13`
+- **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](.cg-docs/plans/2026-05-13-pr-verification-pipeline.md)** · `plan` · _completed_ · `2026-05-13`
   > Add automated cross-platform verification to the CI pipeline so that PRs which pass unit tests but fail on real machi…
 - **[PR verification strategy for cross-platform CLI tool](.cg-docs/brainstorms/2026-05-13-pr-verification-strategy-cross-platform.md)** · `brainstorm` · _decided_ · `2026-05-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
@@ -245,7 +258,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Build `scripts/cg-index.py` — a stdlib-only Python script that produces two artifacts from a project's `.cg-docs/` di…
 - **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
   > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
-- **[Python non-atomic Path.write_text() truncates on crash — use mkstemp + os.replace](.cg-docs/solutions/bugs/2026-05-07-python-nonatomic-path-write-use-mkstemp-replace.md)** · `solution` · _—_ · `2026-05-07`
+- **[Python non-atomic Path.write_text\(\) truncates on crash — use mkstemp + os.replace](.cg-docs/solutions/bugs/2026-05-07-python-nonatomic-path-write-use-mkstemp-replace.md)** · `solution` · _—_ · `2026-05-07`
   > `Path.write_text(content)` and `open(path, 'w')` are not atomic. The OS truncates the destination file to zero bytes …
 - **[scripts/link.sh missing executable bit in git index](.cg-docs/solutions/bugs/2026-05-07-link-sh-missing-executable-bit.md)** · `solution` · _—_ · `2026-05-07`
   > Running `cg-link` after a fresh install fails immediately with:
@@ -262,7 +275,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dis…
 - **[Implicit output template in agent spec — 'same as X but omit Y' causes non-deterministic rendering](.cg-docs/solutions/testing-patterns/2026-05-06-implicit-output-template-same-as-x-but-omit-y-ambiguous.md)** · `solution` · _—_ · `2026-05-06`
   > `cg-roadmap-view.agent.md` specifies the `tasks-milestone` view as: > Same as `milestone` view but focused on the fea…
-- **[Pester write-guard regex with ^ always false without (?m) — silent false-positive](.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md)** · `solution` · _—_ · `2026-05-06`
+- **[Pester write-guard regex with ^ always false without \(?m\) — silent false-positive](.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md)** · `solution` · _—_ · `2026-05-06`
   > A write-guard test for `cg-roadmap-view.agent.md` was written as: This test **always passes** — not because the agent…
 - **[Roadmap Visualization — Agent + Prompt Wrapper](.cg-docs/brainstorms/2026-05-06-roadmap-visualization.md)** · `brainstorm` · _decided_ · `2026-05-06`
   > The project roadmap lives in `roadmap.json` — a ~500-line JSON file with 9 milestones and ~57 features. It's too diff…
@@ -285,7 +298,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Cross-platform macOS support — parallel shell scripts](.cg-docs/plans/2026-05-05-cross-platform-macos-support.md)** · `plan` · _active_ · `2026-05-05`
   > Add macOS support to the Compound GPID plugin distribution by creating parallel bash scripts (`install.sh`, `link.sh`…
-- **[duplicates tag clears r(N) — insert count before conditional display](.cg-docs/solutions/data-quality/2026-05-05-duplicates-tag-clears-r-N-use-count-before-conditional-display.md)** · `solution` · _—_ · `2026-05-05`
+- **[duplicates tag clears r\(N\) — insert count before conditional display](.cg-docs/solutions/data-quality/2026-05-05-duplicates-tag-clears-r-N-use-count-before-conditional-display.md)** · `solution` · _—_ · `2026-05-05`
   > The following pattern produces a silently-suppressed diagnostic: `display as error` never fires even when duplicates …
 - **[JSON-escaped quotes leak literal backslash-quote into PowerShell files](.cg-docs/solutions/bugs/2026-05-05-json-escaped-quotes-leak-into-ps1-files.md)** · `solution` · _—_ · `2026-05-05`
   > After using `multi_replace_string_in_file` (or a second sequential `replace_string_in_file`) to insert PowerShell cod…
@@ -310,9 +323,9 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 16 (`.github/skills/cg-skill-stata-testing/SKILL.md` + 6 reference fil…
 - **[2026-05-04-stata-testing-skill-revised-verify-review](.cg-docs/reviews/2026-05-04-stata-testing-skill-revised-verify-review.md)** · `review` · _—_ · `2026-05-04`
   > **Review depth**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-05-04-stata-testing-skill-revised-rev…
-- **[Stata Testing & Reproducibility Skill (cg-skill-stata-testing)](.cg-docs/plans/2026-05-04-stata-testing-skill.md)** · `plan` · _superseded_ · `2026-05-04`
+- **[Stata Testing & Reproducibility Skill \(cg-skill-stata-testing\)](.cg-docs/plans/2026-05-04-stata-testing-skill.md)** · `plan` · _superseded_ · `2026-05-04`
   > Create a new skill `cg-skill-stata-testing` that teaches Stata developers reproducible testing workflows — from inlin…
-- **[Stata Testing & Reproducibility Skill (cg-skill-stata-testing) — revised](.cg-docs/plans/2026-05-04-stata-testing-skill-revised.md)** · `plan` · _completed_ · `2026-05-04`
+- **[Stata Testing & Reproducibility Skill \(cg-skill-stata-testing\) — revised](.cg-docs/plans/2026-05-04-stata-testing-skill-revised.md)** · `plan` · _completed_ · `2026-05-04`
   > > **Revision note**: Supersedes `2026-05-04-stata-testing-skill.md`. Addresses > findings from two `/cg-plan-review` …
 
 ## 2026-05-01
@@ -331,7 +344,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > A test was written to verify that the scanner injection sanitization block in `cg-setup.prompt.md` named all three tr…
 - **[Smart /cg-setup Phase 2 — Scanner Integration, Quality Gate & Health Check](.cg-docs/plans/2026-05-01-smart-setup-phase2-integration.md)** · `plan` · _superseded_ · `2026-05-01`
   > Wire the `@cg-project-scanner` agent (shipped in Phase 1) into the user-facing `/cg-setup` flow. Rewrite Mode A to sc…
-- **[Smart /cg-setup Phase 2 — Scanner Integration, Quality Gate & Health Check (revised)](.cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md)** · `plan` · _completed_ · `2026-05-01`
+- **[Smart /cg-setup Phase 2 — Scanner Integration, Quality Gate & Health Check \(revised\)](.cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md)** · `plan` · _completed_ · `2026-05-01`
   > Wire the `@cg-project-scanner` agent (shipped in Phase 1) into the user-facing `/cg-setup` flow. Rewrite Mode A to sc…
 - **[Stata Testing Skill — Best Practices for Reproducible & Validated Analysis](.cg-docs/brainstorms/2026-05-01-stata-testing-skill.md)** · `brainstorm` · _decided_ · `2026-05-01`
   > <!-- Valid status values: decided, in-progress, abandoned -->
@@ -349,7 +362,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > **Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/agents/cg-project-scanner.agent.md`, `.gi…
 - **[Onboarding & Setup milestone expansion](.cg-docs/strategy/2026-04-29-onboarding-milestone-expansion.md)** · `strategy` · _—_ · `2026-04-29`
   > Performance milestone completed (6/6 done). Quality Loop (12/12) and Context Layer (5/5) also done. Skills Enhancemen…
-- **[Project scanner skill and agent (Phase 1)](.cg-docs/plans/2026-04-29-project-scanner-skill-agent-phase1.md)** · `plan` · _completed_ · `2026-04-29`
+- **[Project scanner skill and agent \(Phase 1\)](.cg-docs/plans/2026-04-29-project-scanner-skill-agent-phase1.md)** · `plan` · _completed_ · `2026-04-29`
   > Build the project scanner infrastructure — a skill file containing the signal catalog (what files to look for, what t…
 - **[Smart /cg-setup with project scanner agent](.cg-docs/brainstorms/2026-04-29-smart-setup-project-scanner.md)** · `brainstorm` · _decided_ · `2026-04-29`
   > <!-- Valid status values: decided, in-progress, abandoned -->
@@ -383,7 +396,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 - **[Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes](.cg-docs/solutions/testing-patterns/2026-04-24-anti-loop-exclusion-in-iterative-review-modes.md)** · `solution` · _—_ · `2026-04-24`
   > `/cg-review mode:verify` scans `.cg-docs/reviews/` for the most recent review file with at least one `fixed` entry to…
-- **[Multi-day VS Code session (68h) accumulates event listeners — unresponsive freeze and controlled restart](.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md)** · `solution` · _—_ · `2026-04-24`
+- **[Multi-day VS Code session \(68h\) accumulates event listeners — unresponsive freeze and controlled restart](.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md)** · `solution` · _—_ · `2026-04-24`
   > After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and rest…
 
 ## 2026-04-23
@@ -412,7 +425,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 ## 2026-04-21
 
-- **[Competitive repo review system (/cg-review-repos prompt)](.cg-docs/plans/2026-04-21-competitive-repo-review-system.md)** · `plan` · _completed_ · `2026-04-21`
+- **[Competitive repo review system \(/cg-review-repos prompt\)](.cg-docs/plans/2026-04-21-competitive-repo-review-system.md)** · `plan` · _completed_ · `2026-04-21`
   > Build a structured system for tracking and reviewing external repos (Compound Engineering, Superpowers, GSD-2) to ide…
 - **[Competitive repo review system for feature discovery](.cg-docs/brainstorms/2026-04-21-competitive-repo-review-system.md)** · `brainstorm` · _decided_ · `2026-04-21`
   > <!-- Valid status values: decided, in-progress, abandoned -->
@@ -442,7 +455,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Despite 18+ documented VS Code crashes and a comprehensive `cg-skill-pester-safety` skill, agents continued to compos…
 - **[Exact count assertions prevent silent regression when test name states a specific count](.cg-docs/solutions/testing-patterns/2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md)** · `solution` · _—_ · `2026-04-17`
   > A test in `helpers.Tests.ps1` was named: > "all three unconfigured fields (project-type, language, review-depth) fall…
-- **[PS5.1 Get-Content default encoding (Windows-1252) breaks equality check when file was written with UTF-8](.cg-docs/solutions/bugs/2026-04-17-ps51-get-content-default-encoding-breaks-equality-check.md)** · `solution` · _—_ · `2026-04-17`
+- **[PS5.1 Get-Content default encoding \(Windows-1252\) breaks equality check when file was written with UTF-8](.cg-docs/solutions/bugs/2026-04-17-ps51-get-content-default-encoding-breaks-equality-check.md)** · `solution` · _—_ · `2026-04-17`
   > `link.ps1` reads the existing `copilot-instructions.md` to compare it with freshly generated content — skipping the w…
 - **[Structural prevention of agent-caused Pester crashes](.cg-docs/brainstorms/2026-04-17-structural-pester-crash-prevention.md)** · `brainstorm` · _decided_ · `2026-04-17`
   > <!-- Valid status values: decided, in-progress, abandoned -->
@@ -450,7 +463,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > > Revised after `@cg-plan-critic` review. Changes from v1 marked with > `[REVIEW FIX: P*.N]` annotations.
 - **[Structural prevention of agent-caused Pester crashes](.cg-docs/plans/2026-04-17-structural-pester-crash-prevention.md)** · `plan` · _superseded_ · `2026-04-17`
   > Eliminate the two failure modes that have caused 18+ VS Code crashes from agent-composed Pester commands. Category A …
-- **[Template {{placeholder}} tokens inside HTML comments are substituted by .Replace() loop, corrupting generated output](.cg-docs/solutions/bugs/2026-04-17-template-placeholder-tokens-in-html-comments-substituted-by-replace.md)** · `solution` · _—_ · `2026-04-17`
+- **[Template {{placeholder}} tokens inside HTML comments are substituted by .Replace\(\) loop, corrupting generated output](.cg-docs/solutions/bugs/2026-04-17-template-placeholder-tokens-in-html-comments-substituted-by-replace.md)** · `solution` · _—_ · `2026-04-17`
   > When adding a documentation comment to `copilot-instructions.template.md`, the comment was written with `{{placeholde…
 - **[YAML single-quoted values retain literal apostrophes when regex only strips double-quote delimiters](.cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md)** · `solution` · _—_ · `2026-04-17`
   > `compound-gpid.local.md` uses YAML frontmatter to store configuration. The field extraction regex in `helpers.ps1` wa…
@@ -476,7 +489,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > `cg-work.prompt.md`'s Test Failure Recovery block defined a 2-attempt limit scoped to a specific set of *targeted fai…
 - **[Per-step test failure handling in /cg-work](.cg-docs/plans/2026-04-15-per-step-test-failure-handling.md)** · `plan` · _completed_ · `2026-04-15`
   > Add a structured failure path to `/cg-work` Step 2.4 so that when functional tests (testthat, pytest, Pester) fail af…
-- **[Pester regex without (?s) gives silent false-negative on multi-line prompt content](.cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md)** · `solution` · _—_ · `2026-04-15`
+- **[Pester regex without \(?s\) gives silent false-negative on multi-line prompt content](.cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md)** · `solution` · _—_ · `2026-04-15`
   > Several Pester tests for `cg-work.prompt.md` used `.*` to span across a prompt phrase that happened to wrap across a …
 - **[Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns](.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md)** · `solution` · _—_ · `2026-04-15`
   > VS Code crashed **twice in a single fix-triage session** (2026-04-15) even though all terminal commands exited with c…
@@ -567,7 +580,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Add YAML frontmatter with per-finding status (`open`/`fixed`/`skipped`) to review files so that `/cg-resume` can dist…
 - **[Standalone R testing skill modeled on Posit's testing-r-packages](.cg-docs/brainstorms/2026-04-06-testing-skill-r.md)** · `brainstorm` · _decided_ · `2026-04-06`
   > The Quality Loop milestone includes a `testing-skill-r` feature (testthat/mockery). The existing testing content live…
-- **[Testing skill for R (cg-skill-r-testing)](.cg-docs/plans/2026-04-06-testing-skill-r.md)** · `plan` · _completed_ · `2026-04-06`
+- **[Testing skill for R \(cg-skill-r-testing\)](.cg-docs/plans/2026-04-06-testing-skill-r.md)** · `plan` · _completed_ · `2026-04-06`
   > Create a standalone `cg-skill-r-testing` skill that gives the AI comprehensive, demand-loaded testthat 3+ reference m…
 
 ## 2026-04-02
@@ -598,7 +611,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Schema validation code that loops over `roadmap.json` `milestones` and `features` arrays silently skipped records whe…
 - **[Test prompt frontmatter tools: list to guard against silent write failures](.cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md)** · `solution` · _—_ · `2026-03-30`
   > VS Code Copilot prompt files support a `tools:` key in their YAML frontmatter that restricts which tools the agent ma…
-- **[Test the interface contract between chained prompts (review -> fix-triage pipeline)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
+- **[Test the interface contract between chained prompts \(review -> fix-triage pipeline\)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
   > When two prompts are designed to work in sequence — the OUTPUT of one prompt is the INPUT of a follow-up prompt — the…
 - **[Validate derived state against stored state in schema tests](.cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md)** · `solution` · _—_ · `2026-03-30`
   > `Test-RoadmapSchema` validated that `milestone.status` was a member of the allowed enum (`planned`, `in-progress`, `d…
@@ -632,7 +645,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 ## 2026-03-22
 
-- **[Checklist for consolidating (merging/renaming) VS Code Copilot skills](.cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md)** · `solution` · _—_ · `2026-03-22`
+- **[Checklist for consolidating \(merging/renaming\) VS Code Copilot skills](.cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md)** · `solution` · _—_ · `2026-03-22`
   > When two skills (`cg-skill-stata-core` + `cg-skill-stata-research`) were merged into `cg-skill-stata-best-practices`,…
 
 ## 2026-03-20
@@ -669,11 +682,11 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > A cross-reference link in `r-analytical-anti-patterns.md` read: This path resolves *relative to the file's location*,…
 - **[collapse na.rm global option differs from base R and affects all f* functions](.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md)** · `solution` · _—_ · `2026-03-18`
   > All collapse Fast Statistical Functions (`fmean`, `fsum`, `fmedian`, `fvar`, etc.) default to `na.rm = TRUE` — the **…
-- **[Plumber endpoint testing: make_req() helper pattern](.cg-docs/solutions/testing-patterns/2026-03-18-plumber-make-req-helper-for-unit-tests.md)** · `solution` · _—_ · `2026-03-18`
+- **[Plumber endpoint testing: make_req\(\) helper pattern](.cg-docs/solutions/testing-patterns/2026-03-18-plumber-make-req-helper-for-unit-tests.md)** · `solution` · _—_ · `2026-03-18`
   > When writing unit tests for plumber API endpoints using `pr$call()`, there is no built-in `make_req()` function in pl…
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
   > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
-- **[survey_mean_se() divides by zero on singleton PSU strata](.cg-docs/solutions/data-quality/2026-03-18-survey-mean-se-singleton-psu-divide-by-zero.md)** · `solution` · _—_ · `2026-03-18`
+- **[survey_mean_se\(\) divides by zero on singleton PSU strata](.cg-docs/solutions/data-quality/2026-03-18-survey-mean-se-singleton-psu-divide-by-zero.md)** · `solution` · _—_ · `2026-03-18`
   > `survey_mean_se()` returns `se = Inf` and `ci_lower/ci_upper = ±Inf` with no error or warning when any stratum contai…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
@@ -681,7 +694,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Compound GPID currently tracks `main` HEAD — `cg-update` does a `git pull --ff-only` and every linked project immedia…
 - **[Version pinning via cg-update](.cg-docs/plans/2026-03-18-version-pinning-via-cg-update.md)** · `plan` · _completed_ · `2026-03-18`
   > Extend `cg-update` to support pinning the global Compound GPID installation to a specific GitHub Release (git tag), s…
-- **[Zero or negative welfare values silently inflate FGT(1) and FGT(2) beyond their valid range](.cg-docs/solutions/data-quality/2026-03-18-zero-negative-welfare-inflates-fgt-beyond-1.md)** · `solution` · _—_ · `2026-03-18`
+- **[Zero or negative welfare values silently inflate FGT\(1\) and FGT\(2\) beyond their valid range](.cg-docs/solutions/data-quality/2026-03-18-zero-negative-welfare-inflates-fgt-beyond-1.md)** · `solution` · _—_ · `2026-03-18`
   > The FGT(1) poverty gap index and FGT(2) squared poverty gap index both assume welfare is **strictly positive**. When …
 
 ## 2026-03-17
@@ -702,7 +715,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 ## 2026-03-14
 
-- **[Dual install paths (local vs. remote server) and restart documentation](.cg-docs/brainstorms/2026-03-14-dual-install-paths-and-restart-docs.md)** · `brainstorm` · _decided_ · `2026-03-14`
+- **[Dual install paths \(local vs. remote server\) and restart documentation](.cg-docs/brainstorms/2026-03-14-dual-install-paths-and-restart-docs.md)** · `brainstorm` · _decided_ · `2026-03-14`
   > Two issues surfaced during team onboarding:
 - **[Dual install paths and restart documentation](.cg-docs/plans/2026-03-14-dual-install-paths-and-restart-docs.md)** · `plan` · _completed_ · `2026-03-14`
   > Update documentation and script error messages to support two install locations (`C:\WBG\.compound-gpid` for local On…
@@ -774,43 +787,43 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
 
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
-- **[Attribution documentation (source repos and websites)](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
+- **[Attribution documentation \(source repos and websites\)](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > Attribution documentation (source repos and websites)
-- **[Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
+- **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) [from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
   > Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]
 - **[Auto-triggered skills via expanded applyTo hook patterns [from SP\]](roadmap.json#auto-triggered-skills-via-hooks)** · `feature` · _idea_ · `—`
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
-- **[Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
+- **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
-- **[Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
+- **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
   > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
 - **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _done_ · `—`
   > Auto-trigger brain rebuild on /cg-compound
-- **[Full-scope indexer (all .cg-docs/ + roadmap features)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
+- **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
-- **[BRAIN.md generation (topic index + entity catalog + edges)](roadmap.json#brain-md-generation)** · `feature` · _done_ · `—`
+- **[BRAIN.md generation \(topic index + entity catalog + edges\)](roadmap.json#brain-md-generation)** · `feature` · _done_ · `—`
   > BRAIN.md generation (topic index + entity catalog + edges)
-- **[Prompt integration — Consult Brain in Step 0](roadmap.json#brain-prompt-integration)** · `feature` · _planned_ · `—`
+- **[Prompt integration — Consult Brain in Step 0](roadmap.json#brain-prompt-integration)** · `feature` · _done_ · `—`
   > Prompt integration — Consult Brain in Step 0
-- **[cg-skill-brain-query (agent brain search patterns)](roadmap.json#brain-query-skill)** · `feature` · _planned_ · `—`
+- **[cg-skill-brain-query \(agent brain search patterns\)](roadmap.json#brain-query-skill)** · `feature` · _done_ · `—`
   > cg-skill-brain-query (agent brain search patterns)
 - **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _done_ · `—`
   > /cg-brain-rebuild explicit rebuild command
-- **[Relationship/edge detection (full typed edge set)](roadmap.json#brain-relationship-detection)** · `feature` · _done_ · `—`
+- **[Relationship/edge detection \(full typed edge set\)](roadmap.json#brain-relationship-detection)** · `feature` · _done_ · `—`
   > Relationship/edge detection (full typed edge set)
-- **[Topic/theme extraction (auto-cluster artifacts into concepts)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
+- **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
   > Topic/theme extraction (auto-cluster artifacts into concepts)
-- **[End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
+- **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) [from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
-- **[CE-inspired improvements integration (P0 severity, new prompts, smart workflows)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
+- **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
   > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
 - **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`
   > /cg-commit-push-pr — logical commit splitting, push, and PR creation
 - **[/cg-compound proposes context.md additions after completed tasks](roadmap.json#cg-compound-context-enrichment)** · `feature` · _done_ · `—`
   > /cg-compound proposes context.md additions after completed tasks
-- **[@cg-fix-problems agent (auto-dispatched by /cg-work)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
+- **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
 - **[/cg-fix-problems user-facing prompt](roadmap.json#cg-fix-problems-prompt)** · `feature` · _done_ · `—`
   > /cg-fix-problems user-facing prompt
@@ -822,15 +835,15 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > /cg-setup --refresh mode for non-destructive re-configuration
 - **[/cg-verify-pr — CI check verification and auto-fix dispatch](roadmap.json#cg-verify-pr)** · `feature` · _done_ · `—`
   > /cg-verify-pr — CI check verification and auto-fix dispatch
-- **[Charter quality gate (validate no placeholders, all fields populated)](roadmap.json#charter-quality-gate)** · `feature` · _done_ · `—`
+- **[Charter quality gate \(validate no placeholders, all fields populated\)](roadmap.json#charter-quality-gate)** · `feature` · _done_ · `—`
   > Charter quality gate (validate no placeholders, all fields populated)
-- **[Command default behaviors (auto-branch, phases, autofix, context enrichment)](roadmap.json#command-default-behaviors)** · `feature` · _done_ · `—`
+- **[Command default behaviors \(auto-branch, phases, autofix, context enrichment\)](roadmap.json#command-default-behaviors)** · `feature` · _done_ · `—`
   > Command default behaviors (auto-branch, phases, autofix, context enrichment)
 - **[Conversation audit trail across workflow stages](roadmap.json#conversation-audit-trail)** · `feature` · _idea_ · `—`
   > Conversation audit trail across workflow stages
-- **[Copilot CLI execution with worktrees (Model C)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
+- **[Copilot CLI execution with worktrees \(Model C\)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
   > Copilot CLI execution with worktrees (Model C)
-- **[copilot-instructions.md restructuring (blocked on hooks evaluation)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
+- **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
   > copilot-instructions.md restructuring (blocked on hooks evaluation)
 - **[Append-only DECISIONS.md register for methodology and architecture choices [from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
@@ -840,15 +853,15 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Evaluate GitHub Copilot hooks for compound-gpid
 - **[First-run welcome and health check after cg-link](roadmap.json#first-run-welcome-health-check)** · `feature` · _done_ · `—`
   > First-run welcome and health check after cg-link
-- **[/cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)](roadmap.json#fix-triage-migrate-mode)** · `feature` · _done_ · `—`
+- **[/cg-fix-triage --migrate mode \(backfills findings: frontmatter on legacy review files\)](roadmap.json#fix-triage-migrate-mode)** · `feature` · _done_ · `—`
   > /cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)
 - **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _idea_ · `—`
   > /cg-fixbug test-correctness assessment
 - **[Full model audit across prompts and agents](roadmap.json#full-model-audit)** · `feature` · _done_ · `—`
   > Full model audit across prompts and agents
-- **[GitHub Issues integration (optional, via gh CLI)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
+- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
   > GitHub Issues integration (optional, via gh CLI)
-- **[HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
+- **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
   > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
 - **[Honest pushback mode in /cg-brainstorm and /cg-strategy](roadmap.json#honest-pushback-in-brainstorm-strategy)** · `feature` · _done_ · `—`
   > Honest pushback mode in /cg-brainstorm and /cg-strategy
@@ -856,13 +869,13 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Include /ce:ideate-style prompt from compound-engineering-plugin
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
-- **[Model-split pattern for other prompts (Haiku scan + Sonnet draft)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
+- **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
   > Multi-folder workspace awareness in copilot-instructions.md and prompts
-- **[Onboarding tour prompt /cg-tour (guided workflow walkthrough)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
+- **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
   > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
-- **[Outcome criteria in plans (verifiable acceptance criteria)](roadmap.json#outcome-criteria-in-plans)** · `feature` · _idea_ · `—`
+- **[Outcome criteria in plans \(verifiable acceptance criteria\)](roadmap.json#outcome-criteria-in-plans)** · `feature` · _idea_ · `—`
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
   > Per-step test enforcement in /cg-work
@@ -872,17 +885,17 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Phased plan structure in /cg-plan
 - **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`
   > Required frontmatter field checks from /cg-plan output
-- **[Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)](roadmap.json#plan-review-agent-and-prompt)** · `feature` · _done_ · `—`
+- **[Plan review agent and prompt \(@cg-plan-critic + /cg-plan-review\)](roadmap.json#plan-review-agent-and-prompt)** · `feature` · _done_ · `—`
   > Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)
-- **[PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
+- **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
   > compound-gpid.context.md file and Step 0 integration in all prompts
 - **[Project scanner agent for deep project analysis](roadmap.json#project-scanner-agent)** · `feature` · _done_ · `—`
   > Project scanner agent for deep project analysis
-- **[Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
+- **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
-- **[R dialect skills architecture (collapse, data.table, tidyverse)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
+- **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
@@ -890,7 +903,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Per-finding status tracking in review files
 - **[Review convergence: mode:verify for /cg-review](roadmap.json#review-verify-mode)** · `feature` · _done_ · `—`
   > Review convergence: mode:verify for /cg-review
-- **[Roadmap bootstrap from charter (seed initial milestone from Current Focus)](roadmap.json#roadmap-bootstrap-from-charter)** · `feature` · _idea_ · `—`
+- **[Roadmap bootstrap from charter \(seed initial milestone from Current Focus\)](roadmap.json#roadmap-bootstrap-from-charter)** · `feature` · _idea_ · `—`
   > Roadmap bootstrap from charter (seed initial milestone from Current Focus)
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
   > roadmap.json schema validation after @cg-roadmap writes
@@ -898,7 +911,7 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
-- **[Side-idea capture during brainstorming (save to roadmap)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
+- **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
 - **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
   > Skill description consistency audit and optimization
@@ -906,21 +919,21 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Skill description length cap with test enforcement [from CE]
 - **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`
   > Skip high-confidence setup questions based on scanner results
-- **[Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
+- **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
-- **[Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)](roadmap.json#smart-setup-existing-projects)** · `feature` · _done_ · `—`
+- **[Smart /cg-setup for existing projects \(scan → draft → targeted questions → approve\)](roadmap.json#smart-setup-existing-projects)** · `feature` · _done_ · `—`
   > Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)
-- **[Stage control knobs for workflow prompts (blocked on external workflow research)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
+- **[Stage control knobs for workflow prompts \(blocked on external workflow research\)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
   > Stage control knobs for workflow prompts (blocked on external workflow research)
 - **[/cg-strategy --add <idea> quick-add mode for roadmap ideas](roadmap.json#strategy-add-shortcut)** · `feature` · _idea_ · `—`
   > /cg-strategy --add <idea> quick-add mode for roadmap ideas
-- **[Structural prevention of agent-caused Pester crashes (JSON artifact + prompt hardening)](roadmap.json#structural-pester-crash-prevention)** · `feature` · _done_ · `—`
+- **[Structural prevention of agent-caused Pester crashes \(JSON artifact + prompt hardening\)](roadmap.json#structural-pester-crash-prevention)** · `feature` · _done_ · `—`
   > Structural prevention of agent-caused Pester crashes (JSON artifact + prompt hardening)
 - **[Study OpenAI Codex plugin for Claude Code](roadmap.json#study-codex-plugin)** · `feature` · _idea_ · `—`
   > Study OpenAI Codex plugin for Claude Code
 - **[Study GSD-2 and Superpowers workflow patterns](roadmap.json#study-gsd2-superpowers-patterns)** · `feature` · _idea_ · `—`
   > Study GSD-2 and Superpowers workflow patterns
-- **[Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP\]](roadmap.json#systematic-debugging-4-phase)** · `feature` · _idea_ · `—`
+- **[Systematic 4-phase debugging methodology in /cg-fixbug \(reproduce → isolate → root-cause → fix\) [from SP\]](roadmap.json#systematic-debugging-4-phase)** · `feature` · _idea_ · `—`
   > Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]
 - **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _planned_ · `—`
   > Team brain — conflict/dedup resolution
@@ -932,15 +945,15 @@ _Generated 2026-05-19 · 312 artifacts (newest first) + 88 roadmap features_
   > Team brain — push solutions + distilled patterns
 - **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _planned_ · `—`
   > Team brain — central repo schema design
-- **[Testing skill for Python (pytest/parametrize/monkeypatch)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
+- **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
   > Testing skill for Python (pytest/parametrize/monkeypatch)
-- **[Testing skill for R (testthat/mockery)](roadmap.json#testing-skill-r)** · `feature` · _done_ · `—`
+- **[Testing skill for R \(testthat/mockery\)](roadmap.json#testing-skill-r)** · `feature` · _done_ · `—`
   > Testing skill for R (testthat/mockery)
-- **[Testing skill for Stata (assert-based/reprun)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
+- **[Testing skill for Stata \(assert-based/reprun\)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
   > Testing skill for Stata (assert-based/reprun)
 - **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
   > tidymodels addition to cg-skill-r-analytical
-- **[Migration path from vanilla Copilot (detect and merge existing instructions)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
+- **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
   > Migration path from vanilla Copilot (detect and merge existing instructions)
 - **[Verification-before-completion enforcement in /cg-work tasks [from SP\]](roadmap.json#verification-before-completion-cg-work)** · `feature` · _idea_ · `—`
   > Verification-before-completion enforcement in /cg-work tasks [from SP]
