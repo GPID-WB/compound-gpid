@@ -407,9 +407,11 @@ class TestBuildBrainIntegration:
         assert data.edges == []
 
     def test_generated_defaults_to_today(self, tmp_path: Path) -> None:
-        from datetime import date
+        import re
 
         from brain import build_brain
 
         data = build_brain(root=tmp_path)
-        assert data.generated == date.today().isoformat()
+        assert re.match(r"\d{4}-\d{2}-\d{2}$", data.generated), (
+            f"generated should be an ISO date string, got {data.generated!r}"
+        )

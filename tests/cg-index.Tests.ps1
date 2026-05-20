@@ -660,3 +660,58 @@ Describe "cg-index.py --brain ImportError handling" {
         ($source -match 'brain package not available') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# P3.5: --brain BRAIN.md content tests
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain BRAIN.md content" {
+    $brainContentRoot = Join-Path $TestDrive "brain-content-root"
+    New-FixtureRoot $brainContentRoot | Out-Null
+    $bugsDir = Join-Path $brainContentRoot ".cg-docs\solutions\bugs"
+    Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+
+    & $script:Python $cgIndex --brain --root $brainContentRoot 2>&1 | Out-Null
+    $brainMd = Join-Path $brainContentRoot ".cg-docs\BRAIN.md"
+
+    It "BRAIN.md contains a generated timestamp header" {
+        $content = Get-Content $brainMd -Raw
+        ($content -match 'Generated.*\d{4}-\d{2}-\d{2}|generated.*\d{4}-\d{2}-\d{2}') | Should -Be $true
+    }
+
+    It "BRAIN.md contains entity-type summary section" {
+        $content = Get-Content $brainMd -Raw
+        ($content -match 'solution|Entity Types') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.5: --brain with roadmap.json present
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain with roadmap.json" {
+    $roadmapRoot = Join-Path $TestDrive "brain-roadmap-root"
+    New-FixtureRoot $roadmapRoot | Out-Null
+    $bugsDir = Join-Path $roadmapRoot ".cg-docs\solutions\bugs"
+    Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+
+    # Write a minimal valid roadmap.json without BOM (PS5.1 Set-Content UTF8 adds BOM)
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    $roadmapJson = '{"milestones":[{"title":"Test Milestone","objective":"Test objective","features":[{"id":"test-feature","title":"Test Feature","status":"planned","description":"A test feature"}]}]}'
+    [System.IO.File]::WriteAllText((Join-Path $roadmapRoot "roadmap.json"), $roadmapJson, $utf8NoBom)
+
+    & $script:Python $cgIndex --brain --root $roadmapRoot 2>&1 | Out-Null
+
+    It "exits 0 when roadmap.json is present" {
+        $LASTEXITCODE | Should -Be 0
+    }
+
+    It "brain-index.json entity_count includes roadmap features" {
+        $json = Get-Content (Join-Path $roadmapRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        # Should have at least 2 entities: the solution file + the roadmap feature
+        $json.entity_count | Should -BeGreaterThan 1
+    }
+
+    It "BRAIN-log.md contains the roadmap feature" {
+        $content = Get-Content (Join-Path $roadmapRoot ".cg-docs\BRAIN-log.md") -Raw
+        $content | Should -Match "Test Feature"
+    }
+}

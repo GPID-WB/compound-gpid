@@ -573,6 +573,19 @@ Describe "cg-compound-refresh.prompt.md - no tool restriction" {
     }
 }
 
+Describe "cg-compound-refresh.prompt.md - Step 7 brain index count reporting" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-refresh.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 7 instructs parsing entity/topic/edge counts from cg-index output" {
+        ($content -match 'entity.*topic.*edge|entities.*topics.*edges') | Should -Be $true
+    }
+
+    It "Step 7 references the [cg-index] Brain index written to stdout pattern" {
+        ($content -match '\[cg-index\] Brain index written to') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # cg-ideate.prompt.md - file existence, frontmatter, and no tool restriction
 # (Orchestrating prompts must not have a tools: whitelist -- it strips write access)
@@ -4960,5 +4973,152 @@ Describe "docs/model-guide.md - cg-brain-rebuild model assignment" {
 
     It "docs/model-guide.md lists cg-brain-rebuild.prompt.md" {
         ($content -match 'cg-brain-rebuild\.prompt\.md') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Batch C — Brain integration: --no-brain flag and Consult Brain steps
+# ---------------------------------------------------------------------------
+
+Describe "Brain integration - cg-skill-brain-query skill exists" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-brain-query\SKILL.md"
+
+    It "SKILL.md file exists" {
+        Test-Path $skillFile | Should -Be $true
+    }
+
+    $content = Get-Content $skillFile -Raw -Encoding UTF8
+
+    It "has valid name: frontmatter field" {
+        ($content -match '(?m)^\s*name:\s*cg-skill-brain-query') | Should -Be $true
+    }
+
+    It "has valid description: frontmatter field" {
+        ($content -match '(?m)^\s*description:') | Should -Be $true
+    }
+
+    It "covers contradiction resolution" {
+        ($content -match '(?i)contradiction') | Should -Be $true
+    }
+
+    It "covers staleness detection" {
+        ($content -match '(?i)stale') | Should -Be $true
+    }
+
+    It "does not contain write/modify instructions (read-only)" {
+        # Verify the skill explicitly declares itself read-only
+        ($content -match '(?i)this skill is read-only') | Should -Be $true
+    }
+
+    It "warns against using brain-index.json for navigation" {
+        ($content -match 'brain-index\.json') | Should -Be $true
+    }
+
+    It "includes deduplication rule for matched sub-files" {
+        ($content -match '(?i)dedup') | Should -Be $true
+    }
+}
+
+Describe "Brain integration - --no-brain flag in all 6 target prompts" {
+    $targetPrompts = @(
+        "cg-brainstorm.prompt.md",
+        "cg-plan.prompt.md",
+        "cg-work.prompt.md",
+        "cg-review.prompt.md",
+        "cg-fix-triage.prompt.md",
+        "cg-compound.prompt.md"
+    )
+
+    foreach ($promptName in $targetPrompts) {
+        $promptFile = Join-Path $repoRoot ".github\prompts\$promptName"
+        $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+        It "$promptName contains --no-brain flag" {
+            ($content -match '--no-brain') | Should -Be $true
+        }
+
+        It "$promptName sets brain-enabled variable" {
+            ($content -match 'brain-enabled') | Should -Be $true
+        }
+    }
+}
+
+Describe "Brain integration - Consult Brain step in all 6 target prompts" {
+    $targetPrompts = @(
+        "cg-brainstorm.prompt.md",
+        "cg-plan.prompt.md",
+        "cg-work.prompt.md",
+        "cg-review.prompt.md",
+        "cg-fix-triage.prompt.md",
+        "cg-compound.prompt.md"
+    )
+
+    foreach ($promptName in $targetPrompts) {
+        $promptFile = Join-Path $repoRoot ".github\prompts\$promptName"
+        $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+        # Use pattern robust to renumbering — does not hardcode step numbers
+        It "$promptName has a Consult Brain step" {
+            ($content -match '(?i)Consult Brain') | Should -Be $true
+        }
+
+        It "$promptName references cg-skill-brain-query in its Consult Brain step" {
+            ($content -match 'cg-skill-brain-query') | Should -Be $true
+        }
+
+        It "$promptName has brain-enabled = false guard in Consult Brain step" {
+            ($content -match 'brain-enabled\s*=\s*false') | Should -Be $true
+        }
+    }
+}
+
+Describe "Brain integration - recognized-argument strings updated" {
+    $reviewFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $reviewContent = Get-Content $reviewFile -Raw -Encoding UTF8
+
+    It "cg-review.prompt.md Recognized string includes --no-brain" {
+        ($reviewContent -match 'Recognized:.*--no-brain') | Should -Be $true
+    }
+
+    $triageFile = Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md"
+    $triageContent = Get-Content $triageFile -Raw -Encoding UTF8
+
+    It "cg-fix-triage.prompt.md Recognized string includes --no-brain" {
+        ($triageContent -match 'Recognized:.*--no-brain') | Should -Be $true
+    }
+}
+
+Describe "Brain integration - copilot-instructions.md mentions cg-skill-brain-query" {
+    $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = Get-Content $instructionsFile -Raw -Encoding UTF8
+
+    It "copilot-instructions.md references cg-skill-brain-query" {
+        ($content -match 'cg-skill-brain-query') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.4 — --no-brain flag parsed in all 4 remaining prompts
+# ---------------------------------------------------------------------------
+
+Describe "Brain integration - remaining prompts parse --no-brain flag" {
+    It "cg-brainstorm.prompt.md parses --no-brain" {
+        $c = Get-Content (Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md") -Raw -Encoding UTF8
+        ($c -match '--no-brain') | Should -Be $true
+    }
+
+    It "cg-compound.prompt.md parses --no-brain" {
+        $c = Get-Content (Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md") -Raw -Encoding UTF8
+        ($c -match '--no-brain') | Should -Be $true
+    }
+
+    It "cg-plan.prompt.md parses --no-brain" {
+        $c = Get-Content (Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md") -Raw -Encoding UTF8
+        ($c -match '--no-brain') | Should -Be $true
+    }
+
+    It "cg-work.prompt.md parses --no-brain" {
+        $c = Get-Content (Join-Path $repoRoot ".github\prompts\cg-work.prompt.md") -Raw -Encoding UTF8
+        ($c -match '--no-brain') | Should -Be $true
     }
 }

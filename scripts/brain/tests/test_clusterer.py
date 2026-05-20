@@ -194,6 +194,16 @@ class TestClusterTopics:
         entities = self._make_cluster_entities()
         topics = cluster_topics(entities, min_cluster_size=2)
         assert len(topics) >= 1
+        # Verify that pester entities and python entities are not mixed in the same topic
+        pester_paths = {e.path for e in entities if "pester" in str(e.path)}
+        python_paths = {e.path for e in entities if "python" in str(e.path)}
+        for t in topics:
+            topic_paths = set(t.entity_paths)
+            has_pester = bool(topic_paths & pester_paths)
+            has_python = bool(topic_paths & python_paths)
+            assert not (has_pester and has_python), (
+                f"Topic '{t.slug}' mixed pester and python entities — clustering failed"
+            )
 
     def test_min_cluster_size_respected(self) -> None:
         # With min_cluster_size=10 and only 6 entities, expect no topics
@@ -229,6 +239,13 @@ class TestClusterTopics:
         topics = cluster_topics(entities, min_cluster_size=2)
         for t in topics:
             assert len(t.entity_paths) > 0
+
+    def test_sort_is_stable_for_equal_size_clusters(self) -> None:
+        """Repeated calls on identical input must produce identical topic ordering."""
+        entities = self._make_cluster_entities()
+        run_a = cluster_topics(entities, min_cluster_size=2)
+        run_b = cluster_topics(entities, min_cluster_size=2)
+        assert [t.slug for t in run_a] == [t.slug for t in run_b]
 
 
 class TestClusterStrategy:

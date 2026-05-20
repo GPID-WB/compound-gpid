@@ -82,6 +82,46 @@ class TestIsNull:
 
 
 # ---------------------------------------------------------------------------
+# _resolve_path
+# ---------------------------------------------------------------------------
+
+
+class TestResolvePath:
+    def test_relative_path_resolves_against_root(self, tmp_path: Path) -> None:
+        result = _resolve_path(".cg-docs/plans/foo.md", tmp_path)
+        assert result == (tmp_path / ".cg-docs/plans/foo.md").resolve()
+
+    def test_absolute_path_within_root_returned(self, tmp_path: Path) -> None:
+        inner = tmp_path / ".cg-docs" / "plans" / "foo.md"
+        result = _resolve_path(str(inner), tmp_path)
+        assert result == inner
+
+    def test_path_traversal_returns_none(self, tmp_path: Path) -> None:
+        result = _resolve_path("../../../../.env", tmp_path)
+        assert result is None
+
+    def test_path_traversal_emits_warning(self, tmp_path: Path) -> None:
+        import warnings as _warnings
+
+        with _warnings.catch_warnings(record=True) as caught:
+            _warnings.simplefilter("always")
+            _resolve_path("../../../../etc/passwd", tmp_path)
+        assert any("escapes project root" in str(w.message) for w in caught)
+
+    def test_path_exactly_at_root_is_allowed(self, tmp_path: Path) -> None:
+        """Resolving to root itself (edge case) should not be rejected."""
+        result = _resolve_path(".", tmp_path)
+        # . resolves to tmp_path itself, which is relative_to tmp_path
+        assert result is not None
+
+    def test_absolute_path_with_dotdot_returns_none(self, tmp_path: Path) -> None:
+        """Absolute path containing .. components that escape root must be rejected."""
+        traversal = str(tmp_path) + "/../../../etc/passwd"
+        result = _resolve_path(traversal, tmp_path)
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
 # _slug_tokens
 # ---------------------------------------------------------------------------
 
@@ -186,6 +226,16 @@ class TestDecidedFromEdges:
             path=tmp_path / ".cg-docs/plans/plan.md",
             entity_type="plan",
             frontmatter={"brainstorm": "null"},
+        )
+        edges = detect_edges([plan], root=tmp_path)
+        assert _edges_of_type(edges, "decided_from") == []
+
+    def test_traversal_path_in_brainstorm_produces_no_edge(self, tmp_path: Path) -> None:
+        """Frontmatter brainstorm path that escapes root must be silently dropped."""
+        plan = Entity(
+            path=tmp_path / ".cg-docs/plans/plan.md",
+            entity_type="plan",
+            frontmatter={"brainstorm": "../../../../etc/passwd"},
         )
         edges = detect_edges([plan], root=tmp_path)
         assert _edges_of_type(edges, "decided_from") == []
@@ -365,6 +415,26 @@ class TestSameSlugInferredEdges:
         refs = _edges_of_type(edges, "references")
         # No inferred edge for different slugs and no frontmatter reference
         assert refs == []
+
+    def test_same_slug_emits_warning(self, tmp_path: Path) -> None:
+        """Same-slug inferred edge should emit a Slug collision warning."""
+        import warnings as _w
+
+        slug = "2026-05-19-feature-x"
+        plan = Entity(
+            path=tmp_path / ".cg-docs/plans" / f"{slug}.md",
+            entity_type="plan",
+            frontmatter={},
+        )
+        brainstorm = Entity(
+            path=tmp_path / ".cg-docs/brainstorms" / f"{slug}.md",
+            entity_type="brainstorm",
+            frontmatter={},
+        )
+        with _w.catch_warnings(record=True) as caught:
+            _w.simplefilter("always")
+            detect_edges([plan, brainstorm], root=tmp_path)
+        assert any("Slug collision" in str(w.message) for w in caught)
 
 
 # ---------------------------------------------------------------------------

@@ -253,7 +253,7 @@ class TestOutputFormat:
         result = extract_keywords(_entity(), "## UPPER CASE HEADING\n")
         keywords = [k for k, _ in result]
         for kw in keywords:
-            assert kw == kw.lower() or kw == kw  # no fully-upper keywords
+            assert kw == kw.lower(), f"Keyword '{kw}' is not lowercase"
 
 
 # ---------------------------------------------------------------------------

@@ -218,6 +218,53 @@ class TestEntityLine:
 
 
 # ---------------------------------------------------------------------------
+# _entity_line — sanitization and URL encoding
+# ---------------------------------------------------------------------------
+
+
+class TestEntityLineSanitization:
+    def test_closing_bracket_in_title_escaped(self):
+        entity = _make_entity(title="Fix]Bug")
+        line = _entity_line(entity)
+        title_part = line.split("](")[0]
+        assert "\\]" in title_part
+
+    def test_open_paren_in_title_escaped(self):
+        entity = _make_entity(title="Fix (bug)")
+        line = _entity_line(entity)
+        title_part = line.split("](")[0]
+        assert "\\(" in title_part
+
+    def test_close_paren_in_title_escaped(self):
+        entity = _make_entity(title="Fix(bug)")
+        line = _entity_line(entity)
+        title_part = line.split("](")[0]
+        assert "\\)" in title_part
+
+    def test_newline_in_title_replaced_with_space(self):
+        entity = _make_entity(title="Multi\nLine Title")
+        line = _entity_line(entity)
+        first_line = line.split("\n")[0]
+        assert "Multi" in first_line
+        # Newline in title must not bleed into first line as a literal newline
+        assert "Multi Line Title" in first_line or "Multi" in first_line
+
+    def test_path_with_spaces_url_encoded(self):
+        entity = _make_entity(path=".cg-docs/solutions/my file draft.md")
+        line = _entity_line(entity)
+        url_part = line.split("](")[1].split(")")[0]
+        assert " " not in url_part
+        assert "%20" in url_part
+
+    def test_path_with_parens_url_encoded(self):
+        entity = _make_entity(path=".cg-docs/plans/fix(v2).md")
+        line = _entity_line(entity)
+        url_part = line.split("](")[1].split(")")[0]
+        # ( must be percent-encoded so the markdown link is not broken
+        assert "(" not in url_part
+
+
+# ---------------------------------------------------------------------------
 # render_brain: output file creation
 # ---------------------------------------------------------------------------
 

@@ -91,6 +91,15 @@ class TestScanAllEntityTypes:
         entities = scan_all(tmp_path)
         assert entities == []
 
+    def test_unknown_top_dir_emits_warning(self, tmp_path: Path) -> None:
+        import warnings as _w
+
+        _write(tmp_path / ".cg-docs/misc/foo.md", _md())
+        with _w.catch_warnings(record=True) as caught:
+            _w.simplefilter("always")
+            scan_all(tmp_path)
+        assert any("Unknown .cg-docs/ subdirectory" in str(w.message) for w in caught)
+
 
 class TestScanAllContent:
     def test_frontmatter_parsed(self, tmp_path: Path) -> None:
