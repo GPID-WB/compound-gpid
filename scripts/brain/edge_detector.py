@@ -30,9 +30,10 @@ files that have no associated brainstorm yet.
 from __future__ import annotations
 
 import re
+import warnings
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, FrozenSet, List, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 from brain import Edge, Entity
 
@@ -75,27 +76,38 @@ def _is_null(val: Any) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _resolve_path(val: str, root: Path) -> Path:
+def _resolve_path(val: str, root: Path) -> Optional[Path]:
     """Resolve a frontmatter path value to an absolute :class:`Path`.
 
     Frontmatter paths are typically relative to the project root (e.g.
-    ``.cg-docs/plans/foo.md``).  This function makes them absolute.
+    ``.cg-docs/plans/foo.md``).  This function makes them absolute **and**
+    verifies that the resolved path does not escape the project root (path
+    traversal guard).
 
     Args:
         val: Path string from a frontmatter field.
         root: Project root directory.
 
     Returns:
-        Absolute :class:`Path`.
+        Absolute :class:`Path` when ``val`` resolves inside ``root``, or
+        ``None`` when the path escapes the project root.
 
     Example:
         >>> _resolve_path(".cg-docs/plans/foo.md", Path("/repo"))
         PosixPath('/repo/.cg-docs/plans/foo.md')
     """
     p = Path(val)
-    if p.is_absolute():
-        return p
-    return (root / p).resolve()
+    resolved = p.resolve() if p.is_absolute() else (root / p).resolve()
+    try:
+        resolved.relative_to(root.resolve())
+    except ValueError:
+        warnings.warn(
+            f"[brain.edge_detector] Frontmatter path '{val}' escapes project root "
+            "\u2014 edge discarded.",
+            stacklevel=2,
+        )
+        return None
+    return resolved
 
 
 # ---------------------------------------------------------------------------
@@ -202,20 +214,23 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
             bval = fm.get("brainstorm")
             if not _is_null(bval) and isinstance(bval, str):
                 target = _resolve_path(bval, root)
-                _add_edge(source, target, "decided_from", target not in known_paths)
+                if target is not None:
+                    _add_edge(source, target, "decided_from", target not in known_paths)
 
         elif entity.entity_type == "review":
             # plan: <path>  →  review reviews plan
             pval = fm.get("plan")
             if not _is_null(pval) and isinstance(pval, str):
                 target = _resolve_path(pval, root)
-                _add_edge(source, target, "reviews", target not in known_paths)
+                if target is not None:
+                    _add_edge(source, target, "reviews", target not in known_paths)
 
             # parent-review: <path>  →  review verifies parent-review
             prval = fm.get("parent-review")
             if not _is_null(prval) and isinstance(prval, str):
                 target = _resolve_path(prval, root)
-                _add_edge(source, target, "verifies", target not in known_paths)
+                if target is not None:
+                    _add_edge(source, target, "verifies", target not in known_paths)
 
         elif entity.entity_type == "brainstorm":
             # plan: <path>  →  brainstorm references plan
@@ -223,7 +238,8 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
             pval = fm.get("plan")
             if not _is_null(pval) and isinstance(pval, str):
                 target = _resolve_path(pval, root)
-                _add_edge(source, target, "references", target not in known_paths)
+                if target is not None:
+                    _add_edge(source, target, "references", target not in known_paths)
 
         elif entity.entity_type == "solution":
             # plan: or brainstorm: <path>  →  solution references plan/brainstorm
@@ -231,7 +247,8 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
                 fval = fm.get(field)
                 if not _is_null(fval) and isinstance(fval, str):
                     target = _resolve_path(fval, root)
-                    _add_edge(source, target, "references", target not in known_paths)
+                    if target is not None:
+                        _add_edge(source, target, "references", target not in known_paths)
 
     # -----------------------------------------------------------------------
     # Pass 2: Inferred edges — same slug across different directories
@@ -244,6 +261,11 @@ def detect_edges(entities: List[Entity], root: Path) -> List[Edge]:
     for _slug, slug_entities in slug_to_entities.items():
         if len(slug_entities) < 2:
             continue
+        warnings.warn(
+            f"[brain.edge_detector] Slug collision: '{_slug}' matches "
+            f"{len(slug_entities)} entities. Inferred 'references' edges added.",
+            stacklevel=2,
+        )
         # Add a reference edge between each pair sharing the same slug
         for i in range(len(slug_entities)):
             for j in range(i + 1, len(slug_entities)):

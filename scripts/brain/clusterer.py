@@ -22,6 +22,7 @@ deferred) and will be addressed in a future clusterer upgrade.
 from __future__ import annotations
 
 import re
+import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Protocol, Tuple
@@ -112,7 +113,9 @@ def _weighted_jaccard(
     """Compute weighted Jaccard similarity between two keyword score dicts.
 
     Weighted Jaccard = Σ min(score_a, score_b) / Σ max(score_a, score_b)
-    over all keywords in the union of both sets.
+    over all keywords in the union of both sets.  Optimised via the identity
+    ``Σ min(a,b) = Σa + Σb - Σ max(a,b)`` to iterate only the intersection,
+    which is O(|intersection|) instead of O(|union|).
 
     Args:
         kws_a: Keyword → score dict for entity A.
@@ -125,16 +128,13 @@ def _weighted_jaccard(
         >>> _weighted_jaccard({"a": 1.0, "b": 2.0}, {"a": 1.0, "c": 1.0})
         0.25
     """
-    all_keys = set(kws_a.keys()) | set(kws_b.keys())
-    if not all_keys:
+    if not kws_a or not kws_b:
         return 0.0
-    total_min = 0.0
-    total_max = 0.0
-    for k in all_keys:
-        va, vb = kws_a.get(k, 0.0), kws_b.get(k, 0.0)
-        total_min += min(va, vb)
-        total_max += max(va, vb)
-    return total_min / total_max if total_max > 0.0 else 0.0
+    sum_a = sum(kws_a.values())
+    sum_b = sum(kws_b.values())
+    numerator = sum(min(kws_a[k], kws_b[k]) for k in kws_a if k in kws_b)
+    denominator = sum_a + sum_b - numerator
+    return numerator / denominator if denominator > 0.0 else 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -264,8 +264,20 @@ class _GreedyAgglomerative:
                 )
             )
 
-        # Sort topics by size descending (largest first)
-        topics.sort(key=lambda t: len(t.entity_paths), reverse=True)
+        # Sort topics by size descending (largest first); slug as tie-breaker for stability
+        topics.sort(key=lambda t: (-len(t.entity_paths), t.slug))
+
+        # Warn on slug collisions (two topics share identical top keywords)
+        seen_slugs: Dict[str, int] = {}
+        for t in topics:
+            if t.slug in seen_slugs:
+                warnings.warn(
+                    f"[brain.clusterer] Topic slug collision: '{t.slug}' produced by "
+                    f"{seen_slugs[t.slug] + 1} topics. BRAIN.md navigation links may be ambiguous.",
+                    stacklevel=2,
+                )
+            seen_slugs[t.slug] = seen_slugs.get(t.slug, 0) + 1
+
         return topics
 
 
@@ -303,5 +315,7 @@ def cluster_topics(
         >>> print(len(topics), "topics found")
     """
     if strategy is not None:
+        # min_cluster_size is intentionally not forwarded — the custom strategy
+        # is responsible for its own cluster-size filtering.
         return strategy(entities)
     return _GreedyAgglomerative(min_cluster_size=min_cluster_size)(entities)

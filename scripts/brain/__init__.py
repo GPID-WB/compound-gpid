@@ -166,6 +166,8 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
 
     Args:
         root: Project root directory (must contain ``.cg-docs/``).
+        generated: ISO date string to stamp on the output.  Defaults to
+            ``date.today().isoformat()`` when empty.
 
     Returns:
         :class:`BrainData` with ``entities``, ``topics``, and ``edges`` populated.
@@ -193,6 +195,9 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
     # 2. Extract keywords for each entity
     for entity in entities:
         entity.keywords = extract_keywords(entity, entity.text)
+    # Free raw text — not used downstream by clusterer, edge detector, or renderer
+    for entity in entities:
+        entity.text = ""
 
     # 3. Cluster into topics
     topics: List[Topic] = cluster_topics(entities)

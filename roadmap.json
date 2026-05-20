@@ -545,15 +545,15 @@
           "id": "brain-prompt-integration",
           "title": "Prompt integration — Consult Brain in Step 0",
           "description": "Add a 'Consult Brain' sub-step to Step 0 of all major prompts: /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound. The agent reads BRAIN.md, identifies topics/entities relevant to the current task (by matching tags, categories, or feature references), then drills into specific artifact files for detailed context. This is the READ PATH that makes the brain useful — without it, the index exists but nothing consumes it. Each prompt uses the brain differently: /cg-brainstorm checks for prior explorations; /cg-plan checks for existing solutions to sub-tasks; /cg-work checks for gotchas; /cg-review checks for known mistakes; /cg-compound checks for superseded solutions. Batch C — develop together with brain-query-skill.",
-          "status": "planned",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md"
         },
         {
           "id": "brain-query-skill",
           "title": "cg-skill-brain-query (agent brain search patterns)",
           "description": "Create a skill that teaches agents how to efficiently search and consume the project brain. Covers: how to scan BRAIN.md topic index for relevant clusters, when to drill into specific artifacts vs. trusting the summary, how to handle contradicting information (prefer newer, check supersedes edges), how to cite brain findings in outputs, and how to flag stale or potentially outdated knowledge. This skill is loaded by any prompt that has the 'Consult Brain' step. Batch C — develop together with brain-prompt-integration.",
-          "status": "planned",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md"
         },
         {
           "id": "team-brain-repo-schema",

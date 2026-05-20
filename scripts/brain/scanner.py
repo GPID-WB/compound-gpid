@@ -93,6 +93,12 @@ def scan_all(root: Path) -> List[Entity]:
         top_dir = rel_parts[0]
         entity_type = _DIR_TO_TYPE.get(top_dir)
         if entity_type is None:
+            if top_dir not in _DIR_TO_TYPE:
+                warnings.warn(
+                    f"[brain.scanner] Unknown .cg-docs/ subdirectory '{top_dir}' — skipping. "
+                    "Add it to _DIR_TO_TYPE to index it.",
+                    stacklevel=2,
+                )
             continue  # archive/ or unrecognised directory
 
         try:
@@ -105,6 +111,12 @@ def scan_all(root: Path) -> List[Entity]:
             continue
 
         frontmatter = parse_frontmatter(text)
+        if not frontmatter and text.lstrip("\ufeff\r\n").startswith("---"):
+            warnings.warn(
+                f"[brain.scanner] {md_path}: frontmatter block found but could not be parsed "
+                "(missing closing '---'?). Entity indexed with empty frontmatter.",
+                stacklevel=2,
+            )
         summary = extract_summary(text)
 
         entities.append(
@@ -166,10 +178,22 @@ def scan_roadmap(root: Path) -> List[Entity]:
     entities: List[Entity] = []
 
     for milestone in data.get("milestones", []):
+        if not isinstance(milestone, dict):
+            warnings.warn(
+                "[brain.scanner] roadmap milestone is not a dict; skipping.",
+                stacklevel=2,
+            )
+            continue
         m_title: str = milestone.get("title", "")
         m_objective: str = milestone.get("objective", "")
 
         for feature in milestone.get("features", []):
+            if not isinstance(feature, dict):
+                warnings.warn(
+                    f"[brain.scanner] roadmap feature in milestone '{m_title}' is not a dict; skipping.",
+                    stacklevel=2,
+                )
+                continue
             feature_id: str = feature.get("id", "")
             if not feature_id:
                 warnings.warn(

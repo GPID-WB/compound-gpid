@@ -35,8 +35,9 @@ import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import quote
 
-from brain import BrainData, Edge, Entity, Topic
+from brain import BrainData, Edge, Entity, Topic, __version__ as _BRAIN_VERSION
 from brain.utils import _write_atomic
 
 # ---------------------------------------------------------------------------
@@ -74,6 +75,26 @@ def _estimate_tokens(text: str) -> int:
 _SLUG_UNSAFE = re.compile(r"[^a-z0-9-]+")
 
 
+def _sanitize_inline(text: str) -> str:
+    """Escape characters that corrupt markdown inline elements.
+
+    Strips newlines and escapes ``]``, ``(`` and ``)`` so that titles and
+    other inline values cannot break link syntax or inject title attributes.
+
+    Args:
+        text: Raw string from an entity field.
+
+    Returns:
+        Sanitized string safe for use inside ``[text](url)`` markdown links.
+    """
+    return (
+        text.replace("\n", " ")
+        .replace("(", "\\(")
+        .replace(")", "\\)")
+        .replace("]", "\\]")
+    )
+
+
 def _anchor(text: str) -> str:
     """Convert text to a GitHub-style markdown anchor.
 
@@ -100,8 +121,8 @@ def _entity_line(entity: Entity) -> str:
     Returns:
         Markdown string (2 lines if summary exists, 1 line otherwise).
     """
-    title = (entity.title or entity.slug).replace("]", "\\]")
-    path_str = str(entity.path).replace("\\", "/")
+    title = _sanitize_inline(entity.title or entity.slug)
+    path_str = quote(str(entity.path).replace("\\", "/"), safe="/#-_.")
     status = entity.status or "—"
     date = entity.date_str or "—"
     etype = entity.entity_type
@@ -528,7 +549,7 @@ def _write_brain_json(data: BrainData, out_dir: Path) -> Path:
     """
     payload = {
         "generated": data.generated,
-        "schema_version": "0.2.0",
+        "schema_version": _BRAIN_VERSION,
         "entity_count": len(data.entities),
         "topic_count": len(data.topics),
         "edge_count": len(data.edges),
@@ -609,6 +630,13 @@ def render_brain(
         >>> print("\\n".join(str(p) for p in written))
     """
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Remove stale partition files from previous runs before writing new ones
+    for _stale in out_dir.glob("BRAIN-[0-9][0-9].md"):
+        try:
+            _stale.unlink()
+        except OSError:
+            pass
 
     # Build entity path → Entity lookup for fast access
     entity_map: Dict[Path, Entity] = {e.path: e for e in data.entities}

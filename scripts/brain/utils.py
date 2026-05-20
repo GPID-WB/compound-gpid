@@ -9,6 +9,8 @@ cross-platform (Windows + macOS).
 """
 from __future__ import annotations
 
+import csv
+import io
 import os
 import re
 import tempfile
@@ -29,7 +31,6 @@ _INT_RE = re.compile(r"^-?\d+$")
 
 # Inline list: [a, b, c] or ["a", "b"]
 _INLINE_LIST_RE = re.compile(r"^\[([^\]]*)\]$")
-_COMMA_SPLIT_RE = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
 
 
 def _coerce(value: str) -> Any:
@@ -101,7 +102,8 @@ def _parse_inline_list(raw: str) -> Optional[List[Any]]:
     if not inner:
         return []
     items: List[Any] = []
-    for item in _COMMA_SPLIT_RE.split(inner):
+    # csv.reader handles quoted fields in O(N) — avoids ReDoS on adversarial input
+    for item in next(csv.reader(io.StringIO(inner), skipinitialspace=True), []):
         items.append(_coerce(item.strip()))
     return items
 
