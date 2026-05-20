@@ -1,6 +1,46 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-14 · 110 active solutions_
+_Generated 2026-05-20 · 114 active solutions_
+
+## Agent step carve-outs must not contradict the global P0 deferral policy
+
+date: 2026-05-20
+category: testing-patterns
+status: 
+tags: agent-design, P0-deferral, compound-research, research-integrity, cr-agents, deferral-policy
+path: .cg-docs/solutions/testing-patterns/2026-05-20-agent-step-carveout-must-not-contradict-global-deferral-policy.md
+
+`cr-econometric-reasoning.agent.md` Step 4a contained: > "If you detect a code-math mismatch, **do NOT emit P0 here**. Cross-reference > @cr-research-integrity." The same agent's deferral policy section stated: > "P0 findings must be emitted **directly**, regardless of which step detects them." With the carve-out in place, a code-math mismatch found in Step 4a would be deferred to `@cr-research-integrity` — which the model cannot dispatch. The P0 would never surface.
+
+## Hoist Get-Content/Get-Frontmatter to Context scope — not inside It blocks
+
+date: 2026-05-20
+category: testing-patterns
+status: 
+tags: pester, performance, file-reads, context-scope, hoisting, test-organization, Get-Content, Get-Frontmatter
+path: .cg-docs/solutions/testing-patterns/2026-05-20-pester-hoist-file-reads-to-context-scope.md
+
+Tests for a single file repeated the file read inside every `It` block: ``` A Context block with 10 `It` tests performs 10 file reads for the same file. In `cr-prompts.Tests.ps1`, this anti-pattern appeared across 7–8 Context blocks — meaning ~70 redundant disk reads per test run.
+
+## optim() returns Hessian of negative log-likelihood — must be positive-definite at solution
+
+date: 2026-05-20
+category: bugs
+status: 
+tags: structural-econometrics, MLE, Hessian, optim, convergence-guard, research-correctness, sign-convention
+path: .cg-docs/solutions/bugs/2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite.md
+
+A structural econometrics skill document stated: > "At a maximum, the Hessian of the log-likelihood must be **negative-definite**." A convergence guard in the same document checked that the Hessian was **positive-definite**. These two statements were in direct contradiction. Researchers following the prose would reject valid MLE solutions (or accept saddle points), producing wrong standard errors with no error message.
+
+## Welfare column guard must check existence, NA, and positivity in order
+
+date: 2026-05-20
+category: data-quality
+status: 
+tags: welfare, GPID, data-validation, guard, NA-handling, poverty-measurement, FGT, stopifnot
+path: .cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md
+
+A welfare validation guard in a research EDA skill read: ``` This has two silent failure modes: 1. **NA values silently bypass the guard**: `all(NA > 0)` returns `NA`, not `FALSE`. `stopifnot(NA)` throws "is not TRUE" — a cryptic error with no information about which observations have missing welfare. 2. **Absent or renamed column passes vacuously**: GPID welfare variables are context-specific (`welfare_ppp11`, `welfare_ppp17`, `pcexp`, `hhincome`, etc.). When the actual column is named `welfare_ppp17` and the guard checks `df$welfare`, R returns `NULL`. `all(NULL > 0)` evaluates to `TRUE` — the guard passes with zero checking done.
 
 ## Depth-restricted review modes silently bypass domain-specific agents — add forced-dispatch exception for open P0s
 
