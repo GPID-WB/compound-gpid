@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-19 · 127 active solutions_
+_Generated 2026-05-19 · 130 active solutions_
 
 ## /cg-compound wiki update silently skipped — all docs/_wiki.yml pages were manual-ownership
 
@@ -11,6 +11,36 @@ tags: cg-compound, cg-wiki, wiki, ownership, manual, auto, reference, docs, noti
 path: .cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md
 
 Running `/cg-compound` after a feature that added new command flags and changed user-visible behavior (e.g., `command-default-behaviors` — new `--no-branch`, `--no-phases`, `--report-only`, `--no-enrich` flags) produced no wiki updates and no notifications. `docs/reference.md` was never updated to reflect the new flags, and the user received no indication that any docs page needed attention.
+
+## Pester YAML-entry regex: negative lookahead blocks sub-entries; heading backticks break plain-text match
+
+date: 2026-05-19
+category: testing-patterns
+status: 
+tags: pester, regex, yaml, negative-lookahead, dotall, markdown-heading, backtick, wiki-tests
+path: .cg-docs/solutions/testing-patterns/2026-05-19-pester-yaml-entry-regex-boundary-and-heading-backtick-gotchas.md
+
+When writing Pester assertions that must match a specific field within one YAML entry (without falsely matching a field of the same name in a later entry), the canonical guard is:
+
+## sorted(reverse=True) on compound tuple key reverses all components — use two-pass stable sort for mixed direction
+
+date: 2026-05-19
+category: bugs
+status: 
+tags: sort, sorted, reverse, compound-key, stable-sort, tuple, secondary-sort
+path: .cg-docs/solutions/bugs/2026-05-19-python-sorted-reverse-true-reverses-all-compound-key-components.md
+
+`_write_brain_log()` in `renderer.py` sorted entities newest-first by date, then alphabetically by title. The implementation used a single `sorted()` call with a compound key and `reverse=True`: Within each date group, entities appeared in **reverse-alphabetical (Z→A) title order** — the opposite of the documented intent ("newest first, then alphabetically by title"). The output was visually valid (no crash, no empty output) so the bug was never noticed until a code review examined the sort semantics.
+
+## warnings.catch_warnings() context must wrap the root call, not just its callees
+
+date: 2026-05-19
+category: bugs
+status: 
+tags: warnings, context-manager, catch_warnings, scope, build_brain, cg-index
+path: .cg-docs/solutions/bugs/2026-05-19-python-warnings-catch-warnings-scope-excludes-root-call.md
+
+`cg_index.py` wrapped only `render_brain()` in a `with warnings.catch_warnings(record=True)` block — `build_brain()` was called immediately before it. All `warnings.warn()` calls emitted deep inside `build_brain()` (scanner, extractor, clusterer, edge_detector) escaped the managed context and were subject to Python's default `once`-per-location deduplication filter, silently swallowing them on repeated same-process invocations. The bug meant that the P1–P3 warning fixes added during fix-triage (missing frontmatter, UnicodeDecodeError skip, duplicate keys, no-id roadmap features) produced no visible output at runtime — completely defeating their purpose.
 
 ## Append-only insertion prevents silent corruption in AI-written shared files
 
@@ -50,7 +80,7 @@ status:
 tags: pester, regex, vacuous-pass, false-positive, drift-detection, parse-guard, -match, comparison-test
 path: .cg-docs/solutions/testing-patterns/2026-05-18-regex-extraction-vacuous-pass-empty-string-comparison.md
 
-A drift-detection test in `tests/wiki.Tests.ps1` extracted a folder value from two files using `[regex]::Match(...).Groups[1].Value` and compared them with a single `Should -Be` assertion: ``` In the verify pass, `@cg-code-quality` and `@cg-testing` both independently flagged this: if either source file is absent or either regex pattern does not match, `.Groups[1].Value` returns `""` (not an exception, not `$null`). The test then evaluates `"" | Should -Be ""` — green, zero coverage. This is most dangerous exactly when it would matter most: if someone accidentally removes the `<!-- folder: docs -->` directive from `compound-gpid.context.md`, the test that was supposed to catch the drift...
+A drift-detection test in `tests/wiki.Tests.ps1` extracted a folder value from two files using `[regex]::Match(...).Groups[1].Value` and compared them with a single `Should -Be` assertion: In the verify pass, `@cg-code-quality` and `@cg-testing` both independently flagged this: if either source file is absent or either regex pattern does not match, `.Groups[1].Value` returns `""` (not an exception, not `$null`). The test then evaluates `"" | Should -Be ""` — green, zero coverage. This is most dangerous exactly when it would matter most: if someone accidentally removes the `<!-- folder: docs -->` directive from `compound-gpid.context.md`, the test that was supposed to catch the drift passes...
 
 ## Use git rev-parse for repo detection; guard against detached HEAD state
 
@@ -90,7 +120,7 @@ status:
 tags: prompt-design, agent-design, error-messages, ux, cg-wiki, pre-flight, bootstrap-trap
 path: .cg-docs/solutions/bugs/2026-05-15-circular-error-recovery-command-in-halt-message.md
 
-`@cg-wiki` halts in Pre-Flight when `_wiki.yml` is absent: ``` But `rebuild` mode is dispatched through `@cg-wiki` — which runs the **same Pre-Flight** and halts on the identical check. Following the suggested recovery: 1. User runs `/cg-wiki rebuild` 2. Pre-Flight: `_wiki.yml` not found → halt with the same message 3. User is stuck in an infinite loop with no forward path The same pattern appeared in `cg-wiki.prompt.md` Step 2 (fixed as P3.7 in the original review) and survived undetected in the **agent's own Pre-Flight halt message** — found only by the subsequent verify pass (P2.1 in verify review).
+`@cg-wiki` halts in Pre-Flight when `_wiki.yml` is absent: But `rebuild` mode is dispatched through `@cg-wiki` — which runs the **same Pre-Flight** and halts on the identical check. Following the suggested recovery: 1. User runs `/cg-wiki rebuild` 2. Pre-Flight: `_wiki.yml` not found → halt with the same message 3. User is stuck in an infinite loop with no forward path The same pattern appeared in `cg-wiki.prompt.md` Step 2 (fixed as P3.7 in the original review) and survived undetected in the **agent's own Pre-Flight halt message** — found only by the subsequent verify pass (P2.1 in verify review).
 
 ## Common-word regex false positives in security and behavioral test assertions
 
@@ -100,7 +130,7 @@ status:
 tags: pester, regex, false-positive, security-tests, -match, wiki, injection-scan, behavioral-testing
 path: .cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md
 
-After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivially rather than meaningfully: **Injection scan test** (P3.2 in verify review): ``` `Ignore`, `Override`, and `Forget` are ordinary English words. Any agent file containing "do not override user preferences" or "ignore this field when empty" passes this test regardless of whether an injection scan rule exists. **Nested marker test** (P3.3): ``` "Nested" appears in documentation for nested YAML, nested lists, nested JSON, and dozens of other contexts. The test passes without verifying the marker- nesting rule. **Code-block marker test** (P3.5): ``` "Code...
+After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivially rather than meaningfully: **Injection scan test** (P3.2 in verify review): `Ignore`, `Override`, and `Forget` are ordinary English words. Any agent file containing "do not override user preferences" or "ignore this field when empty" passes this test regardless of whether an injection scan rule exists. **Nested marker test** (P3.3): "Nested" appears in documentation for nested YAML, nested lists, nested JSON, and dozens of other contexts. The test passes without verifying the marker- nesting rule. **Code-block marker test** (P3.5): "Code block" appears in...
 
 ## Injection scan required for every agent that reads user-adjacent files, including 'internal' cg-docs/ solution files
 
@@ -110,7 +140,7 @@ status:
 tags: prompt-injection, security, agent-design, ai-safety, cg-wiki, solution-files, cg-docs
 path: .cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md
 
-`@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wiki pages. The initial implementation had only a policy-level "treat as untrusted" declaration — no phrase-level scan before the content entered the synthesis step. A `.cg-docs/solutions/` file containing: ``` would pass the path validation (`starts with .cg-docs/solutions/`, `ends with .md`, no `..`) and reach the wiki synthesis step with the injected instruction in context.
+`@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wiki pages. The initial implementation had only a policy-level "treat as untrusted" declaration — no phrase-level scan before the content entered the synthesis step. A `.cg-docs/solutions/` file containing: would pass the path validation (`starts with .cg-docs/solutions/`, `ends with .md`, no `..`) and reach the wiki synthesis step with the injected instruction in context.
 
 ## No user-facing path to initialize wiki on existing projects
 
@@ -150,7 +180,7 @@ status:
 tags: git, git-log, first-parent, branch-commits, merge-commits, cg-verify-pr, ci
 path: .cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md
 
-When counting commits authored **on the current branch** since a branch point, the common pattern: ``` silently includes commits from any merged-in upstream branches. If `main` was rebased into the feature branch via a merge commit, all commits reachable from `main` between `$mergeBase` and `HEAD` are also included — inflating the count. **Example**: A feature branch with 1 `fix(ci):` commit, merged with an upstream `main` that has 3 unrelated commits, reports **4** `fix(ci):` commits if any of those upstream commits happen to match the grep pattern (unlikely but possible), and more subtly produces **wrong commit ordering** even without a pattern...
+When counting commits authored **on the current branch** since a branch point, the common pattern: silently includes commits from any merged-in upstream branches. If `main` was rebased into the feature branch via a merge commit, all commits reachable from `main` between `$mergeBase` and `HEAD` are also included — inflating the count. **Example**: A feature branch with 1 `fix(ci):` commit, merged with an upstream `main` that has 3 unrelated commits, reports **4** `fix(ci):` commits if any of those upstream commits happen to match the grep pattern (unlikely but possible), and more subtly produces **wrong commit ordering** even without a pattern match....
 
 ## git merge-base can return multiple ancestors — always take the first line
 
@@ -160,7 +190,7 @@ status:
 tags: git, merge-base, PowerShell, bash, prompt-design, branch-detection, cg-commit-push-pr, cg-verify-pr
 path: .cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md
 
-Scripts and prompt instructions that compute the branch point with: ``` assume `git merge-base` returns exactly one hash. In repositories with a complex merge history (e.g., after an octopus merge or a criss-cross merge), the command can return **multiple SHA hashes on separate lines**. When assigned directly: - PowerShell: `$mergeBase` becomes a `string[]` array; subsequent commands such as `git diff $mergeBase..HEAD` receive `"sha1 sha2"` (space-joined) and fail or produce wrong output. - bash: `MERGE_BASE=$(git merge-base HEAD main)` captures a newline-delimited string; commands using it unquoted get word-split. Discovered as P2.3 in the `cg-commit-push-pr`/`cg-verify-pr` thorough review.
+Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash. In repositories with a complex merge history (e.g., after an octopus merge or a criss-cross merge), the command can return **multiple SHA hashes on separate lines**. When assigned directly: - PowerShell: `$mergeBase` becomes a `string[]` array; subsequent commands such as `git diff $mergeBase..HEAD` receive `"sha1 sha2"` (space-joined) and fail or produce wrong output. - bash: `MERGE_BASE=$(git merge-base HEAD main)` captures a newline-delimited string; commands using it unquoted get word-split. Discovered as P2.3 in the `cg-commit-push-pr`/`cg-verify-pr` thorough review.
 
 ## Prompt injection via LLM-authored plan content embedded in AI-generated output
 
@@ -170,7 +200,7 @@ status:
 tags: security, prompt-injection, plan-files, ai-safety, cg-commit-push-pr, untrusted-content
 path: .cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md
 
-A prompt reads a plan file's `## Objective` section and embeds it verbatim into AI-generated output (e.g., a PR body, a commit message body, or a summary). If the plan file's Objective contains adversarial instructions — either accidentally or by a malicious actor with write access to the plan file — those instructions are relayed to the user or forwarded to a downstream agent. Example plan content: ``` When the prompt reads this and writes it into a PR body: the LLM generating the PR body sees the injected text and may follow it. Discovered as P1.5 in the `cg-commit-push-pr`/`cg-verify-pr`...
+A prompt reads a plan file's `## Objective` section and embeds it verbatim into AI-generated output (e.g., a PR body, a commit message body, or a summary). If the plan file's Objective contains adversarial instructions — either accidentally or by a malicious actor with write access to the plan file — those instructions are relayed to the user or forwarded to a downstream agent. Example plan content: When the prompt reads this and writes it into a PR body: the LLM generating the PR body sees the injected text and may follow it. Discovered as P1.5 in the `cg-commit-push-pr`/`cg-verify-pr` thorough...
 
 ## Sibling-prompt symmetry: apply guard fixes to all prompts with the same operation
 
@@ -240,7 +270,7 @@ status:
 tags: powershell, cross-platform, join-path, path-separator, macos, linux, platform-guard, scripts
 path: .cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md
 
-On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on macOS/Linux resolves to `$base/subdir\file.txt` — a single path component named `subdir\file.txt` (a literal backslash in the filename). `Test-Path`, `Get-Content`, and other cmdlets then fail silently: `Test-Path` returns `$false`, `Get-Content` throws "file not found", and there is no error at the `Join-Path` call site. This was the root cause of the `cg-link` macOS verification warning: ```
+On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on macOS/Linux resolves to `$base/subdir\file.txt` — a single path component named `subdir\file.txt` (a literal backslash in the filename). `Test-Path`, `Get-Content`, and other cmdlets then fail silently: `Test-Path` returns `$false`, `Get-Content` throws "file not found", and there is no error at the `Join-Path` call site. This was the root cause of the `cg-link` macOS verification warning:
 
 ## link.ps1 runs on macOS via pwsh, Step 6 verification fails due to backslash path separator
 
@@ -280,7 +310,7 @@ status:
 tags: pester, powershell, ps51, python, here-string, temp-file, testing
 path: .cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md
 
-Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unreliable behaviour on PS 5.1 / Windows: ``` Symptoms: - Python receives garbled indentation (CRLF injected mid-string) - Variable expansion: `$data` becomes an empty PS variable before Python sees it - Backtick escapes (`\`n`) interact with PS escape rules - `SyntaxError` or silent wrong output, exit code 0 The failure mode is especially insidious: the test may pass on the CI machine and fail locally (or vice versa) depending on the PS version and locale.
+Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unreliable behaviour on PS 5.1 / Windows: Symptoms: - Python receives garbled indentation (CRLF injected mid-string) - Variable expansion: `$data` becomes an empty PS variable before Python sees it - Backtick escapes (`\`n`) interact with PS escape rules - `SyntaxError` or silent wrong output, exit code 0 The failure mode is especially insidious: the test may pass on the CI machine and fail locally (or vice versa) depending on the PS version and locale.
 
 ## Python non-atomic Path.write_text() truncates on crash — use mkstemp + os.replace
 
@@ -320,7 +350,7 @@ status:
 tags: prompt-design, fix-triage, html-comment, executable-instruction, silent-failure, agent-design, cg-ideate
 path: .cg-docs/solutions/testing-patterns/2026-05-06-html-comment-as-fix-never-executed.md
 
-During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dispatch `@cg-roadmap-view` for the roadmap-add flow (Step 5, option 3). The applied fix was: ``` The verify pass (V-P2.1) found that **`cg-ideate` still had no `@cg-roadmap-view` dispatch**. The HTML comment served as a note-to-self for the developer but was invisible to the model executing the prompt. The user landing on option 3 still picks a milestone blindly — the bug was not fixed. Every other prompt that received the same P2.15 fix (`cg-plan-review`, `cg-brainstorm`) had the instruction written as executable prose and worked correctly.
+During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dispatch `@cg-roadmap-view` for the roadmap-add flow (Step 5, option 3). The applied fix was: The verify pass (V-P2.1) found that **`cg-ideate` still had no `@cg-roadmap-view` dispatch**. The HTML comment served as a note-to-self for the developer but was invisible to the model executing the prompt. The user landing on option 3 still picks a milestone blindly — the bug was not fixed. Every other prompt that received the same P2.15 fix (`cg-plan-review`, `cg-brainstorm`) had the instruction written as executable prose and worked correctly.
 
 ## Implicit output template in agent spec — 'same as X but omit Y' causes non-deterministic rendering
 
@@ -340,7 +370,7 @@ status:
 tags: pester, regex, powershell, multiline, caret-anchor, write-guard, prompt-testing, silent-failure, false-positive
 path: .cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md
 
-A write-guard test for `cg-roadmap-view.agent.md` was written as: ``` This test **always passes** — not because the agent is safe, but because the pattern can never match. The agent file begins with `---` YAML frontmatter, not a write instruction. In .NET regex, `^` without `(?m)` anchors to the start of the entire string, so the pattern is evaluated exactly once at position 0 and immediately fails. **The test gives a green checkmark whether or not the agent contains dangerous write instructions anywhere in the body.** Discovered as **P2.3** in the thorough review of the roadmap-visualization feature (`2026-05-06-roadmap-visualization-review.md`).
+A write-guard test for `cg-roadmap-view.agent.md` was written as: This test **always passes** — not because the agent is safe, but because the pattern can never match. The agent file begins with `---` YAML frontmatter, not a write instruction. In .NET regex, `^` without `(?m)` anchors to the start of the entire string, so the pattern is evaluated exactly once at position 0 and immediately fails. **The test gives a green checkmark whether or not the agent contains dangerous write instructions anywhere in the body.** Discovered as **P2.3** in the thorough review of the roadmap-visualization feature (`2026-05-06-roadmap-visualization-review.md`).
 
 ## duplicates tag clears r(N) — insert count before conditional display
 
@@ -350,7 +380,7 @@ status:
 tags: stata, duplicates, stored-results, r-class, data-validation, assertion
 path: .cg-docs/solutions/data-quality/2026-05-05-duplicates-tag-clears-r-N-use-count-before-conditional-display.md
 
-The following pattern produces a silently-suppressed diagnostic: `display as error` never fires even when duplicates exist, because `if r(N) > 0` evaluates to false. ``` The `assert` line does correctly fail when duplicates exist, but the informative error message is always suppressed — making failures harder to diagnose.
+The following pattern produces a silently-suppressed diagnostic: `display as error` never fires even when duplicates exist, because `if r(N) > 0` evaluates to false. The `assert` line does correctly fail when duplicates exist, but the informative error message is always suppressed — making failures harder to diagnose.
 
 ## JSON-escaped quotes leak literal backslash-quote into PowerShell files
 
@@ -360,7 +390,7 @@ status:
 tags: powershell, pester, json, escaping, multi-replace, tool-bug, string-literals
 path: .cg-docs/solutions/bugs/2026-05-05-json-escaped-quotes-leak-into-ps1-files.md
 
-After using `multi_replace_string_in_file` (or a second sequential `replace_string_in_file`) to insert PowerShell code containing double-quoted strings into a `.ps1` file, the file on disk contained literal `\"` escape sequences — producing malformed PowerShell: ``` This caused Pester 3.4 to fail to parse the `It` block, resulting in test failures with confusing messages ("file not found" or `{True}` expected but got `{}`).
+After using `multi_replace_string_in_file` (or a second sequential `replace_string_in_file`) to insert PowerShell code containing double-quoted strings into a `.ps1` file, the file on disk contained literal `\"` escape sequences — producing malformed PowerShell: This caused Pester 3.4 to fail to parse the `It` block, resulting in test failures with confusing messages ("file not found" or `{True}` expected but got `{}`).
 
 ## Pester regex for assert-with-string-message false-positives on inlist/inrange
 
@@ -370,7 +400,7 @@ status:
 tags: pester, regex, powershell, stata, assert, inlist, inrange, false-positive, guard-test
 path: .cg-docs/solutions/testing-patterns/2026-05-05-pester-regex-assert-string-message-false-positive-inlist.md
 
-A Pester guard test intended to detect invalid Stata `assert expr, "message"` syntax used the regex `assert\b[^\`\r\n]+,\s*"`. This correctly rejects: ``` But it also incorrectly matched valid Stata: ``` Because the regex sees `assert inlist(survey_type,` followed by a space and `"` — the comma is **inside parentheses** and belongs to `inlist()`, not to the `assert` option syntax. The test returned `True` (match found) when it should have returned `False` (no bad assert).
+A Pester guard test intended to detect invalid Stata `assert expr, "message"` syntax used the regex `assert\b[^\`\r\n]+,\s*"`. This correctly rejects: But it also incorrectly matched valid Stata: Because the regex sees `assert inlist(survey_type,` followed by a space and `"` — the comma is **inside parentheses** and belongs to `inlist()`, not to the `assert` option syntax. The test returned `True` (match found) when it should have returned `False` (no bad assert).
 
 ## print_yellow inside command substitution corrupts captured variable with ANSI text
 
@@ -380,7 +410,7 @@ status:
 tags: bash, command-substitution, stdout, stderr, ansi-escape, shell-profile, detect_profile, print_yellow, silent-failure
 path: .cg-docs/solutions/bugs/2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md
 
-`scripts/install.sh` added a warning branch to `detect_profile()` for unrecognized shells (fish, nushell, tcsh) as part of a P3.8 fix. The warning used `print_yellow`, a helper defined as: ``` The function is called via command substitution: ``` For any unrecognized shell, `PROFILE_FILE` received the concatenated stdout of the entire function: ``` Every subsequent use of `$PROFILE_FILE` silently failed: - `grep -qF "$CG_PROFILE_START" "$PROFILE_FILE"` — no error, no match - `>> "$PROFILE_FILE"` — created a junk file with the ANSI-escape string as its name - The PATH block was never written to the real shell profile The install appeared to succeed (exit...
+`scripts/install.sh` added a warning branch to `detect_profile()` for unrecognized shells (fish, nushell, tcsh) as part of a P3.8 fix. The warning used `print_yellow`, a helper defined as: The function is called via command substitution: For any unrecognized shell, `PROFILE_FILE` received the concatenated stdout of the entire function: Every subsequent use of `$PROFILE_FILE` silently failed: - `grep -qF "$CG_PROFILE_START" "$PROFILE_FILE"` — no error, no match - `>> "$PROFILE_FILE"` — created a junk file with the ANSI-escape string as its name - The PATH block was never written to the real shell profile The install appeared to succeed (exit code 0, success...
 
 ## Regex alternation branches become stale dead code after prompt refactoring
 
@@ -390,7 +420,7 @@ status:
 tags: pester, powershell, regex, alternation, dead-code, prompt-refactoring, stale-pattern, -match, coverage
 path: .cg-docs/solutions/testing-patterns/2026-05-05-stale-alternation-after-prompt-refactoring.md
 
-A test was written in two-branch alternation form to cover two possible phrasings of the "skip silently" guard in `cg-plan.prompt.md`: ``` The first branch (`not.*main.*master.*skip silently`) was written for the original prompt text, which checked the current branch against the literal names `main` or `master`. After P2.3 replaced this with dynamic default-branch detection, the prompt text changed to: > "If the current branch is not the default branch (i.e., already on a feature > branch): skip silently." The words `main` and `master` no longer appear in this clause. The first alternation branch became permanently non-matching. The test continued to pass...
+A test was written in two-branch alternation form to cover two possible phrasings of the "skip silently" guard in `cg-plan.prompt.md`: The first branch (`not.*main.*master.*skip silently`) was written for the original prompt text, which checked the current branch against the literal names `main` or `master`. After P2.3 replaced this with dynamic default-branch detection, the prompt text changed to: > "If the current branch is not the default branch (i.e., already on a feature > branch): skip silently." The words `main` and `master` no longer appear in this clause. The first alternation branch became permanently non-matching. The test continued to pass via...
 
 ## Within-step pre-flight operations must precede the user-facing offer template
 
@@ -440,7 +470,7 @@ status:
 tags: pester, powershell, regex, alternation, coverage, always-true, -match, prompt-testing, cg-setup
 path: .cg-docs/solutions/testing-patterns/2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md
 
-A test was written to verify that the scanner injection sanitization block in `cg-setup.prompt.md` named all three trigger words: "Ignore", "Override", "Forget". ``` The source text at line 62 is: > `sentences beginning with "Ignore", "Override", or "Forget"` The regex `Ignore.*Override` matches this line (both words appear in order), so the first alternation branch is satisfied. PowerShell's `-match` short-circuits on the first match — `Override.*Forget` is never evaluated. If "Forget" were removed from the source text, the test would still pass. Despite the `It` name claiming all three words are verified, only two are effectively tested.
+A test was written to verify that the scanner injection sanitization block in `cg-setup.prompt.md` named all three trigger words: "Ignore", "Override", "Forget". The source text at line 62 is: > `sentences beginning with "Ignore", "Override", or "Forget"` The regex `Ignore.*Override` matches this line (both words appear in order), so the first alternation branch is satisfied. PowerShell's `-match` short-circuits on the first match — `Override.*Forget` is never evaluated. If "Forget" were removed from the source text, the test would still pass. Despite the `It` name claiming all three words are verified, only two are effectively tested.
 
 ## Two-phase injection guard: scan before extracting content from user-controlled files in AI agents
 
@@ -450,7 +480,7 @@ status:
 tags: prompt-injection, security, agent-design, ai-safety, two-phase, README, DESCRIPTION, cg-project-scanner, compound-gpid
 path: .cg-docs/solutions/testing-patterns/2026-04-29-two-phase-injection-guard-for-agent-file-reads.md
 
-`@cg-project-scanner` reads user-controlled files — `README.md`, `DESCRIPTION`, `.gitignore` — to extract charter-draft content. The naive safety rule: ``` This rule is applied *after* reading the file. By the time it fires, injected text like: ``` is already in the model's context window. Haiku 4.5 (the scanner model) is more susceptible to mid-context steering than frontier models. The "content excluded" instruction is behavioral, not a pre-read filter — the model must resist text it has already processed. The initial review of the agent (P1.2 in `2026-04-29-project-scanner-skill-agent-phase1-review.md`) flagged this as a P1 correctness issue.
+`@cg-project-scanner` reads user-controlled files — `README.md`, `DESCRIPTION`, `.gitignore` — to extract charter-draft content. The naive safety rule: This rule is applied *after* reading the file. By the time it fires, injected text like: is already in the model's context window. Haiku 4.5 (the scanner model) is more susceptible to mid-context steering than frontier models. The "content excluded" instruction is behavioral, not a pre-read filter — the model must resist text it has already processed. The initial review of the agent (P1.2 in `2026-04-29-project-scanner-skill-agent-phase1-review.md`) flagged this as a P1 correctness issue.
 
 ## Writing a Pester test for an unshipped schema marker creates a persistent pre-existing failure
 
@@ -460,7 +490,7 @@ status:
 tags: pester, testing, schema-version, SCHEMA_VERSION, pre-existing-failure, tdd, test-hygiene, compound-gpid
 path: .cg-docs/solutions/testing-patterns/2026-04-29-premature-schema-marker-test-creates-persistent-failure.md
 
-A review finding (P2.6 in `2026-04-09-ce-improvements-phase3-fix-verify-review.md`) recommended bumping `SCHEMA_VERSION` to `2026-04-09-scope-fields` when the `scope:` frontmatter field was introduced in plan and brainstorm artifacts. A Pester test was written to enforce this contract: ``` The SCHEMA_VERSION update was never applied. The file continued to read `2026-04-07-r-syntax-dialect`, then `2026-04-28-release-scanner-agent` after a later unrelated bump — neither contained `scope-fields`. The test failed from the day it was committed (2026-04-09) until it was diagnosed and fixed on 2026-04-29 — a span of 20 days and multiple review/fix-triage cycles. Every test run reported 1 pre-existing failure in `prompt-tools.Tests.ps1`, creating noise that made it harder to...
+A review finding (P2.6 in `2026-04-09-ce-improvements-phase3-fix-verify-review.md`) recommended bumping `SCHEMA_VERSION` to `2026-04-09-scope-fields` when the `scope:` frontmatter field was introduced in plan and brainstorm artifacts. A Pester test was written to enforce this contract: The SCHEMA_VERSION update was never applied. The file continued to read `2026-04-07-r-syntax-dialect`, then `2026-04-28-release-scanner-agent` after a later unrelated bump — neither contained `scope-fields`. The test failed from the day it was committed (2026-04-09) until it was diagnosed and fixed on 2026-04-29 — a span of 20 days and multiple review/fix-triage cycles. Every test run reported 1 pre-existing failure in `prompt-tools.Tests.ps1`, creating noise that made it harder to spot...
 
 ## Agent Inputs description uses snake_case when prompt defines kebab-case variable names
 
@@ -470,7 +500,7 @@ status:
 tags: agents, prompt-design, naming-convention, kebab-case, snake_case, naming-drift, cg-release, cg-release-scanner
 path: .cg-docs/solutions/bugs/2026-04-28-agent-inputs-snake-case-drift-from-kebab-case-prompt-variables.md
 
-`cg-release.prompt.md` defines and passes a computed variable named `window-days` (hyphen) and `tag-date` (hyphen) to the `@cg-release-scanner` agent. The agent's `Inputs` section, however, described the formula using underscores: ``` The hyphens in the actual variable names were correct everywhere else in both files — this was a naming-convention inconsistency confined to the parenthetical formula in the Inputs description.
+`cg-release.prompt.md` defines and passes a computed variable named `window-days` (hyphen) and `tag-date` (hyphen) to the `@cg-release-scanner` agent. The agent's `Inputs` section, however, described the formula using underscores: The hyphens in the actual variable names were correct everywhere else in both files — this was a naming-convention inconsistency confined to the parenthetical formula in the Inputs description.
 
 ## Prompt guard conditions added without Pester regression tests
 
@@ -500,7 +530,7 @@ status:
 tags: vscode, crash, long-session, listener-leak, environment, copilot, agent, fix-triage, session-management
 path: .cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md
 
-After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and restarted. All in-progress changes were uncommitted. **Key log evidence** (`main.log`): ``` The VS Code session had been open since **2026-04-21T15:03:41** — a continuous **68-hour** window with window12 being the active window at time of crash. No Pester forbidden patterns appeared in logs. No non-zero exit codes. No `listener LEAK` entries in `renderer.log`. This was **not** a Pester crash — it was pure time-based listener accumulation.
+After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and restarted. All in-progress changes were uncommitted. **Key log evidence** (`main.log`): The VS Code session had been open since **2026-04-21T15:03:41** — a continuous **68-hour** window with window12 being the active window at time of crash. No Pester forbidden patterns appeared in logs. No non-zero exit codes. No `listener LEAK` entries in `renderer.log`. This was **not** a Pester crash — it was pure time-based listener accumulation.
 
 ## Verify-mode suppression must be anchored to fixed-finding scope, not agent-inferred consequence code
 
@@ -520,7 +550,7 @@ status:
 tags: pester, testing, schema-version, json, registry, coupling, maintenance-anchor, prompt-design, value-equality
 path: .cg-docs/solutions/testing-patterns/2026-04-22-schema-constant-coupling-value-equality-test-and-maintenance-anchor.md
 
-`repos.json` contains a `schemaVersion` field: ``` `cg-review-repos.prompt.md` Step 1 checks that the file's `schemaVersion` matches a hardcoded expected value. The Pester test for `repos.json` only verified presence: ``` This test would pass even if: - The constant was bumped in `repos.json` but not in the prompt (or vice versa) - A typo was introduced during a manual schema bump - A future developer created a new `repos.json` from scratch with an incorrect constant Additionally, neither the JSON file nor the prompt file contained any comment directing developers to keep the two values in sync.
+`repos.json` contains a `schemaVersion` field: `cg-review-repos.prompt.md` Step 1 checks that the file's `schemaVersion` matches a hardcoded expected value. The Pester test for `repos.json` only verified presence: This test would pass even if: - The constant was bumped in `repos.json` but not in the prompt (or vice versa) - A typo was introduced during a manual schema bump - A future developer created a new `repos.json` from scratch with an incorrect constant Additionally, neither the JSON file nor the prompt file contained any comment directing developers to keep the two values in sync.
 
 ## Prompt step with forward dependency needs explicit deferred-execution marker
 
@@ -540,7 +570,7 @@ status:
 tags: powershell, pester, fixtures, input-contract, yaml, frontmatter, get-toolslist, false-positive
 path: .cg-docs/solutions/testing-patterns/2026-04-21-test-fixture-must-match-function-input-contract.md
 
-`Get-ToolsList` in `tests/helpers.ps1` accepts an extracted frontmatter **body** — the inner content between `---` delimiters, as returned by `Get-Frontmatter`. The edge-case tests in `tests/helpers.Tests.ps1` were passing full YAML blocks including delimiters: ``` The test passed — but only because `---` does not match `^\s*tools:`, not because the function correctly handled frontmatter body input. The fixture was testing the function's tolerance of unexpected delimiters, not its core logic.
+`Get-ToolsList` in `tests/helpers.ps1` accepts an extracted frontmatter **body** — the inner content between `---` delimiters, as returned by `Get-Frontmatter`. The edge-case tests in `tests/helpers.Tests.ps1` were passing full YAML blocks including delimiters: The test passed — but only because `---` does not match `^\s*tools:`, not because the function correctly handled frontmatter body input. The fixture was testing the function's tolerance of unexpected delimiters, not its core logic.
 
 ## Where-Object returns PSObject[] — regex on array coerces to space-joined string
 
@@ -550,7 +580,7 @@ status:
 tags: powershell, pester, where-object, array, coercion, regex, select-object, get-toolslist
 path: .cg-docs/solutions/testing-patterns/2026-04-21-where-object-returns-array-coercion-trap.md
 
-`Get-ToolsList` in `tests/helpers.ps1` extracted the `tools:` line from a frontmatter string and passed it directly to `[regex]::Matches()`: ``` When the frontmatter contained two `tools:` keys (e.g., malformed YAML), `$line` was a `PSObject[]` with two elements. `.NET`'s `[regex]::Matches()` expects a `[string]`; when given an array it calls `.ToString()`, which joins elements with spaces: ``` The regex then matched across the merged string, returning incorrect merged tokens rather than raising an error.
+`Get-ToolsList` in `tests/helpers.ps1` extracted the `tools:` line from a frontmatter string and passed it directly to `[regex]::Matches()`: When the frontmatter contained two `tools:` keys (e.g., malformed YAML), `$line` was a `PSObject[]` with two elements. `.NET`'s `[regex]::Matches()` expects a `[string]`; when given an array it calls `.ToString()`, which joins elements with spaces: The regex then matched across the merged string, returning incorrect merged tokens rather than raising an error.
 
 ## Behavioral Pester tests for SKILL.md files: guard contracts, not just existence
 
@@ -560,7 +590,7 @@ status:
 tags: powershell, pester, skill, SKILL.md, behavioral-test, describe-block, compound-gpid, fix-triage
 path: .cg-docs/solutions/testing-patterns/2026-04-20-behavioral-pester-tests-for-skill-md-files.md
 
-When `cg-skill-fix-triage-migrate/SKILL.md` was added to the project, the Pester test suite gained only a reference test ("skill is loaded for `--migrate` mode by name") in the `cg-fix-triage.prompt.md` describe block. The skill's own behavioral contracts — all-open default, no-delegate rule, "No legacy review files found" response, and the `prepend` instruction — had no test coverage. Because behavioral contracts live in prose, they can silently regress: an editor rewriting the Step 3 report template can accidentally remove the all-open guarantee without breaking any existing test. ``` ---
+When `cg-skill-fix-triage-migrate/SKILL.md` was added to the project, the Pester test suite gained only a reference test ("skill is loaded for `--migrate` mode by name") in the `cg-fix-triage.prompt.md` describe block. The skill's own behavioral contracts — all-open default, no-delegate rule, "No legacy review files found" response, and the `prepend` instruction — had no test coverage. Because behavioral contracts live in prose, they can silently regress: an editor rewriting the Step 3 report template can accidentally remove the all-open guarantee without breaking any existing test. ---
 
 ## Canonical Run-Tests.ps1 + last-run.json artifact decouples test results from agent context window
 
@@ -570,7 +600,7 @@ status:
 tags: powershell, pester, vscode, crash, context-overflow, run-tests, json-artifact, execution-subagent, agent-safety, long-session, canonical-runner
 path: .cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md
 
-Despite 18+ documented VS Code crashes and a comprehensive `cg-skill-pester-safety` skill, agents continued to compose `Invoke-Pester` commands directly. The failure modes were: **Category A (72% of crashes):** Agent composes a forbidden pattern after context compaction (the safety rules are no longer in the active context window): ``` **Category B (28% of crashes):** Agent uses a technically-safe pattern but the full Pester output floods the agent context window in a long session: ``` The root problem is that any `Invoke-Pester` call returns or prints information that goes through the agent's context window. For a 300-test file in a long session, even...
+Despite 18+ documented VS Code crashes and a comprehensive `cg-skill-pester-safety` skill, agents continued to compose `Invoke-Pester` commands directly. The failure modes were: **Category A (72% of crashes):** Agent composes a forbidden pattern after context compaction (the safety rules are no longer in the active context window): **Category B (28% of crashes):** Agent uses a technically-safe pattern but the full Pester output floods the agent context window in a long session: The root problem is that any `Invoke-Pester` call returns or prints information that goes through the agent's context window. For a 300-test file in a long session, even the `-Quiet`...
 
 ## Exact count assertions prevent silent regression when test name states a specific count
 
@@ -580,7 +610,7 @@ status:
 tags: pester, testing, assertion, regression, count, begreatertan, shouldbe, ps5.1, test-quality
 path: .cg-docs/solutions/testing-patterns/2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md
 
-A test in `helpers.Tests.ps1` was named: > "all three unconfigured fields (project-type, language, review-depth) fall back" But the assertion used a range: ``` If one of the three fields silently stopped falling back to `<not configured>` (due to a regex change, a new default value, or a guard bug), the match count would drop from 3 to 2. The test would still **pass** because `2 BeGreaterThan 1` is `$true`. The regression would be invisible until a user encountered malformed `copilot-instructions.md` output in production.
+A test in `helpers.Tests.ps1` was named: > "all three unconfigured fields (project-type, language, review-depth) fall back" But the assertion used a range: If one of the three fields silently stopped falling back to `<not configured>` (due to a regex change, a new default value, or a guard bug), the match count would drop from 3 to 2. The test would still **pass** because `2 BeGreaterThan 1` is `$true`. The regression would be invisible until a user encountered malformed `copilot-instructions.md` output in production.
 
 ## PS5.1 Get-Content default encoding (Windows-1252) breaks equality check when file was written with UTF-8
 
@@ -590,7 +620,7 @@ status:
 tags: powershell, ps51, encoding, utf8, windows-1252, get-content, set-content, equality-check, idempotency, copilot-instructions, link
 path: .cg-docs/solutions/bugs/2026-04-17-ps51-get-content-default-encoding-breaks-equality-check.md
 
-`link.ps1` reads the existing `copilot-instructions.md` to compare it with freshly generated content — skipping the write if nothing changed (idempotency): ``` **Symptom**: `cg-link` always reported "generated" and rewrote the file on every run, even when the template and config had not changed. The "up to date" branch was never reached.
+`link.ps1` reads the existing `copilot-instructions.md` to compare it with freshly generated content — skipping the write if nothing changed (idempotency): **Symptom**: `cg-link` always reported "generated" and rewrote the file on every run, even when the template and config had not changed. The "up to date" branch was never reached.
 
 ## Template {{placeholder}} tokens inside HTML comments are substituted by .Replace() loop, corrupting generated output
 
@@ -600,7 +630,7 @@ status:
 tags: powershell, template, placeholder, replace, html-comment, copilot-instructions, generation, context-layer
 path: .cg-docs/solutions/bugs/2026-04-17-template-placeholder-tokens-in-html-comments-substituted-by-replace.md
 
-When adding a documentation comment to `copilot-instructions.template.md`, the comment was written with `{{placeholder}}` tokens to describe the variables: ``` Every generated `copilot-instructions.md` in consumer projects then contained: ``` The placeholder variable names disappeared and were replaced with the real config values from the user's project. The bug was discovered during a verification review — test runs still passed because no test checked the comment text, but every consumer project would receive a corrupted, misleading HTML comment.
+When adding a documentation comment to `copilot-instructions.template.md`, the comment was written with `{{placeholder}}` tokens to describe the variables: Every generated `copilot-instructions.md` in consumer projects then contained: The placeholder variable names disappeared and were replaced with the real config values from the user's project. The bug was discovered during a verification review — test runs still passed because no test checked the comment text, but every consumer project would receive a corrupted, misleading HTML comment.
 
 ## YAML single-quoted values retain literal apostrophes when regex only strips double-quote delimiters
 
@@ -610,7 +640,7 @@ status:
 tags: powershell, yaml, frontmatter, regex, single-quote, parsing, helpers, r-syntax, copilot-instructions
 path: .cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md
 
-`compound-gpid.local.md` uses YAML frontmatter to store configuration. The field extraction regex in `helpers.ps1` was: ``` A user who wrote their config with single-quoted values (valid YAML): ``` Would get `$rSyntax = "'data.table-collapse'"` — with the apostrophes included. The generated `copilot-instructions.md` would then contain: ``` Copilot receives an unknown dialect string and silently falls back to defaults, ignoring the user's configured dialect. No error is thrown. The same issue applies to `language`, `project-type`, `review-depth`, and `project-name` — all five fields used the double-quote-only regex.
+`compound-gpid.local.md` uses YAML frontmatter to store configuration. The field extraction regex in `helpers.ps1` was: A user who wrote their config with single-quoted values (valid YAML): Would get `$rSyntax = "'data.table-collapse'"` — with the apostrophes included. The generated `copilot-instructions.md` would then contain: Copilot receives an unknown dialect string and silently falls back to defaults, ignoring the user's configured dialect. No error is thrown. The same issue applies to `language`, `project-type`, `review-depth`, and `project-name` — all five fields used the double-quote-only regex.
 
 ## cg-work Step 3.7 silently skips plan:null features — no fallback
 
@@ -630,7 +660,7 @@ status:
 tags: prompt-design, cg-work, loop, early-exit, cleanup, validate, commit, step-ordering, anti-pattern
 path: .cg-docs/solutions/bugs/2026-04-15-loop-early-exit-skips-per-iteration-cleanup.md
 
-`cg-work.prompt.md` has a `For each step in the plan` outer loop. Inside that loop, the Test Failure Recovery (TFR) block for two-attempt exhaustion instructed: ``` "Continue to the next plan step" means the **outer loop's `continue`** — jump to iteration N+1. This silently skipped every remaining sub-step of the *current* iteration: - `get_errors` (Auto-Fix Diagnostics) - `@cg-fix-problems` dispatch - **Validate** (step 5) — acceptance criteria never checked - **Commit checkpoint** (step 6) — no conventional commit suggested - **Report** (step 7) — no step summary written Code with live diagnostic errors could advance to the next plan step unexamined. If...
+`cg-work.prompt.md` has a `For each step in the plan` outer loop. Inside that loop, the Test Failure Recovery (TFR) block for two-attempt exhaustion instructed: "Continue to the next plan step" means the **outer loop's `continue`** — jump to iteration N+1. This silently skipped every remaining sub-step of the *current* iteration: - `get_errors` (Auto-Fix Diagnostics) - `@cg-fix-problems` dispatch - **Validate** (step 5) — acceptance criteria never checked - **Commit checkpoint** (step 6) — no conventional commit suggested - **Report** (step 7) — no step summary written Code with live diagnostic errors could advance to the next plan step unexamined. If auto-fix...
 
 ## New validation branch added without a test for the new code path
 
@@ -640,7 +670,7 @@ status:
 tags: pester, powershell, coverage, validation, schema, new-branch, silent-failure, test-gap
 path: .cg-docs/solutions/testing-patterns/2026-04-15-new-validation-branch-requires-dedicated-test.md
 
-`tests/roadmap.Tests.ps1`'s `Test-RoadmapSchema` function was extended with a cross-milestone duplicate feature ID check: ``` The existing test for duplicate feature IDs used a single-milestone fixture: ``` This test never reaches the `$allFeatureIds` cross-milestone branch — it fires the *intra-milestone* `$featureIds` check instead. Both checks produce a "Duplicate feature id" error, so the test passes, and there is no signal that the cross-milestone path is untested. The fix (P3.9 from the standard review) added the validation code. The light verify-review caught it as P1.1: the new branch had zero test coverage.
+`tests/roadmap.Tests.ps1`'s `Test-RoadmapSchema` function was extended with a cross-milestone duplicate feature ID check: The existing test for duplicate feature IDs used a single-milestone fixture: This test never reaches the `$allFeatureIds` cross-milestone branch — it fires the *intra-milestone* `$featureIds` check instead. Both checks produce a "Duplicate feature id" error, so the test passes, and there is no signal that the cross-milestone path is untested. The fix (P3.9 from the standard review) added the validation code. The light verify-review caught it as P1.1: the new branch had zero test coverage.
 
 ## Per-batch retry counter creates unbounded loop when cascading regressions occur
 
@@ -650,7 +680,7 @@ status:
 tags: prompt-design, cg-work, adversarial, retry-logic, bounded-retry, test-failure-recovery, anti-pattern, loop
 path: .cg-docs/solutions/bugs/2026-04-15-per-batch-retry-counter-unbounded-loop.md
 
-`cg-work.prompt.md`'s Test Failure Recovery block defined a 2-attempt limit scoped to a specific set of *targeted failures*: ``` The problem: rule 3's full-suite re-run can expose a **new** regression that wasn't in the original targeted set. Because the counter was scoped to targeted failures (now resolved), the new failure has a **fresh counter of zero**. The LLM starts another 2-attempt cycle. That fix may again resolve targeted failures but expose another full-suite regression — and so on indefinitely. **Discovered as P0.2** in the cg-adversarial thorough review of the per-step test failure handling feature (2026-04-15).
+`cg-work.prompt.md`'s Test Failure Recovery block defined a 2-attempt limit scoped to a specific set of *targeted failures*: The problem: rule 3's full-suite re-run can expose a **new** regression that wasn't in the original targeted set. Because the counter was scoped to targeted failures (now resolved), the new failure has a **fresh counter of zero**. The LLM starts another 2-attempt cycle. That fix may again resolve targeted failures but expose another full-suite regression — and so on indefinitely. **Discovered as P0.2** in the cg-adversarial thorough review of the per-step test failure handling feature (2026-04-15).
 
 ## Pester regex without (?s) gives silent false-negative on multi-line prompt content
 
@@ -660,7 +690,7 @@ status:
 tags: pester, regex, powershell, dotall, multiline, prompt-testing, silent-failure
 path: .cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md
 
-Several Pester tests for `cg-work.prompt.md` used `.*` to span across a prompt phrase that happened to wrap across a line break: ``` All three tests **pass** — but only via their fallback alternatives. The primary alternatives die silently because `.*` in `.NET` regex does not cross `\n`. The consequence: when the fallback phrase is later renamed/rephrased, the test still passes (false negative). The primary requirement goes undetected. **Discovered as P2.6, P2.7, P2.8** in the standard review of the per-step test failure handling feature (2026-04-15).
+Several Pester tests for `cg-work.prompt.md` used `.*` to span across a prompt phrase that happened to wrap across a line break: All three tests **pass** — but only via their fallback alternatives. The primary alternatives die silently because `.*` in `.NET` regex does not cross `\n`. The consequence: when the fallback phrase is later renamed/rephrased, the test still passes (false negative). The primary requirement goes undetected. **Discovered as P2.6, P2.7, P2.8** in the standard review of the per-step test failure handling feature (2026-04-15).
 
 ## Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns
 
@@ -670,7 +700,7 @@ status:
 tags: powershell, pester, vscode, crash, fix-triage, context-overflow, long-session, ai-agent, copilot, quiet, prompt-tools
 path: .cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md
 
-VS Code crashed **twice in a single fix-triage session** (2026-04-15) even though all terminal commands exited with code 0. The PowerShell patterns used were technically "safe" — no forbidden pipelines, no `2>&1`, no directory run — yet VS Code crashed immediately after the Pester run completed. The commands that caused the crash: ``` **Critical detail:** Both commands exited with code 0 (tests passed). The crash did not come from PowerShell or the test runner itself — it came from the agent context window being flooded by the test output that VS Code rendered. **Session context at time of crash:** The...
+VS Code crashed **twice in a single fix-triage session** (2026-04-15) even though all terminal commands exited with code 0. The PowerShell patterns used were technically "safe" — no forbidden pipelines, no `2>&1`, no directory run — yet VS Code crashed immediately after the Pester run completed. The commands that caused the crash: **Critical detail:** Both commands exited with code 0 (tests passed). The crash did not come from PowerShell or the test runner itself — it came from the agent context window being flooded by the test output that VS Code rendered. **Session context at time of crash:** The conversation...
 
 ## Prompt step silent-skip anti-pattern: always provide fallback with candidates when primary key lookup fails
 
@@ -710,7 +740,7 @@ status:
 tags: prompt-design, cg-work, adversarial, guardrail, llm-behavior, test-failure-recovery, anti-pattern
 path: .cg-docs/solutions/bugs/2026-04-15-self-defeating-guardrail-exception-in-llm-prompts.md
 
-`cg-work.prompt.md`'s Test Failure Recovery block contained this rule: ``` The guardrail was designed to prevent an LLM from silently updating tests to match a buggy implementation. But the exception was self-defeating: the LLM can always reason: 1. My implementation causes these tests to fail. 2. The tests expect behavior my code doesn't exhibit. 3. Therefore, I changed the interface. 4. Exception applies — I may update the tests. Test failure itself becomes *proof* of interface change. The guardrail is completely nullified. Any implementation bug can be rationalized as an interface change, and tests silently updated to match buggy behavior. **Discovered...
+`cg-work.prompt.md`'s Test Failure Recovery block contained this rule: The guardrail was designed to prevent an LLM from silently updating tests to match a buggy implementation. But the exception was self-defeating: the LLM can always reason: 1. My implementation causes these tests to fail. 2. The tests expect behavior my code doesn't exhibit. 3. Therefore, I changed the interface. 4. Exception applies — I may update the tests. Test failure itself becomes *proof* of interface change. The guardrail is completely nullified. Any implementation bug can be rationalized as an interface change, and tests silently updated to match buggy behavior. **Discovered as...
 
 ## Mirrored conditional guard creates redundant closing clause in prompt steps
 
@@ -720,7 +750,7 @@ status:
 tags: prompt-design, cg-work, redundant-guard, step-structure, anti-pattern, review-finding
 path: .cg-docs/solutions/bugs/2026-04-14-mirrored-conditional-guard-redundancy-in-prompts.md
 
-A prompt step was structured as: ``` The closing guard is logically redundant: the entire body is already wrapped in the positive condition. The duplication implies the two guards apply different conditions when they do not — misleading future authors who extend the step. Caught as **P3.2** in the `2026-04-13-cg-work-roadmap-bug-review.md` thorough review of the cg-work roadmap bug fix.
+A prompt step was structured as: The closing guard is logically redundant: the entire body is already wrapped in the positive condition. The duplication implies the two guards apply different conditions when they do not — misleading future authors who extend the step. Caught as **P3.2** in the `2026-04-13-cg-work-roadmap-bug-review.md` thorough review of the cg-work roadmap bug fix.
 
 ## cg-work roadmap status never updated to done after plan completion
 
@@ -770,7 +800,7 @@ status:
 tags: powershell, pester, vscode, crash, ai-agent, copilot, 2>&1, debugging, failure-inspection
 path: .cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md
 
-VS Code crashed **multiple times in a single session** during a fix-triage cycle. The agent had been told tests were failing and attempted to inspect error messages using: ``` **What makes this session distinct from previous crashes:** The agent was actively investigating the Pester crash problem itself — it knew the dangerous patterns — yet still used the `2>&1 |` forbidden pattern when reasoning about how to see what was wrong with specific failing tests. The rules were documented, the skill was loaded, yet the pattern occurred anyway. **The cognitive trigger:** "I have a failing test. How do I see...
+VS Code crashed **multiple times in a single session** during a fix-triage cycle. The agent had been told tests were failing and attempted to inspect error messages using: **What makes this session distinct from previous crashes:** The agent was actively investigating the Pester crash problem itself — it knew the dangerous patterns — yet still used the `2>&1 |` forbidden pattern when reasoning about how to see what was wrong with specific failing tests. The rules were documented, the skill was loaded, yet the pattern occurred anyway. **The cognitive trigger:** "I have a failing test. How do I see the...
 
 ## cg-update --list never shows installed version arrow in latest mode
 
@@ -820,7 +850,7 @@ status:
 tags: powershell, pester, instruction-files, applyTo, frontmatter, dialect-routing, r-instructions, copilot, silent-failure
 path: .cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md
 
-`.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which file types automatically trigger the instruction: ``` If this field is accidentally deleted, misspelled, or set to the wrong pattern, VS Code Copilot silently stops applying the R dialect router to `.R` files. No error is raised. The agent simply never loads the dialect skill for R files. From the user's perspective, "AI seems wrong about R style" — an ambiguous, hard-to-diagnose symptom. There was no test asserting: - The `applyTo:` key exists - It includes `**/*.R` (uppercase) - It includes `**/*.r` (lowercase) - It includes `**/*.Rmd` Without...
+`.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which file types automatically trigger the instruction: If this field is accidentally deleted, misspelled, or set to the wrong pattern, VS Code Copilot silently stops applying the R dialect router to `.R` files. No error is raised. The agent simply never loads the dialect skill for R files. From the user's perspective, "AI seems wrong about R style" — an ambiguous, hard-to-diagnose symptom. There was no test asserting: - The `applyTo:` key exists - It includes `**/*.R` (uppercase) - It includes `**/*.r` (lowercase) - It includes `**/*.Rmd` Without tests,...
 
 ## Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards
 
@@ -840,7 +870,7 @@ status:
 tags: powershell, pester, vscode, crash, ai-agent, copilot, enforcement, context-window, safety-rules
 path: .cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md
 
-VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even though the dangerous patterns were explicitly documented in: - `.github/copilot-instructions.md` (Pester Safety Rules section) - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` The agent used this pattern on each crash: ``` The rules had been written. The agent had processed them at session start. Yet the same pattern recurred under "test verification" pressure — when the agent was focused on confirming pass/fail results, the constraint in a non-prominent section of a large instructions file was no longer in the active context window.
+VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even though the dangerous patterns were explicitly documented in: - `.github/copilot-instructions.md` (Pester Safety Rules section) - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` The agent used this pattern on each crash: The rules had been written. The agent had processed them at session start. Yet the same pattern recurred under "test verification" pressure — when the agent was focused on confirming pass/fail results, the constraint in a non-prominent section of a large instructions file was no longer in the active context window.
 
 ## Invoke-Pester on full test directory with -PassThru pipeline crashes VS Code
 
@@ -850,7 +880,7 @@ status:
 tags: powershell, pester, vscode, crash, passthru, pipeline, junctions, agent, copilot
 path: .cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md
 
-VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` directory with the `-PassThru` flag followed by a multi-stage pipeline: ``` This crash happened **four confirmed times** in the `strategy` branch fix-triage session (2026-04-02). Each occurrence required a VS Code restart. **Recurrence (2026-04-06):** Crashed again during the `vision1` branch fix-triage session — four additional times. The agent used both `Invoke-Pester tests/ -PassThru` (directory form) and `Invoke-Pester ..., ... -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...` (multi-file + ExpandProperty pipeline). Recurrence confirms the pattern as reliably dangerous, not edge-case behaviour. Symptoms:...
+VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` directory with the `-PassThru` flag followed by a multi-stage pipeline: This crash happened **four confirmed times** in the `strategy` branch fix-triage session (2026-04-02). Each occurrence required a VS Code restart. **Recurrence (2026-04-06):** Crashed again during the `vision1` branch fix-triage session — four additional times. The agent used both `Invoke-Pester tests/ -PassThru` (directory form) and `Invoke-Pester ..., ... -PassThru | Select-Object -ExpandProperty TestResult | Where-Object ...` (multi-file + ExpandProperty pipeline). Recurrence confirms the pattern as reliably dangerous, not edge-case behaviour. Symptoms: -...
 
 ## Charter drift prevention: four-section rule + archive-on-removal + staleness nudge
 
@@ -880,7 +910,7 @@ status:
 tags: powershell, pester, prompt-authoring, subagent, delegation, file-write, silent-failure, cg-review, guardrails, agent-mode
 path: .cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md
 
-A multi-step AI workflow prompt (`cg-review.prompt.md`) contained a step (Step 3.5) that was supposed to write the review report to disk: ``` At runtime, the agent chose to delegate this step to a subagent. The write succeeded — inside the subagent's execution context — but when the subagent returned control to the calling agent, the file was gone. No error was raised. The review report was silently lost. **Observable symptom**: User runs `/cg-review`, sees the report summary in the chat, then runs `/cg-fix-triage` in a new session and is told _"No review reports found in `.cg-docs/reviews/`."_ No file was ever...
+A multi-step AI workflow prompt (`cg-review.prompt.md`) contained a step (Step 3.5) that was supposed to write the review report to disk: At runtime, the agent chose to delegate this step to a subagent. The write succeeded — inside the subagent's execution context — but when the subagent returned control to the calling agent, the file was gone. No error was raised. The review report was silently lost. **Observable symptom**: User runs `/cg-review`, sees the report summary in the chat, then runs `/cg-fix-triage` in a new session and is told _"No review reports found in `.cg-docs/reviews/`."_ No file was ever written...
 
 ## PS 5.1: ConvertFrom-Json returns bare PSCustomObject for single-element arrays
 
@@ -890,7 +920,7 @@ status:
 tags: powershell, ps51, json, convertfrom-json, array, coercion, type-guard, schema-validation
 path: .cg-docs/solutions/bugs/2026-03-30-ps51-convertfrom-json-single-element-array-coercion.md
 
-Schema validation code that loops over `roadmap.json` `milestones` and `features` arrays silently skipped records whenever a JSON array contained exactly one element. The `-isnot [array]` type guard — intended to reject strings incorrectly passed as arrays — evaluated to `$false` for a single-element array parsed in PS 5.1, so the element was never iterated. Symptom: a roadmap with one milestone validated as if it had zero milestones. No error was raised; ids, statuses, and required fields were never checked. ```
+Schema validation code that loops over `roadmap.json` `milestones` and `features` arrays silently skipped records whenever a JSON array contained exactly one element. The `-isnot [array]` type guard — intended to reject strings incorrectly passed as arrays — evaluated to `$false` for a single-element array parsed in PS 5.1, so the element was never iterated. Symptom: a roadmap with one milestone validated as if it had zero milestones. No error was raised; ids, statuses, and required fields were never checked.
 
 ## Test prompt frontmatter tools: list to guard against silent write failures
 
@@ -920,7 +950,7 @@ status:
 tags: powershell, pester, schema-validation, derived-state, invariant, status-drift, roadmap
 path: .cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md
 
-`Test-RoadmapSchema` validated that `milestone.status` was a member of the allowed enum (`planned`, `in-progress`, `done`). It did **not** verify that the stored status matched the value that `Get-MilestoneStatus` would derive from the milestone's features array. A roadmap file could therefore contain `{"status":"done"}` while all its features had `status: "planned"`. The schema validator passed it; the discrepancy was invisible at commit time. ``` `Test-RoadmapSchema` would return 0 errors. `Get-MilestoneStatus` would return `"planned"`. No test caught the mismatch.
+`Test-RoadmapSchema` validated that `milestone.status` was a member of the allowed enum (`planned`, `in-progress`, `done`). It did **not** verify that the stored status matched the value that `Get-MilestoneStatus` would derive from the milestone's features array. A roadmap file could therefore contain `{"status":"done"}` while all its features had `status: "planned"`. The schema validator passed it; the discrepancy was invisible at commit time. `Test-RoadmapSchema` would return 0 errors. `Get-MilestoneStatus` would return `"planned"`. No test caught the mismatch.
 
 ## .cg-docs/ must not be gitignored — institutional knowledge must be committed
 
@@ -960,7 +990,7 @@ status:
 tags: powershell, ps51, encoding, utf8, bom, em-dash, ast, if-else, windows-1252, control-flow
 path: .cg-docs/solutions/bugs/2026-03-23-ps51-utf8-bom-em-dash-corrupts-ast-silently.md
 
-`cg-update` was always entering the pinned-mode branch even when `.cg-version` contained `"latest"`. No error was thrown. The output was coherent (e.g. "Checking out latest..." followed by `Release 'latest' not found`) -- it looked like a logic error, not a parse error. The relevant code: ``` Despite `$versionMode` being `"latest"`, execution always entered the `else` branch.
+`cg-update` was always entering the pinned-mode branch even when `.cg-version` contained `"latest"`. No error was thrown. The output was coherent (e.g. "Checking out latest..." followed by `Release 'latest' not found`) -- it looked like a logic error, not a parse error. The relevant code: Despite `$versionMode` being `"latest"`, execution always entered the `else` branch.
 
 ## Checklist for consolidating (merging/renaming) VS Code Copilot skills
 
@@ -980,7 +1010,7 @@ status:
 tags: powershell, invoke-restmethod, github-api, error-handling, catch, http, 404, bearer-token
 path: .cg-docs/solutions/build-errors/2026-03-19-invoke-restmethod-bare-catch-swallows-non-404-errors.md
 
-A script checking for an existing GitHub Release before creating one used an empty `catch {}` around the `GET /releases/tags/<tag>` call: ``` The intent was: "if the release doesn't exist (404), proceed to create it." But the bare `catch {}` also swallowed 401 (bad token), 403 (insufficient scope), 429 (rate limit), 500 (server error), and network timeouts — all of which left `$existingRelease` as `$null`. The script would then fall through to the POST (create) path and fail there with a less informative error.
+A script checking for an existing GitHub Release before creating one used an empty `catch {}` around the `GET /releases/tags/<tag>` call: The intent was: "if the release doesn't exist (404), proceed to create it." But the bare `catch {}` also swallowed 401 (bad token), 403 (insufficient scope), 429 (rate limit), 500 (server error), and network timeouts — all of which left `$existingRelease` as `$null`. The script would then fall through to the POST (create) path and fail there with a less informative error.
 
 ## Copilot hallucinates non-existent Stata functions for variable label checks
 
@@ -990,7 +1020,7 @@ status:
 tags: stata, copilot-hallucination, labelled, variable-labels, validation, assert, regexm, PPP
 path: .cg-docs/solutions/bugs/2026-03-19-copilot-hallucinates-stata-label-functions.md
 
-Copilot generates calls to functions that do not exist in Stata when writing validation or assertion code that inspects variable labels, value labels, or variable metadata: ``` These statements produce an immediate error: `unknown function labelled()`. The analysis halts, but only if the assertion is actually reached — if guarded by `capture`, the error is silently swallowed and validation is bypassed.
+Copilot generates calls to functions that do not exist in Stata when writing validation or assertion code that inspects variable labels, value labels, or variable metadata: These statements produce an immediate error: `unknown function labelled()`. The analysis halts, but only if the assertion is actually reached — if guarded by `capture`, the error is silently swallowed and validation is bypassed.
 
 ## Explicit-unpin command does not persist when the target branch does not write back to state file
 
@@ -1000,7 +1030,7 @@ status:
 tags: powershell, state-management, cg-version, version-pinning, unpin, latest, regression
 path: .cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md
 
-After pinning to `v0.2.0` with `cg-update v0.2.0`, running `cg-update latest` appeared to succeed: - The working tree switched back to `main`. - `git pull` ran and showed "up to date" or new commits. But on the next bare `cg-update` call, the output showed: ``` The unpin did not persist. `.cg-version` still contained `v0.2.0`.
+After pinning to `v0.2.0` with `cg-update v0.2.0`, running `cg-update latest` appeared to succeed: - The working tree switched back to `main`. - `git pull` ran and showed "up to date" or new commits. But on the next bare `cg-update` call, the output showed: The unpin did not persist. `.cg-version` still contained `v0.2.0`.
 
 ## Fragile matrix indexing for regression results in Stata
 
@@ -1010,7 +1040,7 @@ status:
 tags: stata, regression, coefficients, e(b), matrix-indexing, poverty, FGT, survey
 path: .cg-docs/solutions/bugs/2026-03-19-fragile-matrix-indexing-regression-results-stata.md
 
-Code that extracts regression coefficients or standard errors using positional matrix indexing silently produces wrong results if the model specification changes (different variable order, additional controls, dropped observations): ``` In poverty analysis this manifests as extracting the wrong coefficient from a welfare regression — the estimated headcount ratio or standard error will be numerically plausible but correspond to the wrong regressor. There is no error message.
+Code that extracts regression coefficients or standard errors using positional matrix indexing silently produces wrong results if the model specification changes (different variable order, additional controls, dropped observations): In poverty analysis this manifests as extracting the wrong coefficient from a welfare regression — the estimated headcount ratio or standard error will be numerically plausible but correspond to the wrong regressor. There is no error message.
 
 ## Persistent state file written before validation causes permanent corruption on bad input
 
@@ -1027,10 +1057,10 @@ path: .cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validat
 date: 2026-03-19
 category: data-quality
 status: 
-tags: powershell, null, interpolation, output-contract, api-response, invoke-restmethod, github-api, pipe-delimited
+tags: powershell, None, interpolation, output-contract, api-response, invoke-restmethod, github-api, pipe-delimited
 path: .cg-docs/solutions/data-quality/2026-03-19-api-response-null-fields-corrupt-output-contract.md
 
-A script writes release metadata to `release-result.txt` in the format `CREATED|<id>|<url>`: ``` If the GitHub API response is missing `id` or `html_url` (schema change, partial error body, unexpected API version), PowerShell silently interpolates `$null` as `""`, producing: ``` The downstream consumer (a Copilot prompt parsing the file by splitting on `|`) reads these as structurally valid and reports "success" with a blank URL. No error is ever raised.
+A script writes release metadata to `release-result.txt` in the format `CREATED|<id>|<url>`: If the GitHub API response is missing `id` or `html_url` (schema change, partial error body, unexpected API version), PowerShell silently interpolates `$null` as `""`, producing: The downstream consumer (a Copilot prompt parsing the file by splitting on `|`) reads these as structurally valid and reports "success" with a blank URL. No error is ever raised.
 
 ## Testing PowerShell [switch] parameters: magic-string API tests pass for the wrong reasons
 
@@ -1040,7 +1070,7 @@ status:
 tags: powershell, pester, switch-parameter, magic-string, api-mismatch, regression, cg-update, --list
 path: .cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md
 
-After refactoring `update.ps1` to replace the magic string `--list` with a proper `[switch]$List` parameter, the existing test still passed: ``` The test was asserting that the old guard expression (`$Version -ne "--list"`) evaluates to `$false`. It never tested that `$List.IsPresent` is `$true`, and it never tested that `$Version` would actually be empty when `--list` is passed through PowerShell's parameter binder. This meant: - The test passed after the refactor because the expression `"--list" -ne "--list"` still evaluates to `$false`. - But if someone accidentally removed the `[switch]$List` declaration and reverted to magic-string handling, the test would still pass — providing...
+After refactoring `update.ps1` to replace the magic string `--list` with a proper `[switch]$List` parameter, the existing test still passed: The test was asserting that the old guard expression (`$Version -ne "--list"`) evaluates to `$false`. It never tested that `$List.IsPresent` is `$true`, and it never tested that `$Version` would actually be empty when `--list` is passed through PowerShell's parameter binder. This meant: - The test passed after the refactor because the expression `"--list" -ne "--list"` still evaluates to `$false`. - But if someone accidentally removed the `[switch]$List` declaration and reverted to magic-string handling, the test would still pass — providing zero...
 
 ## Broken relative links in deeply-nested skill files pointing to repo root
 
@@ -1050,7 +1080,7 @@ status:
 tags: markdown, links, relative-paths, skill-files, documentation, cross-references
 path: .cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md
 
-A cross-reference link in `r-analytical-anti-patterns.md` read: ``` This path resolves *relative to the file's location*, which is: `.github/skills/cg-skill-r-analytical/references/` So the link actually resolves to: `.github/skills/cg-skill-r-analytical/references/.cg-docs/solutions/...` — which does not exist. The link was silently broken. GitHub renders it as a dead link; clicking it returns a 404.
+A cross-reference link in `r-analytical-anti-patterns.md` read: This path resolves *relative to the file's location*, which is: `.github/skills/cg-skill-r-analytical/references/` So the link actually resolves to: `.github/skills/cg-skill-r-analytical/references/.cg-docs/solutions/...` — which does not exist. The link was silently broken. GitHub renders it as a dead link; clicking it returns a 404.
 
 ## collapse na.rm global option differs from base R and affects all f* functions
 
@@ -1080,7 +1110,7 @@ status:
 tags: collapse, GRP, fmean, fsum, grouped-aggregation, performance, welfare-measurement, regional-analysis
 path: .cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md
 
-A common pattern in GPID welfare code computes several statistics by region in consecutive calls: ``` Each call passes `g = dt$region` (a raw vector). Internally, collapse must sort and hash that vector to build a `GRP` object for grouping every single time. With 4 calls on the same grouping variable, the group structure is built **4 times redundantly**. On surveys with 50k+ households and 20+ regions this is noticeable; on the full GPID microdata (millions of rows) it becomes a meaningful bottleneck.
+A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g = dt$region` (a raw vector). Internally, collapse must sort and hash that vector to build a `GRP` object for grouping every single time. With 4 calls on the same grouping variable, the group structure is built **4 times redundantly**. On surveys with 50k+ households and 20+ regions this is noticeable; on the full GPID microdata (millions of rows) it becomes a meaningful bottleneck.
 
 ## survey_mean_se() divides by zero on singleton PSU strata
 
@@ -1110,7 +1140,7 @@ status:
 tags: fgt, poverty-measurement, welfare, data-validation, collapse, fifelse, poverty-gap, silent-errors
 path: .cg-docs/solutions/data-quality/2026-03-18-zero-negative-welfare-inflates-fgt-beyond-1.md
 
-The FGT(1) poverty gap index and FGT(2) squared poverty gap index both assume welfare is **strictly positive**. When a welfare value is zero or negative, the gap formula produces a value **greater than 1**: ``` Since `fmean()` averages all gaps (including those > 1) without any bounds checking or warning, the resulting FGT(1) silently exceeds 1 — which is mathematically impossible for a correctly computed poverty gap index.
+The FGT(1) poverty gap index and FGT(2) squared poverty gap index both assume welfare is **strictly positive**. When a welfare value is zero or negative, the gap formula produces a value **greater than 1**: Since `fmean()` averages all gaps (including those > 1) without any bounds checking or warning, the resulting FGT(1) silently exceeds 1 — which is mathematically impossible for a correctly computed poverty gap index.
 
 ## httpx.AsyncClient requires ASGITransport for FastAPI async tests
 
@@ -1120,17 +1150,17 @@ status:
 tags: httpx, fastapi, pytest, async, asgi, testing, deprecated
 path: .cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md
 
-FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.23. The `app=` shorthand was removed. ```
+FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.23. The `app=` shorthand was removed.
 
 ## Null welfare values silently bias poverty rate — must drop before computing
 
 date: 2026-03-17
 category: data-quality
 status: 
-tags: polars, poverty, welfare, null, weights, data-quality, gpid, survey-data
+tags: polars, poverty, welfare, None, weights, data-quality, gpid, survey-data
 path: .cg-docs/solutions/data-quality/2026-03-17-null-welfare-silently-biases-poverty-rate.md
 
-A headcount poverty rate computed over survey microdata is systematically lower than expected. No errors or warnings are raised. The issue is silent. ``` When `welfare_col` contains nulls, polars' `filter` excludes null-welfare rows from `poor` (they fail the `< poverty_line` comparison), but `df[weight_col].sum()` still counts their survey weights in the denominator. Those households are implicitly treated as **non-poor** rather than as **missing data**, understating the poverty rate. A second silent failure: `df[weight_col].sum()` with null weights silently drops those nulls, understating the denominator further.
+A headcount poverty rate computed over survey microdata is systematically lower than expected. No errors or warnings are raised. The issue is silent. When `welfare_col` contains nulls, polars' `filter` excludes null-welfare rows from `poor` (they fail the `< poverty_line` comparison), but `df[weight_col].sum()` still counts their survey weights in the denominator. Those households are implicitly treated as **non-poor** rather than as **missing data**, understating the poverty rate. A second silent failure: `df[weight_col].sum()` with null weights silently drops those nulls, understating the denominator further.
 
 ## run_in_threadpool does not bypass the GIL for CPU-bound work — use ProcessPoolExecutor
 
@@ -1140,7 +1170,7 @@ status:
 tags: fastapi, async, gil, threading, multiprocessing, performance, cpu-bound, io-bound
 path: .cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md
 
-A FastAPI endpoint offloads heavy computation to a thread pool using `run_in_threadpool`, expecting real parallel execution. Under concurrent load, all requests still serialise — performance is no better than running on the event loop directly, and the comment "offload to thread pool to avoid blocking the event loop" is misleading. ```
+A FastAPI endpoint offloads heavy computation to a thread pool using `run_in_threadpool`, expecting real parallel execution. Under concurrent load, all requests still serialise — performance is no better than running on the event loop directly, and the comment "offload to thread pool to avoid blocking the event loop" is misleading.
 
 ## Backslash-escaped quotes in PowerShell double-quoted strings break % operator parsing
 
@@ -1150,7 +1180,7 @@ status:
 tags: powershell, string-escaping, backtick, backslash, cmd-wrapper, percent-operator, parse-error
 path: .cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md
 
-`install.ps1` failed at parse time with: ``` The script was building `.cmd` wrapper content inside a PowerShell double-quoted string and used `\"` (backslash-escaped double quotes) to embed literal `"` characters, with `%~dp0` and `%*` as CMD batch tokens.
+`install.ps1` failed at parse time with: The script was building `.cmd` wrapper content inside a PowerShell double-quoted string and used `\"` (backslash-escaped double quotes) to embed literal `"` characters, with `%~dp0` and `%*` as CMD batch tokens.
 
 ## CLM blocks .NET method calls — use reg.exe for PATH manipulation
 
@@ -1160,7 +1190,7 @@ status:
 tags: powershell, clm, constrained-language-mode, dotnet, environment-variable, PATH, reg-exe, applocker, wdac, enterprise
 path: .cg-docs/solutions/environment-issues/2026-03-13-clm-blocks-dotnet-method-calls-use-reg-exe.md
 
-On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable` in PowerShell throws: ``` This blocked the documented uninstall procedure (Step 2 — remove old PATH entry) and would also block `install.ps1`'s PATH registration step.
+On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable` in PowerShell throws: This blocked the documented uninstall procedure (Step 2 — remove old PATH entry) and would also block `install.ps1`'s PATH registration step.
 
 ## Regression test for try/catch control-flow guards when script cannot be executed
 
@@ -1190,7 +1220,7 @@ status:
 tags: powershell, powershell-5.1, git, stderr, ErrorActionPreference, 2>null, git-checkout
 path: .cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md
 
-After removing `2>$null` from `git checkout .` (following the general rule "don't suppress stderr"), the script started failing with: ``` `git checkout .` was succeeding — "Updated N paths from the index" is its normal stdout/stderr output — but the script was catching it as a fatal error. Running `cg-update` from any project directory would immediately abort.
+After removing `2>$null` from `git checkout .` (following the general rule "don't suppress stderr"), the script started failing with: `git checkout .` was succeeding — "Updated N paths from the index" is its normal stdout/stderr output — but the script was catching it as a fatal error. Running `cg-update` from any project directory would immediately abort.
 
 ## $$  is not a process ID in PowerShell
 
@@ -1200,7 +1230,7 @@ status:
 tags: powershell, pid, temp-files, unique-names, guid
 path: .cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md
 
-A script used `$$` to generate a unique temp directory name, as is idiomatic in Bash/sh: ``` The intent was to get the current process ID so temp paths would not collide across parallel runs. In testing: - On the first command of a session `$$` expands to an **empty string**. - On subsequent commands it expands to the **last token typed on the previous line** (e.g., `install.ps1`, or `True`). - Two instances running simultaneously get the same "PID" value. - The resulting paths are not unique and a duplicate-directory error is thrown.
+A script used `$$` to generate a unique temp directory name, as is idiomatic in Bash/sh: The intent was to get the current process ID so temp paths would not collide across parallel runs. In testing: - On the first command of a session `$$` expands to an **empty string**. - On subsequent commands it expands to the **last token typed on the previous line** (e.g., `install.ps1`, or `True`). - Two instances running simultaneously get the same "PID" value. - The resulting paths are not unique and a duplicate-directory error is thrown.
 
 ## Add-if-missing config blocks create duplicate headers; use remove-then-rewrite
 
@@ -1210,7 +1240,7 @@ status:
 tags: powershell, idempotency, gitignore, config-blocks, remove-then-rewrite, deduplication
 path: .cg-docs/solutions/testing-patterns/2026-03-04-add-if-missing-creates-duplicate-config-headers.md
 
-A script managed a named section in a text config file (`.gitignore`, a profile, an `.ini`) using an "add if missing" strategy: ``` After upgrading the tool and adding a new entry (e.g. `.github/instructions/`): ``` The existing entries are not duplicated, but the *header comment* is written again for each run that has new entries. Over multiple upgrades the file accumulates several identical headers, which confuses users and can break tooling that parses the section.
+A script managed a named section in a text config file (`.gitignore`, a profile, an `.ini`) using an "add if missing" strategy: After upgrading the tool and adding a new entry (e.g. `.github/instructions/`): The existing entries are not duplicated, but the *header comment* is written again for each run that has new entries. Over multiple upgrades the file accumulates several identical headers, which confuses users and can break tooling that parses the section.
 
 ## Get-Item .Target property is string[] in PowerShell 5.1, not a scalar string
 
@@ -1220,7 +1250,7 @@ status:
 tags: powershell, junctions, symlinks, get-item, target, string-array, comparison
 path: .cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md
 
-Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing results in edge cases: ``` The intent is a boolean check. In practice: - `$item.Target` is `string[]`, not `string`. - `-like` on an array returns **all matching elements** (a filtered array), not `$true`/`$false`. - An empty array is falsy; a non-empty matching array is truthy — so the `if` block *happens* to work for the common case. - But code reviewers reading `$item.Target -like "pattern"` expect a boolean comparison and will misunderstand the code. - If `.Target` ever contains multiple entries (rare...
+Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing results in edge cases: The intent is a boolean check. In practice: - `$item.Target` is `string[]`, not `string`. - `-like` on an array returns **all matching elements** (a filtered array), not `$true`/`$false`. - An empty array is falsy; a non-empty matching array is truthy — so the `if` block *happens* to work for the common case. - But code reviewers reading `$item.Target -like "pattern"` expect a boolean comparison and will misunderstand the code. - If `.Target` ever contains multiple entries (rare but...
 
 ## git stderr swallowed by 2>&1 redirect into an unused variable
 
@@ -1230,7 +1260,7 @@ status:
 tags: powershell, git, stderr, redirection, exit-code, error-handling
 path: .cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md
 
-A script captured git output like this: ``` The intent was to capture output so it could be formatted. In practice: - `2>&1` merges stderr into stdout. - Assigning the merged stream to `$pullOutput` swallows **both** stdout and stderr — nothing is printed to the terminal, not even git's progress/error messages. - The `$LASTEXITCODE` check fires on failure, but the user sees only the generic error message, not git's actual diagnostic (e.g., "Your local changes would be overwritten", "refusing to merge unrelated histories"). - When `$pullOutput` is never used again in the script, it is dead code — the capture...
+A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>&1` merges stderr into stdout. - Assigning the merged stream to `$pullOutput` swallows **both** stdout and stderr — nothing is printed to the terminal, not even git's progress/error messages. - The `$LASTEXITCODE` check fires on failure, but the user sees only the generic error message, not git's actual diagnostic (e.g., "Your local changes would be overwritten", "refusing to merge unrelated histories"). - When `$pullOutput` is never used again in the script, it is dead code — the capture was...
 
 ## Pester $TestDrive cleanup follows junction links, hanging VS Code
 
@@ -1250,7 +1280,7 @@ status:
 tags: powershell, pester, testing, windows, compatibility, pester3, pester5
 path: .cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md
 
-Tests were written using Pester 5 syntax and ran fine in CI but failed on team Windows machines with errors such as: ``` Root session example: ```
+Tests were written using Pester 5 syntax and ran fine in CI but failed on team Windows machines with errors such as: Root session example:
 
 ## Constraining file writes in output-producing prompts without agent: plan mode
 
