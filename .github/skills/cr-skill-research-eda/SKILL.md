@@ -156,6 +156,12 @@ props <- fmean(model.matrix(~ factor(region) - 1, data = df),
 # Or: wtd.table from Hmisc
 ```
 
+> **collapse `na.rm` default**: `fmean`, `fsum`, and all Fast Statistical
+> Functions default to `na.rm = TRUE`. If `set_collapse(na.rm = FALSE)` was
+> called anywhere in the session, all subsequent FSF calls silently propagate
+> NAs. Run `get_collapse()$na.rm` to verify the current setting before any
+> welfare/poverty computation.
+
 > **Design-based SEs**: `fmean(x, w = weight)` gives correct **point estimates**
 > but ignores survey design (clustering, stratification). For design-based
 > standard errors, use `survey::svymean()` with a `svydesign()` object:
@@ -164,12 +170,6 @@ props <- fmean(model.matrix(~ factor(region) - 1, data = df),
 > design <- svydesign(ids = ~psu, strata = ~strata, weights = ~weight, data = df)
 > svymean(~log_wage, design)
 > ```
-
-> **collapse `na.rm` default**: `fmean`, `fsum`, and all Fast Statistical
-> Functions default to `na.rm = TRUE`. If `set_collapse(na.rm = FALSE)` was
-> called anywhere in the session, all subsequent FSF calls silently propagate
-> NAs. Run `get_collapse()$na.rm` to verify the current setting before any
-> welfare/poverty computation.
 
 **Stata**:
 ```stata
@@ -231,6 +231,10 @@ message(nrow(outliers), " observations with |std_resid| > 3")
 
 # Welfare non-negativity guard (required before any FGT/Gini calculation)
 # Zero or negative welfare silently inflates FGT indices beyond [0,1]
+# Adapt 'welfare' to the actual column name (welfare_ppp17, pcexp, etc.)
+stopifnot("Column 'welfare' not found — adapt guard to actual welfare variable name" =
+  "welfare" %in% names(df))
+stopifnot("Welfare variable contains NA values" = !anyNA(df$welfare))
 stopifnot("Welfare variable contains zero or negative values" = all(df$welfare > 0))
 
 # Weighted boxplot of key variables

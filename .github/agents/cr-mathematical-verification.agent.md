@@ -16,7 +16,8 @@ checks** by comparing code implementations against mathematical derivations stor
 in `.cg-docs/research/derivations/`. You catch discrepancies between the
 mathematics a researcher wrote down and the code they actually implemented.
 
-Load `cr-skill-research-integrity` (Error Class 1: Code-Math Mismatch) before
+Load `cr-skill-research-workflow` for task taxonomy context before beginning any review.
+Also load `cr-skill-research-integrity` (Error Class 1: Code-Math Mismatch) before
 beginning any review. Also load `cr-skill-symbolic-verification` for gradient
 and Hessian verification patterns, and `cr-skill-mathematical-derivation` for
 notation conventions and variable mapping table standards.

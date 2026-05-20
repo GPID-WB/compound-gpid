@@ -37,22 +37,21 @@ Describe "CR prompt files - structural checks" {
         $path = Join-Path $promptsDir $name
 
         Context "$name - existence and frontmatter" {
+            $fm = Get-Frontmatter -FilePath $path
+
             It "[$name] exists" {
                 Test-Path $path | Should -Be $true
             }
 
             It "[$name] has a description: field in frontmatter" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match 'description:') | Should -Be $true
             }
 
             It "[$name] has module: research" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
             }
 
             It "[$name] does not have a tools: restriction (orchestrating prompts must not restrict tools)" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -notmatch '(?m)^\s*tools:') | Should -Be $true
             }
         }
@@ -385,33 +384,30 @@ Describe "CR agent files - structural checks" {
         $path = Join-Path $agentsDir $name
 
         Context "$name - existence and frontmatter" {
+            $fm = Get-Frontmatter -FilePath $path
+
             It "[$name] exists" {
                 Test-Path $path | Should -Be $true
             }
 
             It "[$name] has a description: field in frontmatter" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match 'description:') | Should -Be $true
             }
 
             It "[$name] has module: research" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
             }
 
             It "[$name] has tools: ['read', 'search'] (no write)" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match "tools:.*'read'") | Should -Be $true
                 ($fm -notmatch "'write'") | Should -Be $true
             }
 
             It "[$name] has user-invocable: false" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match '(?m)^\s*user-invocable:\s*false') | Should -Be $true
             }
 
             It "[$name] has a model: field in frontmatter" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match '(?m)^\s*model:') | Should -Be $true
             }
         }
@@ -461,6 +457,10 @@ Describe "cr-research-integrity.agent.md - content" {
     It "output format includes [cr-research-integrity] tag" {
         ($content -match '\[cr-research-integrity\]') | Should -Be $true
     }
+
+    It "contains empty-file guard at protocol start" {
+        ($content -match '(?i)zero-byte|empty file.*research integrity check skipped') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -486,6 +486,26 @@ Describe "cr-mathematical-verification.agent.md - content" {
 
     It "contains graceful skip message for no derivation files" {
         ($content -match 'No derivation files found') | Should -Be $true
+    }
+
+    It "contains 20-file pagination limit" {
+        ($content -match '(?i)more than 20.*derivation|File count limit') | Should -Be $true
+    }
+
+    It "contains 50 KB circuit-breaker for oversized files" {
+        ($content -match '50 KB|50KB') | Should -Be $true
+    }
+
+    It "contains prompt injection guard with SYSTEM/OVERRIDE detection" {
+        ($content -match '(?i)prompt injection|SYSTEM|OVERRIDE') | Should -Be $true
+    }
+
+    It "contains structural guard preventing prose relay from derivation files" {
+        ($content -match '(?i)structural guard|never relay prose') | Should -Be $true
+    }
+
+    It "includes code file path validation against review set" {
+        ($content -match '(?i)code file path validation|not among the files under review') | Should -Be $true
     }
 }
 
@@ -587,6 +607,7 @@ Describe "cr-econometric-reasoning.agent.md - content" {
 Describe "cr-review.prompt.md - Phase 3 wiring" {
     $path    = Join-Path $promptsDir "cr-review.prompt.md"
     $content = Get-Content $path -Raw -Encoding UTF8
+    $lines   = $content -split "`n"
 
     It "does NOT contain umbrella Phase 2/3 skip paragraph" {
         ($content -match 'For Phase 2, they are not yet available') | Should -Be $false
@@ -594,25 +615,21 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
 
     It "does NOT contain Phase 3 annotation on @cr-research-integrity" {
         # The line for cr-research-integrity must not say Phase 3
-        $lines = $content -split "`n"
         $riLine = $lines | Where-Object { $_ -match 'cr-research-integrity' } | Select-Object -First 1
         ($riLine -match 'Phase 3') | Should -Be $false
     }
 
     It "does NOT contain Phase 3 annotation on @cr-mathematical-verification" {
-        $lines = $content -split "`n"
         $mvLine = $lines | Where-Object { $_ -match 'cr-mathematical-verification' } | Select-Object -First 1
         ($mvLine -match 'Phase 3') | Should -Be $false
     }
 
     It "does NOT contain Phase 3 annotation on @cr-identification-audit" {
-        $lines = $content -split "`n"
         $iaLine = $lines | Where-Object { $_ -match 'cr-identification-audit' -and $_ -notmatch 'Phase 4' } | Select-Object -First 1
         ($iaLine -match 'Phase 3') | Should -Be $false
     }
 
     It "does NOT contain Phase 4 annotation on @cr-econometric-reasoning" {
-        $lines = $content -split "`n"
         $erLine = $lines | Where-Object { $_ -match 'cr-econometric-reasoning' } | Select-Object -First 1
         ($erLine -match 'Phase 4') | Should -Be $false
     }
@@ -653,8 +670,10 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
 # ---------------------------------------------------------------------------
 
 Describe "cr-review.prompt.md - dispatch journey" {
-    $path    = Join-Path $promptsDir "cr-review.prompt.md"
-    $content = Get-Content $path -Raw -Encoding UTF8
+    $path            = Join-Path $promptsDir "cr-review.prompt.md"
+    $content         = Get-Content $path -Raw -Encoding UTF8
+    $cgReviewPath    = Join-Path $promptsDir "cg-review.prompt.md"
+    $cgReviewContent = Get-Content $cgReviewPath -Raw -Encoding UTF8
 
     It "Theory/Modeling dispatch row routes to both @cr-identification-audit and @cr-econometric-reasoning" {
         # Both agents must appear in the same Theory/Modeling row
@@ -677,8 +696,6 @@ Describe "cr-review.prompt.md - dispatch journey" {
 
     It "verify mode exception dispatches @cr-research-integrity when prior P0 cr-* findings open" {
         # This fix lives in cg-review.prompt.md (engineering prompt) not cr-review.prompt.md
-        $cgReviewPath    = Join-Path $promptsDir "cg-review.prompt.md"
-        $cgReviewContent = Get-Content $cgReviewPath -Raw -Encoding UTF8
         ($cgReviewContent -match '(?i)research integrity exception') | Should -Be $true
         ($cgReviewContent -match '(?i)\[cr-\*\]') | Should -Be $true
     }
@@ -816,22 +833,21 @@ Describe "Phase 4 skills - existence and frontmatter" {
         $path = Join-Path $skillsDir "$skill\SKILL.md"
 
         Context "$skill/SKILL.md" {
+            $fm = Get-Frontmatter -FilePath $path
+
             It "[$skill] exists" {
                 Test-Path $path | Should -Be $true
             }
 
             It "[$skill] has module: research" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
             }
 
             It "[$skill] has a name: field matching the skill directory" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match "name:\s*$skill") | Should -Be $true
             }
 
             It "[$skill] has a description: field" {
-                $fm = Get-Frontmatter -FilePath $path
                 ($fm -match 'description:') | Should -Be $true
             }
         }
@@ -1088,29 +1104,27 @@ Describe "Phase 4 instruction files - existence and frontmatter" {
     }
 
     Context "math.instructions.md" {
-        $path = Join-Path $instructionsDir "math.instructions.md"
+        $path    = Join-Path $instructionsDir "math.instructions.md"
+        $fm      = Get-Frontmatter -FilePath $path
+        $content = Get-Content $path -Raw -Encoding UTF8
 
         It "exists" {
             Test-Path $path | Should -Be $true
         }
 
         It "has module: research in frontmatter" {
-            $fm = Get-Frontmatter -FilePath $path
             ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
         }
 
         It "references cr-skill-mathematical-derivation" {
-            $content = Get-Content $path -Raw -Encoding UTF8
             ($content -match 'cr-skill-mathematical-derivation') | Should -Be $true
         }
 
         It "references cr-skill-symbolic-verification" {
-            $content = Get-Content $path -Raw -Encoding UTF8
             ($content -match 'cr-skill-symbolic-verification') | Should -Be $true
         }
 
         It "contains path-based glob risk note" {
-            $content = Get-Content $path -Raw -Encoding UTF8
             ($content -match '(?i)risk note|path.based|applyTo') | Should -Be $true
         }
     }
@@ -1121,16 +1135,15 @@ Describe "Phase 4 instruction files - existence and frontmatter" {
 # ---------------------------------------------------------------------------
 
 Describe "Phase 4 agent skill-load assertions" {
-    $agentsDir = Join-Path $repoRoot ".github\agents"
+    $agentsDir   = Join-Path $repoRoot ".github\agents"
+    $mathVerify  = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
 
     It "cr-mathematical-verification loads cr-skill-symbolic-verification" {
-        $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
-        ($content -match '(?is)load.*cr-skill-symbolic-verification') | Should -Be $true
+        ($mathVerify -match '(?is)load.*cr-skill-symbolic-verification') | Should -Be $true
     }
 
     It "cr-mathematical-verification loads cr-skill-mathematical-derivation" {
-        $content = Get-Content (Join-Path $agentsDir "cr-mathematical-verification.agent.md") -Raw -Encoding UTF8
-        ($content -match '(?is)load.*cr-skill-mathematical-derivation') | Should -Be $true
+        ($mathVerify -match '(?is)load.*cr-skill-mathematical-derivation') | Should -Be $true
     }
 
     It "cr-identification-audit loads cr-skill-identification-strategies" {
@@ -1138,9 +1151,22 @@ Describe "Phase 4 agent skill-load assertions" {
         ($content -match '(?is)load.*cr-skill-identification-strategies') | Should -Be $true
     }
 
+    $erContent = Get-Content (Join-Path $agentsDir "cr-econometric-reasoning.agent.md") -Raw -Encoding UTF8
+
     It "cr-econometric-reasoning loads cr-skill-structural-econometrics" {
-        $content = Get-Content (Join-Path $agentsDir "cr-econometric-reasoning.agent.md") -Raw -Encoding UTF8
-        ($content -match '(?is)load.*cr-skill-structural-econometrics') | Should -Be $true
+        ($erContent -match '(?is)load.*cr-skill-structural-econometrics') | Should -Be $true
+    }
+
+    It "cr-econometric-reasoning loads cr-skill-research-workflow" {
+        ($erContent -match '(?is)load.*cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "cr-econometric-reasoning contains P0 deferral policy" {
+        ($erContent -match '(?i)P0 deferral policy|do not defer P0') | Should -Be $true
+    }
+
+    It "cr-mathematical-verification loads cr-skill-research-workflow" {
+        ($mathVerify -match '(?is)load.*cr-skill-research-workflow') | Should -Be $true
     }
 }
 

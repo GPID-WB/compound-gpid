@@ -262,6 +262,8 @@ that explain treatment assignment.
 ```r
 # R — MatchIt (requires MatchIt >= 4.0; v3 → v4 has breaking API changes)
 library(MatchIt)
+stopifnot("MatchIt >= 4.0.0 required (v3 -> v4 has breaking API changes)" =
+  packageVersion("MatchIt") >= "4.0.0")
 m_out <- matchit(treat ~ x1 + x2 + x3, data = df, method = "nearest",
                   distance = "logit", ratio = 1)
 summary(m_out, standardize = TRUE)   # balance table

@@ -100,10 +100,8 @@ one is consistent.
 ### Step 4: Check Assumption-Data Consistency
 
 **4a. Sample size**
-- For MLE: is n >> p? If n/p < 10, do NOT emit a P0 finding here —
-  `@cr-research-integrity` Check 6 is authoritative for this finding.
-  Note the condition as context in the econometric reasoning section only
-  if `@cr-research-integrity` is not in scope.
+- For MLE: is n >> p? If n/p < 10, emit a P0 finding directly (per P0 deferral
+  policy below) and cross-reference `@cr-research-integrity` Check 6.
 - For GMM: are there enough moments for identification? (moments ≥ parameters)
 - For RCT-style designs: is the power calculation reported?
 
@@ -157,9 +155,10 @@ one is acceptable; absence of all three warrants P2.
 ```
 
 Note: Findings are typically P1 (must fix before results finalized) or P2
-(important but not result-altering). P0 findings triggered by underlying
-research-integrity violations (asymptotic issues, support failures) should
-also be reported via `@cr-research-integrity` — note the cross-reference here.
+(important but not result-altering). P0 findings emitted here will also be
+detectable by `@cr-research-integrity` — note the cross-reference in your
+finding using 'Cross-reference: `@cr-research-integrity` Check {N}'. Do not
+suppress the finding here.
 
 If no issues are found: return "Econometric reasoning review complete.
 Model structure, estimation strategy, and documentation are internally consistent."

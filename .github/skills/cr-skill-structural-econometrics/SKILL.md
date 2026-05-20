@@ -7,8 +7,8 @@ description: "Structural econometric methods for economics research. Covers
   indirect inference), MLE for structural models, GMM (moment selection,
   overidentification, Hansen J-test), standard error variants (sandwich, bootstrap,
   delta method), identification at infinity, exclusion restrictions, and parametric
-  vs semi-parametric trade-offs. Loaded by @cr-econometric-reasoning and /cr-work
-  for Theory/Modeling and Implementation tasks."
+  vs semi-parametric trade-offs. Loaded by @cr-econometric-reasoning
+  for Theory/Modeling tasks."
 ---
 
 # Structural Econometrics
@@ -112,6 +112,13 @@ ccp_hat <- glm(action ~ state_vars, family = binomial, data = df)
   for continuous state spaces
 - NFXP: outer MLE tolerances tighter than inner Bellman tolerance
 - Starting values: try multiple starting points; objective is often non-convex
+
+```r
+# Bellman convergence guard — required before proceeding to outer MLE
+if (max(abs(V_new - V)) >= tol)
+  stop("Bellman iteration did not converge after max iterations — ",
+       "check beta < 1, transition matrix rows sum to 1, and grid resolution.")
+```
 
 **Anti-patterns**:
 - Assuming convergence without checking the Bellman contraction criterion
@@ -234,7 +241,7 @@ score <- function(theta, data) {
 **Convergence diagnostics**:
 - Check gradient norm at convergence: `max(abs(result$gradient)) < 1e-5`
 - Try multiple starting values (especially for multimodal likelihoods)
-- Verify Hessian is negative-definite at solution (all eigenvalues < 0)
+- Verify Hessian of the **negative** log-likelihood is positive-definite at solution (all eigenvalues > 0) *(equivalently, Hessian of the log-likelihood is negative-definite — but `optim` returns the former)*
 - For constrained parameters, use reparametrization (log for σ > 0, logit for p ∈ (0,1))
 
 **Anti-patterns**:
@@ -243,6 +250,11 @@ score <- function(theta, data) {
 - Ignoring boundary solutions (parameters hitting bounds signal
   misspecification or identification failure)
 - Using numerical Hessian for SE when analytical formula available
+
+> **PPP vintage consistency**: When the likelihood includes income, welfare, or
+> budget-share variables as observables or conditioning variables, ensure all
+> series use the same PPP vintage (2011 or 2017). Mixing vintages produces
+> structurally misspecified likelihoods in cross-country structural models.
 
 ---
 
@@ -301,6 +313,11 @@ p_value <- 1 - pchisq(j_stat, df = k - p)
 
 **References**: Hansen (1982) Econometrica; Newey & West (1987) Econometrica;
 Stock & Wright (2000) Econometrica
+
+> **PPP vintage consistency**: When moment conditions include income, welfare,
+> or budget-share aggregates, ensure all series use the same PPP vintage
+> (2011 or 2017). Mixing vintages invalidates the moment conditions in
+> cross-country structural models.
 
 ---
 

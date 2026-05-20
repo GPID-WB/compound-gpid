@@ -96,7 +96,7 @@ Based on the task type identified in the plan:
 | Writing | @cr-academic-writing *(Phase 6)* |
 | Reproducibility | @cr-replication-package *(Phase 7)* |
 | Tables/Figures | @cg-documentation |
-| EDA | @cg-performance, @cg-data-quality |
+| EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for Phase 5)* |
 | Implementation | @cg-performance |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
@@ -113,7 +113,13 @@ context-scan all reviewed files for `feols`, `ivreg`, `ivreghdfe`, `rdrobust`, `
 
 ### Step 4: Merge and Prioritize Findings
 
-Collect all agent findings. Sort by priority (P0 first, then P1, P2, P3):
+Collect all agent findings. Sort by priority (P0 first, then P1, P2, P3).
+
+**Deduplication**: Before writing the findings list, merge any findings from
+different agents that share the same `file:line` and the same diagnostic class
+(e.g., both `@cr-research-integrity` Check 4 and `@cr-identification-audit`
+flagging the same missing McCrary test). Keep the higher-priority label and
+add a note: 'Also detected by @{other-agent}'.
 
 ```markdown
 ## Review Findings
