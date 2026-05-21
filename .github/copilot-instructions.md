@@ -148,6 +148,22 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 - **P2 — IMPORTANT**: Should fix. Performance problems, missing tests, poor documentation.
 - **P3 — MINOR**: Nice to have. Style improvements, minor refactors, suggestions.
 
+## Compound Research (CR) Skills
+
+When the `modules: [research]` flag is set in `compound-gpid.local.md`, these research-specific skills are loaded by `/cr-*` commands:
+
+- `cr-skill-research-workflow` — task taxonomy, P0–P3 priority system, `.cg-docs/research/` layout (always loaded)
+- `cr-skill-research-integrity` — P0 silent-error catalog (always loaded by CR agents)
+- `cr-skill-structural-econometrics` — discrete choice, DP, GMM, MLE (Theory/Modeling)
+- `cr-skill-mathematical-derivation` — LaTeX notation, FOC derivation, code-math mapping (Theory/Modeling)
+- `cr-skill-symbolic-verification` — SymPy gradient/Hessian checks (Theory/Modeling)
+- `cr-skill-identification-strategies` — IV, RDD, DiD, event studies, synthetic control (Identification)
+- `cr-skill-theory-data-dialogue` — distributional tests, moment checks, support analysis (Specification Analysis)
+- `cr-skill-research-eda` — research-framed EDA, weighted descriptives, outlier analysis (EDA)
+- `cr-skill-ml-economics` — LASSO, random forests, CV correctness, double ML/DML, OOS assessment, reproducibility seeds (ML/Prediction)
+
+All CR skills declare `module: research` and are loaded only when the research module is enabled.
+
 ## Knowledge Compounding
 
 After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `bugs`, `build-errors`, `data-quality`, `environment-issues`, `git-workflows`, `performance-issues`, `testing-patterns`.

@@ -375,7 +375,9 @@ Describe "CR agent files - structural checks" {
         'cr-research-integrity.agent.md',
         'cr-mathematical-verification.agent.md',
         'cr-identification-audit.agent.md',
-        'cr-econometric-reasoning.agent.md'
+        'cr-econometric-reasoning.agent.md',
+        'cr-ml-methodology.agent.md',
+        'cr-specification-analysis.agent.md'
     )
 
     $agentsDir = Join-Path $repoRoot ".github\agents"
@@ -634,12 +636,14 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
         ($erLine -match 'Phase 4') | Should -Be $false
     }
 
-    It "still contains Phase 5 annotation for @cr-specification-analysis (future agent)" {
-        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $true
+    It "does NOT contain Phase 5 annotation on @cr-specification-analysis" {
+        # Phase 5 is now live — annotation must be removed
+        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $false
     }
 
-    It "still contains Phase 5 annotation for @cr-ml-methodology (future agent)" {
-        ($content -match 'cr-ml-methodology.*Phase 5') | Should -Be $true
+    It "does NOT contain Phase 5 annotation on @cr-ml-methodology" {
+        # Phase 5 is now live — annotation must be removed
+        ($content -match 'cr-ml-methodology.*Phase 5') | Should -Be $false
     }
 
     It "contains availability guard message" {
@@ -804,7 +808,7 @@ Describe "CR files - module: research frontmatter" {
         }
     }
 
-    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning')
+    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis')
     foreach ($agent in $crAgents) {
         $agentFile   = Join-Path $repoRoot ".github\agents\$agent.agent.md"
         $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
@@ -1171,6 +1175,228 @@ Describe "Phase 4 agent skill-load assertions" {
 }
 
 # ---------------------------------------------------------------------------
+# Phase 5 skill and agents — existence, frontmatter, and content
+# ---------------------------------------------------------------------------
+
+Describe "Phase 5 skill - cr-skill-ml-economics" {
+    $path    = Join-Path $skillsDir "cr-skill-ml-economics\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
+
+    It "exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research" {
+        ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+    }
+
+    It "has name: cr-skill-ml-economics" {
+        ($fm -match 'name:\s*cr-skill-ml-economics') | Should -Be $true
+    }
+
+    It "has a description: field" {
+        ($fm -match 'description:') | Should -Be $true
+    }
+
+    It "contains LASSO/penalized regression section" {
+        ($content -match '(?i)LASSO|penalized regression') | Should -Be $true
+    }
+
+    It "contains tree-based methods section" {
+        ($content -match '(?i)tree.based|random forest') | Should -Be $true
+    }
+
+    It "contains cross-validation section" {
+        ($content -match '(?i)cross.validation') | Should -Be $true
+    }
+
+    It "contains panel-aware CV guidance (GroupKFold)" {
+        ($content -match 'GroupKFold') | Should -Be $true
+    }
+
+    It "contains post-selection inference / double ML section" {
+        ($content -match '(?i)double ML|debiased|post.selection inference') | Should -Be $true
+    }
+
+    It "references DoubleML package" {
+        ($content -match 'DoubleML') | Should -Be $true
+    }
+
+    It "contains out-of-sample assessment section" {
+        ($content -match '(?i)out.of.sample') | Should -Be $true
+    }
+
+    It "contains Diebold-Mariano test reference" {
+        ($content -match '(?i)Diebold.Mariano') | Should -Be $true
+    }
+
+    It "contains reproducibility / seed table section" {
+        ($content -match '(?i)seed') | Should -Be $true
+    }
+
+    It "contains anti-patterns catalog" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+Describe "cr-ml-methodology.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-ml-methodology.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Check 1: Data Leakage (P0)" {
+        ($content -match '(?i)data leakage') | Should -Be $true
+    }
+
+    It "contains Check 2: Train/Test/Validation Split (P1)" {
+        ($content -match '(?i)train.*test.*split|train.*test.*validation') | Should -Be $true
+    }
+
+    It "contains Check 3: CV Correctness (P1)" {
+        ($content -match '(?i)cross.validation correctness|CV Correctness') | Should -Be $true
+    }
+
+    It "contains Check 4: Hyperparameter Search Transparency (P1)" {
+        ($content -match '(?i)hyperparameter search') | Should -Be $true
+    }
+
+    It "Check 5: Seed Coverage emits cross-reference note (not suppress)" {
+        ($content -match '(?i)cross.reference.*cr-research-integrity|cr-research-integrity.*Check 1') | Should -Be $true
+        ($content -match '(?i)do NOT suppress') | Should -Be $true
+    }
+
+    It "contains Check 6: Economic Interpretation Quality (P2)" {
+        ($content -match '(?i)economic interpretation') | Should -Be $true
+    }
+
+    It "contains Check 7: Out-of-Sample Assessment (P1)" {
+        ($content -match '(?i)out.of.sample assessment') | Should -Be $true
+    }
+
+    It "loads cr-skill-ml-economics" {
+        ($content -match 'cr-skill-ml-economics') | Should -Be $true
+    }
+
+    It "loads cr-skill-identification-strategies" {
+        ($content -match 'cr-skill-identification-strategies') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-integrity" {
+        ($content -match 'cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-ml-methodology] tag" {
+        ($content -match '\[cr-ml-methodology\]') | Should -Be $true
+    }
+
+    It "contains empty-file guard at protocol start" {
+        ($content -match '(?i)zero-byte|empty.*ML methodology review skipped') | Should -Be $true
+    }
+}
+
+Describe "cr-specification-analysis.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-specification-analysis.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Check 1: Specification Search Detection (P0)" {
+        ($content -match '(?i)specification search detection') | Should -Be $true
+    }
+
+    It "Check 1 emits cross-reference to @cr-research-integrity Check 3" {
+        ($content -match '(?i)cross.reference.*cr-research-integrity|cr-research-integrity.*Check 3') | Should -Be $true
+    }
+
+    It "contains Check 2: Theory-Data Dialogue Documentation (P1)" {
+        ($content -match '(?i)theory.data dialogue documentation') | Should -Be $true
+    }
+
+    It "references .cg-docs/research/specifications/" {
+        ($content -match '\.cg-docs[/\\]research[/\\]specifications') | Should -Be $true
+    }
+
+    It "contains Check 3: Distributional Assumption Tests (P1)" {
+        ($content -match '(?i)distributional assumption tests') | Should -Be $true
+    }
+
+    It "contains Check 4: Conditional Moment Checks (P2)" {
+        ($content -match '(?i)conditional moment checks') | Should -Be $true
+    }
+
+    It "contains Check 5: Sample Restriction Documentation (P2)" {
+        ($content -match '(?i)sample restriction documentation') | Should -Be $true
+    }
+
+    It "contains Check 6: Robustness Specification Coverage (P2)" {
+        ($content -match '(?i)robustness specification coverage') | Should -Be $true
+    }
+
+    It "loads cr-skill-theory-data-dialogue" {
+        ($content -match 'cr-skill-theory-data-dialogue') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-eda" {
+        ($content -match 'cr-skill-research-eda') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-integrity" {
+        ($content -match 'cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-specification-analysis] tag" {
+        ($content -match '\[cr-specification-analysis\]') | Should -Be $true
+    }
+
+    It "contains empty-file guard at protocol start" {
+        ($content -match '(?i)zero-byte|empty.*specification analysis skipped') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 5 prompt cleanup — negative annotation tests
+# ---------------------------------------------------------------------------
+
+Describe "Phase 5 prompt cleanup - cr-brainstorm" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain 'Phase 5, not yet available' annotation on ML/Prediction" {
+        ($content -match '(?i)phase 5.*not yet available') | Should -Be $false
+    }
+
+    It "references cr-skill-ml-economics (not stale cr-skill-ml-methodology)" {
+        ($content -match 'cr-skill-ml-economics') | Should -Be $true
+        ($content -match 'cr-skill-ml-methodology') | Should -Be $false
+    }
+}
+
+Describe "Phase 5 prompt cleanup - cr-review @cr-eda-reviewer relabeling" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "@cr-eda-reviewer is labeled 'future phase' (not 'Phase 5')" {
+        # After Phase 5 completion, the EDA agent placeholder must not say Phase 5
+        ($content -match 'cr-eda-reviewer.*Phase 5') | Should -Be $false
+        ($content -match 'cr-eda-reviewer.*future phase') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Phase 4 — prompt cleanup assertions (stale name removal + phase relabeling)
 # ---------------------------------------------------------------------------
 
@@ -1208,10 +1434,9 @@ Describe "Phase 4 prompt cleanup - cr-review" {
     $path    = Join-Path $promptsDir "cr-review.prompt.md"
     $content = Get-Content $path -Raw -Encoding UTF8
 
-    It "@cr-specification-analysis is labeled Phase 5 (not Phase 4)" {
-        # Must NOT match Phase 4 annotation next to cr-specification-analysis
+    It "@cr-specification-analysis is NOT labeled Phase 4 or Phase 5 (both are now live)" {
+        # Phase 5 is live — neither Phase 4 nor Phase 5 annotation should remain
         ($content -match 'cr-specification-analysis.*Phase 4') | Should -Be $false
-        # Must match Phase 5 annotation
-        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $true
+        ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $false
     }
 }

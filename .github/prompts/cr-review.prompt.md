@@ -74,11 +74,9 @@ and continue.
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
 - **@cr-identification-audit** — identification strategy and diagnostics
 - **@cr-specification-analysis** — specification searching detection
-  *(Phase 5 — not yet available)*
 - **@cr-econometric-reasoning** — structural model logic review
   *(dispatched via Step 3 task-type table — not directly from this list)*
 - **@cr-ml-methodology** — ML methodology and evaluation
-  *(Phase 5 — not yet available)*
 - **@cr-academic-writing** — academic prose and argument structure
   *(Phase 6 — not yet available)*
 - **@cr-replication-package** — replication package completeness
@@ -91,12 +89,12 @@ Based on the task type identified in the plan:
 | Task Type | Additional Agents |
 |-----------|------------------|
 | Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
-| Specification Analysis | @cr-specification-analysis *(Phase 5)* |
-| ML/Prediction | @cr-ml-methodology *(Phase 5)*, @cg-performance |
+| Specification Analysis | @cr-specification-analysis |
+| ML/Prediction | @cr-ml-methodology, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
 | Reproducibility | @cr-replication-package *(Phase 7)* |
 | Tables/Figures | @cg-documentation |
-| EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for Phase 5)* |
+| EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
 | Implementation | @cg-performance |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
