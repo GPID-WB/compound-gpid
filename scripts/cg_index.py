@@ -369,6 +369,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Project root directory (defaults to current working directory).",
     )
     parser.add_argument(
+        "--push-entry",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Push a solution entry to the team brain central repo. "
+            "Reads team-brain config from compound-gpid.local.md. "
+            "Skips silently if team-brain is not configured."
+        ),
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"cg-index {__version__}",
@@ -395,6 +405,37 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Resolve root
     root = Path(args.root).resolve() if args.root else Path.cwd()
+
+    # -----------------------------------------------------------------------
+    # --push-entry mode
+    # -----------------------------------------------------------------------
+    if getattr(args, "push_entry", None):
+        solution_path = Path(args.push_entry)
+        if not solution_path.exists():
+            print(
+                f"[cg-index] ERROR: solution file not found: {solution_path}",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            from team_brain.push import push_entry
+        except ImportError as exc:
+            print(
+                f"[cg-index] ERROR: team_brain package not available ({exc}).\n"
+                "Reinstall compound-gpid or run: pip install -e scripts/",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            result = push_entry(solution_path)
+            print(f"[cg-index] {result.summary}")
+            return 0
+        except ValueError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+        except RuntimeError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
 
     # --all is deprecated; redirect to --brain
     do_brain = getattr(args, "brain", False) or args.all_

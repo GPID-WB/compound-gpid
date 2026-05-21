@@ -137,6 +137,28 @@ If `@cg-wiki` dispatch fails or returns an error: note:
 > "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
 and proceed silently.
 
+#### A5.9. Configure Team Brain (optional)
+
+Ask:
+
+> Does your team have a shared knowledge base (team brain)? If so, I can configure automatic contribution when you run `/cg-compound`.
+> - Type `GPID-WB/team-brain` (or your team brain repo in `owner/repo` format) to enable.
+> - Press Enter to skip.
+
+If the user provides a repo:
+  1. Ask: "What should your project be called in the team brain? (default: `<directory-name>`)" (suggest the project root folder name).
+  2. Append to `compound-gpid.local.md`:
+     ```
+     team-brain:
+       repo: "<owner/repo>"
+       project-name: "<project-name>"
+       enabled: true
+       llm-filter: false
+     ```
+  3. Confirm: "Team brain configured. Solutions will be pushed to `<owner/repo>` when you run `/cg-compound`."
+
+If the user skips: proceed silently — team brain defaults to disabled.
+
 #### A6. Print Setup Complete
 
 Using the **Setup Complete Message** from `setup-templates.md`, display it with the user's configured language, project type, and review depth.
@@ -327,5 +349,26 @@ If the user provides descriptions and `compound-gpid.context.md` exists: append 
 - **<folder-name>**: <description>
 ```
 If `compound-gpid.context.md` does not exist, offer to create it first (see B1.1.3).
+
+#### B4.8. Check Team Brain Configuration
+
+Read `compound-gpid.local.md`. If it does not contain a `team-brain:` section:
+
+> "Your project is not configured to contribute to a shared team brain. Would you like to set it up? (Enter `owner/repo` like `GPID-WB/team-brain`, or press Enter to skip.)"
+
+If the user provides a repo:
+  1. Ask: "What should your project be called in the team brain? (default: `<directory-name>`)"
+  2. Append to `compound-gpid.local.md`:
+     ```
+     team-brain:
+       repo: "<owner/repo>"
+       project-name: "<project-name>"
+       enabled: true
+       llm-filter: false
+     ```
+  3. Confirm: "Team brain configured. Solutions will be pushed to `<owner/repo>` when you run `/cg-compound`."
+
+If a `team-brain:` section is already present: skip silently.
+If the user skips: skip silently.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."

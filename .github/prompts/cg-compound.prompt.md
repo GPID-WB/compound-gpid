@@ -162,6 +162,22 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
   5. Report: `"Wiki updated: <folder>/<page>.md — <brief description of change>."`
      (Only for `auto` pages where `@cg-wiki` actually wrote content.)
 
+### Step 3d: Push to Team Brain
+
+Check `compound-gpid.local.md` for a `team-brain:` section:
+
+- If absent or `enabled: false`: skip this step silently.
+- If `enabled: true`:
+  1. Run `cg-index --push-entry <solution-path>` from the project root.
+  2. Report the result line emitted by cg-index verbatim.
+  3. If the result contains `blocked`: report
+     > "Team brain push blocked: <reason>. Check for `private: true` frontmatter or sensitive content in the solution."
+  4. If the result contains `No GitHub token found`: report
+     > "Team brain push failed: no GitHub token found. Set `GITHUB_TOKEN` or ensure git credential manager has a GitHub token stored."
+  5. If `cg-index` is not available: report
+     > "Team brain push skipped: `cg-index` not found. Ensure the plugin is installed."
+     and skip silently.
+
 ### Step 4: Cross-Reference
 
 1. Search `.cg-docs/solutions/` for related existing solutions.
