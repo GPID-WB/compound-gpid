@@ -6,6 +6,27 @@ using the plugin.
 
 ---
 
+## Auto-Discovery
+
+When a team member runs `/cg-setup` in a project hosted on GitHub, the plugin
+automatically searches for a team brain before prompting the user:
+
+1. **Parse the org** from `git remote get-url origin`.
+2. **Check if the org exists** (`GET /orgs/{owner}`).
+3. **Search for a brain repo** in the org — candidates in order: `team-brain`,
+   `TeamBrain`, `team_brain`, `teambrain`.
+4. **If found**: configure automatically, no prompt needed.
+5. **If not found**: offer to create `{owner}/team-brain` or accept a custom `owner/repo`.
+
+**Manager field**: Always set to the authenticated GitHub user's `login` (from
+`GET https://api.github.com/user`). Never use the git config `user.name` (which
+is a machine-local identity, not a GitHub username).
+
+**Project name default**: The repository name parsed from the remote URL, not
+the filesystem directory name.
+
+---
+
 ## Central Repo Structure
 
 ```

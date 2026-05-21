@@ -137,27 +137,74 @@ If `@cg-wiki` dispatch fails or returns an error: note:
 > "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
 and proceed silently.
 
-#### A5.9. Configure Team Brain (optional)
+#### A5.9. Configure Team Brain (auto-discovery)
 
+**Step 1: Parse the GitHub org from the remote URL.**
+Run `git remote get-url origin` and extract the `{owner}` from:
+- `https://github.com/{owner}/{repo}` (HTTPS)
+- `git@github.com:{owner}/{repo}` (SSH)
+If there is no `origin` remote or the URL is not a GitHub URL: skip to Case C below.
+
+**Step 2: Determine if `{owner}` is a GitHub organization.**
+Call `GET https://api.github.com/orgs/{owner}` (unauthenticated is fine for public orgs).
+- 200 → it's an org, proceed to Step 3.
+- 404 → personal account or inaccessible, skip to Case C.
+
+**Step 3: Search for an existing team brain repo in `{owner}`.**
+Try these names in order: `team-brain`, `TeamBrain`, `team_brain`, `teambrain`.
+For each, call `GET https://api.github.com/repos/{owner}/{candidate}` (use stored token).
+Stop at the first 200 response. Set `detected-repo = {owner}/{candidate}`.
+
+**Step 4: Act on what was found.**
+
+**Case A — team brain found automatically:**
+Determine the project name: parse the repository name from the same `git remote get-url origin` output.
+Append to `compound-gpid.local.md`:
+```
+team-brain:
+  repo: "{detected-repo}"
+  project-name: "{repo-name}"
+  enabled: true
+  llm-filter: false
+```
+Report: "Team brain found at `{detected-repo}`. Configured automatically — your solutions will be shared with `{owner}` when you run `/cg-compound`."
+
+**Case B — org exists but no team brain repo found:**
 Ask:
+> "No team brain found in `{owner}`. Would you like to set up shared team knowledge?
+> - Press **Enter** to create and scaffold a new `{owner}/team-brain` repo
+> - Type an existing `owner/repo` if your team brain is hosted elsewhere
+> - Type `skip` to disable team brain for this project"
 
-> Does your team have a shared knowledge base (team brain)? If so, I can configure automatic contribution when you run `/cg-compound`.
-> - Type `GPID-WB/team-brain` (or your team brain repo in `owner/repo` format) to enable.
-> - Press Enter to skip.
+- **If Enter (create new)**: Follow the **Scaffolding a New Team Brain** block below. Manager = `GET https://api.github.com/user` → `login` field.
+- **If `owner/repo` provided**: Use that repo. Ask for the project name (default: repo name from remote URL). Append `team-brain:` block to `compound-gpid.local.md`.
+- **If `skip`**: Proceed silently.
 
-If the user provides a repo:
-  1. Ask: "What should your project be called in the team brain? (default: `<directory-name>`)" (suggest the project root folder name).
-  2. Append to `compound-gpid.local.md`:
-     ```
-     team-brain:
-       repo: "<owner/repo>"
-       project-name: "<project-name>"
-       enabled: true
-       llm-filter: false
-     ```
-  3. Confirm: "Team brain configured. Solutions will be pushed to `<owner/repo>` when you run `/cg-compound`."
+**Case C — personal account or no remote:**
+Ask:
+> "Does your team have a shared knowledge base? Enter `owner/repo` (e.g. `gpid-team/team-brain`), or press Enter to skip."
 
-If the user skips: proceed silently — team brain defaults to disabled.
+- If provided: ask for project name (default: repo name), append `team-brain:` block.
+- If skipped: proceed silently.
+
+---
+
+**Scaffolding a New Team Brain**
+(Used when the user chooses to create `{owner}/team-brain` in Case B above)
+
+1. Get the authenticated GitHub username: `GET https://api.github.com/user` → `login`.
+2. Create the repo: `POST https://api.github.com/orgs/{owner}/repos` with body `{"name": "team-brain", "description": "GPID team shared knowledge base (Compound GPID)", "private": false}`.
+3. Push the scaffold files defined in `docs/team-brain-schema.md` — use the GitHub Contents API (`PUT /repos/{owner}/team-brain/contents/{path}`) for each file:
+   - `TEAM-BRAIN.yml` (manager = `{login}`, contributors = `[{org: "{owner}"}]`)
+   - `TEAM-BRAIN.md` (placeholder from schema doc)
+   - `entries/.gitkeep`
+   - `patterns/.gitkeep`
+   - `.github/workflows/rebuild-index.yml`
+   - `.github/workflows/curation-bot.yml`
+   - `.github/scripts/rebuild.py`
+   - `.github/scripts/curate.py` (stub)
+4. Append `team-brain:` block to `compound-gpid.local.md`.
+5. Report: "Created and scaffolded `{owner}/team-brain`. You (`{login}`) are the manager."
 
 #### A6. Print Setup Complete
 
@@ -352,23 +399,20 @@ If `compound-gpid.context.md` does not exist, offer to create it first (see B1.1
 
 #### B4.8. Check Team Brain Configuration
 
-Read `compound-gpid.local.md`. If it does not contain a `team-brain:` section:
+Read `compound-gpid.local.md`. If it already contains an enabled `team-brain:` section: skip this step silently.
 
-> "Your project is not configured to contribute to a shared team brain. Would you like to set it up? (Enter `owner/repo` like `GPID-WB/team-brain`, or press Enter to skip.)"
+If no `team-brain:` section is present:
 
-If the user provides a repo:
-  1. Ask: "What should your project be called in the team brain? (default: `<directory-name>`)"
-  2. Append to `compound-gpid.local.md`:
-     ```
-     team-brain:
-       repo: "<owner/repo>"
-       project-name: "<project-name>"
-       enabled: true
-       llm-filter: false
-     ```
-  3. Confirm: "Team brain configured. Solutions will be pushed to `<owner/repo>` when you run `/cg-compound`."
+1. Parse `{owner}` from `git remote get-url origin` (same logic as A5.9 Step 1).
+2. If `{owner}` is a GitHub org and `{owner}/team-brain` exists (A5.9 Steps 2-3): configure automatically (Case A from A5.9).
+3. Otherwise, ask:
+   > "Your project is not connected to a shared team brain. Would you like to set one up?
+   > - Press **Enter** to create `{owner}/team-brain` (if it doesn't exist)
+   > - Type an existing `owner/repo`
+   > - Type `skip` to keep team brain disabled"
 
-If a `team-brain:` section is already present: skip silently.
-If the user skips: skip silently.
+   Handle the same way as Cases B/C in A5.9.
+
+If `team-brain: enabled: false` is explicitly set: skip silently — the user has opted out.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."
