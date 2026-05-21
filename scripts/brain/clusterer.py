@@ -24,7 +24,6 @@ from __future__ import annotations
 import re
 import warnings
 from collections import defaultdict
-from pathlib import Path
 from typing import Dict, List, Optional, Protocol, Tuple
 
 from brain import Entity, Topic
@@ -76,7 +75,7 @@ class ClusterStrategy(Protocol):
         Returns:
             List of :class:`~brain.Topic` objects.
         """
-        ...
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +261,7 @@ class _GreedyAgglomerative:
 
         # Build clusters; discard those below min_cluster_size
         topics: List[Topic] = []
-        for root, member_indices in uf.clusters().items():
+        for _, member_indices in uf.clusters().items():
             if len(member_indices) < self._min_size:
                 continue
 

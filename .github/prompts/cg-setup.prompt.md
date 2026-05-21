@@ -137,6 +137,30 @@ If `@cg-wiki` dispatch fails or returns an error: note:
 > "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
 and proceed silently.
 
+#### A5.85. Check GitHub CLI (`gh`)
+
+The team brain feature requires GitHub API access. `gh` CLI is the most reliable auth method.
+
+1. **Check if `gh` is installed**: Run `gh --version`.
+   - If installed and exit code is 0: proceed to step 2.
+   - If not installed: offer to install it:
+     - Windows: `winget install GitHub.cli`
+     - macOS: `brew install gh`
+     - Linux: `sudo apt install gh` (or equivalent for the detected distro)
+     Run the install command. If install fails or the user declines, note:
+     > "`gh` is not available. Team brain will fall back to `GITHUB_TOKEN` environment variable or `git credential fill`. You can install `gh` later with `winget install GitHub.cli`."
+     Then skip to A5.9.
+
+2. **Check authentication**: Run `gh auth status`.
+   - If authenticated: note "GitHub CLI is authenticated ✓" and proceed to A5.9.
+   - If not authenticated: run `gh auth login` to start the interactive login flow.
+     - After login, confirm with `gh auth status` again.
+     - If login fails or is declined: note:
+       > "GitHub authentication skipped. Team brain push will use `GITHUB_TOKEN` if set, or prompt for auth when needed."
+     Proceed to A5.9 regardless.
+
+> **Note**: This step is non-blocking. Team brain works without `gh` via `GITHUB_TOKEN` env var or `git credential fill`. `gh` is simply the most reliable and cross-platform option.
+
 #### A5.9. Configure Team Brain (auto-discovery)
 
 **Step 1: Parse the owner from the remote URL.**
@@ -381,8 +405,12 @@ If the user provides descriptions and `compound-gpid.context.md` exists: append 
 ```
 If `compound-gpid.context.md` does not exist, offer to create it first (see B1.1.3).
 
-#### B4.8. Check Team Brain Configuration
+#### B4.8. Check GitHub CLI and Team Brain
 
+**B4.8a: Check `gh` CLI** (only if `team-brain:` section is absent from `compound-gpid.local.md`):
+Run `gh auth status`. If `gh` is not installed or not authenticated, follow the same check as A5.85 (offer install + login). Skip silently if `team-brain:` is already configured.
+
+**B4.8b: Check Team Brain Configuration**:
 Read `compound-gpid.local.md`.
 - If a `team-brain:` section is already present (enabled or explicitly disabled): skip silently.
 - If absent: run the same auto-discovery as A5.9 Steps 1–2 — check for `{owner}/team-brain`, then follow Case 2a (auto-configure) or 2b (ask) accordingly.

@@ -5,8 +5,6 @@ Run from repo root:
 """
 from __future__ import annotations
 
-import json
-
 import pytest
 
 from team_brain.privacy import (
@@ -49,20 +47,20 @@ def test_regex_windows_path_redacted():
 
 def test_regex_unix_home_path_redacted():
     content = "File at /home/wb384996/data/file.dta"
-    filtered, redactions = apply_regex_filter(content)
+    filtered, _ = apply_regex_filter(content)
     assert "<REDACTED:path>" in filtered
     assert "/home/wb384996" not in filtered
 
 
 def test_regex_unix_users_path_redacted():
     content = "Located in /Users/wb384996/.config/foo"
-    filtered, redactions = apply_regex_filter(content)
+    filtered, _ = apply_regex_filter(content)
     assert "<REDACTED:path>" in filtered
 
 
 def test_regex_unc_path_redacted():
     content = r"Share is at \\server\share\docs"
-    filtered, redactions = apply_regex_filter(content)
+    filtered, _ = apply_regex_filter(content)
     assert "<REDACTED:path>" in filtered
 
 
@@ -75,7 +73,7 @@ def test_regex_relative_path_not_redacted():
 
 def test_regex_email_redacted():
     content = "Contact wb384996@worldbank.org for help."
-    filtered, redactions = apply_regex_filter(content)
+    filtered, _ = apply_regex_filter(content)
     assert "<REDACTED:email>" in filtered
     assert "worldbank.org" not in filtered
 
@@ -144,7 +142,7 @@ def test_frontmatter_private_false_allows():
 
 def test_frontmatter_missing_private_defaults_to_false():
     content = "---\ntitle: Something\n---\n# Title"
-    filtered, blocked, _ = apply_frontmatter_filter(content, {})
+    _, blocked, _ = apply_frontmatter_filter(content, {})
     assert blocked is False
 
 
@@ -170,7 +168,7 @@ def test_frontmatter_private_sections_case_insensitive():
         "## internal notes\n\nSecret.\n\n"
         "## Conclusion\n\nPublic."
     )
-    filtered, blocked, _ = apply_frontmatter_filter(
+    filtered, _, _ = apply_frontmatter_filter(
         content, {"private-sections": ["Internal Notes"]}
     )
     assert "Secret" not in filtered
@@ -299,7 +297,7 @@ def test_frontmatter_private_sections_non_list_warns_and_skips():
     """P1.10 — private-sections as string should warn and skip stripping."""
     content = "---\ntitle: T\n---\n## Internal Notes\n\nSecret.\n\n## End\n\nPublic."
     with pytest.warns(UserWarning, match="not a list"):
-        filtered, blocked, _ = apply_frontmatter_filter(
+        filtered, _, _ = apply_frontmatter_filter(
             content, {"private-sections": "Internal Notes"}
         )
     assert "Secret" in filtered  # stripping skipped — warned only
@@ -313,7 +311,7 @@ def test_frontmatter_atx_closed_heading_stripped():
         "# Internal Notes ##\n\nSecret.\n\n"
         "# Conclusion\n\nPublic end."
     )
-    filtered, blocked, _ = apply_frontmatter_filter(
+    filtered, _, _ = apply_frontmatter_filter(
         content, {"private-sections": ["Internal Notes"]}
     )
     assert "Secret" not in filtered
@@ -327,7 +325,7 @@ def test_frontmatter_private_section_at_end_of_document():
         "# Introduction\n\nPublic content.\n\n"
         "# Internal Notes\n\nSecret at the very end."
     )
-    filtered, blocked, _ = apply_frontmatter_filter(
+    filtered, _, _ = apply_frontmatter_filter(
         content, {"private-sections": ["Internal Notes"]}
     )
     assert "Secret at the very end" not in filtered
@@ -337,7 +335,7 @@ def test_frontmatter_private_section_at_end_of_document():
 def test_regex_windows_forward_slash_path_redacted():
     """P1.2 — forward-slash Windows path (Git Bash, WSL, R) must be redacted."""
     content = "Loaded from E:/PovcalNet/data/file.dta"
-    filtered, redactions = apply_regex_filter(content)
+    filtered, _ = apply_regex_filter(content)
     assert "<REDACTED:path>" in filtered
     assert "E:/PovcalNet" not in filtered
 

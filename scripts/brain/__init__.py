@@ -29,7 +29,7 @@ from __future__ import annotations
 
 __version__ = "0.2.0"
 
-__all__ = ["Entity", "Topic", "Edge", "BrainData", "build_brain", "__version__", "ClusterStrategy"]
+__all__ = ["Entity", "Topic", "Edge", "BrainData", "build_brain", "__version__", "ClusterStrategy"]  # noqa: F822
 
 from dataclasses import dataclass, field
 from datetime import date

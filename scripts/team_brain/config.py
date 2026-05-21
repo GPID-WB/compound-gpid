@@ -19,10 +19,9 @@ Requirements: Python 3.8+, stdlib only.
 from __future__ import annotations
 
 import re
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 # ---------------------------------------------------------------------------
 # Constants

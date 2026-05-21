@@ -12,7 +12,6 @@ import pytest
 
 from brain import Entity, Topic
 from brain.clusterer import (
-    _GreedyAgglomerative,
     _UnionFind,
     _top_keywords_for_cluster,
     _topic_label,

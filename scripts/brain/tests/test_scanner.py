@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 
-from brain import Entity
 from brain.scanner import _DIR_TO_TYPE, scan_all, scan_roadmap
 
 
@@ -300,12 +299,11 @@ class TestDirToTypeMapping:
 class TestScanAllUnreadable:
     def test_unreadable_file_skipped_with_warning(self, tmp_path: Path) -> None:
         """P2.13 — permission-denied file should warn and continue scanning."""
-        import os
         import stat
         import sys
         import warnings
 
-        good = _write(tmp_path / ".cg-docs/plans/good.md", _md("Good"))
+        _write(tmp_path / ".cg-docs/plans/good.md", _md("Good"))
         bad = _write(tmp_path / ".cg-docs/plans/bad.md", _md("Bad"))
 
         if sys.platform == "win32":

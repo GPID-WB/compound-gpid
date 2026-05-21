@@ -82,7 +82,8 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
     1. ``explicit`` argument (caller-provided)
     2. ``GITHUB_TOKEN`` environment variable
     3. ``GH_TOKEN`` environment variable
-    4. ``git credential fill`` subprocess (Windows Credential Manager, etc.)
+    4. ``gh auth token`` subprocess (GitHub CLI — most reliable, cross-platform)
+    5. ``git credential fill`` subprocess (Windows Credential Manager, etc.)
 
     The token is never printed or logged.
 
@@ -104,6 +105,22 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
         val = os.environ.get(var)
         if val:
             return val
+    # gh CLI — preferred: handles token refresh, works in non-interactive shells
+    try:
+        result = subprocess.run(
+            ["gh", "auth", "token"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        if result.returncode == 0:
+            token = result.stdout.strip()
+            if token:
+                return token
+    except (subprocess.SubprocessError, OSError, FileNotFoundError):
+        pass
+    # Fallback: git credential fill (Windows Credential Manager, macOS Keychain, etc.)
     try:
         result = subprocess.run(
             ["git", "credential", "fill"],
@@ -111,6 +128,7 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
             capture_output=True,
             text=True,
             timeout=5,
+            check=False,
         )
         for line in result.stdout.splitlines():
             if line.startswith("password="):

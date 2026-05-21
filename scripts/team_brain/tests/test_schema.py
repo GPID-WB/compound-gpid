@@ -6,14 +6,11 @@ Run from repo root:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
 from team_brain.schema import (
-    PatternEntry,
     TeamBrainConfig,
-    _parse_team_brain_yml,
     load_patterns_from_jsonl,
     parse_pattern_jsonl_line,
     validate_team_brain_yml,

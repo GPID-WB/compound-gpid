@@ -41,7 +41,7 @@ if sys.version_info < (3, 8):
 import argparse
 import json
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -61,12 +61,9 @@ if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
 from brain.utils import (  # noqa: E402
-    _coerce,
-    _parse_inline_list,
     parse_frontmatter,
     extract_summary,
     _write_atomic,
-    _truncate,
 )
 from brain import __version__  # noqa: E402
 

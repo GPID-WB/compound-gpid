@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 
-from brain import BrainData, Edge, Entity, Topic, __version__ as _BRAIN_VERSION
+from brain import BrainData, Entity, Topic, __version__ as _BRAIN_VERSION
 from brain.utils import _write_atomic
 
 # ---------------------------------------------------------------------------

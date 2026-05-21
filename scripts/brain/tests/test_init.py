@@ -13,8 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 
 # ---------------------------------------------------------------------------
 # Import checks
@@ -39,7 +37,7 @@ class TestImports:
 
     def test_cluster_strategy_importable_from_brain(self) -> None:
         """P3.4 re-export: from brain import ClusterStrategy must resolve via __getattr__."""
-        from brain import ClusterStrategy
+        from brain import ClusterStrategy  # type: ignore[attr-defined]
         from brain.clusterer import ClusterStrategy as _Direct
 
         assert ClusterStrategy is _Direct

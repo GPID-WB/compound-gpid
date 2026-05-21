@@ -6,8 +6,6 @@ live-mode API interactions (mocked via unittest.mock).
 """
 from __future__ import annotations
 
-import base64
-import json
 import os
 import unittest
 from pathlib import Path
@@ -20,7 +18,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from team_brain.config import TeamBrainLocalConfig
 from team_brain.push import (
-    PushResult,
     _distill_pattern,
     _parse_frontmatter,
     _upsert_jsonl_line,
@@ -101,19 +98,42 @@ class TestGetToken(unittest.TestCase):
 
     def test_no_token_returns_none(self) -> None:
         env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
+
+        def fake_run(cmd, **kwargs):
+            if cmd[0] == "gh":
+                return MagicMock(stdout="", returncode=1)  # gh not authenticated
+            return MagicMock(stdout="username=user\n", returncode=0)  # no password line
+
         with patch.dict(os.environ, env_overrides):
-            with patch("subprocess.run") as mock_run:
-                mock_run.return_value = MagicMock(stdout="username=user\n", returncode=0)
+            with patch("subprocess.run", side_effect=fake_run):
                 token = get_token()
         self.assertIsNone(token)
 
     def test_git_credential_fill_fallback(self) -> None:
         env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
-        mock_result = MagicMock(stdout="username=user\npassword=cred-token\n", returncode=0)
+
+        def fake_run(cmd, **kwargs):
+            if cmd[0] == "gh":
+                return MagicMock(stdout="", returncode=1)  # gh not available
+            return MagicMock(stdout="username=user\npassword=cred-token\n", returncode=0)
+
         with patch.dict(os.environ, env_overrides):
-            with patch("subprocess.run", return_value=mock_result):
+            with patch("subprocess.run", side_effect=fake_run):
                 token = get_token()
         self.assertEqual(token, "cred-token")
+
+    def test_gh_cli_auth_token_fallback(self) -> None:
+        env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
+
+        def fake_run(cmd, **kwargs):
+            if cmd[0] == "gh":
+                return MagicMock(stdout="gh-cli-token\n", returncode=0)
+            return MagicMock(stdout="", returncode=0)
+
+        with patch.dict(os.environ, env_overrides):
+            with patch("subprocess.run", side_effect=fake_run):
+                token = get_token()
+        self.assertEqual(token, "gh-cli-token")
 
 
 # ---------------------------------------------------------------------------
@@ -232,7 +252,7 @@ class TestUpsertJsonlLine(unittest.TestCase):
 
 
 class TestPushEntrySkipped(unittest.TestCase):
-    def test_skipped_when_config_is_none(self, tmp_path: Optional[Path] = None) -> None:
+    def test_skipped_when_config_is_none(self) -> None:
         import tempfile
         with tempfile.TemporaryDirectory() as td:
             solution = Path(td) / "2026-05-20-fix.md"
@@ -326,7 +346,7 @@ class TestPushEntryLive(unittest.TestCase):
     def _run_push(self, solution_path: Path, *, existing_entry=None, existing_jsonl=None):
         """Helper: run push_entry with fully mocked GitHub API."""
 
-        def fake_get_remote(owner_repo, path, token):
+        def fake_get_remote(_owner_repo, path, _token):
             if "entries/" in path and existing_entry:
                 return existing_entry
             if "patterns/" in path and existing_jsonl:
@@ -393,7 +413,7 @@ class TestPushEntryLive(unittest.TestCase):
         import tempfile
         pushed_content = []
 
-        def capture_put(owner_repo, path, token, content, message, sha=None):
+        def capture_put(_owner_repo, path, _token, content, _message, _sha=None):
             if "entries/" in path:
                 pushed_content.append(content)
 
