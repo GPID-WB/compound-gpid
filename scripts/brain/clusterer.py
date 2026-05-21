@@ -75,7 +75,6 @@ class ClusterStrategy(Protocol):
         Returns:
             List of :class:`~brain.Topic` objects.
         """
-        pass
 
 
 # ---------------------------------------------------------------------------

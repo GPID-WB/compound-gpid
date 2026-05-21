@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import unittest
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 from unittest.mock import MagicMock, patch
 
 # Ensure the scripts/ directory is importable from the test runner
@@ -99,7 +99,7 @@ class TestGetToken(unittest.TestCase):
     def test_no_token_returns_none(self) -> None:
         env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
 
-        def fake_run(cmd, **kwargs):
+        def fake_run(cmd, **_kwargs):  # type: ignore[misc]  # mock must accept subprocess kwargs
             if cmd[0] == "gh":
                 return MagicMock(stdout="", returncode=1)  # gh not authenticated
             return MagicMock(stdout="username=user\n", returncode=0)  # no password line
@@ -112,7 +112,7 @@ class TestGetToken(unittest.TestCase):
     def test_git_credential_fill_fallback(self) -> None:
         env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
 
-        def fake_run(cmd, **kwargs):
+        def fake_run(cmd, **_kwargs):  # type: ignore[misc]  # mock must accept subprocess kwargs
             if cmd[0] == "gh":
                 return MagicMock(stdout="", returncode=1)  # gh not available
             return MagicMock(stdout="username=user\npassword=cred-token\n", returncode=0)
@@ -125,7 +125,7 @@ class TestGetToken(unittest.TestCase):
     def test_gh_cli_auth_token_fallback(self) -> None:
         env_overrides = {"GITHUB_TOKEN": "", "GH_TOKEN": ""}
 
-        def fake_run(cmd, **kwargs):
+        def fake_run(cmd, **_kwargs):  # type: ignore[misc]  # mock must accept subprocess kwargs
             if cmd[0] == "gh":
                 return MagicMock(stdout="gh-cli-token\n", returncode=0)
             return MagicMock(stdout="", returncode=0)

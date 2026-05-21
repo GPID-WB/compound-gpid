@@ -29,7 +29,7 @@ from __future__ import annotations
 
 __version__ = "0.2.0"
 
-__all__ = ["Entity", "Topic", "Edge", "BrainData", "build_brain", "__version__", "ClusterStrategy"]  # noqa: F822
+__all__ = ["Entity", "Topic", "Edge", "BrainData", "build_brain", "__version__", "ClusterStrategy"]
 
 from dataclasses import dataclass, field
 from datetime import date
@@ -224,15 +224,7 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
 # ---------------------------------------------------------------------------
 # Protocol re-export
 # ---------------------------------------------------------------------------
-
-
-def __getattr__(name: str) -> object:
-    """Lazy re-export of ClusterStrategy from brain.clusterer.
-
-    Avoids a circular import at module load time while still making
-    ``from brain import ClusterStrategy`` work (architecture P3.4 fix).
-    """
-    if name == "ClusterStrategy":
-        from brain.clusterer import ClusterStrategy  # noqa: PLC0415
-        return ClusterStrategy
-    raise AttributeError(f"module 'brain' has no attribute {name!r}")
+# Direct import placed after Entity/Topic are defined to avoid circular-import
+# issues while still making ``from brain import ClusterStrategy`` work and
+# giving Pylance full visibility of the exported name (P3.4 fix).
+from brain.clusterer import ClusterStrategy  # noqa: E402
