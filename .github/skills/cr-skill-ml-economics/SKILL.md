@@ -7,8 +7,11 @@ description: "Machine learning methods for economics research. Covers
   time-series CV, stratified CV by group), out-of-sample assessment,
   post-selection inference (debiased LASSO), Chernozhukov-style cross-fitting,
   variable importance with economic interpretation, dimension reduction and
-  feature selection, and when ML is appropriate vs when it is not. Loaded by
-  @cr-ml-methodology for ML/Prediction and Implementation (ML) tasks."
+  feature selection, survey-weighted ML for complex-design survey data,
+  missing value handling in ML pipelines, class imbalance and rare events,
+  data leakage detection, hyperparameter search transparency, and when ML is
+  appropriate vs when it is not. Loaded by @cr-ml-methodology for ML/Prediction
+  and Implementation tasks."
 ---
 
 # ML in Economics
@@ -66,7 +69,8 @@ coef(cv_fit, s = "lambda.min")
 # Post-LASSO OLS (Belloni et al. double selection)
 library(hdm)
 rlasso_fit <- rlasso(y ~ ., data = df)            # rigorous LASSO
-selected_vars <- names(which(coef(rlasso_fit) != 0))
+# coef() includes intercept — drop with [-1] before selecting variables
+selected_vars <- names(which(coef(rlasso_fit)[-1] != 0))
 ols_fit <- lm(y ~ ., data = df[, c("y", selected_vars)])
 ```
 
@@ -105,6 +109,120 @@ This yields valid inference even after selection.
 
 **References**: Tibshirani (1996); Belloni, Chernozhukov, Hansen (2014, ReStud);
 Bühlmann & van de Geer (2011).
+
+---
+
+## 2a. Survey-Weighted ML (GPID requirement)
+
+**Critical for GPID**: All GPID input data are complex-design household surveys
+(stratified, clustered, probability-weighted). Fitting any ML model without
+survey weights minimises a sample-convenience loss, not a population-level
+loss. On surveys that oversample urban households, an unweighted LASSO learns
+urban income-poverty relationships — national poverty predictions are silently
+biased. For official WB poverty statistics this constitutes silent data
+corruption.
+
+**R patterns**:
+
+```r
+# glmnet / cv.glmnet with survey weights
+library(glmnet)
+x      <- model.matrix(y ~ ., data = df)[, -1]
+cv_fit <- cv.glmnet(x, df$y, alpha = 1,
+                    weights = df$survey_weight)   # <-- required
+
+# ranger (random forest) with case weights
+library(ranger)
+set.seed(42)
+rf <- ranger(y ~ ., data = df,
+             case.weights = df$survey_weight,     # <-- required
+             seed = 42)
+
+# xgboost: pass weights via DMatrix
+dtrain <- xgb.DMatrix(data = x_train, label = y_train,
+                       weight = df_train$survey_weight)  # <-- required
+```
+
+```python
+# scikit-learn: pass sample_weight to fit()
+from sklearn.linear_model import LassoCV
+lasso = LassoCV(cv=5, random_state=42)
+lasso.fit(X_train, y_train,
+          sample_weight=df_train['survey_weight'])   # <-- required
+
+# RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
+rf = RandomForestRegressor(n_estimators=500, random_state=42)
+rf.fit(X_train, y_train,
+       sample_weight=df_train['survey_weight'])       # <-- required
+```
+
+**Common GPID weight variable names**: `survey_weight`, `wgt`, `hhweight`,
+`pw`, `popweight`, `weight_ind`. Verify the column name in the microdata
+before use.
+
+**Anti-patterns**:
+- Fitting any ML model on survey microdata without `weights=` / `case.weights=`
+  / `sample_weight=` argument → population-level bias (P0)
+- Normalising weights before passing them (`weights / sum(weights)`) without
+  checking whether the estimator expects unnormalised probability weights
+
+---
+
+## 2b. Missing Data in ML Pipelines
+
+**Why it matters for GPID**: In poverty surveys, item non-response on
+consumption/income is almost never MCAR — poorer households have
+systematically higher non-response. Mean/median single imputation silently
+pulls imputed values toward the observed (non-poor) mean, underestimating
+poverty incidence.
+
+**Step 1 — document missingness pattern** before any modelling:
+
+```r
+# R
+library(naniar)
+vis_miss(df)              # visual missingness map
+miss_var_summary(df)      # % missing per variable
+```
+
+```python
+import missingno as msno
+msno.matrix(df)
+print(df.isnull().mean().sort_values(ascending=False))
+```
+
+**Step 2 — choose strategy based on mechanism**:
+
+| Mechanism | Strategy |
+|-----------|----------|
+| MCAR (document assumption) | Listwise deletion acceptable — document explicitly |
+| MAR | Multiple imputation inside each CV fold (see below) |
+| MNAR | Flag; requires sensitivity analysis |
+
+**Multiple imputation inside folds (R)**:
+
+```r
+# mice-based imputation fitted only on train fold — prevents leakage
+library(mice)
+train_imputed <- mice(train_df, m = 1, method = "pmm", seed = 42)
+train_complete <- complete(train_imputed)
+# Fit model on train_complete; impute test fold using the same mice object
+```
+
+**NA indicator features** (add `is.na(x)` as a predictor):
+
+```r
+df$x_missing <- as.integer(is.na(df$x))
+df$x[is.na(df$x)] <- median(df$x, na.rm = TRUE)  # median fill for the value
+```
+
+**Anti-patterns**:
+- `drop_na(df)` / `na.omit(df)` on the full dataset before train/test split
+  without documenting MCAR assumption
+- `SimpleImputer().fit(X)` on full data (data leakage — see Section 1 Check 1)
+- Single mean/median imputation on poverty-related variables
+- Imputing the outcome variable `y`
 
 ---
 
@@ -227,6 +345,35 @@ ts_splits <- rolling_origin(df, initial = 100, assess = 20, cumulative = TRUE)
 set.seed(42)
 folds <- vfold_cv(train_df, v = 10, strata = treatment)
 ```
+
+**Class imbalance and rare events** (common in GPID ML tasks: program
+take-up, firm bankruptcy, poverty targeting):
+
+- With a 2–5% positive rate, a classifier predicting "never positive" achieves
+  95–98% accuracy — accuracy is uninformative.
+- Default to **AUROC**, **precision-recall AUC**, or **F1** as primary metrics
+  when outcome prevalence is below 10%.
+- Use class-weighted loss:
+
+```r
+# cv.glmnet: pass weights inversely proportional to class frequency
+pos_rate   <- mean(df$y)
+class_wts  <- ifelse(df$y == 1, 1 / pos_rate, 1 / (1 - pos_rate))
+cv_fit     <- cv.glmnet(x, df$y, alpha = 1,
+                        family = "binomial",
+                        weights = class_wts)
+```
+
+```python
+# sklearn: class_weight='balanced' adjusts loss automatically
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegressionCV
+rf  = RandomForestClassifier(class_weight='balanced', random_state=42)
+lr  = LogisticRegressionCV(class_weight='balanced', cv=5, random_state=42)
+```
+
+- SMOTE oversampling: only apply **inside** the CV fold training set —
+  never before the split (inflates OOS performance, see Section 1 Check 1).
 
 **Why naive k-fold fails with panel data**: If observations from the same
 unit appear in both training and validation folds, the model leaks
@@ -426,9 +573,12 @@ from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LassoCV
 
-# PCA
-pca = PCA(n_components=0.95, random_state=42)  # retain 95% variance
+# PCA — full SVD (n_components as float) is deterministic; random_state unused
+pca = PCA(n_components=0.95)   # retain 95% variance; random_state not needed
 X_pca = pca.fit_transform(X_train)             # fit only on train
+
+# For large p: use randomized SVD (requires seeding)
+# pca = PCA(n_components=50, svd_solver='randomized', random_state=42)
 
 # LASSO selection
 selector = SelectFromModel(LassoCV(cv=5, random_state=42))
@@ -463,10 +613,14 @@ grounding in the loadings is a P2 methodological concern.
 | XGBoost | `set.seed(42)` + `seed=42` in `xgb.cv` | `random_state=42` in `XGBRegressor` |
 | Stochastic GD | N/A | `random_state=42` + `np.random.seed(42)` |
 | Bootstrapping | `set.seed(42)` before each call | `rng = np.random.default_rng(42)` |
+| PyTorch (CPU) | N/A | `torch.manual_seed(42)` |
+| PyTorch (GPU) | N/A | `torch.manual_seed(42)` + `torch.cuda.manual_seed_all(42)` + `torch.backends.cudnn.deterministic = True` |
+| TensorFlow / Keras | N/A | `tf.random.set_seed(42)` (TF2) or `keras.utils.set_random_seed(42)` (Keras 3) + env var `TF_DETERMINISTIC_OPS=1` for GPU determinism |
 
 **Version pinning**: ML library versions must be locked:
 - R: `renv::snapshot()` after installing glmnet, ranger, xgboost, grf, hdm
-- Python: `uv pip freeze > requirements.txt` or `uv lock`
+- Python: `uv lock` (generates `uv.lock` — preferred); for requirements.txt
+  compatibility: `uv export --format requirements-txt > requirements.txt`
 
 **Hardware reproducibility**: GPU computations (neural networks, some XGBoost
 configurations) may not be perfectly reproducible across machines even with
@@ -494,3 +648,6 @@ seeds. Document this explicitly if applicable.
 | Unseeded random operations | Non-reproducible results — P0 | Explicit numeric seeds everywhere |
 | Causal claims from predictive model | ML optimization ≠ causal identification | Pair with IV/RDD/DiD or double ML |
 | DML without cross-fitting | Overfitting bias in nuisance estimates | Always use K-fold cross-fitting in DML |
+| ML on survey data without weights | Population-level silent bias — P0 | Pass `weights=`/`case.weights=`/`sample_weight=` to every estimator |
+| Listwise deletion without MCAR documentation | Poverty incidence underestimated if non-response is MNAR/MAR | Document mechanism; use fold-internal imputation for MAR |
+| Accuracy reported on rare outcome | Trivially gamed — P1 | Use AUROC or precision-recall AUC when prevalence < 10% |

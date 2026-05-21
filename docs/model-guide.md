@@ -62,6 +62,8 @@ files" and "Model assignments — agent files" describe blocks) validate all 39 
 | `cr-mathematical-verification.agent.md` | Claude Opus 4.6 | Symbolic verification of code against LaTeX/markdown derivations — variable mapping, functional forms, gradient computations, moment conditions | Reasoning 5, precision 5 — deep mathematical reasoning; LaTeX-to-code comparison requires Opus | confirmed |
 | `cr-identification-audit.agent.md` | Claude Sonnet 4.6 | Identification strategy audit — IV/2SLS, RDD, DiD, control function diagnostics (first-stage F, McCrary, parallel trends) | Reasoning 4, precision 4 — structured diagnostic checklist; Sonnet sufficient | confirmed |
 | `cr-econometric-reasoning.agent.md` | Claude Opus 4.6 | Structural econometric model logic review — theory-specification consistency, estimation strategy appropriateness, assumption-data consistency, PhD scaffolding | Reasoning 5, creativity 4 — structural model assessment requires deep economic reasoning; Opus required | confirmed |
+| `cr-ml-methodology.agent.md` | Claude Sonnet 4.6 | ML methodology audit — data leakage, CV correctness, hyperparameter transparency, seed coverage, survey weight usage, out-of-sample assessment | Reasoning 4, precision 4 — structured checklist with pattern matching; Sonnet sufficient | confirmed |
+| `cr-specification-analysis.agent.md` | Claude Sonnet 4.6 | Specification analysis audit — specification searching detection, theory-data dialogue, distributional assumptions, sample restrictions, robustness coverage | Reasoning 4, precision 4 — structured pattern-matching checklist; Sonnet sufficient | confirmed |
 
 ---
 

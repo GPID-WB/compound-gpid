@@ -99,7 +99,9 @@ Describe "docs/model-guide.md - structure and sync" {
         Test-Path $guideFile | Should -Be $true
     }
 
-    $content = Get-Content $guideFile -Raw -Encoding UTF8
+    BeforeAll {
+        $content = Get-Content (Join-Path $repoRoot "docs\model-guide.md") -Raw -Encoding UTF8
+    }
 
     # All 19 prompt file stems must appear in the guide
     $promptStems = @(
@@ -116,7 +118,7 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 20 agent file stems must appear in the guide
+    # All 22 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
@@ -124,7 +126,8 @@ Describe "docs/model-guide.md - structure and sync" {
         'cg-adversarial', 'cg-fix-problems', 'cg-plan-critic',
         'cg-release-scanner', 'cg-project-scanner', 'cg-roadmap-view',
         'cr-research-integrity', 'cr-mathematical-verification',
-        'cr-identification-audit', 'cr-econometric-reasoning'
+        'cr-identification-audit', 'cr-econometric-reasoning',
+        'cr-ml-methodology', 'cr-specification-analysis'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {

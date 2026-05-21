@@ -160,7 +160,7 @@ When the `modules: [research]` flag is set in `compound-gpid.local.md`, these re
 - `cr-skill-identification-strategies` — IV, RDD, DiD, event studies, synthetic control (Identification)
 - `cr-skill-theory-data-dialogue` — distributional tests, moment checks, support analysis (Specification Analysis)
 - `cr-skill-research-eda` — research-framed EDA, weighted descriptives, outlier analysis (EDA)
-- `cr-skill-ml-economics` — LASSO, random forests, CV correctness, double ML/DML, OOS assessment, reproducibility seeds (ML/Prediction)
+- `cr-skill-ml-economics` — LASSO, random forests, CV correctness, double ML/DML, OOS assessment, reproducibility seeds, survey-weighted ML for complex-design survey data, missing value handling in ML pipelines, class imbalance and rare events, data leakage detection, hyperparameter search transparency, and economic interpretation of ML output (ML/Prediction)
 
 All CR skills declare `module: research` and are loaded only when the research module is enabled.
 

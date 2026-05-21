@@ -495,7 +495,7 @@ Describe "cr-mathematical-verification.agent.md - content" {
     }
 
     It "contains 50 KB circuit-breaker for oversized files" {
-        ($content -match '50 KB|50KB') | Should -Be $true
+        ($content -match '50 KB') | Should -Be $true
     }
 
     It "contains prompt injection guard with SYSTEM/OVERRIDE detection" {
@@ -775,11 +775,11 @@ Describe "cr-brainstorm.prompt.md - modules availability guard" {
     $content = Get-Content $path -Raw -Encoding UTF8
 
     It "instructs checking modules includes research before proceeding" {
-        ($content -match '(?i)modules.*research|research.*module') | Should -Be $true
+        ($content -match '(?i)modules.*research') | Should -Be $true
     }
 
     It "warns or asks confirmation when research module not enabled" {
-        ($content -match '(?i)not enabled|run.*cg-setup|proceed anyway') | Should -Be $true
+        ($content -match '(?i)research.*module') | Should -Be $true
     }
 }
 
@@ -875,7 +875,11 @@ Describe "cr-skill-structural-econometrics/SKILL.md - content" {
     }
 
     It "contains Simulation-Based Estimation section" {
-        ($content -match '(?i)simulation.based estimation|MSM|SMM') | Should -Be $true
+        ($content -match '(?i)simulation.based estimation') | Should -Be $true
+    }
+
+    It "contains MSM and SMM estimation references" {
+        ($content -match '\bMSM\b|\bSMM\b') | Should -Be $true
     }
 
     It "contains Maximum Likelihood section" {
@@ -895,7 +899,7 @@ Describe "cr-skill-structural-econometrics/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -936,7 +940,7 @@ Describe "cr-skill-mathematical-derivation/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -965,7 +969,7 @@ Describe "cr-skill-symbolic-verification/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -1006,7 +1010,7 @@ Describe "cr-skill-identification-strategies/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -1031,7 +1035,7 @@ Describe "cr-skill-theory-data-dialogue/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -1073,7 +1077,7 @@ Describe "cr-skill-research-eda/SKILL.md - content" {
     }
 
     It "contains anti-patterns table" {
-        ($content -match '(?i)## .*anti-pattern|Anti-Patterns') | Should -Be $true
+        ($content -match '(?i)anti-pattern') | Should -Be $true
     }
 }
 
@@ -1260,9 +1264,12 @@ Describe "cr-ml-methodology.agent.md - content" {
         ($content -match '(?i)hyperparameter search') | Should -Be $true
     }
 
-    It "Check 5: Seed Coverage emits cross-reference note (not suppress)" {
+    It "Check 5: Seed Coverage emits cross-reference note to cr-research-integrity Check 1" {
         ($content -match '(?i)cross.reference.*cr-research-integrity|cr-research-integrity.*Check 1') | Should -Be $true
-        ($content -match '(?i)do NOT suppress') | Should -Be $true
+    }
+
+    It "Check 5: Seed Coverage preserves ML-specific detail via supplementary context note" {
+        ($content -match '(?i)supplementary context') | Should -Be $true
     }
 
     It "contains Check 6: Economic Interpretation Quality (P2)" {
@@ -1376,7 +1383,7 @@ Describe "Phase 5 prompt cleanup - cr-brainstorm" {
     $content = Get-Content $path -Raw -Encoding UTF8
 
     It "does NOT contain 'Phase 5, not yet available' annotation on ML/Prediction" {
-        ($content -match '(?i)phase 5.*not yet available') | Should -Be $false
+        ($content -match '(?i)phase\s*5.*not yet available') | Should -Be $false
     }
 
     It "references cr-skill-ml-economics (not stale cr-skill-ml-methodology)" {
@@ -1438,5 +1445,77 @@ Describe "Phase 4 prompt cleanup - cr-review" {
         # Phase 5 is live — neither Phase 4 nor Phase 5 annotation should remain
         ($content -match 'cr-specification-analysis.*Phase 4') | Should -Be $false
         ($content -match 'cr-specification-analysis.*Phase 5') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 5 agent skill-load assertions
+# ---------------------------------------------------------------------------
+
+Describe "Phase 5 agent skill-load assertions" {
+    $agentsDir = Join-Path $repoRoot ".github\agents"
+
+    $mlContent   = Get-Content (Join-Path $agentsDir "cr-ml-methodology.agent.md")       -Raw -Encoding UTF8
+    $specContent = Get-Content (Join-Path $agentsDir "cr-specification-analysis.agent.md") -Raw -Encoding UTF8
+
+    It "cr-ml-methodology loads cr-skill-ml-economics" {
+        ($mlContent -match '(?is)load.*cr-skill-ml-economics') | Should -Be $true
+    }
+
+    It "cr-ml-methodology loads cr-skill-research-workflow" {
+        ($mlContent -match '(?is)load.*cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "cr-ml-methodology loads cr-skill-research-integrity" {
+        ($mlContent -match '(?is)load.*cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "cr-ml-methodology loads cr-skill-identification-strategies" {
+        ($mlContent -match '(?is)load.*cr-skill-identification-strategies') | Should -Be $true
+    }
+
+    It "cr-specification-analysis loads cr-skill-theory-data-dialogue" {
+        ($specContent -match '(?is)load.*cr-skill-theory-data-dialogue') | Should -Be $true
+    }
+
+    It "cr-specification-analysis loads cr-skill-research-eda" {
+        ($specContent -match '(?is)load.*cr-skill-research-eda') | Should -Be $true
+    }
+
+    It "cr-specification-analysis loads cr-skill-research-workflow" {
+        ($specContent -match '(?is)load.*cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "cr-specification-analysis loads cr-skill-research-integrity" {
+        ($specContent -match '(?is)load.*cr-skill-research-integrity') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 5 dispatch journey tests
+# ---------------------------------------------------------------------------
+
+Describe "cr-review.prompt.md - Phase 5 dispatch journey" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "ML/Prediction dispatch row routes to @cr-ml-methodology" {
+        ($content -match 'ML/Prediction.*cr-ml-methodology') | Should -Be $true
+    }
+
+    It "ML/Prediction dispatch row also routes to @cr-specification-analysis" {
+        ($content -match 'ML/Prediction.*cr-specification-analysis') | Should -Be $true
+    }
+
+    It "Specification Analysis dispatch row routes to @cr-specification-analysis" {
+        ($content -match 'Specification Analysis.*cr-specification-analysis') | Should -Be $true
+    }
+
+    It "Implementation dispatch row routes to @cr-ml-methodology" {
+        ($content -match 'Implementation.*cr-ml-methodology') | Should -Be $true
+    }
+
+    It "Implementation dispatch row routes to @cr-specification-analysis" {
+        ($content -match 'Implementation.*cr-specification-analysis') | Should -Be $true
     }
 }

@@ -90,12 +90,12 @@ Based on the task type identified in the plan:
 |-----------|------------------|
 | Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
 | Specification Analysis | @cr-specification-analysis |
-| ML/Prediction | @cr-ml-methodology, @cg-performance |
+| ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
 | Writing | @cr-academic-writing *(Phase 6)* |
 | Reproducibility | @cr-replication-package *(Phase 7)* |
 | Tables/Figures | @cg-documentation |
 | EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
-| Implementation | @cg-performance |
+| Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
