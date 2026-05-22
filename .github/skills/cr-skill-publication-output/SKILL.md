@@ -5,8 +5,9 @@ description: "Publication-quality output for economics research. Covers
   modelsummary/fixest::etable for regression tables, kableExtra for LaTeX
   tables, ggplot2+wbplot for paper figures, font/size conventions for journal
   submission, figure-caption discipline (self-contained), and table-note
-  discipline (variable definitions in notes). Loaded by @cr-academic-writing
-  for Writing and Tables/Figures tasks."
+  discipline (variable definitions in notes). Loaded by @cr-publication-output
+  for Tables/Figures tasks and by @cr-academic-writing (Check 6 only) for
+  Writing tasks."
 ---
 
 # Publication Output for Economics Research

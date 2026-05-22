@@ -65,8 +65,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 24 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should -Be 24
+    It "contains exactly 25 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should -Be 25
     }
 
     foreach ($file in $agentFiles) {

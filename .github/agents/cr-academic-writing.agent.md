@@ -2,7 +2,7 @@
 description: "Reviews academic writing quality in economics research: journal
   style compliance, section structure, argument flow, equation exposition,
   notation consistency, and citation completeness. Loaded by /cr-review
-  for Writing and Tables/Figures tasks."
+  for Writing tasks."
 model: Claude Sonnet 4.6 (copilot)
 tools: ['read', 'search']
 user-invocable: false
@@ -50,10 +50,6 @@ structure, and anti-patterns. Load `cr-skill-publication-output` for figure/tabl
 Before beginning: if the file contains only whitespace or comments (no prose
 content), report: "`[file]` is empty — academic writing review skipped for
 this file." Do not run Checks 1–7 against empty files.
-
-**Task type guard**: If dispatched for a Tables/Figures task, skip Checks 1–5
-and 7 (Writing-specific). Execute Check 6 only, delegating figure-caption
-and table-note criteria to `cr-skill-publication-output` Sections 5–6.
 
 For each file under review, perform all 7 checks below in sequence.
 

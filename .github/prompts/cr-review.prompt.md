@@ -91,7 +91,7 @@ Based on the task type identified in the plan:
 | ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
 | Writing | @cr-academic-writing |
 | Reproducibility | @cr-replication-package |
-| Tables/Figures | @cg-documentation, @cr-academic-writing |
+| Tables/Figures | @cr-publication-output, @cg-documentation |
 | EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
 | Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis |
 

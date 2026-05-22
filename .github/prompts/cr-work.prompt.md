@@ -36,6 +36,9 @@ You are a senior research engineer implementing a research plan created with
    any work begins, scan code files for random operations without a preceding seed
    (see `cr-skill-replication-standards` Section 4). If any are found, halt and require
    seeds to be added before proceeding.
+6. If the plan task type is **Tables/Figures**: also load `cr-skill-publication-output`
+   for regression table patterns, LaTeX table conventions, figure output standards,
+   caption/note discipline, and output file management.
 
 ### Step 1: Load the Plan
 

@@ -379,7 +379,8 @@ Describe "CR agent files - structural checks" {
         'cr-ml-methodology.agent.md',
         'cr-specification-analysis.agent.md',
         'cr-academic-writing.agent.md',
-        'cr-replication-package.agent.md'
+        'cr-replication-package.agent.md',
+        'cr-publication-output.agent.md'
     )
 
     $agentsDir = Join-Path $repoRoot ".github\agents"
@@ -823,7 +824,7 @@ Describe "CR files - module: research frontmatter" {
         }
     }
 
-    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing')
+    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-publication-output')
     foreach ($agent in $crAgents) {
         $agentFile   = Join-Path $repoRoot ".github\agents\$agent.agent.md"
         $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
@@ -1821,8 +1822,8 @@ Describe "cr-review.prompt.md - Phase 6 dispatch journey" {
         ($content -match 'Tables/Figures.*@cg-documentation') | Should -Be $true
     }
 
-    It "Tables/Figures dispatch row routes to @cr-academic-writing" {
-        ($content -match 'Tables/Figures.*cr-academic-writing') | Should -Be $true
+    It "Tables/Figures dispatch row does NOT route to @cr-academic-writing (Phase 9 routing change)" {
+        ($content -match 'Tables/Figures.*cr-academic-writing') | Should -Be $false
     }
 }
 
@@ -2168,4 +2169,178 @@ Describe "copilot-instructions.md - Phase 7 skills registered" {
 
 # ---------------------------------------------------------------------------
 # END Phase 7
+
+# ---------------------------------------------------------------------------
+# Phase 9: cr-publication-output.agent.md — structural checks
+# ---------------------------------------------------------------------------
+
+Describe "cr-publication-output.agent.md - structural checks" {
+    $path = Join-Path (Join-Path $repoRoot ".github\agents") "cr-publication-output.agent.md"
+    $fm   = Get-Frontmatter -FilePath $path
+
+    It "agent file exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research in frontmatter" {
+        ($fm -match "(?m)^\s*module:\s*['""]?research['""]?\s*$") | Should -Be $true
+    }
+
+    It "has tools: ['read', 'search'] in frontmatter" {
+        ($fm -match "tools:") | Should -Be $true
+    }
+
+    It "has user-invocable: false in frontmatter" {
+        ($fm -match "(?m)^\s*user-invocable:\s*false") | Should -Be $true
+    }
+
+    It "has a description: field in frontmatter" {
+        ($fm -match "description:") | Should -Be $true
+    }
+}
+
+Describe "cr-publication-output.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-publication-output.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "loads cr-skill-publication-output" {
+        ($content -match 'cr-skill-publication-output') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-integrity" {
+        ($content -match 'cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "has untrusted-content note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "has empty-file guard" {
+        ($content -match '(?i)empty.*publication output review skipped|publication output review skipped') | Should -Be $true
+    }
+
+    It "has size limit (50 KB)" {
+        ($content -match '50 KB') | Should -Be $true
+    }
+
+    It "output format uses [cr-publication-output] tag" {
+        ($content -match '\[cr-publication-output\]') | Should -Be $true
+    }
+
+    It "contains Check 1: Regression Table Standards (P1)" {
+        ($content -match '(?i)regression table standards') | Should -Be $true
+    }
+
+    It "contains Check 2: LaTeX Table Patterns (P2)" {
+        ($content -match '(?i)latex table patterns') | Should -Be $true
+    }
+
+    It "contains Check 3: Figure Output Compliance (P2)" {
+        ($content -match '(?i)figure output compliance') | Should -Be $true
+    }
+
+    It "contains Check 4: Font and Size Conventions (P2)" {
+        ($content -match '(?i)font.*size conventions') | Should -Be $true
+    }
+
+    It "contains Check 5: Figure-Caption Discipline (P2)" {
+        ($content -match '(?i)figure.caption discipline') | Should -Be $true
+    }
+
+    It "contains Check 6: Table-Note Discipline (P2)" {
+        ($content -match '(?i)table.note discipline') | Should -Be $true
+    }
+
+    It "contains Check 7: Output File Management (P3)" {
+        ($content -match '(?i)output file management') | Should -Be $true
+    }
+
+    It "contains Check 8: Deterministic Output (P1)" {
+        ($content -match '(?i)deterministic output') | Should -Be $true
+    }
+
+    It "does NOT load cg-skill-r-visualization (redundant - cr-skill-publication-output covers this)" {
+        ($content -match 'cg-skill-r-visualization') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 9 dispatch journey tests
+# ---------------------------------------------------------------------------
+
+Describe "cr-review.prompt.md - Phase 9 dispatch journey" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "Tables/Figures dispatch row routes to @cr-publication-output" {
+        ($content -match 'Tables/Figures.*cr-publication-output') | Should -Be $true
+    }
+
+    It "Tables/Figures dispatch row does NOT route to @cr-academic-writing (Phase 9 routing)" {
+        ($content -match 'Tables/Figures.*cr-academic-writing') | Should -Be $false
+    }
+
+    It "Writing dispatch row still routes to @cr-academic-writing (unchanged)" {
+        ($content -match 'Writing.*cr-academic-writing') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 9: @cr-academic-writing cleanup
+# ---------------------------------------------------------------------------
+
+Describe "cr-academic-writing.agent.md - Phase 9 cleanup" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-academic-writing.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
+
+    It "description does NOT mention Tables/Figures (Writing-only after Phase 9)" {
+        ($fm -match 'Tables/Figures') | Should -Be $false
+    }
+
+    It "task type guard paragraph is removed" {
+        ($content -match '(?i)task type guard') | Should -Be $false
+    }
+
+    It "Check 6 Figure and Table Presentation is still present (Writing still needs it)" {
+        ($content -match '(?i)figure.*table presentation|figure.*presentation') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 9: /cr-work Tables/Figures skill loading
+# ---------------------------------------------------------------------------
+
+Describe "cr-work.prompt.md - Phase 9 Tables/Figures skill loading" {
+    $path    = Join-Path $promptsDir "cr-work.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "loads cr-skill-publication-output for Tables/Figures tasks" {
+        ($content -match 'cr-skill-publication-output') | Should -Be $true
+    }
+
+    It "Tables/Figures skill loading is conditional on task type" {
+        ($content -match 'Tables/Figures.*cr-skill-publication-output|cr-skill-publication-output.*Tables/Figures') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 9: copilot-instructions.md updated reference
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - Phase 9 skill reference updated" {
+    $path    = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "cr-skill-publication-output references @cr-publication-output" {
+        ($content -match 'cr-skill-publication-output.*cr-publication-output') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# END Phase 9
 # ---------------------------------------------------------------------------
