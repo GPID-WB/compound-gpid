@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-22 · 119 active solutions_
+_Generated 2026-05-22 · 120 active solutions_
 
 ## Agent dispatched for multiple task types needs an explicit execution mode guard
 

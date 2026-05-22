@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Compound Research milestone nearing completion — Phases 1–7 fully implemented (module system, research workflow scaffolding, core CR agents, structural econometrics skills, ML-in-economics, academic writing & publication output, and reproducibility/replication). Phase 8 (integration polish & documentation) is the final step before merging to main. Engineering milestones (Workflow Maturity, Skills Enhancement) continue in parallel.
+Compound Research milestone — Phases 1–8 complete (module system, research workflow scaffolding, core CR agents, structural econometrics skills, ML-in-economics, academic writing & publication output, reproducibility/replication, and integration polish & documentation). Phase 9 (dedicated Tables/Figures agent) remains as planned future work. Engineering milestones (Workflow Maturity, Skills Enhancement) continue in parallel.

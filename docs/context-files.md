@@ -48,7 +48,7 @@ The generated file covers four things:
 
 ### How it is created
 
-`cg-link` generates it the first time you link a project. The source is `.github/copilot-instructions.template.md` inside the Compound GPID install. Five template variables are substituted at generation time:
+`cg-link` generates it the first time you link a project. The source is `.github/copilot-instructions.template.md` inside the Compound GPID install. Five template variables (substituted into `copilot-instructions.md`) are substituted at generation time:
 
 | Variable | Source |
 |----------|--------|

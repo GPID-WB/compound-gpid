@@ -475,6 +475,8 @@ Edit `compound-gpid.local.md` in your project root:
 modules: "engineering, research"
 ```
 
+> ⚠️ Use a quoted string — YAML list notation (`modules: [engineering, research]`) is not supported and will cause `cg-link`/`cg-update` to exit with an error.
+
 Then run `cg-update` to regenerate `copilot-instructions.md`. The `/cr-*` commands will now appear in Copilot Chat autocomplete.
 
 ### The research loop
@@ -482,6 +484,8 @@ Then run `cg-update` to regenerate `copilot-instructions.md`. The `/cr-*` comman
 ```
 /cr-brainstorm → /cr-plan → /cr-work → /cr-review → /cr-compound
 ```
+
+For Standard or Deep research tasks — particularly Theory/Modeling and Specification Analysis — run `/cg-plan-review` between `/cr-plan` and `/cr-work` to validate identification strategy and specification choices before committing to implementation.
 
 This mirrors the engineering loop but is research-aware: it classifies tasks by type, enforces P0 research-integrity checks (unseeded randomness, code-math mismatch, identification theater), and dispatches specialized agents for econometrics, ML, writing, and replication auditing.
 
@@ -502,26 +506,30 @@ This mirrors the engineering loop but is research-aware: it classifies tasks by 
 
 ### How research review differs from engineering review
 
-`/cr-review` dispatches the same 6 shared `cg-*` quality agents (code quality, testing, architecture, documentation, reproducibility, data quality) **plus** task-type-specific research agents:
+`/cr-review` dispatches the same 6 shared `cg-*` quality agents (code quality, testing, version control, documentation, reproducibility, data quality) **plus** research-specific agents:
 
-| Task type | Research agents dispatched |
-|-----------|---------------------------|
-| Theory/Modeling | `@cr-mathematical-verification`, `@cr-econometric-reasoning` |
-| Specification Analysis | `@cr-specification-analysis`, `@cr-identification-audit` |
-| EDA | `@cr-research-integrity` |
-| Implementation | `@cr-research-integrity`, `@cr-mathematical-verification` |
-| ML/Prediction | `@cr-ml-methodology`, `@cr-specification-analysis` |
+- `@cr-research-integrity` — always dispatched for all task types (detects unseeded randomness, specification searching, wrong SE clustering, identification theater)
+- `@cr-mathematical-verification` — dispatched when `.cg-docs/research/derivations/` contains `.tex` or `.md` files, regardless of task type
+- Task-type-specific agents from the table below:
+
+| Task type | Additional agents |
+|-----------|------------------|
+| Theory/Modeling | `@cr-identification-audit`, `@cr-econometric-reasoning`, `@cg-adversarial` |
+| Specification Analysis | `@cr-specification-analysis` |
+| EDA | `@cg-performance`, `@cg-data-quality` |
+| Implementation | `@cg-performance`, `@cr-ml-methodology`, `@cr-specification-analysis` |
+| ML/Prediction | `@cr-ml-methodology`, `@cr-specification-analysis`, `@cg-performance` |
 | Writing | `@cr-academic-writing` |
-| Tables/Figures | `@cr-academic-writing` |
+| Tables/Figures | `@cg-documentation`, `@cr-academic-writing` |
 | Reproducibility | `@cr-replication-package` |
 
-`@cr-research-integrity` is always dispatched regardless of task type — it detects silent P0 errors (unseeded randomness, specification searching, wrong SE clustering, identification theater).
+**Identification override**: regardless of task type, files containing `feols`, `ivreg`, `rdrobust`, or DiD patterns always trigger `@cr-identification-audit`.
 
 ### Research P0 enforcement
 
 Research P0 errors are silent — they do not crash the code; they produce wrong published results. The following patterns always block merge:
 
-- **Unseeded randomness** — any `sample()`, `rnorm()`, `set.seed()` without a documented seed in a seed registry
+- **Unseeded randomness** — any `sample()`, `rnorm()`, or equivalent random call *without* a preceding `set.seed()` / `np.random.seed()` / `set seed`; separately, `set.seed()` calls with no corresponding entry in a seed registry
 - **Code-math mismatch** — variables in code that do not correspond to symbols in the derivation
 - **Identification theater** — claiming IV/RDD/DiD identification without required diagnostics (F-stat, McCrary test, parallel trends)
 - **Wrong SE clustering** — cluster level inconsistent with the identifying variation level
