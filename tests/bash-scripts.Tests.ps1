@@ -205,16 +205,16 @@ Describe "link.sh - script structure" {
         $content | Should -Match '\.gitignore'
     }
 
-    It "uses generate_copilot_instructions function with python3" {
+    It "calls generate_copilot_instructions (sourced from helpers.sh) and requires python3" {
         $content | Should -Match 'generate_copilot_instructions'
-        $content | Should -Match 'python3'
+        $content | Should -Match 'helpers\.sh'
     }
 
-    It "defines generate_copilot_instructions before the main body calls it" {
-        # Function definition must appear before first call in bash
-        $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
-        $funcCallLine = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
-        $funcDefLine | Should -BeLessThan $funcCallLine
+    It "sources helpers.sh before the main body calls generate_copilot_instructions" {
+        # helpers.sh source line must appear before first call in bash
+        $sourceDefLine = [regex]::Match($content, 'helpers\.sh').Index
+        $funcCallLine  = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
+        $sourceDefLine | Should -BeLessThan $funcCallLine
     }
 
     It "includes 'shared' in MANAGED_DIRS" {
@@ -312,8 +312,9 @@ Describe "update.sh - script structure" {
         $content | Should -Match 'VERSION_ACCEPT_PATTERN'
     }
 
-    It "defines generate_copilot_instructions for post-update refresh" {
+    It "uses generate_copilot_instructions (sourced from helpers.sh) for post-update refresh" {
         $content | Should -Match 'generate_copilot_instructions'
+        $content | Should -Match 'helpers\.sh'
     }
 
     It "handles structural migration docs/ -> .cg-docs/" {
@@ -395,61 +396,69 @@ Describe "bash-scripts - .gitattributes enforces LF for bash files" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.7 — link.sh modules substitution functional test
+# P2.7 — helpers.sh generate_copilot_instructions integration test
+# Calls the ACTUAL function from helpers.sh with fixtures to verify that
+# modules values containing 'r' or 'n' are extracted correctly (regression
+# guard for the extract_fm_value raw-string double-backslash regex bug).
 # ---------------------------------------------------------------------------
 
-Describe "bash-scripts - link.sh modules substitution" {
-    $repoRoot     = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    $linkSh       = Join-Path (Join-Path $repoRoot "scripts") "link.sh"
-    $templateFile = Join-Path (Join-Path (Join-Path $repoRoot ".github") "") "copilot-instructions.template.md"
-
-    # Only run if bash and link.sh are available
+Describe "bash-scripts - helpers.sh generate_copilot_instructions" {
+    $helpersSh     = Join-Path $repoRoot "scripts/helpers.sh"
     $bashAvailable = (Get-Command bash -ErrorAction SilentlyContinue) -ne $null
 
     if (-not $bashAvailable) {
-        It "bash is available (pre-requisite for modules substitution test)" {
+        It "bash is available (pre-requisite for helpers.sh test)" {
             $true | Should -Be $true  # soft skip
         }
     } else {
-        $tmpProject = Join-Path ([System.IO.Path]::GetTempPath()) "cg-bash-modules-test-$([System.IO.Path]::GetRandomFileName())"
-        New-Item -ItemType Directory -Path $tmpProject -Force | Out-Null
+        $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) "cg-helpers-test-$([System.IO.Path]::GetRandomFileName())"
+        New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
 
-        # Create a minimal compound-gpid.local.md with modules: research
-        $localMd = Join-Path $tmpProject "compound-gpid.local.md"
+        # Minimal charter
+        $charterMd = Join-Path $tmpDir "compound-gpid.md"
+        @('---', 'project-name: "Test Project"', '---', '') | Set-Content $charterMd -Encoding UTF8
+
+        # compound-gpid.local.md with modules: research
+        # 'research' contains 'r' and 'n' — the chars the broken regex excluded
+        $localMd = Join-Path $tmpDir "compound-gpid.local.md"
         @(
             '---',
-            'language: "r"',
+            'language: "R"',
             'project-type: "analysis"',
             'review-depth: "standard"',
             'modules: "research"',
             '---',
-            '# Test config'
+            '# Local config'
         ) | Set-Content $localMd -Encoding UTF8
 
-        # Write the extractor Python script line-by-line to avoid heredoc quoting issues.
-        # Uses \x27 hex escape for single-quote and \r\n for line terminators (matching the
-        # link.sh fix for the double-backslash raw-string regex bug).
-        $tmpPy = Join-Path ([System.IO.Path]::GetTempPath()) "cg_fm_test.py"
+        # Minimal template with the {{modules}} placeholder
+        $templateFile = Join-Path $tmpDir "template.md"
+        @('Active Modules: {{modules}}') | Set-Content $templateFile -Encoding UTF8
+
+        # Bash runner: define print_error, source helpers.sh, call the function
+        $bashRunner = Join-Path $tmpDir "runner.sh"
         @(
-            'import sys, re',
-            'def extract(path, key):',
-            '    with open(path) as f: content = f.read()',
-            '    m = re.match("^---[ \\t]*\\n(.*?)\\n---", content, re.DOTALL)',
-            '    if not m: return ""',
-            '    fm = m.group(1)',
-            '    pat = "(?m)^\\s*" + re.escape(key) + ":\\s*[\"\\x27]?([^\"\\x27\\r\\n]+)[\"\\x27]?\\s*$"',
-            '    vm = re.search(pat, fm)',
-            '    return vm.group(1).strip() if vm else ""',
-            'print(extract(sys.argv[1], sys.argv[2]))'
-        ) | Set-Content $tmpPy -Encoding UTF8
+            '#!/usr/bin/env bash',
+            'print_error() { echo "ERROR: $1" >&2; }',
+            ". `"$helpersSh`"",
+            "generate_copilot_instructions `"$templateFile`" `"$tmpDir`" `"MARKER`""
+        ) | Set-Content $bashRunner -Encoding UTF8
 
-        $modulesValue = & python3 $tmpPy $localMd 'modules' 2>&1
+        $output = & bash $bashRunner 2>&1
+        $outputStr = $output -join "`n"
 
-        Remove-Item $tmpPy  -ErrorAction SilentlyContinue
-        Remove-Item $tmpProject -Recurse -ErrorAction SilentlyContinue
+        Remove-Item $tmpDir -Recurse -ErrorAction SilentlyContinue
 
-        It "extract_fm_value reads 'research' from modules: research config" {
-            $modulesValue.Trim() | Should -Be "research"
+        It "substitutes modules: research correctly (regex must not exclude letters r/n)" {
+            $outputStr | Should -Match 'Active Modules: research'
+        }
+
+        It "does not leave an unsubstituted placeholder in output" {
+            $outputStr | Should -Not -Match '\{\{modules\}\}'
+        }
+
+        It "does not silently fall back to engineering for modules: research" {
+            $outputStr | Should -Not -Match 'Active Modules: engineering'
         }
     }
 }

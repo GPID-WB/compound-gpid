@@ -241,21 +241,21 @@ tests for new documentation surfaces. Separate from the priority matrix above.
 
 | ID | Priority | File | Source | Status |
 |----|----------|------|--------|--------|
-| P1-ADV-01 | P1 | scripts/update.sh | adversarial | open |
-| P1-ARCH-01 | P1 | docs/workflow.md | architecture | open |
-| P1-ARCH-02 | P1 | docs/workflow.md | architecture | open |
-| P1-ARCH-03 | P1 | docs/workflow.md | architecture | open |
-| P1-ARCH-04 | P1 | docs/workflow.md | architecture | open |
-| P2-CQ-01 | P2 | compound-gpid.md | code-quality | open |
-| P2-ARCH-01 | P2 | docs/workflow.md | architecture | open |
-| P2-ARCH-02 | P2 | docs/workflow.md | architecture | open |
-| P2-ARCH-03 | P2 | docs/workflow.md | architecture | open |
-| P2-ARCH-04 | P2 | docs/workflow.md | (fixed by P1-ARCH-01) | open |
-| P2-DOC-01 | P2 | README.md | documentation | open |
-| P2-ADV-01 | P2 | docs/workflow.md | adversarial | open |
-| P2-ADV-02 | P2 | docs/workflow.md | adversarial | open |
-| P2-DQ-03 | P2 | .cg-docs/DIGEST.md | data-quality | open |
-| P2-VC-01 | P2 | .cg-docs/DIGEST.md | version-control | process |
-| P3-CQ-01 | P3 | docs/context-files.md | code-quality | open |
-| P3-PERF-01 | P3 | docs/workflow.md | performance | open |
-| TEST-01–04 | P1 | (new test files) | testing | open |
+| P1-ADV-01 | P1 | scripts/update.sh | adversarial | resolved |
+| P1-ARCH-01 | P1 | docs/workflow.md | architecture | resolved |
+| P1-ARCH-02 | P1 | docs/workflow.md | architecture | resolved |
+| P1-ARCH-03 | P1 | docs/workflow.md | architecture | resolved |
+| P1-ARCH-04 | P1 | docs/workflow.md | architecture | resolved |
+| P2-CQ-01 | P2 | compound-gpid.md | code-quality | resolved |
+| P2-ARCH-01 | P2 | docs/workflow.md | architecture | resolved |
+| P2-ARCH-02 | P2 | docs/workflow.md | architecture | resolved |
+| P2-ARCH-03 | P2 | docs/workflow.md | architecture | resolved |
+| P2-ARCH-04 | P2 | docs/workflow.md | (fixed by P1-ARCH-01) | resolved |
+| P2-DOC-01 | P2 | README.md | documentation | resolved |
+| P2-ADV-01 | P2 | docs/workflow.md | adversarial | resolved |
+| P2-ADV-02 | P2 | docs/workflow.md | adversarial | resolved |
+| P2-DQ-03 | P2 | .cg-docs/DIGEST.md | data-quality | resolved |
+| P2-VC-01 | P2 | .cg-docs/DIGEST.md | version-control | deferred |
+| P3-CQ-01 | P3 | docs/context-files.md | code-quality | resolved |
+| P3-PERF-01 | P3 | docs/workflow.md | performance | resolved |
+| TEST-01–04 | P1 | (new test files) | testing | deferred |

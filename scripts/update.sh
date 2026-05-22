@@ -53,81 +53,9 @@ RELEASE_TAG_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+$'
 VERSION_ACCEPT_PATTERN='^(latest|v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$'
 
 # ---------------------------------------------------------------------------
-# generate_copilot_instructions <template_path> <project_root> <marker>
-# Defined before the main body to allow the end-of-script refresh to call it.
+# Shared shell helpers (generate_copilot_instructions, etc.)
 # ---------------------------------------------------------------------------
-generate_copilot_instructions() {
-    local template_path="$1"
-    local project_root="$2"
-    local marker="$3"
-
-    python3 - "$template_path" "$project_root" "$marker" <<'PYEOF'
-import sys, re, os
-
-template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
-
-charter_path = os.path.join(project_root, 'compound-gpid.md')
-local_path   = os.path.join(project_root, 'compound-gpid.local.md')
-
-def extract_fm_value(path, key):
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        m = re.match(r'^---[ \t]*\n(.*?)\n---', content, re.DOTALL)
-        if not m:
-            return ''
-        fm = m.group(1)
-        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\']?([^"\'\\r\\n]+)["\']?\s*$'
-        vm = re.search(pattern, fm)
-        return vm.group(1).strip() if vm else ''
-    except Exception:
-        return ''
-
-project_name = extract_fm_value(charter_path, 'project-name') or '<project-name>'
-language     = extract_fm_value(local_path, 'language')     or '<not configured>'
-project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
-review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
-r_syntax     = extract_fm_value(local_path, 'r-syntax')
-modules      = extract_fm_value(local_path, 'modules')      or 'engineering'
-
-languages = language
-if r_syntax and re.search(r'\bR\b', language, re.IGNORECASE):
-    languages = f'{language} (R dialect: {r_syntax})'
-
-# Validate modules: field — reject YAML list notation and unrecognised values
-if modules.startswith('['):
-    print('ERROR: Invalid modules format in compound-gpid.local.md: YAML list notation is not '
-          'supported. Use a quoted string: modules: "engineering, research"', file=sys.stderr)
-    sys.exit(1)
-VALID_MODULES = {'engineering', 'research', 'engineering, research', 'research, engineering'}
-if modules not in VALID_MODULES:
-    print(f'ERROR: Invalid modules value "{modules}" in compound-gpid.local.md. '
-          f'Valid values: {", ".join(sorted(VALID_MODULES))}', file=sys.stderr)
-    sys.exit(1)
-
-for val in (project_name, project_type, languages, review_depth, modules):
-    if '{{' in val:
-        print('ERROR: A config value contains a placeholder token which would corrupt the output.', file=sys.stderr)
-        sys.exit(1)
-
-with open(template_path, 'r', encoding='utf-8') as f:
-    template = f.read()
-
-if not template.strip():
-    print(f'ERROR: Template file is empty: {template_path}. Run cg-update --fix.', file=sys.stderr)
-    sys.exit(1)
-
-output = template
-output = output.replace('{{project-name}}', project_name)
-output = output.replace('{{project-type}}', project_type)
-output = output.replace('{{languages}}',    languages)
-output = output.replace('{{review-depth}}', review_depth)
-output = output.replace('{{modules}}',      modules)
-
-sep = '\r\n' if '\r\n' in output else '\n'
-sys.stdout.write(marker + sep + output)
-PYEOF
-}
+. "${SCRIPT_DIR}/helpers.sh"
 
 # ---------------------------------------------------------------------------
 # Validate install exists
