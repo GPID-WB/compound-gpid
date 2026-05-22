@@ -78,7 +78,6 @@ and continue.
   *(dispatched via Step 3 task-type table — not directly from this list)*
 - **@cr-ml-methodology** — ML methodology and evaluation
 - **@cr-academic-writing** — academic prose and argument structure
-  *(Phase 6 — not yet available)*
 - **@cr-replication-package** — replication package completeness
   *(Phase 7 — not yet available)*
 
@@ -91,7 +90,7 @@ Based on the task type identified in the plan:
 | Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
 | Specification Analysis | @cr-specification-analysis |
 | ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
-| Writing | @cr-academic-writing *(Phase 6)* |
+| Writing | @cr-academic-writing |
 | Reproducibility | @cr-replication-package *(Phase 7)* |
 | Tables/Figures | @cg-documentation |
 | EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |

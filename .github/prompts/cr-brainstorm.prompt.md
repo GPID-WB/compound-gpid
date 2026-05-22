@@ -48,7 +48,7 @@ Based on the confirmed task type, note which specialized skills would be loaded
 - EDA → `cr-skill-research-eda`
 - Implementation → `cr-skill-research-integrity`, `cr-skill-structural-econometrics`, `cr-skill-mathematical-derivation`
 - ML/Prediction → `cr-skill-ml-economics`
-- Writing → `cr-skill-academic-writing` *(Phase 6, not yet available)*
+- Writing → `cr-skill-academic-writing`
 - Tables/Figures → `cr-skill-r-visualization`, `cr-skill-r-analytical`
 - Reproducibility → `cr-skill-git-workflow`, `cg-skill-pester-safety`
 

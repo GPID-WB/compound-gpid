@@ -377,7 +377,8 @@ Describe "CR agent files - structural checks" {
         'cr-identification-audit.agent.md',
         'cr-econometric-reasoning.agent.md',
         'cr-ml-methodology.agent.md',
-        'cr-specification-analysis.agent.md'
+        'cr-specification-analysis.agent.md',
+        'cr-academic-writing.agent.md'
     )
 
     $agentsDir = Join-Path $repoRoot ".github\agents"
@@ -654,8 +655,9 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
         ($content -match 'Theory/Modeling.*cr-identification-audit') | Should -Be $true
     }
 
-    It "still contains Phase 6 annotation for @cr-academic-writing (future agent)" {
-        ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $true
+    It "does NOT contain Phase 6 annotation for @cr-academic-writing (agent now live)" {
+        # Phase 6 is now live — annotation must be removed
+        ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $false
     }
 
     It "still contains Phase 7 annotation for @cr-replication-package (future agent)" {
@@ -1529,5 +1531,262 @@ Describe "cr-review.prompt.md - Phase 5 dispatch journey" {
 
     It "Implementation dispatch row routes to @cr-specification-analysis" {
         ($content -match 'Implementation.*cr-specification-analysis') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-skill-academic-writing - existence and content
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-academic-writing - existence and content" {
+    $path    = Join-Path $skillsDir "cr-skill-academic-writing\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
+
+    It "exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research" {
+        ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+    }
+
+    It "has a name: field in frontmatter" {
+        ($fm -match '(?m)^\s*name:\s*cr-skill-academic-writing') | Should -Be $true
+    }
+
+    It "has a description: field in frontmatter" {
+        ($fm -match 'description:') | Should -Be $true
+    }
+
+    It "contains AER journal style coverage" {
+        ($content -match '(?i)AER') | Should -Be $true
+    }
+
+    It "contains Econometrica journal style coverage" {
+        ($content -match '(?i)Econometrica') | Should -Be $true
+    }
+
+    It "contains section structure guidance" {
+        ($content -match '(?i)section structure|introduction.*hook|hook.*gap') | Should -Be $true
+    }
+
+    It "contains abstract writing patterns" {
+        ($content -match '(?i)abstract writing|abstract.*four.sentence|four.sentence.*abstract') | Should -Be $true
+    }
+
+    It "contains equation exposition guidance" {
+        ($content -match '(?i)equation exposition') | Should -Be $true
+    }
+
+    It "contains notation introduction discipline" {
+        ($content -match '(?i)notation.*discipline|notation introduction') | Should -Be $true
+    }
+
+    It "contains citation style guidance" {
+        ($content -match '(?i)citation style|author.year') | Should -Be $true
+    }
+
+    It "contains response-to-referee patterns" {
+        ($content -match '(?i)response.to.referee|referee.*point.by.point') | Should -Be $true
+    }
+
+    It "contains anti-patterns section" {
+        ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-skill-publication-output - existence and content
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-publication-output - existence and content" {
+    $path    = Join-Path $skillsDir "cr-skill-publication-output\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
+
+    It "exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research" {
+        ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+    }
+
+    It "has a name: field in frontmatter" {
+        ($fm -match '(?m)^\s*name:\s*cr-skill-publication-output') | Should -Be $true
+    }
+
+    It "has a description: field in frontmatter" {
+        ($fm -match 'description:') | Should -Be $true
+    }
+
+    It "contains modelsummary regression table patterns" {
+        ($content -match '(?i)modelsummary') | Should -Be $true
+    }
+
+    It "contains fixest::etable patterns" {
+        ($content -match '(?i)etable|fixest') | Should -Be $true
+    }
+
+    It "contains kableExtra LaTeX table patterns" {
+        ($content -match '(?i)kableExtra') | Should -Be $true
+    }
+
+    It "contains ggplot2 and wbplot figure guidance" {
+        ($content -match '(?i)ggplot2') | Should -Be $true
+        ($content -match '(?i)wbplot') | Should -Be $true
+    }
+
+    It "contains font/size conventions" {
+        ($content -match '(?i)font.*size|size.*convention') | Should -Be $true
+    }
+
+    It "contains figure-caption discipline" {
+        ($content -match '(?i)figure.caption discipline|caption.*self.contained') | Should -Be $true
+    }
+
+    It "contains table-note discipline" {
+        ($content -match '(?i)table.note discipline') | Should -Be $true
+    }
+
+    It "contains ggsave with explicit dimensions guidance" {
+        ($content -match '(?i)ggsave') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-academic-writing.agent.md - content
+# ---------------------------------------------------------------------------
+
+Describe "cr-academic-writing.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-academic-writing.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Check 1: Section Structure (P2)" {
+        ($content -match '(?i)section structure') | Should -Be $true
+    }
+
+    It "contains Check 2: Abstract Quality (P2)" {
+        ($content -match '(?i)abstract quality') | Should -Be $true
+    }
+
+    It "contains Check 3: Equation Exposition (P1)" {
+        ($content -match '(?i)equation exposition') | Should -Be $true
+    }
+
+    It "contains Check 4: Notation Consistency (P1)" {
+        ($content -match '(?i)notation consistency') | Should -Be $true
+    }
+
+    It "contains Check 5: Citation Completeness (P2)" {
+        ($content -match '(?i)citation completeness') | Should -Be $true
+    }
+
+    It "contains Check 6: Figure and Table Presentation (P2)" {
+        ($content -match '(?i)figure.*table presentation|figure.*presentation') | Should -Be $true
+    }
+
+    It "contains Check 7: Argument Flow (P2)" {
+        ($content -match '(?i)argument flow') | Should -Be $true
+    }
+
+    It "Check 7 is assigned P2 (not P1)" {
+        # Verify Check 7 block labels Argument Flow as P2
+        ($content -match 'Argument Flow.*P2') | Should -Be $true
+    }
+
+    It "loads cr-skill-academic-writing" {
+        ($content -match 'cr-skill-academic-writing') | Should -Be $true
+    }
+
+    It "loads cr-skill-publication-output" {
+        ($content -match 'cr-skill-publication-output') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-integrity" {
+        ($content -match 'cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "output format includes [cr-academic-writing] tag" {
+        ($content -match '\[cr-academic-writing\]') | Should -Be $true
+    }
+
+    It "contains empty-file guard" {
+        ($content -match '(?i)empty.*academic writing review skipped|academic writing review skipped') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 6 dispatch journey tests
+# ---------------------------------------------------------------------------
+
+Describe "cr-review.prompt.md - Phase 6 dispatch journey" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "Writing dispatch row routes to @cr-academic-writing" {
+        ($content -match 'Writing.*cr-academic-writing') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 6 prompt cleanup - cr-review
+# ---------------------------------------------------------------------------
+
+Describe "Phase 6 prompt cleanup - cr-review" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain Phase 6 annotation on @cr-academic-writing" {
+        # Phase 6 is now live - annotation must be removed
+        ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $false
+    }
+
+    It "does NOT contain 'not yet available' on @cr-academic-writing" {
+        ($content -match 'cr-academic-writing.*not yet available') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 6 prompt cleanup - cr-brainstorm
+# ---------------------------------------------------------------------------
+
+Describe "Phase 6 prompt cleanup - cr-brainstorm" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain Phase 6 annotation on cr-skill-academic-writing" {
+        # Phase 6 is now live - annotation must be removed
+        ($content -match '(?i)phase\s*6.*not yet available') | Should -Be $false
+    }
+
+    It "does NOT contain 'not yet available' on cr-skill-academic-writing" {
+        ($content -match 'cr-skill-academic-writing.*not yet available') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 6 skill loading cross-reference
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - Phase 6 skills registered" {
+    $path    = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "lists cr-skill-academic-writing in CR Skills section" {
+        ($content -match 'cr-skill-academic-writing') | Should -Be $true
+    }
+
+    It "lists cr-skill-publication-output in CR Skills section" {
+        ($content -match 'cr-skill-publication-output') | Should -Be $true
     }
 }

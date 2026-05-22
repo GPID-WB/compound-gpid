@@ -1,6 +1,26 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-20 · 114 active solutions_
+_Generated 2026-05-21 · 116 active solutions_
+
+## Agent 'Flag as' format drift — incremental check additions leave old-format directives
+
+date: 2026-05-21
+category: testing-patterns
+status: 
+tags: agent, flag-as, format-drift, incremental-additions, audit, cr-agents
+path: .cg-docs/solutions/testing-patterns/2026-05-21-agent-flag-as-format-drift-whole-file-audit.md
+
+After a Phase 5 review of `cr-ml-methodology.agent.md` and `cr-specification-analysis.agent.md`, a second standard review found that 7 of 8 "Flag as" directives in `cr-ml-methodology.agent.md` still used the **old** format: ``` Check 8 (newly added in the Phase 5 pass) and the output template both used the **new** priority-first format: ``` The result: when the agent reasons check-by-check, it follows the proximal "Flag as" instruction — so Checks 1–7 produce old-format findings, Check 8 produces new-format findings. Compiled review reports are inconsistent and potentially unparseable by `/cg-fix-triage`. The same pattern appeared in `cr-specification-analysis.agent.md`: Check 1 had been updated to new format (during...
+
+## mice(m=1) is single imputation for ML prediction — not multiple imputation
+
+date: 2026-05-21
+category: data-quality
+status: 
+tags: mice, imputation, single-imputation, multiple-imputation, ml-pipeline, cv-fold, data-leakage
+path: .cg-docs/solutions/data-quality/2026-05-21-mice-m1-is-single-imputation-not-multiple.md
+
+`cr-skill-ml-economics/SKILL.md` documented the preferred missing-data strategy for MAR data as "**Multiple imputation inside each CV fold**" and showed: ``` Two problems: 1. `m=1` is **single** imputation. Calling it "multiple imputation" misleads practitioners into thinking it has the statistical properties of multiple imputation (variance accounting, Rubin's rules). 2. The comment "impute test fold using the same mice object" was a stub — no working code was provided. Applying `complete()` to the training `mids` object on test data silently fails or produces wrong output.
 
 ## Agent step carve-outs must not contradict the global P0 deferral policy
 

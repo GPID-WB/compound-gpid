@@ -510,13 +510,13 @@
           "id": "cr-ml-economics",
           "title": "Phase 5: ML in economics (cr-skill-ml-economics, @cr-ml-methodology, @cr-specification-analysis)",
           "status": "done",
-          "plan": null
+          "plan": ".cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md"
         },
         {
           "id": "cr-writing-publication",
           "title": "Phase 6: Writing & publication output (cr-skill-academic-writing, cr-skill-publication-output, @cr-academic-writing)",
-          "status": "idea",
-          "plan": null
+          "status": "planned",
+          "plan": ".cg-docs/plans/2026-05-22-compound-research-phase6-writing-publication.md"
         },
         {
           "id": "cr-reproducibility-replication",
