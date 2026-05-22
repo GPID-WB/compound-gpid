@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-22 · 121 active solutions_
+_Generated 2026-05-22 · 122 active solutions_
 
 ## Agent dispatched for multiple task types needs an explicit execution mode guard
 
@@ -21,6 +21,16 @@ tags: bash, heredoc, compound-command, syntax-error, error-trap, bash-3.2, macos
 path: .cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md
 
 `scripts/link.sh` (and later `scripts/helpers.sh`) contained an error-trap pattern that appeared reasonable but was syntactically broken: ``` **Symptom at runtime**: `bash: syntax error near unexpected token '}'` — the closing `}` of the outer function is unexpected. Or the error-trap body is silently treated as heredoc content, meaning `python3` exits non-zero with no handler. **Critical masking**: The tests for these scripts only checked file content (regex pattern matching against the source text), never executed the function. Additionally, `bash -n` (syntax-check mode) did NOT report this as a syntax error in bash 3.2.57 (macOS default shell as of Ventura/Sonoma) — `bash -n...
+
+## Hoist all expensive computation (regex, transforms) to outer scope — not just file reads
+
+date: 2026-05-22
+category: testing-patterns
+status: 
+tags: pester, performance, hoisting, regex, section-extraction, foreach-scope, context-scope, describe-scope, Get-Frontmatter, regex-match
+path: .cg-docs/solutions/testing-patterns/2026-05-22-pester-hoist-expensive-computation-to-outer-scope.md
+
+The 2026-05-20 solution established that `Get-Content`/`Get-Frontmatter` should be hoisted to `Context`/`Describe` scope — not inside `It` blocks. However, the principle was not applied to **derived values computed from the content**: `[regex]::Match()` section extractions and similar string operations still appeared inside `It` blocks.
 
 ## Review criteria bullets must be placed in the domain section they belong to, not the adjacent section
 

@@ -85,3 +85,4 @@ Both `$content` and `$fm` are hoisted together — they are always created as a 
 
 - `tests/cr-prompts.Tests.ps1` — hoisting applied to CR prompts and agents loops (2026-05-20)
 - `.cg-docs/solutions/testing-patterns/2026-04-28-prompt-guard-conditions-need-immediate-pester-coverage.md`
+- `.cg-docs/solutions/testing-patterns/2026-05-22-pester-hoist-expensive-computation-to-outer-scope.md` — extends this rule to computed values (`[regex]::Match()`) and `foreach`-body scope
