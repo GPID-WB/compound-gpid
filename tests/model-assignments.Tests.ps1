@@ -38,8 +38,10 @@ Describe "Model assignments - prompt files" {
     }
 
     foreach ($file in $promptFiles) {
-        $filePath = $file.FullName
-        $relPath = $filePath.Replace($repoRoot + "\", "")
+        $filePath    = $file.FullName
+        $relPath     = $filePath.Replace($repoRoot + "\\", "")
+        # Hoist Get-Frontmatter outside It so each file is read once at loop scope.
+        $frontmatter = if (Test-Path $filePath) { Get-Frontmatter -FilePath $filePath } else { "" }
 
         # P1.2 - explicit existence check so a missing file is a clear test failure,
         # not a scope-level exception from Get-Content
@@ -48,7 +50,6 @@ Describe "Model assignments - prompt files" {
         }
 
         It "$relPath has a model: frontmatter key with a non-empty value" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
             # Anchored to key with non-empty value; -cmatch for case-sensitive matching
             ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
         }
@@ -59,6 +60,7 @@ Describe "Model assignments - prompt files" {
 # Model assignments - agent files
 # Discovers all *.agent.md files in .github/agents.
 # Count sentinel: update to N+1 when adding a new agent file.
+# Note: foreach loop structure mirrors prompt files block above — intentional.
 # ---------------------------------------------------------------------------
 
 Describe "Model assignments - agent files" {
@@ -70,8 +72,10 @@ Describe "Model assignments - agent files" {
     }
 
     foreach ($file in $agentFiles) {
-        $filePath = $file.FullName
-        $relPath = $filePath.Replace($repoRoot + "\", "")
+        $filePath    = $file.FullName
+        $relPath     = $filePath.Replace($repoRoot + "\\", "")
+        # Hoist Get-Frontmatter outside It so each file is read once at loop scope.
+        $frontmatter = if (Test-Path $filePath) { Get-Frontmatter -FilePath $filePath } else { "" }
 
         # P1.2 - same rationale as prompt files above
         It "$relPath exists" {
@@ -79,7 +83,6 @@ Describe "Model assignments - agent files" {
         }
 
         It "$relPath has a model: frontmatter key with a non-empty value" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
             # Anchored to key with non-empty value; -cmatch for case-sensitive matching
             ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
         }
@@ -154,13 +157,13 @@ Describe "Prompt/agent files - frontmatter delimiters" {
     }
 
     foreach ($file in $allFiles) {
-        $relPath = $file.FullName.Replace($repoRoot + "\", "")
+        $relPath    = $file.FullName.Replace($repoRoot + "\\", "")
+        # Hoist read outside It to avoid redundant I/O at test-execution time.
+        $rawContent = if (Test-Path $file.FullName) { Get-Content $file.FullName -Raw -Encoding UTF8 } else { "" }
 
         It "$relPath has both opening and closing --- frontmatter delimiters" {
-            $content = Get-Content $file.FullName -Raw -Encoding UTF8
-            # At least two --- delimiters means both opening and closing are present
-            ($content -split '\r?\n' | Where-Object { $_ -match '^---\s*$' }).Count |
-                Should -BeGreaterThan 1
+            # (?ms) matches opening --- ... closing --- across lines; no line-split needed
+            ($rawContent -match '(?ms)^---\s*$.*?^---\s*$') | Should -Be $true
         }
     }
 }

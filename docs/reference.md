@@ -157,6 +157,7 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 
 > ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
 
+<!-- 9 research review agents (cr-*) -->
 ### Research Review Agents
 
 Dispatched by `/cr-review`. Require `modules: [research]` in `compound-gpid.local.md`.

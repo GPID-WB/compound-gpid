@@ -806,31 +806,31 @@ Describe "cr-brainstorm.prompt.md - modules availability guard" {
 Describe "CR files - module: research frontmatter" {
     $crPrompts = @('cr-brainstorm', 'cr-plan', 'cr-work', 'cr-review', 'cr-compound')
     foreach ($name in $crPrompts) {
-        $promptFile  = Join-Path $promptsDir "$name.prompt.md"
-        $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
+        $promptFile = Join-Path $promptsDir "$name.prompt.md"
+        $fm         = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
 
         It "$name.prompt.md has module: research in frontmatter" {
-            ($frontmatter -match 'module:\s*research') | Should -Be $true
+            ($fm -match 'module:\s*research') | Should -Be $true
         }
     }
 
     $crSkills = @('cr-skill-research-workflow', 'cr-skill-research-integrity')
     foreach ($skill in $crSkills) {
-        $skillFile   = Join-Path $repoRoot ".github\skills\$skill\SKILL.md"
-        $frontmatter = if (Test-Path $skillFile) { Get-Frontmatter -FilePath $skillFile } else { "" }
+        $skillFile = Join-Path $repoRoot ".github\skills\$skill\SKILL.md"
+        $fm        = if (Test-Path $skillFile) { Get-Frontmatter -FilePath $skillFile } else { "" }
 
         It "$skill/SKILL.md has module: research in frontmatter" {
-            ($frontmatter -match 'module:\s*research') | Should -Be $true
+            ($fm -match 'module:\s*research') | Should -Be $true
         }
     }
 
     $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-publication-output')
     foreach ($agent in $crAgents) {
-        $agentFile   = Join-Path $repoRoot ".github\agents\$agent.agent.md"
-        $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
+        $agentFile = Join-Path $repoRoot ".github\agents\$agent.agent.md"
+        $fm        = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
 
         It "$agent.agent.md has module: research in frontmatter" {
-            ($frontmatter -match 'module:\s*research') | Should -Be $true
+            ($fm -match 'module:\s*research') | Should -Be $true
         }
     }
 }
@@ -1639,9 +1639,12 @@ Describe "cr-skill-academic-writing - existence and content" {
 # ---------------------------------------------------------------------------
 
 Describe "cr-skill-publication-output - existence and content" {
-    $path    = Join-Path $skillsDir "cr-skill-publication-output\SKILL.md"
-    $content = Get-Content $path -Raw -Encoding UTF8
-    $fm      = Get-Frontmatter -FilePath $path
+    $path     = Join-Path $skillsDir "cr-skill-publication-output\SKILL.md"
+    $content  = Get-Content $path -Raw -Encoding UTF8
+    $fm       = Get-Frontmatter -FilePath $path
+    # Pre-compute section text once at Describe scope (avoids re-scanning in each It)
+    $sec5Text = [regex]::Match($content, '(?si)## 5\..*?(?=## 6\.)').Value
+    $sec6Text = [regex]::Match($content, '(?si)## 6\..*?(?=## 7\.|$)').Value
 
     It "exists" {
         Test-Path $path | Should -Be $true
@@ -1708,15 +1711,11 @@ Describe "cr-skill-publication-output - existence and content" {
     }
 
     It "ggsave() criterion appears in figure-caption section (Section 5)" {
-        # Extract text between section 5 heading and section 6 heading
-        $sec5Match = [regex]::Match($content, '(?si)## 5\..*?(?=## 6\.)')
-        ($sec5Match.Value -match 'ggsave') | Should -Be $true
+        ($sec5Text -match 'ggsave') | Should -Be $true
     }
 
     It "ggsave() criterion does NOT appear in table-note section (Section 6)" {
-        # Extract text between section 6 heading and section 7 heading (or end)
-        $sec6Match = [regex]::Match($content, '(?si)## 6\..*?(?=## 7\.|$)')
-        ($sec6Match.Value -match 'ggsave') | Should -Be $false
+        ($sec6Text -match 'ggsave') | Should -Be $false
     }
 
     It "has substantive content (> 500 words)" {
@@ -2348,6 +2347,10 @@ Describe "cr-review.prompt.md - Phase 9 dispatch journey" {
     It "mixed-format files (.Rnw .qmd .Rmd .ipynb) dispatch both academic-writing and publication-output agents" {
         ($content -match '(?i)\.Rnw|\.qmd|\.Rmd|\.ipynb') | Should -Be $true
     }
+
+    It "Implementation dispatch row includes @cr-publication-output" {
+        ($content -match 'Implementation.*cr-publication-output') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -2369,6 +2372,10 @@ Describe "cr-academic-writing.agent.md - Phase 9 cleanup" {
 
     It "Check 6 Figure and Table Presentation is still present (Writing still needs it)" {
         ($content -match '(?i)figure.*table presentation|figure.*presentation') | Should -Be $true
+    }
+
+    It "Check 6 'Flag as' uses [cr-publication-output] tag (Phase 9 tag change)" {
+        ($content -match '\[cr-publication-output\]') | Should -Be $true
     }
 }
 

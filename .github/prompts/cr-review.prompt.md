@@ -92,7 +92,7 @@ Based on the task type identified in the plan:
 | Writing | @cr-academic-writing |
 | Reproducibility | @cr-replication-package |
 | Tables/Figures | @cr-publication-output, @cg-documentation *(dispatch @cg-documentation only if the file defines exported functions)* |
-| EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
+| EDA | @cg-performance, @cg-data-quality *(No CR agent — @cr-eda-reviewer planned for future phase)* |
 | Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)* |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
