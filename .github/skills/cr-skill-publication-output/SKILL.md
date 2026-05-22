@@ -6,7 +6,7 @@ description: "Publication-quality output for economics research. Covers
   tables, ggplot2+wbplot for paper figures, font/size conventions for journal
   submission, figure-caption discipline (self-contained), and table-note
   discipline (variable definitions in notes). Loaded by @cr-academic-writing
-  and /cr-work for Tables/Figures tasks."
+  for Writing and Tables/Figures tasks."
 ---
 
 # Publication Output for Economics Research
@@ -274,6 +274,12 @@ Always specify `units = "in"` explicitly. Never rely on `ggsave()` defaults.
 
 ## 5. Figure-Caption Discipline
 
+> **Review criteria** (for `@cr-academic-writing` Check 6):
+> - Caption missing the data source → flag
+> - Caption not self-contained (requires body text to understand) → flag
+> - Caption missing required elements (what is plotted, sample, key takeaway) → flag
+> - `ggsave()` called without explicit `width`, `height`, `units` → flag
+
 ### Self-Contained Captions
 
 Every caption must stand alone — a reader who sees only the figure + caption
@@ -307,6 +313,13 @@ must understand it without reading the body text.
 ---
 
 ## 6. Table-Note Discipline
+
+> **Review criteria** (for `@cr-academic-writing` Check 6):
+> - Missing SE type sentence → flag
+> - Missing significance level key (`* p < 0.10...`) → flag
+> - Variable not defined in notes → flag
+> - Sample definition absent from notes → flag
+> - Fixed effects not disclosed in notes (if applicable) → flag
 
 ### Required Table Notes
 
@@ -346,6 +359,17 @@ For descriptive statistics tables, notes should state:
 
 ### Directory Convention
 
+> **Path convention**: Use `here::here()` instead of bare relative paths to
+> ensure paths resolve correctly regardless of working directory:
+> ```r
+> library(here)
+> # Prefer:
+> output = here::here("output", "tables", "table-2-main-results.tex")
+> ggsave(here::here("output", "figures", "figure-1-poverty-trends.pdf"), ...)
+> # Avoid (fragile if working directory changes):
+> # output = "output/tables/table-2-main-results.tex"
+> ```
+
 ```
 output/
 ├── tables/
@@ -378,7 +402,7 @@ Table and figure code must produce **identical output** on every run:
 # ❌ Relies on active graphics device size
 ggsave("figure-1.pdf")
 
-# ✅ Explicit dimensions, format, dpi
+# ✅ Explicit dimensions and format
 ggsave("output/figures/figure-1-main.pdf",
        plot = p, width = 6.5, height = 4, units = "in")
 ```

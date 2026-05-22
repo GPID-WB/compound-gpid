@@ -162,7 +162,7 @@ When the `modules: [research]` flag is set in `compound-gpid.local.md`, these re
 - `cr-skill-research-eda` — research-framed EDA, weighted descriptives, outlier analysis (EDA)
 - `cr-skill-ml-economics` — LASSO, random forests, CV correctness, double ML/DML, OOS assessment, reproducibility seeds, survey-weighted ML for complex-design survey data, missing value handling in ML pipelines, class imbalance and rare events, data leakage detection, hyperparameter search transparency, and economic interpretation of ML output (ML/Prediction)
 - `cr-skill-academic-writing` — journal style (AER, JPE, QJE, Econometrica), section structure, abstract writing, equation exposition, notation discipline, citation style, response-to-referee patterns (Writing)
-- `cr-skill-publication-output` — `modelsummary`/`fixest::etable` for regression tables, `kableExtra` for LaTeX tables, ggplot2+wbplot for figures, font/size conventions, figure-caption discipline, table-note discipline (Tables/Figures)
+- `cr-skill-publication-output` — `modelsummary`/`fixest::etable` for regression tables, `kableExtra` for LaTeX tables, ggplot2+wbplot for figures, font/size conventions, figure-caption discipline, table-note discipline (loaded by `@cr-academic-writing` for Writing and Tables/Figures tasks)
 
 All CR skills declare `module: research` and are loaded only when the research module is enabled.
 

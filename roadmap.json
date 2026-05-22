@@ -529,6 +529,12 @@
           "title": "Phase 8: Integration polish & documentation (charter update, README, docs, copilot-instructions template, full test pass)",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "cr-publication-output",
+          "title": "Phase 9: Dedicated Tables/Figures agent (@cr-publication-output) scoped to output-producing code — companion to cr-skill-publication-output with Tables/Figures dispatch routing",
+          "status": "idea",
+          "plan": null
         }
       ]
     }

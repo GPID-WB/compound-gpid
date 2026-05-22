@@ -169,6 +169,7 @@ Dispatched by `/cr-review`. Require `modules: [research]` in `compound-gpid.loca
 | `cr-econometric-reasoning` | Structural model logic: DGP consistency, estimation strategy selection, assumption-data fit | Opus 4.6 |
 | `cr-ml-methodology` | ML pipeline auditing: data leakage, CV design (panel-aware, time-series-aware), hyperparameter search transparency, seed coverage, economic interpretation, OOS assessment | Sonnet 4.6 |
 | `cr-specification-analysis` | Theory-data bridge: specification search detection, distributional assumption tests, conditional moment checks, sample restriction documentation, robustness coverage | Sonnet 4.6 |
+| `cr-academic-writing` | Academic writing review: journal style compliance, section structure, equation exposition, notation consistency, citation completeness, figure/table presentation | Sonnet 4.6 |
 
 > All `cr-*` research agents are dispatched exclusively by `/cr-review`. They are NOT user-invokable.
 
@@ -301,6 +302,8 @@ Milestone status is computed by `@cg-roadmap` from feature statuses (never set d
 | `cr-skill-theory-data-dialogue` | **Theory-data dialogue patterns**: distributional assumption tests, conditional moment checks, support analysis, reduced-form regressions before structural estimation, exclusion restriction validation. References `.cg-docs/research/specifications/`. |
 | `cr-skill-research-eda` | **Research-framed EDA**: targeted distributional checks, conditional moment plots, weighted descriptive statistics (`fmean`/`fsd`/`fmedian` with `w=`), missingness patterns, outlier analysis, sample restriction documentation, subgroup analysis. |
 | `cr-skill-ml-economics` | **ML in economics reference**: LASSO/ridge/elastic-net with `glmnet`/`hdm`/`DoubleML`, tree-based methods (`ranger`/`xgboost`/`grf`), panel-aware CV (GroupKFold), OOS assessment (Diebold-Mariano), post-selection inference, variable importance/SHAP, dimension reduction, reproducibility seed table, anti-patterns catalog. Loaded by `@cr-ml-methodology`. |
+| `cr-skill-academic-writing` | **Academic writing for economics research**: journal style (AER, JPE, QJE, Econometrica), section structure, abstract writing, equation exposition, notation introduction discipline, citation style, response-to-referee patterns, anti-patterns. Loaded by `@cr-academic-writing`. |
+| `cr-skill-publication-output` | **Publication-quality output conventions**: `modelsummary`/`fixest::etable` regression tables, `kableExtra` LaTeX tables, ggplot2+wbplot figures, font/size conventions, figure-caption discipline (self-contained), table-note discipline (variable definitions). Loaded by `@cr-academic-writing` for Writing and Tables/Figures tasks. |
 
 ---
 

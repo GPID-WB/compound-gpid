@@ -401,8 +401,11 @@ Describe "CR agent files - structural checks" {
                 ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
             }
 
-            It "[$name] has tools: ['read', 'search'] (no write)" {
+            It "[$name] has tools including 'read'" {
                 ($fm -match "tools:.*'read'") | Should -Be $true
+            }
+
+            It "[$name] does not have 'write' tool" {
                 ($fm -notmatch "'write'") | Should -Be $true
             }
 
@@ -818,7 +821,7 @@ Describe "CR files - module: research frontmatter" {
         }
     }
 
-    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis')
+    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing')
     foreach ($agent in $crAgents) {
         $agentFile   = Join-Path $repoRoot ".github\agents\$agent.agent.md"
         $frontmatter = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
@@ -1567,32 +1570,64 @@ Describe "cr-skill-academic-writing - existence and content" {
         ($content -match '(?i)Econometrica') | Should -Be $true
     }
 
+    It "contains JPE journal style coverage" {
+        ($content -match '(?i)JPE\b') | Should -Be $true
+    }
+
+    It "contains QJE journal style coverage" {
+        ($content -match '(?i)QJE\b') | Should -Be $true
+    }
+
     It "contains section structure guidance" {
-        ($content -match '(?i)section structure|introduction.*hook|hook.*gap') | Should -Be $true
+        ($content -match '(?i)section structure') | Should -Be $true
+    }
+
+    It "contains Hook introduction element" {
+        ($content -match '(?i)\bHook\b') | Should -Be $true
+    }
+
+    It "contains Gap introduction element" {
+        ($content -match '(?i)\bGap\b') | Should -Be $true
     }
 
     It "contains abstract writing patterns" {
-        ($content -match '(?i)abstract writing|abstract.*four.sentence|four.sentence.*abstract') | Should -Be $true
+        ($content -match '(?i)abstract writing') | Should -Be $true
+    }
+
+    It "contains four-sentence abstract structure" {
+        ($content -match '(?i)four.sentence') | Should -Be $true
     }
 
     It "contains equation exposition guidance" {
         ($content -match '(?i)equation exposition') | Should -Be $true
     }
 
-    It "contains notation introduction discipline" {
-        ($content -match '(?i)notation.*discipline|notation introduction') | Should -Be $true
+    It "contains notation discipline guidance" {
+        ($content -match '(?i)notation.*discipline') | Should -Be $true
     }
 
     It "contains citation style guidance" {
-        ($content -match '(?i)citation style|author.year') | Should -Be $true
+        ($content -match '(?i)citation style') | Should -Be $true
     }
 
-    It "contains response-to-referee patterns" {
-        ($content -match '(?i)response.to.referee|referee.*point.by.point') | Should -Be $true
+    It "contains author-year citation format" {
+        ($content -match '(?i)author.year') | Should -Be $true
+    }
+
+    It "contains response-to-referee guidance" {
+        ($content -match '(?i)response.to.referee') | Should -Be $true
+    }
+
+    It "contains point-by-point referee response" {
+        ($content -match '(?i)point.by.point') | Should -Be $true
     }
 
     It "contains anti-patterns section" {
         ($content -match '(?i)anti.pattern') | Should -Be $true
+    }
+
+    It "has substantive content (> 500 words)" {
+        ($content -split '\s+').Count | Should -BeGreaterThan 500
     }
 }
 
@@ -1633,13 +1668,24 @@ Describe "cr-skill-publication-output - existence and content" {
         ($content -match '(?i)kableExtra') | Should -Be $true
     }
 
-    It "contains ggplot2 and wbplot figure guidance" {
+    It "contains ggplot2 figure guidance" {
         ($content -match '(?i)ggplot2') | Should -Be $true
+    }
+
+    It "contains wbplot theme guidance" {
         ($content -match '(?i)wbplot') | Should -Be $true
     }
 
-    It "contains font/size conventions" {
-        ($content -match '(?i)font.*size|size.*convention') | Should -Be $true
+    It "contains font conventions" {
+        ($content -match '(?i)font.*size') | Should -Be $true
+    }
+
+    It "contains size conventions" {
+        ($content -match '(?i)size.*convention') | Should -Be $true
+    }
+
+    It "documents specific font sizes in pt" {
+        ($content -match '(?i)10.?11.?pt|9.?10.?pt') | Should -Be $true
     }
 
     It "contains figure-caption discipline" {
@@ -1650,8 +1696,16 @@ Describe "cr-skill-publication-output - existence and content" {
         ($content -match '(?i)table.note discipline') | Should -Be $true
     }
 
+    It "documents variable definitions in table notes" {
+        ($content -match '(?i)variable definition') | Should -Be $true
+    }
+
     It "contains ggsave with explicit dimensions guidance" {
         ($content -match '(?i)ggsave') | Should -Be $true
+    }
+
+    It "has substantive content (> 500 words)" {
+        ($content -split '\s+').Count | Should -BeGreaterThan 500
     }
 }
 
@@ -1696,6 +1750,30 @@ Describe "cr-academic-writing.agent.md - content" {
         ($content -match 'Argument Flow.*P2') | Should -Be $true
     }
 
+    It "Check 1 Section Structure is labeled P2" {
+        ($content -match 'Section Structure.*P2') | Should -Be $true
+    }
+
+    It "Check 2 Abstract Quality is labeled P2" {
+        ($content -match 'Abstract Quality.*P2') | Should -Be $true
+    }
+
+    It "Check 3 Equation Exposition is labeled P1" {
+        ($content -match 'Equation Exposition.*P1') | Should -Be $true
+    }
+
+    It "Check 4 Notation Consistency is labeled P1" {
+        ($content -match 'Notation Consistency.*P1') | Should -Be $true
+    }
+
+    It "Check 5 Citation Completeness is labeled P2" {
+        ($content -match 'Citation Completeness.*P2') | Should -Be $true
+    }
+
+    It "Check 6 Figure and Table Presentation is labeled P2" {
+        ($content -match '(?i)figure.*table presentation.*P2|figure.*presentation.*P2') | Should -Be $true
+    }
+
     It "loads cr-skill-academic-writing" {
         ($content -match 'cr-skill-academic-writing') | Should -Be $true
     }
@@ -1736,6 +1814,14 @@ Describe "cr-review.prompt.md - Phase 6 dispatch journey" {
     It "Writing dispatch row routes to @cr-academic-writing" {
         ($content -match 'Writing.*cr-academic-writing') | Should -Be $true
     }
+
+    It "Tables/Figures dispatch row routes to @cg-documentation" {
+        ($content -match 'Tables/Figures.*@cg-documentation') | Should -Be $true
+    }
+
+    It "Tables/Figures dispatch row routes to @cr-academic-writing" {
+        ($content -match 'Tables/Figures.*cr-academic-writing') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -1749,6 +1835,10 @@ Describe "Phase 6 prompt cleanup - cr-review" {
     It "does NOT contain Phase 6 annotation on @cr-academic-writing" {
         # Phase 6 is now live - annotation must be removed
         ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $false
+    }
+
+    It "does NOT contain reversed Phase 6 annotation for @cr-academic-writing" {
+        ($content -match 'Phase 6.*cr-academic-writing') | Should -Be $false
     }
 
     It "does NOT contain 'not yet available' on @cr-academic-writing" {
@@ -1767,6 +1857,10 @@ Describe "Phase 6 prompt cleanup - cr-brainstorm" {
     It "does NOT contain Phase 6 annotation on cr-skill-academic-writing" {
         # Phase 6 is now live - annotation must be removed
         ($content -match '(?i)phase\s*6.*not yet available') | Should -Be $false
+    }
+
+    It "does NOT contain reversed Phase 6 annotation for cr-skill-academic-writing" {
+        ($content -match 'Phase 6.*cr-skill-academic-writing') | Should -Be $false
     }
 
     It "does NOT contain 'not yet available' on cr-skill-academic-writing" {
@@ -1788,5 +1882,22 @@ Describe "copilot-instructions.md - Phase 6 skills registered" {
 
     It "lists cr-skill-publication-output in CR Skills section" {
         ($content -match 'cr-skill-publication-output') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 6 brainstorm cross-reference
+# ---------------------------------------------------------------------------
+
+Describe "cr-brainstorm.prompt.md - Phase 6 cross-reference" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "cr-skill-publication-output appears in Writing skill row" {
+        ($content -match 'Writing.*cr-skill-publication-output') | Should -Be $true
+    }
+
+    It "cr-skill-publication-output appears in Tables/Figures skill row" {
+        ($content -match 'Tables/Figures.*cr-skill-publication-output') | Should -Be $true
     }
 }
