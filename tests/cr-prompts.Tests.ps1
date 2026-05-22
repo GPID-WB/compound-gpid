@@ -778,8 +778,16 @@ Describe "cr-brainstorm.prompt.md - modules availability guard" {
         ($content -match '(?i)modules.*research') | Should -Be $true
     }
 
-    It "warns or asks confirmation when research module not enabled" {
-        ($content -match '(?i)research.*module') | Should -Be $true
+    It "warns that research module is not enabled" {
+        ($content -match '(?i)not enabled') | Should -Be $true
+    }
+
+    It "offers /cg-setup to enable the module" {
+        ($content -match '(?i)\/cg-setup') | Should -Be $true
+    }
+
+    It "offers proceed anyway fallback" {
+        ($content -match '(?i)proceed anyway') | Should -Be $true
     }
 }
 
@@ -878,8 +886,12 @@ Describe "cr-skill-structural-econometrics/SKILL.md - content" {
         ($content -match '(?i)simulation.based estimation') | Should -Be $true
     }
 
-    It "contains MSM and SMM estimation references" {
-        ($content -match '\bMSM\b|\bSMM\b') | Should -Be $true
+    It "contains MSM estimation references" {
+        ($content -match '\bMSM\b') | Should -Be $true
+    }
+
+    It "contains SMM estimation references" {
+        ($content -match '\bSMM\b') | Should -Be $true
     }
 
     It "contains Maximum Likelihood section" {
@@ -1265,7 +1277,7 @@ Describe "cr-ml-methodology.agent.md - content" {
     }
 
     It "Check 5: Seed Coverage emits cross-reference note to cr-research-integrity Check 1" {
-        ($content -match '(?i)cross.reference.*cr-research-integrity|cr-research-integrity.*Check 1') | Should -Be $true
+        ($content -match '(?i)cross.reference.*cr-research-integrity.*Check 1') | Should -Be $true
     }
 
     It "Check 5: Seed Coverage preserves ML-specific detail via supplementary context note" {

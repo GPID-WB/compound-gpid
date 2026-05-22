@@ -62,7 +62,7 @@ followed by `.fit(X` (estimator pipeline counts as one estimation command)
 
 If the count is 5 or more and fewer than 50% appear in clearly labeled
 "robustness" or "sensitivity" sections (comments, headers, or distinct code
-blocks), flag as **[P0.N]** [cr-specification-analysis]:
+blocks), Flag as **[P0.N]** [cr-specification-analysis]:
 
 > "N estimation commands found. If not all appear in the manuscript, this may
 > indicate unreported specification searching."
@@ -97,7 +97,7 @@ Verify `.cg-docs/research/specifications/` exists and contains documentation:
 - Notes on why the chosen specification is consistent with the data
 
 If `.cg-docs/research/specifications/` does not exist, or exists but contains
-only empty files or `.gitkeep`, flag as **[cr-specification-analysis] [P1.N]**:
+only empty files or `.gitkeep`, Flag as **[P1.N]** [cr-specification-analysis]:
 
 > "No theory-data dialogue documentation found in `.cg-docs/research/specifications/`.
 > Document how data evidence informs or validates the model specification."
@@ -126,7 +126,7 @@ tests of that assumption exist in the code:
 "assume exponential", "normally distributed errors", "Gaussian", or similar
 phrases. If found, verify a corresponding test exists.
 
-Flag as **[cr-specification-analysis] [P1.N]** if:
+Flag as **[P1.N]** [cr-specification-analysis] if:
 - A distributional assumption is stated but no test exists in the code
 - Only graphical checks exist without any formal test (flag at P2 if a figure
   is present, P1 if neither figure nor test)
@@ -149,7 +149,7 @@ data:
 `df[, mean(y), by=x]`, `df.groupby('x')['y'].mean()` — these suggest
 conditional moment tabulations.
 
-Flag as **[cr-specification-analysis] [P2.N]** if the model makes testable
+Flag as **[P2.N]** [cr-specification-analysis] if the model makes testable
 conditional moment predictions but no moment checks appear in the code or
 documentation.
 
@@ -173,7 +173,7 @@ explaining **why**. Restrictions without rationale include:
 - Age/income cutoffs without citing a prior paper or theory
 - Dropping outliers without stating the criterion was chosen before seeing data
 
-Flag as **[cr-specification-analysis] [P2.N]** if three or more restrictions
+Flag as **[P2.N]** [cr-specification-analysis] if three or more restrictions
 lack documented rationale.
 
 ---
@@ -190,7 +190,7 @@ forms for the same outcome, different sample restrictions labeled as checks.
 **Minimum standard**: One clearly labeled alternative specification per main
 result reported in the paper.
 
-Flag as **[cr-specification-analysis] [P2.N]** if:
+Flag as **[P2.N]** [cr-specification-analysis] if:
 - Only one specification appears in code (no robustness variants)
 - Multiple specifications exist but none are labeled as robustness checks
 

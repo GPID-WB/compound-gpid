@@ -164,8 +164,10 @@ before use.
 **Anti-patterns**:
 - Fitting any ML model on survey microdata without `weights=` / `case.weights=`
   / `sample_weight=` argument → population-level bias (P0)
-- Normalising weights before passing them (`weights / sum(weights)`) without
-  checking whether the estimator expects unnormalised probability weights
+- Normalising weights (`weights / sum(weights)`) changes the lambda scale in
+  `cv.glmnet` — the CV-selected `lambda.min` is not comparable across model
+  runs with different weight normalisations; prefer raw probability weights
+  throughout a pipeline
 
 ---
 
@@ -197,17 +199,24 @@ print(df.isnull().mean().sort_values(ascending=False))
 | Mechanism | Strategy |
 |-----------|----------|
 | MCAR (document assumption) | Listwise deletion acceptable — document explicitly |
-| MAR | Multiple imputation inside each CV fold (see below) |
+| MAR | Single imputation per CV fold — use m ≥5 with Rubin's rules for inference (see below) |
 | MNAR | Flag; requires sensitivity analysis |
 
-**Multiple imputation inside folds (R)**:
+**Single imputation per CV fold (R)** (`m=1` is sufficient for ML prediction;
+use `m ≥5` with Rubin's rules pooling for econometric inference):
 
 ```r
 # mice-based imputation fitted only on train fold — prevents leakage
 library(mice)
-train_imputed <- mice(train_df, m = 1, method = "pmm", seed = 42)
+# m=1: single imputation — sufficient for ML prediction
+train_imputed  <- mice(train_df, m = 1, method = "pmm", seed = 42)
 train_complete <- complete(train_imputed)
-# Fit model on train_complete; impute test fold using the same mice object
+# Apply the FITTED mice object to the test fold (prevents leakage)
+# Option A: mice.reuse() (mice >= 3.16)
+test_imputed  <- mice.reuse(train_imputed, test_df, seed = 42)
+test_complete <- complete(test_imputed)
+# Option B: tidymodels — step_impute_bag() inside a recipe;
+# prep() fits on train fold, bake() applies fitted imputer to test fold
 ```
 
 **NA indicator features** (add `is.na(x)` as a predictor):
@@ -220,13 +229,16 @@ df$x[is.na(df$x)] <- median(df$x, na.rm = TRUE)  # median fill for the value
 **Anti-patterns**:
 - `drop_na(df)` / `na.omit(df)` on the full dataset before train/test split
   without documenting MCAR assumption
-- `SimpleImputer().fit(X)` on full data (data leakage — see Section 1 Check 1)
+- `SimpleImputer().fit(X)` on full data (data leakage — see Check 1 in cr-ml-methodology.agent.md)
 - Single mean/median imputation on poverty-related variables
 - Imputing the outcome variable `y`
 
 ---
 
 ## 3. Tree-Based Methods
+
+> **GPID cross-cutting requirements** (survey weights and missing data) apply
+> to all ML methods — see Sections 2a and 2b before implementing any estimator.
 
 **When to use**: Non-linear relationships, interactions, heterogeneous
 treatment effects, robust prediction. Not for causal inference directly.
@@ -351,8 +363,10 @@ take-up, firm bankruptcy, poverty targeting):
 
 - With a 2–5% positive rate, a classifier predicting "never positive" achieves
   95–98% accuracy — accuracy is uninformative.
-- Default to **AUROC**, **precision-recall AUC**, or **F1** as primary metrics
-  when outcome prevalence is below 10%.
+- Default to **precision-recall AUC** as primary metric; supplement with
+  **AUROC** as a secondary check. At prevalence below 5%, AUROC remains high
+  even for near-useless classifiers — PR-AUC evaluates performance at the
+  operating region relevant for targeting (Davis & Goadrich 2006).
 - Use class-weighted loss:
 
 ```r
@@ -373,7 +387,7 @@ lr  = LogisticRegressionCV(class_weight='balanced', cv=5, random_state=42)
 ```
 
 - SMOTE oversampling: only apply **inside** the CV fold training set —
-  never before the split (inflates OOS performance, see Section 1 Check 1).
+  never before the split (inflates OOS performance — see Check 1 in cr-ml-methodology.agent.md).
 
 **Why naive k-fold fails with panel data**: If observations from the same
 unit appear in both training and validation folds, the model leaks

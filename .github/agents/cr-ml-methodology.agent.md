@@ -36,7 +36,7 @@ ML is used in an identification strategy (double ML, ML first stage, causal fore
 
 Before beginning: if the code file is zero-byte or contains only whitespace or
 comments (no executable code), report: "`[file]` is empty — ML methodology
-review skipped for this file." Do not run Checks 1–7 against empty files.
+review skipped for this file." Do not run Checks 1–8 against empty files.
 
 For each file under review, perform all 7 checks below in sequence.
 
@@ -63,7 +63,7 @@ the training set.
 that would not be available at prediction time (e.g., using discharge diagnosis
 to predict hospital admission outcome).
 
-Flag as **[cr-ml-methodology] [P0.N]** if preprocessing is fit on any data
+Flag as **[P0.N]** [cr-ml-methodology] if preprocessing is fit on any data
 that overlaps with the test/validation set, or if features encode information
 from the outcome or from future time periods.
 
@@ -90,7 +90,7 @@ Verify the data-splitting strategy is appropriate:
 **Three-way split requirement**: If hyperparameter tuning is performed, there
 must be a separate test set (distinct from the validation set used for tuning).
 
-Flag as **[cr-ml-methodology] [P1.N]** if splitting ignores panel structure,
+Flag as **[P1.N]** [cr-ml-methodology] if splitting ignores panel structure,
 temporal order, or uses the test set for tuning decisions.
 
 ---
@@ -115,7 +115,7 @@ on the training portion of each fold. A `Pipeline` (scikit-learn) or `recipe`
 **Leakage across folds**: Verify no information from held-out folds is used
 to fit the model in training folds (e.g., group statistics computed globally).
 
-Flag as **[cr-ml-methodology] [P1.N]** if CV design is inappropriate for the
+Flag as **[P1.N]** [cr-ml-methodology] if CV design is inappropriate for the
 data structure or if preprocessing leaks across folds.
 
 ---
@@ -143,7 +143,7 @@ Emit finding **plus** cross-reference note:
 > "Cross-reference: @cr-research-integrity Check 3 (Specification Searching) —
 > verify that the number of hyperparameter trials is documented and reported."
 
-Flag as **[cr-ml-methodology] [P1.N]** if tuning is performed without
+Flag as **[P1.N]** [cr-ml-methodology] if tuning is performed without
 documentation of the search space, number of trials, or nested CV structure.
 
 ---
@@ -176,7 +176,7 @@ Scan for random operations in ML code that lack explicit numeric seeds:
 > the ML-specific detail (which seed function is missing and why it matters)
 > is preserved as supplementary context in the merged finding.
 
-Flag as **[cr-ml-methodology] [P0.N]** if any ML random operation lacks an
+Flag as **[P0.N]** [cr-ml-methodology] if any ML random operation lacks an
 explicit numeric seed.
 
 ---
@@ -205,7 +205,7 @@ Verify that ML results are interpreted with appropriate economic grounding:
 - Top predictors should be connected to economic theory or prior literature,
   even if only in comments
 
-Flag as **[cr-ml-methodology] [P2.N]** if importance is misinterpreted as
+Flag as **[P2.N]** [cr-ml-methodology] if importance is misinterpreted as
 causal, regularized coefficients are treated as OLS, or causal claims lack
 identification.
 
@@ -227,7 +227,7 @@ other decision was made by inspecting test set performance, flag as P1.
 **Benchmark comparison**: Point estimate of model performance should be
 compared to a reasonable baseline (unconditional mean, AR(1), linear OLS).
 
-Flag as **[cr-ml-methodology] [P1.N]** if no held-out test performance is
+Flag as **[P1.N]** [cr-ml-methodology] if no held-out test performance is
 reported, or if there is evidence of test-set contamination.
 
 ---
