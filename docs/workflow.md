@@ -463,6 +463,73 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 
 ---
 
+## Research Workflow
+
+The research module extends Compound GPID with a `/cr-*` command loop designed for economics and econometrics research — the kind of work that produces peer-reviewed papers, not just internal data products. Enable it with `modules: "engineering, research"` in `compound-gpid.local.md` (or via `/cg-setup`).
+
+### Enabling the research module
+
+Edit `compound-gpid.local.md` in your project root:
+
+```yaml
+modules: "engineering, research"
+```
+
+Then run `cg-update` to regenerate `copilot-instructions.md`. The `/cr-*` commands will now appear in Copilot Chat autocomplete.
+
+### The research loop
+
+```
+/cr-brainstorm → /cr-plan → /cr-work → /cr-review → /cr-compound
+```
+
+This mirrors the engineering loop but is research-aware: it classifies tasks by type, enforces P0 research-integrity checks (unseeded randomness, code-math mismatch, identification theater), and dispatches specialized agents for econometrics, ML, writing, and replication auditing.
+
+### Research task types
+
+`/cr-brainstorm` opens by asking you to classify your task:
+
+| Type | Description |
+|------|-------------|
+| **Theory/Modeling** | Economic model derivation, FOCs, proof of identification |
+| **Specification Analysis** | Bridging theory and data — functional forms, distributional assumptions |
+| **EDA** | Research-framed exploratory data analysis with weighted descriptives |
+| **Implementation** | Translating a theoretical model or specification into code |
+| **ML/Prediction** | LASSO, random forests, cross-fitting, causal ML (DML/GRF) |
+| **Writing** | Academic paper sections, abstracts, referee responses |
+| **Tables/Figures** | Publication-quality output (`modelsummary`, `kableExtra`, `wbplot`) |
+| **Reproducibility** | Replication package auditing (AEA/AER archive standards) |
+
+### How research review differs from engineering review
+
+`/cr-review` dispatches the same 6 shared `cg-*` quality agents (code quality, testing, architecture, documentation, reproducibility, data quality) **plus** task-type-specific research agents:
+
+| Task type | Research agents dispatched |
+|-----------|---------------------------|
+| Theory/Modeling | `@cr-mathematical-verification`, `@cr-econometric-reasoning` |
+| Specification Analysis | `@cr-specification-analysis`, `@cr-identification-audit` |
+| EDA | `@cr-research-integrity` |
+| Implementation | `@cr-research-integrity`, `@cr-mathematical-verification` |
+| ML/Prediction | `@cr-ml-methodology`, `@cr-specification-analysis` |
+| Writing | `@cr-academic-writing` |
+| Tables/Figures | `@cr-academic-writing` |
+| Reproducibility | `@cr-replication-package` |
+
+`@cr-research-integrity` is always dispatched regardless of task type — it detects silent P0 errors (unseeded randomness, specification searching, wrong SE clustering, identification theater).
+
+### Research P0 enforcement
+
+Research P0 errors are silent — they do not crash the code; they produce wrong published results. The following patterns always block merge:
+
+- **Unseeded randomness** — any `sample()`, `rnorm()`, `set.seed()` without a documented seed in a seed registry
+- **Code-math mismatch** — variables in code that do not correspond to symbols in the derivation
+- **Identification theater** — claiming IV/RDD/DiD identification without required diagnostics (F-stat, McCrary test, parallel trends)
+- **Wrong SE clustering** — cluster level inconsistent with the identifying variation level
+
+> For full tables of commands, agents, skills, and configuration, see [Reference](reference.md).
+
+---
+
 ### Non-linear Entry Points
 
 The following commands can be invoked at any stage — not just sequentially.

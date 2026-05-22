@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-22 · 118 active solutions_
+_Generated 2026-05-22 · 119 active solutions_
 
 ## Agent dispatched for multiple task types needs an explicit execution mode guard
 
@@ -21,6 +21,16 @@ tags: agent-design, skill-design, review-criteria, section-placement, ggsave, fi
 path: .cg-docs/solutions/testing-patterns/2026-05-22-review-criteria-must-be-in-correct-domain-section.md
 
 `cr-skill-publication-output/SKILL.md` was updated with Review Criteria callout boxes in Sections 5 and 6 (for use by `@cr-academic-writing` Check 6 delegation). During the update, the `ggsave()` criterion landed in Section 6 (Table-Note Discipline): ``` `ggsave()` is a **figure output function** — it belongs in Section 5 (Figure-Caption Discipline). A reviewer applying Check 6 and reading Section 6 would encounter a figure criterion inside a table-note checklist, causing: 1. Misclassified findings: `ggsave` issues flagged as table-note violations 2. Missed criteria: reviewers following Section 5 would not see the `ggsave` check 3. Confusion for humans reading the skill as a reference
+
+## Skill/agent forbidden-pattern tables must be kept in sync
+
+date: 2026-05-22
+category: testing-patterns
+status: 
+tags: agents, skills, skill-agent-contract, forbidden-patterns, check-list, path-portability, synchronization, P1-mismatch
+path: .cg-docs/solutions/testing-patterns/2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync.md
+
+`cr-replication-package.agent.md` Check 6 (Path Portability) was updated to flag parent-traversal paths (`../`) as P1 violations. The corresponding `cr-skill-replication-standards/SKILL.md` Section 6 Forbidden Patterns table was not updated in the same commit. Result: the skill taught researchers that `../` paths were acceptable; the agent flagged them as P1. A researcher reading the skill file and correcting their code would have no reason to remove `../` paths — then the agent would flag them anyway. The mismatch survived the **thorough** review pass (which caught 12 other findings) and was only caught in the subsequent **standard** review.
 
 ## Agent 'Flag as' format drift — incremental check additions leave old-format directives
 

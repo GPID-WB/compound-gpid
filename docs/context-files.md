@@ -48,7 +48,7 @@ The generated file covers four things:
 
 ### How it is created
 
-`cg-link` generates it the first time you link a project. The source is `.github/copilot-instructions.template.md` inside the Compound GPID install. Four template variables are substituted at generation time:
+`cg-link` generates it the first time you link a project. The source is `.github/copilot-instructions.template.md` inside the Compound GPID install. Five template variables are substituted at generation time:
 
 | Variable | Source |
 |----------|--------|
@@ -56,6 +56,7 @@ The generated file covers four things:
 | `{{project-type}}` | `project-type` field in `compound-gpid.local.md` |
 | `{{languages}}` | `language` field in `compound-gpid.local.md` |
 | `{{review-depth}}` | `review-depth` field in `compound-gpid.local.md` |
+| `{{modules}}` | `modules` field in `compound-gpid.local.md` (defaults to `engineering`; set to `"engineering, research"` to enable the research module) |
 
 ### How it is updated
 

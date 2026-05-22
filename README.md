@@ -24,6 +24,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and three shell commands (`cg-link`, `cg-unlink`, `cg-update`) wire everything into VS Code / Positron automatically.
 - **Team-wide** — update once, every linked project gets the new version instantly.
 - **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.
+- **Research module** — enable `/cr-*` commands via `modules: "engineering, research"` in your local config to get a research-aware workflow loop for economics and econometrics: structural modeling, ML-in-economics, academic writing, and replication packaging. Requires the `research` module to be enabled.
 
 ## Documentation
 
@@ -33,7 +34,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 |------|----------|
 | [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
 | [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
-| [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
+| [Workflow](docs/workflow.md) | Engineering and research workflow loops — `/cg-*` (Brainstorm → Plan → Work → Review → Compound) and the `/cr-*` research loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
 

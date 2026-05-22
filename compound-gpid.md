@@ -1,7 +1,7 @@
 ---
 project-name: "Compound GPID"
 created: "2026-03-26"
-last-reviewed: "2026-05-14"
+last-reviewed: "2026-05-22"
 ---
 
 # Compound GPID
@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Compound Research — building a modular research extension for economics and econometrics, starting with the module system foundation (Phase 1) and research workflow scaffolding (Phase 2). Engineering milestones (Workflow Maturity, Skills Enhancement) continue in parallel.
+Compound Research milestone nearing completion — Phases 1–7 fully implemented (module system, research workflow scaffolding, core CR agents, structural econometrics skills, ML-in-economics, academic writing & publication output, and reproducibility/replication). Phase 8 (integration polish & documentation) is the final step before merging to main. Engineering milestones (Workflow Maturity, Skills Enhancement) continue in parallel.
