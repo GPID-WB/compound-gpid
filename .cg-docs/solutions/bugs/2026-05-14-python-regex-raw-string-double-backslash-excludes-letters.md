@@ -93,7 +93,12 @@ line to log the raw matched group before the `.strip()` call.
 
 ## Related
 
-- Fix applied in `scripts/link.sh` commit `77af4ac` (fix(research): apply all 40 Phase 1/2
+- Initial fix in `scripts/link.sh` at commit `77af4ac` (fix(research): apply all 40 Phase 1/2
   review findings)
+- **Bug propagated** to `scripts/update.sh` via copy-paste (not sourced from a shared file).
+  Fixed in commit `57dad18` by extracting both copies to `scripts/helpers.sh` (DRY refactor,
+  mirrors the Windows `scripts/helpers.ps1` pattern).
 - The PowerShell equivalent in `scripts/helpers.ps1` uses `[^"''\r\n]` directly in a
   non-raw regex literal and is not affected
+- `.cg-docs/solutions/testing-patterns/2026-05-22-test-reimplements-logic-with-correct-code-masks-bug.md` — the test that masked the propagated bug in `update.sh`
+- `.cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md` — co-discovered during the same fix session

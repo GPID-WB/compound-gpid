@@ -1,6 +1,6 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-22 · 120 active solutions_
+_Generated 2026-05-22 · 121 active solutions_
 
 ## Agent dispatched for multiple task types needs an explicit execution mode guard
 
@@ -11,6 +11,16 @@ tags: agent-design, dispatch, task-type, mode-guard, cr-academic-writing, writin
 path: .cg-docs/solutions/testing-patterns/2026-05-22-multi-task-type-agent-needs-execution-mode-guard.md
 
 `cr-academic-writing.agent.md` was updated to run for both Writing and Tables/Figures task types. The dispatch table in `cr-review.prompt.md` was correctly updated: ``` However, the agent's Review Protocol was not updated to skip Writing-specific checks when the task type is Tables/Figures. Checks 1–5 (Section Structure, Abstract Quality, Equation Exposition, Notation Consistency, Citation Completeness) and Check 7 (Argument Flow) are all Writing-specific. When dispatched for a T/F task, they would run against figure captions and table code files, producing: - Spurious findings: "Results section precedes methodology" on a `.tex` figure file - Incorrect P2 flags: Abstract quality check on a table note block...
+
+## Bash heredoc with multi-line || { } compound command body is invalid syntax
+
+date: 2026-05-22
+category: bugs
+status: 
+tags: bash, heredoc, compound-command, syntax-error, error-trap, bash-3.2, macos
+path: .cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md
+
+`scripts/link.sh` (and later `scripts/helpers.sh`) contained an error-trap pattern that appeared reasonable but was syntactically broken: ``` **Symptom at runtime**: `bash: syntax error near unexpected token '}'` — the closing `}` of the outer function is unexpected. Or the error-trap body is silently treated as heredoc content, meaning `python3` exits non-zero with no handler. **Critical masking**: The tests for these scripts only checked file content (regex pattern matching against the source text), never executed the function. Additionally, `bash -n` (syntax-check mode) did NOT report this as a syntax error in bash 3.2.57 (macOS default shell as of Ventura/Sonoma) — `bash -n...
 
 ## Review criteria bullets must be placed in the domain section they belong to, not the adjacent section
 
@@ -31,6 +41,16 @@ tags: agents, skills, skill-agent-contract, forbidden-patterns, check-list, path
 path: .cg-docs/solutions/testing-patterns/2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync.md
 
 `cr-replication-package.agent.md` Check 6 (Path Portability) was updated to flag parent-traversal paths (`../`) as P1 violations. The corresponding `cr-skill-replication-standards/SKILL.md` Section 6 Forbidden Patterns table was not updated in the same commit. Result: the skill taught researchers that `../` paths were acceptable; the agent flagged them as P1. A researcher reading the skill file and correcting their code would have no reason to remove `../` paths — then the agent would flag them anyway. The mismatch survived the **thorough** review pass (which caught 12 other findings) and was only caught in the subsequent **standard** review.
+
+## Test that reimplements logic with correct code masks bugs in the actual code
+
+date: 2026-05-22
+category: testing-patterns
+status: 
+tags: testing, false-positive, reimplementation, integration-test, bash, pester, python, regex
+path: .cg-docs/solutions/testing-patterns/2026-05-22-test-reimplements-logic-with-correct-code-masks-bug.md
+
+`bash-scripts.Tests.ps1` had a test for the modules-substitution logic in `update.sh` that consistently passed — even though `update.sh`'s Python regex was broken and silently returned empty string for any config value containing the letters `r` or `n` (including `research`, `r-syntax`, `standard`, `project-name`). The P0 regex bug in `update.sh` survived a complete Phase 1–8 development and review cycle undetected because the test gave a green signal for the very code path that was broken.
 
 ## Agent 'Flag as' format drift — incremental check additions leave old-format directives
 
