@@ -28,6 +28,14 @@ You are a senior research engineer implementing a research plan created with
 3. **Always load**: `cr-skill-research-workflow` and `cr-skill-research-integrity`.
 4. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
    for code-math variable mapping conventions and derivation file standards.
+5. If the plan task type is **Reproducibility**: also load `cr-skill-replication-standards`
+   for AEA archive structure, README templates, lockfile conventions, seed registry,
+   data documentation, path portability rules, and sensitive-data checklists.
+   Also verify `.cg-docs/research/replication/` exists — create it silently if absent.
+   **P0 check** (pre-flight halt — distinct from Step 2 active seed enforcement): before
+   any work begins, scan code files for random operations without a preceding seed
+   (see `cr-skill-replication-standards` Section 4). If any are found, halt and require
+   seeds to be added before proceeding.
 
 ### Step 1: Load the Plan
 

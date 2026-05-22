@@ -79,7 +79,6 @@ and continue.
 - **@cr-ml-methodology** — ML methodology and evaluation
 - **@cr-academic-writing** — academic prose and argument structure
 - **@cr-replication-package** — replication package completeness
-  *(Phase 7 — not yet available)*
 
 ### Step 3: Task-Type-Specific Dispatch
 
@@ -91,7 +90,7 @@ Based on the task type identified in the plan:
 | Specification Analysis | @cr-specification-analysis |
 | ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
 | Writing | @cr-academic-writing |
-| Reproducibility | @cr-replication-package *(Phase 7)* |
+| Reproducibility | @cr-replication-package |
 | Tables/Figures | @cg-documentation, @cr-academic-writing |
 | EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
 | Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis |

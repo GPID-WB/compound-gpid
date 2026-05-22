@@ -73,7 +73,7 @@ These prompts are available when `modules: [research]` is set in `compound-gpid.
 | `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 39 prompt and agent files.
+> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 48 prompt and agent files.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -170,6 +170,7 @@ Dispatched by `/cr-review`. Require `modules: [research]` in `compound-gpid.loca
 | `cr-ml-methodology` | ML pipeline auditing: data leakage, CV design (panel-aware, time-series-aware), hyperparameter search transparency, seed coverage, economic interpretation, OOS assessment | Sonnet 4.6 |
 | `cr-specification-analysis` | Theory-data bridge: specification search detection, distributional assumption tests, conditional moment checks, sample restriction documentation, robustness coverage | Sonnet 4.6 |
 | `cr-academic-writing` | Academic writing review: journal style compliance, section structure, equation exposition, notation consistency, citation completeness, figure/table presentation | Sonnet 4.6 |
+| `cr-replication-package` | Replication package audit: AEA archive structure, README completeness, dependency lockfiles, seed registry cross-referenced with manifest.json, data documentation (codebook + PII), path portability (no absolute paths), sensitive-data handling, file inventory | Sonnet 4.6 |
 
 > All `cr-*` research agents are dispatched exclusively by `/cr-review`. They are NOT user-invokable.
 
@@ -304,6 +305,7 @@ Milestone status is computed by `@cg-roadmap` from feature statuses (never set d
 | `cr-skill-ml-economics` | **ML in economics reference**: LASSO/ridge/elastic-net with `glmnet`/`hdm`/`DoubleML`, tree-based methods (`ranger`/`xgboost`/`grf`), panel-aware CV (GroupKFold), OOS assessment (Diebold-Mariano), post-selection inference, variable importance/SHAP, dimension reduction, reproducibility seed table, anti-patterns catalog. Loaded by `@cr-ml-methodology`. |
 | `cr-skill-academic-writing` | **Academic writing for economics research**: journal style (AER, JPE, QJE, Econometrica), section structure, abstract writing, equation exposition, notation introduction discipline, citation style, response-to-referee patterns, anti-patterns. Loaded by `@cr-academic-writing`. |
 | `cr-skill-publication-output` | **Publication-quality output conventions**: `modelsummary`/`fixest::etable` regression tables, `kableExtra` LaTeX tables, ggplot2+wbplot figures, font/size conventions, figure-caption discipline (self-contained), table-note discipline (variable definitions). Loaded by `@cr-academic-writing` for Writing and Tables/Figures tasks. |
+| `cr-skill-replication-standards` | **AEA/AER replication package standards**: archive structure (code/data/output layout), README required sections, dependency lockfiles (renv.lock, uv.lock, repado), seed registries cross-referenced with manifest.json, data documentation (codebook + data dictionary + PII checklist), path portability rules (no absolute paths), sensitive-data handling (.gitignore coverage), archive packaging checklists. Loaded by `@cr-replication-package` for Reproducibility tasks. |
 
 ---
 

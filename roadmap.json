@@ -521,8 +521,8 @@
         {
           "id": "cr-reproducibility-replication",
           "title": "Phase 7: Reproducibility & replication package (cr-skill-replication-standards, @cr-replication-package + @cg-reproducibility integration)",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md"
         },
         {
           "id": "cr-integration-docs",

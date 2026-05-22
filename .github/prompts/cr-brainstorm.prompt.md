@@ -50,7 +50,7 @@ Based on the confirmed task type, note which specialized skills would be loaded
 - ML/Prediction → `cr-skill-ml-economics`
 - Writing → `cr-skill-academic-writing`, `cr-skill-publication-output`
 - Tables/Figures → `cr-skill-r-visualization`, `cr-skill-r-analytical`, `cr-skill-publication-output`
-- Reproducibility → `cr-skill-git-workflow`, `cg-skill-pester-safety`
+- Reproducibility → `cr-skill-replication-standards`
 
 #### Step 1.5 — Scope Assessment
 

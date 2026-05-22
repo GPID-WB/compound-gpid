@@ -378,7 +378,8 @@ Describe "CR agent files - structural checks" {
         'cr-econometric-reasoning.agent.md',
         'cr-ml-methodology.agent.md',
         'cr-specification-analysis.agent.md',
-        'cr-academic-writing.agent.md'
+        'cr-academic-writing.agent.md',
+        'cr-replication-package.agent.md'
     )
 
     $agentsDir = Join-Path $repoRoot ".github\agents"
@@ -663,8 +664,9 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
         ($content -match 'cr-academic-writing.*Phase 6') | Should -Be $false
     }
 
-    It "still contains Phase 7 annotation for @cr-replication-package (future agent)" {
-        ($content -match 'cr-replication-package.*Phase 7') | Should -Be $true
+    It "does NOT contain Phase 7 annotation for @cr-replication-package (agent now live)" {
+        # Phase 7 is now live — annotation must be removed
+        ($content -match 'cr-replication-package.*Phase 7') | Should -Be $false
     }
 
     It "Step 7 Handoff routes to /cg-fix-triage (not /cr-fix-triage)" {
@@ -1901,3 +1903,269 @@ Describe "cr-brainstorm.prompt.md - Phase 6 cross-reference" {
         ($content -match 'Tables/Figures.*cr-skill-publication-output') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# Phase 7: cr-skill-replication-standards skill
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-replication-standards - frontmatter and structure" {
+    $path    = Join-Path $repoRoot ".github\skills\cr-skill-replication-standards\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
+
+    It "skill file exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has name: cr-skill-replication-standards in frontmatter" {
+        ($fm -match 'name:\s*cr-skill-replication-standards') | Should -Be $true
+    }
+
+    It "has module: research in frontmatter" {
+        ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
+    }
+
+    It "has a description: field in frontmatter" {
+        ($fm -match 'description:') | Should -Be $true
+    }
+
+    It "contains Section 1 (AEA Archive Structure)" {
+        ($content -match '(?i)## 1\.\s+AEA Archive Structure') | Should -Be $true
+    }
+
+    It "contains Section 2 (README for Replication)" {
+        ($content -match '(?i)## 2\.\s+README for Replication') | Should -Be $true
+    }
+
+    It "contains Section 3 (Dependency Lockfiles)" {
+        ($content -match '(?i)## 3\.\s+Dependency Lockfiles') | Should -Be $true
+    }
+
+    It "contains Section 4 (Seed Management)" {
+        ($content -match '(?i)## 4\.\s+Seed Management') | Should -Be $true
+    }
+
+    It "contains Section 5 (Data Documentation)" {
+        ($content -match '(?i)## 5\.\s+Data Documentation') | Should -Be $true
+    }
+
+    It "contains Section 6 (Path Portability)" {
+        ($content -match '(?i)## 6\.\s+Path Portability') | Should -Be $true
+    }
+
+    It "contains Section 7 (Sensitive Data Handling)" {
+        ($content -match '(?i)## 7\.\s+Sensitive Data Handling') | Should -Be $true
+    }
+
+    It "contains Section 8 (Archive Packaging)" {
+        ($content -match '(?i)## 8\.\s+Archive Packaging') | Should -Be $true
+    }
+
+    It "contains Section 9 (Review Criteria)" {
+        ($content -match '(?i)## 9\.\s+Review Criteria') | Should -Be $true
+    }
+
+    It "mentions AEA replication standards" {
+        ($content -match '(?i)AEA') | Should -Be $true
+    }
+
+    It "mentions seed registry" {
+        ($content -match '(?i)seed registry') | Should -Be $true
+    }
+
+    It "mentions PII checklist" {
+        ($content -match '(?i)PII') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 7: cr-replication-package.agent.md - content
+# ---------------------------------------------------------------------------
+
+Describe "cr-replication-package.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-replication-package.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains Check 1: Archive Structure (P1)" {
+        ($content -match '(?i)archive structure') | Should -Be $true
+    }
+
+    It "contains Check 2: README Completeness (P1)" {
+        ($content -match '(?i)README Completeness') | Should -Be $true
+    }
+
+    It "contains Check 3: Dependency Lockfiles (P1)" {
+        ($content -match '(?i)Dependency Lockfiles') | Should -Be $true
+    }
+
+    It "contains Check 4: Seed Registry (P0)" {
+        ($content -match '(?i)Seed Registry') | Should -Be $true
+    }
+
+    It "contains Check 5: Data Documentation (P1)" {
+        ($content -match '(?i)Data Documentation') | Should -Be $true
+    }
+
+    It "contains Check 6: Path Portability (P1)" {
+        ($content -match '(?i)Path Portability') | Should -Be $true
+    }
+
+    It "contains Check 7: Sensitive Data (P0)" {
+        ($content -match '(?i)Sensitive Data') | Should -Be $true
+    }
+
+    It "contains Check 8: File Inventory (P2)" {
+        ($content -match '(?i)File Inventory') | Should -Be $true
+    }
+
+    It "Check 4 Seed Registry is labeled P0" {
+        ($content -match 'Seed Registry.*P0') | Should -Be $true
+    }
+
+    It "Check 7 Sensitive Data is labeled P0" {
+        ($content -match 'Sensitive Data.*P0') | Should -Be $true
+    }
+
+    It "Check 5 Data Documentation includes P0 for PII in committed codebooks" {
+        ($content -match '\[P0\.N\].*PII|PII.*\[P0\.N\]') | Should -Be $true
+    }
+
+    It "Check 4 detects dynamic non-literal seeds (Sys.time)" {
+        ($content -match 'Sys\.time') | Should -Be $true
+    }
+
+    It "Check 4 flags seed value 0 or negative as P2" {
+        ($content -match 'seed.*0.*negative|0.*negative.*seed|negative integer') | Should -Be $true
+    }
+
+    It "Check 6 forbids parent-traversal paths (../)" {
+        ($content -match '\.\./') | Should -Be $true
+    }
+
+    It "Check 7 includes manual git ls-files verification advisory" {
+        ($content -match 'git ls-files') | Should -Be $true
+    }
+
+    It "injection guard covers replication-package/ files including seeds.md" {
+        # Guard text spans two lines: "replication-package/" and "(including `seeds.md`)"
+        ($content -match 'replication-package/') | Should -Be $true
+        ($content -match 'seeds\.md') | Should -Be $true
+    }
+
+    It "injection halt returns exact prescribed string" {
+        ($content -match 'return exactly|Review halted') | Should -Be $true
+    }
+
+    It "loads cr-skill-replication-standards" {
+        ($content -match 'cr-skill-replication-standards') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-workflow" {
+        ($content -match 'cr-skill-research-workflow') | Should -Be $true
+    }
+
+    It "loads cr-skill-research-integrity" {
+        ($content -match 'cr-skill-research-integrity') | Should -Be $true
+    }
+
+    It "contains untrusted-content safety note with 'execute or relay'" {
+        ($content -match '(?i)execute or relay') | Should -Be $true
+    }
+
+    It "contains empty-archive guard" {
+        ($content -match '(?i)no replication package found|empty.*replication') | Should -Be $true
+    }
+
+    It "output format includes [cr-replication-package] tag" {
+        ($content -match '\[cr-replication-package\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 7 prompt cleanup - cr-review
+# ---------------------------------------------------------------------------
+
+Describe "Phase 7 prompt cleanup - cr-review" {
+    $path    = Join-Path $promptsDir "cr-review.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "does NOT contain Phase 7 annotation on @cr-replication-package" {
+        # Phase 7 is now live — annotation must be removed
+        ($content -match 'cr-replication-package.*Phase 7') | Should -Be $false
+    }
+
+    It "does NOT contain reversed Phase 7 annotation for @cr-replication-package" {
+        ($content -match 'Phase 7.*cr-replication-package') | Should -Be $false
+    }
+
+    It "does NOT contain 'not yet available' on @cr-replication-package" {
+        ($content -match 'cr-replication-package.*not yet available') | Should -Be $false
+    }
+
+    It "Reproducibility dispatch row routes to @cr-replication-package" {
+        ($content -match 'Reproducibility.*cr-replication-package') | Should -Be $true
+    }
+
+    It "Reproducibility dispatch row has no Phase 7 qualifier" {
+        ($content -match 'Reproducibility.*Phase 7') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 7 prompt cleanup - cr-brainstorm
+# ---------------------------------------------------------------------------
+
+Describe "Phase 7 prompt cleanup - cr-brainstorm" {
+    $path    = Join-Path $promptsDir "cr-brainstorm.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "Reproducibility routes to cr-skill-replication-standards" {
+        ($content -match 'Reproducibility.*cr-skill-replication-standards') | Should -Be $true
+    }
+
+    It "does NOT route Reproducibility to cg-skill-pester-safety" {
+        ($content -match 'Reproducibility.*cg-skill-pester-safety') | Should -Be $false
+    }
+
+    It "does NOT route Reproducibility to cr-skill-git-workflow" {
+        ($content -match 'Reproducibility.*cr-skill-git-workflow') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 7 prompt cleanup - cr-work
+# ---------------------------------------------------------------------------
+
+Describe "Phase 7 prompt cleanup - cr-work" {
+    $path    = Join-Path $promptsDir "cr-work.prompt.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "contains conditional load for Reproducibility task type" {
+        ($content -match '(?i)Reproducibility.*cr-skill-replication-standards') | Should -Be $true
+    }
+
+    It "contains replication directory setup for Reproducibility tasks" {
+        ($content -match '(?i)research/replication') | Should -Be $true
+    }
+
+    It "contains P0 seed check for Reproducibility tasks" {
+        ($content -match '(?i)P0 check.*seed') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 7 skill loading cross-reference
+# ---------------------------------------------------------------------------
+
+Describe "copilot-instructions.md - Phase 7 skills registered" {
+    $path    = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "lists cr-skill-replication-standards in CR Skills section" {
+        ($content -match 'cr-skill-replication-standards') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# END Phase 7
+# ---------------------------------------------------------------------------

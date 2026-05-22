@@ -1,11 +1,11 @@
 # Model Guide
 
-Reference for model assignments across all 39 Compound GPID prompt and agent files.
+Reference for model assignments across all 48 Compound GPID prompt and agent files.
 Covers the tier classification criteria, per-file rationale, manual override guidance,
 and approximate token cost reference.
 
 > **Drift protection**: Pester tests in `tests/model-assignments.Tests.ps1` ("Model assignments — prompt
-files" and "Model assignments — agent files" describe blocks) validate all 39 files for model:
+files" and "Model assignments — agent files" describe blocks) validate all 48 files for model:
 > frontmatter presence, and count sentinels detect unexpected additions. The tests validate
 > against inline constants — update both the file's frontmatter **and** the inline constants when
 > changing a tier intentionally.
@@ -65,6 +65,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 39 
 | `cr-ml-methodology.agent.md` | Claude Sonnet 4.6 | ML methodology audit — data leakage, CV correctness, hyperparameter transparency, seed coverage, survey weight usage, out-of-sample assessment | Reasoning 4, precision 4 — structured checklist with pattern matching; Sonnet sufficient | confirmed |
 | `cr-specification-analysis.agent.md` | Claude Sonnet 4.6 | Specification analysis audit — specification searching detection, theory-data dialogue, distributional assumptions, sample restrictions, robustness coverage | Reasoning 4, precision 4 — structured pattern-matching checklist; Sonnet sufficient | confirmed |
 | `cr-academic-writing.agent.md` | Claude Sonnet 4.6 | Academic writing review — journal style compliance, section structure, equation exposition, notation consistency, citation completeness, argument flow | Reasoning 4, precision 3 — structured writing checklist; prose quality assessment; Sonnet sufficient | confirmed |
+| `cr-replication-package.agent.md` | Claude Sonnet 4.6 | Replication package audit — AEA archive structure, README completeness, dependency lockfiles, seed registry vs manifest.json, data documentation (codebook + PII), path portability, sensitive-data handling, file inventory | Reasoning 3, precision 4 — structured checklist with pattern-matching; Sonnet sufficient | confirmed |
 
 ---
 
