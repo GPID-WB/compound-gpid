@@ -91,12 +91,17 @@ Based on the task type identified in the plan:
 | ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
 | Writing | @cr-academic-writing |
 | Reproducibility | @cr-replication-package |
-| Tables/Figures | @cr-publication-output, @cg-documentation |
+| Tables/Figures | @cr-publication-output, @cg-documentation *(dispatch @cg-documentation only if the file defines exported functions)* |
 | EDA | @cg-performance, @cg-data-quality | *(No CR agent — @cr-eda-reviewer planned for future phase)* |
-| Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis |
+| Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)* |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
+
+**Mixed-format files**: If the submitted file has extension `.Rnw`, `.qmd`, `.Rmd`,
+or `.ipynb` (files combining prose and code), dispatch **both** `@cr-academic-writing`
+(for prose sections) and `@cr-publication-output` (for code chunks) regardless of the
+plan task type.
 
 **If no plan context is available**, infer task type from code content:
 - Presence of `feols`/`ivreg`/`rdrobust`/`DiD` patterns → dispatch `@cr-identification-audit`

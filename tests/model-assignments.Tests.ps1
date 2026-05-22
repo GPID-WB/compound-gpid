@@ -118,7 +118,7 @@ Describe "docs/model-guide.md - structure and sync" {
         }
     }
 
-    # All 24 agent file stems must appear in the guide
+    # All 25 agent file stems must appear in the guide
     $agentStems = @(
         'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
         'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
@@ -128,7 +128,7 @@ Describe "docs/model-guide.md - structure and sync" {
         'cr-research-integrity', 'cr-mathematical-verification',
         'cr-identification-audit', 'cr-econometric-reasoning',
         'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing',
-        'cr-replication-package'
+        'cr-replication-package', 'cr-publication-output'
     )
     foreach ($stem in $agentStems) {
         It "guide references agent stem '$stem'" {

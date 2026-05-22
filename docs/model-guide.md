@@ -66,6 +66,7 @@ files" and "Model assignments — agent files" describe blocks) validate all 48 
 | `cr-specification-analysis.agent.md` | Claude Sonnet 4.6 | Specification analysis audit — specification searching detection, theory-data dialogue, distributional assumptions, sample restrictions, robustness coverage | Reasoning 4, precision 4 — structured pattern-matching checklist; Sonnet sufficient | confirmed |
 | `cr-academic-writing.agent.md` | Claude Sonnet 4.6 | Academic writing review — journal style compliance, section structure, equation exposition, notation consistency, citation completeness, argument flow | Reasoning 4, precision 3 — structured writing checklist; prose quality assessment; Sonnet sufficient | confirmed |
 | `cr-replication-package.agent.md` | Claude Sonnet 4.6 | Replication package audit — AEA archive structure, README completeness, dependency lockfiles, seed registry vs manifest.json, data documentation (codebook + PII), path portability, sensitive-data handling, file inventory | Reasoning 3, precision 4 — structured checklist with pattern-matching; Sonnet sufficient | confirmed |
+| `cr-publication-output.agent.md` | Claude Sonnet 4.6 | Publication output review — regression tables (modelsummary/etable), LaTeX tables (kableExtra), figures (ggplot2+wbplot), font/size conventions, caption discipline, table-note discipline, deterministic output | Reasoning 4, precision 4 — structured multi-check output auditing; Sonnet sufficient | confirmed |
 
 ---
 

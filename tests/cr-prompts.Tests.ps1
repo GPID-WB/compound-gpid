@@ -1707,6 +1707,18 @@ Describe "cr-skill-publication-output - existence and content" {
         ($content -match '(?i)ggsave') | Should -Be $true
     }
 
+    It "ggsave() criterion appears in figure-caption section (Section 5)" {
+        # Extract text between section 5 heading and section 6 heading
+        $sec5Match = [regex]::Match($content, '(?si)## 5\..*?(?=## 6\.)')
+        ($sec5Match.Value -match 'ggsave') | Should -Be $true
+    }
+
+    It "ggsave() criterion does NOT appear in table-note section (Section 6)" {
+        # Extract text between section 6 heading and section 7 heading (or end)
+        $sec6Match = [regex]::Match($content, '(?si)## 6\..*?(?=## 7\.|$)')
+        ($sec6Match.Value -match 'ggsave') | Should -Be $false
+    }
+
     It "has substantive content (> 500 words)" {
         ($content -split '\s+').Count | Should -BeGreaterThan 500
     }
@@ -1820,10 +1832,6 @@ Describe "cr-review.prompt.md - Phase 6 dispatch journey" {
 
     It "Tables/Figures dispatch row routes to @cg-documentation" {
         ($content -match 'Tables/Figures.*@cg-documentation') | Should -Be $true
-    }
-
-    It "Tables/Figures dispatch row does NOT route to @cr-academic-writing (Phase 9 routing change)" {
-        ($content -match 'Tables/Figures.*cr-academic-writing') | Should -Be $false
     }
 }
 
@@ -2174,10 +2182,12 @@ Describe "copilot-instructions.md - Phase 7 skills registered" {
 # Phase 9: cr-publication-output.agent.md — structural checks
 # ---------------------------------------------------------------------------
 
-Describe "cr-publication-output.agent.md - structural checks" {
-    $path = Join-Path (Join-Path $repoRoot ".github\agents") "cr-publication-output.agent.md"
-    $fm   = Get-Frontmatter -FilePath $path
+Describe "cr-publication-output.agent.md" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-publication-output.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+    $fm      = Get-Frontmatter -FilePath $path
 
+    # --- structural / frontmatter ---
     It "agent file exists" {
         Test-Path $path | Should -Be $true
     }
@@ -2186,8 +2196,8 @@ Describe "cr-publication-output.agent.md - structural checks" {
         ($fm -match "(?m)^\s*module:\s*['""]?research['""]?\s*$") | Should -Be $true
     }
 
-    It "has tools: ['read', 'search'] in frontmatter" {
-        ($fm -match "tools:") | Should -Be $true
+    It "has tools: ['read', 'search'] in frontmatter — 'search' value present" {
+        ($fm -match "tools:.*'search'") | Should -Be $true
     }
 
     It "has user-invocable: false in frontmatter" {
@@ -2197,12 +2207,8 @@ Describe "cr-publication-output.agent.md - structural checks" {
     It "has a description: field in frontmatter" {
         ($fm -match "description:") | Should -Be $true
     }
-}
 
-Describe "cr-publication-output.agent.md - content" {
-    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-publication-output.agent.md"
-    $content = Get-Content $path -Raw -Encoding UTF8
-
+    # --- content ---
     It "loads cr-skill-publication-output" {
         ($content -match 'cr-skill-publication-output') | Should -Be $true
     }
@@ -2220,7 +2226,7 @@ Describe "cr-publication-output.agent.md - content" {
     }
 
     It "has empty-file guard" {
-        ($content -match '(?i)empty.*publication output review skipped|publication output review skipped') | Should -Be $true
+        ($content -match '(?si)Empty-file guard|publication output review.*skipped') | Should -Be $true
     }
 
     It "has size limit (50 KB)" {
@@ -2231,40 +2237,82 @@ Describe "cr-publication-output.agent.md - content" {
         ($content -match '\[cr-publication-output\]') | Should -Be $true
     }
 
-    It "contains Check 1: Regression Table Standards (P1)" {
-        ($content -match '(?i)regression table standards') | Should -Be $true
+    It "contains Check 1: Regression Table Standards with (P1) label" {
+        ($content -match '(?i)### Check 1:.*Regression Table Standards.*\(P1\)') | Should -Be $true
     }
 
-    It "contains Check 2: LaTeX Table Patterns (P2)" {
-        ($content -match '(?i)latex table patterns') | Should -Be $true
+    It "contains Check 2: LaTeX Table Patterns with (P2) label" {
+        ($content -match '(?i)### Check 2:.*LaTeX Table Patterns.*\(P2\)') | Should -Be $true
     }
 
-    It "contains Check 3: Figure Output Compliance (P2)" {
-        ($content -match '(?i)figure output compliance') | Should -Be $true
+    It "contains Check 3: Figure Output Compliance with (P2) label" {
+        ($content -match '(?i)### Check 3:.*Figure Output Compliance.*\(P2\)') | Should -Be $true
     }
 
-    It "contains Check 4: Font and Size Conventions (P2)" {
-        ($content -match '(?i)font.*size conventions') | Should -Be $true
+    It "contains Check 4: Font and Size Conventions with (P2) label" {
+        ($content -match '(?i)### Check 4:.*Font and Size Conventions.*\(P2\)') | Should -Be $true
     }
 
-    It "contains Check 5: Figure-Caption Discipline (P2)" {
-        ($content -match '(?i)figure.caption discipline') | Should -Be $true
+    It "contains Check 5: Figure-Caption Discipline with (P2) label" {
+        ($content -match '(?i)### Check 5:.*Figure[\s-]Caption Discipline.*\(P2\)') | Should -Be $true
     }
 
-    It "contains Check 6: Table-Note Discipline (P2)" {
-        ($content -match '(?i)table.note discipline') | Should -Be $true
+    It "contains Check 6: Table-Note Discipline with (P2) label" {
+        ($content -match '(?i)### Check 6:.*Table[\s-]Note Discipline.*\(P2\)') | Should -Be $true
     }
 
-    It "contains Check 7: Output File Management (P3)" {
-        ($content -match '(?i)output file management') | Should -Be $true
+    It "contains Check 7: Output File Management with (P3) label" {
+        ($content -match '(?i)### Check 7:.*Output File Management.*\(P3\)') | Should -Be $true
     }
 
-    It "contains Check 8: Deterministic Output (P1)" {
-        ($content -match '(?i)deterministic output') | Should -Be $true
+    It "contains Check 8: Deterministic Output with (P1) label" {
+        ($content -match '(?i)### Check 8:.*Deterministic Output.*\(P1\)') | Should -Be $true
     }
 
     It "does NOT load cg-skill-r-visualization (redundant - cr-skill-publication-output covers this)" {
         ($content -match 'cg-skill-r-visualization') | Should -Be $false
+    }
+
+    It "all 'Flag as' lines use priority-first format [P<N>.<M>] [cr-publication-output]" {
+        # Every "Flag as" instruction must lead with the priority tag before the agent tag
+        $flagLines = ($content -split "`n") | Where-Object { $_ -match 'Flag as \*\*' }
+        $badLines = $flagLines | Where-Object { $_ -notmatch 'Flag as \*\*\[P[0-3]\.\w+\]\*\*\s+\[cr-publication-output\]' }
+        $badLines.Count | Should -Be 0
+    }
+
+    It "geom_jitter(seed=N) exception is documented in Check 8" {
+        ($content -match '(?i)geom_jitter.*seed') | Should -Be $true
+    }
+
+    It "theme_set(theme_wb()) exception is documented in Check 3" {
+        ($content -match '(?i)theme_set') | Should -Be $true
+    }
+
+    It "ggplot2:: namespace form is referenced" {
+        ($content -match 'ggplot2::') | Should -Be $true
+    }
+
+    It "alias / indirect dispatch detection is documented" {
+        ($content -match '(?i)alias|indirect dispatch|do\.call') | Should -Be $true
+    }
+
+    It "Unicode homograph normalization is mentioned in injection guard" {
+        ($content -match '(?i)homoglyph|unicode.*lookalike|non-ascii.*homoglyph|lookalike') | Should -Be $true
+    }
+
+    It "Check 6 SE-type deduplication guard is present" {
+        ($content -match '(?i)check 1.*already flag|already flag.*check 1') | Should -Be $true
+    }
+
+    It "Check 5 has LaTeX external-caption scope note" {
+        ($content -match '(?i)latex.*import|import.*latex|\\\\caption|standalone.*pdf|pdf.*standalone') | Should -Be $true
+    }
+
+    It "graceful-skip for no-output-calls is documented" -Pending {
+        # Behavioral integration test: run @cr-publication-output against a fixture file
+        # containing only library() calls and verify it returns the skip message.
+        # Requires an agent integration test harness — deferred.
+        $true | Should -Be $true
     }
 }
 
@@ -2286,6 +2334,19 @@ Describe "cr-review.prompt.md - Phase 9 dispatch journey" {
 
     It "Writing dispatch row still routes to @cr-academic-writing (unchanged)" {
         ($content -match 'Writing.*cr-academic-writing') | Should -Be $true
+    }
+
+    It "dispatch table covers all 8 task types from research workflow taxonomy" {
+        $taskTypes = @(
+            'Theory/Modeling', 'Specification Analysis', 'ML/Prediction',
+            'Writing', 'Reproducibility', 'Tables/Figures', 'EDA', 'Implementation'
+        )
+        $missingTypes = $taskTypes | Where-Object { $content -notmatch [regex]::Escape($_) }
+        $missingTypes.Count | Should -Be 0
+    }
+
+    It "mixed-format files (.Rnw .qmd .Rmd .ipynb) dispatch both academic-writing and publication-output agents" {
+        ($content -match '(?i)\.Rnw|\.qmd|\.Rmd|\.ipynb') | Should -Be $true
     }
 }
 

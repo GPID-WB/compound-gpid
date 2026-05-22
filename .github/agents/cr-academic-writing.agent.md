@@ -180,7 +180,7 @@ Flag as **[P2.N]** [cr-academic-writing] for each citation gap.
 
 Apply `cr-skill-publication-output` Sections 5–6 (Figure-Caption Discipline
 and Table-Note Discipline). For each violation found, flag as
-**[P2.N]** [cr-academic-writing] `file:section` — [description].
+**[P2.N]** [cr-publication-output] `file:section` — [description].
 
 ---
 

@@ -171,6 +171,7 @@ Dispatched by `/cr-review`. Require `modules: [research]` in `compound-gpid.loca
 | `cr-specification-analysis` | Theory-data bridge: specification search detection, distributional assumption tests, conditional moment checks, sample restriction documentation, robustness coverage | Sonnet 4.6 |
 | `cr-academic-writing` | Academic writing review: journal style compliance, section structure, equation exposition, notation consistency, citation completeness, figure/table presentation | Sonnet 4.6 |
 | `cr-replication-package` | Replication package audit: AEA archive structure, README completeness, dependency lockfiles, seed registry cross-referenced with manifest.json, data documentation (codebook + PII), path portability (no absolute paths), sensitive-data handling, file inventory | Sonnet 4.6 |
+| `cr-publication-output` | Publication output review: regression table correctness (modelsummary/etable), LaTeX table patterns (kableExtra), figure output (ggplot2+wbplot), font/size compliance, caption discipline, table-note discipline, deterministic output | Sonnet 4.6 |
 
 > All `cr-*` research agents are dispatched exclusively by `/cr-review`. They are NOT user-invokable.
 
