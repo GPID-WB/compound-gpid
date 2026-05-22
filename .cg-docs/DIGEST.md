@@ -1,6 +1,26 @@
 # Compound GPID — Solution Digest
 
-_Generated 2026-05-21 · 116 active solutions_
+_Generated 2026-05-22 · 118 active solutions_
+
+## Agent dispatched for multiple task types needs an explicit execution mode guard
+
+date: 2026-05-22
+category: testing-patterns
+status: 
+tags: agent-design, dispatch, task-type, mode-guard, cr-academic-writing, writing, tables-figures, spurious-findings, review-protocol
+path: .cg-docs/solutions/testing-patterns/2026-05-22-multi-task-type-agent-needs-execution-mode-guard.md
+
+`cr-academic-writing.agent.md` was updated to run for both Writing and Tables/Figures task types. The dispatch table in `cr-review.prompt.md` was correctly updated: ``` However, the agent's Review Protocol was not updated to skip Writing-specific checks when the task type is Tables/Figures. Checks 1–5 (Section Structure, Abstract Quality, Equation Exposition, Notation Consistency, Citation Completeness) and Check 7 (Argument Flow) are all Writing-specific. When dispatched for a T/F task, they would run against figure captions and table code files, producing: - Spurious findings: "Results section precedes methodology" on a `.tex` figure file - Incorrect P2 flags: Abstract quality check on a table note block...
+
+## Review criteria bullets must be placed in the domain section they belong to, not the adjacent section
+
+date: 2026-05-22
+category: testing-patterns
+status: 
+tags: agent-design, skill-design, review-criteria, section-placement, ggsave, figure-caption, table-note, cr-skill-publication-output, content-organization
+path: .cg-docs/solutions/testing-patterns/2026-05-22-review-criteria-must-be-in-correct-domain-section.md
+
+`cr-skill-publication-output/SKILL.md` was updated with Review Criteria callout boxes in Sections 5 and 6 (for use by `@cr-academic-writing` Check 6 delegation). During the update, the `ggsave()` criterion landed in Section 6 (Table-Note Discipline): ``` `ggsave()` is a **figure output function** — it belongs in Section 5 (Figure-Caption Discipline). A reviewer applying Check 6 and reading Section 6 would encounter a figure criterion inside a table-note checklist, causing: 1. Misclassified findings: `ggsave` issues flagged as table-note violations 2. Missed criteria: reviewers following Section 5 would not see the `ggsave` check 3. Confusion for humans reading the skill as a reference
 
 ## Agent 'Flag as' format drift — incremental check additions leave old-format directives
 
