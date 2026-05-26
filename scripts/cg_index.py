@@ -63,7 +63,7 @@ if _scripts_dir not in sys.path:
 from brain.utils import (  # noqa: E402
     parse_frontmatter,
     extract_summary,
-    _write_atomic,
+    write_atomic,
 )
 from brain import __version__  # noqa: E402
 
@@ -271,7 +271,7 @@ def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
         "entries": records,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    _write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+    write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
     print(f"[cg-index] Wrote {len(records)} entries to {out_path}")
 
 
@@ -310,7 +310,7 @@ def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
         lines.append(entry.to_digest_block())
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    _write_atomic(out_path, "\n".join(lines))
+    write_atomic(out_path, "\n".join(lines))
     print(f"[cg-index] Wrote {len(active)} active entries to {out_path}")
 
 

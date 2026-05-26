@@ -315,26 +315,26 @@ class TestParseFrontmatter:
 
 class TestWriteAtomic:
     def test_creates_file(self, tmp_path: Path) -> None:
-        from brain.utils import _write_atomic
+        from brain.utils import write_atomic
 
         p = tmp_path / "out.md"
-        _write_atomic(p, "hello")
+        write_atomic(p, "hello")
         assert p.read_text(encoding="utf-8") == "hello"
 
     def test_overwrites_existing(self, tmp_path: Path) -> None:
-        from brain.utils import _write_atomic
+        from brain.utils import write_atomic
 
         p = tmp_path / "out.md"
-        _write_atomic(p, "first")
-        _write_atomic(p, "second")
+        write_atomic(p, "first")
+        write_atomic(p, "second")
         assert p.read_text(encoding="utf-8") == "second"
 
     def test_utf8_encoding(self, tmp_path: Path) -> None:
-        from brain.utils import _write_atomic
+        from brain.utils import write_atomic
 
         p = tmp_path / "out.md"
         content = "# Héllo wörld — résumé"
-        _write_atomic(p, content)
+        write_atomic(p, content)
         assert p.read_text(encoding="utf-8") == content
 
 

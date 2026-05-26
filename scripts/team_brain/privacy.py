@@ -1,13 +1,13 @@
-"""team_brain.privacy — 3-layer privacy filter for team brain push.
+﻿"""team_brain.privacy — 3-layer privacy filter for team brain push.
 
 Runs before any content is pushed to the central team brain repo. The filter
 is blocking — if it cannot safely redact content, the push is aborted.
 
 Layers (applied in order):
-1. **Regex layer** (deterministic, fast): Strips absolute paths, emails,
-   credential patterns, and configurable internal URLs.
-2. **Frontmatter layer**: Respects ``private: true`` (block entire entry)
+1. **Frontmatter layer**: Respects ``private: true`` (block entire entry)
    and ``private-sections: [...]`` (strip named sections).
+2. **Regex layer** (deterministic, fast): Strips absolute paths, emails,
+   credential patterns, and configurable internal URLs.
 3. **LLM layer** (non-blocking, auto-applied): Scans for contextual
    sensitivity the regex missed. Suggestions are auto-applied and logged.
    Disable with ``llm-filter: false`` in config or ``--no-llm`` flag.
@@ -21,7 +21,6 @@ from __future__ import annotations
 import re
 import warnings
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 from team_brain.schema import TeamBrainConfig
 
@@ -59,7 +58,7 @@ class FilterResult:
     """
 
     clean_content: str
-    redactions: List[Redaction] = field(default_factory=list)
+    redactions: list[Redaction] = field(default_factory=list)
     blocked: bool = False
     block_reason: str = ""
 
@@ -110,8 +109,10 @@ _UNC_PATH_RE = re.compile(r"\\\\[^\s\"'\n]+")
 _EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")
 
 #: Credential-adjacent patterns: password=..., token: ..., api_key=..., etc.
+#: Uses \b word boundary to prevent matching R/Python/Stata function parameters
+#: like httr2::req_auth_bearer_token(token = ...) or unnest_tokens(tbl, token = ...).
 _CREDENTIAL_RE = re.compile(
-    r"(?:password|passwd|secret|token|api[_\-]?key|auth[_\-]?key)"
+    r"\b(?:password|passwd|secret|token|api[_\-]?key|auth[_\-]?key)\b"
     r"\s*[:=]\s*\S+",
     re.IGNORECASE,
 )
@@ -120,7 +121,7 @@ _CREDENTIAL_RE = re.compile(
 _RELATIVE_PATH_RE = re.compile(r"^\.{1,2}/")
 
 
-def _build_url_pattern(patterns: List[str]) -> Optional[re.Pattern]:
+def _build_url_pattern(patterns: list[str]) -> re.Pattern | None:
     """Build a compiled regex from a list of hostname patterns.
 
     Args:
@@ -146,8 +147,8 @@ def _build_url_pattern(patterns: List[str]) -> Optional[re.Pattern]:
 
 
 def apply_regex_filter(
-    content: str, config: Optional[TeamBrainConfig] = None
-) -> Tuple[str, List[Redaction]]:
+    content: str, config: TeamBrainConfig | None = None
+) -> tuple[str, list[Redaction]]:
     """Apply the deterministic regex privacy layer to content.
 
     Strips: Windows paths, Unix system paths, UNC paths, email addresses,
@@ -170,13 +171,18 @@ def apply_regex_filter(
         assert "<REDACTED:path>" in filtered
         assert len(redactions) == 1
     """
-    redactions: List[Redaction] = []
+    redactions: list[Redaction] = []
     lines = content.splitlines(keepends=True)
-    result_lines: List[str] = []
+    result_lines: list[str] = []
 
     url_pattern = _build_url_pattern(config.internal_url_patterns if config else [])
+    in_code_fence = False
 
     for line_num, line in enumerate(lines, start=1):
+        # Track fenced code blocks (``` or ~~~) — do not redact credentials inside them
+        stripped_line = line.strip()
+        if stripped_line.startswith("```") or stripped_line.startswith("~~~"):
+            in_code_fence = not in_code_fence
 
         # Windows paths
         for m in reversed(list(_WIN_PATH_RE.finditer(line))):
@@ -214,12 +220,13 @@ def apply_regex_filter(
             )
             line = line[: m.start()] + "<REDACTED:email>" + line[m.end() :]
 
-        # Credentials
-        for m in reversed(list(_CREDENTIAL_RE.finditer(line))):
-            redactions.append(
-                Redaction("regex", "credential", line_num, len(m.group()))
-            )
-            line = line[: m.start()] + "<REDACTED:credential>" + line[m.end() :]
+        # Credentials — skip inside fenced code blocks to avoid corrupting code examples
+        if not in_code_fence:
+            for m in reversed(list(_CREDENTIAL_RE.finditer(line))):
+                redactions.append(
+                    Redaction("regex", "credential", line_num, len(m.group()))
+                )
+                line = line[: m.start()] + "<REDACTED:credential>" + line[m.end() :]
 
         result_lines.append(line)
 
@@ -234,7 +241,7 @@ def apply_regex_filter(
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 
 
-def _extract_private_sections(body: str, section_names: List[str]) -> str:
+def _extract_private_sections(body: str, section_names: list[str]) -> str:
     """Remove named sections from a markdown body.
 
     Removes sections matching any name in ``section_names`` along with all
@@ -252,8 +259,8 @@ def _extract_private_sections(body: str, section_names: List[str]) -> str:
 
     lower_names = {n.strip().lower() for n in section_names}
     lines = body.splitlines(keepends=True)
-    result: List[str] = []
-    skip_until_level: Optional[int] = None
+    result: list[str] = []
+    skip_until_level: int | None = None
 
     for line in lines:
         m = _HEADING_RE.match(line.rstrip())
@@ -275,7 +282,7 @@ def _extract_private_sections(body: str, section_names: List[str]) -> str:
 def apply_frontmatter_filter(
     content: str,
     frontmatter: Dict,
-) -> Tuple[str, bool, str]:
+) -> tuple[str, bool, str]:
     """Apply the frontmatter-declared privacy rules.
 
     Checks ``private: true`` (block entire entry) and
@@ -313,7 +320,7 @@ def apply_frontmatter_filter(
             UserWarning,
             stacklevel=2,
         )
-        private_sections: List[str] = []
+        private_sections: list[str] = []
     else:
         private_sections = [str(s) for s in private_sections_raw]
 
@@ -383,13 +390,15 @@ def build_llm_filter_prompt(content: str) -> str:
     Returns:
         Prompt string for the LLM.
     """
-    return _LLM_LAYER_PROMPT_TEMPLATE.format(content=content)
+    # Cannot use str.format() — document content may contain {tokens} that
+    # str.format() would try to expand (Stata macros, JSON examples, etc.).
+    return _LLM_LAYER_PROMPT_TEMPLATE.replace("{content}", content, 1)
 
 
 def apply_llm_redactions(
     content: str,
-    llm_findings: List[Dict],
-) -> Tuple[str, List[Redaction]]:
+    llm_findings: list[Dict],
+) -> tuple[str, list[Redaction]]:
     """Apply LLM-suggested redactions to content.
 
     LLM findings are auto-applied (non-blocking). Results are logged in the
@@ -403,10 +412,22 @@ def apply_llm_redactions(
     Returns:
         Tuple of (filtered_content, list_of_llm_redactions).
     """
-    redactions: List[Redaction] = []
+    redactions: list[Redaction] = []
     for finding in llm_findings:
         original = finding.get("original", "")
-        replacement = finding.get("replacement", "<REDACTED:llm>")
+        # Use `or` default — .get() returns None if key is present with null value,
+        # which would crash str.replace(). The `or` catches both absent and null.
+        replacement = finding.get("replacement") or "<REDACTED:llm>"
+        # Guard against prompt injection: reject HTML/script-bearing or oversized replacements.
+        # Uses closing-tag pattern (</...) and specific dangerous tag names — this allows
+        # legitimate LLM placeholders like <internal-endpoint> or <redacted-corp-db> while
+        # blocking XSS payloads like <script>alert(1)</script> or <img src=x onerror=...>.
+        if len(replacement) > 500 or re.search(
+            r"</|<(?:script|img|svg|iframe|object|embed|form|input|link|meta|base|on\w+)",
+            replacement,
+            re.IGNORECASE,
+        ):
+            replacement = "<REDACTED:llm>"
         finding_type = finding.get("type", "unknown")
         line_num = finding.get("line", 0)
         if original and original in content:
@@ -425,8 +446,8 @@ def apply_llm_redactions(
 def run_privacy_filter(
     content: str,
     frontmatter: Dict,
-    config: Optional[TeamBrainConfig] = None,
-    llm_findings: Optional[List[Dict]] = None,
+    config: TeamBrainConfig | None = None,
+    llm_findings: list[Dict] | None = None,
 ) -> FilterResult:
     """Run the full 3-layer privacy filter pipeline.
 
@@ -469,7 +490,7 @@ def run_privacy_filter(
     filtered, regex_redactions = apply_regex_filter(filtered, config)
 
     # Step 3: LLM filter (auto-applied if findings provided)
-    llm_redactions: List[Redaction] = []
+    llm_redactions: list[Redaction] = []
     if llm_findings:
         filtered, llm_redactions = apply_llm_redactions(filtered, llm_findings)
         # Re-run regex after LLM: a jailbroken LLM could inject absolute paths as replacement

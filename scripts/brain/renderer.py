@@ -38,7 +38,7 @@ from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 
 from brain import BrainData, Entity, Topic, __version__ as _BRAIN_VERSION
-from brain.utils import _write_atomic
+from brain.utils import write_atomic
 
 # ---------------------------------------------------------------------------
 # Token estimation
@@ -283,7 +283,7 @@ def _flush_pages_to_files(
                 stacklevel=3,
             )
 
-        _write_atomic(out_path, content)
+        write_atomic(out_path, content)
         written.append(out_path)
 
     return written
@@ -469,7 +469,7 @@ def _write_brain_index_md(
     lines.append("")
     content = "\n".join(lines)
     out_path = out_dir / "BRAIN.md"
-    _write_atomic(out_path, content)
+    write_atomic(out_path, content)
     return out_path
 
 
@@ -532,7 +532,7 @@ def _write_brain_log(data: BrainData, out_dir: Path) -> Path:
 
     content = "\n".join(lines)
     out_path = out_dir / "BRAIN-log.md"
-    _write_atomic(out_path, content)
+    write_atomic(out_path, content)
     return out_path
 
 
@@ -592,7 +592,7 @@ def _write_brain_json(data: BrainData, out_dir: Path) -> Path:
         ],
     }
     out_path = out_dir / "brain-index.json"
-    _write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+    write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
     return out_path
 
 

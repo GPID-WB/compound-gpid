@@ -1,4 +1,4 @@
-"""team_brain.config — Load team brain configuration from compound-gpid.local.md.
+﻿"""team_brain.config — Load team brain configuration from compound-gpid.local.md.
 
 Reads the ``team-brain:`` section from the project's local configuration file
 and returns a typed ``TeamBrainLocalConfig`` object.  If the section is absent
@@ -21,7 +21,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -67,11 +67,8 @@ class TeamBrainLocalConfig:
     enabled: bool = True
     llm_filter: bool = True
 
-    def repo_owner(self) -> str:
-        """Return the owner portion of the ``repo`` field.
-
-        Returns:
-            Owner string (e.g. ``GPID-WB``).
+    def _split_repo(self) -> tuple:
+        """Return (owner, name) by splitting ``self.repo`` on the first ``/``.
 
         Raises:
             ValueError: If ``repo`` is not in ``owner/repo`` format.
@@ -81,7 +78,18 @@ class TeamBrainLocalConfig:
             raise ValueError(
                 f"team-brain.repo must be in 'owner/repo' format, got: {self.repo!r}"
             )
-        return parts[0]
+        return parts[0], parts[1]
+
+    def repo_owner(self) -> str:
+        """Return the owner portion of the ``repo`` field.
+
+        Returns:
+            Owner string (e.g. ``GPID-WB``).
+
+        Raises:
+            ValueError: If ``repo`` is not in ``owner/repo`` format.
+        """
+        return self._split_repo()[0]
 
     def repo_name(self) -> str:
         """Return the repository name portion of the ``repo`` field.
@@ -92,12 +100,7 @@ class TeamBrainLocalConfig:
         Raises:
             ValueError: If ``repo`` is not in ``owner/repo`` format.
         """
-        parts = self.repo.split("/", 1)
-        if len(parts) != 2 or not parts[0] or not parts[1]:
-            raise ValueError(
-                f"team-brain.repo must be in 'owner/repo' format, got: {self.repo!r}"
-            )
-        return parts[1]
+        return self._split_repo()[1]
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +111,7 @@ _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)^---\s*\n", re.DOTALL | re.MULTILIN
 _KV_RE = re.compile(r"^([A-Za-z0-9_\-]+)\s*:\s*(.*?)\s*$")
 
 
-def _parse_frontmatter_from_text(text: str) -> Dict[str, Any]:
+def _parse_frontmatter_from_text(text: str) -> dict[str, Any]:
     """Extract and parse YAML frontmatter from a markdown file.
 
     Supports: string scalars, booleans, and simple inline values.
@@ -125,7 +128,7 @@ def _parse_frontmatter_from_text(text: str) -> Dict[str, Any]:
     if not m:
         return {}
     fm_text = m.group(1)
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     for line in fm_text.splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
@@ -151,7 +154,7 @@ def _parse_frontmatter_from_text(text: str) -> Dict[str, Any]:
     return result
 
 
-def _parse_markdown_body_key_block(text: str, section_key: str) -> Dict[str, Any]:
+def _parse_markdown_body_key_block(text: str, section_key: str) -> dict[str, Any]:
     """Extract a simple indented YAML block from the markdown body.
 
     Parses a block of the form::
@@ -171,7 +174,7 @@ def _parse_markdown_body_key_block(text: str, section_key: str) -> Dict[str, Any
     Returns:
         Dictionary of the block's key→value pairs, or empty dict.
     """
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     in_block = False
     for line in text.splitlines():
         stripped = line.strip()
@@ -209,8 +212,8 @@ def _parse_markdown_body_key_block(text: str, section_key: str) -> Dict[str, Any
 
 
 def load_team_brain_local_config(
-    local_config_path: Optional[Path] = None,
-) -> Optional[TeamBrainLocalConfig]:
+    local_config_path: Path | None = None,
+) -> TeamBrainLocalConfig | None:
     """Load team brain config from ``compound-gpid.local.md``.
 
     Returns None (silently) if:
@@ -271,13 +274,18 @@ def load_team_brain_local_config(
             )
 
     repo = str(tb_data["repo"]).strip()
-    if "/" not in repo or len(repo.split("/")) != 2:
+    if not re.match(r'^[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+$', repo):
         raise ValueError(
-            f"compound-gpid.local.md: team-brain.repo must be 'owner/repo', "
-            f"got: {repo!r}"
+            f"compound-gpid.local.md: team-brain.repo must be 'owner/repo' with "
+            f"alphanumeric, hyphen, dot, or underscore only. Got: {repo!r}"
         )
 
     project_name = str(tb_data.get("project-name", local_config_path.parent.name)).strip()
+    if not re.match(r'^[A-Za-z0-9][A-Za-z0-9\-_]*$', project_name):
+        raise ValueError(
+            f"compound-gpid.local.md: team-brain.project-name must be "
+            f"alphanumeric with hyphens/underscores only. Got: {project_name!r}"
+        )
     llm_filter = tb_data.get("llm-filter", True)
     if isinstance(llm_filter, str):
         llm_filter = llm_filter.lower() not in ("false", "no", "0")
@@ -290,7 +298,7 @@ def load_team_brain_local_config(
     )
 
 
-def _find_local_config(start: Optional[Path] = None) -> Optional[Path]:
+def _find_local_config(start: Path | None = None) -> Path | None:
     """Walk upward from ``start`` to find ``compound-gpid.local.md``.
 
     Stops at a directory containing ``.git/`` or ``compound-gpid.md`` to

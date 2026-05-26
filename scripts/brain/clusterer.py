@@ -333,5 +333,12 @@ def cluster_topics(
     if strategy is not None:
         # min_cluster_size is intentionally not forwarded — the custom strategy
         # is responsible for its own cluster-size filtering.
+        if min_cluster_size != 3:
+            warnings.warn(
+                f"cluster_topics: min_cluster_size={min_cluster_size!r} is ignored "
+                "when a custom strategy is provided. The strategy controls its own "
+                "filtering. Pass min_cluster_size=3 (the default) to suppress this warning.",
+                stacklevel=2,
+            )
         return strategy(entities)
     return _GreedyAgglomerative(min_cluster_size=min_cluster_size)(entities)

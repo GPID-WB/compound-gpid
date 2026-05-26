@@ -1,4 +1,4 @@
-"""team_brain.schema — Schema definitions, constants, and validation.
+﻿"""team_brain.schema — Schema definitions, constants, and validation.
 
 Defines the canonical structure for:
 - ``TEAM-BRAIN.yml`` configuration files in the central team brain repo
@@ -17,7 +17,7 @@ import re
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Schema version
@@ -73,10 +73,10 @@ class TeamBrainConfig:
     """
 
     manager: str
-    contributors: List[Dict[str, str]]
+    contributors: list[dict[str, str]]
     curation_schedule: str = "weekly"
     auto_supersede: bool = False
-    internal_url_patterns: List[str] = field(default_factory=list)
+    internal_url_patterns: list[str] = field(default_factory=list)
     schema_version: str = SCHEMA_VERSION
 
 
@@ -113,13 +113,42 @@ class PatternEntry:
     date: str
     source_project: str
     topic: str
-    tags: List[str]
+    tags: list[str]
     pattern: str
     entry_path: str
     confidence: float = 1.0
-    superseded_by: Optional[str] = None
+    superseded_by: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def __post_init__(self) -> None:
+        """Validate fields on construction to catch write-path bypasses.
+
+        Raises:
+            ValueError: If any required field violates the schema constraints.
+        """
+        if not self.id.strip():
+            raise ValueError("PatternEntry: 'id' must be a non-empty string.")
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", self.date.strip()):
+            raise ValueError(
+                f"PatternEntry: 'date' must be ISO format YYYY-MM-DD, got: {self.date!r}"
+            )
+        if not self.source_project.strip():
+            raise ValueError("PatternEntry: 'source_project' must be a non-empty string.")
+        if not self.topic.strip():
+            raise ValueError("PatternEntry: 'topic' must be a non-empty string.")
+        if not self.pattern.strip():
+            raise ValueError("PatternEntry: 'pattern' must be a non-empty string.")
+        ep = Path(self.entry_path.strip())
+        if ".." in ep.parts or ep.is_absolute():
+            raise ValueError(
+                f"PatternEntry: 'entry_path' must be a relative path inside entries/, "
+                f"got: {self.entry_path!r}"
+            )
+        if not (0.0 <= self.confidence <= 2.0):
+            raise ValueError(
+                f"PatternEntry: 'confidence' must be in [0.0, 2.0], got {self.confidence}"
+            )
+
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to a JSON-serializable dictionary.
 
         Returns:
@@ -156,7 +185,7 @@ _LIST_ITEM_RE = re.compile(r"^\s*-\s+(.*?)\s*$")
 _MAPPING_ITEM_RE = re.compile(r"^\s+([A-Za-z0-9_-]+)\s*:\s*(.*?)\s*$")
 
 
-def _parse_team_brain_yml(text: str) -> Dict[str, Any]:
+def _parse_team_brain_yml(text: str) -> dict[str, Any]:
     """Parse a TEAM-BRAIN.yml file into a dictionary.
 
     Uses a minimal line-by-line parser (no third-party YAML library).
@@ -171,7 +200,7 @@ def _parse_team_brain_yml(text: str) -> Dict[str, Any]:
     Raises:
         ValueError: If the YAML structure is malformed or unrecognisable.
     """
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     lines = text.splitlines()
     i = 0
     while i < len(lines):
@@ -191,7 +220,7 @@ def _parse_team_brain_yml(text: str) -> Dict[str, Any]:
             continue
         if value == "" or value == "|" or value == ">":
             # Could be a list or nested mapping
-            items: List[Any] = []
+            items: list[Any] = []
             i += 1
             while i < len(lines):
                 next_line = lines[i]
@@ -202,7 +231,7 @@ def _parse_team_brain_yml(text: str) -> Dict[str, Any]:
                 if list_m:
                     item_text = list_m.group(1)
                     # Check if next lines are sub-mapping
-                    mapping: Dict[str, str] = {}
+                    mapping: dict[str, str] = {}
                     # Parse inline key: value pairs on list item line
                     if ": " in item_text:
                         for pair in item_text.split(","):
@@ -248,7 +277,7 @@ def _parse_team_brain_yml(text: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def validate_team_brain_yml(data: Dict[str, Any]) -> TeamBrainConfig:
+def validate_team_brain_yml(data: dict[str, Any]) -> TeamBrainConfig:
     """Validate parsed TEAM-BRAIN.yml data and return a ``TeamBrainConfig``.
 
     Args:
@@ -358,6 +387,14 @@ def parse_pattern_jsonl_line(line: str) -> PatternEntry:
             f"JSONL pattern entry: 'tags' must be a JSON array, "
             f"got {type(raw_tags).__name__}: {raw_tags!r}"
         )
+    # Validate topic (non-empty)
+    topic_str = str(data["topic"]).strip()
+    if not topic_str:
+        raise ValueError("JSONL pattern entry: 'topic' must be a non-empty string.")
+    # Validate source-project (non-empty)
+    source_project_str = str(data["source-project"]).strip()
+    if not source_project_str:
+        raise ValueError("JSONL pattern entry: 'source-project' must be a non-empty string.")
     # Validate pattern (non-empty)
     pattern_text = str(data["pattern"]).strip()
     if not pattern_text:
@@ -377,8 +414,8 @@ def parse_pattern_jsonl_line(line: str) -> PatternEntry:
     return PatternEntry(
         id=entry_id,
         date=date_str,
-        source_project=str(data["source-project"]),
-        topic=str(data["topic"]),
+        source_project=source_project_str,
+        topic=topic_str,
         tags=[str(t) for t in raw_tags],
         pattern=pattern_text,
         entry_path=ep,
@@ -387,7 +424,7 @@ def parse_pattern_jsonl_line(line: str) -> PatternEntry:
     )
 
 
-def load_patterns_from_jsonl(path: Path) -> List[PatternEntry]:
+def load_patterns_from_jsonl(path: Path) -> list[PatternEntry]:
     """Load all pattern entries from a JSONL file.
 
     Skips blank lines and comment lines (starting with ``#``).
@@ -410,7 +447,7 @@ def load_patterns_from_jsonl(path: Path) -> List[PatternEntry]:
     """
     if not path.exists():
         raise FileNotFoundError(f"Pattern JSONL file not found: {path}")
-    entries: List[PatternEntry] = []
+    entries: list[PatternEntry] = []
     for i, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         line = raw_line.strip()
         if not line or line.startswith("#"):

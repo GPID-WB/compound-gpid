@@ -153,7 +153,7 @@ The team brain feature requires GitHub API access. `gh` CLI is the most reliable
 
 2. **Check authentication**: Run `gh auth status`.
    - If authenticated: note "GitHub CLI is authenticated ✓" and proceed to A5.9.
-   - If not authenticated: run `gh auth login` to start the interactive login flow.
+   - If not authenticated: run `gh auth login --scopes repo` to start the interactive login flow. The `repo` scope is required for the GitHub Contents API used by `/cg-compound`.
      - After login, confirm with `gh auth status` again.
      - If login fails or is declined: note:
        > "GitHub authentication skipped. Team brain push will use `GITHUB_TOKEN` if set, or prompt for auth when needed."
@@ -201,7 +201,7 @@ Ask:
 (Used when the user chooses to create `{owner}/team-brain` in Step 2b above)
 
 1. Get the authenticated GitHub username: `GET https://api.github.com/user` → `login`.
-2. Create the repo: `POST https://api.github.com/orgs/{owner}/repos` with body `{"name": "team-brain", "description": "Team shared knowledge base (Compound GPID)", "private": false}`.
+2. Create the repo: `POST https://api.github.com/orgs/{owner}/repos` with body `{"name": "team-brain", "description": "Team shared knowledge base (Compound GPID)", "private": true}`. > **Note**: The repo is created private by default to protect any entries pushed before the user has reviewed the privacy filter settings. The team admin can change visibility later via GitHub repo settings.
 3. Push the scaffold files defined in `docs/team-brain-schema.md` — use the GitHub Contents API (`PUT /repos/{owner}/team-brain/contents/{path}`) for each:
    - `TEAM-BRAIN.yml` (manager = `{login}`, contributors = `[{org: "{owner}"}]`)
    - `TEAM-BRAIN.md` (placeholder from schema doc)

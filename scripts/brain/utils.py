@@ -322,7 +322,7 @@ def _truncate(text: str, max_words: int) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _write_atomic(path: Path, content: str) -> None:
+def write_atomic(path: Path, content: str) -> None:
     """Write ``content`` to ``path`` atomically via a temp file + ``os.replace()``.
 
     Prevents partially written files on process kill or other interruptions.

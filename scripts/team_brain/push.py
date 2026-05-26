@@ -1,4 +1,4 @@
-"""team_brain.push — Push a solution entry to the team brain central repo.
+﻿"""team_brain.push — Push a solution entry to the team brain central repo.
 
 Uses the GitHub Contents API (stdlib urllib only — no third-party deps).
 
@@ -6,7 +6,8 @@ Token lookup order (never printed, never logged):
   1. Caller-provided ``token`` argument
   2. ``GITHUB_TOKEN`` environment variable
   3. ``GH_TOKEN`` environment variable
-  4. ``git credential fill`` subprocess fallback (Windows Credential Manager)
+  4. ``gh auth token`` subprocess (GitHub CLI)
+  5. ``git credential fill`` subprocess fallback (Windows Credential Manager)
 
 Usage (from cg-index)::
 
@@ -21,12 +22,14 @@ import json
 import os
 import re
 import subprocess
+import time
 import urllib.error
 import urllib.request
+import warnings
 from dataclasses import dataclass
 from datetime import date as _date
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Literal
 
 from team_brain.config import TeamBrainLocalConfig, load_team_brain_local_config
 from team_brain.privacy import run_privacy_filter
@@ -39,6 +42,33 @@ from team_brain.schema import PatternEntry
 _GITHUB_API = "https://api.github.com"
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)^---\s*\n", re.DOTALL | re.MULTILINE)
 _MAX_PATTERN_LEN = 200
+
+
+# ---------------------------------------------------------------------------
+# HTTP redirect guard (SEC-P0.1)
+# ---------------------------------------------------------------------------
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Reject all HTTP redirects to prevent Authorization header forwarding.
+
+    Python's default HTTPRedirectHandler copies all headers (except
+    content-length) to redirect targets. A GitHub 301 to an attacker-
+    controlled endpoint would receive the full Bearer token.
+    """
+
+    def redirect_request(  # type: ignore[override]
+        self, req: urllib.request.Request, fp: object, code: int,
+        msg: str, headers: object, newurl: str,
+    ) -> None:
+        raise urllib.error.HTTPError(
+            req.full_url, code,
+            f"Redirect to {newurl!r} blocked (would forward Authorization header)",
+            headers,  # type: ignore[arg-type]
+            None,
+        )
+
+
+_opener = urllib.request.build_opener(_NoRedirectHandler())
 
 # ---------------------------------------------------------------------------
 # Result type
@@ -64,7 +94,7 @@ class PushResult:
         print(result.summary)
     """
 
-    action: str
+    action: Literal["created", "updated", "skipped", "blocked", "dry-run"]
     entry_path: str
     jsonl_path: str
     summary: str
@@ -75,7 +105,7 @@ class PushResult:
 # ---------------------------------------------------------------------------
 
 
-def get_token(explicit: Optional[str] = None) -> Optional[str]:
+def get_token(explicit: str | None = None) -> str | None:
     """Resolve a GitHub personal access token.
 
     Tries sources in order:
@@ -124,7 +154,7 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
     try:
         result = subprocess.run(
             ["git", "credential", "fill"],
-            input="protocol=https\nhost=github.com\n",
+            input="protocol=https\nhost=github.com\n\n",
             capture_output=True,
             text=True,
             timeout=5,
@@ -132,7 +162,7 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
         )
         for line in result.stdout.splitlines():
             if line.startswith("password="):
-                return line[len("password="):]
+                return line[len("password="):].strip()
     except (subprocess.SubprocessError, OSError):
         pass
     return None
@@ -143,7 +173,7 @@ def get_token(explicit: Optional[str] = None) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 
-def _parse_frontmatter(content: str) -> Tuple[Dict, str]:
+def _parse_frontmatter(content: str) -> tuple[dict, str]:
     """Split markdown content into a frontmatter dict and the body text.
 
     Handles quoted strings, inline lists (``[a, b]``), and boolean values.
@@ -166,7 +196,7 @@ def _parse_frontmatter(content: str) -> Tuple[Dict, str]:
 
     fm_text = m.group(1)
     body = content[m.end():]
-    fm: Dict = {}
+    fm: dict = {}
 
     for line in fm_text.splitlines():
         line = line.strip()
@@ -177,16 +207,18 @@ def _parse_frontmatter(content: str) -> Tuple[Dict, str]:
         key, _, raw_val = line.partition(":")
         key = key.strip()
         val = raw_val.strip()
-        # Strip inline comments (space before #)
-        if " #" in val:
+        # Strip outer quotes FIRST, then strip trailing inline comment.
+        # If we stripped the comment before unquoting, a title like
+        # `title: "My Fix #1"` would be truncated to `"My Fix` (quote + partial text).
+        if len(val) >= 2 and val[0] in ('"', "'") and val[-1] == val[0]:
+            val = val[1:-1]
+        elif " #" in val:
+            # Only strip unquoted inline comments (space before #)
             val = val[: val.index(" #")].rstrip()
         # Handle inline lists: [tag1, tag2]
         if val.startswith("[") and val.endswith("]"):
             fm[key] = [v.strip().strip("\"'") for v in val[1:-1].split(",") if v.strip()]
             continue
-        # Strip quotes
-        if len(val) >= 2 and val[0] in ('"', "'") and val[-1] == val[0]:
-            val = val[1:-1]
         # Coerce booleans
         if val.lower() == "true":
             fm[key] = True
@@ -203,7 +235,7 @@ def _parse_frontmatter(content: str) -> Tuple[Dict, str]:
 # ---------------------------------------------------------------------------
 
 
-def _distill_pattern(frontmatter: Dict, body: str) -> str:
+def _distill_pattern(frontmatter: dict, body: str) -> str:
     """Extract a ≤200-char one-liner pattern from the solution.
 
     Order of preference:
@@ -233,7 +265,7 @@ def _distill_pattern(frontmatter: Dict, body: str) -> str:
     # 2 & 3. Try specific sections
     for section_name in ("Solution", "Root Cause"):
         section_m = re.search(
-            rf"##\s*{re.escape(section_name)}\s*\n+(.*?)(?:\n##|\Z)",
+            rf"#{{2,6}}\s*{re.escape(section_name)}\s*\n+(.*?)(?:\n#{{2,6}}|\Z)",
             body,
             re.DOTALL,
         )
@@ -262,8 +294,8 @@ def _api_request(
     method: str,
     url: str,
     token: str,
-    body: Optional[Dict] = None,
-) -> Tuple[int, Dict]:
+    body: dict | None = None,
+) -> tuple[int, dict]:
     """Make a GitHub REST API request.
 
     Never logs or prints the token.
@@ -284,10 +316,12 @@ def _api_request(
         "Content-Type": "application/json",
         "User-Agent": "compound-gpid/team-brain-push",
     }
+    if not url.startswith("https://"):
+        raise ValueError(f"_api_request requires HTTPS; got: {url!r}")
     data = json.dumps(body).encode("utf-8") if body else None
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req) as resp:
+        with _opener.open(req, timeout=30) as resp:
             return resp.status, json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", errors="replace")
@@ -302,7 +336,7 @@ def _get_remote_file(
     owner_repo: str,
     path: str,
     token: str,
-) -> Optional[Tuple[str, str]]:
+) -> tuple[str, str] | None:
     """Fetch a file from the GitHub repo.
 
     Args:
@@ -335,7 +369,7 @@ def _put_remote_file(
     token: str,
     content: str,
     message: str,
-    sha: Optional[str] = None,
+    sha: str | None = None,
 ) -> None:
     """Create or update a file in the GitHub repo via the Contents API.
 
@@ -351,7 +385,7 @@ def _put_remote_file(
         RuntimeError: If the API returns a non-2xx status.
     """
     encoded = base64.b64encode(content.encode("utf-8")).decode("ascii")
-    payload: Dict = {"message": message, "content": encoded}
+    payload: dict = {"message": message, "content": encoded}
     if sha:
         payload["sha"] = sha
     url = f"{_GITHUB_API}/repos/{owner_repo}/contents/{path}"
@@ -362,12 +396,70 @@ def _put_remote_file(
         )
 
 
+def _put_jsonl_with_retry(
+    owner_repo: str,
+    path: str,
+    token: str,
+    new_line: str,
+    entry_id: str,
+    commit_msg: str,
+    max_retries: int = 3,
+) -> None:
+    """Upsert a JSONL patterns file with exponential back-off on SHA races.
+
+    A 409 or 422 response means a concurrent push updated the file between
+    our GET and our PUT.  We re-fetch the current SHA and retry.
+
+    Args:
+        owner_repo: ``owner/repo`` string.
+        path: JSONL file path in the central repo.
+        token: GitHub token.
+        new_line: Serialized JSON line to upsert.
+        entry_id: ``id`` field of the entry being upserted.
+        commit_msg: Commit message for the PUT.
+        max_retries: Maximum number of retry attempts (default 3).
+
+    Raises:
+        RuntimeError: If all retries are exhausted or an unexpected HTTP
+            error occurs.
+    """
+    for attempt in range(max_retries + 1):
+        existing_jsonl = _get_remote_file(owner_repo, path, token)
+        if existing_jsonl:
+            jsonl_sha, jsonl_content = existing_jsonl
+            updated_jsonl, was_replaced = _upsert_jsonl_line(jsonl_content, new_line, entry_id)
+            jsonl_commit_msg = commit_msg + (" (update)" if was_replaced else " (append)")
+            encoded = base64.b64encode(updated_jsonl.encode("utf-8")).decode("ascii")
+            payload: dict = {
+                "message": jsonl_commit_msg,
+                "content": encoded,
+                "sha": jsonl_sha,
+            }
+        else:
+            initial_content = new_line + "\n"
+            encoded = base64.b64encode(initial_content.encode("utf-8")).decode("ascii")
+            payload = {"message": commit_msg + " (initialize)", "content": encoded}
+
+        url = f"{_GITHUB_API}/repos/{owner_repo}/contents/{path}"
+        status, data = _api_request("PUT", url, token, payload)
+        if status in (200, 201):
+            return
+        if status in (409, 422) and attempt < max_retries:
+            # Stale SHA — concurrent push beat us; back off and retry
+            time.sleep(2 ** attempt)
+            continue
+        raise RuntimeError(
+            f"Failed to push {path} (HTTP {status}) after {attempt + 1} attempt(s): "
+            f"{data.get('message', '')}"
+        )
+
+
 # ---------------------------------------------------------------------------
 # JSONL merge helpers
 # ---------------------------------------------------------------------------
 
 
-def _upsert_jsonl_line(existing_content: str, new_line: str, entry_id: str) -> str:
+def _upsert_jsonl_line(existing_content: str, new_line: str, entry_id: str) -> tuple[str, bool]:
     """Insert or replace an entry in JSONL content.
 
     Replaces the line whose ``id`` matches ``entry_id``, or appends the new
@@ -379,7 +471,8 @@ def _upsert_jsonl_line(existing_content: str, new_line: str, entry_id: str) -> s
         entry_id: ``id`` field of the entry being upserted.
 
     Returns:
-        Updated JSONL text (LF-terminated).
+        Tuple of (updated_jsonl_text, was_replaced). ``was_replaced`` is True
+        if an existing entry was updated, False if a new line was appended.
     """
     lines = [ln for ln in existing_content.splitlines() if ln.strip()]
     replaced = False
@@ -391,10 +484,15 @@ def _upsert_jsonl_line(existing_content: str, new_line: str, entry_id: str) -> s
                 replaced = True
                 break
         except json.JSONDecodeError:
+            warnings.warn(
+                f"Skipping malformed JSONL line {i + 1} in existing file; "
+                "it will be preserved as-is.",
+                stacklevel=3,
+            )
             continue
     if not replaced:
         lines.append(new_line)
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n", replaced
 
 
 # ---------------------------------------------------------------------------
@@ -404,11 +502,11 @@ def _upsert_jsonl_line(existing_content: str, new_line: str, entry_id: str) -> s
 
 def push_entry(
     solution_path: Path,
-    config: Optional[TeamBrainLocalConfig] = None,
-    token: Optional[str] = None,
+    config: TeamBrainLocalConfig | None = None,
+    token: str | None = None,
     *,
     dry_run: bool = False,
-    local_config_path: Optional[Path] = None,
+    local_config_path: Path | None = None,
 ) -> PushResult:
     """Push a solution entry to the team brain central repo.
 
@@ -501,6 +599,21 @@ def push_entry(
             summary=f"Team brain push blocked by privacy filter: {filter_result.block_reason}",
         )
 
+    # Guard: abort if the filtered body is effectively empty (DQ-P1.3).
+    # This happens when all sections are marked private — pushing only frontmatter
+    # would produce a noise entry with no reusable content.
+    _, filtered_body_only = _parse_frontmatter(filter_result.clean_content)
+    if len(filtered_body_only.strip()) < 50:
+        return PushResult(
+            action="blocked",
+            entry_path="",
+            jsonl_path="",
+            summary=(
+                "Team brain push blocked: body is empty or too short after privacy filtering "
+                "(< 50 characters). Check 'private-sections:' in the frontmatter."
+            ),
+        )
+
     # Inject source-project and pushed-date into the clean content
     pushed_date = _date.today().isoformat()
     extra_fields = (
@@ -520,9 +633,20 @@ def push_entry(
     entry_path = f"entries/{config.project_name}/{filename}"
     jsonl_path = f"patterns/{config.project_name}.jsonl"
 
-    # Build pattern entry
-    pattern_text = _distill_pattern(frontmatter, body)
-    tags: List[str] = frontmatter.get("tags", [])
+    # Build pattern entry — distill from *filtered* content to avoid leaking private data
+    clean_fm, clean_body = _parse_frontmatter(filter_result.clean_content)
+    pattern_text = _distill_pattern(clean_fm, clean_body)
+    if pattern_text == "(no pattern)":
+        return PushResult(
+            action="skipped",
+            entry_path="",
+            jsonl_path="",
+            summary=(
+                "Team brain push skipped: could not distill a meaningful pattern. "
+                "Add a 'root-cause:' frontmatter field or a '## Solution' section."
+            ),
+        )
+    tags: list[str] = frontmatter.get("tags", [])
     if isinstance(tags, str):
         tags = [t.strip() for t in tags.strip("[]").split(",") if t.strip()]
 
@@ -537,6 +661,7 @@ def push_entry(
         confidence=1.0,
         superseded_by=None,
     )
+    new_line = pattern_entry.to_jsonl_line()
 
     if dry_run:
         return PushResult(
@@ -549,6 +674,15 @@ def push_entry(
                 f"{filter_result.summary()}."
             ),
         )
+
+    # Push JSONL patterns file FIRST (ADV-P1.3: JSONL-first ordering).
+    # If the entry PUT fails afterwards, the JSONL is still indexable and
+    # re-running will overwrite the entry with a consistent state.
+    jsonl_base_msg = f"knowledge({config.project_name}): {solution_path.stem}"
+    _put_jsonl_with_retry(
+        config.repo, jsonl_path, resolved_token,
+        new_line, pattern_entry.id, jsonl_base_msg,
+    )
 
     # Push the markdown entry (create or update)
     existing_entry = _get_remote_file(config.repo, entry_path, resolved_token)
@@ -563,38 +697,13 @@ def push_entry(
         config.repo, entry_path, resolved_token, clean_content, commit_msg, entry_sha
     )
 
-    # Upsert the JSONL patterns file
-    new_line = pattern_entry.to_jsonl_line()
-    existing_jsonl = _get_remote_file(config.repo, jsonl_path, resolved_token)
-
-    if existing_jsonl:
-        jsonl_sha, jsonl_content = existing_jsonl
-        updated_jsonl = _upsert_jsonl_line(jsonl_content, new_line, pattern_entry.id)
-        jsonl_action = "update" if pattern_entry.id in jsonl_content else "append"
-        _put_remote_file(
-            config.repo,
-            jsonl_path,
-            resolved_token,
-            updated_jsonl,
-            f"knowledge({config.project_name}): {jsonl_action} {solution_path.stem}",
-            jsonl_sha,
-        )
-    else:
-        _put_remote_file(
-            config.repo,
-            jsonl_path,
-            resolved_token,
-            new_line + "\n",
-            f"knowledge({config.project_name}): initialize patterns/{config.project_name}.jsonl",
-        )
-
     return PushResult(
         action=action,
         entry_path=entry_path,
         jsonl_path=jsonl_path,
         summary=(
             f"Entry {action} at {entry_path}. "
-            f"Pattern appended to {jsonl_path}. "
+            f"Pattern pushed to {jsonl_path}. "
             f"{filter_result.summary()}."
         ),
     )
