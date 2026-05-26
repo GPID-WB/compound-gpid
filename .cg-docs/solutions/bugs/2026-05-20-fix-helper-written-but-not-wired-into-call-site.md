@@ -137,3 +137,6 @@ call sites is a `ruff F401` unused-import warning. If the project runs
   the actual warning-emitters uncovered.
 - `.cg-docs/solutions/testing-patterns/2026-05-01-fix-triage-prompt-changes-need-co-authored-tests.md`
   — co-authoring tests with fixes prevents exactly this gap.
+- `.cg-docs/solutions/testing-patterns/2026-05-26-mock-target-drift-after-api-refactoring.md`
+  — complementary failure: an API refactor introduced a new entry point that
+  bypassed existing mocks, causing tests to hit the real network silently.
