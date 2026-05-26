@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-05-20_
+_Generated 2026-05-26_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 280 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 281 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -344,6 +344,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > **Review depth**: light (forced by `mode:verify`) **Files reviewed**: 10 (scripts/brain/renderer.py, edge_detector.py…
 - **[2026-05-20-team-brain-batch-d-review](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md)** · `review` · _—_ · `2026-05-20`
   > **Review depth**: thorough **Files reviewed**: 54 (22,718 insertions / 1,584 deletions vs main) **Primary scope**: `s…
+- **[2026-05-21-knowledge-brain-engine-review](.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md)** · `review` · _—_ · `2026-05-21`
+  > **Date**: 2026-05-21 **Branch**: `feat/knowledge-brain-engine` (PR #42) **Plan**: [2026-05-20-team-brain-batch-d](.cg…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`

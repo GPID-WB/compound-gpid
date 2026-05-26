@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-20 · 323 artifacts (newest first) + 88 roadmap features_
+_Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
 
 ## undated
 
@@ -100,6 +100,18 @@ _Generated 2026-05-20 · 323 artifacts (newest first) + 88 roadmap features_
   > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
 - **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
+
+## 2026-05-26
+
+- **[Mock target drift: existing mocks bypassed after function split](.cg-docs/solutions/testing-patterns/2026-05-26-mock-target-drift-after-api-refactoring.md)** · `solution` · _—_ · `2026-05-26`
+  > `TestPushEntryLive` in `scripts/team_brain/tests/test_push.py` used `patch("team_brain.push._put_remote_file")` to pr…
+- **[urllib.request follows redirects and forwards Authorization headers](.cg-docs/solutions/bugs/2026-05-26-urllib-redirect-forwards-authorization-headers.md)** · `solution` · _—_ · `2026-05-26`
+  > Python's `urllib.request.urlopen` follows HTTP 3xx redirects automatically by default. When the redirected request is…
+
+## 2026-05-21
+
+- **[2026-05-21-knowledge-brain-engine-review](.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md)** · `review` · _—_ · `2026-05-21`
+  > **Date**: 2026-05-21 **Branch**: `feat/knowledge-brain-engine` (PR #42) **Plan**: [2026-05-20-team-brain-batch-d](.cg…
 
 ## 2026-05-20
 
