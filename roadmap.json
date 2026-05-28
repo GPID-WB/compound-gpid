@@ -278,6 +278,27 @@
           "title": "Auto-triggered skills via expanded applyTo hook patterns [from SP]",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "mattpocock-skills-review-source",
+          "title": "Add mattpocock/skills to competitive review sources",
+          "description": "Include the mattpocock/skills repository in the set of external references consulted during competitive reviews and skill design. Source of patterns: grill-with-docs, plan-with-docs, and general skill architecture.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cross-model-adversarial-review",
+          "title": "Cross-model review — adversarial model diversity",
+          "description": "When work is done by Anthropic models, dispatch review agents on OpenAI models (and vice versa). Different model families have different blind spots; cross-pollination catches errors that same-family review misses. Requires model routing logic in /cg-review dispatch.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "tiered-model-escalation",
+          "title": "Tiered model escalation — super-advanced model dispatch",
+          "description": "Define criteria for escalating to frontier models (Opus 4.7, GPT 5.5) and build the dispatch mechanism. Three triggers: (1) task inherently requires that power level, (2) agent gets stuck or fails after initial attempt, (3) task needs efficiency that justifies higher cost. Requires: task difficulty classification, failure-detection + retry-with-escalation logic, and cost/benefit heuristics.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -326,6 +347,20 @@
         {
           "id": "auto-knowledge-extraction-after-work",
           "title": "Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "brainstorm-depth-grill-mode",
+          "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
+          "description": "Relentlessly inquisitive questioning in /cg-brainstorm until user and agent reach deep shared understanding. Inspired by mattpocock's grill-with-docs: challenge against domain glossary, sharpen fuzzy language, discuss concrete scenarios, cross-reference with code. Two modes: 'grill me' (agent questions user's idea) and 'grill with docs' (agent challenges plan against existing project knowledge/BRAIN.md). Captures resolved terminology and decisions inline.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-confidence-prompt",
+          "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
+          "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
           "status": "idea",
           "plan": null
         }
@@ -422,6 +457,13 @@
           "title": "Onboarding tour prompt /cg-tour (guided workflow walkthrough)",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "cg-help-interactive",
+          "title": "/cg-help — comprehensive interactive help system",
+          "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -490,6 +532,13 @@
           "title": "/cg-verify-pr — CI check verification and auto-fix dispatch",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md"
+        },
+        {
+          "id": "goal-driven-execution",
+          "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
+          "description": "Transform the /cg-plan → /cg-work → /cg-review pipeline into a goal-driven execution loop inspired by Codex Goals. The plan becomes a completion contract defining six properties: outcome (what should be true when done), verification surface (tests/benchmarks/artifacts that prove it), constraints (what must not regress), boundaries (allowed scope), iteration policy (how to choose next action), and blocked-stop condition (when to pause and report). /cg-work executes against this contract — validating inline, self-reviewing against criteria, and continuing until evidence confirms the outcome or a blocker is hit. Deviation policy is declared in the plan: 'ask' (pause for permission), 'autonomous' (deviate and report), or 'strict' (never deviate). A full implementation report is produced at completion showing: what was achieved vs. planned, any deviations with justification, evidence gathered, and remaining uncertainty. The separate /cg-review command remains available for adversarial/cross-model review but is no longer required as a default post-work step.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -639,6 +688,20 @@
           "description": "Create and continuously maintain a user-readable documentation wiki (similar to compound-gpid's own docs/ folder) that serves as the canonical reference for any project using the plugin — whether it's a research paper, R package, data pipeline, or tool. The wiki is initialized during /cg-setup based on the project charter, scanner results, and project type: for an R package it might include installation, API reference, and vignettes sections; for a research paper it might cover methodology, data sources, and replication instructions; for a tool it might cover setup, usage, and configuration. After initialization, /cg-compound automatically updates the wiki whenever a completed task produces knowledge that belongs in user-facing documentation — new features get documented, changed behaviors get updated, resolved bugs that affect usage get noted. The wiki is distinct from .cg-docs/ (which is internal compound-gpid knowledge) — this is external-facing documentation that end users and collaborators read. Flexibility mechanisms: the user can customize the wiki structure via a configuration section in compound-gpid.context.md (e.g., preferred sections, tone, audience), can run a dedicated command to restructure or regenerate specific sections, and can manually edit wiki pages without the plugin overwriting their changes (the plugin appends or proposes diffs, never force-overwrites). The wiki should also support a table of contents and cross-linking between pages.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md"
+        },
+        {
+          "id": "planning-stage-test-strategy",
+          "title": "Planning-stage test strategy + human review facilitation",
+          "description": "During /cg-plan, explicitly define: (1) how the agent will test and validate the work (test commands, assertions, verification steps), and (2) how the human will independently review the result without needing /cg-review. The plan output includes a 'Verification' section that the human can follow post-implementation. Separates machine validation (automated, agent-run) from human validation (visual, logical, domain-specific).",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "agent-verified-outcome-evals",
+          "title": "Agent-verified outcome definitions with acceptance evals",
+          "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
+          "status": "idea",
+          "plan": null
         }
       ]
     }
