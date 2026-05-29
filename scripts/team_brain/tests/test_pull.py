@@ -302,7 +302,7 @@ class TestPullMatching(unittest.TestCase):
     def _mock_fetch_index(self, _config, *, refresh=False):
         return _SAMPLE_INDEX
 
-    def _mock_fetch_jsonl(self, _config, _project):
+    def _mock_fetch_jsonl(self, _config, _project, *, refresh=False):
         return [json.loads(_SAMPLE_JSONL_LINE)]
 
     @patch("team_brain.pull._fetch_project_jsonl")
@@ -352,7 +352,7 @@ class TestPullMatching(unittest.TestCase):
         high["confidence"] = 1.2
         low["confidence"] = 0.8
         low["id"] = "other-entry"
-        mock_jsonl.side_effect = lambda _c, _p: [low, high]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [low, high]
 
         result = pull_from_team_brain(["null"], _CONFIG)
         if len(result.patterns) >= 2:
@@ -405,10 +405,6 @@ class TestPullReturnType(unittest.TestCase):
         self.assertIsInstance(result.cache_used, bool)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # ---------------------------------------------------------------------------
 # P2.8 — Additional edge case tests (review findings)
 # ---------------------------------------------------------------------------
@@ -420,8 +416,9 @@ class TestPullEdgeCases(unittest.TestCase):
     def _mock_fetch_index(self, _config, *, refresh=False):
         return _SAMPLE_INDEX
 
+    @patch("team_brain.pull._is_cache_fresh", return_value=False)
     @patch("team_brain.pull._fetch_remote_raw")
-    def test_malformed_jsonl_lines_are_skipped(self, mock_fetch):
+    def test_malformed_jsonl_lines_are_skipped(self, mock_fetch, _mock_fresh):
         """Malformed JSONL lines are skipped; subsequent valid lines are returned."""
         mock_fetch.return_value = (
             "NOT JSON\n"
@@ -440,7 +437,7 @@ class TestPullEdgeCases(unittest.TestCase):
         mock_index.side_effect = self._mock_fetch_index
         entry = dict(json.loads(_SAMPLE_JSONL_LINE))
         entry["tags"] = "[null, validation]"
-        mock_jsonl.side_effect = lambda _c, _p: [entry]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [entry]
         result = pull_from_team_brain(["null"], _CONFIG)
         self.assertGreater(len(result.patterns), 0)
 
@@ -449,7 +446,7 @@ class TestPullEdgeCases(unittest.TestCase):
     def test_empty_topic_list_proceeds_to_pattern_matching(self, mock_index, mock_jsonl):
         """When topic table is absent, matching proceeds without topic-level filter."""
         mock_index.return_value = "# TEAM-BRAIN\n\nNo table here.\n"
-        mock_jsonl.side_effect = lambda _c, _p: [json.loads(_SAMPLE_JSONL_LINE)]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [json.loads(_SAMPLE_JSONL_LINE)]
         result = pull_from_team_brain(["null"], _CONFIG)
         self.assertIsInstance(result, PullResult)  # does not error
 
@@ -460,7 +457,7 @@ class TestPullEdgeCases(unittest.TestCase):
         mock_index.side_effect = self._mock_fetch_index
         bad_entry = dict(json.loads(_SAMPLE_JSONL_LINE))
         bad_entry["confidence"] = "high"
-        mock_jsonl.side_effect = lambda _c, _p: [bad_entry]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [bad_entry]
         result = pull_from_team_brain(["null"], _CONFIG)
         self.assertIsInstance(result, PullResult)  # must not raise
         # Entry should still be present (confidence falls back to 1.0)
@@ -473,7 +470,7 @@ class TestPullEdgeCases(unittest.TestCase):
         mock_index.side_effect = self._mock_fetch_index
         bad_entry = dict(json.loads(_SAMPLE_JSONL_LINE))
         bad_entry["tags"] = None  # JSON null
-        mock_jsonl.side_effect = lambda _c, _p: [bad_entry]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [bad_entry]
         result = pull_from_team_brain(["null"], _CONFIG)
         self.assertIsInstance(result, PullResult)  # must not raise
 
@@ -484,7 +481,7 @@ class TestPullEdgeCases(unittest.TestCase):
         mock_index.side_effect = self._mock_fetch_index
         bad_entry = dict(json.loads(_SAMPLE_JSONL_LINE))
         bad_entry["pattern"] = ["item one", "item two"]  # JSON array
-        mock_jsonl.side_effect = lambda _c, _p: [bad_entry]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [bad_entry]
         result = pull_from_team_brain(["null"], _CONFIG)
         self.assertIsInstance(result, PullResult)  # must not raise
 
@@ -495,9 +492,11 @@ class TestPullEdgeCases(unittest.TestCase):
         mock_index.side_effect = self._mock_fetch_index
         bad_entry = dict(json.loads(_SAMPLE_JSONL_LINE))
         bad_entry["confidence"] = "inf"
-        mock_jsonl.side_effect = lambda _c, _p: [bad_entry]
+        mock_jsonl.side_effect = lambda _c, _p, **_kw: [bad_entry]
         result = pull_from_team_brain(["null"], _CONFIG)
-        if result.patterns:
-            self.assertFalse(
-                any(p.confidence == float("inf") for p in result.patterns)
-            )
+        self.assertGreaterEqual(len(result.patterns), 1, "inf-confidence entry must still match")
+        self.assertFalse(any(p.confidence == float("inf") for p in result.patterns))
+
+
+if __name__ == "__main__":
+    unittest.main()

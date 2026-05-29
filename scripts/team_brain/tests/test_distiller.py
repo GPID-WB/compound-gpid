@@ -158,6 +158,7 @@ class TestDistillPattern(unittest.TestCase):
         result = distill_pattern({}, "")
         self.assertEqual(result.pattern_text, "(no pattern)")
         self.assertEqual(result.source, "fallback")
+        self.assertIsNone(result.prompt)
 
     def test_fallback_when_only_noise(self):
         """Returns fallback when body has only short/blocked lines."""
@@ -183,10 +184,6 @@ class TestDistillPattern(unittest.TestCase):
                 self.assertIsInstance(result, DistillResult)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # ---------------------------------------------------------------------------
 # P3.6 — Additional coverage tests (review findings)
 # ---------------------------------------------------------------------------
@@ -194,13 +191,6 @@ if __name__ == "__main__":
 
 class TestDistillerReviewFindings(unittest.TestCase):
     """Tests added during Phase 2 code review to fill coverage gaps."""
-
-    def test_empty_fallback_source(self):
-        """Empty frontmatter and body returns fallback source with no prompt."""
-        result = distill_pattern({}, "")
-        self.assertEqual(result.pattern_text, "(no pattern)")
-        self.assertEqual(result.source, "fallback")
-        self.assertIsNone(result.prompt)
 
     def test_root_cause_section_skips_code_blocks(self):
         """Code blocks in ## Root Cause are skipped; prose following them is used."""
@@ -242,3 +232,7 @@ class TestDistillerReviewFindings(unittest.TestCase):
         result = distill_pattern({"title": None}, "")
         self.assertNotEqual(result.pattern_text, "None")
         self.assertEqual(result.source, "fallback")
+
+
+if __name__ == "__main__":
+    unittest.main()
