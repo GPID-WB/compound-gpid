@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Literal
 
 from team_brain.config import TeamBrainLocalConfig, load_team_brain_local_config
+from team_brain.distiller import distill_pattern
 from team_brain.privacy import run_privacy_filter
 from team_brain.schema import PatternEntry
 
@@ -41,7 +42,6 @@ from team_brain.schema import PatternEntry
 
 _GITHUB_API = "https://api.github.com"
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)^---\s*\n", re.DOTALL | re.MULTILINE)
-_MAX_PATTERN_LEN = 200
 
 
 # ---------------------------------------------------------------------------
@@ -236,14 +236,11 @@ def _parse_frontmatter(content: str) -> tuple[dict, str]:
 
 
 def _distill_pattern(frontmatter: dict, body: str) -> str:
-    """Extract a ≤200-char one-liner pattern from the solution.
+    """Backward-compatible wrapper — delegates to :func:`team_brain.distiller.distill_pattern`.
 
-    Order of preference:
-    1. ``root-cause`` frontmatter field
-    2. First substantive sentence from ``## Solution`` section
-    3. First substantive sentence from ``## Root Cause`` section
-    4. ``title`` frontmatter field
-    5. Fallback literal ``"(no pattern)"``
+    Returns the plain ``pattern_text`` string. Use :func:`distill_pattern`
+    directly when the :class:`~team_brain.distiller.DistillResult` metadata
+    (source label, LLM prompt) is needed.
 
     Args:
         frontmatter: Parsed frontmatter dictionary.
@@ -257,32 +254,7 @@ def _distill_pattern(frontmatter: dict, body: str) -> str:
         pattern = _distill_pattern({"root-cause": "Missing null check."}, "")
         assert pattern == "Missing null check."
     """
-    # 1. root-cause frontmatter (already a one-liner by convention)
-    rc_fm = str(frontmatter.get("root-cause", "")).strip().strip("\"'")
-    if rc_fm:
-        return rc_fm[:_MAX_PATTERN_LEN]
-
-    # 2 & 3. Try specific sections
-    for section_name in ("Solution", "Root Cause"):
-        section_m = re.search(
-            rf"#{{2,6}}\s*{re.escape(section_name)}\s*\n+(.*?)(?:\n#{{2,6}}|\Z)",
-            body,
-            re.DOTALL,
-        )
-        if section_m:
-            text = section_m.group(1).strip()
-            for sentence in re.split(r"(?<=[.!?])\s+", text):
-                s = sentence.strip()
-                # Skip short tokens, code blocks, blank lines, headings
-                if s and len(s) > 10 and not s.startswith(("#", "```", "|", "-")):
-                    return s[:_MAX_PATTERN_LEN]
-
-    # 4. Title
-    title = str(frontmatter.get("title", "")).strip().strip("\"'")
-    if title:
-        return title[:_MAX_PATTERN_LEN]
-
-    return "(no pattern)"
+    return distill_pattern(frontmatter, body).pattern_text
 
 
 # ---------------------------------------------------------------------------
@@ -635,7 +607,7 @@ def push_entry(
 
     # Build pattern entry — distill from *filtered* content to avoid leaking private data
     clean_fm, clean_body = _parse_frontmatter(filter_result.clean_content)
-    pattern_text = _distill_pattern(clean_fm, clean_body)
+    pattern_text = distill_pattern(clean_fm, clean_body).pattern_text
     if pattern_text == "(no pattern)":
         return PushResult(
             action="skipped",
