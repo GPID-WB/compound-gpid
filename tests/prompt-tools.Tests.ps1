@@ -5122,3 +5122,66 @@ Describe "Brain integration - remaining prompts parse --no-brain flag" {
         ($c -match '--no-brain') | Should -Be $true
     }
 }
+
+# ---------------------------------------------------------------------------
+# Batch D — Team Brain push step in cg-compound + Team Brain pull in brain-query
+# ---------------------------------------------------------------------------
+
+Describe "cg-compound.prompt.md - Team Brain push step (Step 3d)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "contains Step 3d: Push to Team Brain" {
+        ($content -match '(?im)^###\s+Step 3d') | Should -Be $true
+    }
+
+    It "Step 3d comes after Step 3c (wiki update)" {
+        $idx3c = $content.IndexOf("Step 3c")
+        $idx3d = $content.IndexOf("Step 3d")
+        $idx3c | Should -BeGreaterThan -1
+        $idx3d | Should -BeGreaterThan $idx3c
+    }
+
+    It "Step 3d skips silently when team-brain not configured" {
+        ($content -match '(?i)skip.*silently|silently.*skip') | Should -Be $true
+    }
+
+    It "Step 3d invokes cg-index --push-entry" {
+        ($content -match 'cg-index.*--push-entry|--push-entry') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-brain-query - Team Brain pull step (Step 2b)" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-brain-query\SKILL.md"
+    $content = Get-Content $skillFile -Raw -Encoding UTF8
+
+    It "contains Step 2b section for team brain pull" {
+        ($content -match '(?im)^###\s+Step 2b') | Should -Be $true
+    }
+
+    It "Step 2b comes after Step 2 and before Step 3" {
+        $idx2  = $content.IndexOf("### Step 2 ")
+        $idx2b = $content.IndexOf("### Step 2b")
+        $idx3  = $content.IndexOf("### Step 3 ")
+        $idx2  | Should -BeGreaterThan -1
+        $idx2b | Should -BeGreaterThan -1
+        $idx3  | Should -BeGreaterThan -1
+        $idx2b | Should -BeGreaterThan $idx2
+        $idx3  | Should -BeGreaterThan $idx2b
+    }
+
+    It "Step 2b mentions team-brain configuration" {
+        ($content -match 'team-brain') | Should -Be $true
+    }
+
+    It "Step 2b includes source attribution" {
+        ($content -match 'source-project|source_project|source attribution|from team brain') | Should -Be $true
+    }
+
+    It "Step 2b has security note about untrusted pattern_text and block-quote embedding" {
+        ($content -match '(?i)security note') | Should -Be $true
+        ($content -match '(?i)untrusted|prompt injection') | Should -Be $true
+        ($content -match '(?i)block.quote') | Should -Be $true
+    }
+}
+
