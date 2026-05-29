@@ -1,0 +1,151 @@
+---
+# scripts/team_brain/actions/rebuild-index.yml
+#
+# GitHub Actions workflow template for rebuilding the unified TEAM-BRAIN.md index.
+# Copy this file into the team brain repo's .github/workflows/ directory.
+#
+# Trigger: Push to entries/ or patterns/ (new solutions or pattern updates)
+# Action: Merges all patterns/*.jsonl entries and scans all entries/ markdown
+#         files into a unified TEAM-BRAIN.md, then commits the result.
+
+name: Rebuild Team Brain Index
+
+on:
+  push:
+    paths:
+      - "entries/**"
+      - "patterns/**"
+
+  # Allow manual trigger for testing or one-off rebuilds
+  workflow_dispatch:
+
+jobs:
+  rebuild-index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # required to commit the updated TEAM-BRAIN.md
+
+    steps:
+      - name: Checkout team brain repo
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so we can commit with correct author info
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate TEAM-BRAIN.md
+        run: |
+          python - <<'PYEOF'
+          """
+          Merge all patterns/*.jsonl and entries/**/*.md into TEAM-BRAIN.md.
+
+          This inline script avoids requiring a pip install step; it uses only
+          stdlib. The output format mirrors the local BRAIN.md produced by
+          cg-index, but at team scope.
+          """
+          import json
+          import os
+          import re
+          from pathlib import Path
+          from datetime import date
+
+          root = Path(".")
+          patterns_dir = root / "patterns"
+          entries_dir = root / "entries"
+          output_path = root / "TEAM-BRAIN.md"
+
+          # ----------------------------------------------------------------
+          # Collect all pattern entries from *.jsonl
+          # ----------------------------------------------------------------
+          all_patterns: list[dict] = []
+          if patterns_dir.exists():
+              for jsonl_path in sorted(patterns_dir.glob("*.jsonl")):
+                  for line in jsonl_path.read_text(encoding="utf-8").splitlines():
+                      line = line.strip()
+                      if line:
+                          try:
+                              all_patterns.append(json.loads(line))
+                          except json.JSONDecodeError:
+                              pass  # malformed line — skip silently
+
+          # ----------------------------------------------------------------
+          # Group patterns by topic
+          # ----------------------------------------------------------------
+          topics: dict[str, list[dict]] = {}
+          for entry in all_patterns:
+              topic = entry.get("topic", "General")
+              topics.setdefault(topic, []).append(entry)
+
+          # ----------------------------------------------------------------
+          # Count entry files
+          # ----------------------------------------------------------------
+          entry_count = 0
+          if entries_dir.exists():
+              entry_count = sum(1 for _ in entries_dir.rglob("*.md"))
+
+          # ----------------------------------------------------------------
+          # Render TEAM-BRAIN.md
+          # ----------------------------------------------------------------
+          today = date.today().isoformat()
+          total_patterns = len(all_patterns)
+          total_topics = len(topics)
+
+          lines = [
+              f"# 🧠 Team Brain",
+              f"",
+              f"_Generated {today} · {total_patterns} patterns · {entry_count} entries · {total_topics} topics_",
+              f"",
+              f"## How to Use",
+              f"",
+              f"1. Find the relevant **topic** in the Topic Index below.",
+              f"2. Drill into the topic for full pattern details.",
+              f"3. For project-specific entries, browse `entries/<project>/`.",
+              f"",
+              f"## Topic Index",
+              f"",
+              f"| # | Topic | Patterns | Projects |",
+              f"|---|-------|----------|----------|",
+          ]
+
+          for idx, (topic, patterns) in enumerate(sorted(topics.items()), start=1):
+              projects = sorted({p.get("source-project", "?") for p in patterns})
+              proj_str = ", ".join(projects[:3])
+              if len(projects) > 3:
+                  proj_str += f" +{len(projects) - 3}"
+              lines.append(f"| {idx} | {topic} | {len(patterns)} | {proj_str} |")
+
+          lines += ["", "## Patterns by Topic", ""]
+
+          for topic, patterns in sorted(topics.items()):
+              lines.append(f"### {topic}")
+              lines.append("")
+              for p in sorted(patterns, key=lambda x: x.get("date", ""), reverse=True):
+                  pid = p.get("id", "")
+                  proj = p.get("source-project", "")
+                  pattern_text = p.get("pattern", "")
+                  conf = float(p.get("confidence", 1.0))
+                  date_str = p.get("date", "")
+                  lines.append(f"- **[{proj}]** {pattern_text}")
+                  lines.append(f"  _(id: `{pid}`, date: {date_str}, confidence: {conf:.1f})_")
+              lines.append("")
+
+          output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(f"Generated TEAM-BRAIN.md: {total_patterns} patterns, {total_topics} topics.")
+          PYEOF
+
+      - name: Commit TEAM-BRAIN.md if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add TEAM-BRAIN.md
+          if git diff --staged --quiet; then
+            echo "No changes to TEAM-BRAIN.md — nothing to commit."
+          else
+            git commit -m "chore(brain): rebuild TEAM-BRAIN.md [skip ci]"
+            git push
+            echo "TEAM-BRAIN.md updated and pushed."
+          fi
