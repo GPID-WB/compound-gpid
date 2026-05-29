@@ -28,12 +28,13 @@ Usage::
 
     from team_brain.config import load_team_brain_local_config
     from team_brain.privacy import run_privacy_filter
+    from team_brain.push import push_entry
 
     config = load_team_brain_local_config(project_root)
     if config and config.enabled:
         result = run_privacy_filter(content, frontmatter, config)
         if not result.blocked:
-            push_to_team_brain(entry_path, pattern, config)
+            push_entry(entry_path, config)
 """
 from __future__ import annotations
 

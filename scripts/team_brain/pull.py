@@ -336,7 +336,7 @@ def _parse_topic_keywords(index_content: str) -> List[tuple]:
 # ---------------------------------------------------------------------------
 
 
-def _fetch_project_jsonl(config: TeamBrainLocalConfig, project_name: str) -> List[dict]:
+def _fetch_project_jsonl(config: TeamBrainLocalConfig, project_name: str, *, refresh: bool = False) -> List[dict]:
     """Fetch and parse a project's JSONL pattern file from the team brain.
 
     Results are cached alongside TEAM-BRAIN.md with the same 1-hour TTL
@@ -352,7 +352,7 @@ def _fetch_project_jsonl(config: TeamBrainLocalConfig, project_name: str) -> Lis
         the file does not exist.
     """
     cache_file = _cache_dir(config.repo) / f"{project_name}.jsonl"
-    if _is_cache_fresh(cache_file):
+    if not refresh and _is_cache_fresh(cache_file):
         try:
             content = cache_file.read_text(encoding="utf-8-sig")
         except (OSError, ValueError):
@@ -540,7 +540,7 @@ def pull_from_team_brain(
     # Fetch and score patterns from all listed projects
     matched: List[MatchedPattern] = []
     for project_name in project_names:
-        entries = _fetch_project_jsonl(config, project_name)
+        entries = _fetch_project_jsonl(config, project_name, refresh=refresh)
         for entry in entries:
             # Guard all fields: external JSONL is untrusted data
             pattern_text = entry.get("pattern", "")
