@@ -138,9 +138,9 @@ def _parse_frontmatter_from_text(text: str) -> dict[str, Any]:
             continue
         key = kv.group(1)
         value = kv.group(2).strip()
-        # Strip inline comments
-        if "#" in value:
-            value = value[: value.index("#")].strip()
+        # Strip inline comments (space before # avoids truncating URL fragments)
+        if " #" in value:
+            value = value[: value.index(" #")].strip()
         # Strip quotes
         if len(value) >= 2 and value[0] in ('"', "'") and value[-1] == value[0]:
             value = value[1:-1]
@@ -188,9 +188,9 @@ def _parse_markdown_body_key_block(text: str, section_key: str) -> dict[str, Any
                 if kv:
                     key = kv.group(1)
                     value = kv.group(2).strip()
-                    # Strip inline comments
-                    if "#" in value:
-                        value = value[: value.index("#")].strip()
+                    # Strip inline comments (space before # avoids truncating URL fragments)
+                    if " #" in value:
+                        value = value[: value.index(" #")].strip()
                     # Strip quotes
                     if len(value) >= 2 and value[0] in ('"', "'") and value[-1] == value[0]:
                         value = value[1:-1]

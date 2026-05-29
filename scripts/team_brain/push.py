@@ -294,7 +294,11 @@ def _api_request(
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with _opener.open(req, timeout=30) as resp:
-            return resp.status, json.loads(resp.read().decode("utf-8"))
+            raw = resp.read().decode("utf-8")
+            try:
+                return resp.status, json.loads(raw)
+            except json.JSONDecodeError:
+                return resp.status, {"message": raw[:200]}
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", errors="replace")
         try:
@@ -330,8 +334,14 @@ def _get_remote_file(
         raise RuntimeError(
             f"Unexpected HTTP {status} fetching {path}: {data.get('message', '')}"
         )
-    sha = data["sha"]
-    decoded = base64.b64decode(data["content"]).decode("utf-8")
+    sha = data.get("sha")
+    raw_content = data.get("content")
+    if not sha or not raw_content:
+        raise RuntimeError(
+            f"Unexpected 200 response shape for {path}: "
+            f"missing 'sha' or 'content' (file may exceed 1 MB — use Git LFS or chunked upload)."
+        )
+    decoded = base64.b64decode(raw_content).decode("utf-8")
     return sha, decoded
 
 

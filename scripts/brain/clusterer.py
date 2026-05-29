@@ -127,6 +127,9 @@ def _weighted_jaccard(
     Args:
         kws_a: Keyword → score dict for entity A.
         kws_b: Keyword → score dict for entity B.
+        sum_a: Pre-computed sum of ``kws_a`` values. Pass to avoid O(n²)
+            recomputation in the clusterer hot path. Computed lazily if ``None``.
+        sum_b: Pre-computed sum of ``kws_b`` values. Same rationale.
 
     Returns:
         Similarity score in [0.0, 1.0].
@@ -323,12 +326,9 @@ def cluster_topics(
         Returns ``[]`` if fewer than ``min_cluster_size`` entities exist.
 
     Example:
-        >>> from pathlib import Path
-        >>> from brain import Entity
         >>> from brain.clusterer import cluster_topics
-        >>> entities = [...]  # entities with keywords populated
-        >>> topics = cluster_topics(entities, min_cluster_size=2)
-        >>> print(len(topics), "topics found")
+        >>> cluster_topics([])
+        []
     """
     if strategy is not None:
         # min_cluster_size is intentionally not forwarded — the custom strategy

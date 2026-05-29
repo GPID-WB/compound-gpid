@@ -189,12 +189,13 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
         >>> data = build_brain(root=Path("."))
         >>> print(len(data.entities), "entities indexed")
     """
-    # Lazy imports allow incremental step-by-step module development.
-    # Each sub-module is implemented in a separate plan step.
-    from brain.scanner import scan_all, scan_roadmap  # Step 2
-    from brain.extractor import extract_keywords       # Step 3
-    from brain.clusterer import cluster_topics         # Step 4
-    from brain.edge_detector import detect_edges       # Step 5
+    # Lazy imports required to avoid circular-import: scanner/extractor/etc
+    # import Entity from this module. Importing them at module level would
+    # create a cycle before Entity is defined.
+    from brain.scanner import scan_all, scan_roadmap  # noqa: PLC0415
+    from brain.extractor import extract_keywords       # noqa: PLC0415
+    from brain.clusterer import cluster_topics         # noqa: PLC0415
+    from brain.edge_detector import detect_edges       # noqa: PLC0415
 
     # 1. Scan all entities
     entities: List[Entity] = scan_all(root)
@@ -224,7 +225,8 @@ def build_brain(root: Path, generated: str = "") -> BrainData:
 # ---------------------------------------------------------------------------
 # Protocol re-export
 # ---------------------------------------------------------------------------
-# Direct import placed after Entity/Topic are defined to avoid circular-import
-# issues while still making ``from brain import ClusterStrategy`` work and
-# giving Pylance full visibility of the exported name (P3.4 fix).
+# ClusterStrategy is imported lazily inside build_brain() to avoid the circular
+# import. Re-export here for callers who do ``from brain import ClusterStrategy``.
+# This must come after the full class/function definitions so that 'brain' is
+# sufficiently initialised when clusterer.py is imported.
 from brain.clusterer import ClusterStrategy  # noqa: E402

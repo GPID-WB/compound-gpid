@@ -383,14 +383,18 @@ def _fetch_project_jsonl(config: TeamBrainLocalConfig, project_name: str, *, ref
     if not content:
         return []
     entries = []
-    for line in content.splitlines():
+    for line_no, line in enumerate(content.splitlines(), start=1):
         line = line.strip()
         if not line:
             continue
         try:
             entries.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue  # Skip malformed lines silently
+        except json.JSONDecodeError as exc:
+            warnings.warn(
+                f"[pull] Malformed JSON on line {line_no} — skipping: {exc}",
+                UserWarning,
+                stacklevel=2,
+            )
     return entries
 
 

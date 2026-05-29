@@ -1,14 +1,9 @@
 """team_brain — Cross-project knowledge sharing for Compound GPID.
 
-This package implements Phases 1 and 2 of the Team Brain (Knowledge Brain
-milestone). It provides schema validation, privacy filtering, local
-configuration loading, pattern distillation, GitHub push, and remote pull.
-
-.. note::
-
-    Phase 1 (schema, config, privacy) and Phase 2 (distiller, push, pull)
-    are complete. Phase 3 modules (``dedup``, ``curate``) are planned and
-    will raise ``ImportError`` until implemented.
+This package implements the full Team Brain (Knowledge Brain milestone):
+schema validation, privacy filtering, local configuration loading, pattern
+distillation, GitHub push, remote pull, contradiction detection, curation
+bot, and team brain initialisation.
 
 Architecture::
 
@@ -19,8 +14,9 @@ Architecture::
     ├── distiller.py   # Distill one-liner patterns from solution entries  ✅ Phase 2
     ├── push.py        # Push entries + patterns via GitHub Contents API  ✅ Phase 1+2
     ├── pull.py        # Pull relevant entries during Consult Brain step  ✅ Phase 2
-    ├── dedup.py       # Contradiction detection (Jaccard text similarity)  ⬜ Phase 3
-    └── curate.py      # CLI for GH Actions curation bot (opens issues)  ⬜ Phase 3
+    ├── dedup.py       # Contradiction detection (Jaccard text similarity)  ✅ Phase 3
+    ├── curate.py      # CLI for GH Actions curation bot (opens issues)  ✅ Phase 3
+    └── init.py        # One-time team brain repo initialisation  ✅ Phase 3
 
 Requirements: Python 3.8+, stdlib only. GitHub CLI (``gh``) for API calls.
 

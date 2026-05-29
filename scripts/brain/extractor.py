@@ -15,6 +15,7 @@ score descending.
 """
 from __future__ import annotations
 
+import os
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -317,7 +318,7 @@ def extract_keywords(entity: Entity, text: str) -> List[Tuple[str, float]]:
 
     # --- Signal 4: file refs (weight 2.0) ---
     for fref in _FILE_REF_RE.findall(text):
-        kw = Path(fref).name.lower()  # basename only, e.g. "cg_index.py"
+        kw = os.path.basename(fref).lower()  # basename only, e.g. "cg_index.py"
         if kw not in _STOPWORDS:
             scores[kw] += 2.0
 

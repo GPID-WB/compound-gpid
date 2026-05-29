@@ -230,6 +230,14 @@ def apply_regex_filter(
 
         result_lines.append(line)
 
+    if in_code_fence:
+        warnings.warn(
+            "[privacy] Unclosed code fence detected — credential detection may have been "
+            "suppressed for part of this document. Review the output carefully.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     return "".join(result_lines), redactions
 
 

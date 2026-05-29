@@ -1,6 +1,6 @@
 """brain.utils — Shared utilities for the Compound GPID brain engine.
 
-Promotes parse_frontmatter(), _write_atomic(), extract_summary(), and
+Promotes parse_frontmatter(), write_atomic(), extract_summary(), and
 _coerce() from cg_index.py into a shared module accessible by all brain
 sub-modules and the legacy cg_index.py CLI.
 
@@ -340,7 +340,7 @@ def write_atomic(path: Path, content: str) -> None:
         >>> from pathlib import Path
         >>> import tempfile, os
         >>> with tempfile.TemporaryDirectory() as d:
-        ...     _write_atomic(Path(d) / "out.txt", "hello")
+        ...     write_atomic(Path(d) / "out.txt", "hello")
     """
     fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
     try:
