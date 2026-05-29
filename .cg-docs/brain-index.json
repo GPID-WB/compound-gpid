@@ -1,5 +1,5 @@
 {
-  "edge_count": 164,
+  "edge_count": 166,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -663,6 +663,12 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md",
+      "target": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md",
       "target": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
       "target_missing": false
@@ -677,6 +683,12 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
       "target": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md",
       "target_missing": false
     },
     {
@@ -3684,7 +3696,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
       "slug": "2026-05-20-team-brain-batch-d",
-      "status": "active",
+      "status": "completed",
       "summary": "Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound`, the system privacy-filters and pushes it to a central team brain repo. When any project's Consult Brain step runs, it pulls relevant entries from the team brain. A GitHub Actions curation bot periodically scans for contradictions and opens issues for the team brain manager.",
       "tags": [
         "team-brain",
@@ -5513,6 +5525,28 @@
       ]
     },
     {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md",
+      "slug": "2026-05-20-team-brain-batch-d-review-3",
+      "status": "",
+      "summary": "**Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **Findings**: 32 (P0: 0, P1: 2, P2: 17, P3: 13)",
+      "tags": [],
+      "title": "2026-05-20-team-brain-batch-d-review-3",
+      "top_keywords": [
+        "[safe_auto]",
+        "[manual]",
+        "push.py",
+        "[advisory]",
+        "pull.py",
+        "schema.py",
+        "dedup.py",
+        "privacy.py",
+        "\" #\"",
+        "config.py"
+      ]
+    },
+    {
       "date": "2026-05-20",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md",
@@ -5554,6 +5588,28 @@
         "_fetch_project_jsonl",
         "scripts/team_brain/tests/test_pull.py",
         "2026-05-20-team-brain-batch-d-review-2.md"
+      ]
+    },
+    {
+      "date": "2026-05-29",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md",
+      "slug": "2026-05-20-team-brain-batch-d-verify-review-3",
+      "status": "",
+      "summary": "**Review depth**: light (mode:verify) **Parent review**: `.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md` **Files reviewed**: 9 (fix-triage patch sites) **Agents dispatched**: cg-code-quality, cg-testing **Findings**: 5 (P0: 0, P1: 0, P2: 4, P3: 1)",
+      "tags": [],
+      "title": "2026-05-20-team-brain-batch-d-verify-review-3",
+      "top_keywords": [
+        "userwarning",
+        "[safe_auto]",
+        "push.py",
+        "clusterer.py",
+        "runtimeerror",
+        "test_push.py",
+        "config.py",
+        "\" #\"",
+        "test_dedup.py",
+        "review"
       ]
     },
     {
@@ -6971,6 +7027,34 @@
         "incomplete",
         "phantom",
         "cache-bypass"
+      ]
+    },
+    {
+      "date": "2026-05-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-29-python-circular-import-brain-init-requires-lazy-imports.md",
+      "slug": "2026-05-29-python-circular-import-brain-init-requires-lazy-imports",
+      "status": "",
+      "summary": "`scripts/brain/__init__.py` has lazy sub-module imports inside `build_brain()`: A code review (P2.11) correctly flagged this as a code smell: intra-function imports are generally avoided because they hide `ImportError` until runtime and prevent static analysis. The fix attempted to promote them to module top-level. This caused an immediate test failure: All 6 brain test files failed at collection time — pytest never ran a single test.",
+      "tags": [
+        "circular-import",
+        "brain",
+        "architecture",
+        "lazy-import",
+        "refactor"
+      ],
+      "title": "Python circular import: brain/__init__.py cannot promote lazy sub-module imports to top-level",
+      "top_keywords": [
+        "brain",
+        "__init__.py",
+        "entity",
+        "brain/__init__.py",
+        "import",
+        "init__",
+        "topic",
+        "braindata",
+        "edge",
+        "scripts/brain/__init__.py"
       ]
     },
     {
@@ -9859,6 +9943,35 @@
       ]
     },
     {
+      "date": "2026-05-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-29-warning-emission-tests-need-assertwarns-verify-pass-catches-gap.md",
+      "slug": "2026-05-29-warning-emission-tests-need-assertwarns-verify-pass-catches-gap",
+      "status": "",
+      "summary": "A fix-triage session added `warnings.warn(UserWarning, ...)` to four error-handling paths across `privacy.py`, `pull.py`, and `dedup.py`. All existing tests continued to pass after the fix — there were no failures. A subsequent verify pass (`/cg-review mode:verify`) ran `@cg-testing` against the patched files and found 4 coverage gaps: | File | Added warning | Test verified skip | Test verified warning | |------|--------------|-------------------|----------------------| | `privacy.py` | Unclosed code fence | N/A | ❌ No `pytest.warns` | | `pull.py` | Malformed JSONL line | ✅ (len assertion) | ❌ No `assertWarns` | | `dedup.py` | Malformed JSONL line | ✅ (existing test) |...",
+      "tags": [
+        "warnings",
+        "assertWarns",
+        "pytest-warns",
+        "verify-mode",
+        "test-coverage-gap",
+        "warnings-warn"
+      ],
+      "title": "Warning emission tests need assertWarns — verify pass systematically catches the gap",
+      "top_keywords": [
+        "assertwarns",
+        "privacy.py",
+        "pull.py",
+        "dedup.py",
+        "pytest.warns",
+        "pytest",
+        "pattern",
+        "warnings.warn(userwarning, ...)",
+        "@cg-testing",
+        "warnings.warn(...)"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -11931,7 +12044,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#team-brain-repo-schema",
       "slug": "team-brain-repo-schema",
-      "status": "active",
+      "status": "done",
       "summary": "Team brain — central repo schema design",
       "tags": [],
       "title": "Team brain — central repo schema design",
@@ -11953,7 +12066,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#team-brain-push",
       "slug": "team-brain-push",
-      "status": "active",
+      "status": "done",
       "summary": "Team brain — push solutions + distilled patterns",
       "tags": [],
       "title": "Team brain — push solutions + distilled patterns",
@@ -11975,7 +12088,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#team-brain-pull",
       "slug": "team-brain-pull",
-      "status": "active",
+      "status": "done",
       "summary": "Team brain — pull relevant entries during Step 0",
       "tags": [],
       "title": "Team brain — pull relevant entries during Step 0",
@@ -11997,7 +12110,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#team-brain-dedup",
       "slug": "team-brain-dedup",
-      "status": "active",
+      "status": "done",
       "summary": "Team brain — conflict/dedup resolution",
       "tags": [],
       "title": "Team brain — conflict/dedup resolution",
@@ -12019,7 +12132,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#team-brain-privacy-filter",
       "slug": "team-brain-privacy-filter",
-      "status": "active",
+      "status": "done",
       "summary": "Team brain — privacy filter before push",
       "tags": [],
       "title": "Team brain — privacy filter before push",
@@ -12213,13 +12326,13 @@
       ]
     }
   ],
-  "entity_count": 428,
+  "entity_count": 432,
   "generated": "2026-05-29",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 282,
+      "entity_count": 286,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -12389,7 +12502,11 @@
         ".cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md",
         ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
         ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md",
+        ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
+        ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md",
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md",
+        ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
+        ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md",
         ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",

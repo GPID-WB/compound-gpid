@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
+_Generated 2026-05-29 · 335 artifacts (newest first) + 97 roadmap features_
 
 ## undated
 
@@ -100,6 +100,8 @@ _Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
   > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
 - **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
+- **[2026-05-20-team-brain-batch-d-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md)** · `review` · _—_ · `—`
+  > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 
 ## 2026-05-29
 
@@ -107,10 +109,16 @@ _Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 8 (Phase 2 additions — `distiller.py`, `pull.py`, `test_distiller.py`,…
 - **[2026-05-20-team-brain-batch-d-verify-review-2](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md)** · `review` · _—_ · `2026-05-29`
   > **Review depth**: light (verify pass) **Parent review**: `2026-05-20-team-brain-batch-d-review-2.md` (22 fixed, 1 ski…
+- **[2026-05-20-team-brain-batch-d-verify-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: light (mode:verify) **Parent review**: `.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md`…
 - **[Phantom docstring parameter from incomplete cache-bypass propagation in refactors](.cg-docs/solutions/bugs/2026-05-29-phantom-docstring-param-incomplete-cache-bypass-propagation.md)** · `solution` · _—_ · `2026-05-29`
   > After adding a per-project JSONL cache to `_fetch_project_jsonl` (fix P2.3), the function's `Args:` block was written…
+- **[Python circular import: brain/__init__.py cannot promote lazy sub-module imports to top-level](.cg-docs/solutions/bugs/2026-05-29-python-circular-import-brain-init-requires-lazy-imports.md)** · `solution` · _—_ · `2026-05-29`
+  > `scripts/brain/__init__.py` has lazy sub-module imports inside `build_brain()`: A code review (P2.11) correctly flagg…
 - **[Test classes defined after unittest.main\(\) are silently skipped on direct execution](.cg-docs/solutions/testing-patterns/2026-05-29-test-classes-after-unittest-main-silently-skipped.md)** · `solution` · _—_ · `2026-05-29`
   > Test classes added below `if __name__ == "__main__": unittest.main()` pass in CI (pytest discovers them via import) b…
+- **[Warning emission tests need assertWarns — verify pass systematically catches the gap](.cg-docs/solutions/testing-patterns/2026-05-29-warning-emission-tests-need-assertwarns-verify-pass-catches-gap.md)** · `solution` · _—_ · `2026-05-29`
+  > A fix-triage session added `warnings.warn(UserWarning, ...)` to four error-handling paths across `privacy.py`, `pull.…
 
 ## 2026-05-28
 
@@ -151,7 +159,7 @@ _Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
   > A `/cg-review` thorough pass on `scripts/brain/renderer.py` identified two security findings: - **P1.2** — Paths in m…
 - **[Team Brain \(Phase 2\) — Batch D design](.cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md)** · `brainstorm` · _decided_ · `2026-05-20`
   > Batch D of the Knowledge Brain milestone (per `.cg-docs/strategy/2026-05-19-knowledge-brain.md`). Builds on the compl…
-- **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _active_ · `2026-05-20`
+- **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _completed_ · `2026-05-20`
   > Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound…
 
 ## 2026-05-19
@@ -991,15 +999,15 @@ _Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
   > Study GSD-2 and Superpowers workflow patterns
 - **[Systematic 4-phase debugging methodology in /cg-fixbug \(reproduce → isolate → root-cause → fix\) \[from SP\]](roadmap.json#systematic-debugging-4-phase)** · `feature` · _idea_ · `—`
   > Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]
-- **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _active_ · `—`
+- **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _done_ · `—`
   > Team brain — conflict/dedup resolution
-- **[Team brain — privacy filter before push](roadmap.json#team-brain-privacy-filter)** · `feature` · _active_ · `—`
+- **[Team brain — privacy filter before push](roadmap.json#team-brain-privacy-filter)** · `feature` · _done_ · `—`
   > Team brain — privacy filter before push
-- **[Team brain — pull relevant entries during Step 0](roadmap.json#team-brain-pull)** · `feature` · _active_ · `—`
+- **[Team brain — pull relevant entries during Step 0](roadmap.json#team-brain-pull)** · `feature` · _done_ · `—`
   > Team brain — pull relevant entries during Step 0
-- **[Team brain — push solutions + distilled patterns](roadmap.json#team-brain-push)** · `feature` · _active_ · `—`
+- **[Team brain — push solutions + distilled patterns](roadmap.json#team-brain-push)** · `feature` · _done_ · `—`
   > Team brain — push solutions + distilled patterns
-- **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _active_ · `—`
+- **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _done_ · `—`
   > Team brain — central repo schema design
 - **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
   > Testing skill for Python (pytest/parametrize/monkeypatch)

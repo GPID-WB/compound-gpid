@@ -546,7 +546,7 @@
       "id": "knowledge-brain",
       "title": "Knowledge Brain",
       "objective": "Build a concept-centric knowledge system that indexes all .cg-docs/ artifacts, organizes them by topics/themes with typed relationships, and enables cross-project knowledge sharing via a central team brain repository.",
-      "status": "in-progress",
+      "status": "done",
       "features": [
         {
           "id": "brain-full-scope-indexer",
@@ -608,35 +608,35 @@
           "id": "team-brain-repo-schema",
           "title": "Team brain — central repo schema design",
           "description": "Design the GitHub repository structure for the cross-project team brain. This repo aggregates knowledge from all projects using the compound-gpid plugin. Key design decisions: how multiple projects' knowledge coexists (namespaced by project? flat merged?), what the team-level BRAIN.md looks like, how topic deduplication works across projects, and what metadata is needed for provenance tracking. Batch D (Phase 2) — develop first in team brain phase.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-push",
           "title": "Team brain — push solutions + distilled patterns",
           "description": "On /cg-compound, after local brain rebuild, extract the solution plus auto-distill reusable patterns (project-agnostic lessons learned) and push to the central team brain repo. Only solutions and distilled patterns cross the project boundary — plans, brainstorms, and reviews stay project-local. The push mechanism must handle: authentication to the central repo, formatting entries for the team brain schema, and updating the team-level index. Batch D (Phase 2) — develop together with team-brain-pull.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-pull",
           "title": "Team brain — pull relevant entries during Step 0",
           "description": "During the 'Consult Brain' step in Step 0, after checking the local project brain, also fetch relevant entries from the team brain by matching topics/tags to the current task. This enables cross-project knowledge transfer — a solution found in project A becomes available to project B without anyone explicitly sharing it. The pull mechanism must handle: fetching from GitHub, caching locally for offline use, and relevance filtering (don't load the entire team brain into context). Batch D (Phase 2) — develop together with team-brain-push.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-dedup",
           "title": "Team brain — conflict/dedup resolution",
           "description": "Handle contradicting solutions across projects. When two projects push solutions for the same topic that conflict, the system must resolve or flag the contradiction. Approaches: timestamp-based precedence (newer wins), confidence scoring based on how many projects validated the solution, or explicit 'contradicts' edges that surface both options with context. Batch D (Phase 2) — develop after push/pull are working.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-privacy-filter",
           "title": "Team brain — privacy filter before push",
           "description": "Ensure project-specific details (file paths, credentials, internal variable names, proprietary data references) are stripped or anonymized before pushing to the central team brain. The filter runs automatically during the push step. It should detect and redact: absolute paths, environment-specific configuration, internal API endpoints, team member names (unless opted in), and any content marked as sensitive in frontmatter. Batch D (Phase 2) — develop together with team-brain-dedup.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         }
       ]

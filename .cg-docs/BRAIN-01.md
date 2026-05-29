@@ -4,7 +4,7 @@ _Generated 2026-05-29_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 282 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 286 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -182,7 +182,7 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > Wire the brain rebuild into two user-facing entry points: an explicit `/cg-brain-rebuild` command for on-demand use, …
 - **[Knowledge Brain Read Path — Batch C](.cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md)** · `plan` · _completed_ · `2026-05-20`
   > Wire the brain read path so that every major command consults `.cg-docs/BRAIN.md` before acting, surfacing relevant i…
-- **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _active_ · `2026-05-20`
+- **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _completed_ · `2026-05-20`
   > Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
   > **Review depth**: light **Date**: 2026-03-30 **Plan**: `.cg-docs/plans/2026-03-30-fix-triage-prompt.md` **Branch**: `…
@@ -342,8 +342,16 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > **Review depth**: thorough **Files reviewed**: 54 (42 committed + 12 uncommitted working-tree changes) **Branch**: `f…
 - **[2026-05-20-knowledge-brain-read-path-batch-c-verify-review](.cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md)** · `review` · _—_ · `2026-05-20`
   > **Review depth**: light (forced by `mode:verify`) **Files reviewed**: 10 (scripts/brain/renderer.py, edge_detector.py…
+- **[2026-05-20-team-brain-batch-d-review-2](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: thorough **Files reviewed**: 8 (Phase 2 additions — `distiller.py`, `pull.py`, `test_distiller.py`,…
+- **[2026-05-20-team-brain-batch-d-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md)** · `review` · _—_ · `—`
+  > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[2026-05-20-team-brain-batch-d-review](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md)** · `review` · _—_ · `2026-05-20`
   > **Review depth**: thorough **Files reviewed**: 54 (22,718 insertions / 1,584 deletions vs main) **Primary scope**: `s…
+- **[2026-05-20-team-brain-batch-d-verify-review-2](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: light (verify pass) **Parent review**: `2026-05-20-team-brain-batch-d-review-2.md` (22 fixed, 1 ski…
+- **[2026-05-20-team-brain-batch-d-verify-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: light (mode:verify) **Parent review**: `.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md`…
 - **[2026-05-21-knowledge-brain-engine-review](.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md)** · `review` · _—_ · `2026-05-21`
   > **Date**: 2026-05-21 **Branch**: `feat/knowledge-brain-engine` (PR #42) **Plan**: [2026-05-20-team-brain-batch-d](.cg…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
@@ -749,15 +757,15 @@ objective`_ · 97 entities
   > Prompt integration — Consult Brain in Step 0
 - **[cg-skill-brain-query \(agent brain search patterns\)](roadmap.json#brain-query-skill)** · `feature` · _done_ · `—`
   > cg-skill-brain-query (agent brain search patterns)
-- **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _active_ · `—`
+- **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _done_ · `—`
   > Team brain — central repo schema design
-- **[Team brain — push solutions + distilled patterns](roadmap.json#team-brain-push)** · `feature` · _active_ · `—`
+- **[Team brain — push solutions + distilled patterns](roadmap.json#team-brain-push)** · `feature` · _done_ · `—`
   > Team brain — push solutions + distilled patterns
-- **[Team brain — pull relevant entries during Step 0](roadmap.json#team-brain-pull)** · `feature` · _active_ · `—`
+- **[Team brain — pull relevant entries during Step 0](roadmap.json#team-brain-pull)** · `feature` · _done_ · `—`
   > Team brain — pull relevant entries during Step 0
-- **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _active_ · `—`
+- **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _done_ · `—`
   > Team brain — conflict/dedup resolution
-- **[Team brain — privacy filter before push](roadmap.json#team-brain-privacy-filter)** · `feature` · _active_ · `—`
+- **[Team brain — privacy filter before push](roadmap.json#team-brain-privacy-filter)** · `feature` · _done_ · `—`
   > Team brain — privacy filter before push
 - **[Command default behaviors \(auto-branch, phases, autofix, context enrichment\)](roadmap.json#command-default-behaviors)** · `feature` · _done_ · `—`
   > Command default behaviors (auto-branch, phases, autofix, context enrichment)
