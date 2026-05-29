@@ -175,6 +175,66 @@ Describe "install.sh - PATH block is idempotent" {
 }
 
 # ---------------------------------------------------------------------------
+# install.sh - migration: removes stale function-based install artifacts
+# ---------------------------------------------------------------------------
+Describe "install.sh - removes stale cg-* function definitions on upgrade" {
+    It "strips old cg-link/cg-unlink/cg-update function defs and COMPOUND_GPID_DIR exports from profile" {
+        $tmpHome  = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc = Join-Path $tmpHome ".zshrc"
+        $fakeShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        # Seed the profile with the stale function-based install patterns
+        $staleContent = @"
+# Compound GPID
+export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
+cg-link()   { pwsh "`$COMPOUND_GPID_DIR/scripts/link.ps1"   "`$@"; }
+cg-unlink() { pwsh "`$COMPOUND_GPID_DIR/scripts/unlink.ps1" "`$@"; }
+cg-update() { pwsh "`$COMPOUND_GPID_DIR/scripts/update.ps1" "`$@"; }
+
+# Compound GPID
+export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
+cg-update() { git -C "`$COMPOUND_GPID_DIR" pull; }
+"@
+        Set-Content -Path $tmpZshrc -Value $staleContent -Encoding UTF8
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+
+        $env:HOME  = $tmpHome
+        $env:SHELL = $fakeShell
+
+        $tmpInstall        = Join-Path $tmpHome ".compound-gpid"
+        $tmpInstallBin     = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+
+        try {
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+
+            $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
+
+            # Stale function definitions must be gone
+            ($profileContent -match 'cg-link\s*\(\)')   | Should -Be $false
+            ($profileContent -match 'cg-unlink\s*\(\)') | Should -Be $false
+            ($profileContent -match 'cg-update\s*\(\)') | Should -Be $false
+            ($profileContent -match 'COMPOUND_GPID_DIR') | Should -Be $false
+
+            # New fenced PATH block must be present exactly once
+            $markerCount = ([regex]::Matches($profileContent, [regex]::Escape("# --- Compound GPID ---"))).Count
+            $markerCount | Should -Be 1
+        } finally {
+            Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # link.sh - shebang and structure
 # ---------------------------------------------------------------------------
 Describe "link.sh - script structure" {

@@ -240,6 +240,50 @@ PYEOF
     print_gray "Removed stale Compound GPID block from $PROFILE_FILE"
 fi
 
+# Step 4a: Remove stale function-based install artifacts (migration from pre-bin/ installs).
+# Older compound-gpid versions added cg-*() shell functions and COMPOUND_GPID_DIR exports
+# directly to the profile. These shadow the new bin/ wrappers and must be removed.
+if [[ -f "$PROFILE_FILE" ]]; then
+    python3 - "$PROFILE_FILE" <<'PYEOF'
+import sys, re, tempfile, os
+
+path = sys.argv[1]
+with open(path, 'r') as f:
+    lines = f.readlines()
+
+stale = [
+    re.compile(r'^cg-\w+\s*\(\)'),          # cg-cmd() { ... } function definitions
+    re.compile(r'^export COMPOUND_GPID_DIR='), # old COMPOUND_GPID_DIR variable export
+    re.compile(r'^# Compound GPID\s*$'),      # old unfenced section header
+]
+
+cleaned = [line for line in lines if not any(p.match(line) for p in stale)]
+
+# Collapse consecutive blank lines left behind by removals
+final = []
+prev_blank = False
+for line in cleaned:
+    is_blank = line.strip() == ''
+    if is_blank and prev_blank:
+        continue
+    final.append(line)
+    prev_blank = is_blank
+
+if final != lines:
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
+    try:
+        with os.fdopen(tmp_fd, 'w') as f:
+            f.writelines(final)
+        os.replace(tmp_path, path)
+    except:
+        try: os.unlink(tmp_path)
+        except: pass
+        raise
+    removed = sum(1 for a, b in zip(lines, final + [''] * len(lines)) if a != b)
+    print(f"  Removed stale cg-* function definitions from {path}", file=sys.stderr)
+PYEOF
+fi
+
 # Check if bin/ is already on PATH via an existing bare export line
 # (e.g., manually added). If so, skip adding the block.
 ALREADY_ON_PATH=false
