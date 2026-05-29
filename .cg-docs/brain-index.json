@@ -1,5 +1,5 @@
 {
-  "edge_count": 161,
+  "edge_count": 164,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -657,8 +657,26 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
+      "target": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md",
       "target": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
+      "target": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
       "target_missing": false
     },
     {
@@ -5473,6 +5491,28 @@
       ]
     },
     {
+      "date": "2026-05-29",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
+      "slug": "2026-05-20-team-brain-batch-d-review-2",
+      "status": "",
+      "summary": "**Review depth**: thorough **Files reviewed**: 8 (Phase 2 additions — `distiller.py`, `pull.py`, `test_distiller.py`, `test_pull.py`, `push.py` modifications, `__init__.py`, `SKILL.md` Step 2b, `prompt-tools.Tests.ps1` additions) **Findings**: 23 (P0: 2, P1: 6, P2: 9, P3: 6) **Brain context applied**: prior P1 bug `2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md` — `float()` on untrusted external data without try/except, and `None` returned by `.get()` on null-valued keys are the core of P1.1–P1.3.",
+      "tags": [],
+      "title": "2026-05-20-team-brain-batch-d-review-2",
+      "top_keywords": [
+        "pull.py",
+        "[safe_auto]",
+        "team-brain.md",
+        "title",
+        "distiller.py",
+        "pattern_text",
+        "push.py",
+        "_fetch_project_jsonl",
+        "_parse_topic_keywords",
+        "[manual]"
+      ]
+    },
+    {
       "date": "2026-05-20",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md",
@@ -5492,6 +5532,28 @@
         "__init__.py",
         "cg_index.py",
         "superseded_by"
+      ]
+    },
+    {
+      "date": "2026-05-29",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
+      "slug": "2026-05-20-team-brain-batch-d-verify-review-2",
+      "status": "",
+      "summary": "**Review depth**: light (verify pass) **Parent review**: `2026-05-20-team-brain-batch-d-review-2.md` (22 fixed, 1 skipped) **Files reviewed**: `pull.py`, `distiller.py`, `__init__.py`, `test_pull.py`, `test_distiller.py`, `cg-skill-brain-query/SKILL.md` **Findings**: 8 (P0: 0, P1: 0, P2: 4, P3: 4) **All P0/P1 from parent review confirmed correctly applied.**",
+      "tags": [],
+      "title": "2026-05-20-team-brain-batch-d-verify-review-2",
+      "top_keywords": [
+        "pull.py",
+        "[safe_auto]",
+        "distiller.py",
+        "test_pull.py",
+        "__init__.py",
+        "refresh",
+        "test_distiller.py",
+        "_fetch_project_jsonl",
+        "scripts/team_brain/tests/test_pull.py",
+        "2026-05-20-team-brain-batch-d-review-2.md"
       ]
     },
     {
@@ -6878,6 +6940,37 @@
         "urllib",
         "opener",
         "httpx"
+      ]
+    },
+    {
+      "date": "2026-05-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-29-phantom-docstring-param-incomplete-cache-bypass-propagation.md",
+      "slug": "2026-05-29-phantom-docstring-param-incomplete-cache-bypass-propagation",
+      "status": "",
+      "summary": "After adding a per-project JSONL cache to `_fetch_project_jsonl` (fix P2.3), the function's `Args:` block was written with `refresh: If True, bypass cache and fetch from remote.` — but `refresh` was never added to the function signature or wired in the cache logic. A caller invoking `pull_from_team_brain(kws, config, refresh=True)` gets a freshly-fetched `TEAM-BRAIN.md` index (the `refresh` parameter is correctly propagated to `_fetch_team_brain_index`) but receives stale JSONL pattern entries (the `refresh` parameter never reaches `_fetch_project_jsonl`). The caller has no way to know this: the result is a coherent but inconsistent state — fresh topic index, stale pattern entries. The phantom docstring line...",
+      "tags": [
+        "python",
+        "refactoring",
+        "docstring",
+        "cache",
+        "api-surface",
+        "propagation",
+        "refresh",
+        "silent-bug"
+      ],
+      "title": "Phantom docstring parameter from incomplete cache-bypass propagation in refactors",
+      "top_keywords": [
+        "refresh",
+        "_fetch_project_jsonl",
+        "args:",
+        "parameter",
+        "docstring",
+        "propagation",
+        "if true",
+        "incomplete",
+        "phantom",
+        "cache-bypass"
       ]
     },
     {
@@ -9737,6 +9830,35 @@
       ]
     },
     {
+      "date": "2026-05-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-29-test-classes-after-unittest-main-silently-skipped.md",
+      "slug": "2026-05-29-test-classes-after-unittest-main-silently-skipped",
+      "status": "",
+      "summary": "Test classes added below `if __name__ == \"__main__\": unittest.main()` pass in CI (pytest discovers them via import) but are silently absent when the file is run directly with `python test_file.py`. The developer sees green output with a test count that is too low, but no warning is emitted. Discovered in `scripts/team_brain/tests/test_pull.py` and `test_distiller.py` during the Phase 2 verify pass — `TestPullEdgeCases` (7 tests) and `TestDistillerReviewFindings` (6 tests) were both placed after the main guard by the fix-triage session that added them.",
+      "tags": [
+        "python",
+        "unittest",
+        "test-discovery",
+        "pytest",
+        "main-guard",
+        "silent-skip"
+      ],
+      "title": "Test classes defined after unittest.main() are silently skipped on direct execution",
+      "top_keywords": [
+        "unittest.main()",
+        "test_file.py",
+        "python test_file.py",
+        "direct",
+        "execution",
+        "unittest",
+        "if __name__ == \"__main__\": unittest.main()",
+        "if __name__ == \"__main__\":",
+        "test",
+        "classes"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -9932,6 +10054,28 @@
         "cg-brainstorm",
         "references",
         "types"
+      ]
+    },
+    {
+      "date": "2026-05-28",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
+      "slug": "2026-05-28-mid-project-eight-ideas",
+      "status": "",
+      "summary": "- Knowledge Brain milestone at 62% (Batch D team brain active on `feat/knowledge-brain-engine` branch) - Workflow Maturity at 78%, Current Focus unchanged - 45 features done, 5 active, 36 unstarted across 11 milestones - User came with 8 concrete ideas to capture as future work",
+      "tags": [],
+      "title": "Mid-project idea capture — brainstorm depth, confidence, model strategy, help, outcome verification, goal-driven execution",
+      "top_keywords": [
+        "workflow maturity",
+        "session",
+        "current focus",
+        "strategy",
+        "mid-project",
+        "idea",
+        "capture",
+        "ideas",
+        "workflow",
+        "maturity"
       ]
     },
     {
@@ -10817,6 +10961,72 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#mattpocock-skills-review-source",
+      "slug": "mattpocock-skills-review-source",
+      "status": "idea",
+      "summary": "Add mattpocock/skills to competitive review sources",
+      "tags": [],
+      "title": "Add mattpocock/skills to competitive review sources",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "mattpocock",
+        "skills",
+        "competitive",
+        "review",
+        "sources",
+        "feature",
+        "milestone",
+        "architecture",
+        "research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cross-model-adversarial-review",
+      "slug": "cross-model-adversarial-review",
+      "status": "idea",
+      "summary": "Cross-model review — adversarial model diversity",
+      "tags": [],
+      "title": "Cross-model review — adversarial model diversity",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "cross-model",
+        "review",
+        "adversarial",
+        "model",
+        "diversity",
+        "feature",
+        "milestone",
+        "architecture",
+        "research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#tiered-model-escalation",
+      "slug": "tiered-model-escalation",
+      "status": "idea",
+      "summary": "Tiered model escalation — super-advanced model dispatch",
+      "tags": [],
+      "title": "Tiered model escalation — super-advanced model dispatch",
+      "top_keywords": [
+        "model",
+        "architecture research\nobjective",
+        "tiered",
+        "escalation",
+        "super-advanced",
+        "dispatch",
+        "feature",
+        "milestone",
+        "architecture",
+        "research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brainstorm-plan-id-traceability",
       "slug": "brainstorm-plan-id-traceability",
       "status": "idea",
@@ -10966,6 +11176,50 @@
         "extraction",
         "end",
         "enhances"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#brainstorm-depth-grill-mode",
+      "slug": "brainstorm-depth-grill-mode",
+      "status": "idea",
+      "summary": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
+      "tags": [],
+      "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
+      "top_keywords": [
+        "competitive prompt enhancements\nobjective",
+        "brainstorm",
+        "depth",
+        "overhaul",
+        "grill-me",
+        "mode",
+        "grill-with-docs",
+        "skill",
+        "competitive",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cg-confidence-prompt",
+      "slug": "cg-confidence-prompt",
+      "status": "idea",
+      "summary": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
+      "tags": [],
+      "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
+      "top_keywords": [
+        "cg-confidence",
+        "competitive prompt enhancements\nobjective",
+        "honest",
+        "confidence",
+        "assumptions",
+        "unknowns",
+        "assessment",
+        "competitive",
+        "feature",
+        "milestone"
       ]
     },
     {
@@ -11257,6 +11511,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#cg-help-interactive",
+      "slug": "cg-help-interactive",
+      "status": "idea",
+      "summary": "/cg-help — comprehensive interactive help system",
+      "tags": [],
+      "title": "/cg-help — comprehensive interactive help system",
+      "top_keywords": [
+        "cg-help",
+        "setup\nobjective",
+        "comprehensive",
+        "interactive",
+        "help",
+        "system",
+        "feature",
+        "milestone",
+        "onboarding",
+        "setup"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#branch-creation-from-plan",
       "slug": "branch-creation-from-plan",
       "status": "done",
@@ -11450,6 +11726,28 @@
         "workflow",
         "maturity",
         "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#goal-driven-execution",
+      "slug": "goal-driven-execution",
+      "status": "idea",
+      "summary": "Goal-driven execution — plan-as-completion-contract with integrated validation",
+      "tags": [],
+      "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "execution",
+        "goal-driven",
+        "plan-as-completion-contract",
+        "integrated",
+        "validation",
+        "feature",
+        "milestone",
+        "workflow",
+        "maturity"
       ]
     },
     {
@@ -11869,15 +12167,59 @@
         "feature",
         "ongoing"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#planning-stage-test-strategy",
+      "slug": "planning-stage-test-strategy",
+      "status": "idea",
+      "summary": "Planning-stage test strategy + human review facilitation",
+      "tags": [],
+      "title": "Planning-stage test strategy + human review facilitation",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "planning-stage",
+        "test",
+        "strategy",
+        "human",
+        "review",
+        "facilitation",
+        "milestone",
+        "ideas",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#agent-verified-outcome-evals",
+      "slug": "agent-verified-outcome-evals",
+      "status": "idea",
+      "summary": "Agent-verified outcome definitions with acceptance evals",
+      "tags": [],
+      "title": "Agent-verified outcome definitions with acceptance evals",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "agent-verified",
+        "outcome",
+        "definitions",
+        "acceptance",
+        "evals",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing"
+      ]
     }
   ],
-  "entity_count": 414,
-  "generated": "2026-05-26",
+  "entity_count": 428,
+  "generated": "2026-05-29",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 281,
+      "entity_count": 282,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -12159,7 +12501,8 @@
         ".cg-docs/strategy/2026-04-29-onboarding-milestone-expansion.md",
         ".cg-docs/strategy/2026-05-05-workflow-maturity.md",
         ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
-        ".cg-docs/strategy/2026-05-19-knowledge-brain.md"
+        ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
+        ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md"
       ],
       "keywords": [
         "roadmap.json",
@@ -12170,7 +12513,7 @@
       "slug": "roadmap-json-prompt-tools-tests-ps1-copilot-instructions-md"
     },
     {
-      "entity_count": 88,
+      "entity_count": 97,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -12212,6 +12555,9 @@
         "roadmap.json#copilot-cli-model-c-execution",
         "roadmap.json#verification-commands-post-task",
         "roadmap.json#auto-triggered-skills-via-hooks",
+        "roadmap.json#mattpocock-skills-review-source",
+        "roadmap.json#cross-model-adversarial-review",
+        "roadmap.json#tiered-model-escalation",
         "roadmap.json#brainstorm-plan-id-traceability",
         "roadmap.json#inline-self-review-brainstorm-plan",
         "roadmap.json#verification-before-completion-cg-work",
@@ -12219,6 +12565,8 @@
         "roadmap.json#hitl-review-loop-mode",
         "roadmap.json#systematic-debugging-4-phase",
         "roadmap.json#auto-knowledge-extraction-after-work",
+        "roadmap.json#brainstorm-depth-grill-mode",
+        "roadmap.json#cg-confidence-prompt",
         "roadmap.json#roadmap-schema-validation",
         "roadmap.json#plan-frontmatter-checks",
         "roadmap.json#work-completion-verification",
@@ -12232,6 +12580,7 @@
         "roadmap.json#roadmap-bootstrap-from-charter",
         "roadmap.json#cg-setup-refresh-mode",
         "roadmap.json#onboarding-tour-prompt",
+        "roadmap.json#cg-help-interactive",
         "roadmap.json#branch-creation-from-plan",
         "roadmap.json#phased-plan-structure",
         "roadmap.json#phased-execution-cg-work",
@@ -12241,6 +12590,7 @@
         "roadmap.json#pr-verification-pipeline",
         "roadmap.json#cg-commit-push-pr",
         "roadmap.json#cg-verify-pr",
+        "roadmap.json#goal-driven-execution",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -12259,15 +12609,17 @@
         "roadmap.json#conversation-audit-trail",
         "roadmap.json#attribution-documentation",
         "roadmap.json#strategy-add-shortcut",
-        "roadmap.json#project-wiki-auto-documentation"
+        "roadmap.json#project-wiki-auto-documentation",
+        "roadmap.json#planning-stage-test-strategy",
+        "roadmap.json#agent-verified-outcome-evals"
       ],
       "keywords": [
+        "architecture research\nobjective",
         "knowledge brain\nobjective",
-        "quality loop\nobjective",
-        "architecture research\nobjective"
+        "quality loop\nobjective"
       ],
-      "label": "Knowledge Brain\nObjective / Quality Loop\nObjective / Architecture Research\nObjective",
-      "slug": "knowledge-brain-objective-quality-loop-objective-architecture-research-objective"
+      "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Quality Loop\nObjective",
+      "slug": "architecture-research-objective-knowledge-brain-objective-quality-loop-objective"
     },
     {
       "entity_count": 10,

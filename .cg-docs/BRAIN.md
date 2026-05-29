@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-05-26 · 414 entities · 3 topics · 161 edges_
+_Generated 2026-05-29 · 428 entities · 3 topics · 164 edges_
 
 ## How to Use
 
@@ -13,11 +13,11 @@ _Generated 2026-05-26 · 414 entities · 3 topics · 161 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md](BRAIN-01.md#roadmap-json-prompt-tools-tests-ps1-copilot-instructions-md) | 281 | BRAIN-01.md |
-| 2 | [Knowledge Brain
+| 1 | [Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md](BRAIN-01.md#roadmap-json-prompt-tools-tests-ps1-copilot-instructions-md) | 282 | BRAIN-01.md |
+| 2 | [Architecture Research
+Objective / Knowledge Brain
 Objective / Quality Loop
-Objective / Architecture Research
-Objective](BRAIN-01.md#knowledge-brain-objective-quality-loop-objective-architecture-research-objective) | 88 | BRAIN-01.md |
+Objective](BRAIN-01.md#architecture-research-objective-knowledge-brain-objective-quality-loop-objective) | 97 | BRAIN-01.md |
 | 3 | [Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent](BRAIN-01.md#run-tests-ps1-last-run-json-execution-subagent) | 10 | BRAIN-01.md |
 
 ## Entity Summary
@@ -25,13 +25,13 @@ Objective](BRAIN-01.md#knowledge-brain-objective-quality-loop-objective-architec
 | Type | Count |
 |------|-------|
 | brainstorm | 38 |
-| feature | 88 |
+| feature | 97 |
 | plan | 55 |
-| review | 87 |
-| solution | 137 |
-| strategy | 9 |
+| review | 89 |
+| solution | 139 |
+| strategy | 10 |
 
-_35 entities not assigned to any topic_
+_39 entities not assigned to any topic_
 
 ## Relationship Summary
 
@@ -40,5 +40,5 @@ _35 entities not assigned to any topic_
 | decided_from | 37 |
 | implements | 17 |
 | references | 32 |
-| reviews | 50 |
-| verifies | 25 |
+| reviews | 52 |
+| verifies | 26 |

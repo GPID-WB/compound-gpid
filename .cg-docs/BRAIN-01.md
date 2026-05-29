@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-05-26_
+_Generated 2026-05-29_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 281 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 282 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -568,16 +568,18 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > Workflow Maturity milestone nearly complete (5/7 done). v0.10.3 just released with CI bypass flags and E2E smoke test…
 - **[2026-05-19-knowledge-brain](.cg-docs/strategy/2026-05-19-knowledge-brain.md)** · `strategy` · _approved_ · `2026-05-19`
   > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
+- **[Mid-project idea capture — brainstorm depth, confidence, model strategy, help, outcome verification, goal-driven execution](.cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md)** · `strategy` · _—_ · `2026-05-28`
+  > - Knowledge Brain milestone at 62% (Batch D team brain active on `feat/knowledge-brain-engine` branch) - Workflow Mat…
 
-## Knowledge Brain
+## Architecture Research
+Objective / Knowledge Brain
 Objective / Quality Loop
-Objective / Architecture Research
 Objective
 
-_Keywords: `knowledge brain
+_Keywords: `architecture research
+objective` · `knowledge brain
 objective` · `quality loop
-objective` · `architecture research
-objective`_ · 88 entities
+objective`_ · 97 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -659,6 +661,12 @@ objective`_ · 88 entities
   > Verification commands — configurable post-task checks
 - **[Auto-triggered skills via expanded applyTo hook patterns \[from SP\]](roadmap.json#auto-triggered-skills-via-hooks)** · `feature` · _idea_ · `—`
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
+- **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
+  > Add mattpocock/skills to competitive review sources
+- **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
+  > Cross-model review — adversarial model diversity
+- **[Tiered model escalation — super-advanced model dispatch](roadmap.json#tiered-model-escalation)** · `feature` · _idea_ · `—`
+  > Tiered model escalation — super-advanced model dispatch
 - **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) \[from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
@@ -673,6 +681,10 @@ objective`_ · 88 entities
   > Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]
 - **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
   > Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]
+- **[Brainstorm depth overhaul — grill-me mode + grill-with-docs skill](roadmap.json#brainstorm-depth-grill-mode)** · `feature` · _idea_ · `—`
+  > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
+- **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
+  > /cg-confidence — honest confidence/assumptions/unknowns assessment
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`
@@ -699,6 +711,8 @@ objective`_ · 88 entities
   > /cg-setup --refresh mode for non-destructive re-configuration
 - **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
   > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
+- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
+  > /cg-help — comprehensive interactive help system
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
 - **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
@@ -717,6 +731,8 @@ objective`_ · 88 entities
   > /cg-commit-push-pr — logical commit splitting, push, and PR creation
 - **[/cg-verify-pr — CI check verification and auto-fix dispatch](roadmap.json#cg-verify-pr)** · `feature` · _done_ · `—`
   > /cg-verify-pr — CI check verification and auto-fix dispatch
+- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
+  > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
@@ -755,6 +771,10 @@ objective`_ · 88 entities
   > /cg-strategy --add <idea> quick-add mode for roadmap ideas
 - **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
+- **[Planning-stage test strategy + human review facilitation](roadmap.json#planning-stage-test-strategy)** · `feature` · _idea_ · `—`
+  > Planning-stage test strategy + human review facilitation
+- **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
+  > Agent-verified outcome definitions with acceptance evals
 
 ## Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent
 

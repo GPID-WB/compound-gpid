@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
+_Generated 2026-05-29 · 331 artifacts (newest first) + 97 roadmap features_
 
 ## undated
 
@@ -100,6 +100,22 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
 - **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
+
+## 2026-05-29
+
+- **[2026-05-20-team-brain-batch-d-review-2](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: thorough **Files reviewed**: 8 (Phase 2 additions — `distiller.py`, `pull.py`, `test_distiller.py`,…
+- **[2026-05-20-team-brain-batch-d-verify-review-2](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md)** · `review` · _—_ · `2026-05-29`
+  > **Review depth**: light (verify pass) **Parent review**: `2026-05-20-team-brain-batch-d-review-2.md` (22 fixed, 1 ski…
+- **[Phantom docstring parameter from incomplete cache-bypass propagation in refactors](.cg-docs/solutions/bugs/2026-05-29-phantom-docstring-param-incomplete-cache-bypass-propagation.md)** · `solution` · _—_ · `2026-05-29`
+  > After adding a per-project JSONL cache to `_fetch_project_jsonl` (fix P2.3), the function's `Args:` block was written…
+- **[Test classes defined after unittest.main\(\) are silently skipped on direct execution](.cg-docs/solutions/testing-patterns/2026-05-29-test-classes-after-unittest-main-silently-skipped.md)** · `solution` · _—_ · `2026-05-29`
+  > Test classes added below `if __name__ == "__main__": unittest.main()` pass in CI (pytest discovers them via import) b…
+
+## 2026-05-28
+
+- **[Mid-project idea capture — brainstorm depth, confidence, model strategy, help, outcome verification, goal-driven execution](.cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md)** · `strategy` · _—_ · `2026-05-28`
+  > - Knowledge Brain milestone at 62% (Batch D team brain active on `feat/knowledge-brain-engine` branch) - Workflow Mat…
 
 ## 2026-05-26
 
@@ -811,6 +827,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
 
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
+- **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
+  > Agent-verified outcome definitions with acceptance evals
 - **[Attribution documentation \(source repos and websites\)](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > Attribution documentation (source repos and websites)
 - **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
@@ -837,6 +855,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Relationship/edge detection (full typed edge set)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
   > Topic/theme extraction (auto-cluster artifacts into concepts)
+- **[Brainstorm depth overhaul — grill-me mode + grill-with-docs skill](roadmap.json#brainstorm-depth-grill-mode)** · `feature` · _idea_ · `—`
+  > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) \[from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
@@ -847,10 +867,14 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > /cg-commit-push-pr — logical commit splitting, push, and PR creation
 - **[/cg-compound proposes context.md additions after completed tasks](roadmap.json#cg-compound-context-enrichment)** · `feature` · _done_ · `—`
   > /cg-compound proposes context.md additions after completed tasks
+- **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
+  > /cg-confidence — honest confidence/assumptions/unknowns assessment
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
 - **[/cg-fix-problems user-facing prompt](roadmap.json#cg-fix-problems-prompt)** · `feature` · _done_ · `—`
   > /cg-fix-problems user-facing prompt
+- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
+  > /cg-help — comprehensive interactive help system
 - **[Split /cg-release into Haiku scan + Sonnet drafting](roadmap.json#cg-release-haiku-sonnet-split)** · `feature` · _done_ · `—`
   > Split /cg-release into Haiku scan + Sonnet drafting
 - **[/cg-release scan scope limited to last 60 days](roadmap.json#cg-release-scan-scope-60-days)** · `feature` · _done_ · `—`
@@ -869,6 +893,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Copilot CLI execution with worktrees (Model C)
 - **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
   > copilot-instructions.md restructuring (blocked on hooks evaluation)
+- **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
+  > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
@@ -885,6 +911,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Full model audit across prompts and agents
 - **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
   > GitHub Issues integration (optional, via gh CLI)
+- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
+  > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan \[from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
   > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
 - **[Honest pushback mode in /cg-brainstorm and /cg-strategy](roadmap.json#honest-pushback-in-brainstorm-strategy)** · `feature` · _done_ · `—`
@@ -893,6 +921,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Include /ce:ideate-style prompt from compound-engineering-plugin
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
+- **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
+  > Add mattpocock/skills to competitive review sources
 - **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
@@ -911,6 +941,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Required frontmatter field checks from /cg-plan output
 - **[Plan review agent and prompt \(@cg-plan-critic + /cg-plan-review\)](roadmap.json#plan-review-agent-and-prompt)** · `feature` · _done_ · `—`
   > Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)
+- **[Planning-stage test strategy + human review facilitation](roadmap.json#planning-stage-test-strategy)** · `feature` · _idea_ · `—`
+  > Planning-stage test strategy + human review facilitation
 - **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
@@ -977,6 +1009,8 @@ _Generated 2026-05-26 · 326 artifacts (newest first) + 88 roadmap features_
   > Testing skill for Stata (assert-based/reprun)
 - **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
   > tidymodels addition to cg-skill-r-analytical
+- **[Tiered model escalation — super-advanced model dispatch](roadmap.json#tiered-model-escalation)** · `feature` · _idea_ · `—`
+  > Tiered model escalation — super-advanced model dispatch
 - **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
   > Migration path from vanilla Copilot (detect and merge existing instructions)
 - **[Verification-before-completion enforcement in /cg-work tasks \[from SP\]](roadmap.json#verification-before-completion-cg-work)** · `feature` · _idea_ · `—`
