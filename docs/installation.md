@@ -277,5 +277,28 @@ Then run `cg-update` from each linked project to apply any structural migrations
 
 ---
 
+### Upgrading from pre-bin/ installations (macOS)
+
+If you installed Compound GPID before the `bin/` wrapper architecture was introduced, your shell profile may contain stale `cg-link()`, `cg-unlink()`, `cg-update()`, or `cg-index()` function definitions and an `export COMPOUND_GPID_DIR=` line.
+
+**Shell functions have higher precedence than PATH entries and shadow the new bin/ wrappers**, causing errors like `link.ps1 is Windows-only` when running `cg-link` on macOS.
+
+Re-running `install.sh` automatically detects and removes these stale definitions:
+
+```bash
+bash ~/.compound-gpid/scripts/install.sh
+```
+
+If `cg-link` still behaves unexpectedly after the upgrade, check your profile manually:
+
+```bash
+grep -n "cg-link()" ~/.zshrc   # zsh
+grep -n "cg-link()" ~/.bashrc  # bash
+```
+
+Any remaining matches should be removed manually. Then restart your terminal.
+
+---
+
 > **Having trouble?** Check the [Troubleshooting](troubleshooting.md) page for known issues and fixes.
 

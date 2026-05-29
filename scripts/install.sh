@@ -10,6 +10,8 @@
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
 #      so cg-link, cg-unlink, cg-update are available from any terminal.
+#   4a. Removes stale cg-*() shell functions and COMPOUND_GPID_DIR exports
+#       from shell profile (migration from pre-bin/ installs).
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # Options:
@@ -86,24 +88,93 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     if [[ -f "$PROFILE_FILE" ]]; then
         # Use python3 to safely remove the block (avoids sed multiline issues)
         python3 - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
-import sys, re, tempfile, os
+import sys
+import re
+import tempfile
+import os
 path, start_marker, end_marker = sys.argv[1], sys.argv[2], sys.argv[3]
-with open(path, 'r') as f:
-    content = f.read()
+real_path = os.path.realpath(path)
+try:
+    with open(real_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+except UnicodeDecodeError:
+    sys.exit(0)
 pattern = re.escape(start_marker) + r'.*?' + re.escape(end_marker) + r'\n?'
 updated = re.sub(pattern, '', content, flags=re.DOTALL).rstrip('\n')
 out = updated + '\n' if updated else ''
-tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
+original_mode = os.stat(real_path).st_mode & 0o777
+tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(real_path))
+os.chmod(tmp_path, original_mode)
 try:
-    with os.fdopen(tmp_fd, 'w') as f:
+    with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
         f.write(out)
-    os.replace(tmp_path, path)
-except:
+    os.replace(tmp_path, real_path)
+except Exception:
     try: os.unlink(tmp_path)
-    except: pass
+    except (OSError, FileNotFoundError): pass
     raise
 PYEOF
         print_gray "Removed Compound GPID block from $PROFILE_FILE"
+    fi
+
+    # Remove stale function-based artifacts (migration, same as install.sh Step 4a)
+    if [[ -f "$PROFILE_FILE" ]]; then
+        python3 - "$PROFILE_FILE" <<'PYEOF'
+import sys
+import re
+import tempfile
+import os
+path = sys.argv[1]
+real_path = os.path.realpath(path)
+try:
+    with open(real_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+except UnicodeDecodeError:
+    sys.exit(0)
+stale_patterns = [
+    re.compile(r'^cg-\w+\s*\(\)'),
+    re.compile(r'^export COMPOUND_GPID_DIR='),
+]
+cleaned = []
+in_func_body = False
+brace_depth = 0
+for line in lines:
+    stripped = line.rstrip('\n')
+    if in_func_body:
+        brace_depth += stripped.count('{') - stripped.count('}')
+        if brace_depth <= 0:
+            in_func_body = False
+        continue
+    if any(p.match(stripped) for p in stale_patterns):
+        open_count = stripped.count('{')
+        close_count = stripped.count('}')
+        if open_count > close_count:
+            in_func_body = True
+            brace_depth = open_count - close_count
+        continue
+    cleaned.append(line)
+if cleaned != lines:
+    final = []
+    prev_blank = False
+    for line in cleaned:
+        is_blank = line.strip() == ''
+        if is_blank and prev_blank:
+            continue
+        final.append(line)
+        prev_blank = is_blank
+    original_mode = os.stat(real_path).st_mode & 0o777
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(real_path))
+    os.chmod(tmp_path, original_mode)
+    try:
+        with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
+            f.writelines(final)
+        os.replace(tmp_path, real_path)
+    except Exception:
+        try: os.unlink(tmp_path)
+        except (OSError, FileNotFoundError): pass
+        raise
+    print(f"  Removed stale cg-* function definitions from {real_path}", file=sys.stderr)
+PYEOF
     fi
 
     printf '\n'
@@ -219,22 +290,31 @@ print_gray "Registering cg-* commands via PATH ($PROFILE_FILE)..."
 # Uses python3 (zero-dependency on macOS) to safely handle multiline removal.
 if [[ -f "$PROFILE_FILE" ]] && grep -qF "$CG_PROFILE_START" "$PROFILE_FILE" 2>/dev/null; then
     python3 - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
-import sys, re, tempfile, os
+import sys
+import re
+import tempfile
+import os
 path, start_marker, end_marker = sys.argv[1], sys.argv[2], sys.argv[3]
-with open(path, 'r') as f:
-    content = f.read()
+real_path = os.path.realpath(path)
+try:
+    with open(real_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+except UnicodeDecodeError:
+    sys.exit(0)
 pattern = re.escape(start_marker) + r'.*?' + re.escape(end_marker) + r'\n?'
 updated = re.sub(pattern, '', content, flags=re.DOTALL).rstrip('\n')
 if updated or content:
     out = updated + '\n' if updated else ''
-    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
+    original_mode = os.stat(real_path).st_mode & 0o777
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(real_path))
+    os.chmod(tmp_path, original_mode)
     try:
-        with os.fdopen(tmp_fd, 'w') as f:
+        with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
             f.write(out)
-        os.replace(tmp_path, path)
-    except:
+        os.replace(tmp_path, real_path)
+    except Exception:
         try: os.unlink(tmp_path)
-        except: pass
+        except (OSError, FileNotFoundError): pass
         raise
 PYEOF
     print_gray "Removed stale Compound GPID block from $PROFILE_FILE"
@@ -242,45 +322,72 @@ fi
 
 # Step 4a: Remove stale function-based install artifacts (migration from pre-bin/ installs).
 # Older compound-gpid versions added cg-*() shell functions and COMPOUND_GPID_DIR exports
-# directly to the profile. These shadow the new bin/ wrappers and must be removed.
+# directly to the profile. Shell functions have higher precedence than PATH entries, so
+# these stale definitions shadow the new bin/ wrappers and must be removed for the upgrade
+# to work correctly.
 if [[ -f "$PROFILE_FILE" ]]; then
     python3 - "$PROFILE_FILE" <<'PYEOF'
-import sys, re, tempfile, os
+import sys
+import re
+import tempfile
+import os
 
 path = sys.argv[1]
-with open(path, 'r') as f:
-    lines = f.readlines()
+real_path = os.path.realpath(path)
+try:
+    with open(real_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+except UnicodeDecodeError:
+    print(f"  Warning: {real_path} contains non-UTF-8 bytes; skipping migration.", file=sys.stderr)
+    sys.exit(0)
 
-stale = [
-    re.compile(r'^cg-\w+\s*\(\)'),          # cg-cmd() { ... } function definitions
-    re.compile(r'^export COMPOUND_GPID_DIR='), # old COMPOUND_GPID_DIR variable export
-    re.compile(r'^# Compound GPID\s*$'),      # old unfenced section header
+stale_patterns = [
+    re.compile(r'^cg-\w+\s*\(\)'),            # cg-cmd() { ... } function definitions
+    re.compile(r'^export COMPOUND_GPID_DIR='),  # old COMPOUND_GPID_DIR variable export
 ]
 
-cleaned = [line for line in lines if not any(p.match(line) for p in stale)]
-
-# Collapse consecutive blank lines left behind by removals
-final = []
-prev_blank = False
-for line in cleaned:
-    is_blank = line.strip() == ''
-    if is_blank and prev_blank:
+# Remove stale lines; brace-track multiline function bodies to remove them too
+cleaned = []
+in_func_body = False
+brace_depth = 0
+for line in lines:
+    stripped = line.rstrip('\n')
+    if in_func_body:
+        brace_depth += stripped.count('{') - stripped.count('}')
+        if brace_depth <= 0:
+            in_func_body = False
         continue
-    final.append(line)
-    prev_blank = is_blank
+    if any(p.match(stripped) for p in stale_patterns):
+        open_count = stripped.count('{')
+        close_count = stripped.count('}')
+        if open_count > close_count:
+            in_func_body = True
+            brace_depth = open_count - close_count
+        continue
+    cleaned.append(line)
 
-if final != lines:
-    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
+if cleaned != lines:
+    # Collapse consecutive blank lines left behind by removals
+    final = []
+    prev_blank = False
+    for line in cleaned:
+        is_blank = line.strip() == ''
+        if is_blank and prev_blank:
+            continue
+        final.append(line)
+        prev_blank = is_blank
+    original_mode = os.stat(real_path).st_mode & 0o777
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(real_path))
+    os.chmod(tmp_path, original_mode)
     try:
-        with os.fdopen(tmp_fd, 'w') as f:
+        with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
             f.writelines(final)
-        os.replace(tmp_path, path)
-    except:
+        os.replace(tmp_path, real_path)
+    except Exception:
         try: os.unlink(tmp_path)
-        except: pass
+        except (OSError, FileNotFoundError): pass
         raise
-    removed = sum(1 for a, b in zip(lines, final + [''] * len(lines)) if a != b)
-    print(f"  Removed stale cg-* function definitions from {path}", file=sys.stderr)
+    print(f"  Removed stale cg-* function definitions from {real_path}", file=sys.stderr)
 PYEOF
 fi
 

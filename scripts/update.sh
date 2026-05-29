@@ -128,6 +128,9 @@ if [[ "$DO_FIX" == "true" ]]; then
         fi
     )
 
+    # Re-run install.sh to migrate shell profile and regenerate bin/ wrappers
+    bash "$COMPOUND_GPID_DIR/scripts/install.sh"
+
     printf '\n'
     print_green "Repair complete."
     print_gray "Run cg-update again to verify."

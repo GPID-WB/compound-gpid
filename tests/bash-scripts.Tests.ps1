@@ -176,22 +176,33 @@ Describe "install.sh - PATH block is idempotent" {
 
 # ---------------------------------------------------------------------------
 # install.sh - migration: removes stale function-based install artifacts
+# Shell functions have higher precedence than PATH entries; stale cg-*() defs
+# shadow the bin/ wrappers. install.sh must remove them on every upgrade.
+# Patterns mirror the 'stale' list in install.sh Step 4a — keep in sync.
 # ---------------------------------------------------------------------------
 Describe "install.sh - removes stale cg-* function definitions on upgrade" {
-    It "strips old cg-link/cg-unlink/cg-update function defs and COMPOUND_GPID_DIR exports from profile" {
-        $tmpHome  = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-$([System.Guid]::NewGuid().ToString('N'))"
-        $tmpZshrc = Join-Path $tmpHome ".zshrc"
-        $fakeShell = "/bin/zsh"
+    It "strips single-line and multiline stale function defs (including cg-index), exports, and preserves non-CG content" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $testShell = "/bin/zsh"
 
         New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
 
-        # Seed the profile with the stale function-based install patterns
+        # Seed: non-CG user content + stale artifacts (single-line, multiline cg-index, COMPOUND_GPID_DIR)
         $staleContent = @"
+# My shell config
+export MY_VAR="important-value"
+my_func() { echo "hello"; }
+
 # Compound GPID
 export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
 cg-link()   { pwsh "`$COMPOUND_GPID_DIR/scripts/link.ps1"   "`$@"; }
 cg-unlink() { pwsh "`$COMPOUND_GPID_DIR/scripts/unlink.ps1" "`$@"; }
 cg-update() { pwsh "`$COMPOUND_GPID_DIR/scripts/update.ps1" "`$@"; }
+cg-index() {
+    python3 "`$COMPOUND_GPID_DIR/scripts/cg_index.py" "`$@"
+}
+
 
 # Compound GPID
 export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
@@ -201,9 +212,76 @@ cg-update() { git -C "`$COMPOUND_GPID_DIR" pull; }
 
         $originalHome  = $env:HOME
         $originalShell = $env:SHELL
+        # Capture real profile mtime to verify test isolation (P1.7)
+        $realProfile     = Join-Path $originalHome ".zshrc"
+        $realMtimeBefore = if (Test-Path $realProfile) { (Get-Item $realProfile).LastWriteTime } else { $null }
 
         $env:HOME  = $tmpHome
-        $env:SHELL = $fakeShell
+        $env:SHELL = $testShell
+
+        $tmpInstall        = Join-Path $tmpHome ".compound-gpid"
+        $tmpInstallBin     = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+        (Test-Path $tmpInstallScripts) | Should -Be $true
+
+        try {
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+
+            $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
+
+            # Stale function declarations must be gone (P1.6: includes cg-index)
+            ($profileContent -match 'cg-link\s*\(\)')    | Should -Be $false
+            ($profileContent -match 'cg-unlink\s*\(\)')  | Should -Be $false
+            ($profileContent -match 'cg-update\s*\(\)')  | Should -Be $false
+            ($profileContent -match 'cg-index\s*\(\)')   | Should -Be $false
+            ($profileContent -match 'COMPOUND_GPID_DIR') | Should -Be $false
+
+            # Multiline function body lines must be gone, not just the declaration (P1.5)
+            ($profileContent -match 'cg_index\.py')      | Should -Be $false
+
+            # Non-CG user content must be preserved (P2.5)
+            ($profileContent -match 'MY_VAR')            | Should -Be $true
+            ($profileContent -match 'my_func')           | Should -Be $true
+            ($profileContent -match 'My shell config')   | Should -Be $true
+
+            # No triple+ blank lines left behind (P2.6)
+            ($profileContent -match '\n\n\n')            | Should -Be $false
+
+            # New fenced PATH block must be present exactly once
+            $markerCount = ([regex]::Matches($profileContent, [regex]::Escape("# --- Compound GPID ---"))).Count
+            $markerCount | Should -Be 1
+
+            # Real user profile must be untouched — test isolation (P1.7)
+            $realMtimeAfter = if (Test-Path $realProfile) { (Get-Item $realProfile).LastWriteTime } else { $null }
+            ($realMtimeBefore -eq $realMtimeAfter) | Should -Be $true
+        } finally {
+            Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "is a no-op on a fresh profile with no stale content" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-fresh-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $testShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        $cleanContent = @"
+# User shell config
+export PATH="/usr/local/bin:`$PATH"
+alias ll="ls -la"
+"@
+        Set-Content -Path $tmpZshrc -Value $cleanContent -Encoding UTF8
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+        $env:HOME  = $tmpHome
+        $env:SHELL = $testShell
 
         $tmpInstall        = Join-Path $tmpHome ".compound-gpid"
         $tmpInstallBin     = Join-Path $tmpInstall "bin"
@@ -216,15 +294,93 @@ cg-update() { git -C "`$COMPOUND_GPID_DIR" pull; }
 
             $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
 
-            # Stale function definitions must be gone
-            ($profileContent -match 'cg-link\s*\(\)')   | Should -Be $false
-            ($profileContent -match 'cg-unlink\s*\(\)') | Should -Be $false
-            ($profileContent -match 'cg-update\s*\(\)') | Should -Be $false
-            ($profileContent -match 'COMPOUND_GPID_DIR') | Should -Be $false
-
-            # New fenced PATH block must be present exactly once
+            # User content preserved
+            ($profileContent -match 'alias ll') | Should -Be $true
+            # CG block appended exactly once
             $markerCount = ([regex]::Matches($profileContent, [regex]::Escape("# --- Compound GPID ---"))).Count
             $markerCount | Should -Be 1
+        } finally {
+            Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "migration is idempotent: running install.sh twice produces the same profile" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-idem-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $testShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        $staleContent = @"
+# Compound GPID
+export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
+cg-link() { pwsh "`$COMPOUND_GPID_DIR/scripts/link.ps1" "`$@"; }
+"@
+        Set-Content -Path $tmpZshrc -Value $staleContent -Encoding UTF8
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+        $env:HOME  = $tmpHome
+        $env:SHELL = $testShell
+
+        $tmpInstall        = Join-Path $tmpHome ".compound-gpid"
+        $tmpInstallBin     = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+
+        try {
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            $profileAfterFirst = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
+
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            $profileAfterSecond = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
+
+            $profileAfterFirst | Should -Be $profileAfterSecond
+        } finally {
+            Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It "profile remains valid shell syntax after migration" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-migrate-syntax-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $testShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        $staleContent = @"
+export MY_CLEAN_VAR="still-here"
+# Compound GPID
+export COMPOUND_GPID_DIR="`$HOME/.compound-gpid"
+cg-link()   { pwsh "`$COMPOUND_GPID_DIR/scripts/link.ps1"   "`$@"; }
+cg-unlink() { pwsh "`$COMPOUND_GPID_DIR/scripts/unlink.ps1" "`$@"; }
+"@
+        Set-Content -Path $tmpZshrc -Value $staleContent -Encoding UTF8
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+        $env:HOME  = $tmpHome
+        $env:SHELL = $testShell
+
+        $tmpInstall        = Join-Path $tmpHome ".compound-gpid"
+        $tmpInstallBin     = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+
+        try {
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+
+            $escapedPath = $tmpZshrc.Replace("'", "'\\''")
+            $syntaxCheck = & bash -c ". '$escapedPath' && echo valid" 2>&1
+            $syntaxCheck | Should -Match 'valid'
         } finally {
             Remove-Item -Path $tmpHome    -Recurse -Force -ErrorAction SilentlyContinue
             Remove-Item -Path $tmpInstall -Recurse -Force -ErrorAction SilentlyContinue
