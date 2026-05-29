@@ -109,6 +109,13 @@ def test_regex_no_redaction_for_public_url():
     assert not any(r.redaction_type == "url" for r in redactions)
 
 
+def test_regex_unclosed_code_fence_emits_warning():
+    """Unclosed code fence emits UserWarning at end of document."""
+    content = "Before.\n\n```python\nx = 1\n# no closing fence"
+    with pytest.warns(UserWarning, match="[Uu]nclosed"):
+        apply_regex_filter(content)
+
+
 # ---------------------------------------------------------------------------
 # apply_regex_filter — redaction metadata
 # ---------------------------------------------------------------------------

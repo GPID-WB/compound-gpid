@@ -419,14 +419,15 @@ class TestPullEdgeCases(unittest.TestCase):
     @patch("team_brain.pull._is_cache_fresh", return_value=False)
     @patch("team_brain.pull._fetch_remote_raw")
     def test_malformed_jsonl_lines_are_skipped(self, mock_fetch, _mock_fresh):
-        """Malformed JSONL lines are skipped; subsequent valid lines are returned."""
+        """Malformed JSONL lines are skipped with a UserWarning; valid lines are returned."""
         mock_fetch.return_value = (
             "NOT JSON\n"
             + _SAMPLE_JSONL_LINE + "\n"
             + "{invalid}\n"
         )
         from team_brain.pull import _fetch_project_jsonl
-        entries = _fetch_project_jsonl(_CONFIG, "compound-gpid")
+        with self.assertWarns(UserWarning):
+            entries = _fetch_project_jsonl(_CONFIG, "compound-gpid")
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]["id"], "2026-05-20-fix-null-check")
 

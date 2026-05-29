@@ -442,10 +442,6 @@ class TestPushEntryLive(unittest.TestCase):
         self.assertIn("pushed-date:", pushed_content[0])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 # ---------------------------------------------------------------------------
 # T-P0.1  project_name path traversal — validation rejects traversal strings
 # ---------------------------------------------------------------------------
@@ -514,6 +510,22 @@ class TestGetRemoteFileError(unittest.TestCase):
         with patch("team_brain.push._api_request", return_value=(404, {})):
             result = _get_remote_file("owner/repo", "missing.md", "fake-token")
         self.assertIsNone(result)
+
+    def test_raises_runtime_error_on_200_missing_sha(self) -> None:
+        """HTTP 200 without 'sha' raises RuntimeError (e.g. file exceeds GitHub 1 MB limit)."""
+        from team_brain.push import _get_remote_file
+
+        with patch("team_brain.push._api_request", return_value=(200, {"content": "abc="})):
+            with self.assertRaises(RuntimeError):
+                _get_remote_file("owner/repo", "path.md", "fake-token")
+
+    def test_raises_runtime_error_on_200_missing_content(self) -> None:
+        """HTTP 200 without 'content' raises RuntimeError (e.g. file exceeds GitHub 1 MB limit)."""
+        from team_brain.push import _get_remote_file
+
+        with patch("team_brain.push._api_request", return_value=(200, {"sha": "abc123"})):
+            with self.assertRaises(RuntimeError):
+                _get_remote_file("owner/repo", "path.md", "fake-token")
 
 
 # ---------------------------------------------------------------------------
@@ -598,6 +610,20 @@ class TestApiRequestMalformedJson(unittest.TestCase):
             status, data = _api_request("GET", "https://api.github.com/test", "tok")
         self.assertEqual(status, 422)
         # Should not raise — malformed JSON body falls back to {"message": raw[:200]}
+        self.assertIn("message", data)
+
+    def test_api_request_success_path_non_json_body(self) -> None:
+        """Success path: HTTP 200 with non-JSON body falls back to {"message": raw[:200]}."""
+        from team_brain.push import _api_request
+
+        mock_resp = MagicMock()
+        mock_resp.status = 200
+        mock_resp.read.return_value = b"not-json {"
+        with patch("team_brain.push._opener") as mock_opener:
+            mock_opener.open.return_value.__enter__.return_value = mock_resp
+            mock_opener.open.return_value.__exit__.return_value = False
+            status, data = _api_request("GET", "https://api.github.com/test", "tok")
+        self.assertEqual(status, 200)
         self.assertIn("message", data)
 
 
@@ -849,3 +875,7 @@ class TestFindLocalConfigBoundary(unittest.TestCase):
             # config only in root (which has .git), not in above
             result = _find_local_config(above)
         self.assertIsNone(result)
+
+
+if __name__ == "__main__":
+    unittest.main()
