@@ -181,6 +181,16 @@ if (Test-Path $cgIndexCmdSrc) {
     Write-Warning "  bin\cg-index.cmd not found in installation -- skipping cg-index wrapper."
 }
 
+# Copy cg-brain-init.cmd from the committed file (same pattern as cg-index.cmd).
+$cgBrainInitCmdSrc = Join-Path $CompoundGpidDir "bin\cg-brain-init.cmd"
+$cgBrainInitCmdDst = Join-Path $binDir "cg-brain-init.cmd"
+if (Test-Path $cgBrainInitCmdSrc) {
+    Copy-Item -Path $cgBrainInitCmdSrc -Destination $cgBrainInitCmdDst -Force
+    Write-Host "  Copied:  cg-brain-init in $binDir" -ForegroundColor DarkGray
+} else {
+    Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
+}
+
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
 # Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
 # is blocked by Constrained Language Mode on enterprise machines.

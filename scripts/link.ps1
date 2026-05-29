@@ -294,3 +294,6 @@ Write-Host ""
 Write-Host "Run in VS Code / Positron Copilot Chat:"
 Write-Host "  /cg-setup" -ForegroundColor Cyan
 Write-Host ""
+Write-Host "Optional: set up cross-project knowledge sharing (team brain manager only):"
+Write-Host "  cg-brain-init --repo <owner/name> --manager <github-username>" -ForegroundColor DarkGray
+Write-Host ""

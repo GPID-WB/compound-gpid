@@ -402,5 +402,8 @@ printf '\n'
 printf 'Run in VS Code / Positron Copilot Chat:\n'
 printf '  \033[0;36m/cg-setup\033[0m\n'
 printf '\n'
+printf 'Optional: set up cross-project knowledge sharing (team brain manager only):\n'
+printf '  \033[0;90mcg-brain-init --repo <owner/name> --manager <github-username>\033[0m\n'
+printf '\n'
 
 exit 0
