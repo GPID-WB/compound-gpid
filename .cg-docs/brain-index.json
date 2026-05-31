@@ -6190,15 +6190,15 @@
       "title": "Per-batch retry counter creates unbounded loop when cascading regressions occur",
       "top_keywords": [
         "loop",
+        "cg-work.prompt.md",
         "test failure recovery",
         "counter",
         "retry",
         "per-batch",
         "unbounded",
         "creates",
-        "cg-work.prompt.md",
-        "problem",
-        "related"
+        "cg-work",
+        "problem"
       ]
     },
     {
@@ -6250,14 +6250,14 @@
       "top_keywords": [
         "exception",
         "guardrail",
-        "self-defeating",
         "cg-work.prompt.md",
+        "before: foo(x)",
+        "after: foo(x, y)",
+        "self-defeating",
+        "cg-work",
         "llm",
         "related",
-        "prompts",
-        "problem",
-        "root",
-        "cause"
+        "prompts"
       ]
     },
     {
@@ -7394,7 +7394,7 @@
       "path": ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
       "slug": "2026-03-02-skill-vs-prompt-slash-command",
       "status": "",
-      "summary": "Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. However, there is no `.github/prompts/cg-setup.prompt.md` file — the setup entry point is `.github/skills/cg-skill-setup/SKILL.md`, which is a **skill**, not a prompt. Typing `/cg-setup` in Copilot Chat produces no result or an error because Copilot only resolves `/name` commands to `.prompt.md` files in `.github/prompts/`.",
+      "summary": "Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. However, there was no `.github/prompts/cg-setup.prompt.md` file at the time of writing — the setup entry point was `.github/skills/cg-skill-setup/SKILL.md`, which is a **skill**, not a prompt. Typing `/cg-setup` in Copilot Chat produces no result or an error because Copilot only resolves `/name` commands to `.prompt.md` files in `.github/prompts/`.",
       "tags": [
         "prompts",
         "skills",
@@ -7407,14 +7407,14 @@
       "top_keywords": [
         "cg-setup",
         "/cg-setup",
+        ".prompt.md",
         "copilot chat",
+        "skill.md",
+        "prompt.md",
+        ".github/prompts/cg-setup.prompt.md",
         ".github/prompts/",
         "prompts",
-        "skills",
-        ".github/prompts/cg-setup.prompt.md",
-        "/name",
-        ".prompt.md",
-        "skill.md"
+        "skills"
       ]
     },
     {
@@ -12327,7 +12327,7 @@
     }
   ],
   "entity_count": 432,
-  "generated": "2026-05-29",
+  "generated": "2026-05-30",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [

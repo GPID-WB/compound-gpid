@@ -7,7 +7,7 @@ language: "both"
 tags: [prompt-design, cg-work, adversarial, retry-logic, bounded-retry, test-failure-recovery, anti-pattern, loop]
 root-cause: "Scoping a 'max N attempts' counter to a per-batch failure set instead of the whole logical unit lets cascading regressions chain fresh counters indefinitely"
 severity: "P0"
-fix-confirmed: "no"
+fix-confirmed: "yes"
 reviewed-in: ".cg-docs/reviews/2026-04-15-per-step-test-failure-handling-review.md"
 ---
 
@@ -104,3 +104,15 @@ When designing bounded retry logic:
   — testing patterns for catching prompt logic bugs
 - `.cg-docs/solutions/bugs/2026-04-15-loop-early-exit-skips-per-iteration-cleanup.md`
   — related: loop early-exit directive that skips per-iteration cleanup (same class of silent step-bypass)
+
+## Resolution
+
+Fix confirmed in `.github/prompts/cg-work.prompt.md` (2026-04-15):
+
+> "apply up to **2 fix attempts total per plan step** — the limit is global
+> and does not reset when switching between targeted failures and full-suite
+> regressions"
+
+The counter is now scoped to the plan step, not the failure batch. Cascading
+regressions no longer chain fresh counters — the 2-attempt budget is exhausted
+once for the whole step regardless of which failure batch triggered each attempt.

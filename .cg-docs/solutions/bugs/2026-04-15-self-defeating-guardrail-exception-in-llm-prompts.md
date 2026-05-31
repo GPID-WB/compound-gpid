@@ -7,7 +7,7 @@ language: "both"
 tags: [prompt-design, cg-work, adversarial, guardrail, llm-behavior, test-failure-recovery, anti-pattern]
 root-cause: "An exception clause that an LLM can invoke using the very evidence the rule was designed to prevent nullifies the entire guardrail — any violation of the rule becomes justification for the exception"
 severity: "P0"
-fix-confirmed: "no"
+fix-confirmed: "yes"
 reviewed-in: ".cg-docs/reviews/2026-04-15-per-step-test-failure-handling-review.md"
 ---
 
@@ -100,3 +100,16 @@ If yes, the exception is self-defeating. Convert it to require:
   — related: loop early-exit directive skips per-iteration cleanup steps
 - `.cg-docs/solutions/bugs/2026-05-15-circular-error-recovery-command-in-halt-message.md`
   — variant: recovery suggestion in a halt message is itself blocked by the same missing precondition (bootstrap trap)
+
+## Resolution
+
+Fix confirmed in `.github/prompts/cg-work.prompt.md` (2026-04-15):
+
+> "(Exception: if this plan step explicitly enumerates the old and new function
+> signature — e.g., `before: foo(x)`, `after: foo(x, y)` — updating only the
+> assertions that directly verify the changed signature or return type is correct.
+> Inference about interface change from test failure alone is prohibited.)"
+
+The exception is now anchored to prior artifacts (explicit plan text naming the
+old and new signature), not to inferred outcomes the LLM can construct from the
+failure itself.

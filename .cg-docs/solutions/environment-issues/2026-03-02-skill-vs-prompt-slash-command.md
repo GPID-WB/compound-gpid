@@ -13,8 +13,8 @@ severity: "P2"
 ## Problem
 
 Documentation (README, manual) instructed users to run `/cg-setup` in Copilot
-Chat to configure their project. However, there is no `.github/prompts/cg-setup.prompt.md`
-file — the setup entry point is `.github/skills/cg-skill-setup/SKILL.md`, which
+Chat to configure their project. However, there was no `.github/prompts/cg-setup.prompt.md`
+file at the time of writing — the setup entry point was `.github/skills/cg-skill-setup/SKILL.md`, which
 is a **skill**, not a prompt.
 
 Typing `/cg-setup` in Copilot Chat produces no result or an error because Copilot
@@ -36,7 +36,7 @@ prompts as a reference) but was documented as if it were a prompt.
 
 Two valid fixes:
 
-**Option A (chosen):** Update documentation to accurately describe setup as a
+**Option A (implemented):** Update documentation to accurately describe setup as a
 skill, not a slash command. Users load it directly in chat by referencing the
 skill, not via `/cg-setup`.
 
@@ -71,3 +71,15 @@ corresponds to an actual `.prompt.md` file in `.github/prompts/`.
 - `docs/plans/2026-03-02-rename-prefix-and-documentation.md` — the plan that
   introduced the naming conventions
 - `docs/manual.md` — updated to correctly describe setup as a skill
+
+## Resolution
+
+Both options were eventually implemented:
+
+- **Option A** — documentation updated to describe setup as a skill (2026-03-02)
+- **Option B** — `.github/prompts/cg-setup.prompt.md` created (post-2026-03-02); `/cg-setup` is now a valid slash command
+
+The prevention rule still applies: always verify whether a workflow entry point
+is a `.prompt.md` or a `SKILL.md` before writing documentation. For new
+workflow entry points, prefer creating both — a `.prompt.md` for slash-command
+access and a skill for programmatic loading by other prompts.
