@@ -114,6 +114,18 @@ For **each step** in the plan:
 
 1. **Announce** which step you're starting.
 2. **Discover existing tests**: Using the Step 1.6 index, identify tests exercising the code you're about to change.
+
+   **Red-phase verification** (conditional \u2014 skip if this step is purely structural: config files, prompt text, documentation, YAML frontmatter, or directory scaffolding):
+
+   If this plan step introduces new testable behavior (creates a function, modifies return values, changes data transformation logic, or adds a new code path):
+   1. Write the test(s) now, **before touching the implementation**.
+   2. Run the test(s) against the current unmodified code.
+   3. The test must fail. Report: "Red-phase confirmed: `[test name]` fails with: `[one-line error]`"
+   4. If the test passes before implementation: the test is wrong \u2014 it does not detect the absence of the feature. Revise (one attempt). If still passing: log "Could not establish failing baseline \u2014 proceeding without red-phase confirmation. Flag for `@cg-testing` review." Continue to implementation.
+   5. After red-phase confirmation: proceed to implementation (sub-step 3).
+
+   This is **NOT a hard stop**. Do not wait for user confirmation. Log the result and continue.
+
 3. **Implement** following project conventions and the relevant language skill.
 4. **Test** as specified in the plan (R: `testthat`, Python: `pytest`, Stata: `assert` + validation do-files, PowerShell: Pester via `. tests\Run-Tests.ps1` or `Invoke-Pester <file> -Quiet` — never `Invoke-Pester tests/` (crashes VS Code)).
 

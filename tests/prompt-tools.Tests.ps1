@@ -5185,3 +5185,196 @@ Describe "cg-skill-brain-query - Team Brain pull step (Step 2b)" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Plan: test-correctness-assessment — cg-fixbug three-layer protocol
+# Steps 1+2: Layer 1 (expected behavior source), Layer 2 (test gap classification),
+#             Layer 3 (red-green proof), diagnostic fork, schema fields/sections
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Layer 1: Expected Behavior Source" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes a step requiring expected behavior source before Step 2" {
+        ($content -match 'Expected Behavior Source') | Should -Be $true
+    }
+
+    It "lists user requirement as a valid source type" {
+        ($content -match 'User requirement|user requirement|user-requirement') | Should -Be $true
+    }
+
+    It "lists mathematical or statistical definition as a valid source type" {
+        ($content -match '[Mm]athematical|[Ss]tatistical definition') | Should -Be $true
+    }
+
+    It "lists hand-computed example as a valid source type" {
+        ($content -match '[Hh]and.computed') | Should -Be $true
+    }
+
+    It "requires agent to ask user when expected behavior cannot be determined" {
+        ($content -match 'cannot determine the expected behavior|no source can be identified') | Should -Be $true
+    }
+
+    It "blocks proceeding to Step 2 before expected behavior source is declared" {
+        ($content -match 'Do NOT proceed to Step 2 until|before.*expected behavior') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - diagnostic fork: existing test evaluation" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "searches for existing tests before writing new ones in Step 2" {
+        ($content -match '[Ee]xisting test.*before|[Ee]valuate existing tests|[Pp]re.check.*existing') | Should -Be $true
+    }
+
+    It "describes 'codifies bug' scenario (existing test passes on buggy code with same input)" {
+        ($content -match 'codifies.*bug|asserts buggy behavior|passes on broken code') | Should -Be $true
+    }
+
+    It "distinguishes incomplete test from wrong test" {
+        ($content -match '[Ii]ncomplete|different aspect|doesn.t exercise the buggy') | Should -Be $true
+    }
+
+    It "defers flawed test repair to Step 4 (not Step 2)" {
+        ($content -match '[Rr]epair.*Step 4|[Ss]tep 4.*repair|[Aa]fter fix.*repair') | Should -Be $true
+    }
+
+    It "preserves the Step 2 hard stop (confirmed failing)" {
+        ($content -match 'confirmed failing') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - Layer 2: Test Gap Classification" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes a Test Gap Classification step" {
+        ($content -match 'Test Gap Classification|test gap classification') | Should -Be $true
+    }
+
+    It "includes 'missing-test' as a gap category" {
+        ($content -match 'missing.test') | Should -Be $true
+    }
+
+    It "includes 'circular-test' as a gap category" {
+        ($content -match 'circular.test') | Should -Be $true
+    }
+
+    It "includes 'wrong-test' as a gap category" {
+        ($content -match 'wrong.test') | Should -Be $true
+    }
+
+    It "includes 'weak-test' as a gap category" {
+        ($content -match 'weak.test') | Should -Be $true
+    }
+
+    It "includes 'edge-case-gap' as a gap category" {
+        ($content -match 'edge.case.gap') | Should -Be $true
+    }
+
+    It "requires the agent to state the classification explicitly" {
+        ($content -match 'State explicitly|[Ss]tate.*classification') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - Layer 3: Red-Green Proof" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes a red-green proof sequence in Step 4" {
+        ($content -match '[Rr]ed.green proof|[Rr]ed-green proof') | Should -Be $true
+    }
+
+    It "requires red phase confirmation (test was failing before fix)" {
+        ($content -match '[Rr]ed phase.*confirm|[Rr]ed phase: confirmed') | Should -Be $true
+    }
+
+    It "requires green phase confirmation (test passes after fix)" {
+        ($content -match '[Gg]reen phase|now passes') | Should -Be $true
+    }
+
+    It "requires existing tests to still pass (no regressions)" {
+        ($content -match 'existing tests.*pass|0 regressions') | Should -Be $true
+    }
+
+    It "requires verifying failure matches reported symptom" {
+        ($content -match '[Ff]ailure match|[Ff]ailure correspond') | Should -Be $true
+    }
+
+    It "requires repair of wrong/circular/weak tests in Step 4" {
+        ($content -match 'wrong.test.*repair|circular.test.*repair|weak.test.*repair|repair.*wrong.test|repair.*circular|repair.*weak') | Should -Be $true
+    }
+
+    It "preserves the Step 4 hard stop ('confirmed fixed')" {
+        ($content -match 'confirmed fixed') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - Step 5 schema fields and document sections" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "schema template includes red-phase-confirmed field" {
+        ($content -match 'red-phase-confirmed') | Should -Be $true
+    }
+
+    It "schema template includes expected-behavior-source field" {
+        ($content -match 'expected-behavior-source') | Should -Be $true
+    }
+
+    It "schema template includes test-gap field" {
+        ($content -match 'test-gap') | Should -Be $true
+    }
+
+    It "document body template includes Expected Behavior Source section" {
+        ($content -match '## Expected Behavior Source') | Should -Be $true
+    }
+
+    It "document body template includes Test Gap section" {
+        ($content -match '## Test Gap') | Should -Be $true
+    }
+
+    It "Schema Rules section documents red-phase-confirmed invariant" {
+        ($content -match 'red-phase-confirmed.*must') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Plan: test-correctness-assessment — cg-work red-phase gate (Step 3)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Red-phase verification gate" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes Red-phase verification in Step 2" {
+        ($content -match 'Red-phase verification|Red.phase verification') | Should -Be $true
+    }
+
+    It "specifies conditional skip for structural steps" {
+        ($content -match 'structural|config files.*skip|skip.*structural') | Should -Be $true
+    }
+
+    It "requires test to fail before implementation (red phase)" {
+        ($content -match 'fail.*before.*implement|test.*before.*touching|before touching the implementation') | Should -Be $true
+    }
+
+    It "includes the escape hatch for undetermined baseline" {
+        ($content -match 'Could not establish failing baseline') | Should -Be $true
+    }
+
+    It "specifies this is NOT a hard stop" {
+        ($content -match 'NOT a hard stop|not.*hard stop') | Should -Be $true
+    }
+
+    It "preserves the existing Step 2.5 Phase Boundary section heading" {
+        ($content -match '### Step 2\.5: Phase Boundary') | Should -Be $true
+    }
+
+    It "red-phase gate uses bold inline text (not a ### heading)" {
+        # Should NOT have a '### ' heading containing "Red-phase"
+        ($content -match '### .*[Rr]ed.phase') | Should -Be $false
+    }
+}
+
