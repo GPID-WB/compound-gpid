@@ -1,15 +1,14 @@
 ---
 date: 2026-06-01
 title: "Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification"
-status: active
+status: complete
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md"
 language: "both"
 estimated-effort: "medium"
 tags: [testing, test-integrity, cg-fixbug, cg-work, red-green-refactor, mutation-testing]
 phases: 2
-completed-phases: [1]
-current-phase: 2
+completed-phases: [1, 2]
 ---
 
 # Plan: Test-Correctness Assessment

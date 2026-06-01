@@ -5378,3 +5378,60 @@ Describe "cg-work.prompt.md - Red-phase verification gate" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Phase 2: cg-skill-r-testing reference file (test-integrity.md)
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-r-testing - references/test-integrity.md exists" {
+    $refPath = "$PSScriptRoot\..\. github\skills\cg-skill-r-testing\references\test-integrity.md"
+    $refPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\references\test-integrity.md"
+    $content  = if (Test-Path $refPath) { Get-Content $refPath -Raw } else { "" }
+
+    It "file exists" {
+        Test-Path $refPath | Should -Be $true
+    }
+
+    It "contains Expected Behavior Sources section" {
+        ($content -match '## Expected Behavior Sources?') | Should -Be $true
+    }
+
+    It "contains Mutation Verification Protocol section" {
+        ($content -match '## Mutation Verification Protocol') | Should -Be $true
+    }
+
+    It "contains Test Gap Taxonomy section" {
+        ($content -match '## Test Gap Taxonomy') | Should -Be $true
+    }
+
+    It "contains Detection Signals section" {
+        ($content -match '## Detection Signals') | Should -Be $true
+    }
+
+    It "contains When to Apply section" {
+        ($content -match '## When to Apply') | Should -Be $true
+    }
+
+    It "names all 8 gap categories" {
+        $cats = @('missing-test','weak-test','circular-test','wrong-test',
+                  'ambiguous-spec','fixture-gap','edge-case-gap','integration-gap')
+        foreach ($cat in $cats) {
+            ($content -match [regex]::Escape($cat)) | Should -Be $true
+        }
+    }
+
+    It "describes the 4-step mutation verification sequence" {
+        # Must mention writing test before implementation / red phase / green phase
+        ($content -match 'red phase|red-phase|write.*test.*before|before.*implement') | Should -Be $true
+        ($content -match 'green phase|green-phase|test.*pass.*after') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-r-testing SKILL.md - references test-integrity.md" {
+    $skillPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\SKILL.md"
+    $content   = if (Test-Path $skillPath) { Get-Content $skillPath -Raw } else { "" }
+
+    It "SKILL.md cross-references test-integrity.md" {
+        ($content -match 'test-integrity\.md') | Should -Be $true
+    }
+}
+

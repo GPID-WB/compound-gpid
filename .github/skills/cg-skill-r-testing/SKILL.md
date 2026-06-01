@@ -370,3 +370,4 @@ Read `references/fixtures.md` in this directory for helper files, setup files, d
 - **[references/fixtures.md](references/fixtures.md)** — Fixture patterns, database fixtures, helper/setup files
 - **[references/snapshots.md](references/snapshots.md)** — Snapshot testing, transforms, variants
 - **[references/advanced.md](references/advanced.md)** — Skipping tests, parallel testing, custom expectations, CRAN requirements
+- **[references/test-integrity.md](references/test-integrity.md)** — Test correctness verification: expected behavior sources, mutation verification protocol, test gap taxonomy, tautological test detection
