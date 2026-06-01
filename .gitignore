@@ -71,3 +71,4 @@ tests/*.txt
 RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
+.agents/*
