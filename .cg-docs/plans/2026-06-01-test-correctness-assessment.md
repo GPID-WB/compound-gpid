@@ -1,7 +1,7 @@
 ---
 date: 2026-06-01
 title: "Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification"
-status: complete
+status: completed\ncompleted-date: 2026-06-01
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md"
 language: "both"

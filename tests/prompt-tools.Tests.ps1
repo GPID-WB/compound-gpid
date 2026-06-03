@@ -1,4 +1,4 @@
-# tests/prompt-tools.Tests.ps1
+﻿# tests/prompt-tools.Tests.ps1
 # Pester tests to guard prompt file structure and tool configuration
 #
 # Run with: Invoke-Pester tests/prompt-tools.Tests.ps1
@@ -232,7 +232,7 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
         ($section -match '/cg-work phaseX|cg-work phase') | Should -Be $true
     }
 
-    # P2.1 — /cg-roadmap-view in Workflow Entry Points
+    # P2.1 â€” /cg-roadmap-view in Workflow Entry Points
     It "references /cg-roadmap-view in Workflow Entry Points" {
         ($section -match '/cg-roadmap-view') | Should -Be $true
     }
@@ -245,7 +245,7 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
         ($section -match '/cg-verify-pr') | Should -Be $true
     }
 
-    # P2.6 — /cg-wiki added to Workflow Entry Points
+    # P2.6 â€” /cg-wiki added to Workflow Entry Points
     It "references /cg-wiki in Workflow Entry Points" {
         ($section -match '/cg-wiki') | Should -Be $true
     }
@@ -476,7 +476,7 @@ Describe "skill file cross-links resolve" {
         $content = Get-Content $skillFile.FullName -Raw -Encoding UTF8
         # Strip inline code spans before extracting links (backtick content = examples, not real cross-links)
         $contentForLinks = $content -replace '`[^`\r\n]+`', ''
-        # Extract markdown links: [text](path) — skip anchors and external URLs
+        # Extract markdown links: [text](path) â€” skip anchors and external URLs
         $links = [regex]::Matches($contentForLinks, '\[[^\]]*\]\(([^)#]+\.md)\)')
         foreach ($link in $links) {
             $target = $link.Groups[1].Value
@@ -627,7 +627,7 @@ Describe "cg-ideate.prompt.md - no tool restriction" {
 }
 
 # ---------------------------------------------------------------------------
-# R dialect routing — r.instructions.md validation
+# R dialect routing â€” r.instructions.md validation
 # ---------------------------------------------------------------------------
 
 Describe "r.instructions.md - dialect router" {
@@ -667,7 +667,7 @@ Describe "r.instructions.md - dialect router" {
         ($content -match 'Any other value|unrecognized') | Should -Be $true
     }
 
-    # P2.4: applyTo field presence — if this field is missing/wrong, dialect routing
+    # P2.4: applyTo field presence â€” if this field is missing/wrong, dialect routing
     # silently stops working for ALL .R files with no error.
     It "has applyTo frontmatter field (required for auto-apply to .R files)" {
         ($content -match '(?m)^applyTo:') | Should -Be $true
@@ -720,7 +720,7 @@ Describe "cg-skill-setup - r-syntax field documentation" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.1 — SCHEMA_VERSION dialect marker validation
+# P2.1 â€” SCHEMA_VERSION dialect marker validation
 # ---------------------------------------------------------------------------
 
 Describe "SCHEMA_VERSION - dialect marker" {
@@ -737,7 +737,7 @@ Describe "SCHEMA_VERSION - dialect marker" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.2 — r.instructions.md router covers all 8 unconditional skill references
+# P2.2 â€” r.instructions.md router covers all 8 unconditional skill references
 # ---------------------------------------------------------------------------
 
 Describe "r.instructions.md - unconditional skill routing" {
@@ -762,7 +762,7 @@ Describe "r.instructions.md - unconditional skill routing" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.3 — docs/reference.md lists all 8 R skills and r-syntax config field
+# P2.3 â€” docs/reference.md lists all 8 R skills and r-syntax config field
 # ---------------------------------------------------------------------------
 
 Describe "docs/reference.md - R skills and r-syntax config" {
@@ -820,7 +820,7 @@ Describe "docs/reference.md - R skills and r-syntax config" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.4 — dialect-aware agents document r-syntax and both dialects
+# P2.4 â€” dialect-aware agents document r-syntax and both dialects
 # ---------------------------------------------------------------------------
 
 Describe "R-dialect-aware agents - r-syntax handling" {
@@ -845,7 +845,7 @@ Describe "R-dialect-aware agents - r-syntax handling" {
 }
 
 # ---------------------------------------------------------------------------
-# P3.1 — dialect skill reference files exist by name
+# P3.1 â€” dialect skill reference files exist by name
 # ---------------------------------------------------------------------------
 
 Describe "R dialect skills - reference files exist" {
@@ -871,7 +871,7 @@ Describe "R dialect skills - reference files exist" {
 # Run: Invoke-Pester tests/model-assignments.Tests.ps1 -Quiet
 
 # ---------------------------------------------------------------------------
-# P1.2 — agent files must declare a tools: restriction (read-only enforcement)
+# P1.2 â€” agent files must declare a tools: restriction (read-only enforcement)
 # cg-roadmap uses ['read','write']; all others must NOT include 'write'.
 # ---------------------------------------------------------------------------
 
@@ -907,7 +907,7 @@ Describe "Agent files - tools restriction enforcement" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.2 — cg-compound.prompt.md structural tests
+# P2.2 â€” cg-compound.prompt.md structural tests
 # ---------------------------------------------------------------------------
 
 Describe "cg-compound.prompt.md - file existence" {
@@ -954,7 +954,7 @@ Describe "cg-compound.prompt.md - severity field includes P0" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.3 — orchestrating prompts must not have tools: restrictions
+# P2.3 â€” orchestrating prompts must not have tools: restrictions
 # cg-work, cg-brainstorm, cg-plan
 # ---------------------------------------------------------------------------
 
@@ -1007,7 +1007,7 @@ Describe "cg-plan.prompt.md - no tool restriction" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.4 — agent files must have substantive body content (not just frontmatter)
+# P2.4 â€” agent files must have substantive body content (not just frontmatter)
 # ---------------------------------------------------------------------------
 
 Describe "Agent files - non-trivial body content" {
@@ -1029,7 +1029,7 @@ Describe "Agent files - non-trivial body content" {
 }
 
 # ---------------------------------------------------------------------------
-# P3.2 — Get-Frontmatter helper negative-case tests
+# P3.2 â€” Get-Frontmatter helper negative-case tests
 # ---------------------------------------------------------------------------
 
 Describe "Get-Frontmatter helper - edge cases" {
@@ -1059,7 +1059,7 @@ Describe "Get-Frontmatter helper - edge cases" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.18 — cg-brainstorm Step 0.5 prior work scan
+# P1.18 â€” cg-brainstorm Step 0.5 prior work scan
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 0.5 prior work scan" {
@@ -1080,7 +1080,7 @@ Describe "cg-brainstorm.prompt.md - Step 0.5 prior work scan" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.19 — cg-brainstorm Step 1.1 Task Classification / Thinking Partner Mode
+# P1.19 â€” cg-brainstorm Step 1.1 Task Classification / Thinking Partner Mode
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 1.1 Task Classification" {
@@ -1101,7 +1101,7 @@ Describe "cg-brainstorm.prompt.md - Step 1.1 Task Classification" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.20 — cg-brainstorm Step 1.5 scope assessment
+# P1.20 â€” cg-brainstorm Step 1.5 scope assessment
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 1.5 Scope Assessment" {
@@ -1130,7 +1130,7 @@ Describe "cg-brainstorm.prompt.md - Step 1.5 Scope Assessment" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.21 — cg-plan Step 0.5 prior work scan
+# P1.21 â€” cg-plan Step 0.5 prior work scan
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Step 0.5 prior work scan" {
@@ -1155,7 +1155,7 @@ Describe "cg-plan.prompt.md - Step 0.5 prior work scan" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.22 — cg-plan Step 1.5 scope assessment
+# P1.22 â€” cg-plan Step 1.5 scope assessment
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Step 1.5 Scope Assessment" {
@@ -1188,7 +1188,7 @@ Describe "cg-plan.prompt.md - Step 1.5 Scope Assessment" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.23 — cg-plan Step 4.5 confidence check
+# P1.23 â€” cg-plan Step 4.5 confidence check
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Step 4.5 Confidence Check" {
@@ -1225,7 +1225,7 @@ Describe "cg-plan.prompt.md - Step 4.5 Confidence Check" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.24 — cg-plan Test Scenarios template (checkmark/warning/cross)
+# P1.24 â€” cg-plan Test Scenarios template (checkmark/warning/cross)
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Test Scenarios template" {
@@ -1250,7 +1250,7 @@ Describe "cg-plan.prompt.md - Test Scenarios template" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.25 — cg-review Step 1.5 content-based depth overrides
+# P1.25 â€” cg-review Step 1.5 content-based depth overrides
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
@@ -1283,7 +1283,7 @@ Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.26 — cg-review @cg-adversarial in thorough depth list
+# P1.26 â€” cg-review @cg-adversarial in thorough depth list
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - @cg-adversarial in thorough depth" {
@@ -1301,7 +1301,7 @@ Describe "cg-review.prompt.md - @cg-adversarial in thorough depth" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.27 — cg-review protected artifacts guard
+# P1.27 â€” cg-review protected artifacts guard
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - protected artifacts guard" {
@@ -1330,7 +1330,7 @@ Describe "cg-review.prompt.md - protected artifacts guard" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.28 — cg-review mode:autofix backward compatibility
+# P1.28 â€” cg-review mode:autofix backward compatibility
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - mode:autofix backward compatibility" {
@@ -1355,7 +1355,7 @@ Describe "cg-review.prompt.md - mode:autofix backward compatibility" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.29 — cg-review P0 BLOCKING section in report template
+# P1.29 â€” cg-review P0 BLOCKING section in report template
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
@@ -1376,7 +1376,7 @@ Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.30 — cg-work inline plan fallback
+# P1.30 â€” cg-work inline plan fallback
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - inline plan fallback" {
@@ -1405,7 +1405,7 @@ Describe "cg-work.prompt.md - inline plan fallback" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.31 — cg-work Discover existing tests sub-step
+# P1.31 â€” cg-work Discover existing tests sub-step
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Discover existing tests sub-step" {
@@ -1434,7 +1434,7 @@ Describe "cg-work.prompt.md - Discover existing tests sub-step" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.32 — cg-work Step 3.2 self-review
+# P1.32 â€” cg-work Step 3.2 self-review
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
@@ -1462,10 +1462,10 @@ Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
     }
 }
 
-# P3.3–P3.12 are advisory-only findings; no regression tests required.
+# P3.3â€“P3.12 are advisory-only findings; no regression tests required.
 
 # ---------------------------------------------------------------------------
-# P3.13 — cg-review depth override arguments documented
+# P3.13 â€” cg-review depth override arguments documented
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - depth override arguments" {
@@ -1482,7 +1482,7 @@ Describe "cg-review.prompt.md - depth override arguments" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.33 — cg-fix-problems.prompt.md existence, frontmatter, no tool restriction
+# P1.33 â€” cg-fix-problems.prompt.md existence, frontmatter, no tool restriction
 # ---------------------------------------------------------------------------
 
 Describe "cg-fix-problems.prompt.md - file existence" {
@@ -1533,7 +1533,7 @@ Describe "cg-fix-problems.prompt.md - dispatches agent and scans diagnostics" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.34 — cg-fix-problems.agent.md existence, user-invocable false, auto mode protocol
+# P1.34 â€” cg-fix-problems.agent.md existence, user-invocable false, auto mode protocol
 # ---------------------------------------------------------------------------
 
 Describe "cg-fix-problems.agent.md - user-invocable false" {
@@ -1575,7 +1575,7 @@ Describe "cg-fix-problems.agent.md - auto mode protocol" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.35 — cg-work auto-dispatch @cg-fix-problems
+# P1.35 â€” cg-work auto-dispatch @cg-fix-problems
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - auto-dispatch @cg-fix-problems" {
@@ -1604,11 +1604,11 @@ Describe "cg-work.prompt.md - auto-dispatch @cg-fix-problems" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.36 — cg-work roadmap status update must happen before summary wait
+# P1.36 â€” cg-work roadmap status update must happen before summary wait
 # Bug: Step 5 (Update Roadmap Status) was placed after Step 4 (Summary).
 # Step 4 ends with "Wait for the user's response before proceeding."
 # In practice the user picks a next action (/cg-review etc.) and the
-# cg-work session ends — Step 5 never executes, causing roadmap drift.
+# cg-work session ends â€” Step 5 never executes, causing roadmap drift.
 # Fix: move roadmap update to before the summary / user-wait.
 # ---------------------------------------------------------------------------
 
@@ -1644,7 +1644,7 @@ Describe "cg-work.prompt.md - roadmap done update before summary wait" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.38 — cg-brainstorm Step 3.5 Devil's Advocate
+# P1.38 â€” cg-brainstorm Step 3.5 Devil's Advocate
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
@@ -1689,7 +1689,7 @@ Describe "cg-brainstorm.prompt.md - Step 3.5 Devil's Advocate" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.39 — cg-brainstorm Step 5c Side-Idea Capture
+# P1.39 â€” cg-brainstorm Step 5c Side-Idea Capture
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
@@ -1718,7 +1718,7 @@ Describe "cg-brainstorm.prompt.md - Step 5c Side-Idea Capture" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.17 — cg-brainstorm step ordering: Step 3.5 before Step 4, Step 5c before 5d
+# P2.17 â€” cg-brainstorm step ordering: Step 3.5 before Step 4, Step 5c before 5d
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - step ordering: Step 3.5 and Step 5c" {
@@ -1763,7 +1763,7 @@ Describe "cg-brainstorm.prompt.md - Step 1.7 Branch Offer ordering" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.40 — cg-plan-critic.agent.md existence and structure
+# P1.40 â€” cg-plan-critic.agent.md existence and structure
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan-critic.agent.md - existence and structure" {
@@ -1791,7 +1791,7 @@ Describe "cg-plan-critic.agent.md - existence and structure" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.41 — cg-plan-review.prompt.md existence and structure
+# P1.41 â€” cg-plan-review.prompt.md existence and structure
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan-review.prompt.md - existence and structure" {
@@ -1825,7 +1825,7 @@ Describe "cg-plan-review.prompt.md - existence and structure" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.42 — cg-plan.prompt.md Step 6 plan-review handoff and side-idea capture
+# P1.42 â€” cg-plan.prompt.md Step 6 plan-review handoff and side-idea capture
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
@@ -1846,7 +1846,7 @@ Describe "cg-plan.prompt.md - Step 6 plan-review handoff" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.43 — cg-resume.prompt.md schema bypass guard for compound-gpid workspace
+# P1.43 â€” cg-resume.prompt.md schema bypass guard for compound-gpid workspace
 # ---------------------------------------------------------------------------
 
 Describe "cg-resume.prompt.md - schema bypass guard" {
@@ -1943,7 +1943,7 @@ Describe "cg-work.prompt.md - test failure recovery" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.37 — cg-work Step 3.7 must have title-search fallback for unlinked features
+# P1.37 â€” cg-work Step 3.7 must have title-search fallback for unlinked features
 # Bug: When a plan implements features whose roadmap entry still has plan: null,
 # Step 3.7 skips them with only a soft warning and never updates their status.
 # Fix: add a fallback that searches feature titles in the plan content and
@@ -1972,7 +1972,7 @@ Describe "cg-work.prompt.md - Step 3.7 title-search fallback for plan:null featu
 }
 
 # ---------------------------------------------------------------------------
-# P2.4 — cg-work.prompt.md - Step 1.5 Mark Work Started
+# P2.4 â€” cg-work.prompt.md - Step 1.5 Mark Work Started
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Step 1.5 Mark Work Started" {
@@ -1989,7 +1989,7 @@ Describe "cg-work.prompt.md - Step 1.5 Mark Work Started" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.5 — cg-work.prompt.md - Step 3.5 Mark Plan Complete
+# P2.5 â€” cg-work.prompt.md - Step 3.5 Mark Plan Complete
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
@@ -2011,7 +2011,7 @@ Describe "cg-work.prompt.md - Step 3.5 Mark Plan Complete" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — compound-gpid.context.md referenced in all 17 prompts
+# Context Layer â€” compound-gpid.context.md referenced in all 17 prompts
 # ---------------------------------------------------------------------------
 
 Describe "context layer - all 17 prompts reference compound-gpid.context.md" {
@@ -2050,7 +2050,7 @@ Describe "context layer - all 17 prompts reference compound-gpid.context.md" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — renumbering survival: 'warn' item retains 'warn' text
+# Context Layer â€” renumbering survival: 'warn' item retains 'warn' text
 # after context.md item was inserted before it
 # ---------------------------------------------------------------------------
 
@@ -2080,7 +2080,7 @@ Describe "context layer - warn text survives renumbering in standard prompts" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — cg-compound Step 5 context enrichment before Step 6 confirm
+# Context Layer â€” cg-compound Step 5 context enrichment before Step 6 confirm
 # ---------------------------------------------------------------------------
 
 Describe "cg-compound.prompt.md - context enrichment step ordering" {
@@ -2113,7 +2113,7 @@ Describe "cg-compound.prompt.md - context enrichment step ordering" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — cg-work Step 3.8 milestone completion check
+# Context Layer â€” cg-work Step 3.8 milestone completion check
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
@@ -2164,7 +2164,7 @@ Describe "cg-work.prompt.md - Step 3.8 milestone completion check" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — cg-resume Step 2f.5 Current Focus staleness check
+# Context Layer â€” cg-resume Step 2f.5 Current Focus staleness check
 # ---------------------------------------------------------------------------
 
 Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
@@ -2200,7 +2200,7 @@ Describe "cg-resume.prompt.md - Step 2f.5 Current Focus staleness" {
 }
 
 # ---------------------------------------------------------------------------
-# Context Layer — .gitignore must NOT contain compound-gpid.context.md
+# Context Layer â€” .gitignore must NOT contain compound-gpid.context.md
 # (it is institutional knowledge and must be committed)
 # ---------------------------------------------------------------------------
 
@@ -2214,7 +2214,7 @@ Describe "context layer - compound-gpid.context.md is NOT gitignored" {
     } else { "" }
 
     It "compound-gpid.context.md is not listed in the project .gitignore" {
-        # Only check non-comment lines — a comment documenting that the file is intentionally
+        # Only check non-comment lines â€” a comment documenting that the file is intentionally
         # NOT gitignored is permitted; an uncommented entry would actually ignore the file.
         $nonCommentLines = ($content -split '\r?\n' | Where-Object { $_ -notmatch '^\s*#' }) -join "`n"
         ($nonCommentLines -match 'compound-gpid\.context\.md') | Should -Be $false
@@ -2337,7 +2337,7 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-work" {
 }
 
 # ---------------------------------------------------------------------------
-# P3.10 — cg-work full-suite commit gate guard (dedicated describe)
+# P3.10 â€” cg-work full-suite commit gate guard (dedicated describe)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - full-suite commit gate guard" {
@@ -2418,7 +2418,7 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-diagnose" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.5 — cg-skill-pester-safety SKILL.md Agent Workflow regression tests
+# P2.5 â€” cg-skill-pester-safety SKILL.md Agent Workflow regression tests
 # If the Agent Workflow section is removed, no agent will know to use
 # execution_subagent, and the canonical Run-Tests.ps1 pattern is lost.
 # ---------------------------------------------------------------------------
@@ -2441,7 +2441,7 @@ Describe "cg-skill-pester-safety - Agent Workflow section present" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.5 — copilot-instructions.md Rule 9 regression tests
+# P2.5 â€” copilot-instructions.md Rule 9 regression tests
 # Rule 9 is the system-level mandate that makes the execution_subagent
 # pattern binding on all agents. If removed, no agent-level test fails.
 # ---------------------------------------------------------------------------
@@ -2464,7 +2464,7 @@ Describe "copilot-instructions.md - Rule 9 Agent test workflow" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.19 — cg-setup.prompt.md structural tests (zero coverage previously)
+# P2.19 â€” cg-setup.prompt.md structural tests (zero coverage previously)
 # ---------------------------------------------------------------------------
 
 Describe "cg-setup.prompt.md - file existence" {
@@ -2522,7 +2522,7 @@ Describe "cg-setup.prompt.md - mode detection and overwrite guard" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.26 — cg-setup.prompt.md Mode B returning project coverage
+# P2.26 â€” cg-setup.prompt.md Mode B returning project coverage
 # ---------------------------------------------------------------------------
 
 Describe "cg-setup.prompt.md - Mode B returning project" {
@@ -2940,12 +2940,12 @@ Describe "cg-review-repos.prompt.md - content structure" {
         ($content -match 'untrusted data') | Should -Be $true
     }
 
-    # P1.3: URL validation — only https://github.com/ permitted
+    # P1.3: URL validation â€” only https://github.com/ permitted
     It "requires https://github.com/ URLs only" {
         ($content -match 'https://github\.com/') | Should -Be $true
     }
 
-    # P1.4: repo ID validation — alphanumeric + hyphens only
+    # P1.4: repo ID validation â€” alphanumeric + hyphens only
     It "validates repo IDs are alphanumeric with hyphens only" {
         ($content -match 'alphanumeric.*hyphens|hyphens only') | Should -Be $true
     }
@@ -2955,12 +2955,12 @@ Describe "cg-review-repos.prompt.md - content structure" {
         ($content -match '25 most significant') | Should -Be $true
     }
 
-    # P1.6a: registry write strategy — per-repo immediately
+    # P1.6a: registry write strategy â€” per-repo immediately
     It "instructs updating registry per-repo immediately (not at end)" {
         ($content -match 'per-repo immediately') | Should -Be $true
     }
 
-    # P1.6b: registry write strategy — replace entire file
+    # P1.6b: registry write strategy â€” replace entire file
     It "instructs replacing the entire repos.json file on each write" {
         ($content -match 'entire file') | Should -Be $true
     }
@@ -3030,7 +3030,7 @@ Describe "competitive-reviews/repos.json - registry" {
         $json.schemaVersion | Should -Be $json.schemaVersion.Trim()
     }
 
-    # P2.2: count sentinel — update when adding a new repo to repos.json
+    # P2.2: count sentinel â€” update when adding a new repo to repos.json
     It "has repos array with exactly 3 entries" {
         $json.repos.Count | Should -Be 3
     }
@@ -3046,7 +3046,7 @@ Describe "competitive-reviews/repos.json - registry" {
 }
 
 # ---------------------------------------------------------------------------
-# Review convergence — cg-review mode:verify argument
+# Review convergence â€” cg-review mode:verify argument
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - mode:verify argument" {
@@ -3119,7 +3119,7 @@ Describe "cg-review.prompt.md - mode:verify argument" {
 }
 
 # ---------------------------------------------------------------------------
-# Review convergence — cg-fix-triage mode:verify handoff
+# Review convergence â€” cg-fix-triage mode:verify handoff
 # ---------------------------------------------------------------------------
 
 Describe "cg-fix-triage.prompt.md - mode:verify handoff" {
@@ -3132,7 +3132,7 @@ Describe "cg-fix-triage.prompt.md - mode:verify handoff" {
 }
 
 # ---------------------------------------------------------------------------
-# P2.7/P2.8 — cg-release-scanner.agent.md existence and dispatch reference
+# P2.7/P2.8 â€” cg-release-scanner.agent.md existence and dispatch reference
 # ---------------------------------------------------------------------------
 
 Describe "cg-release-scanner.agent.md - existence and structure" {
@@ -3275,7 +3275,7 @@ Describe "cg-skill-project-scanner - existence and structure" {
 
 # ---------------------------------------------------------------------------
 # cg-project-scanner.agent.md - existence and structure
-# Note: No dispatch test — the calling prompt (/cg-setup) is not modified
+# Note: No dispatch test â€” the calling prompt (/cg-setup) is not modified
 # until Phase 2. Limit tests to agent existence, frontmatter, and content.
 # ---------------------------------------------------------------------------
 
@@ -3343,7 +3343,7 @@ Describe "cg-project-scanner.agent.md - existence and structure" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.44 — cg-brainstorm Branch Offer must appear before Step 2 questions
+# P1.44 â€” cg-brainstorm Branch Offer must appear before Step 2 questions
 # The branch offer is the very first question asked of the user, so the
 # model cannot bias itself toward an existing branch mid-brainstorm.
 # ---------------------------------------------------------------------------
@@ -3572,7 +3572,7 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
         ($content -match 'uncommitted changes') | Should -Be $true
     }
 
-    # P1.1 — type derivation rule must appear before the offer block
+    # P1.1 â€” type derivation rule must appear before the offer block
     It "Branch type derivation rule appears before the offer block" {
         $derivationIdx = $content.IndexOf('Derive the branch name')
         $offerIdx      = $content.IndexOf('Suggested name:')
@@ -3581,7 +3581,7 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
         $derivationIdx | Should -BeLessThan $offerIdx
     }
 
-    # P1.2 — uncommitted-changes check must appear before the offer block
+    # P1.2 â€” uncommitted-changes check must appear before the offer block
     It "Uncommitted-changes check appears before the offer block" {
         $uncommittedIdx = $content.IndexOf('uncommitted changes')
         $offerIdx       = $content.IndexOf('Suggested name:')
@@ -3590,17 +3590,17 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
         $uncommittedIdx | Should -BeLessThan $offerIdx
     }
 
-    # P1.3 — error handling when branch already exists
+    # P1.3 â€” error handling when branch already exists
     It "Handles git checkout -b failure when branch already exists" {
         ($content -match 'already exists.*switch to it') | Should -Be $true
     }
 
-    # P1.4 — cleanup path for orphaned branches
+    # P1.4 â€” cleanup path for orphaned branches
     It "Provides cleanup instruction for orphaned branch when planning abandoned" {
         ($content -match 'git branch -d') | Should -Be $true
     }
 
-    # P1.5 — extended type taxonomy covers all conventional-commit types
+    # P1.5 â€” extended type taxonomy covers all conventional-commit types
     It "Branch type taxonomy includes extended types (test, docs, chore, data, analysis)" {
         ($content -match 'test/.*testing work') | Should -Be $true
         ($content -match 'analysis/.*analysis work') | Should -Be $true
@@ -3609,39 +3609,39 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
         ($content -match 'data/.*data work')      | Should -Be $true
     }
 
-    # P2.3 — dynamic default branch detection via git symbolic-ref
+    # P2.3 â€” dynamic default branch detection via git symbolic-ref
     It "Uses git symbolic-ref for dynamic default branch detection" {
         ($content -match 'git symbolic-ref refs/remotes/origin/HEAD') | Should -Be $true
     }
 
-    # P2.4 — non-git workspace guard
+    # P2.4 â€” non-git workspace guard
     It "Skips silently when git command fails or returns empty (non-git workspace)" {
         ($content -match 'fails or returns empty.*non-git|non-git workspace.*skip') | Should -Be $true
     }
 
-    # P2.5 — branch name sanitization
+    # P2.5 â€” branch name sanitization
     It "Branch name normalization rule is present" {
         ($content -match 'Normalize the branch name') | Should -Be $true
         ($content -match 'truncate to 60') | Should -Be $true
     }
 
-    # P2.6 — Refine path skips branch offer
+    # P2.6 â€” Refine path skips branch offer
     It "Refine decision at Step 0.5 skips the branch offer" {
         ($content -match 'Refine.*decision.*skip|Refine.*skip.*branch') | Should -Be $true
     }
 
-    # P3.1 — placeholder matches cg-brainstorm style with 'from-your-request'
+    # P3.1 â€” placeholder matches cg-brainstorm style with 'from-your-request'
     It "Offer placeholder uses 'from-your-request' suffix to match cg-brainstorm style" {
         ($content -match 'short-description-from-your-request') | Should -Be $true
     }
 
-    # P3.2 — user-facing language matches cg-brainstorm 'If the user accepts/declines'
+    # P3.2 â€” user-facing language matches cg-brainstorm 'If the user accepts/declines'
     It "Uses 'If the user accepts' and 'If the user declines' phrasing" {
         ($content -match 'If the user accepts') | Should -Be $true
         ($content -match 'If the user declines') | Should -Be $true
     }
 
-    # P3.6 — branch name convention and creation command are tested
+    # P3.6 â€” branch name convention and creation command are tested
     It "Branch type convention covers feat, fix, refactor" {
         ($content -match '(?s)feat/.*fix/.*refactor/') | Should -Be $true
     }
@@ -3650,12 +3650,12 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
         ($content -match 'git checkout -b') | Should -Be $true
     }
 
-    # P2.2 — "other errors → report verbatim" path is tested
+    # P2.2 â€” "other errors â†’ report verbatim" path is tested
     It "Reports git error verbatim and skips branching on other checkout failures" {
         ($content -match 'other errors.*verbatim|report the git error verbatim') | Should -Be $true
     }
 
-    # P2.3 — "empty after normalization → ask user" fallback is tested
+    # P2.3 â€” "empty after normalization â†’ ask user" fallback is tested
     It "Asks user for branch name when normalization yields empty string" {
         ($content -match 'empty after normalization.*ask the user') | Should -Be $true
     }
@@ -3663,7 +3663,7 @@ Describe "cg-plan.prompt.md - Step 0.7 Branch Offer ordering" {
 
 
 # ---------------------------------------------------------------------------
-# Phased plan structure — cg-plan.prompt.md Step 3.5
+# Phased plan structure â€” cg-plan.prompt.md Step 3.5
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - phase structure support" {
@@ -3713,7 +3713,7 @@ Describe "cg-plan.prompt.md - phase structure support" {
 }
 
 # ---------------------------------------------------------------------------
-# Phased execution — cg-work.prompt.md Steps 1.2 and 2.5
+# Phased execution â€” cg-work.prompt.md Steps 1.2 and 2.5
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - phase argument parsing (Step 1.2)" {
@@ -3786,7 +3786,7 @@ Describe "cg-work.prompt.md - phase argument parsing (Step 1.2)" {
 }
 
 # ---------------------------------------------------------------------------
-# Phase argument validation — cg-work.prompt.md Step 1.2 (P1.3, P2.17, P2.18)
+# Phase argument validation â€” cg-work.prompt.md Step 1.2 (P1.3, P2.17, P2.18)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - phase argument validation" {
@@ -3807,7 +3807,7 @@ Describe "cg-work.prompt.md - phase argument validation" {
 }
 
 # ---------------------------------------------------------------------------
-# Phase boundary — cg-work.prompt.md Step 2.5 (P0.1, P0.2, P1.1, P2.11, P2.12)
+# Phase boundary â€” cg-work.prompt.md Step 2.5 (P0.1, P0.2, P1.1, P2.11, P2.12)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - phase boundary (Step 2.5)" {
@@ -3856,7 +3856,7 @@ Describe "cg-work.prompt.md - phase boundary (Step 2.5)" {
 }
 
 # ---------------------------------------------------------------------------
-# File permissions — cg-work.prompt.md phase fields (P2 additions)
+# File permissions â€” cg-work.prompt.md phase fields (P2 additions)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - file permissions include phase fields" {
@@ -3892,14 +3892,14 @@ Describe "cg-work.prompt.md - file permissions include phase fields" {
 }
 
 # ---------------------------------------------------------------------------
-# Phased execution — cg-resume.prompt.md phase progress display
+# Phased execution â€” cg-resume.prompt.md phase progress display
 # ---------------------------------------------------------------------------
 
 Describe "cg-resume.prompt.md - phase progress display in Step 2a" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    # Extract Step 2a section only (from "#### 2a." to "#### 2b.") — P3.4 scope fix
+    # Extract Step 2a section only (from "#### 2a." to "#### 2b.") â€” P3.4 scope fix
     $step2aStart = $content.IndexOf("#### 2a.")
     $step2bStart = $content.IndexOf("#### 2b.")
     $step2aBlock = if ($step2aStart -ge 0 -and $step2bStart -gt $step2aStart) {
@@ -3964,7 +3964,7 @@ Describe "cg-resume.prompt.md - phase progress display in Step 2a" {
 }
 
 # ---------------------------------------------------------------------------
-# Phased plan critic — cg-plan-critic.agent.md Phase Structure dimension (P2.15)
+# Phased plan critic â€” cg-plan-critic.agent.md Phase Structure dimension (P2.15)
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan-critic.agent.md - phase structure review dimension" {
@@ -3981,7 +3981,7 @@ Describe "cg-plan-critic.agent.md - phase structure review dimension" {
 }
 
 # ---------------------------------------------------------------------------
-# cg-work.prompt.md description — no [plan_file] arg (P2.20)
+# cg-work.prompt.md description â€” no [plan_file] arg (P2.20)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - description does not advertise plan_file argument" {
@@ -4023,7 +4023,7 @@ Describe "phased plan pipeline contract: cg-plan emits format cg-work parses" {
 }
 
 # ---------------------------------------------------------------------------
-# cg-roadmap-view.agent.md — existence, frontmatter, read-only enforcement
+# cg-roadmap-view.agent.md â€” existence, frontmatter, read-only enforcement
 # ---------------------------------------------------------------------------
 
 Describe "cg-roadmap-view.agent.md - existence" {
@@ -4088,7 +4088,7 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '`wip`') | Should Be $true
     }
 
-    # P3.1 — tasks-milestone view coverage
+    # P3.1 â€” tasks-milestone view coverage
     It "documents tasks-milestone view" {
         ($content -match '`tasks-milestone`') | Should Be $true
     }
@@ -4097,22 +4097,22 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '[Ff]uzzy [Mm]atching') | Should Be $true
     }
 
-    # P1.4 — idea badge (no emoji in regex: Pester 3.4 reads as Windows-1252, multi-byte chars cause parse errors)
+    # P1.4 â€” idea badge (no emoji in regex: Pester 3.4 reads as Windows-1252, multi-byte chars cause parse errors)
     It "defines idea feature status badge" {
         ($content -match '`idea`') | Should Be $true
     }
 
-    # P1.6 — filter match precedence
+    # P1.6 â€” filter match precedence
     It "defines precedence rule when filter matches both milestone and feature" {
         ($content -match '(?i)(precedence|prefer the (feature|milestone) match)') | Should Be $true
     }
 
-    # P1.7 — tasks collapse threshold clarity
+    # P1.7 â€” tasks collapse threshold clarity
     It "clarifies tasks collapse threshold as roadmap-wide total" {
         ($content -match '(?i)roadmap-wide') | Should Be $true
     }
 
-    # P1.9 — status view case normalization
+    # P1.9 â€” status view case normalization
     It "normalizes filter to lowercase for status view comparison" {
         ($content -match '(?i)Normalize\s+`filter`\s+to\s+lowercase') | Should Be $true
     }
@@ -4124,7 +4124,7 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '(?im)^\s*(write|modify|create)\s+the\s+(file|roadmap|plan)') | Should Be $false
     }
 
-    # P0.1 — path traversal guard
+    # P0.1 â€” path traversal guard
     It "requires plan paths to start with .cg-docs/plans/" {
         ($content -match '\.cg-docs/plans/') | Should Be $true
     }
@@ -4141,7 +4141,7 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '(?i)Plan path is invalid') | Should Be $true
     }
 
-    # P0.2 — prompt injection guard
+    # P0.2 â€” prompt injection guard
     It "labels roadmap.json data as untrusted content" {
         ($content -match '(?i)untrusted content') | Should Be $true
     }
@@ -4150,7 +4150,7 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '(?i)render it verbatim') | Should Be $true
     }
 
-    # P2.5 — schemaVersion validation
+    # P2.5 â€” schemaVersion validation
     It "validates schemaVersion before rendering" {
         ($content -match '(?i)schemaVersion') | Should Be $true
     }
@@ -4159,44 +4159,44 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '(?i)(schema mismatch|does not match)') | Should Be $true
     }
 
-    # P2.6 — plan-not-found diagnostic
+    # P2.6 â€” plan-not-found diagnostic
     It "renders diagnostic when plan file cannot be read" {
         ($content -match '(?i)Plan file not found') | Should Be $true
     }
 
-    # P2.7 — features array null guard
+    # P2.7 â€” features array null guard
     It "guards missing features array with 0/0 fallback" {
         ($content -match '(?i)(no `features` array|features.*empty|0/0)') | Should Be $true
     }
 
-    # P2.9 — pipe escaping in titles
+    # P2.9 â€” pipe escaping in titles
     It "escapes pipe characters in title values" {
         ($content -match '(?i)(escape.*\||\\\|)') | Should Be $true
     }
 
-    # P2.10 — skip empty milestone headers in status view
+    # P2.10 â€” skip empty milestone headers in status view
     It "only renders milestone headers with matching features in status view" {
         ($content -match '(?i)(only render.*header|at least one feature)') | Should Be $true
     }
 
-    # P2.11 — missing Objective section fallback
+    # P2.11 â€” missing Objective section fallback
     It "handles missing Objective section without hallucinating" {
         ($content -match '(?i)(does not contain an.*Objective|## Objective section)') | Should Be $true
     }
 
-    # P2.16 — collapse threshold documented
+    # P2.16 â€” collapse threshold documented
     It "documents the collapse threshold value" {
         ($content -match '(?i)Collapse threshold.*50|50.*roadmap-wide') | Should Be $true
     }
 
-    # P3.5 — description field in detail view
+    # P3.5 â€” description field in detail view
     It "renders description field in detail view template" {
         ($content -match '(?i)\*\*Description\*\*') | Should Be $true
     }
 }
 
 # ---------------------------------------------------------------------------
-# cg-roadmap-view.prompt.md — existence, no tool restriction, flag documentation
+# cg-roadmap-view.prompt.md â€” existence, no tool restriction, flag documentation
 # ---------------------------------------------------------------------------
 
 Describe "cg-roadmap-view.prompt.md - existence" {
@@ -4256,22 +4256,22 @@ Describe "cg-roadmap-view.prompt.md - dispatches agent and documents flags" {
         ($content -match '\-\-help') | Should Be $true
     }
 
-    # P3.2 — --help stop behavior
+    # P3.2 â€” --help stop behavior
     It "instructs stop after --help (do not dispatch agent)" {
         ($content -match '(?i)(stop|do not proceed)') | Should Be $true
     }
 
-    # P1.8 — --plan guard
+    # P1.8 â€” --plan guard
     It "guards --plan used without --detail with an error message" {
         ($content -match '(?i)`--plan`\s+requires\s+`--detail`') | Should Be $true
     }
 
-    # P2.8 — --detail guard
+    # P2.8 â€” --detail guard
     It "guards --detail used without a name with an error message" {
         ($content -match '(?i)`--detail`\s+requires\s+a\s+feature\s+name') | Should Be $true
     }
 
-    # P3.4 — --status schema note
+    # P3.4 â€” --status schema note
     It "notes that --status values mirror roadmap.json schema" {
         ($content -match '(?i)mirror.*schema|status.*field.*features') | Should Be $true
     }
@@ -4285,7 +4285,7 @@ Describe "cg-resume.prompt.md - renders wip context inline (no agent dispatch)" 
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
-    # P1.5: resume renders WIP inline from Step 2d data — no @cg-roadmap-view dispatch
+    # P1.5: resume renders WIP inline from Step 2d data â€” no @cg-roadmap-view dispatch
     It "does NOT dispatch @cg-roadmap-view for wip in Step 3" {
         # The only @cg-roadmap-view reference in cg-resume should NOT be in the
         # context of dispatching it for WIP rendering (that was removed for P1.5).
@@ -4310,7 +4310,7 @@ Describe "cg-brainstorm.prompt.md - dispatches @cg-roadmap-view in Step 5b" {
         ($content -match '@cg-roadmap-view') | Should Be $true
     }
 
-    # P3.7 — Step 5c also dispatches @cg-roadmap-view for milestone display (consistent with 5b)
+    # P3.7 â€” Step 5c also dispatches @cg-roadmap-view for milestone display (consistent with 5b)
     It "dispatches @cg-roadmap-view in Step 5c for side-idea milestone display" {
         # Step 5c now dispatches @cg-roadmap-view view: summary before asking which milestone
         ($content -match '(?i)consistent with Step 5b|@cg-roadmap-view.*view.*summary') | Should Be $true
@@ -4330,7 +4330,7 @@ Describe "cg-plan.prompt.md - milestone selection uses inline rendering (P2.14)"
         ($content -match '(?i)(already.loaded|loaded.*item|show.*milestone.*names)') | Should Be $true
     }
 
-    # P3.6 — permissions block distinguishes structural vs display reads
+    # P3.6 â€” permissions block distinguishes structural vs display reads
     It "documents structural vs display read distinction in permissions" {
         ($content -match '(?i)(structural operations|for display)') | Should Be $true
     }
@@ -4633,7 +4633,7 @@ Describe "cg-verify-pr.prompt.md - structure" {
 }
 
 # ---------------------------------------------------------------------------
-# Command default behaviors — cg-brainstorm.prompt.md
+# Command default behaviors â€” cg-brainstorm.prompt.md
 # ---------------------------------------------------------------------------
 
 Describe "cg-brainstorm.prompt.md - auto-branch default" {
@@ -4706,7 +4706,7 @@ Describe "cg-brainstorm.prompt.md - auto-branch default" {
 }
 
 # ---------------------------------------------------------------------------
-# Command default behaviors — cg-plan.prompt.md
+# Command default behaviors â€” cg-plan.prompt.md
 # ---------------------------------------------------------------------------
 
 Describe "cg-plan.prompt.md - always-phase default" {
@@ -4743,7 +4743,7 @@ Describe "cg-plan.prompt.md - always-phase default" {
 }
 
 # ---------------------------------------------------------------------------
-# Command default behaviors — cg-review.prompt.md
+# Command default behaviors â€” cg-review.prompt.md
 # ---------------------------------------------------------------------------
 
 Describe "cg-review.prompt.md - autofix default" {
@@ -4792,7 +4792,7 @@ Describe "cg-review.prompt.md - autofix default" {
 }
 
 # ---------------------------------------------------------------------------
-# Command default behaviors — cg-compound.prompt.md
+# Command default behaviors â€” cg-compound.prompt.md
 # ---------------------------------------------------------------------------
 
 Describe "cg-compound.prompt.md - auto-enrich default" {
@@ -4837,7 +4837,7 @@ Describe "cg-compound.prompt.md - auto-enrich default" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch B — cg-brain-rebuild.prompt.md
+# Batch B â€” cg-brain-rebuild.prompt.md
 # ---------------------------------------------------------------------------
 
 Describe "cg-brain-rebuild.prompt.md - file existence" {
@@ -4916,7 +4916,7 @@ Describe "cg-brain-rebuild.prompt.md - content" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch B — copilot-instructions.md must include /cg-brain-rebuild
+# Batch B â€” copilot-instructions.md must include /cg-brain-rebuild
 # ---------------------------------------------------------------------------
 
 Describe "copilot-instructions.md - /cg-brain-rebuild in Workflow Entry Points" {
@@ -4930,7 +4930,7 @@ Describe "copilot-instructions.md - /cg-brain-rebuild in Workflow Entry Points" 
 }
 
 # ---------------------------------------------------------------------------
-# Batch B — cg-compound.prompt.md uses --brain not --digest
+# Batch B â€” cg-compound.prompt.md uses --brain not --digest
 # ---------------------------------------------------------------------------
 
 Describe "cg-compound.prompt.md - uses cg-index --brain (Batch B)" {
@@ -4955,7 +4955,7 @@ Describe "cg-compound.prompt.md - uses cg-index --brain (Batch B)" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch B — docs/reference.md and docs/model-guide.md list /cg-brain-rebuild
+# Batch B â€” docs/reference.md and docs/model-guide.md list /cg-brain-rebuild
 # ---------------------------------------------------------------------------
 
 Describe "docs/reference.md - /cg-brain-rebuild registration" {
@@ -4977,7 +4977,7 @@ Describe "docs/model-guide.md - cg-brain-rebuild model assignment" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch C — Brain integration: --no-brain flag and Consult Brain steps
+# Batch C â€” Brain integration: --no-brain flag and Consult Brain steps
 # ---------------------------------------------------------------------------
 
 Describe "Brain integration - cg-skill-brain-query skill exists" {
@@ -5057,7 +5057,7 @@ Describe "Brain integration - Consult Brain step in all 6 target prompts" {
         $promptFile = Join-Path $repoRoot ".github\prompts\$promptName"
         $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-        # Use pattern robust to renumbering — does not hardcode step numbers
+        # Use pattern robust to renumbering â€” does not hardcode step numbers
         It "$promptName has a Consult Brain step" {
             ($content -match '(?i)Consult Brain') | Should -Be $true
         }
@@ -5098,7 +5098,7 @@ Describe "Brain integration - copilot-instructions.md mentions cg-skill-brain-qu
 }
 
 # ---------------------------------------------------------------------------
-# P3.4 — --no-brain flag parsed in all 4 remaining prompts
+# P3.4 â€” --no-brain flag parsed in all 4 remaining prompts
 # ---------------------------------------------------------------------------
 
 Describe "Brain integration - remaining prompts parse --no-brain flag" {
@@ -5124,7 +5124,7 @@ Describe "Brain integration - remaining prompts parse --no-brain flag" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch D — Team Brain push step in cg-compound + Team Brain pull in brain-query
+# Batch D â€” Team Brain push step in cg-compound + Team Brain pull in brain-query
 # ---------------------------------------------------------------------------
 
 Describe "cg-compound.prompt.md - Team Brain push step (Step 3d)" {
@@ -5186,7 +5186,7 @@ Describe "cg-skill-brain-query - Team Brain pull step (Step 2b)" {
 }
 
 # ---------------------------------------------------------------------------
-# Plan: test-correctness-assessment — cg-fixbug three-layer protocol
+# Plan: test-correctness-assessment â€” cg-fixbug three-layer protocol
 # Steps 1+2: Layer 1 (expected behavior source), Layer 2 (test gap classification),
 #             Layer 3 (red-green proof), diagnostic fork, schema fields/sections
 # ---------------------------------------------------------------------------
@@ -5216,7 +5216,7 @@ Describe "cg-fixbug.prompt.md - Layer 1: Expected Behavior Source" {
     }
 
     It "blocks proceeding to Step 2 before expected behavior source is declared" {
-        ($content -match 'Do NOT proceed to Step 2 until|before.*expected behavior') | Should -Be $true
+        ($content -match 'Do NOT proceed to Step 2 until') | Should -Be $true
     }
 }
 
@@ -5283,7 +5283,7 @@ Describe "cg-fixbug.prompt.md - Layer 3: Red-Green Proof" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "includes a red-green proof sequence in Step 4" {
-        ($content -match '[Rr]ed.green proof|[Rr]ed-green proof') | Should -Be $true
+        ($content -match '[Rr]ed.green proof') | Should -Be $true
     }
 
     It "requires red phase confirmation (test was failing before fix)" {
@@ -5341,7 +5341,7 @@ Describe "cg-fixbug.prompt.md - Step 5 schema fields and document sections" {
 }
 
 # ---------------------------------------------------------------------------
-# Plan: test-correctness-assessment — cg-work red-phase gate (Step 3)
+# Plan: test-correctness-assessment â€” cg-work red-phase gate (Step 3)
 # ---------------------------------------------------------------------------
 
 Describe "cg-work.prompt.md - Red-phase verification gate" {
@@ -5353,7 +5353,7 @@ Describe "cg-work.prompt.md - Red-phase verification gate" {
     }
 
     It "specifies conditional skip for structural steps" {
-        ($content -match 'structural|config files.*skip|skip.*structural') | Should -Be $true
+        ($content -match 'config files.*skip|skip.*structural|purely structural') | Should -Be $true
     }
 
     It "requires test to fail before implementation (red phase)" {
@@ -5383,7 +5383,6 @@ Describe "cg-work.prompt.md - Red-phase verification gate" {
 # ---------------------------------------------------------------------------
 
 Describe "cg-skill-r-testing - references/test-integrity.md exists" {
-    $refPath = "$PSScriptRoot\..\. github\skills\cg-skill-r-testing\references\test-integrity.md"
     $refPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\references\test-integrity.md"
     $content  = if (Test-Path $refPath) { Get-Content $refPath -Raw } else { "" }
 
@@ -5435,3 +5434,141 @@ Describe "cg-skill-r-testing SKILL.md - references test-integrity.md" {
     }
 }
 
+
+
+# ---------------------------------------------------------------------------
+# P2.3 — Layer 2 Pester: 3 missing gap categories in cg-fixbug.prompt.md
+# (ambiguous-spec, fixture-gap, integration-gap have no individual assertion
+#  in the Layer 2 block that guards the *prompt*; the test-integrity.md loop
+#  guards the reference file only)
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Layer 2: additional gap categories" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "includes 'ambiguous-spec' as a gap category" {
+        ($content -match 'ambiguous.spec') | Should -Be $true
+    }
+    It "includes 'fixture-gap' as a gap category" {
+        ($content -match 'fixture.gap') | Should -Be $true
+    }
+    It "includes 'integration-gap' as a gap category" {
+        ($content -match 'integration.gap') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.4 — Layer 1 Pester: 4 source types uncovered in cg-fixbug.prompt.md
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Layer 1: additional source types" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "lists documentation as a valid source type" {
+        ($content -match 'Documentation.*roxygen|docstring.*source|roxygen.*source') | Should -Be $true
+    }
+    It "lists backward-compatibility contract as a valid source type" {
+        ($content -match 'backward.compat') | Should -Be $true
+    }
+    It "lists package convention as a valid source type" {
+        ($content -match '[Pp]ackage convention|package-convention') | Should -Be $true
+    }
+    It "lists external reference as a valid source type" {
+        ($content -match '[Ee]xternal reference|external-reference') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.5 — Schema Rules invariants for expected-behavior-source and test-gap
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Schema Rules: expected-behavior-source and test-gap invariants" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Schema Rules section documents expected-behavior-source invariant (must)" {
+        ($content -match 'expected-behavior-source.*must') | Should -Be $true
+    }
+    It "Schema Rules section documents test-gap invariant (must)" {
+        ($content -match 'test-gap.*must') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.6 — IndexOf ordering: Step 1.5 must appear before Step 2 (Reproduce)
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Step 1.5 ordering before Step 2" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 1.5 Expected Behavior Source appears before Step 2 Reproduce in document order" {
+        $idx15 = $content.IndexOf("### Step 1.5:")
+        $idx2  = $content.IndexOf("### Step 2: Reproduce")
+        $idx15 | Should -BeGreaterThan -1
+        $idx2  | Should -BeGreaterThan -1
+        $idx15 | Should -BeLessThan $idx2
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.7 — IndexOf ordering: red-phase gate must appear before Step 2.5 Phase Boundary
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - Red-phase gate ordering before Phase Boundary" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Red-phase verification appears before Step 2.5 Phase Boundary" {
+        $gatePos  = $content.IndexOf("Red-phase verification")
+        $boundPos = $content.IndexOf("Step 2.5: Phase Boundary")
+        $gatePos  | Should -BeGreaterThan -1
+        $boundPos | Should -BeGreaterThan -1
+        $gatePos  | Should -BeLessThan $boundPos
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P2.8 — IndexOf ordering: Test Gap Classification must appear after "confirmed failing"
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Test Gap Classification ordering after confirmed failing" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Test Gap Classification appears after 'confirmed failing' hard stop phrase" {
+        $hardStopPos = $content.IndexOf("confirmed failing")
+        $gapPos      = $content.IndexOf("Test Gap Classification")
+        $hardStopPos | Should -BeGreaterThan -1
+        $gapPos      | Should -BeGreaterThan -1
+        $hardStopPos | Should -BeLessThan $gapPos
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.2 — SKILL.md cross-reference: load cg-skill-r-testing/test-integrity.md when...
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-r-testing SKILL.md - test-integrity cross-reference has when-to-load guidance" {
+    $skillPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\SKILL.md"
+    $content   = if (Test-Path $skillPath) { Get-Content $skillPath -Raw } else { "" }
+
+    It "test-integrity cross-reference mentions 'when' trigger condition" {
+        ($content -match '(?i)(Load when|when fixing bugs|when reviewing tests|when.*tautolog)') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# P3.3 — Layer 3: six-point proof gate language tested
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - Layer 3: six-point proof gate language" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 4 requires all six proof points before confirmation" {
+        ($content -match 'Only after all six|six sub-points') | Should -Be $true
+    }
+}

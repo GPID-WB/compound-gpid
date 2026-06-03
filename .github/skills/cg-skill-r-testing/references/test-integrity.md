@@ -4,6 +4,8 @@ Companion to `cg-skill-r-testing`. Covers how to verify that tests assert the in
 behavior of a function, not merely the behavior the current implementation happens to
 produce. Load this file when working on bug fixes or when reviewing tests for tautology.
 
+> **Language scope**: Examples are in R, but the taxonomy and protocol apply equally to Python and Stata projects.
+
 ---
 
 ## Expected Behavior Sources
@@ -14,7 +16,7 @@ Before writing a test, identify where the *correct* expected value comes from.
 Valid sources (in priority order):
 
 | # | Source | Example |
-|---|--------|---------|
+|---|--------|-------------------------------|
 | 1 | **User requirement** | "The function should return the count of elements below the line" |
 | 2 | **Documentation** | roxygen2 `@returns` or `@examples` in the function header |
 | 3 | **Mathematical/statistical definition** | FGT₀ = fraction of population with consumption < z |
@@ -22,6 +24,8 @@ Valid sources (in priority order):
 | 5 | **Package convention** | `collapse::fmean()` returns a named numeric vector |
 | 6 | **External reference** | World Bank Poverty Handbook, methodology note |
 | 7 | **Backward-compatibility contract** | Prior tagged release documented output shape |
+
+> This list mirrors the source types declared in `/cg-fixbug` Step 1.5.
 
 **If no source can be identified**: ask the maintainer. Do not proceed with a guess.
 

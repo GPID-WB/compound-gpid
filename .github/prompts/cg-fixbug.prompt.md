@@ -60,13 +60,17 @@ State explicitly:
 Valid sources (in priority order):
 1. **User requirement** — the bug reporter stated what should happen
 2. **Documentation** — roxygen2 `@returns`, docstrings, or README describes the contract
-3. **Mathematical/statistical definition** — e.g., "FGT₀ = fraction of population below poverty line"
+3. **Mathematical/statistical definition** (slug: `mathematical-definition`) — e.g., "FGT₀ = fraction of population below poverty line"
 4. **Hand-computed example** — known input → known output, verifiable without running the code
 5. **Package convention** — upstream API guarantees a specific return shape or value
 6. **External reference** — a methodology note, paper, or specification document
 7. **Backward-compatibility contract** — prior version's documented behavior
 
 **If no source can be identified**: ask the user before continuing.
+
+R projects: load `cg-skill-r-testing` and its `references/test-integrity.md` for detection signals when classifying test gaps in Step 2.5.
+
+> See also `cg-skill-r-testing/references/test-integrity.md — Expected Behavior Sources` for source examples.
 > "I cannot determine the expected behavior from the code or documentation alone.
 > What should `[function]` return when given `[the triggering input]`?"
 
@@ -156,7 +160,7 @@ This classification informs which tests to repair in Step 4 and the Lessons Lear
    3. **Fix applied after test**: The implementation was changed only after the failing test existed. State: "Implementation modified after failing test was established."
    4. **Green phase**: Run the reproduction test now. State: "Green phase: `[test name]` now passes." If it fails: the fix is incomplete — return to diagnosis.
    5. **Existing tests pass**: Run the full relevant test suite. State: "Existing tests: N passing, 0 regressions." If regressions appear: the fix introduced a new problem — investigate before continuing.
-   6. **Flawed tests repaired**: If Step 2.5 classified the gap as `wrong-test`, `circular-test`, or `weak-test`, repair those tests now — update expected values to match the confirmed-correct behavior (the source from Step 1.5). State: "Repaired: `[test name]` — was `[category]`, now asserts correct behavior." If no flawed tests: state "No flawed tests to repair."
+   6. **Flawed tests repaired**: If Step 2.5 classified the gap as `wrong-test`, `circular-test`, or `weak-test`, repair those tests now — update only the specific expected values that were wrong; preserve all other assertions that remain valid. State: "Repaired: `[test name]` — was `[category]`, now asserts correct behavior." For `fixture-gap` and `edge-case-gap`: add the triggering data shape or boundary input to the fixture/test rather than replacing existing assertions. If no flawed tests: state "No flawed tests to repair."
 
 3. **STOP. Only after all six sub-points are confirmed. Tell the user exactly this:**
 
