@@ -49,6 +49,7 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
 
 ### Step 1.5: Expected Behavior Source — MANDATORY
 
+<!-- MANDATORY = agent-enforced gate (no user confirmation required). HARD STOP = user-confirmed gate. -->
 Before writing any test, identify where the *correct* expected behavior comes from.
 The source of truth is the intended behavior — not the current implementation and
 not the existing tests.
@@ -61,9 +62,9 @@ Valid sources (in priority order):
 1. **User requirement** — the bug reporter stated what should happen
 2. **Documentation** — roxygen2 `@returns`, docstrings, or README describes the contract
 3. **Mathematical/statistical definition** (slug: `mathematical-definition`) — e.g., "FGT₀ = fraction of population below poverty line"
-4. **Hand-computed example** — known input → known output, verifiable without running the code
+4. **External reference** — a methodology note, paper, or specification document
 5. **Package convention** — upstream API guarantees a specific return shape or value
-6. **External reference** — a methodology note, paper, or specification document
+6. **Hand-computed example** — known input → known output, verifiable without running the code
 7. **Backward-compatibility contract** — prior version's documented behavior
 
 **If no source can be identified**: ask the user before continuing.
@@ -95,6 +96,10 @@ and function-name grep.
       - **NO** → "Existing test `[name]` covers a different aspect — it doesn't exercise the buggy input. Writing a new reproduction test. Existing test is fine."
 - **If no existing test is found** → write a new failing test.
 
+**If tests cannot be run** (CLM restriction, missing test runner, locked environment): log
+*"Test runner unavailable — skipping existing-test pre-check. Writing new failing test from the
+expected behavior source declared in Step 1.5."* and proceed to writing the test.
+
 1. Write the failing regression test using the expected behavior declared in Step 1.5.
    The test's expected values must come from the declared source — not from running the
    function and copying its output.
@@ -108,6 +113,8 @@ and function-name grep.
    > **Reply 'confirmed failing' to proceed to diagnosis.**"
 
 3. **Do NOT proceed to Step 2.5 until the user replies 'confirmed failing' (or equivalent confirmation).**
+
+   **If the user indicates the test is NOT failing**: the test does not detect the bug. Return to the pre-check, revise the test (new input, tighter assertion, or different function call), and request confirmation again. Do not advance to Step 2.5 until a genuinely failing test is confirmed.
 
 ---
 
@@ -127,6 +134,10 @@ not catch this bug. State explicitly:
 | **fixture-gap** | Fixtures didn't cover the triggering data shape |
 | **edge-case-gap** | Test covered the happy path but not the boundary condition |
 | **integration-gap** | Unit tests passed but the bug emerges from component interaction |
+
+> **Classification note**: `circular-test` is a subcategory of `wrong-test`. Prefer `circular-test` when the root cause is the derivation method (expected value was computed by running the implementation). Use `wrong-test` when expected values are incorrect for other reasons.
+
+> For typical signals distinguishing each category, see [`cg-skill-r-testing/references/test-integrity.md — Test Gap Taxonomy`](./../skills/cg-skill-r-testing/references/test-integrity.md).
 
 This classification informs which tests to repair in Step 4 and the Lessons Learned in Step 5.
 

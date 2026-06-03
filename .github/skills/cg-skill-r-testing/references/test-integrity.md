@@ -20,9 +20,9 @@ Valid sources (in priority order):
 | 1 | **User requirement** | "The function should return the count of elements below the line" |
 | 2 | **Documentation** | roxygen2 `@returns` or `@examples` in the function header |
 | 3 | **Mathematical/statistical definition** | FGT₀ = fraction of population with consumption < z |
-| 4 | **Hand-computed example** | For `c(1, 2, 3)` with line = 2: FGT₀ = 2/3 = 0.667 |
+| 4 | **External reference** | World Bank Poverty Handbook, methodology note |
 | 5 | **Package convention** | `collapse::fmean()` returns a named numeric vector |
-| 6 | **External reference** | World Bank Poverty Handbook, methodology note |
+| 6 | **Hand-computed example** | For `c(1, 2, 3)` with line = 2: FGT₀ = 2/3 = 0.667 |
 | 7 | **Backward-compatibility contract** | Prior tagged release documented output shape |
 
 > This list mirrors the source types declared in `/cg-fixbug` Step 1.5.
@@ -31,9 +31,9 @@ Valid sources (in priority order):
 
 ---
 
-## Mutation Verification Protocol
+## Red-Green Verification Protocol
 
-A four-step sequence to confirm a test genuinely detects the absence of the intended behavior:
+A sequence to confirm a test genuinely detects the absence of the intended behavior. (Formerly "Mutation Verification Protocol" — renamed to avoid confusion with deliberate defect injection.)
 
 1. **Write the test first** — using expected values from an independent source (see above),
    before touching the implementation.
@@ -43,14 +43,24 @@ A four-step sequence to confirm a test genuinely detects the absence of the inte
    > "Red phase: `[test name]` fails with: `[one-line error]`"
    If the test passes on broken code, it does not detect the bug — revise the test.
 
-3. **Implement the fix** — change only the implementation, not the test.
+3. **Confirm failure matches symptom** — verify the failure message corresponds to the bug
+   symptom reported in the intake. If the test fails for a different reason, the test does not
+   exercise the triggering scenario.
 
-4. **Confirm green phase** — run the test again. The test must now **pass**:
+4. **Implement the fix** — change only the implementation, not the test.
+
+5. **Confirm green phase** — run the test again. The test must now **pass**:
    > "Green phase: `[test name]` passes after fix."
-   Run the full test suite to confirm no regressions.
 
-Only after all four steps are complete is the fix verified. A test that was never seen
+6. **Confirm no regressions** — run the full test suite. All previously passing tests must
+   still pass. If regressions appear, investigate before proceeding.
+   > "Existing tests: N passing, 0 regressions."
+
+Only after all six steps are complete is the fix verified. A test that was never seen
 to fail is not a safety net — it is noise.
+
+> **When using this protocol in `/cg-fixbug`**, the six steps map to Step 4 sub-points 1–6.
+> Sub-point 2 = step 3 above (failure matches symptom); sub-point 5 = step 6 above (regressions).
 
 ---
 

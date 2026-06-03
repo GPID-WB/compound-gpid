@@ -5394,8 +5394,8 @@ Describe "cg-skill-r-testing - references/test-integrity.md exists" {
         ($content -match '## Expected Behavior Sources?') | Should -Be $true
     }
 
-    It "contains Mutation Verification Protocol section" {
-        ($content -match '## Mutation Verification Protocol') | Should -Be $true
+    It "contains Red-Green Verification Protocol section (formerly Mutation Verification Protocol)" {
+        ($content -match '## Red-Green Verification Protocol|## Mutation Verification Protocol') | Should -Be $true
     }
 
     It "contains Test Gap Taxonomy section" {
@@ -5570,5 +5570,145 @@ Describe "cg-fixbug.prompt.md - Layer 3: six-point proof gate language" {
 
     It "Step 4 requires all six proof points before confirmation" {
         ($content -match 'Only after all six|six sub-points') | Should -Be $true
+    }
+}
+
+
+# ---------------------------------------------------------------------------
+# /cg-fix-triage findings - P1.1-P1.4, P2.16-P2.18, P3.4, P3.6, P3.7
+# ---------------------------------------------------------------------------
+
+Describe "cg-fixbug.prompt.md - P1.2 escape hatch for 'test is not failing' response" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has handler for 'test is NOT failing' response at Step 2 HARD STOP" {
+        ($content -match 'test is NOT failing|NOT failing') | Should -Be $true
+    }
+
+    It "instructs to return to pre-check and revise the test" {
+        ($content -match 'Return to the pre-check|revise the test.*new input') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - P1.3 cross-reference pointer in Step 2.5 table" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "Step 2.5 table footer references test-integrity.md for Typical Signal column" {
+        ($content -match 'test-integrity\.md.*Test Gap Taxonomy') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - P2.17 source priority order (external-reference before hand-computed)" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "External reference ranks above Hand-computed example in priority order" {
+        $extRefIdx      = $content.IndexOf("**External reference**")
+        $handComputeIdx = $content.IndexOf("**Hand-computed example**")
+        $extRefIdx      | Should -BeGreaterThan -1
+        $handComputeIdx | Should -BeGreaterThan -1
+        $extRefIdx      | Should -BeLessThan $handComputeIdx
+    }
+}
+
+Describe "cg-fixbug.prompt.md - P2.18 escape hatch for unavailable test runner in Step 2 pre-check" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has escape hatch for CLM restriction or missing test runner" {
+        ($content -match 'CLM restriction|missing test runner') | Should -Be $true
+    }
+
+    It "escape hatch directs agent to proceed with new failing test from Step 1.5 source" {
+        ($content -match 'Test runner unavailable.*skipping.*pre-check') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - P3.4 MANDATORY vs HARD STOP comment" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "has a comment distinguishing MANDATORY (agent-enforced) from HARD STOP (user-confirmed)" {
+        ($content -match 'MANDATORY.*agent-enforced.*HARD STOP.*user-confirmed') | Should -Be $true
+    }
+}
+
+Describe "cg-fixbug.prompt.md - P3.7 circular-test subcategory note" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "notes that circular-test is a subcategory of wrong-test" {
+        ($content -match 'circular.test.*subcategory.*wrong.test|subcategory.*wrong.test') | Should -Be $true
+    }
+}
+
+Describe "cg-work.prompt.md - P1.2 narrowed red-phase skip condition" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "skip condition uses 'no colocated Pester assertions' language" {
+        ($content -match 'no colocated Pester assertions') | Should -Be $true
+    }
+
+    It "skip condition no longer lists bare 'prompt text' as structural" {
+        # 'prompt text' followed by comma or space in the structural skip list - must be gone
+        ($content -match 'prompt text, documentation') | Should -Be $false
+    }
+}
+
+Describe "docs/reference.md - P3.6 updated /cg-fixbug entry" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = Get-Content $refFile -Raw -Encoding UTF8
+
+    It "/cg-fixbug entry references Step 1.5 Expected Behavior Source" {
+        ($content -match 'expected-behavior source.*Step 1\.5') | Should -Be $true
+    }
+
+    It "/cg-fixbug entry references test-gap classification Step 2.5" {
+        ($content -match 'test-gap classification.*Step 2\.5') | Should -Be $true
+    }
+
+    It "/cg-fixbug entry references red-green proof" {
+        ($content -match 'red-green proof') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-r-testing/references/test-integrity.md - P2.16 renamed protocol section" {
+    $refPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\references\test-integrity.md"
+    $content = if (Test-Path $refPath) { Get-Content $refPath -Raw } else { "" }
+
+    It "section is renamed to Red-Green Verification Protocol" {
+        ($content -match '## Red-Green Verification Protocol') | Should -Be $true
+    }
+
+    It "notes the renaming from Mutation Verification Protocol" {
+        ($content -match 'Formerly.*Mutation Verification Protocol') | Should -Be $true
+    }
+
+    It "six-step protocol: includes symptom-match step (step 3)" {
+        ($content -match 'Confirm failure matches symptom') | Should -Be $true
+    }
+
+    It "six-step protocol: includes no-regressions step (step 6)" {
+        ($content -match 'Confirm no regressions') | Should -Be $true
+    }
+
+    It "cross-references /cg-fixbug Step 4 sub-points" {
+        ($content -match 'cg-fixbug.*Step 4|Step 4 sub-points') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-r-testing/references/test-integrity.md - P2.17 source priority order" {
+    $refPath = "$PSScriptRoot\..\.github\skills\cg-skill-r-testing\references\test-integrity.md"
+    $content = if (Test-Path $refPath) { Get-Content $refPath -Raw } else { "" }
+
+    It "External reference ranks above Hand-computed example in priority table" {
+        $extRefIdx      = $content.IndexOf("**External reference**")
+        $handComputeIdx = $content.IndexOf("**Hand-computed example**")
+        $extRefIdx      | Should -BeGreaterThan -1
+        $handComputeIdx | Should -BeGreaterThan -1
+        $extRefIdx      | Should -BeLessThan $handComputeIdx
     }
 }

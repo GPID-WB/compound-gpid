@@ -504,8 +504,8 @@
           "id": "fixbug-test-correctness-assessment",
           "title": "/cg-fixbug test-correctness assessment",
           "description": "Before fixing a bug, /cg-fixbug evaluates whether existing tests assert the intended behavior or merely codify the bug. Decides whether to fix the test, replace it, or write a new one — never blindly runs new code against old (possibly wrong) assertions.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md"
         },
         {
           "id": "github-issues-integration",

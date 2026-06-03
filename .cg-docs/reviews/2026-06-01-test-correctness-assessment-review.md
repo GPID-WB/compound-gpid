@@ -3,10 +3,10 @@ plan: .cg-docs/plans/2026-06-01-test-correctness-assessment.md
 date: 2026-06-03
 depth: thorough
 findings:
-  P1.1: open
-  P1.2: open
-  P1.3: open
-  P1.4: open
+  P1.1: fixed
+  P1.2: fixed
+  P1.3: fixed
+  P1.4: fixed
   P2.1: fixed
   P2.2: fixed
   P2.3: fixed
@@ -22,17 +22,17 @@ findings:
   P2.13: fixed
   P2.14: fixed
   P2.15: fixed
-  P2.16: open
-  P2.17: open
-  P2.18: open
+  P2.16: fixed
+  P2.17: fixed
+  P2.18: fixed
   P3.1: fixed
   P3.2: fixed
   P3.3: fixed
-  P3.4: open
-  P3.5: open
-  P3.6: open
-  P3.7: open
-  P3.8: open
+  P3.4: fixed
+  P3.5: fixed
+  P3.6: fixed
+  P3.7: fixed
+  P3.8: fixed
 ---
 
 ## Review Report
