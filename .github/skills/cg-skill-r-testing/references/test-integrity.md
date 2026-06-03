@@ -59,7 +59,9 @@ A sequence to confirm a test genuinely detects the absence of the intended behav
 Only after all six steps are complete is the fix verified. A test that was never seen
 to fail is not a safety net — it is noise.
 
-> **When using this protocol in `/cg-fixbug`**, the six steps map to Step 4 sub-points 1–6.
+> **When using this protocol in `/cg-fixbug`**: sub-points 1–5 of Step 4 correspond to
+> steps 2–6 of this protocol (step 1 — write the test first — happens in cg-fixbug Step 2).
+> Sub-point 6 (flawed test repair) is an extension beyond this protocol.
 > Sub-point 2 = step 3 above (failure matches symptom); sub-point 5 = step 6 above (regressions).
 
 ---

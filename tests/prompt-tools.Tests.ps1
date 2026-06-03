@@ -19,7 +19,7 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_ROOT '$env:CG_TEST_ROOT' does not exist" }
 . "$PSScriptRoot/helpers.ps1"
 
-# Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved from this file per P2.17)
+# Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved here to avoid duplication across test files)
 
 # ---------------------------------------------------------------------------
 # cg-review.prompt.md must NOT have a tools: restriction
@@ -5376,6 +5376,12 @@ Describe "cg-work.prompt.md - Red-phase verification gate" {
         # Should NOT have a '### ' heading containing "Red-phase"
         ($content -match '### .*[Rr]ed.phase') | Should -Be $false
     }
+
+    It "skip qualifier applies to all structural categories via a single clause" {
+        # The qualifier 'no Pester test file asserting against the modified content' should
+        # precede or bracket the category list, not trail only the last item
+        ($content -match 'no Pester test file asserting against the modified content') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -5621,8 +5627,12 @@ Describe "cg-fixbug.prompt.md - P2.18 escape hatch for unavailable test runner i
         ($content -match 'CLM restriction|missing test runner') | Should -Be $true
     }
 
-    It "escape hatch directs agent to proceed with new failing test from Step 1.5 source" {
+    It "escape hatch log message opens with 'Test runner unavailable' phrase" {
         ($content -match 'Test runner unavailable.*skipping.*pre-check') | Should -Be $true
+    }
+
+    It "escape hatch directs agent to use Step 1.5 source" {
+        ($content -match 'behavior source declared in Step 1\.5') | Should -Be $true
     }
 }
 
@@ -5648,8 +5658,8 @@ Describe "cg-work.prompt.md - P1.2 narrowed red-phase skip condition" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "skip condition uses 'no colocated Pester assertions' language" {
-        ($content -match 'no colocated Pester assertions') | Should -Be $true
+    It "skip condition requires no Pester test file asserting against the modified content" {
+        ($content -match 'no Pester test file asserting against the modified content|no colocated Pester assertions') | Should -Be $true
     }
 
     It "skip condition no longer lists bare 'prompt text' as structural" {
@@ -5701,6 +5711,10 @@ Describe "cg-skill-r-testing/references/test-integrity.md - P2.16 renamed protoc
 
     It "cross-references /cg-fixbug Step 4 sub-points" {
         ($content -match 'cg-fixbug.*Step 4|Step 4 sub-points') | Should -Be $true
+    }
+
+    It "mapping clarifies that step 1 (write test) maps to cg-fixbug Step 2 not Step 4" {
+        ($content -match 'step 1.*cg-fixbug Step 2|write the test.*cg-fixbug Step 2') | Should -Be $true
     }
 }
 

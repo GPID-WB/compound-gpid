@@ -115,7 +115,7 @@ For **each step** in the plan:
 1. **Announce** which step you're starting.
 2. **Discover existing tests**: Using the Step 1.6 index, identify tests exercising the code you're about to change.
 
-   **Red-phase verification** (conditional — skip if this step is purely structural: config files, markdown documentation or YAML frontmatter with **no colocated Pester assertions**, or directory scaffolding):
+   **Red-phase verification** (conditional — skip if this step is purely structural with **no Pester test file asserting against the modified content**: config files, markdown documentation, or YAML frontmatter — or directory scaffolding):
 
    If this plan step introduces new testable behavior (creates a function, modifies return values, changes data transformation logic, or adds a new code path):
    1. Write the test(s) now, **before touching the implementation**.

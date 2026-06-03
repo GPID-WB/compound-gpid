@@ -4,12 +4,12 @@ depth: light
 parent-review: .cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md
 type: verification
 findings:
-  V-P2.1: open
-  V-P3.1: open
-  V-P3.2: open
+  V-P2.1: fixed
+  V-P3.1: fixed
+  V-P3.2: fixed
   V-P3.3: fixed
   V-P3.4: fixed
-  V-P3.5: open
+  V-P3.5: fixed
   V-P3.6: fixed
   V-P3.7: fixed
 ---
