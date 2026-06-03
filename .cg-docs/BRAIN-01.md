@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-05-30_
+_Generated 2026-06-03_
 
-## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md
+## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.md`_ · 286 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 292 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -76,6 +76,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Team Brain \(Phase 2\) — Batch D design](.cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md)** · `brainstorm` · _decided_ · `2026-05-20`
   > Batch D of the Knowledge Brain milestone (per `.cg-docs/strategy/2026-05-19-knowledge-brain.md`). Builds on the compl…
+- **[Test-correctness assessment for /cg-fixbug and /cg-work](.cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md)** · `brainstorm` · _decided_ · `2026-06-01`
+  > When an AI agent writes a feature and its tests in the same step, both artifacts are derived from the same mental mod…
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -96,6 +98,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > Replace the broken `$PROFILE`-based command registration with `.cmd` batch wrappers on PATH, and change the default i…
 - **[Dual install paths and restart documentation](.cg-docs/plans/2026-03-14-dual-install-paths-and-restart-docs.md)** · `plan` · _completed_ · `2026-03-14`
   > Update documentation and script error messages to support two install locations (`C:\WBG\.compound-gpid` for local On…
+- **[Add /cg-fixbug prompt — structured bug-fix workflow](.cg-docs/plans/2026-03-16-cg-fixbug-prompt.md)** · `plan` · _completed_ · `2026-03-16`
+  > Build a new `/cg-fixbug` prompt that guides the user through a structured five-step bug-fix arc: **Intake → Reproduce…
 - **[Update all references from cg-skill-r-best-practices to cg-skill-r-technical + cg-skill-r-analytical](.cg-docs/plans/2026-03-17-split-r-skill-references.md)** · `plan` · _completed_ · `2026-03-17`
   > The `cg-skill-r-best-practices` skill has been split into two focused skills:
 - **[Version pinning via cg-update](.cg-docs/plans/2026-03-18-version-pinning-via-cg-update.md)** · `plan` · _completed_ · `2026-03-18`
@@ -184,6 +188,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > Wire the brain read path so that every major command consults `.cg-docs/BRAIN.md` before acting, surfacing relevant i…
 - **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _completed_ · `2026-05-20`
   > Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound…
+- **[Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification](.cg-docs/plans/2026-06-01-test-correctness-assessment.md)** · `plan` · _completed\ncompleted-date: 2026-06-01_ · `2026-06-01`
+  > Add test-integrity awareness to the `/cg-fixbug` and `/cg-work` prompts so that the AI agent never blindly trusts tes…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
   > **Review depth**: light **Date**: 2026-03-30 **Plan**: `.cg-docs/plans/2026-03-30-fix-triage-prompt.md` **Branch**: `…
 - **[2026-04-01-cg-strategy-and-roadmap-fix-review](.cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md)** · `review` · _—_ · `—`
@@ -354,6 +360,10 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > **Review depth**: light (mode:verify) **Parent review**: `.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md`…
 - **[2026-05-21-knowledge-brain-engine-review](.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md)** · `review` · _—_ · `2026-05-21`
   > **Date**: 2026-05-21 **Branch**: `feat/knowledge-brain-engine` (PR #42) **Plan**: [2026-05-20-team-brain-batch-d](.cg…
+- **[2026-06-01-test-correctness-assessment-review](.cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md)** · `review` · _—_ · `2026-06-03`
+  > **Review depth**: thorough **Files reviewed**: 6 (`.github/prompts/cg-fixbug.prompt.md`, `.github/prompts/cg-work.pro…
+- **[2026-06-01-test-correctness-assessment-verify-review](.cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md)** · `review` · _—_ · `2026-06-03`
+  > **Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/prompts/cg-fixbug.prompt.md`, `.github/pr…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -558,6 +568,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `copilot-instructions.m
   > `@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wi…
 - **[Append-only insertion prevents silent corruption in AI-written shared files](.cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md)** · `solution` · _—_ · `2026-05-18`
   > `/cg-compound` Step 5 was instructed to enrich `compound-gpid.context.md` by inserting "directly into the correct sec…
+- **[Three-layer test-correctness protocol prevents circular tests in /cg-fixbug](.cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md)** · `solution` · _—_ · `2026-06-03`
+  > A `/cg-fixbug` session could produce a "passing" test that provides zero regression protection. The test was written …
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -729,7 +741,7 @@ objective`_ · 97 entities
   > Phased execution in /cg-work
 - **[Roadmap visualization agent + /cg-roadmap-view prompt](roadmap.json#roadmap-visualization-agent-prompt)** · `feature` · _done_ · `—`
   > Roadmap visualization agent + /cg-roadmap-view prompt
-- **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _idea_ · `—`
+- **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _done_ · `—`
   > /cg-fixbug test-correctness assessment
 - **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
   > GitHub Issues integration (optional, via gh CLI)

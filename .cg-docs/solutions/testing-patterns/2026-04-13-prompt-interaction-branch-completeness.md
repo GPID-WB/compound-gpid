@@ -99,3 +99,4 @@ It "recommends priority batches (P0 P1, P2, P3) in the large report warning" {
 
 - [prompt-pipeline-contract-testing.md](2026-03-30-prompt-pipeline-contract-testing.md) — Testing the interface contract between chained prompts
 - [do-not-delegate-file-write-guardrail.md](../testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md) — Another pattern where implicit behavior in prompt instructions causes silent failures
+- [2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md](2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md) — Applied this rule to add the "test NOT failing" handler in /cg-fixbug Step 2 (P1.4)

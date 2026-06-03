@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-05-30 · 335 artifacts (newest first) + 97 roadmap features_
+_Generated 2026-06-03 · 340 artifacts (newest first) + 97 roadmap features_
 
 ## undated
 
@@ -102,6 +102,22 @@ _Generated 2026-05-30 · 335 artifacts (newest first) + 97 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
 - **[2026-05-20-team-brain-batch-d-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
+
+## 2026-06-03
+
+- **[2026-06-01-test-correctness-assessment-review](.cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md)** · `review` · _—_ · `2026-06-03`
+  > **Review depth**: thorough **Files reviewed**: 6 (`.github/prompts/cg-fixbug.prompt.md`, `.github/prompts/cg-work.pro…
+- **[2026-06-01-test-correctness-assessment-verify-review](.cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md)** · `review` · _—_ · `2026-06-03`
+  > **Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/prompts/cg-fixbug.prompt.md`, `.github/pr…
+- **[Three-layer test-correctness protocol prevents circular tests in /cg-fixbug](.cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md)** · `solution` · _—_ · `2026-06-03`
+  > A `/cg-fixbug` session could produce a "passing" test that provides zero regression protection. The test was written …
+
+## 2026-06-01
+
+- **[Test-correctness assessment for /cg-fixbug and /cg-work](.cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md)** · `brainstorm` · _decided_ · `2026-06-01`
+  > When an AI agent writes a feature and its tests in the same step, both artifacts are derived from the same mental mod…
+- **[Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification](.cg-docs/plans/2026-06-01-test-correctness-assessment.md)** · `plan` · _completed\ncompleted-date: 2026-06-01_ · `2026-06-01`
+  > Add test-integrity awareness to the `/cg-fixbug` and `/cg-work` prompts so that the AI agent never blindly trusts tes…
 
 ## 2026-05-29
 
@@ -913,7 +929,7 @@ _Generated 2026-05-30 · 335 artifacts (newest first) + 97 roadmap features_
   > First-run welcome and health check after cg-link
 - **[/cg-fix-triage --migrate mode \(backfills findings: frontmatter on legacy review files\)](roadmap.json#fix-triage-migrate-mode)** · `feature` · _done_ · `—`
   > /cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)
-- **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _idea_ · `—`
+- **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _done_ · `—`
   > /cg-fixbug test-correctness assessment
 - **[Full model audit across prompts and agents](roadmap.json#full-model-audit)** · `feature` · _done_ · `—`
   > Full model audit across prompts and agents

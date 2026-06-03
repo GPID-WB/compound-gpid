@@ -1,5 +1,5 @@
 {
-  "edge_count": 166,
+  "edge_count": 170,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -221,6 +221,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
       "target": ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+      "target": ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
       "target_missing": false
     },
     {
@@ -704,6 +710,18 @@
       "target_missing": true
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
+      "target": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -995,6 +1013,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-05-18-command-default-behaviors.md",
       "target": "roadmap.json#command-default-behaviors",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+      "target": "roadmap.json#fixbug-test-correctness-assessment",
       "target_missing": false
     }
   ],
@@ -2063,6 +2087,35 @@
         "brain",
         "cg-compound",
         "direct"
+      ]
+    },
+    {
+      "date": "2026-06-01",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
+      "slug": "2026-06-01-fixbug-test-correctness-assessment",
+      "status": "decided",
+      "summary": "When an AI agent writes a feature and its tests in the same step, both artifacts are derived from the same mental model. If that model is wrong, both the code and the test will be wrong together — and the test passes for the wrong reasons. This is a correlated failure: the test was never proven to be sensitive to failure because it was never red.",
+      "tags": [
+        "testing",
+        "test-integrity",
+        "cg-fixbug",
+        "cg-work",
+        "red-green-refactor",
+        "mutation-testing"
+      ],
+      "title": "Test-correctness assessment for /cg-fixbug and /cg-work",
+      "top_keywords": [
+        "cg-fixbug",
+        "cg-work",
+        "/cg-work",
+        "/cg-fixbug",
+        "approach",
+        "fixbug-test-correctness-assessment",
+        "cg-skill-r-testing",
+        "@cg-testing",
+        "references/test-integrity.md",
+        "current focus"
       ]
     },
     {
@@ -3718,6 +3771,35 @@
         "/cg-compound",
         "brain",
         "team"
+      ]
+    },
+    {
+      "date": "2026-06-01",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+      "slug": "2026-06-01-test-correctness-assessment",
+      "status": "completed\\ncompleted-date: 2026-06-01",
+      "summary": "Add test-integrity awareness to the `/cg-fixbug` and `/cg-work` prompts so that the AI agent never blindly trusts tests written from the same flawed mental model as the code. Three coordinated changes: a diagnostic fork in `/cg-fixbug` (reactive), a red-phase gate in `/cg-work` (preventive), and a mutation verification reference in `cg-skill-r-testing` (detective).",
+      "tags": [
+        "testing",
+        "test-integrity",
+        "cg-fixbug",
+        "cg-work",
+        "red-green-refactor",
+        "mutation-testing"
+      ],
+      "title": "Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification",
+      "top_keywords": [
+        "cg-fixbug",
+        "/cg-fixbug",
+        "/cg-work",
+        "cg-work",
+        "prompt-tools.tests.ps1",
+        "cg-skill-r-testing",
+        "test scenarios",
+        "tests/prompt-tools.tests.ps1",
+        "expected behavior source",
+        "skill.md"
       ]
     },
     {
@@ -5654,6 +5736,50 @@
         "privacy.py",
         "config.py",
         "privacy"
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
+      "slug": "2026-06-01-test-correctness-assessment-review",
+      "status": "",
+      "summary": "**Review depth**: thorough **Files reviewed**: 6 (`.github/prompts/cg-fixbug.prompt.md`, `.github/prompts/cg-work.prompt.md`, `.github/skills/cg-skill-r-testing/SKILL.md`, `.github/skills/cg-skill-r-testing/references/test-integrity.md`, `tests/prompt-tools.Tests.ps1`, `.cg-docs/plans/2026-06-01-test-correctness-assessment.md`) **Agents**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-reproducibility, cg-performance, cg-architecture, cg-data-quality, cg-learnings-researcher, cg-adversarial **Findings**: 30 (P0: 0, P1: 4, P2: 18, P3: 8)",
+      "tags": [],
+      "title": "2026-06-01-test-correctness-assessment-review",
+      "top_keywords": [
+        "test-integrity.md",
+        "cg-fixbug",
+        "cg-fixbug.prompt.md",
+        ".github/prompts/cg-fixbug.prompt.md",
+        "tests/prompt-tools.tests.ps1",
+        "prompt-tools.tests.ps1",
+        "/cg-fixbug",
+        "cg-skill-r-testing",
+        ".github/skills/cg-skill-r-testing/references/test-integrity.md",
+        "wrong-test"
+      ]
+    },
+    {
+      "date": "2026-06-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
+      "slug": "2026-06-01-test-correctness-assessment-verify-review",
+      "status": "",
+      "summary": "**Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/prompts/cg-fixbug.prompt.md`, `.github/prompts/cg-work.prompt.md`, `.github/skills/cg-skill-r-testing/SKILL.md`, `.github/skills/cg-skill-r-testing/references/test-integrity.md`, `tests/prompt-tools.Tests.ps1`, `roadmap.json`, `docs/reference.md`) **Agents**: cg-code-quality, cg-testing **Findings**: 8 (P0: 0, P1: 0, P2: 1, P3: 7)",
+      "tags": [],
+      "title": "2026-06-01-test-correctness-assessment-verify-review",
+      "top_keywords": [
+        "tests/prompt-tools.tests.ps1",
+        "prompt-tools.tests.ps1",
+        "mutation verification protocol",
+        "cg-skill-r-testing",
+        ".github/prompts/cg-work.prompt.md",
+        "green verification protocol",
+        "roadmap.json",
+        "cg-fixbug",
+        "cg-work",
+        "cg-fixbug.prompt.md"
       ]
     },
     {
@@ -9972,6 +10098,37 @@
       ]
     },
     {
+      "date": "2026-06-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
+      "slug": "2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug",
+      "status": "",
+      "summary": "A `/cg-fixbug` session could produce a \"passing\" test that provides zero regression protection. The test was written after the bug was understood, so the agent could: 1. **Derive the expected value from the implementation being fixed** (\"circular test\") — run the buggy code, observe its output, hard-code that output as the expected value. Test goes green immediately with no fix required. 2. **Use an existing test that never failed** — the agent verifies a test \"passes after the fix\" without first confirming it failed against the buggy code. The test was always passing; it detects nothing. 3. **Classify the test...",
+      "tags": [
+        "fixbug",
+        "red-green-proof",
+        "expected-behavior-source",
+        "test-gap-taxonomy",
+        "circular-test",
+        "tautological-test",
+        "cg-fixbug",
+        "test-correctness"
+      ],
+      "title": "Three-layer test-correctness protocol prevents circular tests in /cg-fixbug",
+      "top_keywords": [
+        "cg-fixbug",
+        "test-integrity.md",
+        "circular-test",
+        "layer",
+        "wrong-test",
+        "/cg-fixbug",
+        "test-correctness",
+        "cg-work",
+        "integration-gap",
+        "cg-skill-r-testing/references/test-integrity.md"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -11736,7 +11893,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#fixbug-test-correctness-assessment",
       "slug": "fixbug-test-correctness-assessment",
-      "status": "idea",
+      "status": "done",
       "summary": "/cg-fixbug test-correctness assessment",
       "tags": [],
       "title": "/cg-fixbug test-correctness assessment",
@@ -12326,13 +12483,13 @@
       ]
     }
   ],
-  "entity_count": 432,
-  "generated": "2026-05-30",
+  "entity_count": 437,
+  "generated": "2026-06-03",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 286,
+      "entity_count": 292,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -12369,6 +12526,7 @@
         ".cg-docs/brainstorms/2026-05-19-knowledge-brain-engine-batch-a.md",
         ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
+        ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -12379,6 +12537,7 @@
         ".cg-docs/plans/2026-03-05-cg-docs-migration-and-resume.md",
         ".cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md",
         ".cg-docs/plans/2026-03-14-dual-install-paths-and-restart-docs.md",
+        ".cg-docs/plans/2026-03-16-cg-fixbug-prompt.md",
         ".cg-docs/plans/2026-03-17-split-r-skill-references.md",
         ".cg-docs/plans/2026-03-18-version-pinning-via-cg-update.md",
         ".cg-docs/plans/2026-03-19-release-automation.md",
@@ -12423,6 +12582,7 @@
         ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
         ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+        ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
         ".cg-docs/reviews/2026-04-01-charter-maintenance-review.md",
@@ -12508,6 +12668,8 @@
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md",
         ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
+        ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
+        ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -12610,6 +12772,7 @@
         ".cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         ".cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md",
         ".cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -12624,10 +12787,10 @@
       "keywords": [
         "roadmap.json",
         "prompt-tools.tests.ps1",
-        "copilot-instructions.md"
+        "tests/prompt-tools.tests.ps1"
       ],
-      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Copilot-Instructions.Md",
-      "slug": "roadmap-json-prompt-tools-tests-ps1-copilot-instructions-md"
+      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1",
+      "slug": "roadmap-json-prompt-tools-tests-ps1-tests-prompt-tools-tests-ps1"
     },
     {
       "entity_count": 97,
