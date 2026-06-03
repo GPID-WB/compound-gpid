@@ -5394,8 +5394,8 @@ Describe "cg-skill-r-testing - references/test-integrity.md exists" {
         ($content -match '## Expected Behavior Sources?') | Should -Be $true
     }
 
-    It "contains Red-Green Verification Protocol section (formerly Mutation Verification Protocol)" {
-        ($content -match '## Red-Green Verification Protocol|## Mutation Verification Protocol') | Should -Be $true
+    It "contains Red-Green Verification Protocol section" {
+        ($content -match '## Red-Green Verification Protocol') | Should -Be $true
     }
 
     It "contains Test Gap Taxonomy section" {
@@ -5640,7 +5640,7 @@ Describe "cg-fixbug.prompt.md - P3.7 circular-test subcategory note" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "notes that circular-test is a subcategory of wrong-test" {
-        ($content -match 'circular.test.*subcategory.*wrong.test|subcategory.*wrong.test') | Should -Be $true
+        ($content -match 'circular.test.*subcategory.*wrong.test') | Should -Be $true
     }
 }
 
@@ -5681,6 +5681,10 @@ Describe "cg-skill-r-testing/references/test-integrity.md - P2.16 renamed protoc
 
     It "section is renamed to Red-Green Verification Protocol" {
         ($content -match '## Red-Green Verification Protocol') | Should -Be $true
+    }
+
+    It "old 'Mutation Verification Protocol' is NOT a standalone heading" {
+        ($content -match '(?m)^## Mutation Verification Protocol') | Should -Be $false
     }
 
     It "notes the renaming from Mutation Verification Protocol" {

@@ -67,11 +67,11 @@ Valid sources (in priority order):
 6. **Hand-computed example** — known input → known output, verifiable without running the code
 7. **Backward-compatibility contract** — prior version's documented behavior
 
-**If no source can be identified**: ask the user before continuing.
-
 R projects: load `cg-skill-r-testing` and its `references/test-integrity.md` for detection signals when classifying test gaps in Step 2.5.
 
 > See also `cg-skill-r-testing/references/test-integrity.md — Expected Behavior Sources` for source examples.
+
+If no source can be identified, ask:
 > "I cannot determine the expected behavior from the code or documentation alone.
 > What should `[function]` return when given `[the triggering input]`?"
 
