@@ -123,7 +123,7 @@
       "id": "skills-enhancement",
       "title": "Skills Enhancement",
       "objective": "Deepen language skills so analytical team members get idiomatic patterns, anti-patterns, testing best practices, and ML workflow support without leaving Copilot.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "r-dialect-skills-architecture",
@@ -402,7 +402,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "project-scanner-agent",
@@ -471,7 +471,7 @@
       "id": "workflow-maturity",
       "title": "Workflow Maturity",
       "objective": "Improve the plan→execute cycle with branch management, phased execution, smarter debugging, and optional team coordination.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "branch-creation-from-plan",
@@ -645,7 +645,7 @@
       "id": "ongoing-ideas",
       "title": "Ongoing Ideas",
       "objective": "Catch-all for standalone improvements and ideas that don't fit an existing milestone.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "command-default-behaviors",
@@ -700,6 +700,91 @@
           "id": "agent-verified-outcome-evals",
           "title": "Agent-verified outcome definitions with acceptance evals",
           "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "token-optimization-model-governance",
+      "title": "Token Optimization & Model Governance",
+      "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
+      "status": "in-progress",
+      "features": [
+        {
+          "id": "token-audit-context-model",
+          "title": "Audit current context and model usage",
+          "description": "Measure the current token and AI-credit burden of Compound GPID. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "model-tier-definitions",
+          "title": "Define model tiers and escalation rules",
+          "description": "Create a model-governance policy defining when Compound GPID should use economy, standard, reasoning, or premium models. Premium models used only through explicit escalation conditions, not as ordinary defaults. Produces: model tier definitions, escalation rules, workflow-to-model guidance, updated model guidance documentation.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "model-policy-tests",
+          "title": "Add model-policy tests",
+          "description": "Add automated checks preventing accidental expensive model usage, missing model declarations, or inconsistent prompt/agent model assignments. Produces: tests for model assignments, tests for premium model restrictions, warnings/failures when prompts or agents violate the model policy.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "prompt-frontmatter-model-update",
+          "title": "Update prompt frontmatter model and agent choices",
+          "description": "Review all slash-command prompt files and assign appropriate model and agent defaults. Lightweight commands use economy or auto defaults. Planning, review, and debugging commands use stronger models only when justified. Produces: updated .github/prompts/*.prompt.md frontmatter, reduced expensive model usage in ordinary commands, clearer routing from prompts to agents.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "agent-model-tool-governance",
+          "title": "Update custom agents for model and tool governance",
+          "description": "Move model/tool governance into custom agents where appropriate. Agents define their intended role, tool access, model posture, and escalation behavior. Produces: updated .github/agents/*.agent.md, clear separation between lightweight/standard/deep-review/adversarial agents, restricted tool access for agents that don't need broad capabilities, premium agents gated behind explicit escalation.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "shrink-always-on-context",
+          "title": "Shrink always-on context",
+          "description": "Reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts/skills/context files.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "prompt-skill-split",
+          "title": "Split large prompts into thin entrypoints and on-demand skills",
+          "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts/agents/instructions.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "stage-context-contracts",
+          "title": "Add stage-specific context contracts",
+          "description": "Define exactly what each workflow stage should read, avoid, and produce. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, context expansion rules requiring stated reason before loading broader context.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "review-deterministic-first",
+          "title": "Make review cheaper with deterministic checks first",
+          "description": "Revise the review workflow so deterministic checks run before expensive LLM review. Use tests, linting, static checks, schema validation, and file-change classification before dispatching review agents. Produces: revised review workflow, cheaper first-pass review path, conditional escalation to specialist/premium review agents, reduced unnecessary multi-agent fan-out.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "token-benchmark-before-after",
+          "title": "Benchmark before and after",
+          "description": "Run comparable tasks before and after optimization to measure whether changes actually reduce context burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, list of remaining optimization candidates.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "token-optimization-compound",
+          "title": "Capture the learning",
+          "description": "After the optimization cycle is validated, capture the reusable lesson through the Compound GPID knowledge workflow. Produces: .cg-docs/solutions/ entry documenting the optimization pattern, updated Knowledge Brain artifacts, guidance for future prompt/agent/skill/model-governance changes.",
           "status": "idea",
           "plan": null
         }
