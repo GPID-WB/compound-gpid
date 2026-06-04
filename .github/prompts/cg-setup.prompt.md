@@ -137,6 +137,83 @@ If `@cg-wiki` dispatch fails or returns an error: note:
 > "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
 and proceed silently.
 
+#### A5.85. Check GitHub CLI (`gh`)
+
+The team brain feature requires GitHub API access. `gh` CLI is the most reliable auth method.
+
+1. **Check if `gh` is installed**: Run `gh --version`.
+   - If installed and exit code is 0: proceed to step 2.
+   - If not installed: offer to install it:
+     - Windows: `winget install GitHub.cli`
+     - macOS: `brew install gh`
+     - Linux: `sudo apt install gh` (or equivalent for the detected distro)
+     Run the install command. If install fails or the user declines, note:
+     > "`gh` is not available. Team brain will fall back to `GITHUB_TOKEN` environment variable or `git credential fill`. You can install `gh` later with `winget install GitHub.cli`."
+     Then skip to A5.9.
+
+2. **Check authentication**: Run `gh auth status`.
+   - If authenticated: note "GitHub CLI is authenticated ✓" and proceed to A5.9.
+   - If not authenticated: run `gh auth login --scopes repo` to start the interactive login flow. The `repo` scope is required for the GitHub Contents API used by `/cg-compound`.
+     - After login, confirm with `gh auth status` again.
+     - If login fails or is declined: note:
+       > "GitHub authentication skipped. Team brain push will use `GITHUB_TOKEN` if set, or prompt for auth when needed."
+     Proceed to A5.9 regardless.
+
+> **Note**: This step is non-blocking. Team brain works without `gh` via `GITHUB_TOKEN` env var or `git credential fill`. `gh` is simply the most reliable and cross-platform option.
+
+#### A5.9. Configure Team Brain (auto-discovery)
+
+**Step 1: Parse the owner from the remote URL.**
+Run `git remote get-url origin` and extract `{owner}` from:
+- `https://github.com/{owner}/{repo}` (HTTPS)
+- `git@github.com:{owner}/{repo}` (SSH)
+Also record `{repo}` — it becomes the default `project-name`.
+If there is no `origin` remote or it is not a GitHub URL: skip to the prompt in Step 2b.
+
+**Step 2: Check for `{owner}/team-brain`.**
+Call `GET https://api.github.com/repos/{owner}/team-brain` (use stored token if available).
+
+**2a — repo found (HTTP 200):**
+Append to `compound-gpid.local.md`:
+```
+team-brain:
+  repo: "{owner}/team-brain"
+  project-name: "{repo}"
+  enabled: true
+  llm-filter: false
+```
+Report: "Team brain found at `{owner}/team-brain`. Configured automatically — your solutions will be shared with your team when you run `/cg-compound`."
+
+**2b — not found (HTTP 404) or no remote:**
+Ask:
+> "No team brain found at `{owner}/team-brain`. Where is your team brain?
+> - Type `owner/repo` to use an existing repo
+> - Press **Enter** to create a new `{owner}/team-brain`
+> - Type `skip` to disable team brain for this project"
+
+- **If `owner/repo` provided**: Use that repo. Default `project-name` = `{repo}` from Step 1 (ask only if remote URL could not be parsed). Append `team-brain:` block to `compound-gpid.local.md`.
+- **If Enter (create new)**: Follow the **Scaffolding a New Team Brain** block below.
+- **If `skip`**: Proceed silently.
+
+---
+
+**Scaffolding a New Team Brain**
+(Used when the user chooses to create `{owner}/team-brain` in Step 2b above)
+
+1. Get the authenticated GitHub username: `GET https://api.github.com/user` → `login`.
+2. Create the repo: `POST https://api.github.com/orgs/{owner}/repos` with body `{"name": "team-brain", "description": "Team shared knowledge base (Compound GPID)", "private": true}`. > **Note**: The repo is created private by default to protect any entries pushed before the user has reviewed the privacy filter settings. The team admin can change visibility later via GitHub repo settings.
+3. Push the scaffold files defined in `docs/team-brain-schema.md` — use the GitHub Contents API (`PUT /repos/{owner}/team-brain/contents/{path}`) for each:
+   - `TEAM-BRAIN.yml` (manager = `{login}`, contributors = `[{org: "{owner}"}]`)
+   - `TEAM-BRAIN.md` (placeholder from schema doc)
+   - `entries/.gitkeep`
+   - `patterns/.gitkeep`
+   - `.github/workflows/rebuild-index.yml`
+   - `.github/workflows/curation-bot.yml`
+   - `.github/scripts/rebuild.py`
+   - `.github/scripts/curate.py` (stub)
+4. Append `team-brain:` block to `compound-gpid.local.md`.
+5. Report: "Created and scaffolded `{owner}/team-brain`. You (`{login}`) are the manager."
+
 #### A6. Print Setup Complete
 
 Using the **Setup Complete Message** from `setup-templates.md`, display it with the user's configured language, project type, and review depth.
@@ -327,5 +404,15 @@ If the user provides descriptions and `compound-gpid.context.md` exists: append 
 - **<folder-name>**: <description>
 ```
 If `compound-gpid.context.md` does not exist, offer to create it first (see B1.1.3).
+
+#### B4.8. Check GitHub CLI and Team Brain
+
+**B4.8a: Check `gh` CLI** (only if `team-brain:` section is absent from `compound-gpid.local.md`):
+Run `gh auth status`. If `gh` is not installed or not authenticated, follow the same check as A5.85 (offer install + login). Skip silently if `team-brain:` is already configured.
+
+**B4.8b: Check Team Brain Configuration**:
+Read `compound-gpid.local.md`.
+- If a `team-brain:` section is already present (enabled or explicitly disabled): skip silently.
+- If absent: run the same auto-discovery as A5.9 Steps 1–2 — check for `{owner}/team-brain`, then follow Case 2a (auto-configure) or 2b (ask) accordingly.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."

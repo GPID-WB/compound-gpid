@@ -32,7 +32,7 @@ You are a senior data science architect helping clarify fuzzy requirements befor
 5. If `compound-gpid.md` exists, keep the project's constraints in mind
    throughout the brainstorm. If a proposed approach in Step 3 conflicts with
    declared constraints, flag this explicitly before the user chooses.
-6. Parse flags: if `--no-branch` is present, set `branch-enabled = false`. Otherwise set `branch-enabled = true`.
+6. Parse flags: if `--no-branch` is present, set `branch-enabled = false`. Otherwise set `branch-enabled = true`. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 0.5: Check for Prior Work
 
@@ -46,6 +46,15 @@ Scan `.cg-docs/brainstorms/` for any existing brainstorms related to this topic:
 - If a matched file's frontmatter cannot be parsed, display: "Found related file '<filename>' but could not read its metadata (malformed frontmatter). Proceeding to Step 1."
 - If no matching brainstorm exists, proceed normally.
 - If no exact match, scan titles of the 5 most recently modified brainstorm files for keyword overlap. Surface any with 3+ matching keywords. <!-- threshold synced with cg-plan.prompt.md Step 0.5 -->
+
+### Step 0.7: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: prior explorations of this
+topic, abandoned approaches and the reasons they failed, related decisions
+from past brainstorms. Incorporate relevant findings into your context for
+the remainder of this session.
 
 ### Step 1: Lightweight Research
 

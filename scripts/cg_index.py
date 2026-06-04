@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """cg-index — Compound GPID knowledge indexer.
 
-Scans .cg-docs/solutions/ and produces two artifacts:
-  - .cg-docs/search-index.json  (metadata-only, for quick lookups)
-  - .cg-docs/DIGEST.md          (human-readable summaries, active entries only)
+Scans .cg-docs/ artifacts and roadmap.json, then builds a rich multi-file
+brain knowledge index.
 
 Usage:
-    cg-index [--index] [--digest] [--all] [--root <path>] [--version] [--help]
+    cg-index [--brain] [--root <path>] [--version] [--help]
+
+    # Legacy (deprecated — use --brain):
+    cg-index [--index] [--digest] [--all] [--root <path>]
 
 Modes:
-    --index    Build search-index.json (default when no mode flag is given).
-    --digest   Build DIGEST.md.
-    --all      Build both artifacts (equivalent to --index --digest).
+    --brain    Build the full brain knowledge index: BRAIN.md, BRAIN-01.md,
+               BRAIN-log.md, brain-index.json.  Also removes legacy
+               DIGEST.md and search-index.json on success.
+    --index    (DEPRECATED) Build search-index.json only.
+    --digest   (DEPRECATED) Build DIGEST.md only.
+    --all      (DEPRECATED) Alias for --brain.
     --root     Override the project root (defaults to cwd).
     --version  Print version and exit.
 
 Exit codes:
     0  Success (even if some files were skipped due to parse warnings).
-    1  Fatal error (no .cg-docs/solutions/ directory, unwritable output, etc.).
+    1  Fatal error (no .cg-docs/ directory, unwritable output, etc.).
 
 Requirements: Python 3.8+, stdlib only (no third-party packages).
 """
@@ -35,235 +40,32 @@ if sys.version_info < (3, 8):
 
 import argparse
 import json
-import os
-import re
-import tempfile
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
-# Version
+# Version — imported from brain to avoid duplication (architecture P1.11 fix)
 # ---------------------------------------------------------------------------
 
-__version__ = "0.1.0"
+# __version__ defined in brain/__init__.py; imported lazily after sys.path bootstrap below.
 
 # ---------------------------------------------------------------------------
-# Frontmatter parser (regex-based, best-effort, no PyYAML dependency)
+# sys.path bootstrap — brain sub-modules live in scripts/brain/
 # ---------------------------------------------------------------------------
 
-# Scalar YAML patterns
-_BARE_TRUE = re.compile(r"^(true|yes)$", re.IGNORECASE)
-_BARE_FALSE = re.compile(r"^(false|no)$", re.IGNORECASE)
-_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-_INT_RE = re.compile(r"^-?\d+$")
+_scripts_dir = str(Path(__file__).parent)
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
 
-# Inline list: [a, b, c] or ["a", "b"]
-_INLINE_LIST_RE = re.compile(r"^\[([^\]]*)\]$")
-_COMMA_SPLIT_RE = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
-
-
-def _coerce(value: str) -> Any:
-    """Coerce a YAML scalar string to a Python type."""
-    v = value.strip()
-    if _BARE_TRUE.match(v):
-        return True
-    if _BARE_FALSE.match(v):
-        return False
-    if _DATE_RE.match(v):
-        return v  # Keep dates as strings (ISO 8601)
-    if _INT_RE.match(v):
-        return int(v)
-    # Strip optional surrounding quotes
-    if (v.startswith('"') and v.endswith('"')) or \
-       (v.startswith("'") and v.endswith("'")):
-        return v[1:-1]
-    return v
-
-
-def _parse_inline_list(raw: str) -> Optional[List[Any]]:
-    """Parse an inline YAML list like [a, b] or ["x", "y"] into a Python list.
-    Returns None if the string does not look like an inline list.
-    """
-    m = _INLINE_LIST_RE.match(raw.strip())
-    if not m:
-        return None
-    inner = m.group(1).strip()
-    if not inner:
-        return []
-    # Split on commas NOT inside quotes (simple case -- no nested structures)
-    items: List[Any] = []
-    for item in _COMMA_SPLIT_RE.split(inner):
-        items.append(_coerce(item.strip()))
-    return items
-
-
-def parse_frontmatter(text: str) -> Dict[str, Any]:
-    """Extract YAML frontmatter from markdown text.
-
-    Handles only the simple key: value pairs used in .cg-docs/ files:
-      - Scalars (strings, booleans, integers, dates)
-      - Inline lists: [a, b, c]
-      - Quoted strings: "value" or 'value'
-      - Multi-line arrays (dash-prefixed) — emits a warning, collects items
-
-    Strips a leading UTF-8 BOM (\ufeff) and any leading blank lines before
-    the frontmatter delimiter, since PowerShell here-strings add a leading
-    \r\n before the first line of content.
-
-    Returns an empty dict if no frontmatter block is found.
-    """
-    # Strip leading BOM and blank lines (PowerShell here-strings add \r\n
-    # before the first content line; real files may have a UTF-8 BOM)
-    clean = text.lstrip("\ufeff\r\n")
-    if not clean.startswith("---"):
-        return {}
-
-    end = clean.find("\n---", 3)
-    if end == -1:
-        return {}
-
-    block = clean[3:end].strip()
-    result: Dict[str, Any] = {}
-    current_key: Optional[str] = None
-    current_list: Optional[List[str]] = None
-
-    for line in block.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        # Continuation of a block list (  - item)
-        if stripped.startswith("- ") and current_key is not None and current_list is not None:
-            current_list.append(_coerce(stripped[2:].strip()))
-            continue
-
-        # Flush any in-progress block list before processing new key
-        if current_list is not None:
-            if current_list:  # only store non-empty block lists
-                result[current_key] = current_list  # type: ignore[assignment]
-            current_key = None
-            current_list = None
-
-        if ":" not in stripped:
-            continue
-
-        key, _, raw_value = stripped.partition(":")
-        key = key.strip()
-        raw_value = raw_value.strip()
-
-        if not raw_value:
-            # Possibly a block-list key (next lines start with "- ")
-            current_key = key
-            current_list = []
-            warnings.warn(
-                f"Frontmatter key '{key}' has a multi-line value; "
-                "only simple scalars and inline lists are fully supported.",
-                stacklevel=2,
-            )
-            continue
-
-        inline = _parse_inline_list(raw_value)
-        if inline is not None:
-            result[key] = inline
-        else:
-            result[key] = _coerce(raw_value)
-
-    # Flush trailing block list
-    if current_list is not None and current_key is not None and current_list:
-        result[current_key] = current_list
-
-    return result
-
-
-# ---------------------------------------------------------------------------
-# Body parser: extract a plain-text summary (~100 words)
-# ---------------------------------------------------------------------------
-
-_HEADING_RE = re.compile(r"^#{1,6}\s+")
-_FENCED_RE = re.compile(r"^```")
-_PROBLEM_HEADING_RE = re.compile(r"^#{1,2}\s+Problem\b", re.IGNORECASE)
-
-
-def extract_summary(text: str, max_words: int = 100) -> str:
-    """Extract a ~100-word plain-text summary from markdown body.
-
-    Strategy (in order of preference):
-    1. Content immediately following a "## Problem" heading.
-    2. First non-heading, non-empty prose paragraph after frontmatter.
-
-    Skips heading lines, fenced code blocks, and blank lines at the start.
-    Truncates to max_words words, appending "..." if truncated.
-    """
-    # Strip leading BOM and blank lines (mirrors parse_frontmatter)
-    clean = text.lstrip("\ufeff\r\n")
-
-    # Strip frontmatter
-    body = clean
-    if clean.startswith("---"):
-        end = clean.find("\n---", 3)
-        if end != -1:
-            body = clean[end + 4:].lstrip("\n")
-
-    lines = body.splitlines()
-
-    # --- Pass 1: look for ## Problem section ---
-    problem_lines: List[str] = []
-    in_problem = False
-    in_fence = False
-
-    for line in lines:
-        if _FENCED_RE.match(line):
-            in_fence = not in_fence
-        if in_fence:
-            continue
-        if _HEADING_RE.match(line):
-            if in_problem:
-                break  # next heading ends the section
-            if _PROBLEM_HEADING_RE.match(line):
-                in_problem = True
-            continue
-        if in_problem and line.strip():
-            problem_lines.append(line.strip())
-
-    if problem_lines:
-        return _truncate(" ".join(problem_lines), max_words)
-
-    # --- Pass 2: first non-heading prose paragraph ---
-    prose_lines: List[str] = []
-    in_fence = False
-    in_prose = False
-
-    for line in lines:
-        if _FENCED_RE.match(line):
-            in_fence = not in_fence
-        if in_fence:
-            continue
-        if _HEADING_RE.match(line):
-            if in_prose:
-                break
-            continue
-        stripped = line.strip()
-        if stripped:
-            in_prose = True
-            prose_lines.append(stripped)
-        elif in_prose:
-            break  # blank line ends a paragraph
-
-    if prose_lines:
-        return _truncate(" ".join(prose_lines), max_words)
-
-    return ""
-
-
-def _truncate(text: str, max_words: int) -> str:
-    """Truncate text to at most max_words whitespace-delimited words, appending '...' if truncated."""
-    words = text.split()
-    if len(words) <= max_words:
-        return text
-    return " ".join(words[:max_words]) + "..."
+from brain.utils import (  # noqa: E402
+    parse_frontmatter,
+    extract_summary,
+    write_atomic,
+)
+from brain import __version__  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -360,13 +162,25 @@ class SolutionEntry:
 def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
     """Recursively scan solutions_dir for *.md files and return parsed entries.
 
-    Files are skipped (with a warning) if:
-      - They cannot be read.
-      - They have no parseable frontmatter.
+    Files are skipped (with a warning) if they cannot be read, have no
+    parseable frontmatter, or are missing required ``title``/``date`` fields.
+    Slug collisions (two files with the same stem in different categories)
+    emit a warning.
 
-    Returns entries sorted by date descending, then title ascending.
-    Low probability of slug collision (two different categories with the same
-    filename stem); if it happens, a warning is emitted with both paths.
+    Args:
+        solutions_dir: Root directory of the solutions tree (e.g.
+            ``.cg-docs/solutions/``).
+        root: Project root — used to compute relative paths in output.
+
+    Returns:
+        List of :class:`SolutionEntry` objects sorted by date descending,
+        then title ascending.  Empty-date entries sort last.
+
+    Example:
+        >>> from pathlib import Path
+        >>> from scripts.cg_index import scan_solutions
+        >>> entries = scan_solutions(Path(".cg-docs/solutions"), Path("."))
+        >>> print(len(entries), "solutions found")
     """
     entries: List[SolutionEntry] = []
     seen_slugs: Dict[str, Path] = {}
@@ -374,15 +188,16 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
     for md_file in sorted(solutions_dir.rglob("*.md")):
         try:
             text = md_file.read_text(encoding="utf-8")
-        except OSError as exc:
-            warnings.warn(f"Skipping {md_file}: {exc}")
+        except (OSError, UnicodeDecodeError) as exc:
+            warnings.warn(f"Skipping {md_file}: {exc}", stacklevel=2)
             continue
 
         fm = parse_frontmatter(text)
         if not fm:
             warnings.warn(
                 f"Skipping {md_file}: no frontmatter found. "
-                "Add a --- block with at least a 'title' and 'date' field."
+                "Add a --- block with at least a 'title' and 'date' field.",
+                stacklevel=2,
             )
             continue
 
@@ -390,7 +205,8 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
         if missing_fields:
             warnings.warn(
                 f"{md_file}: missing required field(s): {', '.join(missing_fields)}. "
-                "Add them to prevent silent fallback behaviour."
+                "Add them to prevent silent fallback behaviour.",
+                stacklevel=2,
             )
 
         summary = extract_summary(text)
@@ -408,7 +224,8 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
             warnings.warn(
                 f"Slug collision: '{entry.slug}' appears in both "
                 f"'{seen_slugs[entry.slug]}' and '{rel}'. "
-                "Consider renaming one file to make slugs unique across all categories."
+                "Consider renaming one file to make slugs unique across all categories.",
+                stacklevel=2,
             )
         seen_slugs[entry.slug] = rel
 
@@ -430,26 +247,23 @@ def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
 # Output builders
 # ---------------------------------------------------------------------------
 
-def _write_atomic(path: Path, content: str) -> None:
-    """Write content to path atomically using a temp file + os.replace().
-
-    Prevents partially written files on process kill or other interruptions.
-    """
-    fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            fh.write(content)
-        os.replace(tmp_path, path)
-    except Exception:
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
-        raise
-
-
 def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write search-index.json (metadata only, all statuses included)."""
+    """Write ``search-index.json`` containing metadata for all entries.
+
+    All entries are included regardless of status.  The output is an atomic
+    write via a temp file + ``os.replace()`` to prevent partial files.
+
+    Args:
+        entries: List of :class:`SolutionEntry` objects to serialise.
+        out_path: Destination path for ``search-index.json``.
+            Parent directories are created automatically.
+
+    Returns:
+        None.  Prints a confirmation line to stdout.
+
+    Example:
+        >>> build_index(entries, Path(".cg-docs/search-index.json"))
+    """
     records = [e.to_index_record() for e in entries]
     payload = {
         "generated": date.today().isoformat(),
@@ -457,12 +271,28 @@ def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
         "entries": records,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    _write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+    write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
     print(f"[cg-index] Wrote {len(records)} entries to {out_path}")
 
 
 def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write DIGEST.md (active entries only, one-field-per-line format)."""
+    """Write ``DIGEST.md`` containing only active solution entries.
+
+    Entries with ``status: active`` or no status field are included.  All
+    other statuses (``archived``, ``draft``, etc.) are silently excluded.
+    Entries with no status field emit a warning.
+
+    Args:
+        entries: Full list of :class:`SolutionEntry` objects.
+        out_path: Destination path for ``DIGEST.md``.
+            Parent directories are created automatically.
+
+    Returns:
+        None.  Prints a confirmation line to stdout.
+
+    Example:
+        >>> build_digest(entries, Path(".cg-docs/DIGEST.md"))
+    """
     for e in entries:
         if e.status == "":
             warnings.warn(
@@ -480,7 +310,7 @@ def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
         lines.append(entry.to_digest_block())
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    _write_atomic(out_path, "\n".join(lines))
+    write_atomic(out_path, "\n".join(lines))
     print(f"[cg-index] Wrote {len(active)} active entries to {out_path}")
 
 
@@ -489,7 +319,19 @@ def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    """Build and return the CLI argument parser for cg-index."""
+    """Build and return the CLI argument parser for ``cg-index``.
+
+    Returns:
+        Configured :class:`argparse.ArgumentParser` with ``--brain``,
+        ``--index``, ``--digest``, ``--all``, ``--root``, and ``--version``
+        flags.
+
+    Example:
+        >>> parser = build_arg_parser()
+        >>> args = parser.parse_args(["--brain"])
+        >>> args.brain
+        True
+    """
     parser = argparse.ArgumentParser(
         prog="cg-index",
         description="Compound GPID knowledge indexer.",
@@ -497,26 +339,41 @@ def build_arg_parser() -> argparse.ArgumentParser:
         epilog=__doc__,
     )
     parser.add_argument(
+        "--brain",
+        action="store_true",
+        help="Build the full brain knowledge index (BRAIN.md, BRAIN-log.md, brain-index.json).",
+    )
+    parser.add_argument(
         "--index",
         action="store_true",
-        help="Build search-index.json (metadata only).",
+        help="[DEPRECATED] Build search-index.json (metadata only). Use --brain instead.",
     )
     parser.add_argument(
         "--digest",
         action="store_true",
-        help="Build DIGEST.md (active entries, human-readable summaries).",
+        help="[DEPRECATED] Build DIGEST.md (active entries). Use --brain instead.",
     )
     parser.add_argument(
         "--all",
         dest="all_",
         action="store_true",
-        help="Build both search-index.json and DIGEST.md.",
+        help="[DEPRECATED] Alias for --brain. Use --brain instead.",
     )
     parser.add_argument(
         "--root",
         metavar="PATH",
         default=None,
         help="Project root directory (defaults to current working directory).",
+    )
+    parser.add_argument(
+        "--push-entry",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Push a solution entry to the team brain central repo. "
+            "Reads team-brain config from compound-gpid.local.md. "
+            "Skips silently if team-brain is not configured."
+        ),
     )
     parser.add_argument(
         "--version",
@@ -527,10 +384,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    """Run cg-index CLI.
+    """Run the ``cg-index`` CLI.
 
-    argv defaults to sys.argv[1:] when None. Returns an int exit code
-    (0 on success, 1 on fatal error).
+    Args:
+        argv: Argument list to parse.  Defaults to ``sys.argv[1:]`` when
+            ``None``.
+
+    Returns:
+        Integer exit code: ``0`` on success, ``1`` on fatal error.
+
+    Example:
+        >>> import sys
+        >>> sys.exit(main(["--brain"]))
     """
     parser = build_arg_parser()
     args = parser.parse_args(argv)
@@ -538,6 +403,110 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Resolve root
     root = Path(args.root).resolve() if args.root else Path.cwd()
 
+    # -----------------------------------------------------------------------
+    # --push-entry mode
+    # -----------------------------------------------------------------------
+    if getattr(args, "push_entry", None):
+        solution_path = Path(args.push_entry)
+        if not solution_path.exists():
+            print(
+                f"[cg-index] ERROR: solution file not found: {solution_path}",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            from team_brain.push import push_entry
+        except ImportError as exc:
+            print(
+                f"[cg-index] ERROR: team_brain package not available ({exc}).\n"
+                "Reinstall compound-gpid or run: pip install -e scripts/",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            result = push_entry(solution_path)
+            print(f"[cg-index] {result.summary}")
+            return 0
+        except ValueError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+        except RuntimeError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+
+    # --all is deprecated; redirect to --brain
+    do_brain = getattr(args, "brain", False) or args.all_
+    do_index = args.index
+    do_digest = args.digest
+
+    # Emit deprecation notices for legacy flags
+    for flag, condition in (("--all", args.all_), ("--index", args.index), ("--digest", args.digest)):
+        if condition:
+            print(
+                f"[cg-index] DEPRECATED: {flag} is deprecated. Use --brain instead.",
+                file=sys.stderr,
+            )
+
+    # When --all is passed, suppress the legacy index/digest runs — brain only
+    if args.all_:
+        do_index = False
+        do_digest = False
+
+    # -----------------------------------------------------------------------
+    # Brain mode (--brain or --all redirect)
+    # -----------------------------------------------------------------------
+    if do_brain:
+        cg_docs_dir = root / ".cg-docs"
+        if not cg_docs_dir.is_dir():
+            print(
+                f"[cg-index] ERROR: {cg_docs_dir} does not exist.\n"
+                "Run cg-index from a project root containing a .cg-docs/ directory.",
+                file=sys.stderr,
+            )
+            return 1
+        try:
+            from brain import build_brain
+            from brain.renderer import render_brain
+            with warnings.catch_warnings(record=True) as captured:
+                warnings.simplefilter("always")
+                data = build_brain(root)
+                render_brain(data, out_dir=cg_docs_dir)
+            for w in captured:
+                print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
+            print(
+                f"[cg-index] Brain index written to {cg_docs_dir} "
+                f"({len(data.entities)} entities, {len(data.topics)} topics, "
+                f"{len(data.edges)} edges)"
+            )
+        except ImportError as exc:
+            print(
+                f"[cg-index] ERROR: brain package not available ({exc}).\n"
+                "Reinstall compound-gpid or run: pip install -e scripts/",
+                file=sys.stderr,
+            )
+            return 1
+        except OSError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+        # Delete legacy files outside the brain-build try block so that a
+        # locked or missing legacy file does not cause a false exit-1 after
+        # a successful brain write.
+        for legacy_name in ("DIGEST.md", "search-index.json"):
+            legacy_path = cg_docs_dir / legacy_name
+            if legacy_path.exists():
+                try:
+                    legacy_path.unlink()
+                    print(f"[cg-index] Removed legacy {legacy_name}")
+                except OSError as exc:
+                    print(
+                        f"[cg-index] WARNING: could not remove legacy {legacy_name}: {exc}",
+                        file=sys.stderr,
+                    )
+        return 0
+
+    # -----------------------------------------------------------------------
+    # Legacy mode (--index / --digest / default)
+    # -----------------------------------------------------------------------
     solutions_dir = root / ".cg-docs" / "solutions"
     if not solutions_dir.is_dir():
         print(
@@ -548,8 +517,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     # Default: --index when no mode flag is given
-    do_index  = args.index or args.all_
-    do_digest = args.digest or args.all_
     if not do_index and not do_digest:
         do_index = True
 
@@ -557,19 +524,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         with warnings.catch_warnings(record=True) as captured:
             warnings.simplefilter("always")
             entries = scan_solutions(solutions_dir, root)
-            for w in captured:
-                print(f"[cg-index] WARNING: {w.message}", file=sys.stderr)
+            if do_index:
+                build_index(entries, root / ".cg-docs" / "search-index.json")
+            if do_digest:
+                build_digest(entries, root / ".cg-docs" / "DIGEST.md")
+        for w in captured:
+            print(f"[cg-index] WARNING: {w.message!s}", file=sys.stderr)
     except OSError as exc:
         print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
-        return 1
-
-    try:
-        if do_index:
-            build_index(entries, root / ".cg-docs" / "search-index.json")
-        if do_digest:
-            build_digest(entries, root / ".cg-docs" / "DIGEST.md")
-    except OSError as exc:
-        print(f"[cg-index] ERROR writing output: {exc}", file=sys.stderr)
         return 1
 
     return 0

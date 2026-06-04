@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# bin/cg-brain-init — Team brain initialisation command (macOS/Linux)
+# One-time setup for the team brain manager: creates and scaffolds the
+# central GitHub repository for cross-project knowledge sharing.
+#
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+#
+# Usage:
+#   cg-brain-init --repo <owner/name> --manager <github-username>
+#
+# Example:
+#   cg-brain-init --repo GPID-WB/team-brain --manager wb384996
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/team_brain/init.py" "$@"

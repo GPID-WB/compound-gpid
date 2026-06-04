@@ -22,6 +22,7 @@ You are a senior developer implementing a plan that was previously created with 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+4. Parse flags: if `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Load the Plan
 
@@ -87,6 +88,15 @@ You are a senior developer implementing a plan that was previously created with 
 
   Halt — do not proceed to Step 2.
 
+### Step 1.3: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: gotchas and edge cases
+from similar implementation work, patterns that apply to the files being
+modified, known pitfalls in the technology area of this plan. Incorporate
+relevant findings as constraints for your implementation.
+
 ### Step 1.5: Mark Work Started
 
 If `roadmap.json` exists, find the feature whose `plan` path matches this plan.
@@ -104,6 +114,18 @@ For **each step** in the plan:
 
 1. **Announce** which step you're starting.
 2. **Discover existing tests**: Using the Step 1.6 index, identify tests exercising the code you're about to change.
+
+   **Red-phase verification** (conditional — skip if this step is purely structural with **no Pester test file asserting against the modified content**: config files, markdown documentation, or YAML frontmatter — or directory scaffolding):
+
+   If this plan step introduces new testable behavior (creates a function, modifies return values, changes data transformation logic, or adds a new code path):
+   1. Write the test(s) now, **before touching the implementation**.
+   2. Run the test(s) against the current unmodified code.
+   3. The test must fail. Report: "Red-phase confirmed: `[test name]` fails with: `[one-line error]`"
+   4. If the test passes before implementation: the test is wrong \u2014 it does not detect the absence of the feature. Revise (one attempt). If still passing: log "Could not establish failing baseline \u2014 proceeding without red-phase confirmation. Flag for `@cg-testing` review." Continue to implementation.
+   5. After red-phase confirmation: proceed to implementation (sub-step 3).
+
+   This is **NOT a hard stop**. Do not wait for user confirmation. Log the result and continue.
+
 3. **Implement** following project conventions and the relevant language skill.
 4. **Test** as specified in the plan (R: `testthat`, Python: `pytest`, Stata: `assert` + validation do-files, PowerShell: Pester via `. tests\Run-Tests.ps1` or `Invoke-Pester <file> -Quiet` — never `Invoke-Pester tests/` (crashes VS Code)).
 

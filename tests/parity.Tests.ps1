@@ -172,3 +172,39 @@ Describe "link.sh <-> unlink.sh parity (bash pair)" {
         $extra   | Should -BeNullOrEmpty
     }
 }
+
+# ---------------------------------------------------------------------------
+# cg-brain-init parity: link.ps1 <-> link.sh both reference cg-brain-init
+# ---------------------------------------------------------------------------
+Describe "cg-brain-init registration parity" {
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
+
+    It "link.ps1 references cg-brain-init (success output)" {
+        $linkPs1 | Should -Match 'cg-brain-init'
+    }
+
+    It "link.sh references cg-brain-init (success output)" {
+        $linkSh | Should -Match 'cg-brain-init'
+    }
+
+    It "bin/cg-brain-init exists in the repo" {
+        $binPath = Join-Path $repoRoot "bin/cg-brain-init"
+        Test-Path $binPath | Should -Be $true
+    }
+
+    It "bin/cg-brain-init.cmd exists in the repo" {
+        $binPath = Join-Path $repoRoot "bin/cg-brain-init.cmd"
+        Test-Path $binPath | Should -Be $true
+    }
+
+    It "install.ps1 copies cg-brain-init.cmd to bin/" {
+        $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        $installPs1 | Should -Match 'cg-brain-init\.cmd'
+    }
+
+    It "install.sh creates cg-brain-init wrapper in bin/" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'cg-brain-init'
+    }
+}

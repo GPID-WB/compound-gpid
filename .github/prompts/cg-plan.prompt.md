@@ -27,7 +27,7 @@ You are a senior data science architect creating a structured implementation pla
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
 4. Verify the planned work aligns with the project's stated objective and constraints. If not, flag this before proceeding.
-5. Parse flags: if `--no-phases` is present in the user's invocation, set `phases-default = false`. Otherwise set `phases-default = true`.
+5. Parse flags: if `--no-phases` is present in the user's invocation, set `phases-default = false`. Otherwise set `phases-default = true`. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 0.5: Check for Prior Work
 
@@ -78,6 +78,15 @@ Before gathering context, check the current branch:
 2. Scan the project directory structure.
 3. Read relevant source files to understand current patterns and conventions. Limit to 3–5 files most relevant to the feature area; prefer files referenced in the brainstorm.
 4. Check `.cg-docs/solutions/` for past learnings related to this work.
+
+### Step 1.3: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: existing solutions that
+cover sub-tasks of this plan, failed plans for similar features and why they
+failed, patterns and conventions relevant to the implementation area.
+Incorporate relevant findings into your planning context.
 
 ### Step 1.5: Scope Assessment
 

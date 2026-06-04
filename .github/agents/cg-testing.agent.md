@@ -54,6 +54,7 @@ For each file under review:
 - Tests with no assertions
 - Tests that only call a function without checking results
 - Overly complex test setup that obscures what's being tested
+- **Mock target drift**: `patch("module.fn")` is valid but no longer at the boundary — a refactor introduced a new function that reaches the network/filesystem before `fn` is called. Detection: test passes lint checks (mock is present, no import error) but fails at runtime with HTTP 4xx or `ConnectionError` after a refactor. Flag any test that mocks an internal function (not the outermost I/O boundary) and verify the mocked symbol still sits between the test and the external system. See `.cg-docs/solutions/testing-patterns/2026-05-26-mock-target-drift-after-api-refactoring.md`.
 
 ## Output Format
 

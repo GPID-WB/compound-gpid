@@ -210,6 +210,19 @@ EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
 
+# cg-brain-init also calls python3 directly (same pattern as cg-index).
+WRAPPER="$BIN_DIR/cg-brain-init"
+cat > "$WRAPPER" <<'EOF'
+#!/usr/bin/env bash
+# bin/cg-brain-init — Team brain initialisation command (macOS/Linux)
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/team_brain/init.py" "$@"
+EOF
+chmod +x "$WRAPPER"
+print_gray "Created: $WRAPPER"
+
 # ---------------------------------------------------------------------------
 # Step 4: Add bin/ to PATH via shell profile (idempotent)
 # ---------------------------------------------------------------------------

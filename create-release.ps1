@@ -44,9 +44,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Enforce semver tag format (v<major>.<minor>.<patch>) for consistency with GitHub Release API
-if ($Tag -notmatch '^v\d+\.\d+\.\d+$') {
-    Write-Error ('Invalid tag format ''' + $Tag + '''. Expected v<major>.<minor>.<patch> (e.g. v0.0.6).')
+# Enforce semver tag format (v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<dev>)
+# The four-component form (e.g. v0.12.0.9000) follows the R convention for dev prereleases.
+if ($Tag -notmatch '^v\d+\.\d+\.\d+(\.\d+)?$') {
+    Write-Error ('Invalid tag format ''' + $Tag + '''. Expected v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<dev> (e.g. v0.0.6 or v0.12.0.9000).')
     exit 1
 }
 

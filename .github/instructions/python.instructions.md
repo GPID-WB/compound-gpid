@@ -98,3 +98,22 @@ project-name/
 - Use pathlib.Path instead of string path manipulation.
 - Prefer list/dict/set comprehensions over `map()`/`filter()`.
 - Use `if __name__ == "__main__":` guard in scripts.
+
+## Security
+
+- **Never use `urllib.request.urlopen` with credential headers**: `urlopen` follows HTTP 3xx redirects and forwards all original headers — including `Authorization` — to the redirect target. A malicious server can steal Bearer tokens via a redirect. Install a `_NoRedirectHandler` at module level and use `_opener.open(req, ...)` instead:
+  ```python
+  class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+      def redirect_request(self, req, fp, code, msg, headers, newurl):
+          raise urllib.error.HTTPError(
+              req.full_url, code,
+              f"Redirect to {newurl!r} blocked",
+              headers, None,
+          )
+  _opener = urllib.request.build_opener(_NoRedirectHandler())
+  ```
+  Prefer `httpx` for new code — it does not forward credential headers on cross-origin redirects by default. See `.cg-docs/solutions/bugs/2026-05-26-urllib-redirect-forwards-authorization-headers.md`.
+
+- **Never use `str.startswith()` for path containment checks**: String prefix matching (`str(resolved).startswith(str(base))`) is bypassed by sibling directories (`.cg-docs-evil/`). Use `resolved.relative_to(base)` (raises `ValueError` if outside) or `resolved.is_relative_to(base)` (Python 3.9+). See `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md`.
+
+- **Never use `eval()`, `exec()`, or `pickle.loads()` on untrusted input**: Deserializing user-controlled data with these functions is a remote code execution vector (OWASP A03). Use `json.loads()` for structured data, `ast.literal_eval()` only for Python literals from trusted sources.

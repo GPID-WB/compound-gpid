@@ -1,0 +1,68 @@
+---
+# scripts/team_brain/actions/curation-bot.yml
+#
+# GitHub Actions workflow template for the weekly curation bot.
+# Copy this file into the team brain repo's .github/workflows/ directory.
+#
+# Trigger: Weekly cron schedule (Monday 09:00 UTC) + manual dispatch
+# Action: Runs curate.py which calls detect_contradictions() on all
+#         patterns/*.jsonl files and opens GitHub Issues for each
+#         contradiction found. If auto-supersede is enabled, opens a PR
+#         instead of an issue for high-confidence matches.
+#
+# Requirements:
+#   - GITHUB_TOKEN with `issues: write` and `contents: write` permissions
+#   - TEAM-BRAIN.yml must be present at the repo root with `manager` set
+#   - Python 3.8+ available in the runner
+
+name: Weekly Curation Bot
+
+on:
+  schedule:
+    # Runs every Monday at 09:00 UTC
+    - cron: "0 9 * * 1"
+
+  # Allow manual trigger for testing or on-demand curation runs
+  workflow_dispatch:
+
+jobs:
+  curate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write   # required to open contradiction issues
+      pull-requests: write  # required when auto-supersede: true opens a PR
+
+    steps:
+      - name: Checkout team brain repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run curation bot
+        # curate.py is distributed inside the compound-gpid installation and
+        # referenced here as a standalone script. The team brain repo does NOT
+        # have curate.py in its tree — the workflow calls it via a pinned path.
+        #
+        # To use this workflow, copy curate.py from:
+        #   compound-gpid/scripts/team_brain/curate.py
+        # to the team brain repo root (or a scripts/ subfolder) and update the
+        # path below accordingly.
+        run: |
+          python curate.py \
+            --patterns-dir patterns/ \
+            --config TEAM-BRAIN.yml \
+            --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report curation summary
+        if: always()
+        run: |
+          echo "Curation bot run complete."
+          echo "Check the Issues tab for any newly opened contradiction reports."

@@ -17,7 +17,7 @@ You are a knowledge engineer capturing solved problems so they become reusable a
   delegated write — the agent operates under its own permissions.
 - You must NOT modify files outside `.cg-docs/` except `compound-gpid.context.md`
   and delegated wiki writes via `@cg-wiki`.
-- You may run `cg-index --digest` in a terminal to rebuild DIGEST.md after capturing a solution.
+- You may run `cg-index --brain` in a terminal to rebuild the knowledge brain after capturing a solution.
 
 ## When to Use
 
@@ -47,6 +47,7 @@ Use `/cg-compound` after:
 Check the user's invocation for flags:
 - If `--propose` is present: set `wiki-propose = true`. Otherwise: set `wiki-propose = false`.
 - If `--no-enrich` is present: set `enrich = false`. Otherwise: set `enrich = true`.
+- If `--no-brain` is present: set `brain-enabled = false`. Otherwise: set `brain-enabled = true`.
 
 These flags control context enrichment and wiki update behavior in Steps 3c and 5. They must be evaluated here — before any tool dispatch — following the write-permission flag convention.
 
@@ -55,6 +56,15 @@ These flags control context enrichment and wiki update behavior in Steps 3c and 
 1. Ask the user what problem was solved (or detect from recent conversation).
 2. Read relevant files that were changed.
 3. Understand the root cause and the solution.
+
+### Step 1.5: Consult Brain
+
+If `brain-enabled = false`, skip this step.
+
+Load `cg-skill-brain-query`. Search the brain for: existing solutions that
+this new entry might supersede or contradict, related entries that should
+cross-reference this solution, patterns this solution contributes to.
+Flag any supersession or contradiction for the user before writing.
 
 ### Step 2: Categorize
 
@@ -106,11 +116,12 @@ severity: "<P0|P1|P2|P3>"
 <Links to related solutions, documentation, or external resources>
 ```
 
-### Step 3b: Rebuild Knowledge Digest
+### Step 3b: Rebuild Knowledge Brain
 
-Run `cg-index --digest` from the project root to authoritatively rebuild
-`.cg-docs/DIGEST.md`. This regenerates the human-readable summary file from
-all active solutions — guaranteeing consistent formatting without manual append.
+Run `cg-index --brain` from the project root to rebuild the full knowledge
+brain (BRAIN.md, topic index, entity catalog, edge list). This regenerates
+the brain from all `.cg-docs/` artifacts — guaranteeing the brain reflects
+the newly captured solution.
 
 If `cg-index` is not available, note it in the Step 6 confirmation and skip.
 
@@ -150,6 +161,22 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
      This ensures the user knows which docs need attention regardless of the reason.
   5. Report: `"Wiki updated: <folder>/<page>.md — <brief description of change>."`
      (Only for `auto` pages where `@cg-wiki` actually wrote content.)
+
+### Step 3d: Push to Team Brain
+
+Check `compound-gpid.local.md` for a `team-brain:` section:
+
+- If absent or `enabled: false`: skip this step silently.
+- If `enabled: true`:
+  1. Run `cg-index --push-entry <solution-path>` from the project root.
+  2. Report the result line emitted by cg-index verbatim.
+  3. If the result contains `blocked`: report
+     > "Team brain push blocked: <reason>. Check for `private: true` frontmatter or sensitive content in the solution."
+  4. If the result contains `No GitHub token found`: report
+     > "Team brain push failed: no GitHub token found. Set `GITHUB_TOKEN` or ensure git credential manager has a GitHub token stored."
+  5. If `cg-index` is not available: report
+     > "Team brain push skipped: `cg-index` not found. Ensure the plugin is installed."
+     and skip silently.
 
 ### Step 4: Cross-Reference
 

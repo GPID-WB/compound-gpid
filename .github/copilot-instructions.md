@@ -86,6 +86,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Fix VS Code problems | `/cg-fix-problems` |
 | Capture a solution | `/cg-compound` |
 | Refresh knowledge base | `/cg-compound-refresh` |
+| Rebuild knowledge brain | `/cg-brain-rebuild` |
 | Manage project wiki | `/cg-wiki` |
 | Ready to commit, push, and open PR | `/cg-commit-push-pr` |
 | CI checks failing on PR | `/cg-verify-pr` |
@@ -154,5 +155,9 @@ When the `/cg-review` prompt is invoked, it checks `compound-gpid.local.md` for 
 ## Knowledge Compounding
 
 After solving a non-trivial problem, use `/cg-compound` to capture the solution in `.cg-docs/solutions/[category]/`. This makes the solution findable for future work. Categories: `bugs`, `build-errors`, `data-quality`, `environment-issues`, `git-workflows`, `performance-issues`, `testing-patterns`.
+
+## Brain Consultation
+
+When a prompt contains a "Consult Brain" step, load `cg-skill-brain-query` — it teaches how to navigate BRAIN.md, extract relevant takeaways and gotchas, evaluate and prioritize findings, resolve contradictions, and detect stale entries. The calling prompt's step provides the search directive (what to look for); the skill provides the protocol (how to search and apply findings).
 
 <!-- Pester Safety Rules appear at the top of this file -->
