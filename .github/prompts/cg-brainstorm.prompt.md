@@ -1,6 +1,5 @@
 ---
 description: "Brainstorm answers about what to build and how. Use when requirements are fuzzy."
-model: Claude Opus 4.6 (copilot)
 ---
 
 # Brainstorm
