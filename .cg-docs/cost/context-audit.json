@@ -1,15 +1,15 @@
 {
-  "generated": "2026-06-05T10:04:23",
+  "generated": "2026-06-05T11:04:22",
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
   "summary": {
     "total_files": 80,
-    "total_characters": 1466193,
-    "total_estimated_tokens": 366522,
+    "total_characters": 1452064,
+    "total_estimated_tokens": 362990,
     "by_category": {
       "prompts": {
         "files": 22,
-        "characters": 225586,
-        "estimated_tokens": 56389
+        "characters": 225388,
+        "estimated_tokens": 56340
       },
       "agents": {
         "files": 17,
@@ -38,8 +38,8 @@
       },
       "docs": {
         "files": 10,
-        "characters": 178310,
-        "estimated_tokens": 44574
+        "characters": 164379,
+        "estimated_tokens": 41091
       },
       "brain": {
         "files": 3,
@@ -223,8 +223,8 @@
     {
       "path": ".github/prompts/cg-brainstorm.prompt.md",
       "category": "prompts",
-      "characters": 14793,
-      "estimated_tokens": 3698
+      "characters": 14760,
+      "estimated_tokens": 3690
     },
     {
       "path": ".github/prompts/cg-commit-push-pr.prompt.md",
@@ -277,20 +277,20 @@
     {
       "path": ".github/prompts/cg-ideate.prompt.md",
       "category": "prompts",
-      "characters": 4444,
-      "estimated_tokens": 1111
+      "characters": 4411,
+      "estimated_tokens": 1102
     },
     {
       "path": ".github/prompts/cg-plan-review.prompt.md",
       "category": "prompts",
-      "characters": 5302,
-      "estimated_tokens": 1325
+      "characters": 5269,
+      "estimated_tokens": 1317
     },
     {
       "path": ".github/prompts/cg-plan.prompt.md",
       "category": "prompts",
-      "characters": 14217,
-      "estimated_tokens": 3554
+      "characters": 14184,
+      "estimated_tokens": 3546
     },
     {
       "path": ".github/prompts/cg-resume.prompt.md",
@@ -301,8 +301,8 @@
     {
       "path": ".github/prompts/cg-review-repos.prompt.md",
       "category": "prompts",
-      "characters": 18301,
-      "estimated_tokens": 4575
+      "characters": 18268,
+      "estimated_tokens": 4567
     },
     {
       "path": ".github/prompts/cg-review.prompt.md",
@@ -325,8 +325,8 @@
     {
       "path": ".github/prompts/cg-strategy.prompt.md",
       "category": "prompts",
-      "characters": 9087,
-      "estimated_tokens": 2271
+      "characters": 9054,
+      "estimated_tokens": 2263
     },
     {
       "path": ".github/prompts/cg-verify-pr.prompt.md",
@@ -505,8 +505,8 @@
     {
       "path": "docs/model-guide.md",
       "category": "docs",
-      "characters": 15613,
-      "estimated_tokens": 3903
+      "characters": 1682,
+      "estimated_tokens": 420
     },
     {
       "path": "docs/reference.md",
@@ -911,8 +911,8 @@
       {
         "path": ".github/prompts/cg-brainstorm.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
@@ -983,24 +983,24 @@
       {
         "path": ".github/prompts/cg-ideate.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
       {
         "path": ".github/prompts/cg-plan-review.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
       {
         "path": ".github/prompts/cg-plan.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
@@ -1015,8 +1015,8 @@
       {
         "path": ".github/prompts/cg-review-repos.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
@@ -1047,8 +1047,8 @@
       {
         "path": ".github/prompts/cg-strategy.prompt.md",
         "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
+        "model": null,
+        "model_tier": "model-picker",
         "has_escalation_condition": false,
         "tools": null
       },
@@ -1269,56 +1269,7 @@
     ],
     "missing": [],
     "drift": [],
-    "premium_usage": [
-      {
-        "path": ".github/prompts/cg-brainstorm.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      },
-      {
-        "path": ".github/prompts/cg-ideate.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      },
-      {
-        "path": ".github/prompts/cg-plan-review.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      },
-      {
-        "path": ".github/prompts/cg-plan.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      },
-      {
-        "path": ".github/prompts/cg-review-repos.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      },
-      {
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "category": "prompts",
-        "model": "Claude Opus 4.6 (copilot)",
-        "model_tier": "premium",
-        "has_escalation_condition": false,
-        "tools": null
-      }
-    ]
+    "premium_usage": []
   },
   "duplicates": [
     {
@@ -1339,7 +1290,7 @@
       {
         "path": ".github/prompts/cg-brainstorm.prompt.md",
         "category": "prompts",
-        "reason": "prompt estimated tokens >= 3000; premium model without escalation condition; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "path": ".github/prompts/cg-fixbug.prompt.md",
@@ -1347,24 +1298,14 @@
         "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
-        "path": ".github/prompts/cg-ideate.prompt.md",
-        "category": "prompts",
-        "reason": "premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5"
-      },
-      {
-        "path": ".github/prompts/cg-plan-review.prompt.md",
-        "category": "prompts",
-        "reason": "premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5"
-      },
-      {
         "path": ".github/prompts/cg-plan.prompt.md",
         "category": "prompts",
-        "reason": "prompt estimated tokens >= 3000; premium model without escalation condition; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "path": ".github/prompts/cg-review-repos.prompt.md",
         "category": "prompts",
-        "reason": "prompt estimated tokens >= 3000; premium model without escalation condition"
+        "reason": "prompt estimated tokens >= 3000"
       },
       {
         "path": ".github/prompts/cg-review.prompt.md",
@@ -1375,11 +1316,6 @@
         "path": ".github/prompts/cg-setup.prompt.md",
         "category": "prompts",
         "reason": "prompt estimated tokens >= 3000; reference count >= 5"
-      },
-      {
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "category": "prompts",
-        "reason": "premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "path": ".github/prompts/cg-work.prompt.md",
@@ -1459,12 +1395,27 @@
         "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "category": "prompts",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "category": "prompts",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
         "path": ".github/prompts/cg-resume.prompt.md",
         "category": "prompts",
         "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "path": ".github/prompts/cg-roadmap-view.prompt.md",
+        "category": "prompts",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "path": ".github/prompts/cg-strategy.prompt.md",
         "category": "prompts",
         "reason": "prompt size exceeds review threshold; reference count >= 5"
       },

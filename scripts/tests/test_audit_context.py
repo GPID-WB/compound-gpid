@@ -79,6 +79,15 @@ class TestModelExtraction:
         inventory = audit.build_model_inventory(tmp_path, files)
         assert inventory["missing"][0]["path"] == ".github/prompts/x.prompt.md"
 
+    def test_ordinary_prompt_without_model_uses_model_picker_tier(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        declaration = inventory["declarations"][0]
+        assert declaration["model"] is None
+        assert declaration["model_tier"] == "model-picker"
+        assert inventory["missing"] == []
+
     def test_tier_classification(self) -> None:
         assert audit.classify_model_tier("Claude Opus 4.6") == "premium"
         assert audit.classify_model_tier("Claude Sonnet 4.6") == "standard"
@@ -193,6 +202,23 @@ class TestThresholdClassification:
             "estimated_tokens": 25,
         }, model=model)
         assert result["immediate"]
+
+    def test_model_picker_prompt_not_flagged_as_missing_model(self) -> None:
+        model = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "model": None,
+            "model_tier": "model-picker",
+            "has_escalation_condition": False,
+        }
+        result = self._classify_one({
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }, refs=6, model=model)
+        assert result["immediate"] == []
+        assert result["needs_review"][0]["reason"] == "reference count >= 5"
 
 
 class TestOutputFormats:

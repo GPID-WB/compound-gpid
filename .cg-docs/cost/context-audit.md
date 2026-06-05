@@ -1,24 +1,24 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-05T10:04:23_
+_Generated: 2026-06-05T11:04:22_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
 - Total files: 80
-- Total characters: 1466193
-- Total estimated tokens: 366522
+- Total characters: 1452064
+- Total estimated tokens: 362990
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 22 | 225586 | 56389 |
+| prompts | 22 | 225388 | 56340 |
 | agents | 17 | 86220 | 21550 |
 | skills | 20 | 97496 | 24367 |
 | instructions | 3 | 13658 | 3414 |
 | shared | 1 | 0 | 0 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 178310 | 44574 |
+| docs | 10 | 164379 | 41091 |
 | brain | 3 | 234552 | 58636 |
 | brain_index | 1 | 520073 | 130018 |
 | context | 1 | 55881 | 13970 |
@@ -38,11 +38,11 @@ _Generated: 2026-06-05T10:04:23_
 | docs/troubleshooting.md | docs | 25049 | 6262 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
 | .github/prompts/cg-work.prompt.md | prompts | 21115 | 5278 |
-| .github/prompts/cg-review-repos.prompt.md | prompts | 18301 | 4575 |
-| docs/model-guide.md | docs | 15613 | 3903 |
+| .github/prompts/cg-review-repos.prompt.md | prompts | 18268 | 4567 |
 | .github/prompts/cg-review.prompt.md | prompts | 15417 | 3854 |
-| .github/prompts/cg-brainstorm.prompt.md | prompts | 14793 | 3698 |
-| .github/prompts/cg-plan.prompt.md | prompts | 14217 | 3554 |
+| .github/prompts/cg-brainstorm.prompt.md | prompts | 14760 | 3690 |
+| .github/prompts/cg-plan.prompt.md | prompts | 14184 | 3546 |
+| .github/skills/cg-skill-wiki/SKILL.md | skills | 13711 | 3427 |
 
 ## Prompt Reference Matrix
 
@@ -93,7 +93,7 @@ _Generated: 2026-06-05T10:04:23_
 | Path | Category | Model | Tier |
 | --- | --- | --- | --- |
 | .github/prompts/cg-brain-rebuild.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-brainstorm.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
+| .github/prompts/cg-brainstorm.prompt.md | prompts | (missing) | model-picker |
 | .github/prompts/cg-commit-push-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-compound-refresh.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-compound.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
@@ -102,15 +102,15 @@ _Generated: 2026-06-05T10:04:23_
 | .github/prompts/cg-fix-problems.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-fix-triage.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-fixbug.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-ideate.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
-| .github/prompts/cg-plan-review.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
-| .github/prompts/cg-plan.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
+| .github/prompts/cg-ideate.prompt.md | prompts | (missing) | model-picker |
+| .github/prompts/cg-plan-review.prompt.md | prompts | (missing) | model-picker |
+| .github/prompts/cg-plan.prompt.md | prompts | (missing) | model-picker |
 | .github/prompts/cg-resume.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-review-repos.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
+| .github/prompts/cg-review-repos.prompt.md | prompts | (missing) | model-picker |
 | .github/prompts/cg-review.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-roadmap-view.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
 | .github/prompts/cg-setup.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-strategy.prompt.md | prompts | Claude Opus 4.6 (copilot) | premium |
+| .github/prompts/cg-strategy.prompt.md | prompts | (missing) | model-picker |
 | .github/prompts/cg-verify-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-wiki.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
 | .github/prompts/cg-work.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
@@ -142,12 +142,7 @@ _Generated: 2026-06-05T10:04:23_
 
 ## Premium Model Usage
 
-- .github/prompts/cg-brainstorm.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
-- .github/prompts/cg-ideate.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
-- .github/prompts/cg-plan-review.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
-- .github/prompts/cg-plan.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
-- .github/prompts/cg-review-repos.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
-- .github/prompts/cg-strategy.prompt.md: Claude Opus 4.6 (copilot) (escalation condition: False)
+- None
 
 ## Duplicate Paragraphs
 
@@ -158,15 +153,12 @@ c | 4 | 469 |
 
 ## Immediate Optimization Candidates
 
-- .github/prompts/cg-brainstorm.prompt.md (prompts): prompt estimated tokens >= 3000; premium model without escalation condition; reference count >= 5
+- .github/prompts/cg-brainstorm.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-fixbug.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-ideate.prompt.md (prompts): premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-plan-review.prompt.md (prompts): premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-plan.prompt.md (prompts): prompt estimated tokens >= 3000; premium model without escalation condition; reference count >= 5
-- .github/prompts/cg-review-repos.prompt.md (prompts): prompt estimated tokens >= 3000; premium model without escalation condition
+- .github/prompts/cg-plan.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
+- .github/prompts/cg-review-repos.prompt.md (prompts): prompt estimated tokens >= 3000
 - .github/prompts/cg-review.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-setup.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-strategy.prompt.md (prompts): premium model without escalation condition; prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-work.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/skills/cg-skill-brain-query/SKILL.md (skills): skill estimated tokens >= 2000
 - .github/skills/cg-skill-pester-safety/SKILL.md (skills): skill estimated tokens >= 2000
@@ -185,8 +177,11 @@ c | 4 | 469 |
 - .github/prompts/cg-diagnose.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-fix-problems.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-fix-triage.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-ideate.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-plan-review.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-resume.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-roadmap-view.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-strategy.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-verify-pr.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-wiki.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/agents/cg-architecture.agent.md (agents): reference count >= 5

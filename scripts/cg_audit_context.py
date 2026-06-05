@@ -78,6 +78,15 @@ TOOL_REF_RE = re.compile(r"\b(?:read_file|edit_file|run_in_terminal|grep_search|
 LOAD_VERB_RE = re.compile(r"\b(?:must read|load .+skill|consult|dispatch)\b", re.IGNORECASE)
 ESCALATION_RE = re.compile(r"\b(?:escalat|opus required|borderline|frontier|highest capability)\b", re.IGNORECASE)
 
+ORDINARY_MODEL_PICKER_PROMPTS = {
+    ".github/prompts/cg-brainstorm.prompt.md",
+    ".github/prompts/cg-ideate.prompt.md",
+    ".github/prompts/cg-plan-review.prompt.md",
+    ".github/prompts/cg-plan.prompt.md",
+    ".github/prompts/cg-review-repos.prompt.md",
+    ".github/prompts/cg-strategy.prompt.md",
+}
+
 
 def estimate_tokens(text: str) -> int:
     """Return the plan's heuristic token estimate: characters // 4."""
@@ -152,11 +161,17 @@ def extract_model_declarations(root: Path, files: Sequence[Dict[str, Any]]) -> L
         model = fm.get("model")
         if model is not None:
             model = str(model)
+        path_string = file_record["path"]
+        model_tier = (
+            "model-picker"
+            if model is None and path_string in ORDINARY_MODEL_PICKER_PROMPTS
+            else classify_model_tier(model)
+        )
         declarations.append({
-            "path": file_record["path"],
+            "path": path_string,
             "category": file_record["category"],
             "model": model,
-            "model_tier": classify_model_tier(model),
+            "model_tier": model_tier,
             "has_escalation_condition": bool(ESCALATION_RE.search(content)),
             "tools": fm.get("tools"),
         })
@@ -191,7 +206,7 @@ def parse_model_guide(path: Path) -> Dict[str, str]:
 def build_model_inventory(root: Path, files: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
     declarations = extract_model_declarations(root, files)
     guide = parse_model_guide(root / "docs" / "model-guide.md")
-    missing = [d for d in declarations if not d["model"]]
+    missing = [d for d in declarations if d["model_tier"] == "missing"]
     drift = []
     for declaration in declarations:
         expected = guide.get(Path(declaration["path"]).name)
