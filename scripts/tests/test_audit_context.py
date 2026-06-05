@@ -127,7 +127,7 @@ class TestDuplicateDetection:
 
 
 class TestThresholdClassification:
-    def _classify_one(self, record: dict, refs: int = 0, model: dict | None = None) -> dict:
+    def _classify_one(self, record: dict, refs: int = 0, model: Optional[dict] = None) -> dict:
         matrix = [{"path": record["path"], "total_refs": refs}]
         inventory = {"declarations": [model] if model else [], "missing": [], "drift": [], "premium_usage": []}
         return audit.classify_optimization_candidates([record], matrix, inventory, [])
@@ -159,12 +159,22 @@ class TestThresholdClassification:
         })
         assert result["acceptable_count"] == 1
 
-    def test_high_refs_immediate(self) -> None:
+    def test_high_refs_needs_review(self) -> None:
         result = self._classify_one({
             "path": ".github/prompts/x.prompt.md",
             "category": "prompts",
             "characters": 100,
             "estimated_tokens": 25,
+        }, refs=6)
+        assert result["needs_review"]
+        assert result["immediate"] == []
+
+    def test_high_refs_with_large_prompt_immediate(self) -> None:
+        result = self._classify_one({
+            "path": ".github/prompts/x.prompt.md",
+            "category": "prompts",
+            "characters": 12000,
+            "estimated_tokens": 3000,
         }, refs=6)
         assert result["immediate"]
 

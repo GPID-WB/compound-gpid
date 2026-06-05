@@ -330,7 +330,7 @@ def classify_optimization_candidates(
             elif tokens >= THRESHOLD_SKILL_REVIEW:
                 reasons_review.append(f"skill estimated tokens >= {THRESHOLD_SKILL_REVIEW}")
         if refs["total_refs"] >= THRESHOLD_REFS_IMMEDIATE:
-            reasons_immediate.append(f"reference count >= {THRESHOLD_REFS_IMMEDIATE}")
+            reasons_review.append(f"reference count >= {THRESHOLD_REFS_IMMEDIATE}")
         if model:
             if model["model_tier"] == "premium" and not model["has_escalation_condition"]:
                 reasons_immediate.append("premium model without escalation condition")
@@ -342,7 +342,7 @@ def classify_optimization_candidates(
             reasons_review.append("model guide drift")
 
         if reasons_immediate:
-            add(immediate, path, category, "; ".join(reasons_immediate))
+            add(immediate, path, category, "; ".join(reasons_immediate + reasons_review))
         elif reasons_review:
             add(needs_review, path, category, "; ".join(reasons_review))
 
