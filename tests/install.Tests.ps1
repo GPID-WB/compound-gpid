@@ -299,6 +299,21 @@ Describe "install.ps1 - cg-index.cmd copy" {
             ($content -match 'for /f') | Should -Be $true
         }
 
+        It "cg-index.cmd guards each python probe with a 'where' pre-check to prevent stderr leak" {
+            # Regression guard: for /f ('python3 --version 2^>^&1') leaks the
+            # "'python3' is not recognized" error to outer stderr on some Windows
+            # environments when python3 is absent from PATH.  A 'where' pre-check
+            # (mirroring install.ps1's Get-Command guard) suppresses this leak so
+            # cg-index silently falls through to python / py without emitting
+            # NativeCommandError in PowerShell.
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-index.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul')  | Should -Be $true
+            ($content -match 'where py\s+>nul')      | Should -Be $true
+        }
+
         It "cg-index.cmd references cg_index.py" {
             $repoRoot = Split-Path $PSScriptRoot -Parent
             $cmdFile  = Join-Path $repoRoot "bin\cg-index.cmd"
