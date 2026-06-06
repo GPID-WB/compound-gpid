@@ -21,18 +21,20 @@ You are a review orchestrator that coordinates multiple specialized review agent
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
-4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, depth overrides (`light`, `standard`, `thorough`). Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
+4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
 
 1. Use review depth from `compound-gpid.local.md`. If no config, default to `standard`.
 2. Identify changed files (use git diff or ask the user).
-3. Apply flags parsed at Step 0 (case-insensitive) — semantic reference:
+3. Read `.github/shared/review-routing.contract.md`; it is the canonical source for staged review modes, risk classes, precedence, and additive dedup.
+4. Apply flags parsed at Step 0 (case-insensitive) — semantic reference:
    - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
-   - `light`, `standard`, `thorough` — Override config depth.
-   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `thorough`, `--no-brain`."
+   - `light`, `standard`, `data-risk`, `architecture`, `full` — Explicit staged review modes.
+   - `thorough` — Backward-compatible alias; maps to `full` dispatch semantics unless `mode:verify` or `--report-only` guard behavior constrains the run.
+   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `data-risk`, `architecture`, `full`, `thorough`, `--no-brain`."
    `--report-only` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `--report-only` and `mode:verify` — using `mode:verify`." and ignore `--report-only`.
 
    **Default**: autofix is ON unless `--report-only` or `mode:verify` is passed. Always include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2, unless `--report-only` or `mode:verify` is active.
@@ -46,21 +48,32 @@ anti-patterns documented for the file types and domains being reviewed,
 past review findings in similar code areas, patterns that reviewers should
 verify. Pass relevant findings to review agents as additional context.
 
-### Step 1.5: Content-Based Depth Overrides
+### Step 1.5: Deterministic Preflight Risk-Class Routing
 
-Skip this step if `mode:verify` was passed (Step 1.7 enforces light depth and disables overrides).
+Skip this step if `mode:verify` was passed (Step 1.7 enforces light-only depth and disables overrides; verify mode is exempt from staged broad routing).
 
-Apply these automatic escalation rules after determining base depth:
+If no changed files are detected or the changed-file scope is unclear, ask the user for the scope and do not silently broad default dispatch.
 
-| Trigger | Override |
-|---------|----------|
-| Changed files include a script matching `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}`, or any file in a `scripts/` directory | Always add `@cg-data-quality` (even in `light`) |
-| ≥ 50 non-test lines changed | Escalate `light` → `standard` |
-| Changed files touch authentication, secrets, or credentials | Always add `@cg-version-control` |
-| Changed files explicitly call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always add `@cg-data-quality` + `@cg-reproducibility` |
-| ≥ 200 non-test lines changed | Suggest to user: "This is a large change. Consider running `/cg-review thorough` for `@cg-adversarial` coverage." (Do not auto-apply.) |
+Use deterministic preflight routing from `.github/shared/review-routing.contract.md`:
 
-Skip duplicate agents already in the selected tier. If any override applies: > "Auto-escalation applied: [reason]. Running [new agent(s)] in addition to the base depth. [List any 'always add' agents added by trigger rules.]"
+| Trigger | Internal risk class | Resolved mode |
+|---------|---------------------|---------------|
+| Docs-only, comments-only, small prompt wording, metadata-only, or low-risk tests | `low` | `light` |
+| Ordinary implementation, prompt, or test changes without high-risk signals | `normal` | `standard` |
+| Statistical, survey, poverty, welfare, income, weights, joins, aggregation, summary tables, model estimation (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), reproducibility-sensitive scripts, or scripts matching `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}` | `data-risk` | `data-risk` |
+| Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` | `architecture` |
+| Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` | `full` |
+
+Precedence: verify/report-only guard behavior > risk-class routing result > explicit user mode > line-volume escalation > config default.
+
+Explicit user modes can raise review depth, but must not lower review depth below a mandatory risk-class route. If a user requests `light` or `standard` for a diff that matches `data-risk`, `architecture-risk`, or `security-risk`, resolve to the risk-class mode and report the auto-escalation reason.
+
+Line-volume interaction:
+- `≥ 50` non-test lines changed can raise `light -> standard`.
+- Risk-class modes (`data-risk`, `architecture`, `full`) take precedence over line-volume upgrades.
+- `≥ 200` non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
+
+If multiple triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any risk-class route applies, report: > "Auto-escalation applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
 
 ### Step 1.7: Build Verification Context (mode:verify only)
 
@@ -86,13 +99,13 @@ Skip this step unless `mode:verify` was passed.
 
 ### Step 2: Dispatch Agents
 
-Based on review depth, invoke the appropriate agents on the changed files:
+Based on the resolved staged mode from Step 1.5 and `.github/shared/review-routing.contract.md`, invoke only the route-appropriate agents on the changed files:
 
-**Light** (quick fixes, small changes):
+**Light** (quick fixes, small low-risk changes):
 - `@cg-code-quality` — Style, linting, DRY, naming
 - `@cg-testing` — Test coverage, edge cases, quality
 
-**Standard** (default for most work):
+**Standard** (normal risk):
 - `@cg-code-quality` — Style, linting, DRY, naming
 - `@cg-testing` — Test coverage, edge cases, quality
 - `@cg-documentation` — roxygen2/docstrings/do-file headers, README, comments
@@ -102,10 +115,20 @@ Based on review depth, invoke the appropriate agents on the changed files:
 - `@cg-architecture` — Project structure, modularity, dependencies
 - `@cg-data-quality` — Input validation, types, missing values
 
-**Thorough** (major features, refactors):
+**Data-risk** (statistical, survey, poverty, welfare, joins, aggregation, reproducibility-sensitive changes):
+- All 8 agents from `standard` with mandatory escalation emphasis for `@cg-data-quality`, `@cg-reproducibility`, and `@cg-testing`
+
+**Architecture** (architecture-risk or performance-heavy changes):
+- All 8 agents from `standard` with mandatory escalation emphasis for `@cg-architecture`, `@cg-performance`, and `@cg-testing`
+
+**Full** (explicit full/thorough request, security-risk, release-risk, linking-risk, schema-risk, or very high-risk changes):
 - All 8 agents from `standard`
 - `@cg-learnings-researcher` — Cross-references `.cg-docs/solutions/` and `.cg-docs/brainstorms/` for relevant past learnings
 - `@cg-adversarial` — Actively tries to break the code: edge cases, data corruption vectors, security vulnerabilities
+
+Users can explicitly request `full` review at any time. `thorough` remains accepted and maps to full dispatch for backward compatibility.
+
+Do not dispatch broad full review for small or low-risk changes unless an explicit user mode or high-risk trigger requires it.
 
 **Global agent constraint**: Include with every agent dispatch: "Never recommend deleting, replacing, renaming, or moving these files: `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, `.cg-docs/archive/`, `compound-gpid.md`, `compound-gpid.local.md`, `roadmap.json`, `SCHEMA_VERSION`, `.github/` (prompts, skills, agents, instructions infrastructure)."
 
@@ -128,7 +151,7 @@ For each agent provide: changed files, project language (from `compound-gpid.loc
 **Verify mode agent dispatch** (when `mode:verify` is active):
 Dispatch only `@cg-code-quality` and `@cg-testing` (depth is `light` per Step 1.7).
 Include the suppression context from Step 1.7 in each agent's dispatch.
-Do NOT apply content-based depth overrides — the verify pass stays at light depth regardless of file content.
+Do NOT apply staged risk-class routing — the verify pass stays at light depth regardless of file content.
 Language-specific skill loading still applies — see R/Python/Stata skill checks above.
 
 ### Step 2.5: Subagent Output Quality Check
@@ -154,7 +177,7 @@ Merge all agent findings into a single prioritized report:
 ```markdown
 ## Review Report
 
-**Review depth**: <light|standard|thorough>
+**Review mode**: <light|standard|data-risk|architecture|full>
 **Files reviewed**: <count>
 **Findings**: 6 (P0: 0, P1: 2, P2: 3, P3: 1)
 

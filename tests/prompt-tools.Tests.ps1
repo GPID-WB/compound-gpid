@@ -1006,6 +1006,24 @@ Describe "cg-plan.prompt.md - no tool restriction" {
     }
 }
 
+Describe "cg-plan.prompt.md - model-context note" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "documents GitHub Copilot model picker inheritance" {
+        ($content -match 'inherits.*GitHub Copilot model picker|GitHub Copilot model picker.*inherits') | Should -Be $true
+    }
+
+    It "mentions Copilot Auto without naming the hidden underlying model" {
+        ($content -match 'Copilot Auto') | Should -Be $true
+        ($content -match 'will not infer or name the hidden underlying model|not infer or name.*underlying model') | Should -Be $true
+    }
+
+    It "points users to Copilot UI or hover details for actual Auto-selected model identity" {
+        ($content -match 'Copilot UI/hover details|Copilot UI.*hover') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # P2.4 â€” agent files must have substantive body content (not just frontmatter)
 # ---------------------------------------------------------------------------
@@ -1250,31 +1268,34 @@ Describe "cg-plan.prompt.md - Test Scenarios template" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.25 â€” cg-review Step 1.5 content-based depth overrides
+# P1.25 â€” cg-review Step 1.5 staged preflight routing
 # ---------------------------------------------------------------------------
 
-Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
+Describe "cg-review.prompt.md - Step 1.5 staged routing" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "includes Step 1.5 Content-Based Depth Overrides" {
-        ($content -match 'Step 1\.5.*Content-Based Depth Overrides') | Should -Be $true
+    It "includes Step 1.5 Deterministic Preflight Risk-Class Routing" {
+        ($content -match 'Step 1\.5.*Deterministic Preflight Risk-Class Routing') | Should -Be $true
     }
 
-    It "includes pipeline/scripts trigger adding @cg-data-quality" {
-        ($content -match 'pipeline.*@cg-data-quality|scripts.*@cg-data-quality') | Should -Be $true
+    It "includes pipeline/scripts trigger routing to data-risk" {
+        ($content -match 'pipeline.*data-risk|scripts.*data-risk') | Should -Be $true
     }
 
-    It "includes >= 50 non-test lines escalation trigger" {
+    It "includes >= 50 non-test lines escalation trigger from light to standard" {
         ($content -match '50 non-test lines') | Should -Be $true
+        ($content -match 'light\s*->\s*standard') | Should -Be $true
     }
 
-    It "includes authentication/secrets trigger adding @cg-version-control" {
-        ($content -match 'authentication.*secrets|secrets.*credentials') | Should -Be $true
+    It "includes authentication/secrets trigger routing to full" {
+        ($content -match 'Auth.*secrets.*credentials|secrets.*credentials.*security-risk') | Should -Be $true
+        ($content -match 'security-risk.*full') | Should -Be $true
     }
 
-    It "includes statistical functions trigger adding @cg-data-quality" {
+    It "includes statistical functions trigger routing to data-risk" {
         ($content -match 'statistical functions|fmean') | Should -Be $true
+        ($content -match 'data-risk') | Should -Be $true
     }
 
     It "includes >= 200 non-test lines suggestion trigger" {
@@ -1283,15 +1304,15 @@ Describe "cg-review.prompt.md - Step 1.5 depth overrides" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.26 â€” cg-review @cg-adversarial in thorough depth list
+# P1.26 â€” cg-review @cg-adversarial in full route list
 # ---------------------------------------------------------------------------
 
-Describe "cg-review.prompt.md - @cg-adversarial in thorough depth" {
+Describe "cg-review.prompt.md - @cg-adversarial in full route" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "includes @cg-adversarial in Thorough section" {
-        ($content -match '(?s)Thorough.*?@cg-adversarial') | Should -Be $true
+    It "includes @cg-adversarial in Full section" {
+        ($content -match '(?s)Full.*?@cg-adversarial') | Should -Be $true
     }
 
     It "@cg-adversarial is NOT in Light section" {
@@ -1465,15 +1486,19 @@ Describe "cg-work.prompt.md - Step 3.2 Self-Review" {
 # P3.3â€“P3.12 are advisory-only findings; no regression tests required.
 
 # ---------------------------------------------------------------------------
-# P3.13 â€” cg-review depth override arguments documented
+# P3.13 â€” cg-review routed mode arguments documented
 # ---------------------------------------------------------------------------
 
-Describe "cg-review.prompt.md - depth override arguments" {
+Describe "cg-review.prompt.md - routed mode arguments" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "documents light, standard, and thorough as Override arguments" {
-        ($content -match '(?i)light.*standard.*thorough') | Should -Be $true
+    It "documents light, standard, data-risk, architecture, and full as routed modes" {
+        ($content -match '(?i)light.*standard.*data-risk.*architecture.*full') | Should -Be $true
+    }
+
+    It "documents thorough as a backward-compatible alias" {
+        ($content -match '(?i)thorough.*backward-compatible|thorough.*alias') | Should -Be $true
     }
 
     It "references review depth from compound-gpid.local.md for default" {
@@ -3115,6 +3140,166 @@ Describe "cg-review.prompt.md - mode:verify argument" {
 
     It "excludes -verify-review.md files from prior review scan" {
         ($content -match '-review\.md.*NOT.*-verify-review\.md|verify-review\.md.*[Ss]kip|[Ss]kip.*verify-review\.md') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 3 — staged /cg-review routing and /cg-work review-mode integration
+# ---------------------------------------------------------------------------
+
+Describe "Phase 3 review routing contract" {
+    $contractFile = Join-Path $repoRoot ".github\shared\review-routing.contract.md"
+    $reviewFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $workFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $contract = if (Test-Path $contractFile) { Get-Content $contractFile -Raw -Encoding UTF8 } else { "" }
+    $reviewContent = Get-Content $reviewFile -Raw -Encoding UTF8
+    $workContent = Get-Content $workFile -Raw -Encoding UTF8
+
+    It "shared review-routing contract exists" {
+        Test-Path $contractFile | Should -Be $true
+    }
+
+    It "shared contract defines all staged modes" {
+        foreach ($mode in @("light", "standard", "data-risk", "architecture", "full")) {
+            ($contract -match [regex]::Escape($mode)) | Should -Be $true
+        }
+    }
+
+    It "shared contract maps risk classes to resolved modes" {
+        foreach ($riskClass in @("low", "normal", "data-risk", "architecture-risk", "security-risk")) {
+            ($contract -match [regex]::Escape($riskClass)) | Should -Be $true
+        }
+    }
+
+    It "shared contract documents precedence and additive dedup" {
+        ($contract -match '(?s)verify/report-only.*risk-class routing.*explicit user mode.*line-volume.*config default') | Should -Be $true
+        ($contract -match 'additive dedup|dispatch once') | Should -Be $true
+    }
+
+    It "shared contract prevents explicit lower modes from weakening mandatory risk routes" {
+        ($contract -match '(?s)Explicit user modes.*raise review depth.*must not lower review depth.*mandatory risk-class route') | Should -Be $true
+        ($contract -match '(?s)cg-review light.*security-risk.*full') | Should -Be $true
+    }
+
+    It "shared contract routes linking and schema changes as security-risk" {
+        ($contract -match '(?s)linking/unlinking paths.*schema changes.*security-risk') | Should -Be $true
+    }
+
+    It "cg-review references the shared routing contract" {
+        ($reviewContent -match 'review-routing\.contract\.md') | Should -Be $true
+    }
+
+    It "cg-work references the shared routing contract" {
+        ($workContent -match 'review-routing\.contract\.md') | Should -Be $true
+    }
+}
+
+Describe "cg-review.prompt.md - staged routing modes" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "parser accepts staged review modes" {
+        foreach ($mode in @("data-risk", "architecture", "full")) {
+            ($content -match "Recognized:.*$mode") | Should -Be $true
+        }
+    }
+
+    It "maps thorough to full for backward compatibility" {
+        ($content -match '(?s)thorough.*maps to.*full|thorough.*full dispatch') | Should -Be $true
+    }
+
+    It "contains a deterministic preflight routing step before dispatch" {
+        $preflight = $content.IndexOf("### Step 1.5:")
+        $dispatch = $content.IndexOf("### Step 2:")
+        ($preflight -ge 0) | Should -Be $true
+        ($dispatch -gt $preflight) | Should -Be $true
+        ($content -match 'deterministic preflight|risk-class routing') | Should -Be $true
+    }
+
+    It "routes statistical and reproducibility-sensitive triggers to data-risk" {
+        ($content -match '(?s)statistical.*reproducibility.*data-risk|survey.*poverty.*welfare.*data-risk') | Should -Be $true
+    }
+
+    It "routes architecture and performance-heavy triggers to architecture" {
+        ($content -match '(?s)architecture.*performance.*architecture-risk|architecture-risk.*architecture') | Should -Be $true
+    }
+
+    It "routes security-risk changes to full" {
+        ($content -match '(?s)security-risk.*full|auth.*secret.*credential.*full') | Should -Be $true
+    }
+
+    It "does not let explicit lower modes weaken mandatory risk routes" {
+        ($content -match '(?s)Explicit user modes.*raise review depth.*must not lower review depth.*mandatory risk-class route') | Should -Be $true
+        ($content -match '(?s)light.*standard.*data-risk.*architecture-risk.*security-risk') | Should -Be $true
+    }
+
+    It "routes linking and schema changes to full" {
+        ($content -match '(?s)linking/unlinking paths.*schema changes.*security-risk.*full|linking-risk.*schema-risk') | Should -Be $true
+    }
+
+    It "keeps verify mode light-only and exempt from staged broad routing" {
+        ($content -match '(?s)mode:verify.*light-only|verify mode.*exempt.*staged') | Should -Be $true
+    }
+
+    It "documents line-volume can only raise light to standard" {
+        ($content -match 'light\s*->\s*standard|light.*standard') | Should -Be $true
+        ($content -match 'risk-class modes.*take precedence over line-volume|data-risk.*architecture.*full.*line-volume') | Should -Be $true
+    }
+
+    It "missing changed-file scope asks for scope and does not silently broad dispatch" {
+        ($content -match '(?s)no changed files|missing changed-file scope') | Should -Be $true
+        ($content -match '(?s)ask.*scope|prompt.*scope') | Should -Be $true
+        ($content -match 'no silent broad default dispatch|do not silently.*broad') | Should -Be $true
+    }
+
+    It "full review remains explicitly requestable" {
+        ($content -match 'full') | Should -Be $true
+        ($content -match 'explicit user.*full|Users can.*request.*full') | Should -Be $true
+    }
+}
+
+Describe "cg-work.prompt.md - review mode integration" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "parses review mode arguments in Step 0" {
+        ($content -match '(?s)Step 0:.*review:\*|Parse flags.*review:') | Should -Be $true
+        foreach ($mode in @("review:auto", "review:manual", "review:none")) {
+            ($content -match [regex]::Escape($mode)) | Should -Be $true
+        }
+    }
+
+    It "accepts explicit routed review values" {
+        foreach ($mode in @("review:light", "review:standard", "review:data-risk", "review:architecture", "review:full")) {
+            ($content -match [regex]::Escape($mode)) | Should -Be $true
+        }
+    }
+
+    It "adds Step 3.9 after Step 3.8 for review-mode behavior" {
+        $step38 = $content.IndexOf("### Step 3.8:")
+        $step39 = $content.IndexOf("### Step 3.9:")
+        $step4 = $content.IndexOf("### Step 4:")
+        ($step38 -ge 0) | Should -Be $true
+        ($step39 -gt $step38) | Should -Be $true
+        ($step4 -gt $step39) | Should -Be $true
+    }
+
+    It "default and review:manual do not dispatch review agents and recommend a mode" {
+        ($content -match '(?s)default.*review:manual.*no agent dispatch|no review arg.*no agent dispatch') | Should -Be $true
+        ($content -match '(?s)recommend.*review mode|suggested command.*cg-review') | Should -Be $true
+    }
+
+    It "review:auto dispatches route-appropriate agents through the shared contract" {
+        ($content -match '(?s)review:auto.*shared routing contract.*dispatch only the route-appropriate agent set|review:auto.*route-aware agent dispatch') | Should -Be $true
+    }
+
+    It "review:none suppresses dispatch and shows only a brief note" {
+        ($content -match '(?s)review:none.*suppress.*dispatch.*brief note|review:none.*brief suppression note') | Should -Be $true
+    }
+
+    It "invalid review values warn and fall back to recommendation mode" {
+        ($content -match '(?s)invalid `review:<value>`|unrecognized review') | Should -Be $true
+        ($content -match '(?s)fall back.*recommendation mode|fallback.*recommendation') | Should -Be $true
     }
 }
 

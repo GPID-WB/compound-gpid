@@ -19,6 +19,12 @@ Roadmap View (read-only snapshot at any stage)
 
 All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** — invoke a prompt, answer its questions when asked, and let it run to completion.
 
+> **Codex / Claude Code note**: The plugin is designed for GitHub Copilot. When
+> this repository is maintained from Codex or Claude Code, root `AGENTS.md`
+> provides a compatibility adapter that maps `/cg-*` requests to the matching
+> `.github/prompts/cg-*.prompt.md` file. That adapter is not part of Copilot's
+> runtime behavior.
+
 > **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
 > project's charter to understand objective, deliverables, constraints, and current focus.
 > Create or update it via `/cg-setup`. The charter has exactly four sections (Objective, Key
@@ -269,48 +275,55 @@ The prompt scans its own output for:
 - After applying a significant fix to verify no regressions were introduced
 - After applying fix-triage results — use `/cg-review mode:verify` to check convergence (suppresses expected fix-consequence P2/P3)
 
-**What happens**: The prompt determines review depth, identifies changed files, applies any **automatic depth overrides** based on content (see table below), dispatches the appropriate agents, and consolidates findings as P0/P1/P2/P3. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing. The full report is saved to `.cg-docs/reviews/`.
+**What happens**: The prompt identifies changed files, resolves a staged review mode from deterministic risk signals, dispatches only the route-appropriate agents, and consolidates findings as P0/P1/P2/P3. Each finding gets a compound ID (e.g., `P0.1`, `P1.2`) for selective fixing. The full report is saved to `.cg-docs/reviews/`.
 
-**Depth tiers**:
+**Review modes**:
 
-| Tier | Agents run | Use when |
+| Mode | Agents run | Use when |
 |------|-----------|---------|
-| **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, formatting, small changes, verifying fix-triage results |
-| **Standard** | All 8 agents | Default for most feature work |
-| **Thorough** | All 8 + `cg-learnings-researcher` + `cg-adversarial` | Major features, architectural changes, refactors |
+| **Light** | `cg-code-quality` + `cg-testing` | Quick fixes, formatting, small low-risk changes, verifying fix-triage results |
+| **Standard** | All 8 standard agents | Normal implementation, prompt, or test changes without high-risk signals |
+| **Data-risk** | All 8 standard agents with `cg-data-quality` + `cg-reproducibility` emphasis | Statistical, survey, poverty, welfare, joins, aggregation, or reproducibility-sensitive changes |
+| **Architecture** | All 8 standard agents with `cg-architecture` + `cg-performance` emphasis | Architecture, dependency, module-boundary, performance, or large-refactor changes |
+| **Full** | All 8 standard agents + `cg-learnings-researcher` + `cg-adversarial` | Explicit full request, security/release risk, or very high-risk changes |
 
-**Automatic depth overrides** (applied on top of the configured depth):
+**Deterministic routing signals**:
 
-| Trigger | Override |
+| Trigger | Resolved mode |
 |---------|----------|
-| Changed files include `pipeline*.{R,py}`, `extract*.{R,py}`, `load*.{R,py}`, or any file in `scripts/` | Always adds `@cg-data-quality` (even in `light`) |
-| Changed files touch authentication, secrets, or credentials | Always adds `@cg-version-control` |
-| Changed files call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always adds `@cg-data-quality` + `@cg-reproducibility` |
-| ≥ 50 non-test lines changed | Escalates `light` → `standard` |
-| ≥ 200 non-test lines changed | Suggests `thorough` (does not auto-apply — you decide) |
+| Small docs/prompt wording/metadata-only or low-risk test changes | `light` |
+| Ordinary implementation, prompt, or test changes without high-risk signals | `standard` |
+| Pipeline/extract/load scripts, statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), summary tables, survey/poverty/welfare/weights/joins/aggregation, or reproducibility-sensitive changes | `data-risk` |
+| Architecture, dependencies, module boundaries, performance, memory, API contracts, or large refactors | `architecture` |
+| Authentication, secrets, credentials, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `full` |
+| ≥ 50 non-test lines changed with otherwise low risk | raises `light` → `standard` |
+| ≥ 200 non-test lines changed without higher-risk trigger | recommends `full` (does not auto-apply unless explicitly requested) |
 
-When any override fires, the prompt tells you: `"Auto-escalation applied: [reason]. Running [agents] in addition to the base depth."`
+When any risk route fires, the prompt tells you the reason, resolved mode, and mandatory emphasis. Explicit review modes can raise review depth but cannot lower below a mandatory risk route. Duplicate agents are dispatched once.
 
 **Invocation**:
 
 | Command | Effect |
 |---------|--------|
-| `/cg-review` | Use depth from `compound-gpid.local.md` |
-| `/cg-review light` | Override to light (2 agents) |
-| `/cg-review standard` | Override to standard (8 agents) |
-| `/cg-review thorough` | Override to thorough (10 agents, adversarial + learnings) |
+| `/cg-review` | Resolve mode from changed-file risk signals and local config |
+| `/cg-review light` | Prefer light review for low-risk changes; mandatory risk routes still escalate |
+| `/cg-review standard` | Prefer standard review; mandatory risk routes still escalate |
+| `/cg-review data-risk` | Force data-risk routing |
+| `/cg-review architecture` | Force architecture routing |
+| `/cg-review full` | Force full routing (10 agents, adversarial + learnings) |
+| `/cg-review thorough` | Backward-compatible alias for `full` |
 | `/cg-review mode:autofix` | Apply safe mechanical fixes automatically after collecting findings |
 | `/cg-review light mode:autofix` | Light review + autofix combined |
 | `/cg-review mode:verify` | Verify that prior fixes converged — suppresses fix-consequence P2/P3 findings, forces `light` depth |
 
-Arguments can be combined in any order: `/cg-review thorough mode:autofix`.
+Arguments can be combined in any order: `/cg-review full mode:autofix`.
 
 **Scenarios**:
-- *After implementing a feature*: Run `/cg-review` (or `/cg-review standard`) — the configured depth from `compound-gpid.local.md` applies.
-- *Quick check after a typo fix*: `/cg-review light` — only code quality and tests, takes less time.
-- *Before merging a statistical module*: The auto-escalation adds `@cg-data-quality` + `@cg-reproducibility` automatically if statistical functions are detected — no need to manually choose thorough.
+- *After implementing a feature*: Run `/cg-review` (or `/cg-review standard`) — the routed mode applies.
+- *Quick check after a typo fix*: `/cg-review light` — only code quality and tests for low-risk changes, takes less time.
+- *Before merging a statistical module*: The route resolves to `data-risk` automatically if statistical functions are detected.
 - *After applying fix-triage results*: Run `/cg-review mode:verify` to confirm fixes converged — suppresses fix-consequence P2/P3 findings so the cycle terminates.
-- *Major architectural refactor*: `/cg-review thorough` dispatches `@cg-adversarial` to actively try to break the code.
+- *Major architectural refactor*: `/cg-review architecture` emphasizes architecture/performance/testing; use `/cg-review full` when adversarial coverage is also needed.
 - *CI-like use*: Run `/cg-review standard` before every PR merge as a quality gate.
 
 Review reports are saved with per-finding status tracking in YAML frontmatter. Each finding ID is recorded as `open`, `fixed`, or `skipped`. `/cg-resume` shows a summary of open findings so unresolved P1s are never lost between sessions.
@@ -754,4 +767,3 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 - After 2 `fix(ci):` commits — automated fixing is capped; escalate manually
 
 **Output**: Classification report of CI checks + (unless `--propose`) `fix(ci):` commit(s) pushed to the branch
-

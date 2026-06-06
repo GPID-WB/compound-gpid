@@ -69,25 +69,6 @@ Describe "Model assignments - prompt files" {
     }
 }
 
-Describe "Model governance - ordinary prompts" {
-    $ordinaryPrompts = @(
-        "cg-brainstorm.prompt.md",
-        "cg-ideate.prompt.md",
-        "cg-plan-review.prompt.md",
-        "cg-plan.prompt.md",
-        "cg-review-repos.prompt.md",
-        "cg-strategy.prompt.md"
-    )
-
-    foreach ($prompt in $ordinaryPrompts) {
-        It "$prompt should not hard-code a model" {
-            $path = Join-Path $repoRoot ".github\prompts\$prompt"
-            $frontmatter = Get-Frontmatter -FilePath $path
-            $frontmatter | Should -Not -Match '(?m)^\s*model:'
-        }
-    }
-}
-
 # ---------------------------------------------------------------------------
 # Model assignments - agent files
 # Discovers all *.agent.md files in .github/agents.
@@ -155,6 +136,28 @@ Describe "docs/model-guide.md - structure and sync" {
         $content | Should -Match "Governance Principle"
         $content | Should -Match "does not hard-code expensive premium models"
         $content | Should -Match "explicit budget decision"
+    }
+}
+
+Describe "docs/reference.md - ordinary prompt model picker sync" {
+    $referenceFile = Join-Path $repoRoot "docs\reference.md"
+    $content = Get-Content $referenceFile -Raw -Encoding UTF8
+    $ordinaryCommands = @(
+        "/cg-brainstorm",
+        "/cg-ideate",
+        "/cg-plan",
+        "/cg-plan-review",
+        "/cg-review-repos",
+        "/cg-strategy"
+    )
+
+    foreach ($command in $ordinaryCommands) {
+        It "$command documents model-picker inheritance rather than a premium default" {
+            $escapedCommand = [regex]::Escape($command)
+            ($content -match "\| `?$escapedCommand") | Should -Be $true
+            ($content -match "\| `?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
+            ($content -match "\| `?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
+        }
     }
 }
 
