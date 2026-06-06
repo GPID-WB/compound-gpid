@@ -1,47 +1,47 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-05T11:04:22_
+_Generated: 2026-06-06T09:13:20_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
-- Total files: 80
-- Total characters: 1452064
-- Total estimated tokens: 362990
+- Total files: 81
+- Total characters: 1476730
+- Total estimated tokens: 369157
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 22 | 225388 | 56340 |
+| prompts | 22 | 220228 | 55049 |
 | agents | 17 | 86220 | 21550 |
 | skills | 20 | 97496 | 24367 |
 | instructions | 3 | 13658 | 3414 |
-| shared | 1 | 0 | 0 |
+| shared | 2 | 2797 | 699 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 164379 | 41091 |
-| brain | 3 | 234552 | 58636 |
-| brain_index | 1 | 520073 | 130018 |
-| context | 1 | 55881 | 13970 |
+| docs | 10 | 169519 | 42376 |
+| brain | 3 | 241382 | 60345 |
+| brain_index | 1 | 534580 | 133645 |
+| context | 1 | 56433 | 14108 |
 | roadmap | 1 | 52784 | 13196 |
 
 ## Top 15 Largest Files
 
 | Path | Category | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| .cg-docs/brain-index.json | brain_index | 520073 | 130018 |
-| .cg-docs/BRAIN-log.md | brain | 123178 | 30794 |
-| .cg-docs/BRAIN-01.md | brain | 110055 | 27513 |
-| compound-gpid.context.md | context | 55881 | 13970 |
-| docs/workflow.md | docs | 53392 | 13348 |
+| .cg-docs/brain-index.json | brain_index | 534580 | 133645 |
+| .cg-docs/BRAIN-log.md | brain | 126616 | 31654 |
+| .cg-docs/BRAIN-01.md | brain | 113445 | 28361 |
+| compound-gpid.context.md | context | 56433 | 14108 |
+| docs/workflow.md | docs | 54786 | 13696 |
 | roadmap.json | roadmap | 52784 | 13196 |
-| docs/reference.md | docs | 33781 | 8445 |
+| docs/reference.md | docs | 35503 | 8875 |
 | docs/troubleshooting.md | docs | 25049 | 6262 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
-| .github/prompts/cg-work.prompt.md | prompts | 21115 | 5278 |
 | .github/prompts/cg-review-repos.prompt.md | prompts | 18268 | 4567 |
-| .github/prompts/cg-review.prompt.md | prompts | 15417 | 3854 |
+| .github/prompts/cg-review.prompt.md | prompts | 18163 | 4540 |
+| .github/prompts/cg-work.prompt.md | prompts | 17455 | 4363 |
+| docs/context-files.md | docs | 15333 | 3833 |
 | .github/prompts/cg-brainstorm.prompt.md | prompts | 14760 | 3690 |
-| .github/prompts/cg-plan.prompt.md | prompts | 14184 | 3546 |
 | .github/skills/cg-skill-wiki/SKILL.md | skills | 13711 | 3427 |
 
 ## Prompt Reference Matrix
@@ -49,13 +49,13 @@ _Generated: 2026-06-05T11:04:22_
 | Path | File | Agent | Skill | Tool | Load | Total |
 | --- | --- | --- | --- | --- | --- | --- |
 | .github/prompts/cg-setup.prompt.md | 59 | 7 | 0 | 0 | 5 | 71 |
-| .github/prompts/cg-review.prompt.md | 8 | 20 | 5 | 0 | 13 | 46 |
-| .github/prompts/cg-work.prompt.md | 10 | 13 | 5 | 0 | 13 | 41 |
+| .github/prompts/cg-review.prompt.md | 8 | 22 | 5 | 0 | 18 | 53 |
+| .github/prompts/cg-work.prompt.md | 9 | 13 | 2 | 0 | 21 | 45 |
 | .github/prompts/cg-brainstorm.prompt.md | 16 | 6 | 1 | 0 | 7 | 30 |
 | .github/prompts/cg-wiki.prompt.md | 9 | 9 | 0 | 0 | 11 | 29 |
 | .github/prompts/cg-compound.prompt.md | 15 | 5 | 2 | 0 | 6 | 28 |
-| .github/prompts/cg-plan.prompt.md | 11 | 7 | 1 | 0 | 8 | 27 |
 | .github/prompts/cg-plan-review.prompt.md | 6 | 11 | 0 | 0 | 6 | 23 |
+| .github/prompts/cg-plan.prompt.md | 9 | 5 | 1 | 0 | 7 | 22 |
 | .github/prompts/cg-strategy.prompt.md | 13 | 5 | 0 | 0 | 4 | 22 |
 | .github/agents/cg-wiki.agent.md | 11 | 0 | 8 | 0 | 1 | 20 |
 | .github/prompts/cg-resume.prompt.md | 14 | 3 | 0 | 0 | 1 | 18 |
@@ -87,6 +87,33 @@ _Generated: 2026-06-05T11:04:22_
 | .github/agents/cg-adversarial.agent.md | 0 | 0 | 0 | 0 | 0 | 0 |
 | .github/agents/cg-learnings-researcher.agent.md | 0 | 0 | 0 | 0 | 0 | 0 |
 | .github/agents/cg-plan-critic.agent.md | 0 | 0 | 0 | 0 | 0 | 0 |
+
+## Review Dispatch Burden
+
+| Path | Dispatch Refs | Conditional Routing | Broad Dispatch | Burden |
+| --- | --- | --- | --- | --- |
+| .github/prompts/cg-brain-rebuild.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-brainstorm.prompt.md | 2 | False | False | limited |
+| .github/prompts/cg-commit-push-pr.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-compound-refresh.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-compound.prompt.md | 1 | False | False | limited |
+| .github/prompts/cg-devtag.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-diagnose.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-fix-problems.prompt.md | 1 | False | False | limited |
+| .github/prompts/cg-fix-triage.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-fixbug.prompt.md | 0 | False | False | none |
+| .github/prompts/cg-ideate.prompt.md | 2 | False | False | limited |
+| .github/prompts/cg-plan-review.prompt.md | 3 | False | False | limited |
+| .github/prompts/cg-plan.prompt.md | 1 | False | False | limited |
+| .github/prompts/cg-resume.prompt.md | 2 | False | False | limited |
+| .github/prompts/cg-review-repos.prompt.md | 1 | False | False | limited |
+| .github/prompts/cg-review.prompt.md | 10 | True | False | conditional |
+| .github/prompts/cg-roadmap-view.prompt.md | 2 | False | False | limited |
+| .github/prompts/cg-setup.prompt.md | 3 | False | False | limited |
+| .github/prompts/cg-strategy.prompt.md | 2 | False | False | limited |
+| .github/prompts/cg-verify-pr.prompt.md | 3 | False | False | limited |
+| .github/prompts/cg-wiki.prompt.md | 1 | False | False | limited |
+| .github/prompts/cg-work.prompt.md | 3 | True | False | conditional |
 
 ## Model Inventory
 
@@ -155,7 +182,6 @@ c | 4 | 469 |
 
 - .github/prompts/cg-brainstorm.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-fixbug.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-plan.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-review-repos.prompt.md (prompts): prompt estimated tokens >= 3000
 - .github/prompts/cg-review.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-setup.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
@@ -169,21 +195,21 @@ c | 4 | 469 |
 
 ## Needs Review
 
-- .github/prompts/cg-brain-rebuild.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-brain-rebuild.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-commit-push-pr.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-compound-refresh.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-compound.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-devtag.prompt.md (prompts): prompt size exceeds review threshold
 - .github/prompts/cg-diagnose.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-fix-problems.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-fix-problems.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-fix-triage.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-ideate.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-plan-review.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-ideate.prompt.md (prompts): reference count >= 5
+- .github/prompts/cg-plan-review.prompt.md (prompts): reference count >= 5
+- .github/prompts/cg-plan.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-resume.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-roadmap-view.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-roadmap-view.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-strategy.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-verify-pr.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-wiki.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-wiki.prompt.md (prompts): reference count >= 5
 - .github/agents/cg-architecture.agent.md (agents): reference count >= 5
 - .github/agents/cg-code-quality.agent.md (agents): reference count >= 5
 - .github/agents/cg-data-quality.agent.md (agents): reference count >= 5

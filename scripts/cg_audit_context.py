@@ -13,7 +13,7 @@ Exit codes:
     1  Fatal error.
     2  Missing or invalid project root.
 
-Requirements: Python 3.8+, stdlib only (no third-party packages).
+Requirements: Python 3.8+, stdlib only (no third-party packages); requires scripts/brain/ from this repository.
 """
 from __future__ import annotations
 
@@ -32,13 +32,13 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Iterable, Optional, Sequence
 
 _scripts_dir = str(Path(__file__).parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
-from brain.utils import parse_frontmatter  # noqa: E402
+from brain.utils import parse_frontmatter, write_atomic  # noqa: E402
 
 DISCLAIMER = "Token estimates are heuristic (chars/4) and intended for directional audit use."
 
@@ -77,6 +77,16 @@ SKILL_REF_RE = re.compile(r"cg-skill-[a-z-]+")
 TOOL_REF_RE = re.compile(r"\b(?:read_file|edit_file|run_in_terminal|grep_search|semantic_search)\b")
 LOAD_VERB_RE = re.compile(r"\b(?:must read|load .+skill|consult|dispatch)\b", re.IGNORECASE)
 ESCALATION_RE = re.compile(r"\b(?:escalat|opus required|borderline|frontier|highest capability)\b", re.IGNORECASE)
+_COPILOT_SUFFIX_RE = re.compile(r"\s*\(copilot\)\s*$", re.IGNORECASE)
+_PARAGRAPH_SEP_RE = re.compile(r"\n\s*\n")
+CONDITIONAL_ROUTING_RE = re.compile(
+    r"\b(?:deterministic preflight|risk-class routing|route-aware|resolved mode|staged mode)\b",
+    re.IGNORECASE,
+)
+BROAD_DISPATCH_RE = re.compile(
+    r"\b(?:dispatch all|all standard agents|broad fan-out|broad default dispatch)\b",
+    re.IGNORECASE,
+)
 
 ORDINARY_MODEL_PICKER_PROMPTS = {
     ".github/prompts/cg-brainstorm.prompt.md",
@@ -89,22 +99,58 @@ ORDINARY_MODEL_PICKER_PROMPTS = {
 
 
 def estimate_tokens(text: str) -> int:
-    """Return the plan's heuristic token estimate: characters // 4."""
+    """Return the heuristic token estimate: ``len(text) // 4``.
+
+    Uses chars/4 as a directional approximation. Returns 0 for strings shorter
+    than 4 characters (integer floor division). For ASCII-dominant content this
+    heuristic is reliable; CJK-heavy files may be underestimated.
+
+    Args:
+        text: The full text to estimate.
+
+    Returns:
+        Integer token estimate (≥ 0).
+
+    Example::
+
+        estimate_tokens("a" * 400)  # 100
+    """
     return len(text) // 4
 
 
 def rel_path(path: Path, root: Path) -> str:
+    """Return the path relative to root as a POSIX string.
+
+    Args:
+        path: Absolute path to convert.
+        root: Repository root to relativize against.
+
+    Returns:
+        POSIX-style relative path string, or absolute POSIX path if outside root.
+    """
     try:
         return path.relative_to(root).as_posix()
     except ValueError:
         return path.as_posix()
 
 
-def scan_files(root: Path) -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, int]]]:
-    """Scan all configured categories and return per-file and category totals."""
-    files: List[Dict[str, Any]] = []
-    seen: set = set()
-    by_category: Dict[str, Dict[str, int]] = {
+def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, int]]]:
+    """Scan all configured SCAN_CATEGORIES under root and return file records.
+
+    Skips unreadable files with a :mod:`warnings` warning rather than aborting.
+    Resolves symlinks to avoid counting the same inode twice.
+
+    Args:
+        root: Repository root path.
+
+    Returns:
+        Tuple of (files, by_category) where ``files`` is a list of per-file
+        dicts (``path``, ``category``, ``characters``, ``estimated_tokens``) and
+        ``by_category`` is a dict of category totals.
+    """
+    files: list[dict[str, Any]] = []
+    seen: set[Path] = set()
+    by_category: dict[str, dict[str, int]] = {
         name: {"files": 0, "characters": 0, "estimated_tokens": 0}
         for name in SCAN_CATEGORIES
     }
@@ -117,7 +163,12 @@ def scan_files(root: Path) -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, in
             if resolved in seen:
                 continue
             seen.add(resolved)
-            content = path.read_text(encoding="utf-8-sig")
+            try:
+                content = path.read_text(encoding="utf-8-sig")
+            except UnicodeDecodeError as exc:
+                import warnings
+                warnings.warn(f"Skipping {path}: {exc}")
+                continue
             chars = len(content)
             tokens = estimate_tokens(content)
             record = {
@@ -135,7 +186,20 @@ def scan_files(root: Path) -> Tuple[List[Dict[str, Any]], Dict[str, Dict[str, in
     return files, by_category
 
 
-def classify_model_tier(model: Optional[str]) -> str:
+def classify_model_tier(model: str | None) -> str:
+    """Classify a model string into a governance tier.
+
+    Args:
+        model: Model name from frontmatter (e.g., ``"Claude Sonnet 4.6 (copilot)"``).
+
+    Returns:
+        One of ``"premium"``, ``"standard"``, ``"economy"``, ``"missing"``, or ``"unknown"``.
+
+    Example::
+
+        classify_model_tier("Claude Opus 4.6")   # "premium"
+        classify_model_tier(None)                 # "missing"
+    """
     if not model:
         return "missing"
     if "Opus" in model:
@@ -147,11 +211,35 @@ def classify_model_tier(model: Optional[str]) -> str:
     return "unknown"
 
 
-def normalize_model_name(model: Optional[str]) -> str:
-    return re.sub(r"\s*\(copilot\)\s*$", "", model or "", flags=re.IGNORECASE).strip()
+def normalize_model_name(model: str | None) -> str:
+    """Strip the ``(copilot)`` vendor suffix from a model string.
 
-def extract_model_declarations(root: Path, files: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    declarations: List[Dict[str, Any]] = []
+    Args:
+        model: Raw model string, possibly ``None``.
+
+    Returns:
+        Normalised string with suffix removed and whitespace stripped.
+        Returns empty string for ``None`` or empty input.
+
+    Example::
+
+        normalize_model_name("Claude Sonnet 4.6 (copilot)")  # "Claude Sonnet 4.6"
+    """
+    return _COPILOT_SUFFIX_RE.sub("", model or "").strip()
+
+
+def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Extract model governance metadata from all prompt and agent files.
+
+    Args:
+        root: Repository root path.
+        files: File records from :func:`scan_files`.
+
+    Returns:
+        List of dicts with keys: ``path``, ``category``, ``model``, ``model_tier``,
+        ``has_escalation_condition``, ``tools``.
+    """
+    declarations: list[dict[str, Any]] = []
     for file_record in files:
         if file_record["category"] not in ("prompts", "agents"):
             continue
@@ -178,11 +266,26 @@ def extract_model_declarations(root: Path, files: Sequence[Dict[str, Any]]) -> L
     return declarations
 
 
-def parse_model_guide(path: Path) -> Dict[str, str]:
-    """Parse docs/model-guide.md prompt/agent tables into filename -> model."""
+def parse_model_guide(path: Path) -> dict[str, str]:
+    """Parse ``### Prompts`` / ``### Agents`` assignment tables from the model-guide.
+
+    Reads H3-keyed pipe-delimited tables. Returns an empty dict if the file
+    does not exist or contains no matching H3 sections.
+
+    Args:
+        path: Path to ``docs/model-guide.md``.
+
+    Returns:
+        Dict mapping filename (e.g., ``"cg-review.prompt.md"``) to model string.
+
+    Example::
+
+        guide = parse_model_guide(root / "docs" / "model-guide.md")
+        guide.get("cg-review.prompt.md")  # "Claude Sonnet 4.6 (copilot)"
+    """
     if not path.exists():
         return {}
-    guide: Dict[str, str] = {}
+    guide: dict[str, str] = {}
     in_table = False
     for line in path.read_text(encoding="utf-8-sig").splitlines():
         stripped = line.strip()
@@ -194,7 +297,7 @@ def parse_model_guide(path: Path) -> Dict[str, str]:
         if not in_table or not stripped.startswith("|"):
             continue
         cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        if len(cells) < 2 or cells[0] in ("File", "------"):
+        if len(cells) < 2 or cells[0] in ("File",) or cells[0].startswith("---") or cells[0].startswith(":---"):
             continue
         filename = cells[0].strip("` ")
         model = cells[1].strip("` ")
@@ -203,7 +306,16 @@ def parse_model_guide(path: Path) -> Dict[str, str]:
     return guide
 
 
-def build_model_inventory(root: Path, files: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """Build the full model governance inventory including drift detection.
+
+    Args:
+        root: Repository root path.
+        files: File records from :func:`scan_files`.
+
+    Returns:
+        Dict with keys: ``declarations``, ``missing``, ``drift``, ``premium_usage``.
+    """
     declarations = extract_model_declarations(root, files)
     guide = parse_model_guide(root / "docs" / "model-guide.md")
     missing = [d for d in declarations if d["model_tier"] == "missing"]
@@ -227,7 +339,17 @@ def build_model_inventory(root: Path, files: Sequence[Dict[str, Any]]) -> Dict[s
     }
 
 
-def count_references(path: str, content: str) -> Dict[str, Any]:
+def count_references(path: str, content: str) -> dict[str, Any]:
+    """Count all context-file and tool reference types in a file's content.
+
+    Args:
+        path: Relative path string (used as the ``path`` key in the returned row).
+        content: Full text content of the file.
+
+    Returns:
+        Dict with keys: ``path``, ``file_refs``, ``agent_refs``, ``skill_refs``,
+        ``tool_refs``, ``load_verbs``, ``total_refs``.
+    """
     file_refs = len(FILE_REF_RE.findall(content))
     agent_refs = len(AGENT_REF_RE.findall(content))
     skill_refs = len(SKILL_REF_RE.findall(content))
@@ -239,7 +361,16 @@ def count_references(path: str, content: str) -> Dict[str, Any]:
             "load_verbs": load_verbs, "total_refs": total_refs}
 
 
-def build_reference_matrix(root: Path, files: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def build_reference_matrix(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build a reference-count matrix for all prompt and agent files, sorted by total refs.
+
+    Args:
+        root: Repository root path.
+        files: File records from :func:`scan_files`.
+
+    Returns:
+        List of reference-count dicts (see :func:`count_references`), sorted descending by ``total_refs``.
+    """
     rows = []
     for file_record in files:
         if file_record["category"] not in ("prompts", "agents"):
@@ -249,29 +380,112 @@ def build_reference_matrix(root: Path, files: Sequence[Dict[str, Any]]) -> List[
     return sorted(rows, key=lambda row: (-row["total_refs"], row["path"]))
 
 
+def count_dispatch_burden(path: str, content: str) -> dict[str, Any]:
+    """Return a directional prompt dispatch-burden signal.
+
+    Distinguishes prompts whose review agent references are explicitly
+    conditional (risk-class routing) from prompts that encode broad dispatch
+    as the default posture. Does not estimate runtime call counts.
+
+    Args:
+        path: Relative path string (used as the ``path`` key).
+        content: Full text content of the prompt file.
+
+    Returns:
+        Dict with keys: ``path``, ``dispatch_refs``, ``conditional_routing``,
+        ``broad_dispatch``, ``burden_level``.
+    """
+    dispatch_refs = len(set(AGENT_REF_RE.findall(content)))
+    conditional_routing = bool(CONDITIONAL_ROUTING_RE.search(content))
+    broad_dispatch = bool(BROAD_DISPATCH_RE.search(content)) and not conditional_routing
+    if conditional_routing:
+        burden_level = "conditional"
+    elif broad_dispatch or dispatch_refs >= 8:
+        burden_level = "broad"
+    elif dispatch_refs:
+        burden_level = "limited"
+    else:
+        burden_level = "none"
+    return {
+        "path": path,
+        "dispatch_refs": dispatch_refs,
+        "conditional_routing": conditional_routing,
+        "broad_dispatch": broad_dispatch,
+        "burden_level": burden_level,
+    }
+
+
+def build_dispatch_burden(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build a dispatch-burden signal table for all prompt files.
+
+    Args:
+        root: Repository root path.
+        files: File records from :func:`scan_files`.
+
+    Returns:
+        List of dispatch-burden dicts (see :func:`count_dispatch_burden`), broad-first.
+    """
+    rows = []
+    for file_record in files:
+        if file_record["category"] != "prompts":
+            continue
+        path = root / file_record["path"]
+        rows.append(count_dispatch_burden(file_record["path"], path.read_text(encoding="utf-8-sig")))
+    return sorted(rows, key=lambda row: (row["burden_level"] != "broad", row["path"]))
+
+
 def iter_paragraph_blocks(content: str) -> Iterable[str]:
-    for block in re.split(r"\n\s*\n", content):
+    """Yield paragraph blocks of at least 4 non-blank lines from content.
+
+    Args:
+        content: Full text of a file.
+
+    Returns:
+        Iterator over multi-line paragraph strings (blank-line separated, ≥4 lines).
+    """
+    for block in _PARAGRAPH_SEP_RE.split(content):
         lines = [line.strip() for line in block.splitlines() if line.strip()]
         if len(lines) >= 4:
             yield "\n".join(lines)
 
 
 def normalize_block(block: str) -> str:
+    """Normalise a paragraph block by collapsing internal whitespace.
+
+    Args:
+        block: Raw paragraph string.
+
+    Returns:
+        String with each line's internal whitespace collapsed to single spaces.
+    """
     lines = [" ".join(line.strip().split()) for line in block.splitlines()]
     return "\n".join(lines).strip()
 
 
-def detect_duplicates(root: Path, files: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    blocks: Dict[str, Dict[str, Any]] = {}
+def detect_duplicates(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Detect paragraph blocks that appear verbatim across multiple files.
+
+    Blocks must be ≥4 lines. Deduplication uses SHA-256 of the normalised block.
+    Only blocks appearing in ≥ ``THRESHOLD_DUPLICATE_FILES`` files are returned.
+
+    Args:
+        root: Repository root path.
+        files: File records from :func:`scan_files`.
+
+    Returns:
+        List of dicts with keys: ``block_preview``, ``file_count``,
+        ``total_chars``, ``estimated_tokens``, ``files``.
+    """
+    blocks: dict[str, dict[str, Any]] = {}
     for file_record in files:
         path = root / file_record["path"]
         content = path.read_text(encoding="utf-8-sig")
         for block in iter_paragraph_blocks(content):
             normalized = normalize_block(block)
-            digest = hashlib.md5(normalized.encode("utf-8")).hexdigest()
+            digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
             entry = blocks.setdefault(
                 digest,
-                {"block": normalized, "files": set(), "total_chars": 0},
+                {"block": normalized[:80], "files": set(), "total_chars": 0},
             )
             entry["files"].add(file_record["path"])
             entry["total_chars"] += len(normalized)
@@ -304,19 +518,31 @@ def _has_broad_tools(tools: Any) -> bool:
 
 
 def classify_optimization_candidates(
-    files: Sequence[Dict[str, Any]],
-    reference_matrix: Sequence[Dict[str, Any]],
-    model_inventory: Dict[str, Any],
-    duplicates: Sequence[Dict[str, Any]],
-) -> Dict[str, Any]:
+    files: Sequence[dict[str, Any]],
+    reference_matrix: Sequence[dict[str, Any]],
+    model_inventory: dict[str, Any],
+    duplicates: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    """Classify files into immediate, needs-review, and acceptable buckets.
+
+    Args:
+        files: File records from :func:`scan_files`.
+        reference_matrix: Output of :func:`build_reference_matrix`.
+        model_inventory: Output of :func:`build_model_inventory`.
+        duplicates: Output of :func:`detect_duplicates`.
+
+    Returns:
+        Dict with keys: ``immediate`` (list), ``needs_review`` (list),
+        ``acceptable_count`` (int).
+    """
     refs_by_path = {row["path"]: row for row in reference_matrix}
     models_by_path = {row["path"]: row for row in model_inventory["declarations"]}
     drift_paths = {row["path"] for row in model_inventory["drift"]}
-    immediate: List[Dict[str, Any]] = []
-    needs_review: List[Dict[str, Any]] = []
-    classified_paths: set = set()
+    immediate: list[dict[str, Any]] = []
+    needs_review: list[dict[str, Any]] = []
+    classified_paths: set[str] = set()
 
-    def add(bucket: List[Dict[str, Any]], path: str, category: str, reason: str) -> None:
+    def add(bucket: list[dict[str, Any]], path: str, category: str, reason: str) -> None:
         bucket.append({"path": path, "category": category, "reason": reason})
         classified_paths.add(path)
 
@@ -327,16 +553,16 @@ def classify_optimization_candidates(
         tokens = int(file_record["estimated_tokens"])
         refs = refs_by_path.get(path, {"total_refs": 0})
         model = models_by_path.get(path)
-        reasons_immediate: List[str] = []
-        reasons_review: List[str] = []
+        reasons_immediate: list[str] = []
+        reasons_review: list[str] = []
 
         if category == "instructions" and tokens >= THRESHOLD_INSTRUCTION_IMMEDIATE:
             reasons_immediate.append(f"instruction estimated tokens >= {THRESHOLD_INSTRUCTION_IMMEDIATE}")
         if category == "prompts":
             if tokens >= THRESHOLD_PROMPT_IMMEDIATE:
                 reasons_immediate.append(f"prompt estimated tokens >= {THRESHOLD_PROMPT_IMMEDIATE}")
-            elif chars >= THRESHOLD_PROMPT_IMMEDIATE or tokens >= THRESHOLD_PROMPT_REVIEW:
-                reasons_review.append(f"prompt size exceeds review threshold")
+            elif tokens >= THRESHOLD_PROMPT_REVIEW:
+                reasons_review.append("prompt size exceeds review threshold")
         if category == "agents" and tokens >= THRESHOLD_AGENT_REVIEW:
             reasons_review.append(f"agent estimated tokens >= {THRESHOLD_AGENT_REVIEW}")
         if category == "skills":
@@ -366,16 +592,27 @@ def classify_optimization_candidates(
             duplicate["file_count"] >= THRESHOLD_DUPLICATE_FILES
             and duplicate["estimated_tokens"] >= THRESHOLD_DUPLICATE_TOKENS
         ):
-            add(immediate, "(duplicate block)", "duplicates",
-                f"duplicate block appears in {duplicate['file_count']} files")
+            dup_reason = f"duplicate block appears in {duplicate['file_count']} files"
+            immediate.append({"path": "(duplicate block)", "category": "duplicates", "reason": dup_reason})
 
     return {"immediate": immediate, "needs_review": needs_review,
             "acceptable_count": max(0, len(files) - len(classified_paths))}
 
 
-def build_report(root: Path) -> Dict[str, Any]:
+def build_report(root: Path) -> dict[str, Any]:
+    """Build the complete audit report for a Compound GPID project root.
+
+    Args:
+        root: Resolved path to the repository root (must contain ``.github/prompts/``).
+
+    Returns:
+        Nested dict with keys: ``generated``, ``disclaimer``, ``summary``, ``files``,
+        ``reference_matrix``, ``dispatch_burden``, ``model_inventory``,
+        ``duplicates``, ``optimization_candidates``.
+    """
     files, by_category = scan_files(root)
     reference_matrix = build_reference_matrix(root, files)
+    dispatch_burden = build_dispatch_burden(root, files)
     model_inventory = build_model_inventory(root, files)
     duplicates = detect_duplicates(root, files)
     candidates = classify_optimization_candidates(files, reference_matrix, model_inventory, duplicates)
@@ -385,18 +622,41 @@ def build_report(root: Path) -> Dict[str, Any]:
                         "total_estimated_tokens": sum(int(f["estimated_tokens"]) for f in files),
                         "by_category": by_category},
             "files": sorted(files, key=lambda row: row["path"]),
-            "reference_matrix": reference_matrix, "model_inventory": model_inventory,
+            "reference_matrix": reference_matrix, "dispatch_burden": dispatch_burden,
+            "model_inventory": model_inventory,
             "duplicates": duplicates, "optimization_candidates": candidates}
 
 
-def markdown_table(headers: Sequence[str], rows: Sequence[Sequence[Any]]) -> List[str]:
+def markdown_table(headers: Sequence[str], rows: Sequence[Sequence[Any]]) -> list[str]:
+    """Render a Markdown table from headers and row data.
+
+    Args:
+        headers: Column header strings.
+        rows: Sequence of row sequences; each cell is stringified via ``str()``.
+
+    Returns:
+        List of Markdown table lines (header, separator, data rows).
+
+    Example::
+
+        markdown_table(["A", "B"], [[1, 2], [3, 4]])
+        # ["| A | B |", "| --- | --- |", "| 1 | 2 |", "| 3 | 4 |"]
+    """
     lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
     for row in rows:
         lines.append("| " + " | ".join(str(cell) for cell in row) + " |")
     return lines
 
 
-def render_markdown(report: Dict[str, Any]) -> str:
+def render_markdown(report: dict[str, Any]) -> str:
+    """Render the audit report as a Markdown string.
+
+    Args:
+        report: Output of :func:`build_report`.
+
+    Returns:
+        Full Markdown document as a single string.
+    """
     lines = [
         "# Context and Model-Governance Audit",
         "",
@@ -425,6 +685,11 @@ def render_markdown(report: Dict[str, Any]) -> str:
     lines.extend(markdown_table(["Path", "File", "Agent", "Skill", "Tool", "Load", "Total"], [
         [r["path"], r["file_refs"], r["agent_refs"], r["skill_refs"], r["tool_refs"], r["load_verbs"], r["total_refs"]]
         for r in report["reference_matrix"]
+    ]))
+    lines.extend(["", "## Review Dispatch Burden", ""])
+    lines.extend(markdown_table(["Path", "Dispatch Refs", "Conditional Routing", "Broad Dispatch", "Burden"], [
+        [r["path"], r["dispatch_refs"], r["conditional_routing"], r["broad_dispatch"], r["burden_level"]]
+        for r in report.get("dispatch_burden", [])
     ]))
     lines.extend(["", "## Model Inventory", ""])
     lines.extend(markdown_table(["Path", "Category", "Model", "Tier"], [
@@ -457,21 +722,45 @@ def render_markdown(report: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def write_outputs(report: Dict[str, Any], output_dir: Path, fmt: str) -> List[Path]:
+def write_outputs(report: dict[str, Any], output_dir: Path, fmt: str) -> list[Path]:
+    """Write the audit report to disk in the requested format(s).
+
+    Args:
+        report: Output of :func:`build_report`.
+        output_dir: Directory to write output files into (created if absent).
+        fmt: One of ``"json"``, ``"md"``, or ``"both"``.
+
+    Returns:
+        List of :class:`~pathlib.Path` objects for the files written.
+
+    Raises:
+        ValueError: If ``fmt`` is not one of the accepted values.
+
+    Example::
+
+        paths = write_outputs(report, Path(".cg-docs/cost"), "both")
+    """
+    if fmt not in ("json", "md", "both"):
+        raise ValueError(f"Unknown format {fmt!r}; expected 'json', 'md', or 'both'")
     output_dir.mkdir(parents=True, exist_ok=True)
-    written: List[Path] = []
+    written: list[Path] = []
     if fmt in ("json", "both"):
         json_path = output_dir / "context-audit.json"
-        json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        write_atomic(json_path, json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
         written.append(json_path)
     if fmt in ("md", "both"):
         md_path = output_dir / "context-audit.md"
-        md_path.write_text(render_markdown(report), encoding="utf-8")
+        write_atomic(md_path, render_markdown(report))
         written.append(md_path)
     return written
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for cg-audit-context.
+
+    Returns:
+        Configured :class:`~argparse.ArgumentParser` instance.
+    """
     parser = argparse.ArgumentParser(
         prog="cg-audit-context",
         description="Compound GPID context and model-governance audit.",
@@ -486,7 +775,22 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
+    """Entry point for the cg-audit-context CLI.
+
+    Args:
+        argv: Argument list (defaults to ``sys.argv[1:]`` when ``None``).
+
+    Returns:
+        Exit code: 0 success, 1 fatal error, 2 invalid project root.
+
+    Raises:
+        SystemExit: Via :func:`sys.exit` when called as ``__main__``.
+
+    Example::
+
+        sys.exit(main(["--root", "/path/to/project", "--format", "json"]))
+    """
     parser = build_arg_parser()
     args = parser.parse_args(argv)
     root = Path(args.root).resolve() if args.root else Path(__file__).resolve().parent.parent
