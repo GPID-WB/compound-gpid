@@ -93,6 +93,12 @@ and creates three config files:
 
 > **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
 
+> **Codex / Claude Code maintainers**: `AGENTS.md` is a repository-level
+> compatibility adapter that lets Codex or Claude Code read and execute the
+> Copilot-oriented `.github/prompts`, `.github/skills`, and `.github/agents`
+> files. It is not required for normal GitHub Copilot installation and does not
+> change how Copilot discovers `/cg-*` prompts.
+
 ---
 
 ## macOS installation
@@ -278,4 +284,3 @@ Then run `cg-update` from each linked project to apply any structural migrations
 ---
 
 > **Having trouble?** Check the [Troubleshooting](troubleshooting.md) page for known issues and fixes.
-

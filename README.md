@@ -9,6 +9,11 @@
 
 A GitHub Copilot plugin for data science teams, built on the [Compound Engineering Philosophy](https://every.to/guides/compound-engineering).
 
+> **Runtime scope**: Compound GPID is designed for GitHub Copilot. This
+> repository also includes `AGENTS.md` as a Codex / Claude Code compatibility
+> adapter for maintainers who work on the plugin outside Copilot; it does not
+> change the intended Copilot behavior.
+
 > Each unit of work should make subsequent units easier — not harder.
 
 ## Why Compound GPID?
@@ -36,6 +41,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
+| [Context Files](docs/context-files.md) | Copilot context files plus the Codex / Claude Code adapter note |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
 
 ## Contributing

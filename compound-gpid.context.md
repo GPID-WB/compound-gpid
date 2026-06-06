@@ -45,6 +45,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Qualifier scope in condition lists — trailing qualifier attaches only to the last noun**: When a qualifier ("with no X", "unless Y") is meant to restrict all items in a list, place it in a single clause before the list, not after the last item. `"A, B, or C with no X"` restricts only C; `"only when no X: A, B, or C"` restricts all three. This matters in skip-condition lists (red-phase gates, structural-change exemptions) where an agent matching any item might skip a required step. Discovered as V-P2.1 in the test-correctness verify review.
 
+- **Codex / Claude Code compatibility belongs in `AGENTS.md`, not `.github/` assets**: This repository's `.github/prompts`, `.github/skills`, `.github/agents`, and `.github/copilot-instructions.md` are designed for GitHub Copilot. When adapting the workflow for Codex or Claude Code, add dispatch rules and tool mappings to `AGENTS.md` only. Keep `AGENTS.md` explicitly scoped to Codex / Claude Code so it does not imply changed Copilot behavior. See `.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md`.
+
 ## Testing Conventions
 
 - **IndexOf guard pattern**: Block-scoped prompt tests that extract text via `$content.Substring($start, $end - $start)` must first assert both index values with `$start | Should BeGreaterThan -1` and `$end | Should BeGreaterThan $start`. Without guards, a missing section header throws `ArgumentOutOfRangeException`, obscuring which assertion failed.

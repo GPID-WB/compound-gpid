@@ -1,5 +1,5 @@
 {
-  "edge_count": 170,
+  "edge_count": 173,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -227,6 +227,18 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
       "target": ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+      "target": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+      "target": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
       "target_missing": false
     },
     {
@@ -719,6 +731,12 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
       "target": ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+      "target": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
       "target_missing": false
     },
     {
@@ -2119,6 +2137,34 @@
       ]
     },
     {
+      "date": "2026-06-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+      "slug": "2026-06-04-context-model-audit-infrastructure",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "performance",
+        "tokens",
+        "model-governance",
+        "audit",
+        "cost-efficiency"
+      ],
+      "title": "Context and model-governance audit infrastructure",
+      "top_keywords": [
+        "approach",
+        "context",
+        "audit",
+        "model-governance",
+        "decision",
+        "tiktoken",
+        "infrastructure",
+        "2026-04-07-full-model-audit.md",
+        "2026-04-20-reduce-late-sequence-token-cost.md",
+        "cg_index.py"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3007,9 +3053,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
-        "prompt-tools.tests.ps1",
         "test",
         "failure",
+        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3173,14 +3219,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "repos.json",
         "should not",
+        "repos.json",
         "should be",
         "cg-review-repos",
         "--full",
-        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
+        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3208,9 +3254,9 @@
         "light",
         "/cg-review",
         "test scenarios",
-        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md"
+        "verify-review.md",
+        "/cg-review light"
       ]
     },
     {
@@ -3445,8 +3491,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "run-tests.ps1",
         "update.sh",
+        "run-tests.ps1",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -3534,8 +3580,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "cg-index.cmd",
-        "scripts/cg-index.py"
+        "scripts/cg-index.py",
+        "python3"
       ]
     },
     {
@@ -3803,6 +3849,87 @@
       ]
     },
     {
+      "date": "2026-06-04",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+      "slug": "2026-06-04-context-model-audit-phase1",
+      "status": "planned",
+      "summary": "Build `scripts/cg_audit_context.py` — a stdlib-only Python script that inventories all context-contributing files in Compound GPID, estimates token burden using `chars / 4`, counts inter-file references, inventories model declarations, detects duplicates, and classifies optimization candidates against predefined thresholds. Outputs both JSON and Markdown reports to `.cg-docs/cost/`.",
+      "tags": [
+        "performance",
+        "tokens",
+        "model-governance",
+        "audit",
+        "cost-efficiency",
+        "codex"
+      ],
+      "title": "Context and model-governance audit — Phase 1 inventory",
+      "top_keywords": [
+        "scripts/cg_audit_context.py",
+        "cg_audit_context.py",
+        "cg_index.py",
+        "phase",
+        "scripts/tests/test_audit_context.py",
+        "roadmap.json",
+        "test_audit_context.py",
+        "inventory",
+        "audit",
+        "compound-gpid.md"
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+      "slug": "2026-06-05-cg-review-token-cost-phase3",
+      "status": "active",
+      "summary": "Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and adding explicit review-mode integration in `/cg-work` so post-implementation review behavior is deterministic, cheaper by default, and still safe for high-risk changes.",
+      "tags": [
+        "performance",
+        "token-optimization",
+        "review",
+        "routing",
+        "safety",
+        "model-governance",
+        "cg-work"
+      ],
+      "title": "Phase 3: staged /cg-review routing + /cg-work review-mode integration",
+      "top_keywords": [
+        "cg-work",
+        "cg-review",
+        "/cg-work",
+        "/cg-review",
+        "tests/prompt-tools.tests.ps1",
+        "data-risk",
+        "prompt-tools.tests.ps1",
+        "standard",
+        "review:auto",
+        "review:manual"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
+      "slug": "phase2-model-governance-cleanup",
+      "status": "",
+      "summary": "**Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026-06-05 **Source**: Phase 1 audit at `.cg-docs/cost/context-audit.md`",
+      "tags": [],
+      "title": "phase2-model-governance-cleanup",
+      "top_keywords": [
+        "model:",
+        "claude opus",
+        "model: claude opus 4.6 (copilot)",
+        "model",
+        "phase",
+        "tests",
+        "docs/model-guide.md",
+        "model-guide.md",
+        "governance",
+        "model-assignment"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
@@ -3819,8 +3946,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "cg-resume.prompt.md",
         "/cg-fix-triage",
+        "cg-resume.prompt.md",
         "fix"
       ]
     },
@@ -4036,12 +4163,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
-        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills"
+        "feat/r-dialect-skills",
+        "docs/reference.md"
       ]
     },
     {
@@ -4494,8 +4621,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "run-tests.ps1",
         "tests/run-tests.ps1",
+        "run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -4541,12 +4668,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
-        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
+        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -4914,12 +5041,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
-        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
+        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -5207,7 +5334,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "2026-05-13-pr-verification-pipeline-review.md"
+        "unlink\\.sh"
       ]
     },
     {
@@ -5783,6 +5910,28 @@
       ]
     },
     {
+      "date": "2026-06-06",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+      "slug": "2026-06-05-cg-review-token-cost-phase3-review",
+      "status": "",
+      "summary": "**Review mode**: architecture (auto-escalated from normal: new Python module with cross-module imports) **Files reviewed**: 14 changed files (19 total including artifacts), branch `codex/context-model-audit-phase1` vs `main` **Agents dispatched**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-reproducibility, cg-performance, cg-architecture, cg-data-quality **Findings**: 57 (P0: 0, P1: 2, P2: 30, P3: 25)",
+      "tags": [],
+      "title": "2026-06-05-cg-review-token-cost-phase3-review",
+      "top_keywords": [
+        "[safe_auto]",
+        "cg_audit_context.py",
+        "[advisory]",
+        "[manual]",
+        "scripts/tests/test_audit_context.py",
+        "test_audit_context.py",
+        "write_outputs",
+        "extract_model_declarations",
+        "parse_model_guide()",
+        "{}"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -6046,14 +6195,14 @@
       "top_keywords": [
         "else",
         "ast",
-        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->"
+        "->",
+        "utf-8"
       ]
     },
     {
@@ -6073,10 +6222,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
-        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
+        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -6531,13 +6680,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
-        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1"
+        ".ps1",
+        "result-verification.md"
       ]
     },
     {
@@ -6649,12 +6798,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
+        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -6679,9 +6828,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
+        "/cg-setup",
         "link.ps1",
         "link.sh",
-        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -6712,13 +6861,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
-        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
+        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -7657,15 +7806,45 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "file.txt",
+        "subdir\\file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "backslash",
-        "separator"
+        "file.txt",
+        "backslash"
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
+      "slug": "2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter",
+      "status": "",
+      "summary": "Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/prompts/cg-*.prompt.md` for slash-command workflows - `.github/skills/cg-skill-*/SKILL.md` for reference knowledge - `.github/agents/cg-*.agent.md` for specialized review and workflow agents - `.github/copilot-instructions.md` for project-wide Copilot behavior When the repository is opened by Codex or Claude Code, those assets are visible as ordinary files but are not automatically registered as native Codex skills, slash commands, or callable subagents. A user invoking `/cg-compound` or `/cg-work phase1` needs the agent to know how to translate that request into a local file read and execution protocol.",
+      "tags": [
+        "codex",
+        "claude-code",
+        "copilot",
+        "prompts",
+        "agents",
+        "skills",
+        "slash-commands"
+      ],
+      "title": "Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts",
+      "top_keywords": [
+        "claude code",
+        "agents.md",
+        "cg-compound",
+        ".github/",
+        "codex",
+        "copilot",
+        "prompts",
+        "agents",
+        "cg-work",
+        ".github/agents/cg-*.agent.md"
       ]
     },
     {
@@ -7872,11 +8051,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
-        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
+        "structure"
       ]
     },
     {
@@ -8351,9 +8530,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
-        "cg-review.prompt.md",
         "delegate",
         "file-writing",
+        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -8390,8 +8569,8 @@
         "must",
         "contract",
         "pipeline",
-        "cg-fix-triage.prompt.md",
-        "downstream"
+        "downstream",
+        "location"
       ]
     },
     {
@@ -8608,8 +8787,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "prompt-tools.tests.ps1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -8639,16 +8818,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "select-string",
         "test",
+        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging",
-        "crashes"
+        "debugging"
       ]
     },
     {
@@ -8735,9 +8914,9 @@
         "failure",
         "guard",
         "fragile",
-        "cg-work.prompt.md",
         "tests",
         "step-ordering",
+        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -8825,8 +9004,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "-quiet",
+        "prompt-tools.tests.ps1",
         "pester",
         "execution_subagent",
         "quiet",
@@ -8922,14 +9101,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
-        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "context"
+        "last-run.json",
+        "tests\\last-run.json"
       ]
     },
     {
@@ -9168,7 +9347,6 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
-        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -9176,6 +9354,7 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
+        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -9636,8 +9815,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "source-scanning",
+        "link.ps1",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -9668,14 +9847,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
-        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern"
+        "pattern",
+        "unlink.ps1"
       ]
     },
     {
@@ -9938,13 +10117,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
-        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->"
+        "<!-- folder: docs -->",
+        "$dirs.count | should -begreaterthan 0"
       ]
     },
     {
@@ -12481,15 +12660,257 @@
         "feature",
         "ongoing"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-audit-context-model",
+      "slug": "token-audit-context-model",
+      "status": "done",
+      "summary": "Audit current context and model usage",
+      "tags": [],
+      "title": "Audit current context and model usage",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "model",
+        "usage",
+        "audit",
+        "current",
+        "token",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#model-tier-definitions",
+      "slug": "model-tier-definitions",
+      "status": "idea",
+      "summary": "Define model tiers and escalation rules",
+      "tags": [],
+      "title": "Define model tiers and escalation rules",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "tiers",
+        "escalation",
+        "rules",
+        "define",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#model-policy-tests",
+      "slug": "model-policy-tests",
+      "status": "idea",
+      "summary": "Add model-policy tests",
+      "tags": [],
+      "title": "Add model-policy tests",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model-policy",
+        "tests",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#prompt-frontmatter-model-update",
+      "slug": "prompt-frontmatter-model-update",
+      "status": "idea",
+      "summary": "Update prompt frontmatter model and agent choices",
+      "tags": [],
+      "title": "Update prompt frontmatter model and agent choices",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "prompt",
+        "frontmatter",
+        "agent",
+        "choices",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#agent-model-tool-governance",
+      "slug": "agent-model-tool-governance",
+      "status": "idea",
+      "summary": "Update custom agents for model and tool governance",
+      "tags": [],
+      "title": "Update custom agents for model and tool governance",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "governance",
+        "custom",
+        "agents",
+        "tool",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#shrink-always-on-context",
+      "slug": "shrink-always-on-context",
+      "status": "idea",
+      "summary": "Shrink always-on context",
+      "tags": [],
+      "title": "Shrink always-on context",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "always-on",
+        "shrink",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#prompt-skill-split",
+      "slug": "prompt-skill-split",
+      "status": "idea",
+      "summary": "Split large prompts into thin entrypoints and on-demand skills",
+      "tags": [],
+      "title": "Split large prompts into thin entrypoints and on-demand skills",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "large",
+        "prompts",
+        "thin",
+        "entrypoints",
+        "split",
+        "on-demand",
+        "skills",
+        "context"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#stage-context-contracts",
+      "slug": "stage-context-contracts",
+      "status": "idea",
+      "summary": "Add stage-specific context contracts",
+      "tags": [],
+      "title": "Add stage-specific context contracts",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "stage-specific",
+        "contracts",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#review-deterministic-first",
+      "slug": "review-deterministic-first",
+      "status": "idea",
+      "summary": "Make review cheaper with deterministic checks first",
+      "tags": [],
+      "title": "Make review cheaper with deterministic checks first",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "review",
+        "cheaper",
+        "deterministic",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-benchmark-before-after",
+      "slug": "token-benchmark-before-after",
+      "status": "idea",
+      "summary": "Benchmark before and after",
+      "tags": [],
+      "title": "Benchmark before and after",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "benchmark",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization",
+        "governance"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-optimization-compound",
+      "slug": "token-optimization-compound",
+      "status": "idea",
+      "summary": "Capture the learning",
+      "tags": [],
+      "title": "Capture the learning",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "capture",
+        "learning",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
     }
   ],
-  "entity_count": 437,
-  "generated": "2026-06-03",
+  "entity_count": 454,
+  "generated": "2026-06-06",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 292,
+      "entity_count": 298,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -12527,6 +12948,7 @@
         ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
         ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
+        ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -12583,6 +13005,9 @@
         ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
         ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+        ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+        ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+        ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
         ".cg-docs/reviews/2026-04-01-charter-maintenance-review.md",
@@ -12670,6 +13095,7 @@
         ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
+        ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -12713,6 +13139,7 @@
         ".cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
+        ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -12793,7 +13220,7 @@
       "slug": "roadmap-json-prompt-tools-tests-ps1-tests-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 97,
+      "entity_count": 108,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -12891,7 +13318,18 @@
         "roadmap.json#strategy-add-shortcut",
         "roadmap.json#project-wiki-auto-documentation",
         "roadmap.json#planning-stage-test-strategy",
-        "roadmap.json#agent-verified-outcome-evals"
+        "roadmap.json#agent-verified-outcome-evals",
+        "roadmap.json#token-audit-context-model",
+        "roadmap.json#model-tier-definitions",
+        "roadmap.json#model-policy-tests",
+        "roadmap.json#prompt-frontmatter-model-update",
+        "roadmap.json#agent-model-tool-governance",
+        "roadmap.json#shrink-always-on-context",
+        "roadmap.json#prompt-skill-split",
+        "roadmap.json#stage-context-contracts",
+        "roadmap.json#review-deterministic-first",
+        "roadmap.json#token-benchmark-before-after",
+        "roadmap.json#token-optimization-compound"
       ],
       "keywords": [
         "architecture research\nobjective",

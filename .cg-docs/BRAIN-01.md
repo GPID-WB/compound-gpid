@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-03_
+_Generated 2026-06-06_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 292 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 298 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -78,6 +78,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Batch D of the Knowledge Brain milestone (per `.cg-docs/strategy/2026-05-19-knowledge-brain.md`). Builds on the compl…
 - **[Test-correctness assessment for /cg-fixbug and /cg-work](.cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md)** · `brainstorm` · _decided_ · `2026-06-01`
   > When an AI agent writes a feature and its tests in the same step, both artifacts are derived from the same mental mod…
+- **[Context and model-governance audit infrastructure](.cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md)** · `brainstorm` · _decided_ · `2026-06-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -190,6 +192,12 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound…
 - **[Test-correctness assessment — red-phase gate, diagnostic fork, mutation verification](.cg-docs/plans/2026-06-01-test-correctness-assessment.md)** · `plan` · _completed\ncompleted-date: 2026-06-01_ · `2026-06-01`
   > Add test-integrity awareness to the `/cg-fixbug` and `/cg-work` prompts so that the AI agent never blindly trusts tes…
+- **[Context and model-governance audit — Phase 1 inventory](.cg-docs/plans/2026-06-04-context-model-audit-phase1.md)** · `plan` · _planned_ · `2026-06-04`
+  > Build `scripts/cg_audit_context.py` — a stdlib-only Python script that inventories all context-contributing files in …
+- **[Phase 3: staged /cg-review routing + /cg-work review-mode integration](.cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md)** · `plan` · _active_ · `2026-06-05`
+  > Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and ad…
+- **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
+  > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
   > **Review depth**: light **Date**: 2026-03-30 **Plan**: `.cg-docs/plans/2026-03-30-fix-triage-prompt.md` **Branch**: `…
 - **[2026-04-01-cg-strategy-and-roadmap-fix-review](.cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md)** · `review` · _—_ · `—`
@@ -364,6 +372,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > **Review depth**: thorough **Files reviewed**: 6 (`.github/prompts/cg-fixbug.prompt.md`, `.github/prompts/cg-work.pro…
 - **[2026-06-01-test-correctness-assessment-verify-review](.cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md)** · `review` · _—_ · `2026-06-03`
   > **Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/prompts/cg-fixbug.prompt.md`, `.github/pr…
+- **[2026-06-05-cg-review-token-cost-phase3-review](.cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md)** · `review` · _—_ · `2026-06-06`
+  > **Review mode**: architecture (auto-escalated from normal: new Python module with cross-module imports) **Files revie…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -450,6 +460,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. Howeve…
 - **[Join-Path with embedded backslash path separator is Windows-only](.cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md)** · `solution` · _—_ · `2026-05-13`
   > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
+- **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
+  > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
 - **[git stderr swallowed by 2>&1 redirect into an unused variable](.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md)** · `solution` · _—_ · `2026-03-04`
   > A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>…
 - **[PS5.1 ErrorActionPreference=Stop promotes git informational stderr into terminating errors](.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md)** · `solution` · _—_ · `2026-03-05`
@@ -599,7 +611,7 @@ Objective
 _Keywords: `architecture research
 objective` · `knowledge brain
 objective` · `quality loop
-objective`_ · 97 entities
+objective`_ · 108 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -795,6 +807,28 @@ objective`_ · 97 entities
   > Planning-stage test strategy + human review facilitation
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
+- **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _done_ · `—`
+  > Audit current context and model usage
+- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
+  > Define model tiers and escalation rules
+- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
+  > Add model-policy tests
+- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _idea_ · `—`
+  > Update prompt frontmatter model and agent choices
+- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
+  > Update custom agents for model and tool governance
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _idea_ · `—`
+  > Shrink always-on context
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
+  > Split large prompts into thin entrypoints and on-demand skills
+- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _idea_ · `—`
+  > Add stage-specific context contracts
+- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
+  > Make review cheaper with deterministic checks first
+- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
+  > Benchmark before and after
+- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
+  > Capture the learning
 
 ## Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent
 
