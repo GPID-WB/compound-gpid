@@ -149,8 +149,8 @@ Describe "cg-strategy.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the Copilot model picker without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -277,6 +277,12 @@ Describe "cg-review.prompt.md - review findings frontmatter" {
 
     It "includes a plan: key in the frontmatter template" {
         ($content -match '(?s)plan:.*findings:|(?s)findings:.*plan:') | Should -Be $true
+    }
+
+    It "includes date, depth, and standard type in the normal review frontmatter template" {
+        ($content -match 'date:\s*YYYY-MM-DD') | Should -Be $true
+        ($content -match 'depth:\s*<light\|standard\|data-risk\|architecture\|full>') | Should -Be $true
+        ($content -match 'type:\s*standard') | Should -Be $true
     }
 
     It "documents P0 finding ID pattern in Step 3.5" {
@@ -608,8 +614,8 @@ Describe "cg-ideate.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the Copilot model picker without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -2356,6 +2362,11 @@ Describe "Pester crash prevention - execution_subagent blocks in cg-work" {
             Should -Be $true
     }
 
+    It "cg-work.prompt.md does not include a direct Invoke-Pester file inspection recipe" {
+        ($cgWorkContent -match 'Invoke-Pester\s+<file>') | Should -Be $false
+        ($cgWorkContent -match '\$r\s*=\s*Invoke-Pester') | Should -Be $false
+    }
+
     It "warns filteredFiles non-null means partial run (commit gate guard)" {
         ($cgWorkContent -match 'filteredFiles') | Should -Be $true
     }
@@ -2875,8 +2886,8 @@ Describe "cg-review-repos.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the Copilot model picker without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -3172,13 +3183,14 @@ Describe "Phase 3 review routing contract" {
     }
 
     It "shared contract documents precedence and additive dedup" {
-        ($contract -match '(?s)verify/report-only.*risk-class routing.*explicit user mode.*line-volume.*config default') | Should -Be $true
+        ($contract -match '(?s)Resolve exactly one route.*explicit user mode.*auto risk-class routing result.*line-volume escalation.*config default') | Should -Be $true
         ($contract -match 'additive dedup|dispatch once') | Should -Be $true
     }
 
-    It "shared contract prevents explicit lower modes from weakening mandatory risk routes" {
-        ($contract -match '(?s)Explicit user modes.*raise review depth.*must not lower review depth.*mandatory risk-class route') | Should -Be $true
-        ($contract -match '(?s)cg-review light.*security-risk.*full') | Should -Be $true
+    It "shared contract makes explicit user modes win over auto routing" {
+        ($contract -match '(?s)Explicit user modes win.*Auto risk-class routing applies only.*no explicit mode') | Should -Be $true
+        ($contract -match '(?s)cg-review light.*high-risk diff.*light') | Should -Be $true
+        ($contract -match '(?s)cg-review full.*low-risk.*full') | Should -Be $true
     }
 
     It "shared contract routes linking and schema changes as security-risk" {
@@ -3228,9 +3240,10 @@ Describe "cg-review.prompt.md - staged routing modes" {
         ($content -match '(?s)security-risk.*full|auth.*secret.*credential.*full') | Should -Be $true
     }
 
-    It "does not let explicit lower modes weaken mandatory risk routes" {
-        ($content -match '(?s)Explicit user modes.*raise review depth.*must not lower review depth.*mandatory risk-class route') | Should -Be $true
-        ($content -match '(?s)light.*standard.*data-risk.*architecture-risk.*security-risk') | Should -Be $true
+    It "makes explicit user modes win and reserves auto routing for no explicit mode" {
+        ($content -match '(?s)explicit user mode wins.*auto risk-class routing') | Should -Be $true
+        ($content -match '(?s)Auto risk-class routing applies only.*no explicit mode') | Should -Be $true
+        ($content -match '(?s)requests `full`.*low-risk diff.*keep `full`') | Should -Be $true
     }
 
     It "routes linking and schema changes to full" {
@@ -3241,9 +3254,13 @@ Describe "cg-review.prompt.md - staged routing modes" {
         ($content -match '(?s)mode:verify.*light-only|verify mode.*exempt.*staged') | Should -Be $true
     }
 
+    It "reruns normal routing if verify mode falls back" {
+        ($content -match '(?s)Step 1\.7 disables verify mode.*continue normal routing|Falling back to normal review.*disable verify mode') | Should -Be $true
+    }
+
     It "documents line-volume can only raise light to standard" {
         ($content -match 'light\s*->\s*standard|light.*standard') | Should -Be $true
-        ($content -match 'risk-class modes.*take precedence over line-volume|data-risk.*architecture.*full.*line-volume') | Should -Be $true
+        ($content -match 'Explicit user modes take precedence over line-volume upgrades|explicit user mode wins.*line-volume') | Should -Be $true
     }
 
     It "missing changed-file scope asks for scope and does not silently broad dispatch" {
@@ -4025,6 +4042,12 @@ Describe "cg-work.prompt.md - phase boundary (Step 2.5)" {
 
     It "Step 2.5 mandates YAML flow sequence with unquoted integers for completed-phases" {
         ($content -match 'unquoted integer|Never use quoted') | Should Be $true
+    }
+
+    It "Step 2.5 does not mark a phase complete when tests or failing-steps remain" {
+        ($content -match '(?s)full-suite gate fails.*do not append `N` to `completed-phases`') | Should Be $true
+        ($content -match '(?s)failing-steps.*do not append `N` to `completed-phases`') | Should Be $true
+        ($content -match '(?s)fixed, skipped, deferred, or accepted with rationale') | Should Be $true
     }
 
     It "Step 2.5 handles final phase (N = M) by proceeding to Step 3 without continue/stop offer" {
@@ -5140,7 +5163,7 @@ Describe "cg-compound.prompt.md - uses cg-index --brain (Batch B)" {
 }
 
 # ---------------------------------------------------------------------------
-# Batch B â€” docs/reference.md and docs/model-guide.md list /cg-brain-rebuild
+# Batch B â€” docs/reference.md lists /cg-brain-rebuild; model guide documents governance categories
 # ---------------------------------------------------------------------------
 
 Describe "docs/reference.md - /cg-brain-rebuild registration" {
@@ -5152,12 +5175,13 @@ Describe "docs/reference.md - /cg-brain-rebuild registration" {
     }
 }
 
-Describe "docs/model-guide.md - cg-brain-rebuild model assignment" {
+Describe "docs/model-guide.md - explicit assignment governance" {
     $guideFile = Join-Path $repoRoot "docs\model-guide.md"
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    It "docs/model-guide.md lists cg-brain-rebuild.prompt.md" {
-        ($content -match 'cg-brain-rebuild\.prompt\.md') | Should -Be $true
+    It "documents standard-pinned operational prompts rather than requiring a per-prompt table" {
+        ($content -match 'standard-pinned operational prompts') | Should -Be $true
+        ($content -match 'No ordinary workflow prompt may hard-code any model') | Should -Be $true
     }
 }
 

@@ -27,20 +27,22 @@ resolved mode.
 
 ## Precedence
 
-Resolve routes in this order:
+Resolve exactly one route using this precedence:
 
 1. verify/report-only guard behavior
-2. risk-class routing result
-3. explicit user mode
+2. explicit user mode (`full`, `thorough` = `full`, `data-risk`, `architecture`, `standard`, `light`)
+3. auto risk-class routing result
 4. line-volume escalation
 5. config default
 
 `mode:verify` is light-only and exempt from staged broad routing. `--report-only`
 changes triage behavior, not risk classification.
 
-Explicit user modes can raise review depth, but they must not lower review depth
-below a mandatory risk-class route. For example, `/cg-review light` on a
-security-risk change still resolves to `full`.
+Explicit user modes win whenever present. Auto risk-class routing applies only
+when no explicit mode is requested. For example, `/cg-review light` resolves to
+`light` even on a high-risk diff, while `/cg-review full` on a low-risk diff
+resolves to `full`; agents should still mention any high-risk signals in their
+review focus.
 
 ## Trigger Taxonomy
 
@@ -52,8 +54,8 @@ security-risk change still resolves to `full`.
 | Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` |
 
-Line volume can raise `light -> standard`. Risk-class modes (`data-risk`,
-`architecture`, `full`) take precedence over line-volume upgrades.
+Line volume can raise auto-routed `light -> standard`. Explicit user modes take
+precedence over line-volume upgrades.
 
 ## Dedup
 

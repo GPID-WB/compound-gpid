@@ -37,6 +37,16 @@ Premium models (e.g., Claude Opus) are appropriate when the user is doing:
 - Premium usage is user-initiated or reserved for dedicated premium/deep-review
   workflows — never silently imposed by prompt metadata.
 
-## Prompts That MAY Retain Explicit Model Assignment
+## Explicit Model Assignments
 
-(Reserved for future premium/deep-review commands. Currently none.)
+Ordinary workflow prompts omit `model:`. Operational prompts may retain explicit
+standard or economy assignments when the assignment is intentional and not a
+premium default.
+
+Currently standard-pinned operational prompts include:
+
+- `cg-work.prompt.md` — Claude Sonnet 4.6
+- `cg-review.prompt.md` — Claude Sonnet 4.6
+
+No ordinary workflow prompt may hard-code any model, including standard models.
+No prompt currently has an explicit premium model assignment by default.

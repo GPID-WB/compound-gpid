@@ -86,6 +86,19 @@ class TestModelExtraction:
         assert declaration["model"] is None
         assert declaration["model_tier"] == "model-picker"
         assert inventory["missing"] == []
+        assert inventory["ordinary_model_picker_violations"] == []
+
+    def test_ordinary_prompt_with_standard_model_is_model_picker_violation(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Sonnet 4.6"))
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["ordinary_model_picker_violations"][0]["path"] == ".github/prompts/cg-plan.prompt.md"
+
+    def test_ordinary_prompt_with_premium_model_is_model_picker_violation(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Opus 4.6"))
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["ordinary_model_picker_violations"][0]["model"] == "Claude Opus 4.6"
 
     def test_tier_classification(self) -> None:
         assert audit.classify_model_tier("Claude Opus 4.6") == "premium"
@@ -242,6 +255,32 @@ class TestThresholdClassification:
         }, refs=6, model=model)
         assert result["immediate"] == []
         assert result["needs_review"][0]["reason"] == "reference count >= 5"
+
+    def test_ordinary_prompt_model_picker_violation_is_immediate(self) -> None:
+        model = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "model": "Claude Sonnet 4.6",
+            "model_tier": "standard",
+            "has_escalation_condition": False,
+        }
+        record = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }
+        matrix = [{"path": record["path"], "total_refs": 0}]
+        inventory = {
+            "declarations": [model],
+            "missing": [],
+            "drift": [],
+            "premium_usage": [],
+            "ordinary_model_picker_violations": [model],
+        }
+        result = audit.classify_optimization_candidates([record], matrix, inventory, [])
+        assert result["immediate"]
+        assert "ordinary prompt hard-codes model" in result["immediate"][0]["reason"]
 
 
 class TestOutputFormats:

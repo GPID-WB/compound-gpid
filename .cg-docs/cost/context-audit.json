@@ -413,8 +413,8 @@
     },
     {
       "category": "prompts",
-      "characters": 18163,
-      "estimated_tokens": 4540,
+      "characters": 18607,
+      "estimated_tokens": 4651,
       "path": ".github/prompts/cg-review.prompt.md"
     },
     {
@@ -449,8 +449,8 @@
     },
     {
       "category": "prompts",
-      "characters": 17455,
-      "estimated_tokens": 4363,
+      "characters": 18108,
+      "estimated_tokens": 4527,
       "path": ".github/prompts/cg-work.prompt.md"
     },
     {
@@ -461,8 +461,8 @@
     },
     {
       "category": "shared",
-      "characters": 2797,
-      "estimated_tokens": 699,
+      "characters": 3006,
+      "estimated_tokens": 751,
       "path": ".github/shared/review-routing.contract.md"
     },
     {
@@ -617,8 +617,8 @@
     },
     {
       "category": "docs",
-      "characters": 1682,
-      "estimated_tokens": 420,
+      "characters": 2063,
+      "estimated_tokens": 515,
       "path": "docs/model-guide.md"
     },
     {
@@ -658,7 +658,7 @@
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-06T09:13:20",
+  "generated": "2026-06-07T17:17:42",
   "model_inventory": {
     "declarations": [
       {
@@ -1030,6 +1030,7 @@
     ],
     "drift": [],
     "missing": [],
+    "ordinary_model_picker_violations": [],
     "premium_usage": []
   },
   "optimization_candidates": {
@@ -1261,11 +1262,11 @@
     {
       "agent_refs": 13,
       "file_refs": 9,
-      "load_verbs": 21,
+      "load_verbs": 22,
       "path": ".github/prompts/cg-work.prompt.md",
       "skill_refs": 2,
       "tool_refs": 0,
-      "total_refs": 45
+      "total_refs": 46
     },
     {
       "agent_refs": 6,
@@ -1615,8 +1616,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 169519,
-        "estimated_tokens": 42376,
+        "characters": 169900,
+        "estimated_tokens": 42471,
         "files": 10
       },
       "instructions": {
@@ -1625,8 +1626,8 @@
         "files": 3
       },
       "prompts": {
-        "characters": 220228,
-        "estimated_tokens": 55049,
+        "characters": 221325,
+        "estimated_tokens": 55324,
         "files": 22
       },
       "roadmap": {
@@ -1635,8 +1636,8 @@
         "files": 1
       },
       "shared": {
-        "characters": 2797,
-        "estimated_tokens": 699,
+        "characters": 3006,
+        "estimated_tokens": 751,
         "files": 2
       },
       "skills": {
@@ -1650,8 +1651,8 @@
         "files": 1
       }
     },
-    "total_characters": 1476730,
-    "total_estimated_tokens": 369157,
+    "total_characters": 1478417,
+    "total_estimated_tokens": 369579,
     "total_files": 81
   }
 }

@@ -50,7 +50,7 @@ verify. Pass relevant findings to review agents as additional context.
 
 ### Step 1.5: Deterministic Preflight Risk-Class Routing
 
-Skip this step if `mode:verify` was passed (Step 1.7 enforces light-only depth and disables overrides; verify mode is exempt from staged broad routing).
+If `mode:verify` was passed, first build verification context using Step 1.7. If Step 1.7 disables verify mode because no prior fixed review exists, continue normal routing in this step. If verify mode remains active, skip the rest of Step 1.5 because Step 1.7 enforces light-only depth and disables staged broad routing.
 
 If no changed files are detected or the changed-file scope is unclear, ask the user for the scope and do not silently broad default dispatch.
 
@@ -64,16 +64,16 @@ Use deterministic preflight routing from `.github/shared/review-routing.contract
 | Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` | `architecture` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` | `full` |
 
-Precedence: verify/report-only guard behavior > risk-class routing result > explicit user mode > line-volume escalation > config default.
+Precedence: verify/report-only guard behavior first; otherwise explicit user mode wins (`full`, `thorough` = `full`, `data-risk`, `architecture`, `standard`, `light`), then auto risk-class routing, then line-volume escalation, then config default. Resolve exactly one route.
 
-Explicit user modes can raise review depth, but must not lower review depth below a mandatory risk-class route. If a user requests `light` or `standard` for a diff that matches `data-risk`, `architecture-risk`, or `security-risk`, resolve to the risk-class mode and report the auto-escalation reason.
+Auto risk-class routing applies only when no explicit mode is requested. If a user requests `light` or `standard` for a diff that matches `data-risk`, `architecture-risk`, or `security-risk`, keep the explicit route and mention the high-risk signals in the review focus. If a user requests `full` for a low-risk diff, keep `full`.
 
 Line-volume interaction:
 - `≥ 50` non-test lines changed can raise `light -> standard`.
-- Risk-class modes (`data-risk`, `architecture`, `full`) take precedence over line-volume upgrades.
+- Explicit user modes take precedence over line-volume upgrades.
 - `≥ 200` non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
 
-If multiple triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any risk-class route applies, report: > "Auto-escalation applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
+If no explicit mode was requested and multiple auto-routing triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any auto risk-class route applies, report: > "Auto-routing applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
 
 ### Step 1.7: Build Verification Context (mode:verify only)
 
@@ -232,6 +232,9 @@ Merge all agent findings into a single prioritized report:
 4. Prepend frontmatter:
    ```yaml
    ---
+   date: YYYY-MM-DD
+   depth: <light|standard|data-risk|architecture|full>
+   type: standard
    plan: <path to active plan file, or null>
    findings:
      P1.1: open

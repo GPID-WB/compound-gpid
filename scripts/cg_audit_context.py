@@ -314,7 +314,8 @@ def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[s
         files: File records from :func:`scan_files`.
 
     Returns:
-        Dict with keys: ``declarations``, ``missing``, ``drift``, ``premium_usage``.
+        Dict with keys: ``declarations``, ``missing``, ``drift``,
+        ``premium_usage``, ``ordinary_model_picker_violations``.
     """
     declarations = extract_model_declarations(root, files)
     guide = parse_model_guide(root / "docs" / "model-guide.md")
@@ -331,11 +332,16 @@ def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[s
                 }
             )
     premium_usage = [d for d in declarations if d["model_tier"] == "premium"]
+    ordinary_model_picker_violations = [
+        d for d in declarations
+        if d["path"] in ORDINARY_MODEL_PICKER_PROMPTS and d["model"] is not None
+    ]
     return {
         "declarations": declarations,
         "missing": missing,
         "drift": drift,
         "premium_usage": premium_usage,
+        "ordinary_model_picker_violations": ordinary_model_picker_violations,
     }
 
 
@@ -579,6 +585,11 @@ def classify_optimization_candidates(
                 reasons_immediate.append("agent has broad tools and premium model")
             if model["model_tier"] == "missing" and refs["total_refs"] >= 3:
                 reasons_review.append("missing model in high-reference prompt/agent")
+            if path in {
+                violation["path"]
+                for violation in model_inventory.get("ordinary_model_picker_violations", [])
+            }:
+                reasons_immediate.append("ordinary prompt hard-codes model instead of inheriting model picker")
         if path in drift_paths:
             reasons_review.append("model guide drift")
 
@@ -707,6 +718,10 @@ def render_markdown(report: dict[str, Any]) -> str:
     premium = report["model_inventory"]["premium_usage"]
     lines.extend([f"- {d['path']}: {d['model']} (escalation condition: {d['has_escalation_condition']})"
                   for d in premium] or ["- None"])
+    lines.extend(["", "## Ordinary Prompt Model-Picker Violations", ""])
+    ordinary_violations = report["model_inventory"].get("ordinary_model_picker_violations", [])
+    lines.extend([f"- {d['path']}: frontmatter model `{d['model']}`"
+                  for d in ordinary_violations] or ["- None"])
     lines.extend(["", "## Duplicate Paragraphs", ""])
     lines.extend(markdown_table(["Preview", "Files", "Estimated Tokens"], [
         [d["block_preview"].replace("|", "\\|"), d["file_count"], d["estimated_tokens"]]

@@ -137,6 +137,15 @@ Describe "docs/model-guide.md - structure and sync" {
         $content | Should -Match "does not hard-code expensive premium models"
         $content | Should -Match "explicit budget decision"
     }
+
+    It "documents standard-pinned operational prompts without claiming premium defaults" {
+        $content | Should -Match "Explicit Model Assignments"
+        $content | Should -Match "standard-pinned operational prompts"
+        $content | Should -Match "cg-work\.prompt\.md"
+        $content | Should -Match "cg-review\.prompt\.md"
+        $content | Should -Match "No ordinary workflow prompt may hard-code any model"
+        $content | Should -Match "No prompt currently has an explicit premium model assignment"
+    }
 }
 
 Describe "docs/reference.md - ordinary prompt model picker sync" {

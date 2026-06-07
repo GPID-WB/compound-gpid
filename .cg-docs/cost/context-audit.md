@@ -1,24 +1,24 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-06T09:13:20_
+_Generated: 2026-06-07T17:17:42_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
 - Total files: 81
-- Total characters: 1476730
-- Total estimated tokens: 369157
+- Total characters: 1478417
+- Total estimated tokens: 369579
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 22 | 220228 | 55049 |
+| prompts | 22 | 221325 | 55324 |
 | agents | 17 | 86220 | 21550 |
 | skills | 20 | 97496 | 24367 |
 | instructions | 3 | 13658 | 3414 |
-| shared | 2 | 2797 | 699 |
+| shared | 2 | 3006 | 751 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 169519 | 42376 |
+| docs | 10 | 169900 | 42471 |
 | brain | 3 | 241382 | 60345 |
 | brain_index | 1 | 534580 | 133645 |
 | context | 1 | 56433 | 14108 |
@@ -37,9 +37,9 @@ _Generated: 2026-06-06T09:13:20_
 | docs/reference.md | docs | 35503 | 8875 |
 | docs/troubleshooting.md | docs | 25049 | 6262 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
+| .github/prompts/cg-review.prompt.md | prompts | 18607 | 4651 |
 | .github/prompts/cg-review-repos.prompt.md | prompts | 18268 | 4567 |
-| .github/prompts/cg-review.prompt.md | prompts | 18163 | 4540 |
-| .github/prompts/cg-work.prompt.md | prompts | 17455 | 4363 |
+| .github/prompts/cg-work.prompt.md | prompts | 18108 | 4527 |
 | docs/context-files.md | docs | 15333 | 3833 |
 | .github/prompts/cg-brainstorm.prompt.md | prompts | 14760 | 3690 |
 | .github/skills/cg-skill-wiki/SKILL.md | skills | 13711 | 3427 |
@@ -50,7 +50,7 @@ _Generated: 2026-06-06T09:13:20_
 | --- | --- | --- | --- | --- | --- | --- |
 | .github/prompts/cg-setup.prompt.md | 59 | 7 | 0 | 0 | 5 | 71 |
 | .github/prompts/cg-review.prompt.md | 8 | 22 | 5 | 0 | 18 | 53 |
-| .github/prompts/cg-work.prompt.md | 9 | 13 | 2 | 0 | 21 | 45 |
+| .github/prompts/cg-work.prompt.md | 9 | 13 | 2 | 0 | 22 | 46 |
 | .github/prompts/cg-brainstorm.prompt.md | 16 | 6 | 1 | 0 | 7 | 30 |
 | .github/prompts/cg-wiki.prompt.md | 9 | 9 | 0 | 0 | 11 | 29 |
 | .github/prompts/cg-compound.prompt.md | 15 | 5 | 2 | 0 | 6 | 28 |
@@ -168,6 +168,10 @@ _Generated: 2026-06-06T09:13:20_
 - None
 
 ## Premium Model Usage
+
+- None
+
+## Ordinary Prompt Model-Picker Violations
 
 - None
 
