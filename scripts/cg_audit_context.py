@@ -87,6 +87,39 @@ BROAD_DISPATCH_RE = re.compile(
     r"\b(?:dispatch all|all standard agents|broad fan-out|broad default dispatch)\b",
     re.IGNORECASE,
 )
+CONTEXT_RISK_ARTIFACT_RE = re.compile(
+    r"(?:\.cg-docs/BRAIN(?:-\d+|-NN|-log)?\.md|BRAIN(?:-\d+|-NN|-log)?\.md|"
+    r"\.cg-docs/brain-index\.json|brain-index\.json|compound-gpid\.context\.md|"
+    r"roadmap\.json|\.cg-docs/|\.cg-docs\b)",
+    re.IGNORECASE,
+)
+CONTEXT_RISK_ACTION_RE = re.compile(
+    r"\b(?:read|reading|load|loading|open|scan|search|consult|parse|re-read|rebuild|generate|run)\b",
+    re.IGNORECASE,
+)
+CONTEXT_BROAD_RE = re.compile(
+    r"\b(?:read|reading|load|loading|open|scan|search|consult|parse|re-read)\s+(?:the\s+)?"
+    r"(?:full|whole|all|entire|any|every)?\s*(?:file|body|artifact|artifacts|directory|"
+    r"files|partitions|records|context|roadmap|brain)?",
+    re.IGNORECASE,
+)
+CONTEXT_ALLOWED_RE = re.compile(
+    r"\b(?:targeted|matching snippets?|matched topic|topic sections?|headings?|frontmatter|"
+    r"titles?|status fields?|structured fields?|feature fields?|milestone fields?|"
+    r"Context expansion:|because|skip silently|only|narrowest|query-first|metadata|"
+    r"selectively|relevant|related|similar|verify|verification|matching|needed|"
+    r"justified|compute|computed)\b",
+    re.IGNORECASE,
+)
+CONTEXT_NEGATION_RE = re.compile(
+    r"(?:❌|\b(?:do not|don't|must not|never|without|not|mustn't)\b)",
+    re.IGNORECASE,
+)
+CONTEXT_MAINTENANCE_RE = re.compile(
+    r"\b(?:cg-index --brain|rebuild|regenerates?|generate|written by cg-index|"
+    r"roadmap commands|setup|audit|tooling|maintenance)\b",
+    re.IGNORECASE,
+)
 
 ORDINARY_MODEL_PICKER_PROMPTS = {
     ".github/prompts/cg-brainstorm.prompt.md",
@@ -440,6 +473,84 @@ def build_dispatch_burden(root: Path, files: Sequence[dict[str, Any]]) -> list[d
     return sorted(rows, key=lambda row: (row["burden_level"] != "broad", row["path"]))
 
 
+def classify_context_loading_line(path: str, line: str) -> dict[str, Any] | None:
+    """Classify one line as a context-loading signal, if applicable.
+
+    Args:
+        path: Relative path of the file containing the line.
+        line: Single line of text.
+
+    Returns:
+        ``None`` for irrelevant lines, otherwise a dict with ``level`` and
+        ``reason``. Levels are ``risk``, ``justified``, or ``targeted``.
+    """
+    stripped = " ".join(line.strip().split())
+    if not stripped or not CONTEXT_RISK_ARTIFACT_RE.search(stripped):
+        return None
+    has_action = bool(CONTEXT_RISK_ACTION_RE.search(stripped))
+    if not has_action:
+        return None
+    pure_write_action = re.search(r"\b(?:delete|replace|rename|move|modify|write)\b", stripped, re.IGNORECASE)
+    load_action = re.search(r"\b(?:read|reading|load|loading|open|scan|search|consult|parse|re-read)\b", stripped, re.IGNORECASE)
+    if pure_write_action and not load_action:
+        return None
+
+    artifact = CONTEXT_RISK_ARTIFACT_RE.search(stripped).group(0)
+    broad = bool(CONTEXT_BROAD_RE.search(stripped))
+    allowed = bool(CONTEXT_ALLOWED_RE.search(stripped))
+    negated = bool(CONTEXT_NEGATION_RE.search(stripped))
+    maintenance = bool(CONTEXT_MAINTENANCE_RE.search(stripped))
+
+    if negated:
+        return {"level": "targeted", "artifact": artifact, "reason": "targeted or guarded context-loading instruction"}
+    if re.search(r"\.cg-docs/BRAIN\.md|`?BRAIN\.md`?", stripped) and "BRAIN-log.md" not in stripped:
+        return {"level": "targeted", "artifact": artifact, "reason": "agent-facing Brain meta-index"}
+    if "brain-index.json" in stripped and not maintenance and not negated and not allowed:
+        return {"level": "risk", "artifact": "brain-index.json", "reason": "prompt may read tooling index wholesale"}
+    if maintenance and (allowed or "cg-index --brain" in stripped):
+        return {"level": "justified", "artifact": artifact, "reason": "maintenance/tooling workflow"}
+    if "Context expansion:" in stripped:
+        return {"level": "justified", "artifact": artifact, "reason": "explicit expansion rationale"}
+    if broad and not allowed and not negated:
+        return {"level": "risk", "artifact": artifact, "reason": "broad context-loading instruction"}
+    if allowed or negated:
+        return {"level": "targeted", "artifact": artifact, "reason": "targeted or guarded context-loading instruction"}
+    if artifact.lower() in ("compound-gpid.context.md", "roadmap.json") and re.search(r"\bread\b", stripped, re.IGNORECASE):
+        return {"level": "risk", "artifact": artifact, "reason": "unqualified large artifact read"}
+    return {"level": "targeted", "artifact": artifact, "reason": "context artifact reference with loading verb"}
+
+
+def build_context_loading_risks(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collect broad context-loading signals from prompt, agent, skill, shared, and doc files."""
+    scanned_categories = {"prompts", "agents", "skills", "instructions", "shared", "docs"}
+    rows: list[dict[str, Any]] = []
+    for file_record in files:
+        if file_record["category"] not in scanned_categories:
+            continue
+        path = root / file_record["path"]
+        try:
+            lines = path.read_text(encoding="utf-8-sig").splitlines()
+        except UnicodeDecodeError:
+            continue
+        for line_number, line in enumerate(lines, start=1):
+            classification = classify_context_loading_line(file_record["path"], line)
+            if not classification:
+                continue
+            snippet = " ".join(line.strip().split())[:220]
+            rows.append(
+                {
+                    "path": file_record["path"],
+                    "line": line_number,
+                    "level": classification["level"],
+                    "artifact": classification["artifact"],
+                    "reason": classification["reason"],
+                    "snippet": snippet,
+                }
+            )
+    order = {"risk": 0, "justified": 1, "targeted": 2}
+    return sorted(rows, key=lambda row: (order.get(row["level"], 9), row["path"], row["line"]))
+
+
 def iter_paragraph_blocks(content: str) -> Iterable[str]:
     """Yield paragraph blocks of at least 4 non-blank lines from content.
 
@@ -626,6 +737,7 @@ def build_report(root: Path) -> dict[str, Any]:
     dispatch_burden = build_dispatch_burden(root, files)
     model_inventory = build_model_inventory(root, files)
     duplicates = detect_duplicates(root, files)
+    context_loading_risks = build_context_loading_risks(root, files)
     candidates = classify_optimization_candidates(files, reference_matrix, model_inventory, duplicates)
     return {"generated": datetime.now().isoformat(timespec="seconds"), "disclaimer": DISCLAIMER,
             "summary": {"total_files": len(files),
@@ -635,6 +747,7 @@ def build_report(root: Path) -> dict[str, Any]:
             "files": sorted(files, key=lambda row: row["path"]),
             "reference_matrix": reference_matrix, "dispatch_burden": dispatch_burden,
             "model_inventory": model_inventory,
+            "context_loading_risks": context_loading_risks,
             "duplicates": duplicates, "optimization_candidates": candidates}
 
 
@@ -702,6 +815,31 @@ def render_markdown(report: dict[str, Any]) -> str:
         [r["path"], r["dispatch_refs"], r["conditional_routing"], r["broad_dispatch"], r["burden_level"]]
         for r in report.get("dispatch_burden", [])
     ]))
+    lines.extend(["", "## Context Loading Risks", ""])
+    context_rows = report.get("context_loading_risks", [])
+    if context_rows:
+        lines.extend(markdown_table(["Level", "Path", "Line", "Artifact", "Reason", "Snippet"], [
+            [
+                r["level"],
+                r["path"],
+                r["line"],
+                r["artifact"],
+                r["reason"],
+                r["snippet"].replace("|", "\\|"),
+            ]
+            for r in context_rows[:80]
+        ]))
+        risk_count = sum(1 for r in context_rows if r["level"] == "risk")
+        justified_count = sum(1 for r in context_rows if r["level"] == "justified")
+        targeted_count = sum(1 for r in context_rows if r["level"] == "targeted")
+        lines.extend([
+            "",
+            f"- Risk signals: {risk_count}",
+            f"- Justified full/maintenance signals: {justified_count}",
+            f"- Targeted/guarded signals: {targeted_count}",
+        ])
+    else:
+        lines.append("- None")
     lines.extend(["", "## Model Inventory", ""])
     lines.extend(markdown_table(["Path", "Category", "Model", "Tier"], [
         [d["path"], d["category"], d["model"] or "(missing)", d["model_tier"]]

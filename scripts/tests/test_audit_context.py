@@ -148,6 +148,62 @@ class TestDispatchBurden:
         assert row["burden_level"] == "broad"
 
 
+class TestContextLoadingRisks:
+    def test_unqualified_context_read_is_risk(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/x.prompt.md",
+            "3. Read `compound-gpid.context.md` for project-specific context.",
+        )
+        assert row is not None
+        assert row["level"] == "risk"
+        assert row["artifact"] == "compound-gpid.context.md"
+
+    def test_context_expansion_is_justified(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/cg-resume.prompt.md",
+            "Context expansion: reading full roadmap.json because /cg-resume computes global milestone health.",
+        )
+        assert row is not None
+        assert row["level"] == "justified"
+
+    def test_targeted_brain_topic_read_is_not_risk(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/skills/cg-skill-brain-query/SKILL.md",
+            "Open matched `BRAIN-NN.md` topic sections only after selecting a topic.",
+        )
+        assert row is not None
+        assert row["level"] == "targeted"
+
+    def test_unqualified_brain_index_read_is_risk(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/x.prompt.md",
+            "Read `brain-index.json` before planning.",
+        )
+        assert row is not None
+        assert row["level"] == "risk"
+
+    def test_read_and_modify_context_line_is_still_classified(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/x.prompt.md",
+            "Read and modify `compound-gpid.context.md` during enrichment.",
+        )
+        assert row is not None
+        assert row["level"] == "risk"
+        assert row["artifact"] == "compound-gpid.context.md"
+
+    def test_build_context_loading_risks_includes_line_numbers(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/x.prompt.md",
+            "Read `compound-gpid.context.md`.\n"
+            "Search targeted headings in `compound-gpid.context.md` only.\n",
+        )
+        files, _ = audit.scan_files(tmp_path)
+        rows = audit.build_context_loading_risks(tmp_path, files)
+        assert rows[0]["level"] == "risk"
+        assert rows[0]["line"] == 1
+        assert any(row["level"] == "targeted" for row in rows)
+
+
 class TestDuplicateDetection:
     BLOCK = "one\ntwo\nthree\nfour\n"
 
@@ -308,12 +364,14 @@ class TestOutputFormats:
             "reference_matrix": [],
             "dispatch_burden": [],
             "model_inventory": {"declarations": [], "missing": [], "drift": [], "premium_usage": []},
+            "context_loading_risks": [],
             "duplicates": [],
             "optimization_candidates": {"immediate": [], "needs_review": [], "acceptable_count": 0},
         })
         assert "## Summary" in markdown
         assert "## Prompt Reference Matrix" in markdown
         assert "## Review Dispatch Burden" in markdown
+        assert "## Context Loading Risks" in markdown
         assert "## Model Inventory" in markdown
 
     def test_disclaimer_present(self, tmp_path: Path) -> None:
@@ -536,6 +594,7 @@ class TestMdOutput:
             "reference_matrix": [],
             "dispatch_burden": [],
             "model_inventory": {"declarations": [], "missing": [], "drift": [], "premium_usage": []},
+            "context_loading_risks": [],
             "duplicates": [],
             "optimization_candidates": {"immediate": [], "needs_review": [], "acceptable_count": 0},
         }
