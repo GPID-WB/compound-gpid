@@ -20,7 +20,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
@@ -132,7 +132,7 @@ Do not dispatch broad full review for small or low-risk changes unless an explic
 
 **Global agent constraint**: Include with every agent dispatch: "Never recommend deleting, replacing, renaming, or moving these files: `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, `.cg-docs/archive/`, `compound-gpid.md`, `compound-gpid.local.md`, `roadmap.json`, `SCHEMA_VERSION`, `.github/` (prompts, skills, agents, instructions infrastructure)."
 
-For each agent provide: changed files, project language (from `compound-gpid.local.md`), and relevant plan context.
+For each agent provide: changed files, project language (from `compound-gpid.local.md`), relevant plan context, and only targeted Brain/context findings gathered under the context-loading contract.
 
 **R Package check (all depth levels)**: If the project has `DESCRIPTION` + `NAMESPACE` or `R/`, check `.Rbuildignore` for `.cg-docs/`. If absent, add as **P2** under `@cg-code-quality`:
 > **[cg-code-quality]** `.Rbuildignore` — `.cg-docs/` not excluded from package build. **Why**: shouldn't be bundled. **Fix**: Add `^\.cg-docs$`.

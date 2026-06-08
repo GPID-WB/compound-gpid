@@ -10,7 +10,7 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json`.
+- You may read targeted `roadmap.json` fields for plan status verification and roadmap updates.
 - You may create and modify code files required by the plan.
 - You may modify only these YAML frontmatter fields in the plan being implemented: `status`, `completed-date`, `failing-steps`, `completed-phases`, and `current-phase`.
 - You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
@@ -21,7 +21,7 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. If `compound-gpid.context.md` exists, read it; otherwise skip silently.
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the selected plan or touched technologies need tactical project facts, search relevant headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse flags:
    - `--no-brain` sets `brain-enabled = false`; otherwise `true`.
    - Recognized review modes: `review:auto`, `review:manual`, `review:none`, `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full`.
@@ -82,6 +82,8 @@ Load `cg-skill-brain-query`. Search for gotchas, similar implementation work, fi
 ### Step 1.5: Mark Work Started
 
 If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If found and status is `planned`, dispatch `@cg-roadmap`: "Update feature with plan path `<plan-path>` to status active." Skip if already `active` or `done`. Run only after the plan is valid.
+
+Use targeted structured fields only: feature IDs, titles, statuses, and `plan` paths. State the expansion reason before reading.
 
 ### Step 1.6: Build Test Index
 
@@ -182,10 +184,10 @@ In the plan frontmatter, change `status: active` to `status: completed` and add 
 Only proceed if Step 2, Step 3 quality checks, and tests passed.
 
 If `roadmap.json` exists:
-1. Find features whose `plan` path matches this plan (workspace-relative, forward slashes). Skip `plan: null`.
+1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashes). Skip `plan: null`.
 2. If no match, do title-search fallback: scan unfinished `plan: null` features whose titles appear in the plan requirements or step titles. Ask which were completed, then dispatch `@cg-roadmap`: "Update feature `<feature-id>` to status done and set plan to `<plan-path>`."
 3. If matched and not already `done`, dispatch `@cg-roadmap`: "Update feature with plan path `<plan-path>` to status done."
-4. Re-read `roadmap.json` to verify; if unchanged, tell the user they can run `@cg-roadmap` directly.
+4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly.
 
 ### Step 3.8: Milestone Completion Check
 

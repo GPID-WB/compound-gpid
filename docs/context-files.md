@@ -36,16 +36,16 @@ cg-link / cg-update
         ▼
 .github/copilot-instructions.md      ← VS Code loads this on every session
         │
-        │  "Step 0: read these files"
+        │  "Step 0: get bearings"
         ├──► compound-gpid.md         (strategic context)
-        └──► compound-gpid.context.md (tactical context)
+        └──► compound-gpid.context.md (tactical context, loaded selectively)
 ```
 
 `copilot-instructions.md` is the **entry point**: VS Code injects it into every Copilot session automatically. Its job is minimal — it establishes project identity (name, type, languages, review depth) and directs Copilot to read the other two files for substance.
 
 `compound-gpid.md` is the **30,000-foot view**: what the project is trying to achieve, hard constraints that must never be broken, and what the team is working on right now.
 
-`compound-gpid.context.md` is the **ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained at the start of each session.
+`compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts search relevant headings or snippets first instead of loading the whole file by default.
 
 `AGENTS.md`, when present, is not part of the Copilot context chain. It exists
 only for Codex / Claude Code-compatible agents and should be scoped that way in
@@ -60,7 +60,7 @@ Copilot-oriented `.github/` assets.
 
 The generated file covers four things:
 1. Project identity (name, type, languages, review depth) — from your config files
-2. Pointers instructing Copilot to read `compound-gpid.md` and `compound-gpid.context.md` at session start
+2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant
 3. Essential project-wide rules (fail loudly, commit lockfiles, conventional commits)
 4. Workspace notes (principal folder; pointer to `## Workspace Notes` in `context.md` for multi-folder setups)
 
@@ -271,7 +271,7 @@ GitHub Copilot. Put Codex / Claude dispatch rules and tool mappings in
 
 | | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` | `AGENTS.md` |
 |--|---|---|---|---|
-| **When read** | Every Copilot session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Step 0 of every `/cg-*` prompt | Codex / Claude Code sessions only |
+| **When read** | Every Copilot session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Selectively by heading/snippet when a workflow needs tactical facts | Codex / Claude Code sessions only |
 | **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` | Maintainer |
 | **Updated by** | `cg-update` (automatic) | You + `/cg-strategy` | You + `/cg-compound` | Maintainer |
 | **Structure** | Fixed (from template) | Fixed (4 sections) | Free-form (by topic) | Agent instructions |

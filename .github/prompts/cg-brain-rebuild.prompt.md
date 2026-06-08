@@ -42,8 +42,12 @@ rebuild automatically at the end.
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Read `compound-gpid.context.md` for project-specific context and workspace
-   notes. If it does not exist, skip silently.
+3. Load `.github/shared/context-loading.contract.md`. Do not read
+   `compound-gpid.context.md` by default; this maintenance prompt rebuilds the
+   Knowledge Brain from `.cg-docs/` via `cg-index --brain`, and only needs
+   targeted user/config context if a user-specific setting is relevant. If such
+   context is needed, state `Context expansion: reading <artifact/section>
+   because <reason>.`
 4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."

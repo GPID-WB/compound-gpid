@@ -9,7 +9,7 @@ You are a senior data science architect creating a structured implementation pla
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json` for structural operations and inline milestone rendering.
+- You may read targeted `roadmap.json` fields for structural operations and inline milestone rendering.
 - You may create new files ONLY under `.cg-docs/plans/`.
 - You may create a git branch if the user explicitly accepts at Step 0.7.
 - You must NOT modify existing files or write outside `.cg-docs/plans/`.
@@ -21,7 +21,7 @@ You are a senior data science architect creating a structured implementation pla
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. If `compound-gpid.context.md` exists, read it; otherwise skip silently.
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Check whether the requested work aligns with the charter. Flag conflicts before proceeding.
 5. Parse flags: `--no-phases` sets `phases-default = false`; otherwise `true`. `--no-brain` sets `brain-enabled = false`; otherwise `true`.
 6. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits your GitHub Copilot model picker. If Copilot Auto is selected, I will not infer or name the hidden underlying model. If the actual Auto-selected model matters, check Copilot UI/hover details."
@@ -62,7 +62,7 @@ Before gathering context:
 1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact and consider `compound-gpid.md` updates instead.
 2. Scan the project directory structure.
 3. Read 3-5 relevant source files, preferring files referenced by the brainstorm or user request.
-4. Check `.cg-docs/solutions/` for related learnings.
+4. Check `.cg-docs/solutions/` through filenames, frontmatter, titles, or targeted snippets for related learnings.
 
 ### Step 1.3: Consult Brain
 
@@ -181,8 +181,8 @@ Use: "Confidence check: **[Medium | Low]**. [Details on failing dimensions.]"
 
 If `roadmap.json` does not exist, skip.
 
-1. Read `roadmap.json` and scan features for 3+ title-keyword matches.
-2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Re-read `roadmap.json` to verify; if unchanged, tell the user to run `@cg-roadmap` directly.
+1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching.
+2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted `roadmap.json` status read; if unchanged, tell the user to run `@cg-roadmap` directly.
 3. If no match, ask whether to add this plan to a milestone. Show already-loaded milestone names inline as `- <milestone-title> (<done>/<total>)`. Dispatch `@cg-roadmap` to add the feature, or create a milestone first if needed. Verify after dispatch.
 
 ### Step 6: Handoff

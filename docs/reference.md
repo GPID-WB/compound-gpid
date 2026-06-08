@@ -326,7 +326,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 
 ### `compound-gpid.context.md`
 
-A committed, growing knowledge base for project-specific context. Created by `/cg-setup`. Extended by `/cg-compound` after each significant task. Read by all prompts in Step 0.
+A committed, growing knowledge base for project-specific context. Created by `/cg-setup`. Extended by `/cg-compound` after each significant task. Ordinary prompts load targeted headings or snippets when tactical facts are relevant instead of reading the whole file by default.
 
 Typical contents: data source locations and caveats, domain vocabulary, workspace folder descriptions, variable-level notes, recurring gotchas. Unlike the charter (`compound-gpid.md`), `context.md` has no fixed structure — organise it by topic.
 

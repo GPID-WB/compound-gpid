@@ -30,7 +30,10 @@ Read `.cg-docs/BRAIN.md`. Focus on the **Topic Index** table, which maps topic
 names to their BRAIN-NN.md sub-file and a list of keywords. Also note the
 **Entity Summary** and **Relationship Summary** sections for orientation.
 
-Do NOT read all BRAIN-NN.md sub-files at this stage. Read only the meta-index.
+`.cg-docs/BRAIN.md` is the small agent-facing meta-index. `.cg-docs/brain-index.json`
+is the tooling retrieval index used by Python scripts and `cg-index`; prompt
+agents must not read it wholesale. Do NOT read all BRAIN-NN.md sub-files at
+this stage. Read only the meta-index.
 
 ### Step 2b — Check Team Brain
 
@@ -70,8 +73,13 @@ If no topic matches, skip to Step 8 (No-Match Report).
 
 For each matched topic, note the linked BRAIN-NN.md sub-file. **Deduplicate**:
 if two or more matched topics link to the same sub-file, read that file only
-once. Open each unique sub-file and read the entries under the matched topic
-section(s).
+once. Before opening each unique sub-file, state:
+
+`Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.`
+
+Open each unique sub-file and read only the entries under the matched topic
+section(s). If a matched topic spans the whole file and section extraction is
+impractical, state why before reading the full file.
 
 ### Step 5 — Extract Relevant Entries
 
@@ -212,8 +220,12 @@ apply lessons mechanically without considering context.
 - ❌ Read all BRAIN-NN.md sub-files blindly — only open files for matched topics.
 - ❌ Apply findings without evaluation — every entry must pass the Step 6 checks.
 - ❌ Apply contradictory entries simultaneously — resolve before using.
-- ❌ Use `brain-index.json` directly — it is for the `cg-index` Python tooling,
-  not for agent navigation. The BRAIN.md topic index is the entry point.
+- ❌ Read `brain-index.json` wholesale as prompt context. It is for the
+  `cg-index` Python tooling and targeted summaries; the BRAIN.md topic index is
+  the agent entry point.
+- ❌ Read `BRAIN-log.md` during ordinary Brain queries unless chronology or
+  staleness is directly relevant. If needed, state `Context expansion: reading
+  BRAIN-log.md because <reason>.`
 - ❌ Write to, modify, or delete any brain artifact (BRAIN.md, BRAIN-NN.md,
   BRAIN-log.md, brain-index.json) — this skill is read-only.
 - ❌ Report "No relevant entries found" without attempting Steps 3–5 — always

@@ -36,8 +36,11 @@ Use `/cg-compound` after:
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
+3. Load `.github/shared/context-loading.contract.md`. For bearings, do not read
+   full `compound-gpid.context.md` by default; search targeted headings or
+   snippets for wiki folder configuration and enrichment-relevant sections as
+   needed, and state `Context expansion: reading <artifact/section> because
+   <reason>.`
 4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
@@ -145,6 +148,8 @@ Evaluate the 4 binary trigger criteria (from `cg-skill-wiki`):
 - If **ANY is YES**:
   1. Determine the wiki folder: check `## Wiki Configuration` in
      `compound-gpid.context.md` for `<!-- folder: ... -->`. Default: `wiki`.
+     Read only that heading/snippet unless whole-file placement checks are
+     required.
   2. Check if `<folder>/_wiki.yml` exists. If not:
      > "No wiki manifest found — run `/cg-wiki init` to initialize."
      Skip silently.
@@ -180,7 +185,7 @@ Check `compound-gpid.local.md` for a `team-brain:` section:
 
 ### Step 4: Cross-Reference
 
-1. Search `.cg-docs/solutions/` for related existing solutions.
+1. Search `.cg-docs/solutions/` titles, frontmatter, and targeted snippets for related existing solutions.
 2. If related solutions exist, add cross-references in both documents.
 3. If this solution reveals a pattern that should be a project-wide convention, suggest updating `copilot-instructions.md` or the relevant language instructions file.
 
@@ -188,8 +193,10 @@ Check `compound-gpid.local.md` for a `team-brain:` section:
 
 If `enrich = false` (i.e., `--no-enrich` was passed): skip this step entirely.
 
-1. Re-read `compound-gpid.context.md` (already loaded in Step 0 — re-read for
-   the latest version).
+1. Context expansion: reading targeted `compound-gpid.context.md` sections
+   because enrichment must choose the matching section and avoid duplicating an
+   existing fact. If section placement or conflict avoidance cannot be decided
+   from headings/snippets, a full read is allowed for this maintenance workflow.
 2. Assess: did this task reveal a domain rule, data source convention, or
    project-specific fact that would help in future tasks?
 3. If yes, append to the bottom of the matching section. Add a new `###`
