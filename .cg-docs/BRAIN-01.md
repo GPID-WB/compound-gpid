@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-08_
+_Generated 2026-06-09_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 305 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 310 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -202,6 +202,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project con…
 - **[Token Optimization Phase 6 - Benchmarks, Guardrails, and Release Readiness](.cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md)** · `plan` · _completed_ · `2026-06-08`
   > Create a repeatable benchmark and regression-guardrail system that verifies whether the Phase 2-5 token-optimization …
+- **[Token Optimization Phase 7 - Release Candidate Validation and Knowledge Capture](.cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md)** · `plan` · _completed_ · `2026-06-09`
+  > Prepare the Phase 2-6 token-optimization work for merge and release by validating the full workflow end-to-end, docum…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -386,6 +388,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > **Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
 - **[2026-06-08-token-optimization-phase6-benchmarks-guardrails-review](.cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md)** · `review` · _—_ · `2026-06-08`
   > **Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)
+- **[2026-06-09-token-optimization-phase7-release-validation-review](.cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md)** · `review` · _—_ · `2026-06-09`
+  > **Review mode**: light **Files reviewed**: 14 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -470,6 +474,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > `compound-gpid.local.md` uses YAML frontmatter to store configuration. The field extraction regex in `helpers.ps1` wa…
 - **[Skills are not slash-command prompts — avoid advertising them as /skill-name](.cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md)** · `solution` · _—_ · `2026-03-02`
   > Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. Howeve…
+- **[Multi-day VS Code session \(68h\) accumulates event listeners — unresponsive freeze and controlled restart](.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md)** · `solution` · _—_ · `2026-04-24`
+  > After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and rest…
 - **[Join-Path with embedded backslash path separator is Windows-only](.cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md)** · `solution` · _—_ · `2026-05-13`
   > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
 - **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
@@ -596,6 +602,10 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > A `/cg-fixbug` session could produce a "passing" test that provides zero regression protection. The test was written …
 - **[Token optimization needs benchmark guardrails, not one-off audits](.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md)** · `solution` · _—_ · `2026-06-08`
   > Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and …
+- **[External validation must not be marked passed from static evidence](.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md)** · `solution` · _—_ · `2026-06-09`
+  > The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but on…
+- **[Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)** · `solution` · _—_ · `2026-06-09`
+  > Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledg…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`

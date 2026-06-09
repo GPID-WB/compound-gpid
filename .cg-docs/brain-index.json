@@ -1,5 +1,5 @@
 {
-  "edge_count": 177,
+  "edge_count": 180,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -758,6 +758,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -773,6 +779,18 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
       "target": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
       "target_missing": false
     },
     {
@@ -4017,6 +4035,34 @@
       ]
     },
     {
+      "date": "2026-06-09",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation",
+      "status": "completed",
+      "summary": "Prepare the Phase 2-6 token-optimization work for merge and release by validating the full workflow end-to-end, documenting the new behavior for users and maintainers, creating a maintainer release-readiness checklist, and capturing reusable lessons through `/cg-compound`.",
+      "tags": [
+        "token-optimization",
+        "release-readiness",
+        "validation",
+        "documentation",
+        "knowledge-capture"
+      ],
+      "title": "Token Optimization Phase 7 - Release Candidate Validation and Knowledge Capture",
+      "top_keywords": [
+        "cg-work",
+        "/cg-compound",
+        "cg-review",
+        "knowledge brain",
+        "cg-compound",
+        ".cg-docs/inbox/",
+        "/cg-work review:*",
+        "validation",
+        "/cg-review",
+        "/cg-plan"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -6104,6 +6150,28 @@
         "review",
         "report",
         "passed"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation-review",
+      "status": "",
+      "summary": "**Review mode**: light **Files reviewed**: 14 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-06-09-token-optimization-phase7-release-validation-review",
+      "top_keywords": [
+        "review",
+        "@cg-testing",
+        "validation",
+        "passed",
+        "powershell",
+        "light",
+        "report",
+        "autofix",
+        "pwsh",
+        "blocking"
       ]
     },
     {
@@ -10513,6 +10581,65 @@
       ]
     },
     {
+      "date": "2026-06-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+      "slug": "2026-06-09-external-validation-must-not-be-marked-passed",
+      "status": "",
+      "summary": "The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but one row overstated the evidence: That was inaccurate. Codex had run Python audit tests and the static context audit, but had not run Pester prompt-contract tests because no `pwsh` or `powershell` executable was available on PATH. The checklist could have led a maintainer to treat external Pester validation as complete.",
+      "tags": [
+        "validation",
+        "release-readiness",
+        "pester",
+        "codex",
+        "vscode",
+        "evidence-quality"
+      ],
+      "title": "External validation must not be marked passed from static evidence",
+      "top_keywords": [
+        "validation",
+        "external",
+        "passed",
+        "static",
+        "evidence",
+        "must",
+        "marked",
+        "2026-06-09-token-optimization-phase7-release-validation-review.md",
+        "2026-06-09-token-optimization-release-validation.md",
+        "2026-06-08-token-optimization-benchmark-guardrails.md"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+      "slug": "2026-06-09-token-optimization-release-validation",
+      "status": "",
+      "summary": "Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledge Brain retrieval, context loading, and audit tooling. Each improvement could pass its own local check while still leaving maintainers uncertain about release readiness: static audit output does not prove Copilot model-picker behavior, route-aware dispatch, or manual VS Code runtime behavior. The Phase 7 release-candidate question was therefore not whether to slim more prompts. It was whether the completed optimization work had a clear evidence trail for merge and release.",
+      "tags": [
+        "token-optimization",
+        "release-readiness",
+        "validation",
+        "model-governance",
+        "review-routing",
+        "context-loading",
+        "knowledge-capture"
+      ],
+      "title": "Token optimization release candidates need end-to-end validation evidence",
+      "top_keywords": [
+        "knowledge brain",
+        "validation",
+        "model",
+        "guardrail",
+        "cg-work",
+        "passed",
+        "/cg-review",
+        ".cg-docs/cost/token-optimization-release-checklist.md",
+        ".cg-docs/cost/token-optimization-follow-ups.md",
+        "/cg-work review:*"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -13109,13 +13236,13 @@
       ]
     }
   ],
-  "entity_count": 461,
-  "generated": "2026-06-08",
+  "entity_count": 465,
+  "generated": "2026-06-09",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 305,
+      "entity_count": 310,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -13215,6 +13342,7 @@
         ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
         ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
         ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+        ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -13307,6 +13435,7 @@
         ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
         ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
         ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+        ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -13349,6 +13478,7 @@
         ".cg-docs/solutions/data-quality/2026-03-19-api-response-null-fields-corrupt-output-contract.md",
         ".cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
+        ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
@@ -13412,6 +13542,8 @@
         ".cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md",
         ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
         ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

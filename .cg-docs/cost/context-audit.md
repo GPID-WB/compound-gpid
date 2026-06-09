@@ -1,14 +1,14 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-08T17:33:44_
+_Generated: 2026-06-09T17:02:00_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
 - Total files: 83
-- Total characters: 1501526
-- Total estimated tokens: 375354
+- Total characters: 1512428
+- Total estimated tokens: 378080
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
@@ -18,9 +18,9 @@ _Generated: 2026-06-08T17:33:44_
 | instructions | 3 | 13658 | 3414 |
 | shared | 3 | 6155 | 1538 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 172803 | 43197 |
-| brain | 4 | 245661 | 61414 |
-| brain_index | 1 | 543226 | 135806 |
+| docs | 10 | 174805 | 43697 |
+| brain | 4 | 248583 | 62145 |
+| brain_index | 1 | 549204 | 137301 |
 | context | 1 | 56996 | 14249 |
 | roadmap | 1 | 52784 | 13196 |
 
@@ -28,13 +28,13 @@ _Generated: 2026-06-08T17:33:44_
 
 | Path | Category | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| .cg-docs/brain-index.json | brain_index | 543226 | 135806 |
-| .cg-docs/BRAIN-log.md | brain | 128746 | 32186 |
-| .cg-docs/BRAIN-01.md | brain | 112122 | 28030 |
+| .cg-docs/brain-index.json | brain_index | 549204 | 137301 |
+| .cg-docs/BRAIN-log.md | brain | 130025 | 32506 |
+| .cg-docs/BRAIN-01.md | brain | 113765 | 28441 |
+| docs/workflow.md | docs | 57143 | 14285 |
 | compound-gpid.context.md | context | 56996 | 14249 |
-| docs/workflow.md | docs | 56371 | 14092 |
 | roadmap.json | roadmap | 52784 | 13196 |
-| docs/reference.md | docs | 36017 | 9004 |
+| docs/reference.md | docs | 36791 | 9197 |
 | docs/troubleshooting.md | docs | 25049 | 6262 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
 | .github/prompts/cg-review.prompt.md | prompts | 18955 | 4738 |
@@ -221,7 +221,7 @@ _Generated: 2026-06-08T17:33:44_
 | risk | .github/prompts/cg-wiki.prompt.md | 44 | compound-gpid.context.md | broad context-loading instruction | 3. If `compound-gpid.context.md` exists, read it for wiki folder configuration |
 | risk | .github/prompts/cg-work.prompt.md | 39 | .cg-docs/ | broad context-loading instruction | 3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or overri |
 | risk | docs/context-files.md | 227 | compound-gpid.context.md | broad context-loading instruction | 3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately. |
-| risk | docs/reference.md | 255 | .cg-docs/ | broad context-loading instruction | \| `@cg-release-scanner` \| Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` \| Claude Haiku 4.5 \| No \| |
+| risk | docs/reference.md | 266 | .cg-docs/ | broad context-loading instruction | \| `@cg-release-scanner` \| Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` \| Claude Haiku 4.5 \| No \| |
 | risk | docs/workflow.md | 247 | .cg-docs/ | broad context-loading instruction | 1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern. |
 | justified | .github/prompts/cg-compound.prompt.md | 196 | compound-gpid.context.md | explicit expansion rationale | 1. Context expansion: reading targeted `compound-gpid.context.md` sections |
 | justified | .github/prompts/cg-plan.prompt.md | 184 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching. |

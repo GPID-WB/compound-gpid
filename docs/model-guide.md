@@ -7,6 +7,10 @@ Ordinary workflow prompts (`/cg-brainstorm`, `/cg-ideate`, `/cg-plan`,
 model. They inherit whichever model the user has selected in the GitHub
 Copilot model picker.
 
+When Copilot Auto is selected, Compound GPID prompts must not infer or name the
+hidden underlying model. If that identity matters for a validation run, check
+the GitHub Copilot UI or hover details.
+
 ## Recommended Model Selection
 
 | Use case | Recommended model |
@@ -65,3 +69,8 @@ and no ordinary model-picker prompt with an explicit `model:` frontmatter key.
 When comparing token-optimization work against an earlier report, pass
 `--baseline <previous-context-audit.json>` and review the Benchmark Summary
 before release.
+
+For release candidates, also complete
+`.cg-docs/cost/token-optimization-release-checklist.md`. The static audit can
+verify prompt metadata and guardrail text, but VS Code/Copilot must still
+validate runtime model-picker behavior and routed agent dispatch.

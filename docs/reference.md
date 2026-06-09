@@ -93,6 +93,12 @@ Use `--baseline` with a previous `context-audit.json` to render before/after ben
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
 
+For token-optimization release candidates, complete
+`.cg-docs/cost/token-optimization-release-checklist.md` after generating the
+audit. Keep non-blocking issues in
+`.cg-docs/cost/token-optimization-follow-ups.md` so release blockers and future
+cleanup stay separate.
+
 > **Model selection**: See [Model Guide](model-guide.md) for model selection guidance and escalation criteria.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
@@ -191,7 +197,12 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | ≥ 50 non-test lines changed with otherwise low risk | raises `light` → `standard` |
 | ≥ 200 non-test lines changed without higher-risk trigger | recommends `full` to user (does not auto-apply unless explicitly requested) |
 
-When any route fires, the prompt tells you the reason, resolved mode, and mandatory emphasis. Explicit review modes can raise review depth but cannot lower below a mandatory risk route. `thorough` remains a backward-compatible alias for `full`.
+When any route fires, the prompt tells you the reason, resolved mode, and
+mandatory emphasis. Explicit review modes win when present: `/cg-review light`
+resolves to `light`, and `/cg-review full` resolves to `full`. Auto
+risk-class routing applies only when no explicit mode is requested. Agents
+should still mention high-risk signals in their review focus. `thorough`
+remains a backward-compatible alias for `full`.
 
 ### Per-Finding Status Tracking
 
@@ -356,6 +367,8 @@ your-project/
     ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── competitive-reviews/  # /cg-review-repos registry (repos.json) and assessment outputs
+    ├── cost/                 # context/model audit reports and release-readiness checklists
+    ├── inbox/                # unprocessed strategy ideas; not approved roadmap items
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     ├── strategy/             # /cg-strategy session records
@@ -368,6 +381,9 @@ your-project/
         ├── environment-issues/
         └── git-workflows/
 ```
+
+`.cg-docs/inbox/` is only a holding area. Do not treat files there as approved
+roadmap items until a separate strategy or roadmap session promotes them.
 
 ---
 

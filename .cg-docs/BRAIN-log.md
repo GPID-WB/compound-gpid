@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-08 · 353 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-09 · 357 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -104,6 +104,17 @@ _Generated 2026-06-08 · 353 artifacts (newest first) + 108 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-09
+
+- **[2026-06-09-token-optimization-phase7-release-validation-review](.cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md)** · `review` · _—_ · `2026-06-09`
+  > **Review mode**: light **Files reviewed**: 14 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
+- **[External validation must not be marked passed from static evidence](.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md)** · `solution` · _—_ · `2026-06-09`
+  > The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but on…
+- **[Token Optimization Phase 7 - Release Candidate Validation and Knowledge Capture](.cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md)** · `plan` · _completed_ · `2026-06-09`
+  > Prepare the Phase 2-6 token-optimization work for merge and release by validating the full workflow end-to-end, docum…
+- **[Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)** · `solution` · _—_ · `2026-06-09`
+  > Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledg…
 
 ## 2026-06-08
 

@@ -712,18 +712,29 @@ or review-routing changes.
 6. Open the generated audit report and review `Benchmark Summary`,
    `Guardrails`, `Context Loading Risks`, `Review Dispatch Burden`, and
    `Model Inventory`.
+7. Complete `.cg-docs/cost/token-optimization-release-checklist.md` and record
+   any non-blocking items in `.cg-docs/cost/token-optimization-follow-ups.md`.
 
 Release-readiness checks:
 
 - Ordinary model-picker prompts still omit `model:`.
 - Premium model usage is absent unless a future dedicated premium workflow has an explicit rationale and tests.
 - Broad Brain/context reads are targeted, justified, or maintenance-only.
-- `/cg-review` preserves routed modes and explicit full review.
-- `/cg-work` preserves `review:auto`, `review:manual`, and `review:none`.
+- `/cg-review` preserves routed modes, explicit mode precedence, and explicit full review.
+- `/cg-work` preserves `review:auto`, `review:manual`, `review:none`, and explicit `review:<mode>` behavior.
+- Knowledge Brain lookup remains query-first: start from the generated topic
+  index, follow matched topics, and avoid wholesale tooling-index consumption
+  during ordinary workflows.
+- `.cg-docs/inbox/` remains a holding area for unprocessed strategy ideas.
+  Inbox entries are not approved roadmap items until a separate strategy or
+  roadmap session promotes them.
+- `_tmp/` is not used as durable project artifact storage.
 - Manual VS Code/Copilot validation covers model-picker behavior, `/cg-plan`, `/cg-work review:auto`, `/cg-work review:manual`, `/cg-review light`, `/cg-review data-risk`, `/cg-review full`, and Knowledge Brain selective retrieval.
 
 Runtime behavior still needs GitHub Copilot / VS Code validation because static
 audit output cannot prove actual model-picker selection or prompt dispatch.
+Static checks also cannot identify the hidden model selected by Copilot Auto;
+check the Copilot UI if that identity matters.
 
 ### Release (`/cg-release`)
 

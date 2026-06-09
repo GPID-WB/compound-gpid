@@ -359,7 +359,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 255,
+      "line": 266,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |"
@@ -975,7 +975,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 114,
+      "line": 120,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -983,7 +983,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 394,
+      "line": 410,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -991,7 +991,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 397,
+      "line": 413,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -1039,7 +1039,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 747,
+      "line": 758,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
@@ -1218,8 +1218,8 @@
   "files": [
     {
       "category": "brain",
-      "characters": 112122,
-      "estimated_tokens": 28030,
+      "characters": 113765,
+      "estimated_tokens": 28441,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
@@ -1230,8 +1230,8 @@
     },
     {
       "category": "brain",
-      "characters": 128746,
-      "estimated_tokens": 32186,
+      "characters": 130025,
+      "estimated_tokens": 32506,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
@@ -1242,8 +1242,8 @@
     },
     {
       "category": "brain_index",
-      "characters": 543226,
-      "estimated_tokens": 135806,
+      "characters": 549204,
+      "estimated_tokens": 137301,
       "path": ".cg-docs/brain-index.json"
     },
     {
@@ -1674,14 +1674,14 @@
     },
     {
       "category": "docs",
-      "characters": 2615,
-      "estimated_tokens": 653,
+      "characters": 3071,
+      "estimated_tokens": 767,
       "path": "docs/model-guide.md"
     },
     {
       "category": "docs",
-      "characters": 36017,
-      "estimated_tokens": 9004,
+      "characters": 36791,
+      "estimated_tokens": 9197,
       "path": "docs/reference.md"
     },
     {
@@ -1704,8 +1704,8 @@
     },
     {
       "category": "docs",
-      "characters": 56371,
-      "estimated_tokens": 14092,
+      "characters": 57143,
+      "estimated_tokens": 14285,
       "path": "docs/workflow.md"
     },
     {
@@ -1715,7 +1715,7 @@
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-08T17:33:44",
+  "generated": "2026-06-09T17:02:00",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -2775,13 +2775,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 245661,
-        "estimated_tokens": 61414,
+        "characters": 248583,
+        "estimated_tokens": 62145,
         "files": 4
       },
       "brain_index": {
-        "characters": 543226,
-        "estimated_tokens": 135806,
+        "characters": 549204,
+        "estimated_tokens": 137301,
         "files": 1
       },
       "context": {
@@ -2790,8 +2790,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 172803,
-        "estimated_tokens": 43197,
+        "characters": 174805,
+        "estimated_tokens": 43697,
         "files": 10
       },
       "instructions": {
@@ -2825,8 +2825,8 @@
         "files": 1
       }
     },
-    "total_characters": 1501526,
-    "total_estimated_tokens": 375354,
+    "total_characters": 1512428,
+    "total_estimated_tokens": 378080,
     "total_files": 83
   }
 }
