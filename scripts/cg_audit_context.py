@@ -66,6 +66,10 @@ THRESHOLD_SKILL_REVIEW = 1200
 THRESHOLD_REFS_IMMEDIATE = 5
 THRESHOLD_DUPLICATE_FILES = 3
 THRESHOLD_DUPLICATE_TOKENS = 1000
+THRESHOLD_HIGH_FREQ_PROMPT_WARN = 5000
+THRESHOLD_HIGH_FREQ_PROMPT_FAIL = 6000
+THRESHOLD_ALWAYS_ON_WARN = 4500
+THRESHOLD_ALWAYS_ON_FAIL = 6000
 
 FILE_REF_RE = re.compile(
     r"\b(?:compound-gpid(?:\.context|\.local)?\.md|roadmap\.json|BRAIN(?:-\d+|-log)?\.md|"
@@ -129,6 +133,56 @@ ORDINARY_MODEL_PICKER_PROMPTS = {
     ".github/prompts/cg-review-repos.prompt.md",
     ".github/prompts/cg-strategy.prompt.md",
 }
+
+BENCHMARK_PROMPTS = {
+    "/cg-plan": ".github/prompts/cg-plan.prompt.md",
+    "/cg-work": ".github/prompts/cg-work.prompt.md",
+    "/cg-review": ".github/prompts/cg-review.prompt.md",
+    "/cg-compound": ".github/prompts/cg-compound.prompt.md",
+    "/cg-resume": ".github/prompts/cg-resume.prompt.md",
+}
+
+HIGH_FREQUENCY_PROMPTS = set(BENCHMARK_PROMPTS.values())
+
+ORDINARY_CONTEXT_GUARDRAIL_PROMPTS = {
+    ".github/prompts/cg-brainstorm.prompt.md",
+    ".github/prompts/cg-plan.prompt.md",
+    ".github/prompts/cg-work.prompt.md",
+    ".github/prompts/cg-review.prompt.md",
+    ".github/prompts/cg-resume.prompt.md",
+}
+
+BROAD_CONTEXT_GUARDRAIL_ARTIFACTS = (
+    ".cg-docs/",
+    ".cg-docs",
+    "BRAIN-log.md",
+    "BRAIN-NN.md",
+    "BRAIN-01.md",
+    "brain-index.json",
+    "compound-gpid.context.md",
+    "roadmap.json",
+)
+
+EXPECTED_REVIEW_AGENT_COUNTS = {
+    "light": 2,
+    "standard": 8,
+    "data-risk": 8,
+    "architecture": 8,
+    "full": 10,
+}
+
+RELEASE_READINESS_CHECKLIST = [
+    "Audit generated successfully.",
+    "Guardrail failures are zero, or warnings are documented as maintenance-intentional.",
+    "Ordinary model-picker prompts still omit model:.",
+    "Premium model usage remains zero.",
+    "/cg-review and /cg-work remain conditional, not broad, dispatch workflows.",
+    "Broad Brain/context reads are targeted, justified, or maintenance-only.",
+    "Top remaining optimization candidates are reviewed and accepted or filed as future work.",
+    "Python audit tests pass.",
+    "Pester safe runner passes in VS Code/PowerShell.",
+    "Manual VS Code/Copilot runtime checklist is complete.",
+]
 
 
 def estimate_tokens(text: str) -> int:
@@ -721,6 +775,348 @@ def classify_optimization_candidates(
             "acceptable_count": max(0, len(files) - len(classified_paths))}
 
 
+def _count_context_levels(rows: Sequence[dict[str, Any]], path: str | None = None) -> dict[str, int]:
+    """Count context-loading signal levels, optionally limited to one path."""
+    selected = [row for row in rows if path is None or row.get("path") == path]
+    return {
+        "risk": sum(1 for row in selected if row.get("level") == "risk"),
+        "justified": sum(1 for row in selected if row.get("level") == "justified"),
+        "targeted": sum(1 for row in selected if row.get("level") == "targeted"),
+    }
+
+
+def _review_agent_counts_from_contract(root: Path) -> dict[str, Any]:
+    """Return statically measurable review-agent counts from the shared contract.
+
+    The contract intentionally uses shorthand for risk routes ("all standard
+    agents"). This parser resolves those shorthand rows against the explicit
+    standard and full rows so guardrails can detect accidental count drift.
+    """
+    path = root / ".github" / "shared" / "review-routing.contract.md"
+    if not path.exists():
+        return {"available": False, "counts": {}, "path": rel_path(path, root)}
+    content = path.read_text(encoding="utf-8-sig")
+    counts: dict[str, int] = {}
+    row_text: dict[str, str] = {}
+    for mode in EXPECTED_REVIEW_AGENT_COUNTS:
+        match = re.search(rf"\|\s*`{re.escape(mode)}`\s*\|\s*(.*?)\s*\|", content, re.IGNORECASE)
+        if match:
+            row_text[mode] = match.group(1)
+            counts[mode] = len(set(AGENT_REF_RE.findall(match.group(1))))
+    standard_count = counts.get("standard", EXPECTED_REVIEW_AGENT_COUNTS["standard"])
+    for mode in ("data-risk", "architecture"):
+        if "all `standard` agents" in row_text.get(mode, "") or "all standard agents" in row_text.get(mode, ""):
+            counts[mode] = standard_count
+    if "full" in row_text and "all `standard` agents" in row_text["full"]:
+        extra_agents = len(set(AGENT_REF_RE.findall(row_text["full"])))
+        counts["full"] = standard_count + extra_agents
+    return {"available": True, "counts": counts, "path": rel_path(path, root)}
+
+
+def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    """Build Phase 6 benchmark rows from an existing audit report.
+
+    Args:
+        root: Repository root.
+        report: Partial or complete audit report with file, model, reference,
+            dispatch, and context-loading sections.
+
+    Returns:
+        Dict containing workflow rows, aggregate model/context signals, and
+        static review-agent counts.
+    """
+    files_by_path = {row["path"]: row for row in report.get("files", [])}
+    refs_by_path = {row["path"]: row for row in report.get("reference_matrix", [])}
+    dispatch_by_path = {row["path"]: row for row in report.get("dispatch_burden", [])}
+    models_by_path = {
+        row["path"]: row
+        for row in report.get("model_inventory", {}).get("declarations", [])
+    }
+    context_rows = report.get("context_loading_risks", [])
+    workflows: list[dict[str, Any]] = []
+
+    for workflow, path in BENCHMARK_PROMPTS.items():
+        file_row = files_by_path.get(path)
+        ref_row = refs_by_path.get(path, {})
+        dispatch_row = dispatch_by_path.get(path, {})
+        model_row = models_by_path.get(path, {})
+        context_counts = _count_context_levels(context_rows, path)
+        workflows.append(
+            {
+                "workflow": workflow,
+                "path": path,
+                "available": file_row is not None,
+                "characters": int(file_row["characters"]) if file_row else None,
+                "estimated_tokens": int(file_row["estimated_tokens"]) if file_row else None,
+                "total_refs": int(ref_row.get("total_refs", 0)),
+                "file_refs": int(ref_row.get("file_refs", 0)),
+                "agent_refs": int(ref_row.get("agent_refs", 0)),
+                "skill_refs": int(ref_row.get("skill_refs", 0)),
+                "load_verbs": int(ref_row.get("load_verbs", 0)),
+                "model": model_row.get("model"),
+                "model_tier": model_row.get("model_tier"),
+                "context_risk_count": context_counts["risk"],
+                "context_justified_count": context_counts["justified"],
+                "context_targeted_count": context_counts["targeted"],
+                "dispatch_refs": int(dispatch_row.get("dispatch_refs", 0)),
+                "conditional_routing": bool(dispatch_row.get("conditional_routing", False)),
+                "dispatch_burden": dispatch_row.get("burden_level", "none"),
+            }
+        )
+
+    brain_skill = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_text = brain_skill.read_text(encoding="utf-8-sig") if brain_skill.exists() else ""
+    brain_rows = [
+        row for row in context_rows
+        if row.get("artifact") in ("BRAIN-log.md", "BRAIN-NN.md", "brain-index.json", ".cg-docs/", ".cg-docs")
+        or "BRAIN" in str(row.get("artifact", ""))
+        or "brain-index.json" in str(row.get("snippet", ""))
+    ]
+    brain_counts = _count_context_levels(brain_rows)
+    workflows.append(
+        {
+            "workflow": "Knowledge Brain/context lookup",
+            "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+            "available": brain_skill.exists(),
+            "characters": len(brain_text) if brain_text else None,
+            "estimated_tokens": estimate_tokens(brain_text) if brain_text else None,
+            "total_refs": 0,
+            "file_refs": 0,
+            "agent_refs": 0,
+            "skill_refs": 0,
+            "load_verbs": 0,
+            "model": None,
+            "model_tier": None,
+            "context_risk_count": brain_counts["risk"],
+            "context_justified_count": brain_counts["justified"],
+            "context_targeted_count": brain_counts["targeted"],
+            "dispatch_refs": 0,
+            "conditional_routing": False,
+            "dispatch_burden": "none",
+            "query_first": bool(
+                re.search(r"query-first|Match Topics|matched topic", brain_text, re.IGNORECASE)
+                and re.search(r"BRAIN\.md", brain_text)
+            ),
+        }
+    )
+
+    model_inventory = report.get("model_inventory", {})
+    return {
+        "workflows": workflows,
+        "model_governance": {
+            "premium_usage_count": len(model_inventory.get("premium_usage", [])),
+            "missing_model_count": len(model_inventory.get("missing", [])),
+            "model_drift_count": len(model_inventory.get("drift", [])),
+            "ordinary_model_picker_violations": len(model_inventory.get("ordinary_model_picker_violations", [])),
+        },
+        "context_loading": _count_context_levels(context_rows),
+        "review_agent_counts": _review_agent_counts_from_contract(root),
+        "comparison": None,
+    }
+
+
+def compare_benchmark_to_baseline(current: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
+    """Compare current benchmark output with a previous audit JSON payload."""
+    current_benchmark = current.get("benchmark", {})
+    baseline_benchmark = baseline.get("benchmark") or _legacy_benchmark_from_report(baseline)
+    baseline_rows = {
+        row.get("workflow"): row
+        for row in baseline_benchmark.get("workflows", [])
+    }
+    workflow_deltas: list[dict[str, Any]] = []
+    for current_row in current_benchmark.get("workflows", []):
+        workflow = current_row.get("workflow")
+        previous = baseline_rows.get(workflow, {})
+        delta = {
+            "workflow": workflow,
+            "path": current_row.get("path"),
+            "baseline_available": bool(previous),
+            "estimated_tokens_delta": None,
+            "total_refs_delta": None,
+            "context_risk_count_delta": None,
+            "dispatch_refs_delta": None,
+            "dispatch_burden_before": previous.get("dispatch_burden"),
+            "dispatch_burden_after": current_row.get("dispatch_burden"),
+        }
+        for key in ("estimated_tokens", "total_refs", "context_risk_count", "dispatch_refs"):
+            if current_row.get(key) is not None and previous.get(key) is not None:
+                delta[f"{key}_delta"] = int(current_row[key]) - int(previous[key])
+        workflow_deltas.append(delta)
+
+    current_model = current_benchmark.get("model_governance", {})
+    baseline_model = baseline_benchmark.get("model_governance", {})
+    model_delta: dict[str, Any] = {}
+    for key in ("premium_usage_count", "ordinary_model_picker_violations", "missing_model_count", "model_drift_count"):
+        if current_model.get(key) is not None and baseline_model.get(key) is not None:
+            model_delta[f"{key}_delta"] = int(current_model[key]) - int(baseline_model[key])
+    return {"workflows": workflow_deltas, "model_governance": model_delta}
+
+
+def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Build comparable benchmark rows from older audit JSON without ``benchmark``."""
+    files_by_path = {row.get("path"): row for row in report.get("files", [])}
+    refs_by_path = {row.get("path"): row for row in report.get("reference_matrix", [])}
+    dispatch_by_path = {row.get("path"): row for row in report.get("dispatch_burden", [])}
+    models_by_path = {
+        row.get("path"): row
+        for row in report.get("model_inventory", {}).get("declarations", [])
+    }
+    context_rows = report.get("context_loading_risks", [])
+    workflows: list[dict[str, Any]] = []
+    for workflow, path in BENCHMARK_PROMPTS.items():
+        file_row = files_by_path.get(path, {})
+        ref_row = refs_by_path.get(path, {})
+        dispatch_row = dispatch_by_path.get(path, {})
+        context_counts = _count_context_levels(context_rows, path)
+        workflows.append(
+            {
+                "workflow": workflow,
+                "path": path,
+                "estimated_tokens": file_row.get("estimated_tokens"),
+                "total_refs": ref_row.get("total_refs"),
+                "context_risk_count": context_counts["risk"],
+                "dispatch_refs": dispatch_row.get("dispatch_refs"),
+                "dispatch_burden": dispatch_row.get("burden_level"),
+                "model_tier": models_by_path.get(path, {}).get("model_tier"),
+            }
+        )
+    brain_path = ".github/skills/cg-skill-brain-query/SKILL.md"
+    brain_file = files_by_path.get(brain_path, {})
+    brain_counts = _count_context_levels([
+        row for row in context_rows
+        if "BRAIN" in str(row.get("artifact", "")) or "brain-index.json" in str(row.get("snippet", ""))
+    ])
+    workflows.append(
+        {
+            "workflow": "Knowledge Brain/context lookup",
+            "path": brain_path,
+            "estimated_tokens": brain_file.get("estimated_tokens"),
+            "total_refs": 0,
+            "context_risk_count": brain_counts["risk"],
+            "dispatch_refs": 0,
+            "dispatch_burden": "none",
+            "model_tier": None,
+        }
+    )
+    inventory = report.get("model_inventory", {})
+    return {
+        "workflows": workflows,
+        "model_governance": {
+            "premium_usage_count": len(inventory.get("premium_usage", [])),
+            "ordinary_model_picker_violations": len(inventory.get("ordinary_model_picker_violations", [])),
+            "missing_model_count": len(inventory.get("missing", [])),
+            "model_drift_count": len(inventory.get("drift", [])),
+        },
+    }
+
+
+def _is_context_guardrail_failure(row: dict[str, Any]) -> bool:
+    """Return whether a context-loading risk should fail Phase 6 guardrails."""
+    if row.get("level") != "risk" or row.get("path") not in ORDINARY_CONTEXT_GUARDRAIL_PROMPTS:
+        return False
+    snippet = str(row.get("snippet", ""))
+    if "reject any directive" in snippet or "Generate a 3-5 step lightweight inline plan" in snippet:
+        return False
+    artifact = str(row.get("artifact", ""))
+    return any(target.lower() in artifact.lower() or target.lower() in snippet.lower()
+               for target in BROAD_CONTEXT_GUARDRAIL_ARTIFACTS)
+
+
+def _text_contains_all(text: str, patterns: Sequence[str]) -> bool:
+    return all(re.search(pattern, text, re.IGNORECASE | re.DOTALL) for pattern in patterns)
+
+
+def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """Classify Phase 6 benchmark guardrail failures and warnings."""
+    failures: list[dict[str, Any]] = []
+    warnings: list[dict[str, Any]] = []
+
+    def fail(path: str, reason: str) -> None:
+        failures.append({"path": path, "reason": reason})
+
+    def warn(path: str, reason: str) -> None:
+        warnings.append({"path": path, "reason": reason})
+
+    for violation in report.get("model_inventory", {}).get("ordinary_model_picker_violations", []):
+        fail(violation["path"], "ordinary prompt hard-codes model instead of inheriting model picker")
+    for premium in report.get("model_inventory", {}).get("premium_usage", []):
+        fail(premium["path"], "premium model usage requires explicit future allowlist and rationale")
+    for drift in report.get("model_inventory", {}).get("drift", []):
+        fail(drift["path"], "model guide drift")
+
+    for row in report.get("files", []):
+        path = row["path"]
+        tokens = int(row["estimated_tokens"])
+        if path in HIGH_FREQUENCY_PROMPTS:
+            if tokens > THRESHOLD_HIGH_FREQ_PROMPT_FAIL:
+                fail(path, f"high-frequency prompt estimated tokens > {THRESHOLD_HIGH_FREQ_PROMPT_FAIL}")
+            elif tokens > THRESHOLD_HIGH_FREQ_PROMPT_WARN:
+                warn(path, f"high-frequency prompt estimated tokens > {THRESHOLD_HIGH_FREQ_PROMPT_WARN}")
+    always_on_tokens = sum(
+        int(row["estimated_tokens"])
+        for row in report.get("files", [])
+        if row["category"] == "instructions" or row["path"] == ".github/copilot-instructions.md"
+    )
+    if always_on_tokens > THRESHOLD_ALWAYS_ON_FAIL:
+        fail("(always-on instructions)", f"always-on instruction estimated tokens > {THRESHOLD_ALWAYS_ON_FAIL}")
+    elif always_on_tokens > THRESHOLD_ALWAYS_ON_WARN:
+        warn("(always-on instructions)", f"always-on instruction estimated tokens > {THRESHOLD_ALWAYS_ON_WARN}")
+
+    for row in report.get("context_loading_risks", []):
+        if _is_context_guardrail_failure(row):
+            fail(row["path"], f"broad context-loading risk for {row['artifact']}: {row['snippet']}")
+        elif row.get("level") == "risk":
+            warn(row["path"], f"context-loading risk requires review: {row['artifact']}")
+
+    review_path = root / ".github" / "prompts" / "cg-review.prompt.md"
+    review_text = review_path.read_text(encoding="utf-8-sig") if review_path.exists() else ""
+    if not _text_contains_all(
+        review_text,
+        [
+            r"explicit user mode wins",
+            r"Auto risk-class routing applies only.*no explicit mode",
+            r"(Users can explicitly request `?full`?|explicit.*full)",
+            r"(thorough.*full|full.*thorough)",
+            r"(mode:verify.*light-only|verify mode.*light-only)",
+        ],
+    ):
+        fail(".github/prompts/cg-review.prompt.md", "/cg-review route precedence or explicit full/verify guard drifted")
+
+    work_path = root / ".github" / "prompts" / "cg-work.prompt.md"
+    work_text = work_path.read_text(encoding="utf-8-sig") if work_path.exists() else ""
+    if not _text_contains_all(
+        work_text,
+        [
+            r"review:auto",
+            r"review:manual",
+            r"review:none",
+            r"(default.*review:manual.*no agent dispatch|No review arg defaults to `review:manual`.*no agent dispatch)",
+            r"review:auto.*route-aware",
+        ],
+    ):
+        fail(".github/prompts/cg-work.prompt.md", "/cg-work review:auto/manual/none behavior drifted")
+
+    brain_path = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_text = brain_path.read_text(encoding="utf-8-sig") if brain_path.exists() else ""
+    if not _text_contains_all(
+        brain_text,
+        [
+            r"BRAIN\.md",
+            r"(matched topic|Match Topics|query-first)",
+            r"(must not read it wholesale|prompt agents must not read it wholesale)",
+        ],
+    ):
+        fail(".github/skills/cg-skill-brain-query/SKILL.md", "Knowledge Brain query-first or no-wholesale-index rule drifted")
+
+    counts = report.get("benchmark", {}).get("review_agent_counts", {}).get("counts", {})
+    for mode, expected in EXPECTED_REVIEW_AGENT_COUNTS.items():
+        actual = counts.get(mode)
+        if actual != expected:
+            fail(".github/shared/review-routing.contract.md", f"review route agent counts drifted for {mode}: expected {expected}, found {actual}")
+
+    return {"failures": failures, "warnings": warnings}
+
+
 def build_report(root: Path) -> dict[str, Any]:
     """Build the complete audit report for a Compound GPID project root.
 
@@ -739,16 +1135,26 @@ def build_report(root: Path) -> dict[str, Any]:
     duplicates = detect_duplicates(root, files)
     context_loading_risks = build_context_loading_risks(root, files)
     candidates = classify_optimization_candidates(files, reference_matrix, model_inventory, duplicates)
-    return {"generated": datetime.now().isoformat(timespec="seconds"), "disclaimer": DISCLAIMER,
-            "summary": {"total_files": len(files),
-                        "total_characters": sum(int(f["characters"]) for f in files),
-                        "total_estimated_tokens": sum(int(f["estimated_tokens"]) for f in files),
-                        "by_category": by_category},
-            "files": sorted(files, key=lambda row: row["path"]),
-            "reference_matrix": reference_matrix, "dispatch_burden": dispatch_burden,
-            "model_inventory": model_inventory,
-            "context_loading_risks": context_loading_risks,
-            "duplicates": duplicates, "optimization_candidates": candidates}
+    report: dict[str, Any] = {
+        "generated": datetime.now().isoformat(timespec="seconds"),
+        "disclaimer": DISCLAIMER,
+        "summary": {
+            "total_files": len(files),
+            "total_characters": sum(int(f["characters"]) for f in files),
+            "total_estimated_tokens": sum(int(f["estimated_tokens"]) for f in files),
+            "by_category": by_category,
+        },
+        "files": sorted(files, key=lambda row: row["path"]),
+        "reference_matrix": reference_matrix,
+        "dispatch_burden": dispatch_burden,
+        "model_inventory": model_inventory,
+        "context_loading_risks": context_loading_risks,
+        "duplicates": duplicates,
+        "optimization_candidates": candidates,
+    }
+    report["benchmark"] = build_benchmark_summary(root, report)
+    report["guardrails"] = build_guardrails(root, report)
+    return report
 
 
 def markdown_table(headers: Sequence[str], rows: Sequence[Sequence[Any]]) -> list[str]:
@@ -805,6 +1211,90 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(markdown_table(["Path", "Category", "Characters", "Estimated Tokens"], [
         [r["path"], r["category"], r["characters"], r["estimated_tokens"]] for r in largest
     ]))
+    lines.extend(["", "## Benchmark Summary", ""])
+    benchmark = report.get("benchmark", {})
+    workflow_rows = benchmark.get("workflows", [])
+    if workflow_rows:
+        lines.extend(markdown_table(
+            [
+                "Workflow",
+                "Path",
+                "Tokens",
+                "Refs",
+                "Model Tier",
+                "Context Risk",
+                "Dispatch",
+                "Conditional",
+            ],
+            [
+                [
+                    row["workflow"],
+                    row["path"],
+                    row.get("estimated_tokens"),
+                    row.get("total_refs"),
+                    row.get("model_tier") or "",
+                    row.get("context_risk_count"),
+                    row.get("dispatch_burden"),
+                    row.get("conditional_routing"),
+                ]
+                for row in workflow_rows
+            ],
+        ))
+    else:
+        lines.append("- No benchmark rows available")
+    model_governance = benchmark.get("model_governance", {})
+    context_loading = benchmark.get("context_loading", {})
+    lines.extend([
+        "",
+        f"- Premium model usage count: {model_governance.get('premium_usage_count', 0)}",
+        f"- Ordinary model-picker violations: {model_governance.get('ordinary_model_picker_violations', 0)}",
+        f"- Missing model declarations: {model_governance.get('missing_model_count', 0)}",
+        f"- Model drift count: {model_governance.get('model_drift_count', 0)}",
+        f"- Context loading signals: risk={context_loading.get('risk', 0)}, justified={context_loading.get('justified', 0)}, targeted={context_loading.get('targeted', 0)}",
+    ])
+    review_counts = benchmark.get("review_agent_counts", {}).get("counts", {})
+    if review_counts:
+        lines.extend(["", "### Review-Agent Counts", ""])
+        lines.extend(markdown_table(["Mode", "Static Agent Count", "Expected"], [
+            [mode, review_counts.get(mode), EXPECTED_REVIEW_AGENT_COUNTS[mode]]
+            for mode in EXPECTED_REVIEW_AGENT_COUNTS
+        ]))
+    comparison = benchmark.get("comparison")
+    lines.extend(["", "### Before/After Comparison", ""])
+    if comparison and comparison.get("workflows"):
+        lines.extend(markdown_table(
+            ["Workflow", "Token Delta", "Ref Delta", "Context Risk Delta", "Dispatch Delta", "Burden Before", "Burden After"],
+            [
+                [
+                    row["workflow"],
+                    row.get("estimated_tokens_delta"),
+                    row.get("total_refs_delta"),
+                    row.get("context_risk_count_delta"),
+                    row.get("dispatch_refs_delta"),
+                    row.get("dispatch_burden_before"),
+                    row.get("dispatch_burden_after"),
+                ]
+                for row in comparison["workflows"]
+            ],
+        ))
+        model_delta = comparison.get("model_governance", {})
+        lines.extend([
+            "",
+            f"- Premium usage delta: {model_delta.get('premium_usage_count_delta', 0)}",
+            f"- Ordinary model-picker violation delta: {model_delta.get('ordinary_model_picker_violations_delta', 0)}",
+            f"- Missing model delta: {model_delta.get('missing_model_count_delta', 0)}",
+            f"- Model drift delta: {model_delta.get('model_drift_count_delta', 0)}",
+        ])
+    else:
+        lines.append("- No baseline supplied; current audit is the baseline.")
+    lines.extend(["", "## Guardrails", ""])
+    guardrails = report.get("guardrails", {"failures": [], "warnings": []})
+    failures = guardrails.get("failures", [])
+    warnings = guardrails.get("warnings", [])
+    lines.extend([f"- **FAIL** {row['path']}: {row['reason']}" for row in failures] or ["- Failures: 0"])
+    lines.extend([f"- **WARN** {row['path']}: {row['reason']}" for row in warnings] or ["- Warnings: 0"])
+    lines.extend(["", "## Release-Readiness Checklist", ""])
+    lines.extend([f"- [ ] {item}" for item in RELEASE_READINESS_CHECKLIST])
     lines.extend(["", "## Prompt Reference Matrix", ""])
     lines.extend(markdown_table(["Path", "File", "Agent", "Skill", "Tool", "Load", "Total"], [
         [r["path"], r["file_refs"], r["agent_refs"], r["skill_refs"], r["tool_refs"], r["load_verbs"], r["total_refs"]]
@@ -925,6 +1415,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", metavar="PATH", default=None,
                         help="Output directory (defaults to .cg-docs/cost/).")
     parser.add_argument("--format", choices=("json", "md", "both"), default="both", help="Report format to write.")
+    parser.add_argument("--baseline", metavar="PATH", default=None,
+                        help="Optional previous context-audit.json for before/after benchmark deltas.")
     return parser
 
 
@@ -958,6 +1450,16 @@ def main(argv: list[str] | None = None) -> int:
         output_dir = root / output_dir
     try:
         report = build_report(root)
+        if args.baseline:
+            baseline_path = Path(args.baseline)
+            if not baseline_path.is_absolute():
+                baseline_path = root / baseline_path
+            try:
+                baseline = json.loads(baseline_path.read_text(encoding="utf-8-sig"))
+            except (OSError, json.JSONDecodeError) as exc:
+                print(f"[cg-audit-context] ERROR: baseline {baseline_path}: {exc}", file=sys.stderr)
+                return 1
+            report["benchmark"]["comparison"] = compare_benchmark_to_baseline(report, baseline)
         written = write_outputs(report, output_dir, args.format)
     except (OSError, UnicodeDecodeError) as exc:
         print(f"[cg-audit-context] ERROR: {exc}", file=sys.stderr)

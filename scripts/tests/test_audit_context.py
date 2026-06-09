@@ -602,3 +602,110 @@ class TestMdOutput:
         assert len(paths) == 1
         assert paths[0].name == "context-audit.md"
         assert "## Summary" in paths[0].read_text(encoding="utf-8")
+
+
+class TestPhase6Benchmark:
+    def test_builds_workflow_benchmark_rows(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None) + "Context expansion: reading `roadmap.json` because targeted fields.\n")
+        _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none route-aware staged mode @cg-code-quality\n")
+        _write(tmp_path / ".github/prompts/cg-review.prompt.md", _frontmatter() + "explicit user mode wins. Auto risk-class routing applies only when no explicit mode. full thorough mode:verify light-only @cg-testing\n")
+        _write(tmp_path / ".github/prompts/cg-compound.prompt.md", _frontmatter() + "cg-index --brain rebuild BRAIN.md\n")
+        _write(tmp_path / ".github/prompts/cg-resume.prompt.md", _frontmatter("Claude Haiku 4.5") + "Context expansion: reading full roadmap.json because /cg-resume computes global milestone health.\n")
+        _write(tmp_path / ".github/skills/cg-skill-brain-query/SKILL.md", "query-first matched topic BRAIN.md BRAIN-NN.md brain-index.json tooling may query\n")
+        files, _ = audit.scan_files(tmp_path)
+        report = {
+            "files": files,
+            "reference_matrix": audit.build_reference_matrix(tmp_path, files),
+            "dispatch_burden": audit.build_dispatch_burden(tmp_path, files),
+            "model_inventory": audit.build_model_inventory(tmp_path, files),
+            "context_loading_risks": audit.build_context_loading_risks(tmp_path, files),
+        }
+        benchmark = audit.build_benchmark_summary(tmp_path, report)
+        names = {row["workflow"] for row in benchmark["workflows"]}
+        assert {"/cg-plan", "/cg-work", "/cg-review", "/cg-compound", "/cg-resume", "Knowledge Brain/context lookup"} <= names
+        cg_plan = next(row for row in benchmark["workflows"] if row["workflow"] == "/cg-plan")
+        assert cg_plan["model_tier"] == "model-picker"
+        brain = next(row for row in benchmark["workflows"] if row["workflow"] == "Knowledge Brain/context lookup")
+        assert brain["query_first"] is True
+
+    def test_baseline_comparison_reports_deltas(self) -> None:
+        current = {
+            "benchmark": {
+                "workflows": [
+                    {"workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md", "estimated_tokens": 100, "total_refs": 4, "context_risk_count": 1, "dispatch_refs": 0, "dispatch_burden": "none"},
+                ],
+                "model_governance": {"premium_usage_count": 0, "ordinary_model_picker_violations": 0},
+            }
+        }
+        baseline = {
+            "benchmark": {
+                "workflows": [
+                    {"workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md", "estimated_tokens": 125, "total_refs": 6, "context_risk_count": 3, "dispatch_refs": 0, "dispatch_burden": "none"},
+                ],
+                "model_governance": {"premium_usage_count": 1, "ordinary_model_picker_violations": 1},
+            }
+        }
+        comparison = audit.compare_benchmark_to_baseline(current, baseline)
+        row = comparison["workflows"][0]
+        assert row["estimated_tokens_delta"] == -25
+        assert row["total_refs_delta"] == -2
+        assert row["context_risk_count_delta"] == -2
+        assert comparison["model_governance"]["premium_usage_count_delta"] == -1
+
+    def test_malformed_baseline_returns_exit_code_1(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        root = Path(__file__).resolve().parents[2]
+        bad = tmp_path / "bad.json"
+        bad.write_text("{not-json", encoding="utf-8")
+        result = audit.main(["--root", str(root), "--output-dir", str(tmp_path), "--format", "json", "--baseline", str(bad)])
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "baseline" in captured.err.lower()
+
+
+class TestPhase6Guardrails:
+    def test_guardrails_fail_for_ordinary_model_and_broad_prompt_read(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Opus 4.6") + "Read `brain-index.json` before planning.\n")
+        _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none no agent dispatch route-aware review-routing.contract.md\n")
+        _write(tmp_path / ".github/prompts/cg-review.prompt.md", _frontmatter() + "explicit user mode wins. Auto risk-class routing applies only when no explicit mode. full thorough mode:verify light-only\n")
+        _write(tmp_path / ".github/shared/review-routing.contract.md", "- `light` | `@cg-code-quality`, `@cg-testing`\n- `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial`\n")
+        files, _ = audit.scan_files(tmp_path)
+        report = audit.build_report(tmp_path)
+        guardrails = report["guardrails"]
+        reasons = " ".join(row["reason"] for row in guardrails["failures"])
+        assert "ordinary prompt hard-codes model" in reasons
+        assert "broad context-loading" in reasons
+
+    def test_guardrails_validate_review_route_counts(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none default and review:manual must never dispatch review agents automatically. review:auto route-aware agent dispatch using review-routing.contract.md\n")
+        _write(tmp_path / ".github/prompts/cg-review.prompt.md", _frontmatter() + "explicit user mode wins. Auto risk-class routing applies only when no explicit mode. Users can explicitly request full review. thorough maps to full. mode:verify light-only.\n")
+        _write(
+            tmp_path / ".github/shared/review-routing.contract.md",
+            "| `light` | `@cg-code-quality`, `@cg-testing` |\n"
+            "| `standard` | `@cg-code-quality`, `@cg-testing`, `@cg-documentation`, `@cg-version-control`, `@cg-reproducibility`, `@cg-performance`, `@cg-architecture`, `@cg-data-quality` |\n"
+            "| `data-risk` | all `standard` agents, with mandatory emphasis on `@cg-data-quality` and `@cg-reproducibility` |\n"
+            "| `architecture` | all `standard` agents, with mandatory emphasis on `@cg-architecture` and `@cg-performance` |\n"
+            "| `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial` |\n",
+        )
+        report = audit.build_report(tmp_path)
+        failures = [row for row in report["guardrails"]["failures"] if "review route agent counts" in row["reason"]]
+        assert failures == []
+
+    def test_markdown_output_includes_phase6_sections(self) -> None:
+        markdown = audit.render_markdown({
+            "generated": "2026-06-08T00:00:00",
+            "disclaimer": audit.DISCLAIMER,
+            "summary": {"total_files": 0, "total_characters": 0, "total_estimated_tokens": 0, "by_category": {}},
+            "files": [],
+            "reference_matrix": [],
+            "dispatch_burden": [],
+            "benchmark": {"workflows": [], "model_governance": {}, "context_loading": {}, "review_agent_counts": {}, "comparison": None},
+            "guardrails": {"failures": [], "warnings": []},
+            "model_inventory": {"declarations": [], "missing": [], "drift": [], "premium_usage": [], "ordinary_model_picker_violations": []},
+            "context_loading_risks": [],
+            "duplicates": [],
+            "optimization_candidates": {"immediate": [], "needs_review": [], "acceptable_count": 0},
+        })
+        assert "## Benchmark Summary" in markdown
+        assert "## Guardrails" in markdown
+        assert "## Release-Readiness Checklist" in markdown

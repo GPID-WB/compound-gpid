@@ -698,6 +698,33 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 
 > The commands in this section are **developer-only**. They live at the `compound-gpid` repo root and are NOT distributed to linked user projects via junctions. Only use them when working inside the `compound-gpid` repository itself.
 
+### Token Optimization Validation
+
+Use this before merging or releasing prompt, model-governance, context-loading,
+or review-routing changes.
+
+1. Save or identify the previous `.cg-docs/cost/context-audit.json` if you need
+   before/after comparison.
+2. Run `python3 -m pytest scripts/tests/test_audit_context.py`.
+3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both`.
+4. If comparing against a prior report, rerun with `--baseline <previous-context-audit.json>`.
+5. Run the PowerShell safe test runner in VS Code/PowerShell: `. tests\Run-Tests.ps1`, then inspect `tests/last-run.json`.
+6. Open the generated audit report and review `Benchmark Summary`,
+   `Guardrails`, `Context Loading Risks`, `Review Dispatch Burden`, and
+   `Model Inventory`.
+
+Release-readiness checks:
+
+- Ordinary model-picker prompts still omit `model:`.
+- Premium model usage is absent unless a future dedicated premium workflow has an explicit rationale and tests.
+- Broad Brain/context reads are targeted, justified, or maintenance-only.
+- `/cg-review` preserves routed modes and explicit full review.
+- `/cg-work` preserves `review:auto`, `review:manual`, and `review:none`.
+- Manual VS Code/Copilot validation covers model-picker behavior, `/cg-plan`, `/cg-work review:auto`, `/cg-work review:manual`, `/cg-review light`, `/cg-review data-risk`, `/cg-review full`, and Knowledge Brain selective retrieval.
+
+Runtime behavior still needs GitHub Copilot / VS Code validation because static
+audit output cannot prove actual model-picker selection or prompt dispatch.
+
 ### Release (`/cg-release`)
 
 **When to use**: After completing and compounding a milestone, when you are ready to publish a new version of compound-gpid to GitHub.

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-06 · 346 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-08 · 353 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -105,12 +105,32 @@ _Generated 2026-06-06 · 346 artifacts (newest first) + 108 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-06-08
+
+- **[2026-06-07-token-optimization-phase5-brain-context-selectivity-review](.cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md)** · `review` · _—_ · `2026-06-08`
+  > **Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
+- **[2026-06-08-token-optimization-phase6-benchmarks-guardrails-review](.cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md)** · `review` · _—_ · `2026-06-08`
+  > **Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)
+- **[Token optimization needs benchmark guardrails, not one-off audits](.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md)** · `solution` · _—_ · `2026-06-08`
+  > Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and …
+- **[Token Optimization Phase 6 - Benchmarks, Guardrails, and Release Readiness](.cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md)** · `plan` · _completed_ · `2026-06-08`
+  > Create a repeatable benchmark and regression-guardrail system that verifies whether the Phase 2-5 token-optimization …
+
+## 2026-06-07
+
+- **[Token Optimization Phase 5 - Knowledge Brain and Context Selectivity](.cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md)** · `plan` · _active_ · `2026-06-07`
+  > Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project con…
+
 ## 2026-06-06
 
 - **[2026-06-05-cg-review-token-cost-phase3-review](.cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md)** · `review` · _—_ · `2026-06-06`
   > **Review mode**: architecture (auto-escalated from normal: new Python module with cross-module imports) **Files revie…
+- **[2026-06-06-cg-plan-work-context-slimming-phase4-review](.cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md)** · `review` · _—_ · `2026-06-06`
+  > Review of the Phase 4 `/cg-plan` and `/cg-work` context slimming implementation.
 - **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
   > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
+- **[Phase 4: /cg-plan and /cg-work prompt/context slimming](.cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md)** · `plan` · _active_ · `2026-06-06`
+  > Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preservi…
 
 ## 2026-06-05
 

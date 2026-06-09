@@ -115,6 +115,9 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Use `Run-Tests.ps1` + `last-run.json` to decouple test results from agent context**: The canonical `tests/Run-Tests.ps1` runner writes `tests/last-run.json`. Agents read the bounded JSON artifact via `execution_subagent` — not raw Pester output — to avoid context overflow in long sessions. See `.cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md`.
 
+- **Token optimization changes need generated benchmark guardrails**: Prompt slimming, model governance, context-loading, Knowledge Brain retrieval, and review-routing changes must be protected by `scripts/cg_audit_context.py` benchmark/guardrail output plus matching Python/Pester regression tests. One-off audit reports are not enough because prompt text can silently reintroduce premium model defaults, broad context loading, or unconditional review dispatch.
+  See `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`.
+
 - **Exact count assertions when test name states a specific count**: When a test name states a count (e.g., "all three fields"), use `Should Be N` — not `Should BeGreaterThan`. Name-assertion mismatch silently hides regressions where one field stops working. See `.cg-docs/solutions/testing-patterns/2026-04-17-exact-count-assertions-prevent-silent-regression-when-test-name-states-count.md`.
 
 - **SKILL.md contracts need behavioral Pester tests**: New `SKILL.md` files must have behavioral Pester describe blocks testing their contracts (all-open default, no-delegate rule, empty-result response, frontmatter mutation instructions). Prose contracts regress invisibly without behavioral coverage. See `.cg-docs/solutions/testing-patterns/2026-04-20-behavioral-pester-tests-for-skill-md-files.md`.

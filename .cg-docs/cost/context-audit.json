@@ -1,4 +1,152 @@
 {
+  "benchmark": {
+    "comparison": null,
+    "context_loading": {
+      "justified": 9,
+      "risk": 28,
+      "targeted": 75
+    },
+    "model_governance": {
+      "missing_model_count": 0,
+      "model_drift_count": 0,
+      "ordinary_model_picker_violations": 0,
+      "premium_usage_count": 0
+    },
+    "review_agent_counts": {
+      "available": true,
+      "counts": {
+        "architecture": 8,
+        "data-risk": 8,
+        "full": 10,
+        "light": 2,
+        "standard": 8
+      },
+      "path": ".github/shared/review-routing.contract.md"
+    },
+    "workflows": [
+      {
+        "agent_refs": 5,
+        "available": true,
+        "characters": 10393,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 5,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 2598,
+        "file_refs": 9,
+        "load_verbs": 7,
+        "model": null,
+        "model_tier": "model-picker",
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "skill_refs": 1,
+        "total_refs": 22,
+        "workflow": "/cg-plan"
+      },
+      {
+        "agent_refs": 13,
+        "available": true,
+        "characters": 18702,
+        "conditional_routing": true,
+        "context_justified_count": 2,
+        "context_risk_count": 1,
+        "context_targeted_count": 5,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 3,
+        "estimated_tokens": 4675,
+        "file_refs": 10,
+        "load_verbs": 22,
+        "model": "Claude Sonnet 4.6 (copilot)",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-work.prompt.md",
+        "skill_refs": 2,
+        "total_refs": 47,
+        "workflow": "/cg-work"
+      },
+      {
+        "agent_refs": 22,
+        "available": true,
+        "characters": 18955,
+        "conditional_routing": true,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 10,
+        "estimated_tokens": 4738,
+        "file_refs": 8,
+        "load_verbs": 18,
+        "model": "Claude Sonnet 4.6 (copilot)",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-review.prompt.md",
+        "skill_refs": 5,
+        "total_refs": 53,
+        "workflow": "/cg-review"
+      },
+      {
+        "agent_refs": 5,
+        "available": true,
+        "characters": 9636,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 2409,
+        "file_refs": 15,
+        "load_verbs": 6,
+        "model": "Claude Sonnet 4.6 (copilot)",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "skill_refs": 2,
+        "total_refs": 28,
+        "workflow": "/cg-compound"
+      },
+      {
+        "agent_refs": 3,
+        "available": true,
+        "characters": 11547,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 6,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 2,
+        "estimated_tokens": 2886,
+        "file_refs": 15,
+        "load_verbs": 1,
+        "model": "Claude Haiku 4.5 (copilot)",
+        "model_tier": "economy",
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "skill_refs": 0,
+        "total_refs": 19,
+        "workflow": "/cg-resume"
+      },
+      {
+        "agent_refs": 0,
+        "available": true,
+        "characters": 10152,
+        "conditional_routing": false,
+        "context_justified_count": 3,
+        "context_risk_count": 10,
+        "context_targeted_count": 43,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2538,
+        "file_refs": 0,
+        "load_verbs": 0,
+        "model": null,
+        "model_tier": null,
+        "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+        "query_first": true,
+        "skill_refs": 0,
+        "total_refs": 0,
+        "workflow": "Knowledge Brain/context lookup"
+      }
+    ]
+  },
   "context_loading_risks": [
     {
       "artifact": ".cg-docs/",
@@ -211,7 +359,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 253,
+      "line": 255,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |"
@@ -827,7 +975,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 112,
+      "line": 114,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -835,7 +983,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 392,
+      "line": 394,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -843,7 +991,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 395,
+      "line": 397,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -883,7 +1031,15 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 720,
+      "line": 709,
+      "path": "docs/workflow.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both`."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 747,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
@@ -1062,14 +1218,20 @@
   "files": [
     {
       "category": "brain",
-      "characters": 113445,
-      "estimated_tokens": 28361,
+      "characters": 112122,
+      "estimated_tokens": 28030,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
       "category": "brain",
-      "characters": 126616,
-      "estimated_tokens": 31654,
+      "characters": 3472,
+      "estimated_tokens": 868,
+      "path": ".cg-docs/BRAIN-02.md"
+    },
+    {
+      "category": "brain",
+      "characters": 128746,
+      "estimated_tokens": 32186,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
@@ -1080,8 +1242,8 @@
     },
     {
       "category": "brain_index",
-      "characters": 534580,
-      "estimated_tokens": 133645,
+      "characters": 543226,
+      "estimated_tokens": 135806,
       "path": ".cg-docs/brain-index.json"
     },
     {
@@ -1482,8 +1644,8 @@
     },
     {
       "category": "context",
-      "characters": 56433,
-      "estimated_tokens": 14108,
+      "characters": 56996,
+      "estimated_tokens": 14249,
       "path": "compound-gpid.context.md"
     },
     {
@@ -1512,14 +1674,14 @@
     },
     {
       "category": "docs",
-      "characters": 2063,
-      "estimated_tokens": 515,
+      "characters": 2615,
+      "estimated_tokens": 653,
       "path": "docs/model-guide.md"
     },
     {
       "category": "docs",
-      "characters": 35603,
-      "estimated_tokens": 8900,
+      "characters": 36017,
+      "estimated_tokens": 9004,
       "path": "docs/reference.md"
     },
     {
@@ -1542,8 +1704,8 @@
     },
     {
       "category": "docs",
-      "characters": 54786,
-      "estimated_tokens": 13696,
+      "characters": 56371,
+      "estimated_tokens": 14092,
       "path": "docs/workflow.md"
     },
     {
@@ -1553,7 +1715,124 @@
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-08T09:03:18",
+  "generated": "2026-06-08T17:33:44",
+  "guardrails": {
+    "failures": [],
+    "warnings": [
+      {
+        "path": ".github/agents/cg-learnings-researcher.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cg-learnings-researcher.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cg-release-scanner.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cg-release-scanner.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cg-roadmap-view.agent.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/agents/cg-roadmap-view.agent.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/agents/cg-roadmap.agent.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/agents/cg-wiki.agent.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-compound-refresh.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-compound-refresh.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-fix-problems.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-fixbug.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-review-repos.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cg-setup.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-strategy.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-strategy.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cg-wiki.prompt.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/context-files.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": "docs/reference.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/workflow.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      }
+    ]
+  },
   "model_inventory": {
     "declarations": [
       {
@@ -1929,7 +2208,7 @@
     "premium_usage": []
   },
   "optimization_candidates": {
-    "acceptable_count": 42,
+    "acceptable_count": 43,
     "immediate": [
       {
         "category": "prompts",
@@ -2496,23 +2775,23 @@
         "files": 17
       },
       "brain": {
-        "characters": 241382,
-        "estimated_tokens": 60345,
-        "files": 3
+        "characters": 245661,
+        "estimated_tokens": 61414,
+        "files": 4
       },
       "brain_index": {
-        "characters": 534580,
-        "estimated_tokens": 133645,
+        "characters": 543226,
+        "estimated_tokens": 135806,
         "files": 1
       },
       "context": {
-        "characters": 56433,
-        "estimated_tokens": 14108,
+        "characters": 56996,
+        "estimated_tokens": 14249,
         "files": 1
       },
       "docs": {
-        "characters": 170252,
-        "estimated_tokens": 42559,
+        "characters": 172803,
+        "estimated_tokens": 43197,
         "files": 10
       },
       "instructions": {
@@ -2546,8 +2825,8 @@
         "files": 1
       }
     },
-    "total_characters": 1485487,
-    "total_estimated_tokens": 371345,
-    "total_files": 82
+    "total_characters": 1501526,
+    "total_estimated_tokens": 375354,
+    "total_files": 83
   }
 }

@@ -50,3 +50,18 @@ Currently standard-pinned operational prompts include:
 
 No ordinary workflow prompt may hard-code any model, including standard models.
 No prompt currently has an explicit premium model assignment by default.
+
+## Validation Guardrails
+
+Before merging model or prompt-governance changes in the `compound-gpid` repo,
+run the context audit:
+
+```bash
+python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both
+```
+
+The generated guardrails must show no premium model usage, no model-guide drift,
+and no ordinary model-picker prompt with an explicit `model:` frontmatter key.
+When comparing token-optimization work against an earlier report, pass
+`--baseline <previous-context-audit.json>` and review the Benchmark Summary
+before release.

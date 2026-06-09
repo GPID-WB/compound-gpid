@@ -1,5 +1,5 @@
 {
-  "edge_count": 173,
+  "edge_count": 177,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -740,6 +740,24 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+      "target": ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+      "target": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+      "target": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -749,6 +767,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/brainstorms/2026-04-07-full-model-audit.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+      "target": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
       "target_missing": false
     },
     {
@@ -3908,6 +3932,91 @@
       ]
     },
     {
+      "date": "2026-06-06",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+      "slug": "2026-06-06-cg-plan-work-context-slimming-phase4",
+      "status": "active",
+      "summary": "Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preserving user-facing behavior, safety gates, roadmap behavior, phase handling, testing expectations, diagnostics handling, artifact discipline, and Phase 3 `/cg-work review:*` integration.",
+      "tags": [
+        "performance",
+        "token-optimization",
+        "prompt-slimming",
+        "cg-plan",
+        "cg-work",
+        "model-governance"
+      ],
+      "title": "Phase 4: /cg-plan and /cg-work prompt/context slimming",
+      "top_keywords": [
+        "cg-work",
+        "cg-plan",
+        "/cg-plan",
+        "/cg-work",
+        "/cg-work review:*",
+        ".github/shared/review-routing.contract.md",
+        "phase",
+        ".cg-docs/cost/context-audit.md",
+        "/cg-work review:auto",
+        "copilot auto"
+      ]
+    },
+    {
+      "date": "2026-06-07",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+      "slug": "2026-06-07-token-optimization-phase5-brain-context-selectivity",
+      "status": "active",
+      "summary": "Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project context loading selective, staged, and query-driven. Ordinary prompts should no longer encourage broad/default reads of full Brain artifacts, `compound-gpid.context.md`, or `roadmap.json` unless the workflow has an explicit, justified need.",
+      "tags": [
+        "token-cost",
+        "knowledge-brain",
+        "context-loading",
+        "audit",
+        "prompts"
+      ],
+      "title": "Token Optimization Phase 5 - Knowledge Brain and Context Selectivity",
+      "top_keywords": [
+        "compound-gpid.context.md",
+        "roadmap.json",
+        "brain.md",
+        "brain-index.json",
+        "brain-nn.md",
+        "cg-work",
+        "knowledge brain",
+        "brain-log.md",
+        "cg-compound",
+        "/cg-compound"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "slug": "2026-06-08-token-optimization-phase6-benchmarks-guardrails",
+      "status": "completed",
+      "summary": "Create a repeatable benchmark and regression-guardrail system that verifies whether the Phase 2-5 token-optimization work reduced context burden and model-cost risk while preserving workflow behavior.",
+      "tags": [
+        "token-cost",
+        "benchmark",
+        "guardrails",
+        "audit",
+        "release-readiness"
+      ],
+      "title": "Token Optimization Phase 6 - Benchmarks, Guardrails, and Release Readiness",
+      "top_keywords": [
+        "cg-review",
+        "cg-work",
+        "/cg-review",
+        "/cg-work",
+        "brain-index.json",
+        "knowledge brain",
+        "/cg-plan",
+        "roadmap.json",
+        "cg-plan",
+        "model:"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -5929,6 +6038,72 @@
         "extract_model_declarations",
         "parse_model_guide()",
         "{}"
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+      "slug": "2026-06-06-cg-plan-work-context-slimming-phase4-review",
+      "status": "",
+      "summary": "Review of the Phase 4 `/cg-plan` and `/cg-work` context slimming implementation.",
+      "tags": [],
+      "title": "2026-06-06-cg-plan-work-context-slimming-phase4-review",
+      "top_keywords": [
+        "fixed",
+        "/cg-work",
+        "cg-work",
+        "/cg-plan",
+        "/cg-review",
+        "cg-plan",
+        "model",
+        "review",
+        "contradicted",
+        "docs/reference.md"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+      "slug": "2026-06-07-token-optimization-phase5-brain-context-selectivity-review",
+      "status": "",
+      "summary": "**Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-06-07-token-optimization-phase5-brain-context-selectivity-review",
+      "top_keywords": [
+        "compound-gpid.context.md",
+        "roadmap.json",
+        "brain-index.json",
+        "review",
+        "modify",
+        "passed",
+        "delete",
+        "replace",
+        "rename",
+        "report"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+      "slug": "2026-06-08-token-optimization-phase6-benchmarks-guardrails-review",
+      "status": "",
+      "summary": "**Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)",
+      "tags": [],
+      "title": "2026-06-08-token-optimization-phase6-benchmarks-guardrails-review",
+      "top_keywords": [
+        "validation",
+        "context loading risks",
+        ".cg-docs/cost/context-audit.md",
+        "git diff --check",
+        "workflow.md",
+        "context-audit.md",
+        "cg_audit_context.py",
+        "review",
+        "report",
+        "passed"
       ]
     },
     {
@@ -10308,6 +10483,36 @@
       ]
     },
     {
+      "date": "2026-06-08",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+      "slug": "2026-06-08-token-optimization-benchmark-guardrails",
+      "status": "",
+      "summary": "Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and `/cg-work` routing conditional, slimming high-frequency prompts, and making Knowledge Brain/context loading selective. Those improvements were easy to regress because most of the behavior lived in prompt text and generated audit output rather than conventional code paths. The release-readiness question for Phase 6 was therefore not \"can we run another manual prompt slimming pass?\" It was \"can maintainers repeatedly measure the same risk surface and catch drift before merge?\"",
+      "tags": [
+        "token-optimization",
+        "benchmark",
+        "guardrails",
+        "audit",
+        "model-governance",
+        "context-loading",
+        "review-routing"
+      ],
+      "title": "Token optimization needs benchmark guardrails, not one-off audits",
+      "top_keywords": [
+        "cg-work",
+        "/cg-review",
+        "benchmark",
+        "guardrails",
+        "cg-review",
+        "/cg-work",
+        "knowledge brain",
+        "/cg-work review:*",
+        "benchmark summary",
+        "top remaining optimization candidates"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -12904,13 +13109,13 @@
       ]
     }
   ],
-  "entity_count": 454,
-  "generated": "2026-06-06",
+  "entity_count": 461,
+  "generated": "2026-06-08",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 298,
+      "entity_count": 305,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -13007,6 +13212,9 @@
         ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
         ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
         ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+        ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+        ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+        ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -13096,6 +13304,9 @@
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
         ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+        ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+        ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+        ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -13200,6 +13411,7 @@
         ".cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md",
         ".cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md",
         ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

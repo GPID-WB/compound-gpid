@@ -3321,6 +3321,62 @@ Describe "cg-work.prompt.md - review mode integration" {
 }
 
 # ---------------------------------------------------------------------------
+# Phase 6 — token benchmark and regression guardrails
+# ---------------------------------------------------------------------------
+
+Describe "Phase 6 review routing guardrails" {
+    $contractFile = Join-Path $repoRoot ".github\shared\review-routing.contract.md"
+    $reviewFile = Join-Path $repoRoot ".github\prompts\cg-review.prompt.md"
+    $workFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $contract = Get-Content $contractFile -Raw -Encoding UTF8
+    $reviewContent = Get-Content $reviewFile -Raw -Encoding UTF8
+    $workContent = Get-Content $workFile -Raw -Encoding UTF8
+
+    It "preserves expected static review-agent counts by routed mode" {
+        $contract | Should -Match '\| `light` \| `@cg-code-quality`, `@cg-testing` \|'
+        $contract | Should -Match '\| `standard` \| `@cg-code-quality`, `@cg-testing`, `@cg-documentation`, `@cg-version-control`, `@cg-reproducibility`, `@cg-performance`, `@cg-architecture`, `@cg-data-quality` \|'
+        $contract | Should -Match '\| `data-risk` \| all `standard` agents'
+        $contract | Should -Match '\| `architecture` \| all `standard` agents'
+        $contract | Should -Match '\| `full` \| all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial` \|'
+    }
+
+    It "asserts effective /cg-review route precedence independent of table ordering" {
+        ($contract -match '(?s)Explicit user modes win.*Auto risk-class routing applies only.*no explicit mode') | Should -Be $true
+        ($reviewContent -match '(?s)explicit user mode wins.*Auto risk-class routing applies only.*no explicit mode') | Should -Be $true
+        ($reviewContent -match '(?s)mode:verify.*light-only|verify mode.*light-only') | Should -Be $true
+    }
+
+    It "preserves explicit full review and thorough alias" {
+        ($reviewContent -match '(?s)Users can explicitly request `full` review|explicitly request.*full') | Should -Be $true
+        ($reviewContent -match '(?s)`thorough`.*maps to `full`|thorough.*full dispatch') | Should -Be $true
+    }
+
+    It "preserves /cg-work default/manual/auto/none dispatch semantics" {
+        ($workContent -match '(?s)No review arg defaults to `review:manual`.*no agent dispatch') | Should -Be $true
+        ($workContent -match '(?s)Default and `review:manual` must never dispatch review agents automatically') | Should -Be $true
+        ($workContent -match '(?s)`review:auto`.*route-aware agent dispatch') | Should -Be $true
+        ($workContent -match '(?s)`review:none`.*Suppress review dispatch') | Should -Be $true
+    }
+}
+
+Describe "Phase 6 Knowledge Brain broad-read guardrails" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-brain-query\SKILL.md"
+    $content = Get-Content $skillFile -Raw -Encoding UTF8
+
+    It "uses query-first retrieval through BRAIN.md and matched topics" {
+        ($content -match 'BRAIN\.md') | Should -Be $true
+        ($content -match '(?s)Match Topics.*Open Sub-files|matched topic') | Should -Be $true
+        ($content -match 'Do NOT read all BRAIN-NN\.md sub-files|read all BRAIN-NN\.md sub-files blindly') | Should -Be $true
+    }
+
+    It "does not tell agents to read brain-index.json wholesale while allowing tooling query use" {
+        ($content -match 'brain-index\.json') | Should -Be $true
+        ($content -match '(?s)agents must not read it wholesale|prompt agents must not read it wholesale') | Should -Be $true
+        ($content -match '(?s)tooling.*query|Python tooling may query') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Review convergence â€” cg-fix-triage mode:verify handoff
 # ---------------------------------------------------------------------------
 

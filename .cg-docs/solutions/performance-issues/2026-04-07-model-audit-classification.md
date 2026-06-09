@@ -128,6 +128,11 @@ consistently flag issues in *unchanged* lines that Haiku previously cleared, rev
 A parametrised Pester test (`tests/prompt-tools.Tests.ps1` — "Model assignments")
 validates all 22 files against expected model strings. The test catches any unannounced
 model change. When intentionally changing a tier:
+
+Phase 6 generalized this drift-prevention pattern into generated benchmark and
+guardrail output for prompt token size, model-picker behavior, broad context
+loading, Knowledge Brain retrieval, and review-routing burden. See
+`.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`.
 1. Update the file's `model:` frontmatter.
 2. Update the expected value in the Pester test.
 3. Update `docs/model-guide.md` — change "confirmed" to "changed" in the Status column.

@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-06_
+_Generated 2026-06-08_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 298 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 305 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -196,6 +196,12 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Build `scripts/cg_audit_context.py` — a stdlib-only Python script that inventories all context-contributing files in …
 - **[Phase 3: staged /cg-review routing + /cg-work review-mode integration](.cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md)** · `plan` · _active_ · `2026-06-05`
   > Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and ad…
+- **[Phase 4: /cg-plan and /cg-work prompt/context slimming](.cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md)** · `plan` · _active_ · `2026-06-06`
+  > Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preservi…
+- **[Token Optimization Phase 5 - Knowledge Brain and Context Selectivity](.cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md)** · `plan` · _active_ · `2026-06-07`
+  > Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project con…
+- **[Token Optimization Phase 6 - Benchmarks, Guardrails, and Release Readiness](.cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md)** · `plan` · _completed_ · `2026-06-08`
+  > Create a repeatable benchmark and regression-guardrail system that verifies whether the Phase 2-5 token-optimization …
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -374,6 +380,12 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > **Review depth**: light (verification mode) **Files reviewed**: 7 (`.github/prompts/cg-fixbug.prompt.md`, `.github/pr…
 - **[2026-06-05-cg-review-token-cost-phase3-review](.cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md)** · `review` · _—_ · `2026-06-06`
   > **Review mode**: architecture (auto-escalated from normal: new Python module with cross-module imports) **Files revie…
+- **[2026-06-06-cg-plan-work-context-slimming-phase4-review](.cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md)** · `review` · _—_ · `2026-06-06`
+  > Review of the Phase 4 `/cg-plan` and `/cg-work` context slimming implementation.
+- **[2026-06-07-token-optimization-phase5-brain-context-selectivity-review](.cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md)** · `review` · _—_ · `2026-06-08`
+  > **Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
+- **[2026-06-08-token-optimization-phase6-benchmarks-guardrails-review](.cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md)** · `review` · _—_ · `2026-06-08`
+  > **Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -582,6 +594,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > `/cg-compound` Step 5 was instructed to enrich `compound-gpid.context.md` by inserting "directly into the correct sec…
 - **[Three-layer test-correctness protocol prevents circular tests in /cg-fixbug](.cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md)** · `solution` · _—_ · `2026-06-03`
   > A `/cg-fixbug` session could produce a "passing" test that provides zero regression protection. The test was written …
+- **[Token optimization needs benchmark guardrails, not one-off audits](.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md)** · `solution` · _—_ · `2026-06-08`
+  > Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and …
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -829,28 +843,3 @@ objective`_ · 108 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
-
-## Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent
-
-_Keywords: `run-tests.ps1` · `last-run.json` · `execution_subagent`_ · 10 entities
-
-- **[Structural prevention of agent-caused Pester crashes](.cg-docs/brainstorms/2026-04-17-structural-pester-crash-prevention.md)** · `brainstorm` · _decided_ · `2026-04-17`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Structural prevention of agent-caused Pester crashes](.cg-docs/plans/2026-04-17-structural-pester-crash-prevention-v2.md)** · `plan` · _completed_ · `2026-04-17`
-  > > Revised after `@cg-plan-critic` review. Changes from v1 marked with > `[REVIEW FIX: P*.N]` annotations.
-- **[Structural prevention of agent-caused Pester crashes](.cg-docs/plans/2026-04-17-structural-pester-crash-prevention.md)** · `plan` · _superseded_ · `2026-04-17`
-  > Eliminate the two failure modes that have caused 18+ VS Code crashes from agent-composed Pester commands. Category A …
-- **[2026-04-17-structural-pester-crash-prevention-v2-review](.cg-docs/reviews/2026-04-17-structural-pester-crash-prevention-v2-review.md)** · `review` · _—_ · `—`
-  > **Review depth**: thorough **Files reviewed**: 9 (current session changes; context-layer work covered separately) **F…
-- **[Pester $TestDrive cleanup follows junction links, hanging VS Code](.cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md)** · `solution` · _—_ · `2026-03-04`
-  > VS Code froze completely and required a force-quit — reproducibly, every time the workspace was opened. The freeze ha…
-- **[Invoke-Pester on full test directory with -PassThru pipeline crashes VS Code](.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)** · `solution` · _—_ · `2026-04-02`
-  > VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` direct…
-- **[AI agent repeats Pester crash pattern despite documented rules — documentation alone is insufficient](.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)** · `solution` · _—_ · `2026-04-06`
-  > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
-- **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
-  > VS Code crashed **multiple times in a single session** during a fix-triage cycle. The agent had been told tests were …
-- **[Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns](.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md)** · `solution` · _—_ · `2026-04-15`
-  > VS Code crashed **twice in a single fix-triage session** (2026-04-15) even though all terminal commands exited with c…
-- **[Canonical Run-Tests.ps1 + last-run.json artifact decouples test results from agent context window](.cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md)** · `solution` · _—_ · `2026-04-17`
-  > Despite 18+ documented VS Code crashes and a comprehensive `cg-skill-pester-safety` skill, agents continued to compos…
