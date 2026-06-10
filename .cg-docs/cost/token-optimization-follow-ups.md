@@ -18,14 +18,22 @@ finds a failed guardrail, broken model-picker behavior, broken review routing,
 broken `/cg-work review:*` behavior, broad ordinary-prompt context loading, or
 durable `_tmp/` artifact usage.
 
+## Deferred to VS Code/PowerShell — Required Before Merge
+
+These items cannot run in Codex but must be completed in VS Code/PowerShell
+before the release is declared final.
+
+| Item | Source | Requirement |
+|------|--------|-------------|
+| Run the safe Pester suite in VS Code/PowerShell | Project Pester safety rules | Run `. tests\Run-Tests.ps1`; inspect `tests/last-run.json` and confirm `FailedCount` is `0`. Requires Pester 4.10.1: `Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser`. Do not use ad hoc `Invoke-Pester`. |
+| Complete manual VS Code/Copilot runtime validation | Phase 7 validation checklist | Sign off all 12 rows in the End-to-End Manual Validation table with validator initials and date. Codex static checks cannot prove model-picker selection or Copilot agent dispatch behavior. |
+
 ## Non-Blocking Follow-ups
 
 | Item | Source | Why non-blocking |
 |------|--------|------------------|
 | Review staged context wording in `/cg-diagnose`, `/cg-fix-problems`, `/cg-fixbug`, `/cg-ideate`, `/cg-plan-review`, and `/cg-strategy` | Phase 6 audit warnings | Current warnings are visible and do not show guardrail failures; Phase 7 is release validation, not another prompt-slimming pass |
 | Consider reducing documentation wording warnings in `docs/context-files.md`, `docs/reference.md`, and `docs/workflow.md` | Phase 6 audit warnings | Documentation warnings are not runtime behavior unless they instruct ordinary prompts to broaden context loading |
-| Complete manual VS Code/Copilot runtime validation for model picker and route-aware dispatch | Phase 7 validation checklist | Codex static checks cannot prove hidden model-picker selection or Copilot agent dispatch behavior |
-| Run the safe Pester suite in VS Code/PowerShell | Project Pester safety rules | PowerShell may be unavailable in Codex; Pester must use `. tests\Run-Tests.ps1` and `tests/last-run.json` |
 | Leave `.cg-docs/inbox/cg-knowledge-index-roadmap.md` unprocessed until a separate strategy/roadmap session | Phase 7 non-goal | Inbox ideas are not approved roadmap items and should not be promoted during release validation |
 
 ## Completion Notes
