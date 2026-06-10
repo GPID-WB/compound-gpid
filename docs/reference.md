@@ -2,7 +2,7 @@
 
 Quick reference for all Compound GPID commands, agents, skills, configuration, and file structure.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, and `compound-gpid.context.md`. See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the Codex / Claude Code `AGENTS.md` adapter. See [Troubleshooting](troubleshooting.md) for known issues.
 
 ---
 
@@ -46,17 +46,17 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | Prompt | Model | Purpose |
 |--------|-------|---------|
 | `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
-| `/cg-strategy` | Claude Opus 4.6 | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
-| `/cg-ideate` | Claude Opus 4.6 | Generate, critique, and filter improvement ideas for the project. Use when you don't have a specific task in mind. |
-| `/cg-brainstorm [--no-branch]` | Claude Opus 4.6 | Clarify fuzzy requirements through guided questions. **Auto-branch at Step 1.7** — on the default branch, automatically creates and switches to a feature branch before any clarifying questions (no prompt). On a feature branch, prompts stay or new. If the workspace is not a git repo, offers `git init` first. Use `--no-branch` to skip branching entirely. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. After proposing approaches, runs an always-on devil's advocate challenge covering problem validity, simplicity, effort-value, and charter alignment before the decision is finalized. |
-| `/cg-plan [--no-phases]` | Claude Opus 4.6 | Research + structured implementation plan. **Branch offer at Step 0.7** — before gathering context, offers to create a git branch derived from your request. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. **Phases by default** — all plans are automatically organized into numbered phases unless `--no-phases` is passed or the plan has ≤ 2 steps. Includes confidence check before finalizing. |
-| `/cg-plan-review` | Claude Opus 4.6 | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Can review existing plans standalone or be run right after `/cg-plan`. Dispatches `@cg-plan-critic`. |
-| `/cg-work [phaseX]` | Claude Sonnet 4.6 | Step-by-step implementation from plan. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) to execute a specific phase of a phased plan; without an argument, executes all remaining phases sequentially. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. If all features in a milestone are marked done, marks the milestone complete via `@cg-roadmap` (Step 3.8) and notifies the user to run `/cg-strategy` to review direction. |
+| `/cg-strategy` | Copilot model picker | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
+| `/cg-ideate` | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use when you don't have a specific task in mind. |
+| `/cg-brainstorm [--no-branch]` | Copilot model picker | Clarify fuzzy requirements through guided questions. **Auto-branch at Step 1.7** — on the default branch, automatically creates and switches to a feature branch before any clarifying questions (no prompt). On a feature branch, prompts stay or new. If the workspace is not a git repo, offers `git init` first. Use `--no-branch` to skip branching entirely. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. After proposing approaches, runs an always-on devil's advocate challenge covering problem validity, simplicity, effort-value, and charter alignment before the decision is finalized. |
+| `/cg-plan [--no-phases]` | Copilot model picker | Research + structured implementation plan. **Branch offer at Step 0.7** — before gathering context, offers to create a git branch derived from your request. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. **Phases by default** — all plans are automatically organized into numbered phases unless `--no-phases` is passed or the plan has ≤ 2 steps. Includes confidence check before finalizing. |
+| `/cg-plan-review` | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Can review existing plans standalone or be run right after `/cg-plan`. Dispatches `@cg-plan-critic`. |
+| `/cg-work [phaseX] [review:<mode>]` | Claude Sonnet 4.6 | Step-by-step implementation from plan. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) to execute a specific phase of a phased plan; without an argument, executes all remaining phases sequentially. Review handoff is mode-aware: default/`review:manual` recommends a routed `/cg-review` command without dispatching review agents, `review:auto` dispatches route-appropriate agents using the shared review-routing contract, and `review:none` suppresses review handoff. For Lightweight tasks with no plan, generates a short inline plan first. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. If all features in a milestone are marked done, marks the milestone complete via `@cg-roadmap` (Step 3.8) and notifies the user to run `/cg-strategy` to review direction. |
 | `/cg-fixbug` | Claude Sonnet 4.6 | Structured bug-fix: intake → expected-behavior source (Step 1.5, MANDATORY) → reproduce with diagnostic fork (hard stop) → test-gap classification (Step 2.5) → diagnose → fix with red-green proof (hard stop) → document. Checks prior bug solutions at intake. |
-| `/cg-review [light\|standard\|thorough] [--report-only\|mode:autofix\|mode:verify]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Depth overrides config; content-based auto-escalation applies automatically (pipeline files, statistical functions, secrets, large diffs). **Autofix is the default** — safe mechanical fixes (`[safe_auto]`) are applied automatically; statistical functions, welfare/income variables, and weight parameters are never auto-fixed (escalated to `[manual]`). Use `--report-only` to disable autofix and present findings one-at-a-time for Fix/Skip/Discuss. `mode:autofix` is now a no-op (accepted for backward compatibility). `mode:verify` switches to verification mode — re-runs a `light` review with suppression of expected fix-consequence P2/P3 findings; P0/P1 and new cross-file breakage are always reported. Note: `--report-only` and `mode:verify` are mutually exclusive — if both are passed, `mode:verify` wins. |
+| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | Mixed | Multi-agent code review with P0/P1/P2/P3 findings. Uses staged routing by default: small low-risk changes route to `light`, normal changes to `standard`, statistical/survey/poverty/welfare/joins/aggregation/reproducibility-sensitive changes to `data-risk`, architecture/performance-heavy changes to `architecture`, and security/release/high-risk or explicit requests to `full`. `thorough` remains accepted as a backward-compatible alias for `full`. **Autofix is the default** — safe mechanical fixes (`[safe_auto]`) are applied automatically; statistical functions, welfare/income variables, and weight parameters are never auto-fixed (escalated to `[manual]`). Use `--report-only` to disable autofix and present findings one-at-a-time for Fix/Skip/Discuss. `mode:autofix` is now a no-op (accepted for backward compatibility). `mode:verify` switches to verification mode — re-runs a `light` review with suppression of expected fix-consequence P2/P3 findings; P0/P1 and new cross-file breakage are always reported. Note: `--report-only` and `mode:verify` are mutually exclusive — if both are passed, `mode:verify` wins. |
 | `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | Claude Sonnet 4.6 | Apply review findings by ID or priority level. If the report has more than 15 open findings and no arguments are given, warns before proceeding and recommends priority batches (`P0 P1`, `P2`, `P3`); respond `batch` to get the commands and stop, or `yes` to proceed. Use `--migrate` to backfill per-finding status tracking on legacy review files (pre-v0.4.3). |
 | `/cg-fix-problems` | Claude Sonnet 4.6 | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets you select scope and severity, then dispatches `@cg-fix-problems` to apply fixes. Auto mode is dispatched silently by `/cg-work` when `get_errors` returns errors in files touched by the current implementation step (errors only, 2-round budget). |
-| `/cg-compound [--no-enrich] [--propose]` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. **Auto-enriches by default** — automatically writes key findings to `compound-gpid.context.md` (no prompt) and updates the project wiki (folder configured via `## Wiki Configuration` in `compound-gpid.context.md`) when the captured solution has user-facing implications. In Step 6, offers to suggest updates to `.github/instructions/` or `.github/skills/` files (the user applies them manually). Use `--no-enrich` to skip context.md and wiki enrichment. Use `--propose` to review proposed wiki changes before they are applied. |
+| `/cg-compound [--no-enrich] [--propose]` | Claude Sonnet 4.6 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. **Auto-enriches by default** — automatically writes key findings to `compound-gpid.context.md` (no prompt) and updates the project wiki (folder configured via `## Wiki Configuration` in `compound-gpid.context.md`) when the captured solution has user-facing implications. In Step 6, offers to suggest updates to `.github/instructions/` or `.github/skills/` files (the user applies them manually). Use `--no-enrich` to skip `compound-gpid.context.md` and wiki enrichment. Use `--propose` to review proposed wiki changes before they are applied. |
 | `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
 | `/cg-brain-rebuild` | Claude Sonnet 4.6 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` changes from collaborators, after manually editing solution files, after a `/cg-compound` run where brain rebuild was skipped, or when the brain is stale. Verifies success by exit code (primary), stdout stats line (secondary), and `BRAIN.md` existence (tertiary). |
 | `/cg-wiki [init\|rebuild\|restructure\|convert\|status\|help] [--propose]` | Claude Sonnet 4.6 | Manage the project wiki (`wiki/` by default). No args = status table. `init` bootstraps the wiki on an existing project (creates `_wiki.yml` and all wiki pages from a project-type template). `rebuild` regenerates all auto-managed pages from current codebase + charter. `rebuild <page-id>` targets a single page. `restructure` lets you add/remove/reorder pages interactively. `convert` generates GitHub Wiki–compatible layout (Home.md, _Sidebar.md). `--propose` shows diffs before writing. Wiki initialized at `/cg-setup` or `/cg-wiki init`; updated automatically by `/cg-compound`. |
@@ -79,9 +79,27 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `[cg-index] WARNING: roadmap feature … has no 'id'; skipping` | Roadmap feature entry lacks an `id` field — not linked in the brain. |
 
 To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
+
+### `cg-audit-context` — Context and Model-Governance Audit
+
+```
+python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json]
+```
+
+Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, detects duplicate paragraph blocks, benchmarks `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup behavior, and writes reports to `.cg-docs/cost/` (default). Requires `scripts/brain/` from this repository.
+
+Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. The generated Markdown includes Benchmark Summary, Guardrails, Context Loading Risks, Review Dispatch Burden, Model Inventory, and a release-readiness checklist.
+
+Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
 
-> **Model selection**: See [Model Guide](model-guide.md) for tier assignments, decision criteria, and override guidance for all 37 prompt and agent files.
+For token-optimization release candidates, complete
+`.cg-docs/cost/token-optimization-release-checklist.md` after generating the
+audit. Keep non-blocking issues in
+`.cg-docs/cost/token-optimization-follow-ups.md` so release blockers and future
+cleanup stay separate.
+
+> **Model selection**: See [Model Guide](model-guide.md) for model selection guidance and escalation criteria.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -99,7 +117,7 @@ To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 | Prompt | Model | Purpose | Distribution |
 |--------|-------|---------|-------------|
 | `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Not distributed** — lives at the `compound-gpid` repo root only. |
-| `/cg-review-repos [--full]` | Claude Opus 4.6 | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
+| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 
 ### Competitive Review System
 
@@ -158,26 +176,33 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-performance` | Vectorization, memory, algorithm complexity | Sonnet 4.6 |
 | `cg-architecture` | Project structure, modularity, dependencies | Sonnet 4.6 |
 | `cg-data-quality` | Input validation, types, missing values | Sonnet 4.6 |
-| `cg-learnings-researcher` | Cross-reference past solutions (thorough only) | Haiku 4.5 |
-| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (thorough only) | Sonnet 4.6 |
+| `cg-learnings-researcher` | Cross-reference past solutions (`full` / `thorough` alias only) | Haiku 4.5 |
+| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) | Sonnet 4.6 |
 
 > Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
-> ℹ️ For model assignment rationale, tier criteria, and override guidance, see [Model Guide](model-guide.md).
+> ℹ️ For model selection guidance and escalation criteria, see [Model Guide](model-guide.md).
 
-### Auto-Escalation Rules
+### Review Routing Rules
 
-In addition to the configured depth tier, `/cg-review` automatically applies these content-based overrides:
+`/cg-review` uses staged routing from changed-file risk signals:
 
-| Trigger | Override |
+| Trigger | Resolved mode |
 |---------|----------|
-| Changed files include `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}`, or any file in a `**/scripts/**` directory | Always adds `@cg-data-quality` (even in `light`) |
-| Changed files touch authentication, secrets, or credentials | Always adds `@cg-version-control` |
-| Changed files call statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.) or generate summary tables | Always adds `@cg-data-quality` + `@cg-reproducibility` |
-| ≥ 50 non-test lines changed | Escalates `light` → `standard` |
-| ≥ 200 non-test lines changed | Suggests `thorough` to user (does not auto-apply) |
+| Small docs/prompt wording/metadata-only or low-risk test changes | `light` |
+| Ordinary implementation, prompt, or test changes without high-risk signals | `standard` |
+| Pipeline/extract/load scripts, statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), summary tables, survey/poverty/welfare/weights/joins/aggregation, or reproducibility-sensitive changes | `data-risk` |
+| Architecture, dependencies, module boundaries, performance, memory, API contracts, or large refactors | `architecture` |
+| Authentication, secrets, credentials, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `full` |
+| ≥ 50 non-test lines changed with otherwise low risk | raises `light` → `standard` |
+| ≥ 200 non-test lines changed without higher-risk trigger | recommends `full` to user (does not auto-apply unless explicitly requested) |
 
-When any override fires, the prompt tells you: `"Auto-escalation applied: [reason]. Running [agents] in addition to the base depth."`
+When any route fires, the prompt tells you the reason, resolved mode, and
+mandatory emphasis. Explicit review modes win when present: `/cg-review light`
+resolves to `light`, and `/cg-review full` resolves to `full`. Auto
+risk-class routing applies only when no explicit mode is requested. Agents
+should still mention high-risk signals in their review focus. `thorough`
+remains a backward-compatible alias for `full`.
 
 ### Per-Finding Status Tracking
 
@@ -293,7 +318,7 @@ Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
 - **Language**: R, Python, Stata, or any combination
 - **R syntax dialect** (if R is selected): `data.table-collapse` (default) or `tidyverse`
 - **Project type**: Package, analysis, dashboard, API, tool
-- **Review depth**: Light, standard, or thorough
+- **Review depth**: Light, standard, or thorough (`thorough` is treated as the `full` route)
 - **Project charter** (optional): project name, objective, deliverables, constraints
 
 This creates `compound-gpid.local.md` (gitignored, user-specific config), optionally
@@ -309,14 +334,14 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `language` | `"r"`, `"python"`, `"stata"`, `"both"`, or combination | Language(s) used in the project |
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
-| `review-depth` | `"light"`, `"standard"`, `"thorough"` | Depth of `/cg-review` (see Review Depth Tiers in `copilot-instructions.md`) |
+| `review-depth` | `"light"`, `"standard"`, `"thorough"` | Legacy depth default for `/cg-review`; `thorough` maps to the `full` route. Explicit routed modes can be passed at invocation time. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
 ### `compound-gpid.context.md`
 
-A committed, growing knowledge base for project-specific context. Created by `/cg-setup`. Extended by `/cg-compound` after each significant task. Read by all prompts in Step 0.
+A committed, growing knowledge base for project-specific context. Created by `/cg-setup`. Extended by `/cg-compound` after each significant task. Ordinary prompts load targeted headings or snippets when tactical facts are relevant instead of reading the whole file by default.
 
-Typical contents: data source locations and caveats, domain vocabulary, workspace folder descriptions, variable-level notes, recurring gotchas. Unlike the charter (`compound-gpid.md`), `context.md` has no fixed structure — organise it by topic.
+Typical contents: data source locations and caveats, domain vocabulary, workspace folder descriptions, variable-level notes, recurring gotchas. Unlike the charter (`compound-gpid.md`), `compound-gpid.context.md` has no fixed structure — organise it by topic.
 
 ---
 
@@ -326,6 +351,7 @@ After linking and configuring, your project will contain:
 
 ```
 your-project/
+├── AGENTS.md                 # optional Codex / Claude Code adapter; not used by GitHub Copilot
 ├── .github/
 │   ├── prompts/              → junction to C:\WBG\.compound-gpid\.github\prompts\
 │   ├── skills/               → junction to C:\WBG\.compound-gpid\.github\skills\
@@ -341,6 +367,8 @@ your-project/
     ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── competitive-reviews/  # /cg-review-repos registry (repos.json) and assessment outputs
+    ├── cost/                 # context/model audit reports and release-readiness checklists
+    ├── inbox/                # unprocessed strategy ideas; not approved roadmap items until promoted via /cg-strategy
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     ├── strategy/             # /cg-strategy session records
@@ -353,6 +381,9 @@ your-project/
         ├── environment-issues/
         └── git-workflows/
 ```
+
+`.cg-docs/inbox/` is only a holding area. Do not treat files there as approved
+roadmap items until a separate strategy or roadmap session promotes them.
 
 ---
 
@@ -391,4 +422,3 @@ Phased plans (created with `/cg-plan` when the user requests phases) carry addit
 | `phases` | integer | `/cg-plan` Step 3.5 | (not read at runtime — informational only for human readers) | **Convenience hint** — may become stale if phases are restructured. The authoritative phase count is always derived by counting `## Phase` headers in the document body. Never use this field as the source of truth for validation. |
 | `completed-phases` | YAML flow sequence of unquoted integers, e.g. `[1, 2]` | `/cg-work` Step 2.5 | `/cg-work` Step 1.2, `/cg-resume` Step 2a | **Authoritative completion record.** Written first at phase boundary (before `current-phase`). A plan with a non-empty list and `status: active` is "paused between phases" — this is the normal cross-session state. |
 | `current-phase` | integer | `/cg-work` Step 2.5 | (informational only) | Written after `completed-phases`. Set to N+1 after completing phase N; removed when the final phase completes. |
-

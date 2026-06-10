@@ -28,6 +28,14 @@ severity: "P2"                      # P0 | P1 | P2 | P3
 | `root-cause` | String | One-sentence summary |
 | `severity` | String | `P0`, `P1`, `P2`, `P3` |
 
+### Optional Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `plan` | String | Relative path to the `.cg-docs/plans/` file this solution originated from (e.g., `.cg-docs/plans/2026-06-09-my-plan.md`) |
+| `reviewed-in` | String | Relative path to the `.cg-docs/reviews/` report where this finding was first surfaced. Omit for solutions produced as design-pattern documents rather than through a review. |
+| `related` | Array | Cross-links to related solution files or cost artifacts (e.g., `[".cg-docs/solutions/bugs/other.md"]`) |
+
 ## Document Body
 
 ```markdown

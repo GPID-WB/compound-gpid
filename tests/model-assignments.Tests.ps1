@@ -1,5 +1,5 @@
 # tests/model-assignments.Tests.ps1
-# Validates that every prompt and agent file declares a model: frontmatter key.
+# Validates model-governance metadata for prompt and agent files.
 # Uses dynamic discovery so new files are automatically included in the sweep.
 #
 # Design notes:
@@ -7,6 +7,8 @@
 #     Update the sentinel when intentionally adding a new file.
 #   - Test-Path is included for every file to produce clean, isolated failures
 #     rather than scope-level exceptions if a file is unexpectedly missing.
+#   - Ordinary workflow prompts intentionally omit `model:` so they inherit the
+#     user's GitHub Copilot model-picker selection.
 #   - Regex is anchored to the YAML `model:` key (not a substring anywhere in
 #     frontmatter) and uses -cmatch for case-sensitive matching.
 #   - For tier-assignment rationale and override guidance, see docs/model-guide.md.
@@ -26,6 +28,14 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 Describe "Model assignments - prompt files" {
     $promptsDir = Join-Path $repoRoot ".github\prompts"
     $promptFiles = @(Get-ChildItem -Path $promptsDir -Filter "*.prompt.md" -File)
+    $ordinaryPromptNames = @(
+        "cg-brainstorm.prompt.md",
+        "cg-ideate.prompt.md",
+        "cg-plan-review.prompt.md",
+        "cg-plan.prompt.md",
+        "cg-review-repos.prompt.md",
+        "cg-strategy.prompt.md"
+    )
 
     # Include root-level cg-release.prompt.md (developer-only)
     $releasePrompt = Join-Path $repoRoot "cg-release.prompt.md"
@@ -47,10 +57,14 @@ Describe "Model assignments - prompt files" {
             Test-Path $filePath | Should -Be $true
         }
 
-        It "$relPath has a model: frontmatter key with a non-empty value" {
+        It "$relPath has the expected model frontmatter governance" {
             $frontmatter = Get-Frontmatter -FilePath $filePath
-            # Anchored to key with non-empty value; -cmatch for case-sensitive matching
-            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
+            if ($ordinaryPromptNames -contains $file.Name) {
+                ($frontmatter -cmatch '(?m)^\s*model:') | Should -Be $false
+            } else {
+                # Anchored to key with non-empty value; -cmatch for case-sensitive matching
+                ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
+            }
         }
     }
 }
@@ -87,9 +101,9 @@ Describe "Model assignments - agent files" {
 }
 
 # ---------------------------------------------------------------------------
-# docs/model-guide.md - structure and sync validation
-# Ensures the guide references every prompt and agent file stem so that
-# if a file is added or renamed, the guide must also be updated.
+# docs/model-guide.md - governance validation
+# Ensures the guide documents model-picker inheritance, escalation guidance,
+# recommended model selection, and the governance principle.
 # ---------------------------------------------------------------------------
 
 Describe "docs/model-guide.md - structure and sync" {
@@ -101,33 +115,60 @@ Describe "docs/model-guide.md - structure and sync" {
 
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    # All 22 prompt file stems must appear in the guide
-    $promptStems = @(
-        'cg-strategy', 'cg-brainstorm', 'cg-plan', 'cg-work', 'cg-review',
-        'cg-fixbug', 'cg-release', 'cg-compound', 'cg-fix-triage',
-        'cg-setup', 'cg-devtag', 'cg-resume',
-        'cg-compound-refresh', 'cg-ideate',
-        'cg-diagnose', 'cg-fix-problems', 'cg-plan-review',
-        'cg-review-repos', 'cg-roadmap-view',
-        'cg-commit-push-pr', 'cg-verify-pr', 'cg-wiki'
-    )
-    foreach ($stem in $promptStems) {
-        It "guide references prompt stem '$stem'" {
-            ($content -match ([regex]::Escape($stem) + '\.prompt\.md')) | Should -Be $true
-        }
+    It "documents ordinary prompts inheriting the user-selected model" {
+        $content | Should -Match "Ordinary workflow prompts"
+        $content | Should -Match "model picker"
     }
 
-    # All 17 agent file stems must appear in the guide
-    $agentStems = @(
-        'cg-architecture', 'cg-performance', 'cg-data-quality', 'cg-code-quality',
-        'cg-testing', 'cg-documentation', 'cg-version-control', 'cg-reproducibility',
-        'cg-learnings-researcher', 'cg-roadmap',
-        'cg-adversarial', 'cg-fix-problems', 'cg-plan-critic',
-        'cg-release-scanner', 'cg-project-scanner', 'cg-roadmap-view', 'cg-wiki'
+    It "documents recommended model selection" {
+        $content | Should -Match "Recommended Model Selection"
+        $content | Should -Match "Normal daily use"
+        $content | Should -Match "Auto"
+    }
+
+    It "documents escalation guidance" {
+        $content | Should -Match "Escalation Guidance"
+        $content | Should -Match "High-stakes architecture"
+        $content | Should -Match "user-initiated"
+    }
+
+    It "documents governance principle" {
+        $content | Should -Match "Governance Principle"
+        $content | Should -Match "does not hard-code expensive premium models"
+        $content | Should -Match "explicit budget decision"
+    }
+
+    It "documents standard-pinned operational prompts without claiming premium defaults" {
+        $content | Should -Match "Explicit Model Assignments"
+        $content | Should -Match "standard-pinned operational prompts"
+        $content | Should -Match "cg-work\.prompt\.md"
+        $content | Should -Match "cg-review\.prompt\.md"
+        $content | Should -Match "No ordinary workflow prompt may hard-code any model"
+        $content | Should -Match "No prompt currently has an explicit premium model assignment"
+    }
+}
+
+Describe "docs/reference.md - ordinary prompt model picker sync" {
+    $referenceFile = Join-Path $repoRoot "docs\reference.md"
+    if (-not (Test-Path $referenceFile)) {
+        Write-Warning "docs/reference.md not found -- skipping model picker sync tests"
+    }
+    $content = if (Test-Path $referenceFile) { Get-Content $referenceFile -Raw -Encoding UTF8 } else { "" }
+    $ordinaryCommands = @(
+        "/cg-brainstorm",
+        "/cg-ideate",
+        "/cg-plan",
+        "/cg-plan-review",
+        "/cg-review-repos",
+        "/cg-strategy"
     )
-    foreach ($stem in $agentStems) {
-        It "guide references agent stem '$stem'" {
-            ($content -match ([regex]::Escape($stem) + '\.agent\.md')) | Should -Be $true
+
+    foreach ($command in $ordinaryCommands) {
+        It "$command documents model-picker inheritance rather than a premium default" {
+            $escapedCommand = [regex]::Escape($command)
+            ($content -match "\| ``?$escapedCommand") | Should -Be $true
+            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
+            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
         }
     }
 }

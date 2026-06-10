@@ -10,7 +10,7 @@ You are a session context loader. Your job is to quickly orient Copilot and the 
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json` in the project root.
+- You may read `roadmap.json` in the project root only for the justified structured milestone health and drift checks in Step 2d.
 - You may NOT create, modify, or delete any files.
 
 ## Process
@@ -45,9 +45,11 @@ Extract: `language`, `project-type`, `review-depth`, and `cg-schema-version`.
 
 #### 0c. Read project context
 
-If `compound-gpid.context.md` exists in the project root, read it for
-project-specific context, domain rules, data sources, and workspace notes.
-If it does not exist, skip silently.
+Load `.github/shared/context-loading.contract.md` and apply Stage 0/1 first.
+If `compound-gpid.context.md` exists, read only headings or snippets relevant
+to session-resume facts such as workspace notes, documented active conventions,
+or context-maintenance nudges. State `Context expansion: reading
+<artifact/section> because <reason>.` If it does not exist, skip silently.
 
 ### Step 1: Schema Version Check
 
@@ -109,10 +111,12 @@ If git is not available or this is not a git repo, skip this step.
 
 #### 2d. Milestone progress
 
-<!-- Direct read required for cross-checks (stale refs, plan-drift, scope
-     health, active feature detection). WIP display is handled inline in
-     Step 3 using data already loaded here. Do NOT eliminate this direct read. -->
-If `roadmap.json` exists at the project root, read it and compute:
+<!-- Context expansion: reading full roadmap.json because /cg-resume computes
+     global milestone health, stale refs, plan-drift, scope health, and active
+     feature detection. Carry forward only the structured summary fields needed
+     for Step 3. WIP display is handled inline using data already loaded here.
+     Do NOT eliminate this direct read. -->
+If `roadmap.json` exists at the project root, use the justified full read above to compute:
 - For each milestone: count of done/total features, overall status.
 - Any features with `status: "active"` (work currently underway).
 - Scope health: what percentage of all features are `idea` or `planned`
@@ -128,7 +132,7 @@ non-null `plan` path:
 
 #### 2e. Pending review findings
 
-Scan `.cg-docs/reviews/` for all `.md` files (skip `.gitkeep`). For each file:
+Scan `.cg-docs/reviews/` metadata for `.md` files (skip `.gitkeep`). For each file:
 
 1. Read the YAML frontmatter.
 2. If a `findings:` key exists: count entries with value `open`, grouped by
@@ -220,4 +224,3 @@ Based on what you found, suggest the most logical next step:
 
 
 Read `resume-templates.md` for the **Next Action Suggestions** format. Adapt the options to what's actually available.
-

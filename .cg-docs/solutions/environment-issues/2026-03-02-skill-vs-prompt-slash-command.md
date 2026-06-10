@@ -71,6 +71,9 @@ corresponds to an actual `.prompt.md` file in `.github/prompts/`.
 - `docs/plans/2026-03-02-rename-prefix-and-documentation.md` — the plan that
   introduced the naming conventions
 - `docs/manual.md` — updated to correctly describe setup as a skill
+- [Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)
+  — companion pattern for reusing Copilot-oriented prompt and skill files from
+  Codex or Claude Code without changing their Copilot behavior.
 
 ## Resolution
 

@@ -1,5 +1,5 @@
 {
-  "edge_count": 170,
+  "edge_count": 182,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -227,6 +227,18 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
       "target": ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+      "target": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+      "target": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
       "target_missing": false
     },
     {
@@ -722,6 +734,42 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+      "target": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+      "target": ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+      "target": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+      "target": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -731,6 +779,30 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/brainstorms/2026-04-07-full-model-audit.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+      "target": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
       "target_missing": false
     },
     {
@@ -2116,6 +2188,34 @@
         "@cg-testing",
         "references/test-integrity.md",
         "current focus"
+      ]
+    },
+    {
+      "date": "2026-06-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+      "slug": "2026-06-04-context-model-audit-infrastructure",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "performance",
+        "tokens",
+        "model-governance",
+        "audit",
+        "cost-efficiency"
+      ],
+      "title": "Context and model-governance audit infrastructure",
+      "top_keywords": [
+        "approach",
+        "context",
+        "audit",
+        "model-governance",
+        "decision",
+        "tiktoken",
+        "infrastructure",
+        "2026-04-07-full-model-audit.md",
+        "2026-04-20-reduce-late-sequence-token-cost.md",
+        "cg_index.py"
       ]
     },
     {
@@ -3800,6 +3900,200 @@
         "tests/prompt-tools.tests.ps1",
         "expected behavior source",
         "skill.md"
+      ]
+    },
+    {
+      "date": "2026-06-04",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+      "slug": "2026-06-04-context-model-audit-phase1",
+      "status": "planned",
+      "summary": "Build `scripts/cg_audit_context.py` — a stdlib-only Python script that inventories all context-contributing files in Compound GPID, estimates token burden using `chars / 4`, counts inter-file references, inventories model declarations, detects duplicates, and classifies optimization candidates against predefined thresholds. Outputs both JSON and Markdown reports to `.cg-docs/cost/`.",
+      "tags": [
+        "performance",
+        "tokens",
+        "model-governance",
+        "audit",
+        "cost-efficiency",
+        "codex"
+      ],
+      "title": "Context and model-governance audit — Phase 1 inventory",
+      "top_keywords": [
+        "scripts/cg_audit_context.py",
+        "cg_audit_context.py",
+        "cg_index.py",
+        "phase",
+        "scripts/tests/test_audit_context.py",
+        "roadmap.json",
+        "test_audit_context.py",
+        "inventory",
+        "audit",
+        "compound-gpid.md"
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+      "slug": "2026-06-05-cg-review-token-cost-phase3",
+      "status": "active",
+      "summary": "Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and adding explicit review-mode integration in `/cg-work` so post-implementation review behavior is deterministic, cheaper by default, and still safe for high-risk changes.",
+      "tags": [
+        "performance",
+        "token-optimization",
+        "review",
+        "routing",
+        "safety",
+        "model-governance",
+        "cg-work"
+      ],
+      "title": "Phase 3: staged /cg-review routing + /cg-work review-mode integration",
+      "top_keywords": [
+        "cg-work",
+        "cg-review",
+        "/cg-work",
+        "/cg-review",
+        "tests/prompt-tools.tests.ps1",
+        "data-risk",
+        "prompt-tools.tests.ps1",
+        "standard",
+        "review:auto",
+        "review:manual"
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+      "slug": "2026-06-06-cg-plan-work-context-slimming-phase4",
+      "status": "active",
+      "summary": "Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preserving user-facing behavior, safety gates, roadmap behavior, phase handling, testing expectations, diagnostics handling, artifact discipline, and Phase 3 `/cg-work review:*` integration.",
+      "tags": [
+        "performance",
+        "token-optimization",
+        "prompt-slimming",
+        "cg-plan",
+        "cg-work",
+        "model-governance"
+      ],
+      "title": "Phase 4: /cg-plan and /cg-work prompt/context slimming",
+      "top_keywords": [
+        "cg-work",
+        "cg-plan",
+        "/cg-plan",
+        "/cg-work",
+        "/cg-work review:*",
+        ".github/shared/review-routing.contract.md",
+        "phase",
+        ".cg-docs/cost/context-audit.md",
+        "/cg-work review:auto",
+        "copilot auto"
+      ]
+    },
+    {
+      "date": "2026-06-07",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+      "slug": "2026-06-07-token-optimization-phase5-brain-context-selectivity",
+      "status": "active",
+      "summary": "Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project context loading selective, staged, and query-driven. Ordinary prompts should no longer encourage broad/default reads of full Brain artifacts, `compound-gpid.context.md`, or `roadmap.json` unless the workflow has an explicit, justified need.",
+      "tags": [
+        "token-cost",
+        "knowledge-brain",
+        "context-loading",
+        "audit",
+        "prompts"
+      ],
+      "title": "Token Optimization Phase 5 - Knowledge Brain and Context Selectivity",
+      "top_keywords": [
+        "compound-gpid.context.md",
+        "roadmap.json",
+        "brain.md",
+        "brain-index.json",
+        "brain-nn.md",
+        "cg-work",
+        "knowledge brain",
+        "brain-log.md",
+        "cg-compound",
+        "/cg-compound"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+      "slug": "2026-06-08-token-optimization-phase6-benchmarks-guardrails",
+      "status": "completed",
+      "summary": "Create a repeatable benchmark and regression-guardrail system that verifies whether the Phase 2-5 token-optimization work reduced context burden and model-cost risk while preserving workflow behavior.",
+      "tags": [
+        "token-cost",
+        "benchmark",
+        "guardrails",
+        "audit",
+        "release-readiness"
+      ],
+      "title": "Token Optimization Phase 6 - Benchmarks, Guardrails, and Release Readiness",
+      "top_keywords": [
+        "cg-review",
+        "cg-work",
+        "/cg-review",
+        "/cg-work",
+        "brain-index.json",
+        "knowledge brain",
+        "/cg-plan",
+        "roadmap.json",
+        "cg-plan",
+        "model:"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation",
+      "status": "completed",
+      "summary": "Prepare the Phase 2-6 token-optimization work for merge and release by validating the full workflow end-to-end, documenting the new behavior for users and maintainers, creating a maintainer release-readiness checklist, and capturing reusable lessons through `/cg-compound`.",
+      "tags": [
+        "token-optimization",
+        "release-readiness",
+        "validation",
+        "documentation",
+        "knowledge-capture"
+      ],
+      "title": "Token Optimization Phase 7 - Release Candidate Validation and Knowledge Capture",
+      "top_keywords": [
+        "cg-work",
+        "/cg-compound",
+        "cg-review",
+        "knowledge brain",
+        "cg-compound",
+        ".cg-docs/inbox/",
+        "/cg-work review:*",
+        "validation",
+        "/cg-review",
+        "/cg-plan"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
+      "slug": "phase2-model-governance-cleanup",
+      "status": "",
+      "summary": "**Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026-06-05 **Source**: Phase 1 audit at `.cg-docs/cost/context-audit.md`",
+      "tags": [],
+      "title": "phase2-model-governance-cleanup",
+      "top_keywords": [
+        "model:",
+        "claude opus",
+        "model: claude opus 4.6 (copilot)",
+        "model",
+        "phase",
+        "tests",
+        "docs/model-guide.md",
+        "model-guide.md",
+        "governance",
+        "model-assignment"
       ]
     },
     {
@@ -5783,6 +6077,138 @@
       ]
     },
     {
+      "date": "2026-06-06",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+      "slug": "2026-06-05-cg-review-token-cost-phase3-review",
+      "status": "",
+      "summary": "**Review mode**: architecture (auto-escalated from normal: new Python module with cross-module imports) **Files reviewed**: 14 changed files (19 total including artifacts), branch `codex/context-model-audit-phase1` vs `main` **Agents dispatched**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-reproducibility, cg-performance, cg-architecture, cg-data-quality **Findings**: 57 (P0: 0, P1: 2, P2: 30, P3: 25)",
+      "tags": [],
+      "title": "2026-06-05-cg-review-token-cost-phase3-review",
+      "top_keywords": [
+        "[safe_auto]",
+        "cg_audit_context.py",
+        "[advisory]",
+        "[manual]",
+        "scripts/tests/test_audit_context.py",
+        "test_audit_context.py",
+        "write_outputs",
+        "extract_model_declarations",
+        "parse_model_guide()",
+        "{}"
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+      "slug": "2026-06-06-cg-plan-work-context-slimming-phase4-review",
+      "status": "",
+      "summary": "Review of the Phase 4 `/cg-plan` and `/cg-work` context slimming implementation.",
+      "tags": [],
+      "title": "2026-06-06-cg-plan-work-context-slimming-phase4-review",
+      "top_keywords": [
+        "fixed",
+        "/cg-work",
+        "cg-work",
+        "/cg-plan",
+        "/cg-review",
+        "cg-plan",
+        "model",
+        "review",
+        "contradicted",
+        "docs/reference.md"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+      "slug": "2026-06-07-token-optimization-phase5-brain-context-selectivity-review",
+      "status": "",
+      "summary": "**Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-06-07-token-optimization-phase5-brain-context-selectivity-review",
+      "top_keywords": [
+        "compound-gpid.context.md",
+        "roadmap.json",
+        "brain-index.json",
+        "review",
+        "modify",
+        "passed",
+        "delete",
+        "replace",
+        "rename",
+        "report"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+      "slug": "2026-06-08-token-optimization-phase6-benchmarks-guardrails-review",
+      "status": "",
+      "summary": "**Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)",
+      "tags": [],
+      "title": "2026-06-08-token-optimization-phase6-benchmarks-guardrails-review",
+      "top_keywords": [
+        "validation",
+        "context loading risks",
+        ".cg-docs/cost/context-audit.md",
+        "git diff --check",
+        "workflow.md",
+        "context-audit.md",
+        "cg_audit_context.py",
+        "review",
+        "report",
+        "passed"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation-review-2",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 16 **Findings**: 22 (P0: 0, P1: 3, P2: 5, P3: 14)",
+      "tags": [],
+      "title": "2026-06-09-token-optimization-phase7-release-validation-review-2",
+      "top_keywords": [
+        ".cg-docs/cost/token-optimization-release-checklist.md",
+        "[manual]",
+        "[advisory]",
+        "context-audit.json",
+        "workflow.md",
+        "token-optimization-release-checklist.md",
+        "reviewed-in:",
+        "docs/workflow.md",
+        "cost/",
+        "inbox/"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation-review",
+      "status": "",
+      "summary": "**Review mode**: light **Files reviewed**: 14 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-06-09-token-optimization-phase7-release-validation-review",
+      "top_keywords": [
+        "review",
+        "@cg-testing",
+        "validation",
+        "passed",
+        "powershell",
+        "light",
+        "report",
+        "autofix",
+        "pwsh",
+        "blocking"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -7184,6 +7610,95 @@
       ]
     },
     {
+      "date": "2026-06-05",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
+      "slug": "2026-06-05-cg-index-cmd-python3-stderr-leak",
+      "status": "",
+      "summary": "On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-index --brain` raised a PowerShell `NativeCommandError`:",
+      "tags": [
+        "cg-index",
+        "windows",
+        "python",
+        "cmd",
+        "stderr",
+        "powershell"
+      ],
+      "title": "cg-index.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH",
+      "top_keywords": [
+        "cg-index.cmd",
+        "python3",
+        "python",
+        "py",
+        "for /f",
+        "cg-index",
+        "cmd",
+        "stderr",
+        "install.ps1",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
+      "slug": "2026-06-10-brain-renderer-multiline-label-breaks-pipe-table",
+      "status": "",
+      "summary": "After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster labels spanned multiple lines. GitHub and VS Code Preview rendered the trailing lines as stray text or additional broken rows, not as part of the table. Example of the broken output in `BRAIN.md`: The table became unparseable for Topic 2 because Markdown pipe tables require each row to be a single physical line.",
+      "tags": [
+        "brain",
+        "renderer",
+        "markdown",
+        "pipe-table",
+        "cluster-label",
+        "sanitize",
+        "BRAIN.md"
+      ],
+      "title": "Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown",
+      "top_keywords": [
+        "brain.md",
+        "_sanitize_inline()",
+        "brain",
+        "renderer",
+        "scripts/brain/renderer.py",
+        "topic.label",
+        "\\n",
+        "renderer.py",
+        "topic index",
+        "topic"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md",
+      "slug": "2026-06-10-cg-brain-init-cmd-python3-stderr-leak",
+      "status": "",
+      "summary": "On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-brain-init` leaked a CMD.EXE \"not recognized\" error to stderr: The tool failed silently or raised a PowerShell `NativeCommandError` even though a valid Python interpreter was present on the machine.",
+      "tags": [
+        "cg-brain-init",
+        "windows",
+        "python",
+        "cmd",
+        "stderr",
+        "powershell",
+        "parity"
+      ],
+      "title": "cg-brain-init.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH",
+      "top_keywords": [
+        "cg-brain-init.cmd",
+        "cg-index.cmd",
+        "python3",
+        "cg-brain-init",
+        "2026-06-05-cg-index-cmd-python3-stderr-leak.md",
+        ".cmd",
+        "python",
+        "cmd",
+        "stderr",
+        "py"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -7666,6 +8181,36 @@
         "cg-link",
         "backslash",
         "separator"
+      ]
+    },
+    {
+      "date": "2026-06-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
+      "slug": "2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter",
+      "status": "",
+      "summary": "Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/prompts/cg-*.prompt.md` for slash-command workflows - `.github/skills/cg-skill-*/SKILL.md` for reference knowledge - `.github/agents/cg-*.agent.md` for specialized review and workflow agents - `.github/copilot-instructions.md` for project-wide Copilot behavior When the repository is opened by Codex or Claude Code, those assets are visible as ordinary files but are not automatically registered as native Codex skills, slash commands, or callable subagents. A user invoking `/cg-compound` or `/cg-work phase1` needs the agent to know how to translate that request into a local file read and execution protocol.",
+      "tags": [
+        "codex",
+        "claude-code",
+        "copilot",
+        "prompts",
+        "agents",
+        "skills",
+        "slash-commands"
+      ],
+      "title": "Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts",
+      "top_keywords": [
+        "claude code",
+        "agents.md",
+        "cg-compound",
+        ".github/",
+        "codex",
+        "copilot",
+        "prompts",
+        "agents",
+        "cg-work",
+        ".github/agents/cg-*.agent.md"
       ]
     },
     {
@@ -10129,6 +10674,124 @@
       ]
     },
     {
+      "date": "2026-06-08",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+      "slug": "2026-06-08-token-optimization-benchmark-guardrails",
+      "status": "",
+      "summary": "Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and `/cg-work` routing conditional, slimming high-frequency prompts, and making Knowledge Brain/context loading selective. Those improvements were easy to regress because most of the behavior lived in prompt text and generated audit output rather than conventional code paths. The release-readiness question for Phase 6 was therefore not \"can we run another manual prompt slimming pass?\" It was \"can maintainers repeatedly measure the same risk surface and catch drift before merge?\"",
+      "tags": [
+        "token-optimization",
+        "benchmark",
+        "guardrails",
+        "audit",
+        "model-governance",
+        "context-loading",
+        "review-routing"
+      ],
+      "title": "Token optimization needs benchmark guardrails, not one-off audits",
+      "top_keywords": [
+        "cg-work",
+        "/cg-review",
+        "benchmark",
+        "guardrails",
+        "cg-review",
+        "/cg-work",
+        "knowledge brain",
+        "/cg-work review:*",
+        "benchmark summary",
+        "top remaining optimization candidates"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+      "slug": "2026-06-09-external-validation-must-not-be-marked-passed",
+      "status": "",
+      "summary": "The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but one row overstated the evidence: That was inaccurate. Codex had run Python audit tests and the static context audit, but had not run Pester prompt-contract tests because no `pwsh` or `powershell` executable was available on PATH. The checklist could have led a maintainer to treat external Pester validation as complete.",
+      "tags": [
+        "validation",
+        "release-readiness",
+        "pester",
+        "codex",
+        "vscode",
+        "evidence-quality"
+      ],
+      "title": "External validation must not be marked passed from static evidence",
+      "top_keywords": [
+        "validation",
+        "external",
+        "passed",
+        "static",
+        "evidence",
+        "must",
+        "marked",
+        "2026-06-09-token-optimization-phase7-release-validation-review.md",
+        "2026-06-09-token-optimization-release-validation.md",
+        "2026-06-08-token-optimization-benchmark-guardrails.md"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+      "slug": "2026-06-09-token-optimization-release-validation",
+      "status": "",
+      "summary": "Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledge Brain retrieval, context loading, and audit tooling. Each improvement could pass its own local check while still leaving maintainers uncertain about release readiness: static audit output does not prove Copilot model-picker behavior, route-aware dispatch, or manual VS Code runtime behavior. The Phase 7 release-candidate question was therefore not whether to slim more prompts. It was whether the completed optimization work had a clear evidence trail for merge and release.",
+      "tags": [
+        "token-optimization",
+        "release-readiness",
+        "validation",
+        "model-governance",
+        "review-routing",
+        "context-loading",
+        "knowledge-capture"
+      ],
+      "title": "Token optimization release candidates need end-to-end validation evidence",
+      "top_keywords": [
+        "knowledge brain",
+        "validation",
+        "model",
+        "guardrail",
+        "cg-work",
+        "passed",
+        "/cg-review",
+        ".cg-docs/cost/token-optimization-release-checklist.md",
+        ".cg-docs/cost/token-optimization-follow-ups.md",
+        "/cg-work review:*"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
+      "slug": "2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps",
+      "status": "",
+      "summary": "The Phase 7 release checklist had a column of pre-filled statuses like `\"Passed in Codex\"` across all automated gates. Each status was static text committed at checklist creation time, with no reference to *when* the evidence was collected. Because `context-audit.json` overwrites its `\"generated\"` timestamp on every re-run, the checklist could point to stale evidence indefinitely. A maintainer who adds a new broad-context-load to a prompt, does **not** re-run the audit, and then cites the checklist would unknowingly attest to a superseded audit run. Post-commit regressions would pass release review against the stale attestation. The adversarial attack path: 1. Codex runs...",
+      "tags": [
+        "release-readiness",
+        "attestation",
+        "audit",
+        "checklist",
+        "token-optimization",
+        "stale-evidence"
+      ],
+      "title": "Release checklist statuses must be anchored to audit-run timestamps",
+      "top_keywords": [
+        "context-audit.json",
+        ".github/",
+        "checklist",
+        "\"passed in codex\"",
+        "\"generated\"",
+        "failures: 0",
+        "2026-06-09-external-validation-must-not-be-marked-passed.md",
+        "release",
+        "statuses",
+        "must"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -12481,15 +13144,257 @@
         "feature",
         "ongoing"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-audit-context-model",
+      "slug": "token-audit-context-model",
+      "status": "done",
+      "summary": "Audit current context and model usage",
+      "tags": [],
+      "title": "Audit current context and model usage",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "model",
+        "usage",
+        "audit",
+        "current",
+        "token",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#model-tier-definitions",
+      "slug": "model-tier-definitions",
+      "status": "idea",
+      "summary": "Define model tiers and escalation rules",
+      "tags": [],
+      "title": "Define model tiers and escalation rules",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "tiers",
+        "escalation",
+        "rules",
+        "define",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#model-policy-tests",
+      "slug": "model-policy-tests",
+      "status": "idea",
+      "summary": "Add model-policy tests",
+      "tags": [],
+      "title": "Add model-policy tests",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model-policy",
+        "tests",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#prompt-frontmatter-model-update",
+      "slug": "prompt-frontmatter-model-update",
+      "status": "idea",
+      "summary": "Update prompt frontmatter model and agent choices",
+      "tags": [],
+      "title": "Update prompt frontmatter model and agent choices",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "prompt",
+        "frontmatter",
+        "agent",
+        "choices",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#agent-model-tool-governance",
+      "slug": "agent-model-tool-governance",
+      "status": "idea",
+      "summary": "Update custom agents for model and tool governance",
+      "tags": [],
+      "title": "Update custom agents for model and tool governance",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "model",
+        "governance",
+        "custom",
+        "agents",
+        "tool",
+        "context",
+        "token",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#shrink-always-on-context",
+      "slug": "shrink-always-on-context",
+      "status": "idea",
+      "summary": "Shrink always-on context",
+      "tags": [],
+      "title": "Shrink always-on context",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "always-on",
+        "shrink",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#prompt-skill-split",
+      "slug": "prompt-skill-split",
+      "status": "idea",
+      "summary": "Split large prompts into thin entrypoints and on-demand skills",
+      "tags": [],
+      "title": "Split large prompts into thin entrypoints and on-demand skills",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "large",
+        "prompts",
+        "thin",
+        "entrypoints",
+        "split",
+        "on-demand",
+        "skills",
+        "context"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#stage-context-contracts",
+      "slug": "stage-context-contracts",
+      "status": "idea",
+      "summary": "Add stage-specific context contracts",
+      "tags": [],
+      "title": "Add stage-specific context contracts",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "context",
+        "stage-specific",
+        "contracts",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#review-deterministic-first",
+      "slug": "review-deterministic-first",
+      "status": "idea",
+      "summary": "Make review cheaper with deterministic checks first",
+      "tags": [],
+      "title": "Make review cheaper with deterministic checks first",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "review",
+        "cheaper",
+        "deterministic",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-benchmark-before-after",
+      "slug": "token-benchmark-before-after",
+      "status": "idea",
+      "summary": "Benchmark before and after",
+      "tags": [],
+      "title": "Benchmark before and after",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "benchmark",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization",
+        "governance"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-optimization-compound",
+      "slug": "token-optimization-compound",
+      "status": "idea",
+      "summary": "Capture the learning",
+      "tags": [],
+      "title": "Capture the learning",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "capture",
+        "learning",
+        "context",
+        "token",
+        "model",
+        "feature",
+        "milestone",
+        "optimization"
+      ]
     }
   ],
-  "entity_count": 437,
-  "generated": "2026-06-03",
+  "entity_count": 470,
+  "generated": "2026-06-10",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 292,
+      "entity_count": 313,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -12527,6 +13432,7 @@
         ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
         ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
+        ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -12583,6 +13489,13 @@
         ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
         ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
+        ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
+        ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
+        ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
+        ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
+        ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
+        ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+        ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
         ".cg-docs/reviews/2026-04-01-charter-maintenance-review.md",
@@ -12670,6 +13583,12 @@
         ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
+        ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
+        ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
+        ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
+        ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+        ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
+        ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -12702,6 +13621,7 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -12712,7 +13632,9 @@
         ".cg-docs/solutions/data-quality/2026-03-19-api-response-null-fields-corrupt-output-contract.md",
         ".cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
+        ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
+        ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -12773,6 +13695,10 @@
         ".cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md",
         ".cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md",
         ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -12793,7 +13719,7 @@
       "slug": "roadmap-json-prompt-tools-tests-ps1-tests-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 97,
+      "entity_count": 108,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -12891,7 +13817,18 @@
         "roadmap.json#strategy-add-shortcut",
         "roadmap.json#project-wiki-auto-documentation",
         "roadmap.json#planning-stage-test-strategy",
-        "roadmap.json#agent-verified-outcome-evals"
+        "roadmap.json#agent-verified-outcome-evals",
+        "roadmap.json#token-audit-context-model",
+        "roadmap.json#model-tier-definitions",
+        "roadmap.json#model-policy-tests",
+        "roadmap.json#prompt-frontmatter-model-update",
+        "roadmap.json#agent-model-tool-governance",
+        "roadmap.json#shrink-always-on-context",
+        "roadmap.json#prompt-skill-split",
+        "roadmap.json#stage-context-contracts",
+        "roadmap.json#review-deterministic-first",
+        "roadmap.json#token-benchmark-before-after",
+        "roadmap.json#token-optimization-compound"
       ],
       "keywords": [
         "architecture research\nobjective",

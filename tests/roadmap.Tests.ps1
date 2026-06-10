@@ -709,7 +709,7 @@ Describe "Structural validation" {
     }
 
     It "cg-setup and cg-roadmap agree on the empty JSON skeleton schemaVersion" {
-        $setupTemplates = Get-Content (Join-Path $repoRoot ".github\prompts\setup-templates.md") -Raw
+        $setupTemplates = Get-Content ".github\prompts\setup-templates.md" -Raw
         $roadmapContent = Get-Content ".github\agents\cg-roadmap.agent.md" -Raw
         ($setupTemplates  -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should -Be $true
         ($roadmapContent -match '"schemaVersion":\s*"compound-gpid-roadmap-v1"') | Should -Be $true

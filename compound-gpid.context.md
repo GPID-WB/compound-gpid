@@ -45,6 +45,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Qualifier scope in condition lists — trailing qualifier attaches only to the last noun**: When a qualifier ("with no X", "unless Y") is meant to restrict all items in a list, place it in a single clause before the list, not after the last item. `"A, B, or C with no X"` restricts only C; `"only when no X: A, B, or C"` restricts all three. This matters in skip-condition lists (red-phase gates, structural-change exemptions) where an agent matching any item might skip a required step. Discovered as V-P2.1 in the test-correctness verify review.
 
+- **Codex / Claude Code compatibility belongs in `AGENTS.md`, not `.github/` assets**: This repository's `.github/prompts`, `.github/skills`, `.github/agents`, and `.github/copilot-instructions.md` are designed for GitHub Copilot. When adapting the workflow for Codex or Claude Code, add dispatch rules and tool mappings to `AGENTS.md` only. Keep `AGENTS.md` explicitly scoped to Codex / Claude Code so it does not imply changed Copilot behavior. See `.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md`.
+
 ## Testing Conventions
 
 - **IndexOf guard pattern**: Block-scoped prompt tests that extract text via `$content.Substring($start, $end - $start)` must first assert both index values with `$start | Should BeGreaterThan -1` and `$end | Should BeGreaterThan $start`. Without guards, a missing section header throws `ArgumentOutOfRangeException`, obscuring which assertion failed.
@@ -113,6 +115,9 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Use `Run-Tests.ps1` + `last-run.json` to decouple test results from agent context**: The canonical `tests/Run-Tests.ps1` runner writes `tests/last-run.json`. Agents read the bounded JSON artifact via `execution_subagent` — not raw Pester output — to avoid context overflow in long sessions. See `.cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md`.
 
+- **Token optimization changes need generated benchmark guardrails**: Prompt slimming, model governance, context-loading, Knowledge Brain retrieval, and review-routing changes must be protected by `scripts/cg_audit_context.py` benchmark/guardrail output plus matching Python/Pester regression tests. One-off audit reports are not enough because prompt text can silently reintroduce premium model defaults, broad context loading, or unconditional review dispatch.
+  See `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`.
+
 - **Exact count assertions when test name states a specific count**: When a test name states a count (e.g., "all three fields"), use `Should Be N` — not `Should BeGreaterThan`. Name-assertion mismatch silently hides regressions where one field stops working. See `.cg-docs/solutions/testing-patterns/2026-04-17-exact-count-assertions-prevent-silent-regression-when-test-name-states-count.md`.
 
 - **SKILL.md contracts need behavioral Pester tests**: New `SKILL.md` files must have behavioral Pester describe blocks testing their contracts (all-open default, no-delegate rule, empty-result response, frontmatter mutation instructions). Prose contracts regress invisibly without behavioral coverage. See `.cg-docs/solutions/testing-patterns/2026-04-20-behavioral-pester-tests-for-skill-md-files.md`.
@@ -130,6 +135,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **Charter section structure must be enforced with Pester tests**: Enforce exactly four charter sections (Objective, Key Deliverables, Constraints, Current Focus) via Pester tests. Add a `last-reviewed` frontmatter field and surface a staleness nudge if > 30 days old. Archive removed content to `.cg-docs/archive/`. See `.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md`.
 
 - **Restart VS Code every 2–3 hours of intensive agent work**: Long sessions accumulate event listeners and crash VS Code. Commit after each priority level in fix-triage rather than accumulating changes. Session duration > 3h, terminal count > 10, or prior context compaction signal time to restart. See `.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md`.
+
+- **Release checklist statuses must be anchored to audit-run timestamps**: Pre-filled "Passed in Codex" statuses in a committed checklist silently become stale when the referenced audit artifact is regenerated. Each status must include the date of the run it reflects (e.g., `"Passed in Codex (2026-06-09)"`), and the checklist must carry a re-run requirement note naming the artifact and the trigger condition (any `.github/` change). Complement with harness naming (which harness ran) and timestamp anchoring (when it ran). See `.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md`.
 
 ## Bash Scripting Conventions
 
@@ -240,6 +247,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **`_parse_frontmatter` has two independent implementations that diverge**: `brain/utils.py` and `team_brain/push.py` each contain a standalone YAML frontmatter parser. They were written separately and handle edge cases differently (multi-line values, comment stripping, quote handling). This is a known DRY violation (P2.9 in the batch-d review, open/manual). Do not assume that fixing a parsing bug in one file fixes the other — always check both when a frontmatter parsing issue is reported.
 
 - **Three-layer test-correctness protocol prevents circular tests in /cg-fixbug**: Bug-fix tests can be tautological (derive their expected value from the implementation being fixed). The protocol enforces: (1) declare the expected-behavior source before writing any test (7 types in priority order; implementation is not a valid source); (2) classify the test gap using an 8-category taxonomy before writing a replacement test; (3) execute a 6-step red-green proof — write test, confirm red, confirm failure matches symptom, implement fix, confirm green, confirm no regressions. The "failure matches symptom" step (step 3) is the key addition over naive red-green: a test can fail for an unrelated reason and still appear to satisfy the gate. See `.cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md` and `cg-skill-r-testing/references/test-integrity.md`.
+
+- **All topic labels interpolated into Markdown pipe-table rows must pass through `_sanitize_inline()`**: The topic clusterer may produce labels containing embedded newlines (e.g., `"Fix / Repair\nData Quality"`). A raw newline inside a `|…|` table cell produces a syntactically broken second row that begins with the post-newline text rather than `|`. Apply `_sanitize_inline()` to every field interpolated into a pipe-table cell in `renderer.py` — the function already collapses newlines to spaces and escapes `]`, `(`, `)`. Extends to any future multi-line field (slugs, summaries, keywords). See `.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md`.
 
 ## Wiki Configuration
 

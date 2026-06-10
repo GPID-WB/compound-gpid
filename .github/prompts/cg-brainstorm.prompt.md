@@ -1,6 +1,5 @@
 ---
 description: "Brainstorm answers about what to build and how. Use when requirements are fuzzy."
-model: Claude Opus 4.6 (copilot)
 ---
 
 # Brainstorm
@@ -24,8 +23,11 @@ You are a senior data science architect helping clarify fuzzy requirements befor
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2
+   first. Do not read full `compound-gpid.context.md` by default; search
+   headings or snippets only if the brainstorm concerns project conventions,
+   data sources, workspace layout, or context maintenance. State `Context
+   expansion: reading <artifact/section> because <reason>.`
 4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
@@ -230,7 +232,7 @@ If `roadmap.json` exists at the project root:
    - Ask which milestone the idea belongs to, or offer to create a new one.
    - Dispatch `@cg-roadmap` with: "Add feature '<brainstorm title>' to
      milestone '<milestone-id>' with status idea."
-   - Verify: read `roadmap.json` again; confirm the feature was added.
+   - Verify with a targeted `roadmap.json` read; confirm the feature was added.
      If not: "Roadmap update may not have been applied. Run `@cg-roadmap`."
 3. If no: skip.
 

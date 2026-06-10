@@ -1,16 +1,29 @@
 # Context Files
 
-Compound GPID uses three files to give Copilot project-specific context. Each file has a different purpose, lifecycle, and audience. Understanding the relationship between them is essential for getting the most out of every Copilot session.
+Compound GPID uses three files to give GitHub Copilot project-specific context.
+Each file has a different purpose, lifecycle, and audience. Understanding the
+relationship between them is essential for getting the most out of every
+Copilot session.
+
+This repository may also contain `AGENTS.md`. That file is different: it is a
+Codex / Claude Code compatibility adapter for agents that do not natively load
+GitHub Copilot prompt libraries. GitHub Copilot does not use `AGENTS.md`.
 
 ---
 
-## The Three Files at a Glance
+## Copilot Context Files at a Glance
 
 | File | Purpose | Committed? | Who creates it | Who updates it |
 |------|---------|-----------|---------------|----------------|
 | `.github/copilot-instructions.md` | Permanent, per-session instructions — project identity + pointers to the other two files | Yes (managed) | `cg-link` | `cg-update` (automatic) |
 | `compound-gpid.md` | Project charter — strategic context (objective, deliverables, constraints, current focus) | Yes | `/cg-setup` | You + `/cg-strategy` |
 | `compound-gpid.context.md` | Growing knowledge base — tactical facts (data sources, domain vocab, recurring gotchas) | Yes | `/cg-setup` | You + `/cg-compound` |
+
+## Codex / Claude Code Adapter
+
+| File | Purpose | Committed? | Who creates it | Who updates it |
+|------|---------|-----------|---------------|----------------|
+| `AGENTS.md` | Compatibility adapter that tells Codex / Claude Code how to execute Copilot-oriented `/cg-*` prompts, load `cg-skill-*` files, and emulate `@cg-*` agents | Optional | Maintainer | Maintainer |
 
 ---
 
@@ -23,16 +36,21 @@ cg-link / cg-update
         ▼
 .github/copilot-instructions.md      ← VS Code loads this on every session
         │
-        │  "Step 0: read these files"
+        │  "Step 0: get bearings"
         ├──► compound-gpid.md         (strategic context)
-        └──► compound-gpid.context.md (tactical context)
+        └──► compound-gpid.context.md (tactical context, loaded selectively)
 ```
 
 `copilot-instructions.md` is the **entry point**: VS Code injects it into every Copilot session automatically. Its job is minimal — it establishes project identity (name, type, languages, review depth) and directs Copilot to read the other two files for substance.
 
 `compound-gpid.md` is the **30,000-foot view**: what the project is trying to achieve, hard constraints that must never be broken, and what the team is working on right now.
 
-`compound-gpid.context.md` is the **ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained at the start of each session.
+`compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts search relevant headings or snippets first instead of loading the whole file by default.
+
+`AGENTS.md`, when present, is not part of the Copilot context chain. It exists
+only for Codex / Claude Code-compatible agents and should be scoped that way in
+the file itself. Put compatibility rules there instead of editing the
+Copilot-oriented `.github/` assets.
 
 ---
 
@@ -42,9 +60,9 @@ cg-link / cg-update
 
 The generated file covers four things:
 1. Project identity (name, type, languages, review depth) — from your config files
-2. Pointers instructing Copilot to read `compound-gpid.md` and `compound-gpid.context.md` at session start
+2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant
 3. Essential project-wide rules (fail loudly, commit lockfiles, conventional commits)
-4. Workspace notes (principal folder; pointer to `## Workspace Notes` in `context.md` for multi-folder setups)
+4. Workspace notes (principal folder; pointer to `## Workspace Notes` in `compound-gpid.context.md` for multi-folder setups)
 
 ### How it is created
 
@@ -194,7 +212,7 @@ Bad entries are **transient or task-specific**:
 
 `compound-gpid.context.md` holds **facts that apply across all tasks**. `.cg-docs/` holds **task-specific artifacts** (brainstorms, plans, review reports, solution docs). Both are committed. The distinction:
 
-- A data source path that every task needs to know → `context.md`
+- A data source path that every task needs to know → `compound-gpid.context.md`
 - The plan for implementing the poverty decomposition feature → `.cg-docs/plans/`
 - The solution to the PPP vintage mismatch bug → `.cg-docs/solutions/bugs/`
 
@@ -209,21 +227,26 @@ Bad entries are **transient or task-specific**:
 3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately.
 4. Commit all three files.
 
+If you are maintaining the plugin itself from Codex or Claude Code, keep
+`AGENTS.md` committed as the local adapter. Consumer projects using only GitHub
+Copilot do not need it.
+
 ### Keeping them up to date
 
 | Trigger | Action |
 |---------|--------|
 | You changed a config field in `compound-gpid.local.md` (language, review-depth, etc.) | Run `cg-update` to regenerate `copilot-instructions.md` |
 | Project objective or constraints changed | Edit `compound-gpid.md` directly, run `/cg-strategy` if Current Focus also needs updating |
-| You just solved a non-trivial problem | Run `/cg-compound` — it updates `context.md` and `.cg-docs/solutions/` |
+| You just solved a non-trivial problem | Run `/cg-compound` — it updates `compound-gpid.context.md` and `.cg-docs/solutions/` |
 | A data source moved or a variable caveat changed | Edit `compound-gpid.context.md` directly |
 | `/cg-resume` reports `last-reviewed` is stale | Run `/cg-strategy` to review and update the charter |
 | New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |
+| You need Codex / Claude Code to run `/cg-*` prompts from this repo | Update `AGENTS.md`; do not change `.github/` assets just for Codex / Claude compatibility |
 
 ### Common mistakes
 
 **Putting tactical facts in the charter**
-The charter is strategic and slow-changing. Avoid adding data paths, column names, or implementation details there — they make the charter noisy and get stale faster than strategic content. Put them in `context.md`.
+The charter is strategic and slow-changing. Avoid adding data paths, column names, or implementation details there — they make the charter noisy and get stale faster than strategic content. Put them in `compound-gpid.context.md`.
 
 **Not running `cg-update` after config changes**
 If you update `compound-gpid.local.md` manually (e.g., add Python to the languages list), `copilot-instructions.md` will be out of sync until you run `cg-update`. The mismatch is silent — no warning is raised.
@@ -232,23 +255,28 @@ If you update `compound-gpid.local.md` manually (e.g., add Python to the languag
 Your edits will be silently overwritten on the next `cg-update`. If you want to customise the file, remove the `<!-- compound-gpid:managed -->` marker first.
 
 **Letting `compound-gpid.context.md` go stale**
-A stale context file is worse than no context file — it actively misleads Copilot. Review it whenever a major pipeline change happens (file renames, new datasets, schema changes). Add a quarterly "context.md review" to your team's sprint rhythm.
+A stale context file is worse than no context file — it actively misleads Copilot. Review it whenever a major pipeline change happens (file renames, new datasets, schema changes). Add a quarterly `compound-gpid.context.md` review to your team's sprint rhythm.
 
 **Gitignoring `compound-gpid.context.md`**
 This file is meant to be shared — it is institutional memory for the whole team, not personal config. Only `compound-gpid.local.md` is gitignored. Make sure `.gitignore` does not accidentally exclude `compound-gpid.context.md`.
+
+**Putting Codex / Claude compatibility rules into `.github/` files**
+The `.github/` prompt, skill, agent, and instruction files are designed for
+GitHub Copilot. Put Codex / Claude dispatch rules and tool mappings in
+`AGENTS.md` so the Copilot runtime stays unchanged.
 
 ---
 
 ## Summary Table
 
-| | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` |
-|--|---|---|---|
-| **When Copilot reads it** | Every session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Step 0 of every `/cg-*` prompt |
-| **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` |
-| **Updated by** | `cg-update` (automatic) | You + `/cg-strategy` | You + `/cg-compound` |
-| **Structure** | Fixed (from template) | Fixed (4 sections) | Free-form (by topic) |
-| **Committed to git** | Yes | Yes | Yes |
-| **Gitignored** | No | No | No |
-| **Edit directly?** | No (remove marker first) | Yes (body requires approval) | Yes, freely |
-| **Grows over time?** | No (regenerated from template) | Slowly (charter is stable) | Yes (this is the point) |
-| **Content type** | Identity + pointers | Strategy | Tactics + facts |
+| | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` | `AGENTS.md` |
+|--|---|---|---|---|
+| **When read** | Every Copilot session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Selectively by heading/snippet when a workflow needs tactical facts | Codex / Claude Code sessions only |
+| **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` | Maintainer |
+| **Updated by** | `cg-update` (automatic) | You + `/cg-strategy` | You + `/cg-compound` | Maintainer |
+| **Structure** | Fixed (from template) | Fixed (4 sections) | Free-form (by topic) | Agent instructions |
+| **Committed to git** | Yes | Yes | Yes | Optional |
+| **Gitignored** | No | No | No | No, when used |
+| **Edit directly?** | No (remove marker first) | Yes (body requires approval) | Yes, freely | Yes |
+| **Grows over time?** | No (regenerated from template) | Slowly (charter is stable) | Yes (this is the point) | Only when adapter behavior changes |
+| **Content type** | Identity + pointers | Strategy | Tactics + facts | Codex / Claude compatibility |

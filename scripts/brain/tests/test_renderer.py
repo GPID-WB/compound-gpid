@@ -387,6 +387,53 @@ class TestBrainMdContent:
         content = (tmp_path / "BRAIN.md").read_text(encoding="utf-8")
         assert "brain-index.json" in content
 
+    def test_multiline_topic_label_does_not_break_pipe_table_row(self, tmp_path):
+        # Regression test: the topic clusterer may produce labels with embedded
+        # newlines (e.g., "Fix / Repair\nData Quality").  Before the fix in
+        # renderer.py, the newline bled into the Markdown pipe-table row and
+        # produced a broken second row.  _sanitize_inline() must collapse it.
+        entity = _make_entity()
+        topic = Topic(
+            slug="fix-data",
+            label="Fix / Repair\nData Quality",
+            keywords=["fix", "data"],
+            entity_paths=[entity.path],
+        )
+        data = BrainData(entities=[entity], topics=[topic], edges=[], generated="2026-01-15")
+        render_brain(data, out_dir=tmp_path)
+        content = (tmp_path / "BRAIN.md").read_text(encoding="utf-8")
+        # Each pipe-table row must start with "| " and stay on a single line.
+        # A broken row would produce a line that starts with "Data Quality"
+        # (the text after the newline), not with "|".
+        table_rows = [
+            line for line in content.splitlines()
+            if line.startswith("| ") and "Fix" in line
+        ]
+        assert len(table_rows) == 1, (
+            "Expected exactly one table row for the topic; a multiline label "
+            "likely split it across two rows."
+        )
+        assert "\n" not in table_rows[0]
+        assert "Fix" in table_rows[0]
+        assert "Data Quality" in table_rows[0]
+
+        # The BRAIN-NN.md topic heading must also be single-line so the anchor
+        # computed from the full label (used in BRAIN.md's navigation link) exists.
+        # A split heading would produce a broken anchor reference.
+        topic_files = list(tmp_path.glob("BRAIN-*.md"))
+        assert topic_files, "Expected at least one BRAIN-NN.md file to be generated"
+        topic_content = (tmp_path / topic_files[0].name).read_text(encoding="utf-8")
+        heading_lines = [
+            line for line in topic_content.splitlines()
+            if line.startswith("## ") and "Fix" in line
+        ]
+        assert len(heading_lines) == 1, (
+            "Expected exactly one ## heading for the topic in BRAIN-NN.md; "
+            "a multiline label likely split the heading."
+        )
+        assert "\n" not in heading_lines[0]
+        assert "Data Quality" in heading_lines[0]
+
 
 # ---------------------------------------------------------------------------
 # render_brain: brain-index.json content

@@ -164,7 +164,7 @@ def _render_entity_section_for_topic(
         Markdown string for the topic section.
     """
     paths = entities_slice if entities_slice is not None else topic.entity_paths
-    heading = f"## {topic.label}"
+    heading = f"## {_sanitize_inline(topic.label)}"
     if continued_from is not None:
         heading += f" _(continued from Part {continued_from})_"
 
@@ -430,8 +430,9 @@ def _write_brain_index_md(
     for i, topic in enumerate(data.topics, 1):
         file_name = topic_file_map.get(topic.slug, "BRAIN-01.md")
         anchor = _anchor(topic.label)
+        label = _sanitize_inline(topic.label)
         lines.append(
-            f"| {i} | [{topic.label}]({file_name}#{anchor}) "
+            f"| {i} | [{label}]({file_name}#{anchor}) "
             f"| {len(topic.entity_paths)} | {file_name} |"
         )
 
