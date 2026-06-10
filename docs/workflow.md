@@ -592,7 +592,7 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 **Fuzzy matching**: names are matched case-insensitively by substring or by two-or-more matching words. `"skills"` matches `"Skills Enhancement"`. `"stata testing"` matches `"Testing skill for Stata (assert-based/reprun)"`. When multiple entries match, the prompt lists all candidates and asks you to clarify.
 
 **Detail card example** — `/cg-roadmap-view --detail stata testing`:
-```
+```markdown
 ## 🔍 Testing skill for Stata (assert-based/reprun)
 
 **Milestone**: Stata Toolchain
@@ -603,7 +603,7 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 ```
 
 **Summary table example** — `/cg-roadmap-view`:
-```
+```markdown
 ## 📊 My Project — Roadmap
 
 | Milestone | Status | Progress |
@@ -617,7 +617,7 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 ```
 
 **Status filter example** — `/cg-roadmap-view --status idea`:
-```
+```markdown
 ## Features with status: idea
 
 ### Workflow Maturity

@@ -38,11 +38,14 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | Page | Contents |
 |------|----------|
 | [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
-| [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Context Files](docs/context-files.md) | Copilot context files plus the Codex / Claude Code adapter note |
+| [Model Guide](docs/model-guide.md) | Model-picker policy, escalation guidance, and audit guardrails |
+| [Team Brain Schema](docs/team-brain-schema.md) | Team Brain repository schema and local configuration |
+| [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
+| [Competitive Reviews](docs/competitive-reviews.md) | Maintainer guide for `/cg-review-repos` workflows |
 
 ## Contributing
 

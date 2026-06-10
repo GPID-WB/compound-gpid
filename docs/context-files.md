@@ -62,7 +62,7 @@ The generated file covers four things:
 1. Project identity (name, type, languages, review depth) — from your config files
 2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant
 3. Essential project-wide rules (fail loudly, commit lockfiles, conventional commits)
-4. Workspace notes (principal folder; pointer to `## Workspace Notes` in `context.md` for multi-folder setups)
+4. Workspace notes (principal folder; pointer to `## Workspace Notes` in `compound-gpid.context.md` for multi-folder setups)
 
 ### How it is created
 
@@ -212,7 +212,7 @@ Bad entries are **transient or task-specific**:
 
 `compound-gpid.context.md` holds **facts that apply across all tasks**. `.cg-docs/` holds **task-specific artifacts** (brainstorms, plans, review reports, solution docs). Both are committed. The distinction:
 
-- A data source path that every task needs to know → `context.md`
+- A data source path that every task needs to know → `compound-gpid.context.md`
 - The plan for implementing the poverty decomposition feature → `.cg-docs/plans/`
 - The solution to the PPP vintage mismatch bug → `.cg-docs/solutions/bugs/`
 
@@ -237,7 +237,7 @@ Copilot do not need it.
 |---------|--------|
 | You changed a config field in `compound-gpid.local.md` (language, review-depth, etc.) | Run `cg-update` to regenerate `copilot-instructions.md` |
 | Project objective or constraints changed | Edit `compound-gpid.md` directly, run `/cg-strategy` if Current Focus also needs updating |
-| You just solved a non-trivial problem | Run `/cg-compound` — it updates `context.md` and `.cg-docs/solutions/` |
+| You just solved a non-trivial problem | Run `/cg-compound` — it updates `compound-gpid.context.md` and `.cg-docs/solutions/` |
 | A data source moved or a variable caveat changed | Edit `compound-gpid.context.md` directly |
 | `/cg-resume` reports `last-reviewed` is stale | Run `/cg-strategy` to review and update the charter |
 | New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |
@@ -246,7 +246,7 @@ Copilot do not need it.
 ### Common mistakes
 
 **Putting tactical facts in the charter**
-The charter is strategic and slow-changing. Avoid adding data paths, column names, or implementation details there — they make the charter noisy and get stale faster than strategic content. Put them in `context.md`.
+The charter is strategic and slow-changing. Avoid adding data paths, column names, or implementation details there — they make the charter noisy and get stale faster than strategic content. Put them in `compound-gpid.context.md`.
 
 **Not running `cg-update` after config changes**
 If you update `compound-gpid.local.md` manually (e.g., add Python to the languages list), `copilot-instructions.md` will be out of sync until you run `cg-update`. The mismatch is silent — no warning is raised.
@@ -255,7 +255,7 @@ If you update `compound-gpid.local.md` manually (e.g., add Python to the languag
 Your edits will be silently overwritten on the next `cg-update`. If you want to customise the file, remove the `<!-- compound-gpid:managed -->` marker first.
 
 **Letting `compound-gpid.context.md` go stale**
-A stale context file is worse than no context file — it actively misleads Copilot. Review it whenever a major pipeline change happens (file renames, new datasets, schema changes). Add a quarterly "context.md review" to your team's sprint rhythm.
+A stale context file is worse than no context file — it actively misleads Copilot. Review it whenever a major pipeline change happens (file renames, new datasets, schema changes). Add a quarterly `compound-gpid.context.md` review to your team's sprint rhythm.
 
 **Gitignoring `compound-gpid.context.md`**
 This file is meant to be shared — it is institutional memory for the whole team, not personal config. Only `compound-gpid.local.md` is gitignored. Make sure `.gitignore` does not accidentally exclude `compound-gpid.context.md`.

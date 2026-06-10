@@ -29,24 +29,29 @@ pages:
     title: "Model Guide"
     ownership: "manual"
     order: 5
+  - id: "team-brain-schema"
+    file: "team-brain-schema.md"
+    title: "Team Brain Schema"
+    ownership: "manual"
+    order: 6
   - id: "versioning"
     file: "versioning.md"
     title: "Versioning"
     ownership: "manual"
-    order: 6
+    order: 7
   - id: "troubleshooting"
     file: "troubleshooting.md"
     title: "Troubleshooting"
     ownership: "manual"
-    order: 7
+    order: 8
   - id: "manual"
     file: "manual.md"
     title: "Manual"
     ownership: "manual"
-    order: 8
+    order: 9
   - id: "competitive-reviews"
     file: "competitive-reviews.md"
     title: "Competitive Reviews"
     ownership: "manual"
-    order: 9
-lastUpdated: "2026-06-08"
+    order: 10
+lastUpdated: "2026-06-09"
