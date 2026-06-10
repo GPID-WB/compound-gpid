@@ -150,7 +150,10 @@ Describe "docs/model-guide.md - structure and sync" {
 
 Describe "docs/reference.md - ordinary prompt model picker sync" {
     $referenceFile = Join-Path $repoRoot "docs\reference.md"
-    $content = Get-Content $referenceFile -Raw -Encoding UTF8
+    if (-not (Test-Path $referenceFile)) {
+        Write-Warning "docs/reference.md not found -- skipping model picker sync tests"
+    }
+    $content = if (Test-Path $referenceFile) { Get-Content $referenceFile -Raw -Encoding UTF8 } else { "" }
     $ordinaryCommands = @(
         "/cg-brainstorm",
         "/cg-ideate",

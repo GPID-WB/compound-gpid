@@ -417,6 +417,23 @@ class TestBrainMdContent:
         assert "Fix" in table_rows[0]
         assert "Data Quality" in table_rows[0]
 
+        # The BRAIN-NN.md topic heading must also be single-line so the anchor
+        # computed from the full label (used in BRAIN.md's navigation link) exists.
+        # A split heading would produce a broken anchor reference.
+        topic_files = list(tmp_path.glob("BRAIN-*.md"))
+        assert topic_files, "Expected at least one BRAIN-NN.md file to be generated"
+        topic_content = (tmp_path / topic_files[0].name).read_text(encoding="utf-8")
+        heading_lines = [
+            line for line in topic_content.splitlines()
+            if line.startswith("## ") and "Fix" in line
+        ]
+        assert len(heading_lines) == 1, (
+            "Expected exactly one ## heading for the topic in BRAIN-NN.md; "
+            "a multiline label likely split the heading."
+        )
+        assert "\n" not in heading_lines[0]
+        assert "Data Quality" in heading_lines[0]
+
 
 # ---------------------------------------------------------------------------
 # render_brain: brain-index.json content

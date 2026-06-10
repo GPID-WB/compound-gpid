@@ -164,7 +164,7 @@ def _render_entity_section_for_topic(
         Markdown string for the topic section.
     """
     paths = entities_slice if entities_slice is not None else topic.entity_paths
-    heading = f"## {topic.label}"
+    heading = f"## {_sanitize_inline(topic.label)}"
     if continued_from is not None:
         heading += f" _(continued from Part {continued_from})_"
 
