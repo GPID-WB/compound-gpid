@@ -387,6 +387,36 @@ class TestBrainMdContent:
         content = (tmp_path / "BRAIN.md").read_text(encoding="utf-8")
         assert "brain-index.json" in content
 
+    def test_multiline_topic_label_does_not_break_pipe_table_row(self, tmp_path):
+        # Regression test: the topic clusterer may produce labels with embedded
+        # newlines (e.g., "Fix / Repair\nData Quality").  Before the fix in
+        # renderer.py, the newline bled into the Markdown pipe-table row and
+        # produced a broken second row.  _sanitize_inline() must collapse it.
+        entity = _make_entity()
+        topic = Topic(
+            slug="fix-data",
+            label="Fix / Repair\nData Quality",
+            keywords=["fix", "data"],
+            entity_paths=[entity.path],
+        )
+        data = BrainData(entities=[entity], topics=[topic], edges=[], generated="2026-01-15")
+        render_brain(data, out_dir=tmp_path)
+        content = (tmp_path / "BRAIN.md").read_text(encoding="utf-8")
+        # Each pipe-table row must start with "| " and stay on a single line.
+        # A broken row would produce a line that starts with "Data Quality"
+        # (the text after the newline), not with "|".
+        table_rows = [
+            line for line in content.splitlines()
+            if line.startswith("| ") and "Fix" in line
+        ]
+        assert len(table_rows) == 1, (
+            "Expected exactly one table row for the topic; a multiline label "
+            "likely split it across two rows."
+        )
+        assert "\n" not in table_rows[0]
+        assert "Fix" in table_rows[0]
+        assert "Data Quality" in table_rows[0]
+
 
 # ---------------------------------------------------------------------------
 # render_brain: brain-index.json content
