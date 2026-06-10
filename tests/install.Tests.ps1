@@ -332,6 +332,43 @@ Describe "install.ps1 - cg-index.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-brain-init.cmd copy" {
+    Context "single source of truth" {
+        It "cg-brain-init.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-brain-init.cmd"
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "cg-brain-init.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-brain-init.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-brain-init.cmd guards each python probe with a 'where' pre-check to prevent stderr leak" {
+            # Regression guard: matching cg-index.cmd's pattern.  Without the 'where'
+            # pre-check, for /f ('python3 --version 2^>^&1') leaks the
+            # "'python3' is not recognized" error to outer stderr on systems where
+            # python3 is absent from PATH.
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-brain-init.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul')  | Should -Be $true
+            ($content -match 'where py\s+>nul')      | Should -Be $true
+        }
+
+        It "cg-brain-init.cmd references team_brain/init.py" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-brain-init.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'team_brain.init\.py') | Should -Be $true
+        }
+    }
+}
+
 Describe "install.ps1 - Phase 1 smoke test" -Tags @("Pending") {
     # This test becomes active after Phase 2 delivers scripts/cg_index.py.
     # Marked Pending so it appears in test output without failing the suite.

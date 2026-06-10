@@ -19,27 +19,36 @@ rem rather than generating from an inline string. Edit here, not in install.ps1.
 
 setlocal
 
-for /f "tokens=*" %%V in ('python3 --version 2^>^&1') do (
-    echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
-    if not errorlevel 1 (
-        python3 "%~dp0..\scripts\team_brain\init.py" %*
-        exit /b %ERRORLEVEL%
+where python3 >nul 2>&1
+if not errorlevel 1 (
+    for /f "tokens=*" %%V in ('python3 --version 2^>^&1') do (
+        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        if not errorlevel 1 (
+            python3 "%~dp0..\scripts\team_brain\init.py" %*
+            exit /b %ERRORLEVEL%
+        )
     )
 )
 
-for /f "tokens=*" %%V in ('python --version 2^>^&1') do (
-    echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
-    if not errorlevel 1 (
-        python "%~dp0..\scripts\team_brain\init.py" %*
-        exit /b %ERRORLEVEL%
+where python >nul 2>&1
+if not errorlevel 1 (
+    for /f "tokens=*" %%V in ('python --version 2^>^&1') do (
+        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        if not errorlevel 1 (
+            python "%~dp0..\scripts\team_brain\init.py" %*
+            exit /b %ERRORLEVEL%
+        )
     )
 )
 
-for /f "tokens=*" %%V in ('py --version 2^>^&1') do (
-    echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
-    if not errorlevel 1 (
-        py "%~dp0..\scripts\team_brain\init.py" %*
-        exit /b %ERRORLEVEL%
+where py >nul 2>&1
+if not errorlevel 1 (
+    for /f "tokens=*" %%V in ('py --version 2^>^&1') do (
+        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        if not errorlevel 1 (
+            py "%~dp0..\scripts\team_brain\init.py" %*
+            exit /b %ERRORLEVEL%
+        )
     )
 )
 
