@@ -7,6 +7,7 @@ tags: [token-optimization, release-readiness, validation, model-governance, revi
 root-cause: "Static prompt and audit improvements are not release-ready until maintainers have evidence that model governance, routed review, context selectivity, and runtime workflows still work together"
 severity: "P2"
 plan: ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md"
+reviewed-in: ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md"
 related: [".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/cost/token-optimization-release-checklist.md"]
 ---
 

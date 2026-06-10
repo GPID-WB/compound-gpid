@@ -8,7 +8,7 @@ root-cause: "A release checklist described an externally required Pester prompt-
 severity: "P2"
 plan: ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md"
 reviewed-in: ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md"
-related: [".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md"]
+related: [".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md", ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md"]
 ---
 
 # External Validation Must Not Be Marked Passed from Static Evidence
