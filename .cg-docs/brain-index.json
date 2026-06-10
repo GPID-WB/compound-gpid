@@ -7610,6 +7610,35 @@
       ]
     },
     {
+      "date": "2026-06-05",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
+      "slug": "2026-06-05-cg-index-cmd-python3-stderr-leak",
+      "status": "",
+      "summary": "On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-index --brain` raised a PowerShell `NativeCommandError`:",
+      "tags": [
+        "cg-index",
+        "windows",
+        "python",
+        "cmd",
+        "stderr",
+        "powershell"
+      ],
+      "title": "cg-index.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH",
+      "top_keywords": [
+        "cg-index.cmd",
+        "python3",
+        "python",
+        "py",
+        "for /f",
+        "cg-index",
+        "cmd",
+        "stderr",
+        "install.ps1",
+        "test"
+      ]
+    },
+    {
       "date": "2026-06-10",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
@@ -7637,6 +7666,36 @@
         "renderer.py",
         "topic index",
         "topic"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md",
+      "slug": "2026-06-10-cg-brain-init-cmd-python3-stderr-leak",
+      "status": "",
+      "summary": "On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-brain-init` leaked a CMD.EXE \"not recognized\" error to stderr: The tool failed silently or raised a PowerShell `NativeCommandError` even though a valid Python interpreter was present on the machine.",
+      "tags": [
+        "cg-brain-init",
+        "windows",
+        "python",
+        "cmd",
+        "stderr",
+        "powershell",
+        "parity"
+      ],
+      "title": "cg-brain-init.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH",
+      "top_keywords": [
+        "cg-brain-init.cmd",
+        "cg-index.cmd",
+        "python3",
+        "cg-brain-init",
+        "2026-06-05-cg-index-cmd-python3-stderr-leak.md",
+        ".cmd",
+        "python",
+        "cmd",
+        "stderr",
+        "py"
       ]
     },
     {
@@ -13329,7 +13388,7 @@
       ]
     }
   ],
-  "entity_count": 468,
+  "entity_count": 470,
   "generated": "2026-06-10",
   "schema_version": "0.2.0",
   "topic_count": 3,

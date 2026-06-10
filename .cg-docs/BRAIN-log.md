@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-10 · 360 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -111,6 +111,8 @@ _Generated 2026-06-10 · 360 artifacts (newest first) + 108 roadmap features_
   > **Review mode**: full **Files reviewed**: 16 **Findings**: 22 (P0: 0, P1: 3, P2: 5, P3: 14)
 - **[Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown](.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md)** · `solution` · _—_ · `2026-06-10`
   > After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster l…
+- **[cg-brain-init.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH](.cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md)** · `solution` · _—_ · `2026-06-10`
+  > On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-brain-init` leaked a…
 - **[Release checklist statuses must be anchored to audit-run timestamps](.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md)** · `solution` · _—_ · `2026-06-10`
   > The Phase 7 release checklist had a column of pre-filled statuses like `"Passed in Codex"` across all automated gates…
 
@@ -154,6 +156,8 @@ _Generated 2026-06-10 · 360 artifacts (newest first) + 108 roadmap features_
 
 ## 2026-06-05
 
+- **[cg-index.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH](.cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md)** · `solution` · _—_ · `2026-06-05`
+  > On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-index --brain` raise…
 - **[Phase 3: staged /cg-review routing + /cg-work review-mode integration](.cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md)** · `plan` · _active_ · `2026-06-05`
   > Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and ad…
 

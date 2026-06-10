@@ -108,4 +108,4 @@ candidate is absent).
 
 ## Related
 
-None.
+- [2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md](./2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md) — same bug surfaced as a parity gap in `cg-brain-init.cmd` after this fix was applied to `cg-index.cmd`
