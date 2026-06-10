@@ -73,4 +73,6 @@ before release.
 For release candidates, also complete
 `.cg-docs/cost/token-optimization-release-checklist.md`. The static audit can
 verify prompt metadata and guardrail text, but VS Code/Copilot must still
-validate runtime model-picker behavior and routed agent dispatch.
+validate runtime model-picker behavior and routed agent dispatch. See the
+[Token Optimization Validation](workflow.md#token-optimization-validation)
+procedure in `workflow.md` for the full step-by-step process.

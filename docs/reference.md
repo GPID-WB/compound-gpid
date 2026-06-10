@@ -368,7 +368,7 @@ your-project/
     ├── brainstorms/          # /cg-brainstorm outputs
     ├── competitive-reviews/  # /cg-review-repos registry (repos.json) and assessment outputs
     ├── cost/                 # context/model audit reports and release-readiness checklists
-    ├── inbox/                # unprocessed strategy ideas; not approved roadmap items
+    ├── inbox/                # unprocessed strategy ideas; not approved roadmap items until promoted via /cg-strategy
     ├── plans/                # /cg-plan outputs
     ├── reviews/              # /cg-review outputs (review reports for /cg-fix-triage)
     ├── strategy/             # /cg-strategy session records
