@@ -163,9 +163,9 @@ Describe "docs/reference.md - ordinary prompt model picker sync" {
     foreach ($command in $ordinaryCommands) {
         It "$command documents model-picker inheritance rather than a premium default" {
             $escapedCommand = [regex]::Escape($command)
-            ($content -match "\| `?$escapedCommand") | Should -Be $true
-            ($content -match "\| `?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
-            ($content -match "\| `?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
+            ($content -match "\| ``?$escapedCommand") | Should -Be $true
+            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
+            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
         }
     }
 }

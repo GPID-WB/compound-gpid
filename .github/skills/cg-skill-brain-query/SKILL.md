@@ -31,7 +31,7 @@ names to their BRAIN-NN.md sub-file and a list of keywords. Also note the
 **Entity Summary** and **Relationship Summary** sections for orientation.
 
 `.cg-docs/BRAIN.md` is the small agent-facing meta-index. `.cg-docs/brain-index.json`
-is the tooling retrieval index used by Python scripts and `cg-index`; prompt
+is the tooling retrieval index; Python tooling may query it for targeted lookups. Prompt
 agents must not read it wholesale. Do NOT read all BRAIN-NN.md sub-files at
 this stage. Read only the meta-index.
 

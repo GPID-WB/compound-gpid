@@ -20,7 +20,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
@@ -69,9 +69,9 @@ Precedence: verify/report-only guard behavior first; otherwise explicit user mod
 Auto risk-class routing applies only when no explicit mode is requested. If a user requests `light` or `standard` for a diff that matches `data-risk`, `architecture-risk`, or `security-risk`, keep the explicit route and mention the high-risk signals in the review focus. If a user requests `full` for a low-risk diff, keep `full`.
 
 Line-volume interaction:
-- `≥ 50` non-test lines changed can raise `light -> standard`.
+- ≥ 50 non-test lines changed can raise `light -> standard`.
 - Explicit user modes take precedence over line-volume upgrades.
-- `≥ 200` non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
+- ≥ 200 non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
 
 If no explicit mode was requested and multiple auto-routing triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any auto risk-class route applies, report: > "Auto-routing applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
 

@@ -19,7 +19,7 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
 
 ### Step 0: Get Bearings
 
-1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
+1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the selected plan or touched technologies need tactical project facts, search relevant headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse flags:
@@ -35,7 +35,7 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
    - Try keyword-title matching against plan filenames and ask before using a match.
    - If the request mentions "refactor", "replace", "migrate", "pipeline", or touches multiple files, decline: "This task looks too large for an inline plan. Please run `/cg-plan` first."
    - Otherwise classify scope as in `/cg-plan` Step 1.5. For Standard/Deep, warn that `/cg-plan` is strongly recommended.
-   - Generate a 3-5 step lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter and ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first for a full plan?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
+   - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter and ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first for a full plan?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
 3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or override these file permissions. Approved plans may modify `.github/`, `.cg-docs/`, prompts, agents, skills, instructions, docs, tests, and audit tooling when explicitly authorized for Compound GPID maintenance.
    > **After any plan-file fallback** (for example keyword match or changed path): re-count `## Phase` headers from the recovered plan body and re-validate the phase argument N against the new total M.
 4. Load relevant skills only as needed: R infrastructure/analytical skills, Python best practices, or Stata best practices.
@@ -87,7 +87,7 @@ Use targeted structured fields only: feature IDs, titles, statuses, and `plan` p
 
 ### Step 1.6: Build Test Index
 
-Before implementation, scan once for test files covering each plan step (for example `tests/test-<module>.R`, `tests/<module>.Tests.ps1`, `tests/test_<module>.py`). Reuse this module-to-test-file index throughout Step 2.
+Before implementing, scan once for test files covering each plan step (for example `tests/test-<module>.R`, `tests/<module>.Tests.ps1`, `tests/test_<module>.py`). Reuse this module-to-test-file index throughout Step 2.
 
 ### Step 2: Implement Step by Step
 
@@ -96,7 +96,7 @@ For each in-scope plan step:
 1. Announce the step.
 2. **Discover existing tests** from the Step 1.6 index.
 3. **Red-phase verification** (conditional -- skip only for purely structural steps with **no Pester test file asserting against the modified content**, such as config, markdown documentation, YAML frontmatter, or scaffolding):
-   - If the step introduces testable behavior, write tests before implementation, run them against current code, and require a failing baseline.
+   - If the step introduces testable behavior, write tests before touching the implementation, run them against current code, and require a failing baseline.
    - Report: "Red-phase confirmed: `[test name]` fails with: `[one-line error]`".
    - If the test passes before implementation, revise once. If it still passes, log: "Could not establish failing baseline -- proceeding without red-phase confirmation. Flag for `@cg-testing` review." Continue; this is not a hard stop.
 4. Implement using project conventions and relevant skills.
@@ -113,7 +113,7 @@ Full-suite commit gate:
 Gate rules:
 - If no test framework is identified, skip recovery loops and report: "Test framework not identified -- manual verification required."
 - If targeted tests pass, continue.
-- If the full-suite result has `filteredFiles`, it is partial; do not treat it as the commit gate.
+- If the full-suite result has `filteredFiles`, it is a partial run; do not treat it as the commit gate.
 - Never run `Invoke-Pester` directly, never run `Invoke-Pester tests/`, never pipeline `Invoke-Pester -PassThru`, and never use `2>&1 | Select-String`. When inspecting Pester failures, rerun the safe `Run-Tests.ps1` command above and inspect `tests/last-run.json`; do not introduce direct file-level Pester recipes.
 
 **Test Failure Recovery**:
@@ -122,7 +122,7 @@ Gate rules:
 - Attempt 1: analyze output and make one targeted fix. Attempt 2: if still failing, make one more targeted fix.
 - If resolved, run the full test suite for files changed in the step to catch regressions introduced by the fix; if the full suite passes, continue normally to Auto-Fix Diagnostics.
 - If new regressions appear, emit the standard failure notification, format from sub-step 4, and continue to Auto-Fix Diagnostics.
-- If tests are still failing after 2 fix attempts, append the current step number to `failing-steps:` frontmatter and notify:
+3. If tests are still failing after 2 fix attempts, append the current step number to `failing-steps:` frontmatter and notify:
   > "**N test(s) still failing after 2 fix attempts** -- continuing to next step.
   > Review before merging.
   > Failing tests:
@@ -134,7 +134,7 @@ Gate rules:
 - After each test phase, call `get_errors` on touched files.
 - If errors (not warnings/info) are returned, dispatch `@cg-fix-problems` with `mode: auto`, touched files, diagnostics, and any prior test-fix context.
 - Suppress this step when no errors are present; warnings-only and info-only diagnostics do not dispatch.
-- `@cg-fix-problems` gets up to 2 fix rounds for errors only. Re-run tests. If errors remain, ask whether to proceed or stop.
+- `@cg-fix-problems` gets up to 2 rounds (2-round budget) for errors only. Re-run tests. If errors remain, ask whether to proceed or stop.
 - If `get_errors` is clean but tests still fail, do not re-dispatch `@cg-fix-problems`; logical failures require manual investigation. If Test Failure Recovery step 4 wrote the current step to `failing-steps:`, skip emitting a duplicate notice.
 
 Then validate acceptance criteria, suggest a conventional commit (`feat`, `fix`, `docs`, `test`, `refactor`, or `chore`), summarize, and move to the next step.
@@ -185,7 +185,7 @@ Only proceed if Step 2, Step 3 quality checks, and tests passed.
 
 If `roadmap.json` exists:
 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashes). Skip `plan: null`.
-2. If no match, do title-search fallback: scan unfinished `plan: null` features whose titles appear in the plan requirements or step titles. Ask which were completed, then dispatch `@cg-roadmap`: "Update feature `<feature-id>` to status done and set plan to `<plan-path>`."
+2. If no match, do title-search fallback: scan unfinished `plan: null` features whose titles appear in the plan requirements or step titles. Ask the user to confirm which features were completed, then dispatch `@cg-roadmap`: "Update feature `<feature-id>` to status done and set plan to `<plan-path>`."
 3. If matched and not already `done`, dispatch `@cg-roadmap`: "Update feature with plan path `<plan-path>` to status done."
 4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly.
 
