@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-09_
+_Generated 2026-06-10_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 310 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tests.ps1`_ · 313 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -388,6 +388,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > **Review mode**: standard **Files reviewed**: 16 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
 - **[2026-06-08-token-optimization-phase6-benchmarks-guardrails-review](.cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md)** · `review` · _—_ · `2026-06-08`
   > **Review mode**: architecture **Files reviewed**: 9 **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1)
+- **[2026-06-09-token-optimization-phase7-release-validation-review-2](.cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md)** · `review` · _—_ · `2026-06-10`
+  > **Review mode**: full **Files reviewed**: 16 **Findings**: 22 (P0: 0, P1: 3, P2: 5, P3: 14)
 - **[2026-06-09-token-optimization-phase7-release-validation-review](.cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md)** · `review` · _—_ · `2026-06-09`
   > **Review mode**: light **Files reviewed**: 14 **Findings**: 1 (P0: 0, P1: 0, P2: 1, P3: 0)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
@@ -454,6 +456,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit …
 - **[Security fix helpers written but never called from the protected call site](.cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md)** · `solution` · _—_ · `2026-05-20`
   > A `/cg-review` thorough pass on `scripts/brain/renderer.py` identified two security findings: - **P1.2** — Paths in m…
+- **[Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown](.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md)** · `solution` · _—_ · `2026-06-10`
+  > After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster l…
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -606,6 +610,8 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but on…
 - **[Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)** · `solution` · _—_ · `2026-06-09`
   > Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledg…
+- **[Release checklist statuses must be anchored to audit-run timestamps](.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md)** · `solution` · _—_ · `2026-06-10`
+  > The Phase 7 release checklist had a column of pre-filled statuses like `"Passed in Codex"` across all automated gates…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -626,230 +632,3 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `tests/prompt-tools.tes
   > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
 - **[Mid-project idea capture — brainstorm depth, confidence, model strategy, help, outcome verification, goal-driven execution](.cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md)** · `strategy` · _—_ · `2026-05-28`
   > - Knowledge Brain milestone at 62% (Batch D team brain active on `feat/knowledge-brain-engine` branch) - Workflow Mat…
-
-## Architecture Research
-Objective / Knowledge Brain
-Objective / Quality Loop
-Objective
-
-_Keywords: `architecture research
-objective` · `knowledge brain
-objective` · `quality loop
-objective`_ · 108 entities
-
-- **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
-  > @cg-fix-problems agent (auto-dispatched by /cg-work)
-- **[/cg-fix-problems user-facing prompt](roadmap.json#cg-fix-problems-prompt)** · `feature` · _done_ · `—`
-  > /cg-fix-problems user-facing prompt
-- **[Testing skill for R \(testthat/mockery\)](roadmap.json#testing-skill-r)** · `feature` · _done_ · `—`
-  > Testing skill for R (testthat/mockery)
-- **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
-  > Per-step test enforcement in /cg-work
-- **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`
-  > Per-finding status tracking in review files
-- **[Honest pushback mode in /cg-brainstorm and /cg-strategy](roadmap.json#honest-pushback-in-brainstorm-strategy)** · `feature` · _done_ · `—`
-  > Honest pushback mode in /cg-brainstorm and /cg-strategy
-- **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
-  > Side-idea capture during brainstorming (save to roadmap)
-- **[Plan review agent and prompt \(@cg-plan-critic + /cg-plan-review\)](roadmap.json#plan-review-agent-and-prompt)** · `feature` · _done_ · `—`
-  > Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)
-- **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
-  > Schema bypass for compound-gpid repo in /cg-resume
-- **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
-  > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
-- **[/cg-fix-triage --migrate mode \(backfills findings: frontmatter on legacy review files\)](roadmap.json#fix-triage-migrate-mode)** · `feature` · _done_ · `—`
-  > /cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)
-- **[Review convergence: mode:verify for /cg-review](roadmap.json#review-verify-mode)** · `feature` · _done_ · `—`
-  > Review convergence: mode:verify for /cg-review
-- **[Full model audit across prompts and agents](roadmap.json#full-model-audit)** · `feature` · _done_ · `—`
-  > Full model audit across prompts and agents
-- **[/cg-release scan scope limited to last 60 days](roadmap.json#cg-release-scan-scope-60-days)** · `feature` · _done_ · `—`
-  > /cg-release scan scope limited to last 60 days
-- **[Split /cg-release into Haiku scan + Sonnet drafting](roadmap.json#cg-release-haiku-sonnet-split)** · `feature` · _done_ · `—`
-  > Split /cg-release into Haiku scan + Sonnet drafting
-- **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
-  > Reduce token cost via prompt prose compression and Step 0 dedup
-- **[Structural prevention of agent-caused Pester crashes \(JSON artifact + prompt hardening\)](roadmap.json#structural-pester-crash-prevention)** · `feature` · _done_ · `—`
-  > Structural prevention of agent-caused Pester crashes (JSON artifact + prompt hardening)
-- **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
-  > R dialect skills architecture (collapse, data.table, tidyverse)
-- **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
-  > tidymodels addition to cg-skill-r-analytical
-- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill description consistency audit and optimization
-- **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
-  > Testing skill for Python (pytest/parametrize/monkeypatch)
-- **[Testing skill for Stata \(assert-based/reprun\)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
-  > Testing skill for Stata (assert-based/reprun)
-- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
-  > Skill description length cap with test enforcement [from CE]
-- **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
-  > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
-- **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
-  > compound-gpid.context.md file and Step 0 integration in all prompts
-- **[/cg-compound proposes context.md additions after completed tasks](roadmap.json#cg-compound-context-enrichment)** · `feature` · _done_ · `—`
-  > /cg-compound proposes context.md additions after completed tasks
-- **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
-  > Multi-folder workspace awareness in copilot-instructions.md and prompts
-- **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
-  > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
-- **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
-  > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
-- **[Study OpenAI Codex plugin for Claude Code](roadmap.json#study-codex-plugin)** · `feature` · _idea_ · `—`
-  > Study OpenAI Codex plugin for Claude Code
-- **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`
-  > Evaluate GitHub Copilot hooks for compound-gpid
-- **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
-  > copilot-instructions.md restructuring (blocked on hooks evaluation)
-- **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
-  > Adding hooks to streamline process
-- **[Include /ce:ideate-style prompt from compound-engineering-plugin](roadmap.json#ideate-prompt-from-compound-engineering)** · `feature` · _idea_ · `—`
-  > Include /ce:ideate-style prompt from compound-engineering-plugin
-- **[Study GSD-2 and Superpowers workflow patterns](roadmap.json#study-gsd2-superpowers-patterns)** · `feature` · _idea_ · `—`
-  > Study GSD-2 and Superpowers workflow patterns
-- **[Stage control knobs for workflow prompts \(blocked on external workflow research\)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
-  > Stage control knobs for workflow prompts (blocked on external workflow research)
-- **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
-  > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
-- **[Copilot CLI execution with worktrees \(Model C\)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
-  > Copilot CLI execution with worktrees (Model C)
-- **[Verification commands — configurable post-task checks](roadmap.json#verification-commands-post-task)** · `feature` · _idea_ · `—`
-  > Verification commands — configurable post-task checks
-- **[Auto-triggered skills via expanded applyTo hook patterns \[from SP\]](roadmap.json#auto-triggered-skills-via-hooks)** · `feature` · _idea_ · `—`
-  > Auto-triggered skills via expanded applyTo hook patterns [from SP]
-- **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
-  > Add mattpocock/skills to competitive review sources
-- **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
-  > Cross-model review — adversarial model diversity
-- **[Tiered model escalation — super-advanced model dispatch](roadmap.json#tiered-model-escalation)** · `feature` · _idea_ · `—`
-  > Tiered model escalation — super-advanced model dispatch
-- **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) \[from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
-  > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
-- **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
-  > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
-- **[Verification-before-completion enforcement in /cg-work tasks \[from SP\]](roadmap.json#verification-before-completion-cg-work)** · `feature` · _idea_ · `—`
-  > Verification-before-completion enforcement in /cg-work tasks [from SP]
-- **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
-  > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
-- **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan \[from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
-  > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
-- **[Systematic 4-phase debugging methodology in /cg-fixbug \(reproduce → isolate → root-cause → fix\) \[from SP\]](roadmap.json#systematic-debugging-4-phase)** · `feature` · _idea_ · `—`
-  > Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]
-- **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
-  > Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]
-- **[Brainstorm depth overhaul — grill-me mode + grill-with-docs skill](roadmap.json#brainstorm-depth-grill-mode)** · `feature` · _idea_ · `—`
-  > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
-- **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
-  > /cg-confidence — honest confidence/assumptions/unknowns assessment
-- **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
-  > roadmap.json schema validation after @cg-roadmap writes
-- **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`
-  > Required frontmatter field checks from /cg-plan output
-- **[status:completed verification from /cg-work output](roadmap.json#work-completion-verification)** · `feature` · _idea_ · `—`
-  > status:completed verification from /cg-work output
-- **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
-  > .cg-docs/evals/ scaffold with probe-and-check pairs
-- **[Project scanner agent for deep project analysis](roadmap.json#project-scanner-agent)** · `feature` · _done_ · `—`
-  > Project scanner agent for deep project analysis
-- **[Smart /cg-setup for existing projects \(scan → draft → targeted questions → approve\)](roadmap.json#smart-setup-existing-projects)** · `feature` · _done_ · `—`
-  > Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)
-- **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`
-  > Skip high-confidence setup questions based on scanner results
-- **[First-run welcome and health check after cg-link](roadmap.json#first-run-welcome-health-check)** · `feature` · _done_ · `—`
-  > First-run welcome and health check after cg-link
-- **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
-  > Migration path from vanilla Copilot (detect and merge existing instructions)
-- **[Charter quality gate \(validate no placeholders, all fields populated\)](roadmap.json#charter-quality-gate)** · `feature` · _done_ · `—`
-  > Charter quality gate (validate no placeholders, all fields populated)
-- **[Roadmap bootstrap from charter \(seed initial milestone from Current Focus\)](roadmap.json#roadmap-bootstrap-from-charter)** · `feature` · _idea_ · `—`
-  > Roadmap bootstrap from charter (seed initial milestone from Current Focus)
-- **[/cg-setup --refresh mode for non-destructive re-configuration](roadmap.json#cg-setup-refresh-mode)** · `feature` · _idea_ · `—`
-  > /cg-setup --refresh mode for non-destructive re-configuration
-- **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
-  > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
-- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
-  > /cg-help — comprehensive interactive help system
-- **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
-  > Branch creation from /cg-plan
-- **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
-  > Phased plan structure in /cg-plan
-- **[Phased execution in /cg-work](roadmap.json#phased-execution-cg-work)** · `feature` · _done_ · `—`
-  > Phased execution in /cg-work
-- **[Roadmap visualization agent + /cg-roadmap-view prompt](roadmap.json#roadmap-visualization-agent-prompt)** · `feature` · _done_ · `—`
-  > Roadmap visualization agent + /cg-roadmap-view prompt
-- **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _done_ · `—`
-  > /cg-fixbug test-correctness assessment
-- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
-  > GitHub Issues integration (optional, via gh CLI)
-- **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
-  > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
-- **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`
-  > /cg-commit-push-pr — logical commit splitting, push, and PR creation
-- **[/cg-verify-pr — CI check verification and auto-fix dispatch](roadmap.json#cg-verify-pr)** · `feature` · _done_ · `—`
-  > /cg-verify-pr — CI check verification and auto-fix dispatch
-- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
-  > Goal-driven execution — plan-as-completion-contract with integrated validation
-- **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
-  > Full-scope indexer (all .cg-docs/ + roadmap features)
-- **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
-  > Topic/theme extraction (auto-cluster artifacts into concepts)
-- **[Relationship/edge detection \(full typed edge set\)](roadmap.json#brain-relationship-detection)** · `feature` · _done_ · `—`
-  > Relationship/edge detection (full typed edge set)
-- **[BRAIN.md generation \(topic index + entity catalog + edges\)](roadmap.json#brain-md-generation)** · `feature` · _done_ · `—`
-  > BRAIN.md generation (topic index + entity catalog + edges)
-- **[/cg-brain-rebuild explicit rebuild command](roadmap.json#brain-rebuild-command)** · `feature` · _done_ · `—`
-  > /cg-brain-rebuild explicit rebuild command
-- **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _done_ · `—`
-  > Auto-trigger brain rebuild on /cg-compound
-- **[Prompt integration — Consult Brain in Step 0](roadmap.json#brain-prompt-integration)** · `feature` · _done_ · `—`
-  > Prompt integration — Consult Brain in Step 0
-- **[cg-skill-brain-query \(agent brain search patterns\)](roadmap.json#brain-query-skill)** · `feature` · _done_ · `—`
-  > cg-skill-brain-query (agent brain search patterns)
-- **[Team brain — central repo schema design](roadmap.json#team-brain-repo-schema)** · `feature` · _done_ · `—`
-  > Team brain — central repo schema design
-- **[Team brain — push solutions + distilled patterns](roadmap.json#team-brain-push)** · `feature` · _done_ · `—`
-  > Team brain — push solutions + distilled patterns
-- **[Team brain — pull relevant entries during Step 0](roadmap.json#team-brain-pull)** · `feature` · _done_ · `—`
-  > Team brain — pull relevant entries during Step 0
-- **[Team brain — conflict/dedup resolution](roadmap.json#team-brain-dedup)** · `feature` · _done_ · `—`
-  > Team brain — conflict/dedup resolution
-- **[Team brain — privacy filter before push](roadmap.json#team-brain-privacy-filter)** · `feature` · _done_ · `—`
-  > Team brain — privacy filter before push
-- **[Command default behaviors \(auto-branch, phases, autofix, context enrichment\)](roadmap.json#command-default-behaviors)** · `feature` · _done_ · `—`
-  > Command default behaviors (auto-branch, phases, autofix, context enrichment)
-- **[Outcome criteria in plans \(verifiable acceptance criteria\)](roadmap.json#outcome-criteria-in-plans)** · `feature` · _idea_ · `—`
-  > Outcome criteria in plans (verifiable acceptance criteria)
-- **[Conversation audit trail across workflow stages](roadmap.json#conversation-audit-trail)** · `feature` · _idea_ · `—`
-  > Conversation audit trail across workflow stages
-- **[Attribution documentation \(source repos and websites\)](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
-  > Attribution documentation (source repos and websites)
-- **[/cg-strategy --add <idea> quick-add mode for roadmap ideas](roadmap.json#strategy-add-shortcut)** · `feature` · _idea_ · `—`
-  > /cg-strategy --add <idea> quick-add mode for roadmap ideas
-- **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
-  > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
-- **[Planning-stage test strategy + human review facilitation](roadmap.json#planning-stage-test-strategy)** · `feature` · _idea_ · `—`
-  > Planning-stage test strategy + human review facilitation
-- **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
-  > Agent-verified outcome definitions with acceptance evals
-- **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _done_ · `—`
-  > Audit current context and model usage
-- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
-  > Define model tiers and escalation rules
-- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
-  > Add model-policy tests
-- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _idea_ · `—`
-  > Update prompt frontmatter model and agent choices
-- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
-  > Update custom agents for model and tool governance
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _idea_ · `—`
-  > Shrink always-on context
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
-  > Split large prompts into thin entrypoints and on-demand skills
-- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _idea_ · `—`
-  > Add stage-specific context contracts
-- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
-  > Make review cheaper with deterministic checks first
-- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
-  > Benchmark before and after
-- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
-  > Capture the learning

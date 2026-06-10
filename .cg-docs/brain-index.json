@@ -1,5 +1,5 @@
 {
-  "edge_count": 180,
+  "edge_count": 182,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -759,6 +759,12 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
       "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
       "target_missing": false
@@ -790,6 +796,12 @@
     {
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+      "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
       "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
       "target_missing": false
     },
@@ -3095,9 +3107,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
+        "prompt-tools.tests.ps1",
         "test",
         "failure",
-        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3261,14 +3273,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "should not",
         "repos.json",
+        "should not",
         "should be",
         "cg-review-repos",
         "--full",
+        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
-        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3296,9 +3308,9 @@
         "light",
         "/cg-review",
         "test scenarios",
+        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md",
-        "/cg-review light"
+        "verify-review.md"
       ]
     },
     {
@@ -3533,8 +3545,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "update.sh",
         "run-tests.ps1",
+        "update.sh",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -3622,8 +3634,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "scripts/cg-index.py",
-        "python3"
+        "cg-index.cmd",
+        "scripts/cg-index.py"
       ]
     },
     {
@@ -4101,8 +4113,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "/cg-fix-triage",
         "cg-resume.prompt.md",
+        "/cg-fix-triage",
         "fix"
       ]
     },
@@ -4318,12 +4330,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
+        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills",
-        "docs/reference.md"
+        "feat/r-dialect-skills"
       ]
     },
     {
@@ -4776,8 +4788,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "tests/run-tests.ps1",
         "run-tests.ps1",
+        "tests/run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -4823,12 +4835,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
+        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
-        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -5196,12 +5208,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
+        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
-        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -5489,7 +5501,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "unlink\\.sh"
+        "2026-05-13-pr-verification-pipeline-review.md"
       ]
     },
     {
@@ -6153,6 +6165,28 @@
       ]
     },
     {
+      "date": "2026-06-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
+      "slug": "2026-06-09-token-optimization-phase7-release-validation-review-2",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 16 **Findings**: 22 (P0: 0, P1: 3, P2: 5, P3: 14)",
+      "tags": [],
+      "title": "2026-06-09-token-optimization-phase7-release-validation-review-2",
+      "top_keywords": [
+        ".cg-docs/cost/token-optimization-release-checklist.md",
+        "[manual]",
+        "[advisory]",
+        "context-audit.json",
+        "workflow.md",
+        "token-optimization-release-checklist.md",
+        "reviewed-in:",
+        "docs/workflow.md",
+        "cost/",
+        "inbox/"
+      ]
+    },
+    {
       "date": "2026-06-09",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
@@ -6438,14 +6472,14 @@
       "top_keywords": [
         "else",
         "ast",
+        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->",
-        "utf-8"
+        "->"
       ]
     },
     {
@@ -6465,10 +6499,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
+        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
-        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -6923,13 +6957,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
+        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1",
-        "result-verification.md"
+        ".ps1"
       ]
     },
     {
@@ -7041,12 +7075,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
+        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
-        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -7071,9 +7105,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
-        "/cg-setup",
         "link.ps1",
         "link.sh",
+        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -7104,13 +7138,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
+        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
-        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -7573,6 +7607,36 @@
         "braindata",
         "edge",
         "scripts/brain/__init__.py"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
+      "slug": "2026-06-10-brain-renderer-multiline-label-breaks-pipe-table",
+      "status": "",
+      "summary": "After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster labels spanned multiple lines. GitHub and VS Code Preview rendered the trailing lines as stray text or additional broken rows, not as part of the table. Example of the broken output in `BRAIN.md`: The table became unparseable for Topic 2 because Markdown pipe tables require each row to be a single physical line.",
+      "tags": [
+        "brain",
+        "renderer",
+        "markdown",
+        "pipe-table",
+        "cluster-label",
+        "sanitize",
+        "BRAIN.md"
+      ],
+      "title": "Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown",
+      "top_keywords": [
+        "brain.md",
+        "_sanitize_inline()",
+        "brain",
+        "renderer",
+        "scripts/brain/renderer.py",
+        "topic.label",
+        "\\n",
+        "renderer.py",
+        "topic index",
+        "topic"
       ]
     },
     {
@@ -8049,15 +8113,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "subdir\\file.txt",
+        "file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "file.txt",
-        "backslash"
+        "backslash",
+        "separator"
       ]
     },
     {
@@ -8294,11 +8358,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
+        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
-        "structure"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
       ]
     },
     {
@@ -8773,9 +8837,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
+        "cg-review.prompt.md",
         "delegate",
         "file-writing",
-        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -8812,8 +8876,8 @@
         "must",
         "contract",
         "pipeline",
-        "downstream",
-        "location"
+        "cg-fix-triage.prompt.md",
+        "downstream"
       ]
     },
     {
@@ -9030,8 +9094,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "copilot-instructions.md",
         "prompt-tools.tests.ps1",
+        "copilot-instructions.md",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -9061,16 +9125,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
+        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
-        "prompt-tools.tests.ps1",
         "select-string",
         "test",
-        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging"
+        "debugging",
+        "crashes"
       ]
     },
     {
@@ -9157,9 +9221,9 @@
         "failure",
         "guard",
         "fragile",
+        "cg-work.prompt.md",
         "tests",
         "step-ordering",
-        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -9247,8 +9311,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "-quiet",
         "prompt-tools.tests.ps1",
+        "-quiet",
         "pester",
         "execution_subagent",
         "quiet",
@@ -9344,14 +9408,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
+        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "last-run.json",
-        "tests\\last-run.json"
+        "context"
       ]
     },
     {
@@ -9590,6 +9654,7 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
+        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -9597,7 +9662,6 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
-        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -10058,8 +10122,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "source-scanning",
         "link.ps1",
+        "source-scanning",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -10090,14 +10154,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
+        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern",
-        "unlink.ps1"
+        "pattern"
       ]
     },
     {
@@ -10360,13 +10424,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
+        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->",
-        "$dirs.count | should -begreaterthan 0"
+        "<!-- folder: docs -->"
       ]
     },
     {
@@ -10637,6 +10701,35 @@
         ".cg-docs/cost/token-optimization-release-checklist.md",
         ".cg-docs/cost/token-optimization-follow-ups.md",
         "/cg-work review:*"
+      ]
+    },
+    {
+      "date": "2026-06-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
+      "slug": "2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps",
+      "status": "",
+      "summary": "The Phase 7 release checklist had a column of pre-filled statuses like `\"Passed in Codex\"` across all automated gates. Each status was static text committed at checklist creation time, with no reference to *when* the evidence was collected. Because `context-audit.json` overwrites its `\"generated\"` timestamp on every re-run, the checklist could point to stale evidence indefinitely. A maintainer who adds a new broad-context-load to a prompt, does **not** re-run the audit, and then cites the checklist would unknowingly attest to a superseded audit run. Post-commit regressions would pass release review against the stale attestation. The adversarial attack path: 1. Codex runs...",
+      "tags": [
+        "release-readiness",
+        "attestation",
+        "audit",
+        "checklist",
+        "token-optimization",
+        "stale-evidence"
+      ],
+      "title": "Release checklist statuses must be anchored to audit-run timestamps",
+      "top_keywords": [
+        "context-audit.json",
+        ".github/",
+        "checklist",
+        "\"passed in codex\"",
+        "\"generated\"",
+        "failures: 0",
+        "2026-06-09-external-validation-must-not-be-marked-passed.md",
+        "release",
+        "statuses",
+        "must"
       ]
     },
     {
@@ -13236,13 +13329,13 @@
       ]
     }
   ],
-  "entity_count": 465,
-  "generated": "2026-06-09",
+  "entity_count": 468,
+  "generated": "2026-06-10",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 310,
+      "entity_count": 313,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -13435,6 +13528,7 @@
         ".cg-docs/reviews/2026-06-06-cg-plan-work-context-slimming-phase4-review.md",
         ".cg-docs/reviews/2026-06-07-token-optimization-phase5-brain-context-selectivity-review.md",
         ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
+        ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
         ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -13468,6 +13562,7 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -13544,6 +13639,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
         ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
         ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

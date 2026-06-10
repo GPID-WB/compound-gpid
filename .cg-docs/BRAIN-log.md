@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-09 · 357 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-10 · 360 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -104,6 +104,15 @@ _Generated 2026-06-09 · 357 artifacts (newest first) + 108 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-10
+
+- **[2026-06-09-token-optimization-phase7-release-validation-review-2](.cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md)** · `review` · _—_ · `2026-06-10`
+  > **Review mode**: full **Files reviewed**: 16 **Findings**: 22 (P0: 0, P1: 3, P2: 5, P3: 14)
+- **[Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown](.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md)** · `solution` · _—_ · `2026-06-10`
+  > After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster l…
+- **[Release checklist statuses must be anchored to audit-run timestamps](.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md)** · `solution` · _—_ · `2026-06-10`
+  > The Phase 7 release checklist had a column of pre-filled statuses like `"Passed in Codex"` across all automated gates…
 
 ## 2026-06-09
 
