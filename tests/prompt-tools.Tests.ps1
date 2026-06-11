@@ -6257,6 +6257,25 @@ Describe "/cg-issues.prompt.md - dispatches @cg-roadmap for all writes" {
 }
 
 # ---------------------------------------------------------------------------
+# cg-roadmap.agent.md -- Configure GitHub Issues operation
+# ---------------------------------------------------------------------------
+
+Describe "cg-roadmap.agent.md - Configure GitHub Issues labelPrefix validation" {
+    $agentContent = Get-Content (Join-Path $repoRoot ".github\agents\cg-roadmap.agent.md") -Raw -Encoding UTF8
+
+    # P3.1 fix -- regex must use valid character class (- at start or end, not mid-range)
+    It "labelPrefix validation regex uses a valid character class (no mid-range /-)" {
+        # The character class must NOT contain the invalid range /-  (ASCII 47 > 45)
+        # Valid forms: [-A-Za-z0-9...] or [...-] but never [...:/-...] mid-class
+        ($agentContent -match '\[-A-Za-z0-9|A-Za-z0-9[^]]*-\]') | Should -Be $true
+    }
+
+    It "rejects labelPrefix values containing shell-unsafe characters" {
+        ($agentContent -match 'shell-unsafe') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # /cg-resume must remain non-mutating (Phase 3 Step 5)
 # ---------------------------------------------------------------------------
 

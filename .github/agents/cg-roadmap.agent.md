@@ -186,7 +186,7 @@ Typically dispatched by `/cg-issues setup` or `/cg-setup` after the user confirm
 
 1. Receive: `repo` (required), `enabled` (default `false`), `labelPrefix` (optional), `autoCreate` (default `false`).
 2. Validate `repo` matches `owner/repo` pattern. If invalid, report and stop.
-3. If `labelPrefix` is supplied, validate it matches `^[A-Za-z0-9_. :/-]*$`. If invalid (e.g., contains `"`, `` ` ``, `$`, `&`, `;`), report: "`labelPrefix` contains shell-unsafe characters. Use only letters, digits, spaces, and `_. :/-`." and stop.
+3. If `labelPrefix` is supplied, validate it matches `^[-A-Za-z0-9_. :/]*$`. If invalid (e.g., contains `"`, `` ` ``, `$`, `&`, `;`), report: "`labelPrefix` contains shell-unsafe characters. Use only letters, digits, spaces, and `-_. :/`." and stop.
 4. Read `roadmap.json`. If no top-level `githubIssues` key exists, create it. If it exists, merge the supplied fields.
 5. **Never** set `autoCreate: true` without explicit user instruction.
 6. Write the file.
