@@ -181,6 +181,14 @@ Once approved:
    `compound-gpid.md`. These two fields always update together — never
    update one without the other.
 
+4. **GitHub Issues handoff (optional)**: After all roadmap changes are confirmed, if
+   `roadmap.json` contains a `githubIssues.enabled: true` block, identify any newly added
+   or changed work items that do not yet have a `github` block. Ask:
+   > "Some work items are not linked to GitHub Issues. Would you like to create or link
+   > issues now? Run `/cg-issues backfill` to proceed."
+   This is a suggestion only — the user must explicitly invoke `/cg-issues backfill`.
+   Roadmap writes remain through `@cg-roadmap` only.
+
 ### Step 5: Save Strategy Document
 
 Save the session record to `.cg-docs/strategy/YYYY-MM-DD-<title>.md`

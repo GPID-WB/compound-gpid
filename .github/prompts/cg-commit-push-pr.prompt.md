@@ -161,6 +161,12 @@ For each confirmed commit group, in order:
      ---
      <Repeat for additional plans>
      ```
+   - **GitHub Issues references (optional)**: For each plan file, find the matching roadmap feature and check for a `github.issueNumber` field. If found:
+     - Use `Refs #<number>` for work items that are partially complete, draft, or where issue closure is uncertain.
+     - Use `Closes #<number>` **only** when the plan/work item is fully complete and the user explicitly confirms: "Close the GitHub issue when this PR merges?" — never add `Closes #` without this confirmation.
+     - Do NOT call `gh issue close` directly. Issue closure happens through the PR merge (`Closes #` in body) only.
+     - If an issue number is missing and `githubIssues.enabled: true`, mention: "No issue linked for `<feature-title>`. Run `/cg-issues link` before or after the PR if you want to track this issue."
+     - No bidirectional sync: do not mirror PR state, review status, or comments into `roadmap.json`. This is intentionally one-way.
    - **If no plan files found**: generate PR body from commit subjects as a bullet list.
 
 4. Derive PR title from the branch name (replace `feat/`, `fix/`, etc. prefix, convert hyphens to spaces, title-case) or from the primary commit subject.

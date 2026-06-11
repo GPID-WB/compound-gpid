@@ -85,6 +85,14 @@ If `roadmap.json` exists, find the feature whose `plan` path matches this plan. 
 
 Use targeted structured fields only: feature IDs, titles, statuses, and `plan` paths. State the expansion reason before reading.
 
+**GitHub Issues (optional — does not block work)**:
+If the matched feature has a `github.issueNumber` field, display:
+> "Linked issue: #`<number>` — `<issueUrl>`"
+
+If the matched feature has no `github` block and `roadmap.json` has `githubIssues.enabled: true`, suggest:
+> "This work item has no linked GitHub issue. Run `/cg-issues link` before or after implementation to attach one."
+Do NOT call `gh`, create issues, or block work if the user declines or `gh` is unavailable.
+
 ### Step 1.6: Build Test Index
 
 Before implementing, scan once for test files covering each plan step (for example `tests/test-<module>.R`, `tests/<module>.Tests.ps1`, `tests/test_<module>.py`). Reuse this module-to-test-file index throughout Step 2.
