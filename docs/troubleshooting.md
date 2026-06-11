@@ -556,3 +556,62 @@ cg-update
 > 
 > See [Reference](reference.md) for a full list of commands and agents.
 
+---
+
+## GitHub Issues Integration
+
+### `gh: command not found` or `'gh' is not recognized`
+
+Install the GitHub CLI: https://cli.github.com
+
+On Windows: `winget install GitHub.cli` or download from the site.
+
+After install, authenticate: `gh auth login`
+
+### `Not authenticated with GitHub` error from `/cg-issues`
+
+Run `gh auth login` and follow the prompts (browser or token-based auth).
+
+Verify after: `gh auth status`
+
+### `/cg-issues backfill` creates duplicate issues
+
+Duplicate prevention checks three tiers:
+1. Stored `github.issueNumber` in `roadmap.json` — already linked.
+2. Hidden body marker `<!-- compound-gpid-tracked: <feature-id> -->` — issue was created by Compound GPID.
+3. Title similarity search — surfaced for user review.
+
+If a duplicate is created despite these checks, link the feature to the existing issue manually:
+
+```
+/cg-issues link
+```
+
+Then specify the existing issue number. The duplicate can be closed manually on GitHub.
+
+### Missing labels cause `/cg-issues backfill` to fail
+
+`/cg-issues backfill` validates that all required labels exist before creating an issue. When a label is missing, it surfaces a **create / skip / cancel** choice. Choosing **skip** omits the label from that issue. Choosing **create** creates the label via `gh label create` with a default color.
+
+If a label creates inconsistency across issues, audit labels with `gh label list --repo <owner/repo>`.
+
+### Linked issue number in `roadmap.json` is wrong or stale
+
+Edit `roadmap.json` via `@cg-roadmap`. For example:
+
+> "Update the `github.issueNumber` for feature `<feature-id>` to `<correct-number>` and set `issueUrl` to `<correct-url>`."
+
+`@cg-roadmap` validates the URL format before writing.
+
+### `/cg-commit-push-pr` adds `Refs #` for a closed issue
+
+This is normal — `Refs #` is informational and does not reopen the issue. If the issue should close when the PR merges, ask the agent to change it to `Closes #` (it will confirm before updating the PR body).
+
+### GitHub repository is inaccessible (`404` or permission error)
+
+Check that you have at least **read** access to the repository: `gh repo view <owner/repo>`
+
+For private repositories, ensure your `gh` auth token has the `repo` scope: `gh auth status --show-token`
+
+The `project` scope is not required in v1 (GitHub Projects integration is out of scope).
+

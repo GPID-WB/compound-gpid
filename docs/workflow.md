@@ -764,6 +764,7 @@ check the Copilot UI if that identity matters.
 - Plan content is written to a temp file and passed via `--body-file` (never inline) to prevent shell injection
 - Detached HEAD state is detected early with a clear recovery command
 - If on the default branch, warns and asks before proceeding
+- **GitHub Issues**: If features have linked GitHub issues (a `github.issueNumber` field in `roadmap.json`), adds `Refs #<number>` or `Closes #<number>` to the PR body. `Closes #` is only used when the work item is complete and you explicitly confirm. Issue closure happens through the PR merge — `/cg-commit-push-pr` never calls `gh issue close`.
 
 **Scenarios**:
 - *Normal feature work*: After `/cg-work` + `/cg-review` + `/cg-fix-triage`, run `/cg-commit-push-pr` to ship.
@@ -776,6 +777,45 @@ check the Copilot UI if that identity matters.
 - When CI is already failing on a previous push — use `/cg-verify-pr` instead
 
 **Output**: N commits on the current branch + push + PR URL (or manual command if `gh` unavailable)
+
+---
+
+### GitHub Issues Integration (`/cg-issues`)
+
+**When to use**: When you want to link roadmap work items to GitHub Issues for visibility, backlog management, or team coordination.
+
+**What happens**: Reads `roadmap.json` to find the GitHub Issues config (`githubIssues` block), then performs the requested operation using the `gh` CLI.
+
+**Modes**:
+- `status` (default, read-only): Show which features have linked issues and which do not. Safe to run at any time.
+- `backfill`: Create or link GitHub issues for all unlinked features. Each issue requires your explicit confirmation.
+- `link`: Attach an existing GitHub issue to a specific feature by number.
+- `adopt`: Import a GitHub issue as a new roadmap feature.
+- `setup`: Configure `githubIssues.repo`, `labelPrefix`, and `autoCreate` in `roadmap.json` via `@cg-roadmap`.
+
+**Key behaviors**:
+- Never creates issues without per-issue confirmation — `autoCreate: true` is opt-in and does not bypass confirmation.
+- Three-tier duplicate prevention: stored metadata → hidden body marker search → title search.
+- Missing labels surface a create/skip/cancel choice — never silently fails.
+- Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute).
+- Roadmap titles and plan content are treated as untrusted text: injection lines are stripped before use in issue bodies.
+- All roadmap writes go through `@cg-roadmap` (never writes `roadmap.json` directly).
+- Never calls `gh issue close`. Issue closure happens through the PR body (`Closes #`).
+- Degrades gracefully when `gh` is not installed or not authenticated.
+
+**GitHub Issues appear in workflow at**:
+- `/cg-resume`: displays linked issue number alongside active features (read-only)
+- `/cg-strategy`: after approved roadmap changes, offers a handoff to `/cg-issues backfill` (never automatic)
+- `/cg-plan`: after linking a plan to a roadmap feature, suggests `/cg-issues link` if no issue is linked
+- `/cg-work`: displays the linked issue at the start; suggests `/cg-issues link` if missing (non-blocking)
+- `/cg-commit-push-pr`: adds `Refs #` or `Closes #` to the PR body from linked issue metadata
+
+**When NOT to use**:
+- When GitHub Issues integration is disabled (`githubIssues.enabled: false` or absent) — run `/cg-issues setup` first.
+- As a replacement for roadmap tracking — GitHub Issues are supplementary, not the primary project management layer.
+- When `gh` is not installed — install from https://cli.github.com.
+
+**Output**: A summary of issues created, linked, skipped, or displayed. All roadmap changes confirmed in `roadmap.json`.
 
 ---
 
