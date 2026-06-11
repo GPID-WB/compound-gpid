@@ -277,7 +277,7 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 |-------|-------|-------|----------------|
 | `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Haiku 4.5 | **Yes** |
 
-> `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates (when `roadmap.json` exists).
+> `@cg-roadmap` is the **only** agent users interact with directly (via `@cg-roadmap` in Copilot Chat) to manage your project roadmap. Prompts like `/cg-issues`, `/cg-plan`, and `/cg-work` dispatch it automatically for roadmap updates when `roadmap.json` exists.
 
 ### `roadmap.json` Schema
 
@@ -298,7 +298,7 @@ Stored as a top-level key in `roadmap.json`. All sub-fields are optional.
 |-------|------|---------|-------------|
 | `enabled` | bool | `false` | Enable GitHub Issues integration for this project |
 | `repo` | string | — | `owner/repo` identifying the GitHub repository |
-| `labelPrefix` | string | `""` | Prefix for auto-created labels (e.g. `"cg:"`) |
+| `labelPrefix` | string | `—` | Prefix for auto-created labels (e.g. `"cg:"`) — absent/null means no prefix |
 | `autoCreate` | bool | `false` | If `true`, `/cg-issues backfill` may offer batch creation (still requires per-issue confirmation) |
 
 Configure with `/cg-issues setup` or `/cg-setup`. `@cg-roadmap` is the only agent that writes this block.
@@ -307,12 +307,12 @@ Configure with `/cg-issues setup` or `/cg-setup`. `@cg-roadmap` is the only agen
 
 Per-feature GitHub issue linkage. All sub-fields are optional; omit the entire block when no issue is linked.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `repo` | string | `owner/repo` — overrides top-level when issue lives in a different repo |
-| `issueNumber` | integer | Positive integer GitHub issue number |
-| `issueUrl` | string | Full URL: `https://github.com/owner/repo/issues/<number>` |
-| `createdAt` | string | ISO date `yyyy-MM-dd` when the link was created |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `repo` | string | — | `owner/repo` — overrides top-level when issue lives in a different repo |
+| `issueNumber` | integer | — | Positive integer GitHub issue number |
+| `issueUrl` | string | — | Full URL: `https://github.com/owner/repo/issues/<number>` |
+| `createdAt` | string | — | ISO date `yyyy-MM-dd` when the link was created |
 
 Attach with `/cg-issues link` or `/cg-issues backfill`. Adding `github` metadata never changes `features[].status`.
 

@@ -615,3 +615,16 @@ For private repositories, ensure your `gh` auth token has the `repo` scope: `gh 
 
 The `project` scope is not required in v1 (GitHub Projects integration is out of scope).
 
+### Adopted feature is stuck at `planned`
+
+This is expected behavior. `/cg-issues adopt` intentionally creates new features at `status: "planned"` — it does not advance status automatically. To start work on the feature, use `@cg-roadmap` to update its status:
+
+> "Update feature `<feature-id>` in milestone `<milestone-id>` to status `active`."
+
+### `/cg-issues status` shows a closed GitHub issue
+
+Roadmap status and GitHub issue state are tracked independently — a closed issue does not automatically update the roadmap. Options:
+
+1. **Keep the linkage**: If work is complete, advance the roadmap feature status separately via `@cg-roadmap`.
+2. **Update the linked issue**: Use `/cg-issues link` with a new open issue number to replace the stale reference.
+3. **Remove the linkage**: Ask `@cg-roadmap` to clear the `github` block: "Remove the `github` block from feature `<feature-id>`."

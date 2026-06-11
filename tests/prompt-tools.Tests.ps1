@@ -249,6 +249,11 @@ Describe "copilot-instructions.md - Workflow Entry Points" {
     It "references /cg-wiki in Workflow Entry Points" {
         ($section -match '/cg-wiki') | Should -Be $true
     }
+
+    # P2.7 -- /cg-issues added to Workflow Entry Points
+    It "references /cg-issues in Workflow Entry Points" {
+        ($section -match '/cg-issues') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -2077,6 +2082,22 @@ Describe "context layer - all 17 prompts reference compound-gpid.context.md" {
         It "$name.prompt.md instructs to skip silently when context.md is absent" {
             ($content -match 'skip silently|skip.*silently|proceed without project context') | Should -Be $true
         }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Context Layer -- cg-issues is an intentional exception (reads roadmap.json directly)
+# ---------------------------------------------------------------------------
+
+Describe "context layer - cg-issues intentionally omits Get Bearings (reads roadmap.json directly)" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md") -Raw -Encoding UTF8
+
+    It "cg-issues reads roadmap.json rather than charter files" {
+        ($content -match 'roadmap\.json') | Should -Be $true
+    }
+
+    It "cg-issues does NOT reference compound-gpid.context.md (by design)" {
+        ($content -match 'compound-gpid\.context\.md') | Should -Be $false
     }
 }
 
@@ -6148,8 +6169,9 @@ Describe "/cg-issues.prompt.md - pre-flight checks" {
         ($content -match 'githubIssues|roadmap.*config|github.*config') | Should -Be $true
     }
 
-    It "gracefully handles missing gh by skipping or reporting rather than failing hard" {
-        ($content -match 'gh.*not found|gh.*unavailable|gracefully|skip.*gh|abort.*gh') | Should -Be $true
+    # P2.10 -- Safety Rules must declare status mode as read-only
+    It "Safety Rules declare status mode as read-only" {
+        ($content -match 'Status mode is read.?only') | Should -Be $true
     }
 }
 
@@ -6161,7 +6183,7 @@ Describe "/cg-issues.prompt.md - confirmation and safety" {
     $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md") -Raw -Encoding UTF8
 
     It "requires confirmation before gh issue create" {
-        ($content -match 'confirm.*issue create|issue create.*confirm|ask.*create|create.*ask') | Should -Be $true
+        ($content -match 'confirm.*issue create|issue create.*confirm|ask.*create.*issue|never create without.*confirm|create.*confirm.*issue') | Should -Be $true
     }
 
     It "documents duplicate-prevention marker (hidden body marker)" {
@@ -6191,6 +6213,22 @@ Describe "/cg-issues.prompt.md - confirmation and safety" {
         }
         $prohibited.Count | Should -Be 0
     }
+
+    # P2.9 -- graceful degradation: status mode must continue without gh
+    It "gracefully handles missing gh -- status mode continues without gh (P2.9)" {
+        # Must document that status mode specifically continues without gh
+        ($content -match 'status.*mode.*without.*gh|status.*mode.*not.*require.*gh|status.*gh.*unavailable|status.*display.*without.*gh') | Should -Be $true
+    }
+
+    # P2.6 -- strip Closes # / Fixes # / Resolves # from feature titles
+    It "strips Closes # / Fixes # / Resolves # from feature titles before --title" {
+        ($content -match 'Closes\s*#|Fixes\s*#|Resolves\s*#') | Should -Be $true
+    }
+
+    # P2.7 -- fenced text block for untrusted content
+    It "renders untrusted content in fenced text block (prevents instruction injection)" {
+        ($content -match '```text') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -6202,6 +6240,19 @@ Describe "/cg-issues.prompt.md - dispatches @cg-roadmap for all writes" {
 
     It "dispatches @cg-roadmap for attaching issue metadata (not writing roadmap.json directly)" {
         ($content -match '@cg-roadmap|cg-roadmap') | Should -Be $true
+    }
+
+    # P3.6 -- operation-name dispatch tests for link, adopt, configure modes
+    It "mentions Attach GitHub Issue to Feature operation name (link/backfill mode dispatch)" {
+        ($content -match 'Attach GitHub Issue to Feature') | Should -Be $true
+    }
+
+    It "mentions Adopt GitHub Issue as Work Item operation name (adopt mode dispatch)" {
+        ($content -match 'Adopt GitHub Issue as Work Item') | Should -Be $true
+    }
+
+    It "mentions Configure GitHub Issues operation name (setup mode dispatch)" {
+        ($content -match 'Configure GitHub Issues') | Should -Be $true
     }
 }
 

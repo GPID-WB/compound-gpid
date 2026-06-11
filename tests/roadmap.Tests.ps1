@@ -287,7 +287,7 @@ function Test-RoadmapSchema {
 
                 # issueUrl must be a https://github.com/* URL
                 if ($null -ne $gh.issueUrl) {
-                    if ($gh.issueUrl -isnot [string] -or $gh.issueUrl -notmatch '^https://github\.com/[^/]+/[^/]+/issues/\d+$') {
+                    if ($gh.issueUrl -isnot [string] -or $gh.issueUrl -notmatch '^https://github\.com/[^/]+/[^/]+/issues/[1-9]\d*$') {
                         $errors += "${fLabel}: github.issueUrl must match 'https://github.com/owner/repo/issues/<number>'"
                     }
                 }
@@ -1293,13 +1293,29 @@ Describe "roadmap.json schema -- GitHub Issues integration" {
                 @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
                    features = @(
                        @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
-                          github = @{ issueNumber = 0; issueUrl = "https://github.com/o/r/issues/0" } }
+                          github = @{ issueNumber = 0; issueUrl = "https://github.com/o/r/issues/1" } }
                    )
                 }
             )
         }
         $errors = Test-RoadmapSchema $roadmap
         ($errors -join " ") | Should -Match "issueNumber"
+    }
+
+    It "rejects feature github.issueUrl with issue number 0 (P3.1 -- [1-9]\d* regex)" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = 1; issueUrl = "https://github.com/o/r/issues/0" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "issueUrl"
     }
 
     It "rejects feature github.issueNumber as negative" {
@@ -1380,5 +1396,58 @@ Describe "roadmap.json schema -- GitHub Issues integration" {
         }
         $errors = Test-RoadmapSchema $roadmap
         ($errors -join " ") | Should -Match "createdAt"
+    }
+
+    It "rejects githubIssues.labelPrefix as empty string" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = $true; repo = "owner/repo"; labelPrefix = ""; autoCreate = $false }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "non-empty string"
+    }
+
+    It "accepts feature at planned status with null plan and github block (Adopt contract)" {
+        # Adopt creates features at planned with plan: null — this combination must pass schema
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{
+                           id = "f1"; title = "F1"; status = "planned"; plan = $null
+                           github = @{
+                               issueNumber = 7
+                               issueUrl    = "https://github.com/owner/repo/issues/7"
+                               createdAt   = "2026-06-11"
+                           }
+                       }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    It "does not reject issueUrl/issueNumber mismatch -- fields validated independently (known gap)" {
+        # The schema validates issueNumber and issueUrl as independent fields.
+        # A mismatch (e.g., issueNumber=42 but issueUrl points to /issues/99) is not caught.
+        # This is a documented limitation: the agent must ensure they match at write time.
+        # WHEN FIXING THIS GAP: delete this test and add a "rejects issueUrl/issueNumber mismatch" test instead.
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = 42; issueUrl = "https://github.com/o/r/issues/99" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
     }
 }

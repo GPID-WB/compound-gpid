@@ -789,8 +789,8 @@ check the Copilot UI if that identity matters.
 **Modes**:
 - `status` (default, read-only): Show which features have linked issues and which do not. Safe to run at any time.
 - `backfill`: Create or link GitHub issues for all unlinked features. Each issue requires your explicit confirmation.
-- `link`: Attach an existing GitHub issue to a specific feature by number.
-- `adopt`: Import a GitHub issue as a new roadmap feature.
+- `link`: Attach an existing GitHub issue to a specific feature by number. Does not change feature status.
+- `adopt`: Import a GitHub issue as a new roadmap feature (created at `planned`). Does not change the linked issue's state.
 - `setup`: Configure `githubIssues.repo`, `labelPrefix`, and `autoCreate` in `roadmap.json` via `@cg-roadmap`.
 
 **Key behaviors**:
@@ -804,14 +804,14 @@ check the Copilot UI if that identity matters.
 - Degrades gracefully when `gh` is not installed or not authenticated.
 
 **GitHub Issues appear in workflow at**:
-- `/cg-resume`: displays linked issue number alongside active features (read-only)
-- `/cg-strategy`: after approved roadmap changes, offers a handoff to `/cg-issues backfill` (never automatic)
-- `/cg-plan`: after linking a plan to a roadmap feature, suggests `/cg-issues link` if no issue is linked
+- `/cg-resume`: displays linked issue number alongside active features (read-only, non-blocking)
+- `/cg-strategy`: after approved roadmap changes, offers a handoff to `/cg-issues backfill` (optional — never automatic)
+- `/cg-plan`: after linking a plan to a roadmap feature, suggests `/cg-issues link` if no issue is linked (non-blocking — does not block plan registration)
 - `/cg-work`: displays the linked issue at the start; suggests `/cg-issues link` if missing (non-blocking)
 - `/cg-commit-push-pr`: adds `Refs #` or `Closes #` to the PR body from linked issue metadata
 
 **When NOT to use**:
-- When GitHub Issues integration is disabled (`githubIssues.enabled: false` or absent) — run `/cg-issues setup` first.
+- When GitHub Issues integration is disabled (`githubIssues.enabled: false` or absent) — run `/cg-issues setup` first. You can also configure GitHub Issues during project onboarding via `/cg-setup`.
 - As a replacement for roadmap tracking — GitHub Issues are supplementary, not the primary project management layer.
 - When `gh` is not installed — install from https://cli.github.com.
 

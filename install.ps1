@@ -168,9 +168,10 @@ foreach ($script in $scripts) {
 }
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
 
-# Verify cg-index.cmd exists in bin/. Unlike the simple PS1-calling wrappers
-# above, cg-index.cmd contains non-trivial Python resolver logic and is kept as
-# the committed authoritative wrapper in this same bin/ directory.
+# Copy cg-index.cmd from the committed file (single source of truth). Unlike
+# the simple PS1-calling wrappers above, cg-index.cmd contains non-trivial
+# Python resolver logic and is kept as the committed authoritative wrapper in
+# this same bin/ directory.
 $cgIndexCmdSrc = Join-Path $CompoundGpidDir "bin\cg-index.cmd"
 $cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
 if (Test-Path $cgIndexCmdSrc) {
