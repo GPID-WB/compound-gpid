@@ -1,7 +1,7 @@
 ---
 date: 2026-06-06
 title: "Phase 4: /cg-plan and /cg-work prompt/context slimming"
-status: active
+status: completed
 scope: "Standard"
 brainstorm: null
 language: "both"
