@@ -149,6 +149,7 @@ This isolates untrusted content structurally — no keyword list required.
 
 - `.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md` — earlier `--body-file` pattern; this solution extends it to `--label` quoting and `--title` sanitization
 - `.cg-docs/solutions/testing-patterns/2026-04-29-two-phase-injection-guard-for-agent-file-reads.md` — prompt injection via untrusted file reads; structural fencing approach is complementary
+- `.cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md` — P3.1 fix from the same review cycle: `labelPrefix` validation regex had `/-` invalid range
 - `.github/prompts/cg-issues.prompt.md` — fixed file (backfill steps 6–9, PF2, Safety Rules)
 - `.github/agents/cg-roadmap.agent.md` — Adopt operation required annotation fix
 - `tests/prompt-tools.Tests.ps1` — tests added for PF2 mode-gating, shell-safe instructions

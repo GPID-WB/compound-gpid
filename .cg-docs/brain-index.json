@@ -1,5 +1,5 @@
 {
-  "edge_count": 182,
+  "edge_count": 186,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -770,6 +770,24 @@
       "target_missing": false
     },
     {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md",
+      "target": ".cg-docs/plans/2026-06-11-github-issues-integration.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-11-github-issues-integration-review.md",
+      "target": ".cg-docs/plans/2026-06-11-github-issues-integration.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -1091,6 +1109,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
       "target": "roadmap.json#fixbug-test-correctness-assessment",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-11-github-issues-integration.md",
+      "target": "roadmap.json#github-issues-integration",
       "target_missing": false
     }
   ],
@@ -3528,7 +3552,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-05-05-cross-platform-macos-support.md",
       "slug": "2026-05-05-cross-platform-macos-support",
-      "status": "active",
+      "status": "completed",
       "summary": "Add macOS support to the Compound GPID plugin distribution by creating parallel bash scripts (`install.sh`, `link.sh`, `unlink.sh`, `update.sh`) alongside existing PowerShell scripts, with extensionless bash wrappers in `bin/`, shell profile PATH registration, and a cross-platform CI pipeline. The existing Windows scripts remain untouched — zero regression risk.",
       "tags": [
         "cross-platform",
@@ -3936,7 +3960,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
       "slug": "2026-06-05-cg-review-token-cost-phase3",
-      "status": "active",
+      "status": "completed",
       "summary": "Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and adding explicit review-mode integration in `/cg-work` so post-implementation review behavior is deterministic, cheaper by default, and still safe for high-risk changes.",
       "tags": [
         "performance",
@@ -3966,7 +3990,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md",
       "slug": "2026-06-06-cg-plan-work-context-slimming-phase4",
-      "status": "active",
+      "status": "completed",
       "summary": "Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preserving user-facing behavior, safety gates, roadmap behavior, phase handling, testing expectations, diagnostics handling, artifact discipline, and Phase 3 `/cg-work review:*` integration.",
       "tags": [
         "performance",
@@ -3995,7 +4019,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
       "slug": "2026-06-07-token-optimization-phase5-brain-context-selectivity",
-      "status": "active",
+      "status": "completed",
       "summary": "Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project context loading selective, staged, and query-driven. Ordinary prompts should no longer encourage broad/default reads of full Brain artifacts, `compound-gpid.context.md`, or `roadmap.json` unless the workflow has an explicit, justified need.",
       "tags": [
         "token-cost",
@@ -4072,6 +4096,34 @@
         "validation",
         "/cg-review",
         "/cg-plan"
+      ]
+    },
+    {
+      "date": "2026-06-11",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-11-github-issues-integration.md",
+      "slug": "2026-06-11-github-issues-integration",
+      "status": "completed",
+      "summary": "Add optional, project-level GitHub Issues integration to Compound GPID so teams can coordinate roadmap work items through their normal GitHub workflow without replacing `roadmap.json`. The integration should use `gh` when installed and authenticated, degrade gracefully when unavailable, and require confirmation before any GitHub or roadmap mutation.",
+      "tags": [
+        "workflow-maturity",
+        "roadmap",
+        "github",
+        "issues",
+        "gh-cli"
+      ],
+      "title": "GitHub Issues integration via gh CLI",
+      "top_keywords": [
+        "roadmap.json",
+        "tests/prompt-tools.tests.ps1",
+        "cg-issues",
+        "prompt-tools.tests.ps1",
+        "gh",
+        "/cg-issues",
+        "test scenarios",
+        "/cg-resume",
+        "cg-resume",
+        "@cg-roadmap"
       ]
     },
     {
@@ -6209,6 +6261,72 @@
       ]
     },
     {
+      "date": "2026-06-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2-verify-review.md",
+      "slug": "2026-06-11-github-issues-integration-review-2-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Files reviewed**: 4 (`.github/prompts/cg-issues.prompt.md`, `.github/agents/cg-roadmap.agent.md`, `docs/troubleshooting.md`, `docs/reference.md`, `tests/prompt-tools.Tests.ps1`, `tests/roadmap.Tests.ps1`) **Findings**: 1 (P0: 0, P1: 0, P2: 0, P3: 1) **Verified fixes**: 13/13",
+      "tags": [],
+      "title": "2026-06-11-github-issues-integration-review-2-verify-review",
+      "top_keywords": [
+        "in-progress",
+        ".github/agents/cg-roadmap.agent.md",
+        "tests/prompt-tools.tests.ps1",
+        "/-",
+        "prompt-tools.tests.ps1",
+        "safety rules",
+        "cg-roadmap",
+        "cg-roadmap.agent.md",
+        "troubleshooting.md",
+        "reference.md"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md",
+      "slug": "2026-06-11-github-issues-integration-review-2",
+      "status": "",
+      "summary": "**Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second review of Phase 1 security-hardening changes",
+      "tags": [],
+      "title": "2026-06-11-github-issues-integration-review-2",
+      "top_keywords": [
+        "cg-issues.prompt.md",
+        "cg-issues",
+        "tests",
+        "tests/prompt-tools.tests.ps1",
+        "advisory",
+        "prompt",
+        "labelprefix",
+        ".github/prompts/cg-issues.prompt.md",
+        "cg-roadmap.agent.md",
+        "prompt-tools.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-06-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-11-github-issues-integration-review.md",
+      "slug": "2026-06-11-github-issues-integration-review",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 15 (new: `cg-issues.prompt.md`; modified: `cg-roadmap.agent.md`, 5 workflow prompts, 3 test files, 3 docs, `install.ps1`, `copilot-instructions.md`) **Findings**: 31 (P1: 6, P2: 12, P3: 13)",
+      "tags": [],
+      "title": "2026-06-11-github-issues-integration-review",
+      "top_keywords": [
+        "cg-issues",
+        ".github/prompts/cg-issues.prompt.md",
+        "cg-issues.prompt.md",
+        "issueurl",
+        "gh",
+        "@cg-roadmap",
+        "tests/prompt-tools.tests.ps1",
+        "cg-roadmap.agent.md",
+        "status",
+        "issuenumber"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -7699,6 +7817,65 @@
       ]
     },
     {
+      "date": "2026-06-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md",
+      "slug": "2026-06-11-cli-injection-in-llm-driven-gh-prompts",
+      "status": "",
+      "summary": "When authoring `cg-issues.prompt.md` — a prompt that instructs an LLM agent to run `gh issue create` with data from `roadmap.json` and plan files — a `/cg-review` pass (run 2026-06-11) found five exploitable specification bugs: 1. **Shell injection via `--title`**: `gh issue create --title \"<feature-title>\"` — if the feature title contains `\"` or a backtick, the shell splits the argument boundary. A title like `x\" --repo attacker/evil` redirects issue creation to a different repository entirely. 2. **Label injection via unquoted `--label <labels>`**: A space in a label name (e.g., `cg:feature --body injected`) causes the unquoted `--label <labels>` string to split into...",
+      "tags": [
+        "security",
+        "gh-cli",
+        "shell-injection",
+        "symlink-traversal",
+        "prompt-authoring",
+        "cg-issues",
+        "sanitization"
+      ],
+      "title": "CLI injection, symlink traversal, and mode-gating bugs in LLM prompts that invoke gh CLI",
+      "top_keywords": [
+        "--body-file",
+        "--title",
+        "cli",
+        "gh",
+        "cg-issues.prompt.md",
+        "prompt-tools.tests.ps1",
+        "status",
+        "gh issue create",
+        "--label <labels>",
+        "system:"
+      ]
+    },
+    {
+      "date": "2026-06-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md",
+      "slug": "2026-06-11-invalid-regex-character-range-hyphen-placement",
+      "status": "",
+      "summary": "An agent spec (`cg-roadmap.agent.md`) included this validation regex as prose guidance: The sequence `/-` inside the character class `[...]` is interpreted by strict regex engines as the range \"from `/` to `-`\". Since `/` is ASCII 47 and `-` is ASCII 45, and 47 > 45, this is an invalid (descending) range. Engines that enforce strict range ordering raise an error: JavaScript (strict mode), POSIX `grep -E`, and most compiled regex engines similarly reject it. The bug was present as prose in an LLM agent spec — **not in running code** — so it caused no runtime failure in the...",
+      "tags": [
+        "regex",
+        "character-class",
+        "validation",
+        "shell-safety",
+        "agent-spec",
+        "prose"
+      ],
+      "title": "Invalid regex character class range: hyphen placement between non-ascending code points",
+      "top_keywords": [
+        "cg-roadmap.agent.md",
+        "range",
+        "safe",
+        "invalid",
+        "character",
+        "regex",
+        "[...]",
+        ".prompt.md",
+        ".agent.md",
+        "agent.md"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -8441,8 +8618,8 @@
       ],
       "title": "gh pr create: use --body-file not inline --body to prevent shell injection",
       "top_keywords": [
-        "gh",
         "--body-file",
+        "gh",
         "body",
         "body-file",
         "shell",
@@ -13388,13 +13565,13 @@
       ]
     }
   ],
-  "entity_count": 470,
-  "generated": "2026-06-10",
+  "entity_count": 476,
+  "generated": "2026-06-11",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 313,
+      "entity_count": 319,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -13495,6 +13672,7 @@
         ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
         ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
         ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+        ".cg-docs/plans/2026-06-11-github-issues-integration.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -13589,6 +13767,9 @@
         ".cg-docs/reviews/2026-06-08-token-optimization-phase6-benchmarks-guardrails-review.md",
         ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review-2.md",
         ".cg-docs/reviews/2026-06-09-token-optimization-phase7-release-validation-review.md",
+        ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2-verify-review.md",
+        ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md",
+        ".cg-docs/reviews/2026-06-11-github-issues-integration-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -13622,6 +13803,8 @@
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
         ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
+        ".cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md",
+        ".cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
