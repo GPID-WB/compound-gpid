@@ -86,6 +86,13 @@ def test_regex_credential_redacted():
     assert cred_count == 2
 
 
+def test_regex_credential_type_annotation_not_redacted():
+    content = "token: Optional[str]\npassword: None\nsecret: str"
+    filtered, redactions = apply_regex_filter(content)
+    assert filtered == content
+    assert not redactions
+
+
 def test_regex_no_false_positive_code_snippet():
     content = "Use `data.table::setkey(dt, country_code)` to set the key."
     filtered, redactions = apply_regex_filter(content)

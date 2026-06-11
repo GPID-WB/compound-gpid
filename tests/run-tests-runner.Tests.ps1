@@ -205,7 +205,12 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
         }
 
         It "last-run.json ranAt is a valid ISO 8601 UTC timestamp" {
-            ($json.ranAt -match '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$') | Should -Be $true
+            $isValidTimestamp = if ($json.ranAt -is [datetime]) {
+                $true
+            } else {
+                "$($json.ranAt)" -match '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+            }
+            $isValidTimestamp | Should -Be $true
         }
 
         It "last-run.json has 'files' array" {

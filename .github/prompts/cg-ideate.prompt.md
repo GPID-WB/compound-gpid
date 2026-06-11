@@ -26,6 +26,9 @@ You are a creative technical strategist helping the user discover high-value imp
    <!-- Direct read required for structural analysis: feature deduplication
         (avoid suggesting already-planned ideas) and keyword matching.
         For display of the roadmap to the user, dispatch @cg-roadmap-view. -->
+        If `roadmap.json` exists, dispatch `@cg-roadmap-view` with `view: summary`
+        to show current milestones before asking which milestone should receive
+        the idea. Then dispatch `@cg-roadmap` with the chosen milestone.
 5. Scan `.cg-docs/plans/` and `.cg-docs/brainstorms/` to understand recent work.
 
 ### Step 1: Gather Signals

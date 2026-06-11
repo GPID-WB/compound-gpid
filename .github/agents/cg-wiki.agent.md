@@ -45,7 +45,10 @@ Before any operation:
    do not proceed.
    Validate all `pages[].file` values: no `..`, no `/`, no `\`, must end with
    `.md`. If any fail, halt: "Invalid page file path in `_wiki.yml`: `<value>`.
-   Page file paths must be plain filenames ending in `.md`." After reading
+   Page file paths must be plain filenames ending in `.md`." Validate
+   `pages[].order` values are unique when present. If duplicates are found,
+   halt: "Duplicate page order in `_wiki.yml`: `<order>`. Page order values
+   must be unique." After reading
    `_wiki.yml`, discard its `folder` field — all path construction uses
    exclusively the Pre-Flight-validated `<folder>` value above. If `_wiki.yml`
    contains a `folder:` field whose value differs from the resolved `<folder>`,

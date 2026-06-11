@@ -12,7 +12,11 @@ You are a senior developer checking whether the current pull request's CI checks
 - **READ**: Any file in the workspace.
 - **MODIFY**: Source and test files related to CI fix (auto-fix mode only).
 - **NEVER**: Modify `.cg-docs/` files, plan files, or `roadmap.json` directly.
-- **`--propose` mode**: READ-only — no file creation, modification, git commits, or pushes of any kind.
+- **`--propose` mode**:
+  - READ-only.
+  - No file creation or modification.
+  - No git commits or pushes.
+  - No CI-triggering or externally visible actions.
 
 ## Process
 
@@ -173,6 +177,8 @@ Halt.
 4. **Unknown**: Apply best-effort fix based on the log output; note what was attempted.
 
 **Commit and push fixes**:
+Before staging, run `git diff --stat HEAD` to enumerate exactly which files were modified by the fix round. Do not use `git add .`; stage only the intended fixed files individually.
+
 ```
 git add <fixed-files>
 ```
@@ -184,6 +190,10 @@ git push origin <branch>
 *(If a rebase was performed, use `git push --force-with-lease origin <branch>` — never plain `--force`. If `git push --force-with-lease` exits non-zero: report the exact error. Advise the user to `git fetch`, check for new remote commits on the branch, and re-invoke `/cg-verify-pr` to restart the fix round.)*
 
 **Post-push notification**:
+After pushing, run one non-blocking CI status poll with `gh pr checks <number>` or `gh pr view --json statusCheckRollup` to confirm whether checks have restarted. Do not use `--watch`. If checks are still pending or have not refreshed yet, tell the user to re-invoke `/cg-verify-pr` after checks complete.
+
+Shell note: examples using `$null`, `$LASTEXITCODE`, or `Select-Object` are PowerShell syntax. In bash/zsh, use `/dev/null`, `$?`, and `head -n 1` or equivalent shell pipelines.
+
 > "Fixes committed and pushed (round N/2). CI is now re-running.
 > Re-invoke `/cg-verify-pr` after checks complete to verify, or apply a second fix round if still failing."
 
@@ -201,6 +211,12 @@ After classifying (or fixing) failures, if any failures are **platform-specific*
 > - Push and wait for the next CI run to confirm."
 
 ### Step 6: Summary and Handoff
+
+Before the prose summary, output a markdown table with exactly these columns:
+
+| Check Name | Prior Status | New Status | Action Taken |
+|------------|--------------|------------|--------------|
+| `<check>` | `<failure/pending/etc.>` | `<fixed/re-running/manual/etc.>` | `<commit/proposal/none>` |
 
 - **Auto-fix mode**:
   > "✅ CI verification complete.

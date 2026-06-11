@@ -5,21 +5,21 @@ review-depth: thorough
 mode: autofix
 agents: [cg-code-quality, cg-testing, cg-documentation, cg-architecture, cg-data-quality, cg-reproducibility, cg-performance, cg-adversarial, cg-learnings-researcher, cg-version-control]
 findings:
-  P0.1: open
+  P0.1: fixed
   P1.1: fixed
   P1.2: fixed
   P1.3: fixed
   P1.4: fixed
-  P1.5: open
+  P1.5: fixed
   P1.6: fixed
   P1.7: fixed
-  P1.8: open
-  P1.9: open
-  P1.10: open
-  P2.1: open
+  P1.8: fixed
+  P1.9: fixed
+  P1.10: fixed
+  P2.1: fixed
   P2.2: fixed
   P2.3: fixed
-  P2.4: open
+  P2.4: fixed
   P2.5: fixed
   P2.6: fixed
   P2.7: fixed
@@ -28,22 +28,22 @@ findings:
   P2.10: fixed
   P2.11: fixed
   P2.12: fixed
-  P2.13: open
-  P2.14: open
-  P2.15: open
-  P2.16: open
+  P2.13: fixed
+  P2.14: fixed
+  P2.15: fixed
+  P2.16: fixed
   P2.17: fixed
   P2.18: fixed
   P2.19: fixed
   P2.20: fixed
   P3.1: fixed
   P3.2: fixed
-  P3.3: open
-  P3.4: open
-  P3.5: open
-  P3.6: open
-  P3.7: open
-  P3.8: open
+  P3.3: fixed
+  P3.4: fixed
+  P3.5: fixed
+  P3.6: fixed
+  P3.7: skipped
+  P3.8: advisory
 ---
 
 # Review: cg-commit-push-pr and cg-verify-pr

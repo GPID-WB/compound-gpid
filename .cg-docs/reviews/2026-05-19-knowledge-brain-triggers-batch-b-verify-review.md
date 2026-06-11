@@ -4,8 +4,8 @@ depth: light
 parent-review: .cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md
 type: verification
 findings:
-  P2.1: open
-  P2.2: open
+  P2.1: fixed
+  P2.2: fixed
   P2.3: fixed
   P2.4: fixed
   P3.1: fixed

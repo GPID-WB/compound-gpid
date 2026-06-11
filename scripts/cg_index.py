@@ -39,12 +39,9 @@ if sys.version_info < (3, 8):
     sys.exit(1)
 
 import argparse
-import json
 import warnings
-from dataclasses import dataclass
-from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional
 
 # ---------------------------------------------------------------------------
 # Version — imported from brain to avoid duplication (architecture P1.11 fix)
@@ -60,258 +57,15 @@ _scripts_dir = str(Path(__file__).parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
-from brain.utils import (  # noqa: E402
-    parse_frontmatter,
-    extract_summary,
-    write_atomic,
-)
-from brain import __version__  # noqa: E402
-
-
-# ---------------------------------------------------------------------------
-# Solution entry
-# ---------------------------------------------------------------------------
-
-@dataclass
-class SolutionEntry:
-    """Parsed representation of a single .cg-docs/solutions/ file."""
-    path: Path
-    frontmatter: Dict[str, Any]
-    summary: str
-
-    @property
-    def rel_path(self) -> str:
-        """Path relative to the repo root (forward slashes)."""
-        return self.path.as_posix()
-
-    @property
-    def slug(self) -> str:
-        """Filename stem, used as the unique identifier across the index."""
-        return self.path.stem
-
-    @property
-    def date_str(self) -> str:
-        """ISO date string from frontmatter; empty string if absent."""
-        return str(self.frontmatter.get("date", ""))
-
-    @property
-    def title(self) -> str:
-        """Frontmatter title, falling back to the filename stem."""
-        return str(self.frontmatter.get("title", self.slug))
-
-    @property
-    def category(self) -> str:
-        """Derived from the parent directory name."""
-        return self.path.parent.name
-
-    @property
-    def status(self) -> str:
-        """Frontmatter status lowercased; empty string if absent."""
-        return str(self.frontmatter.get("status", "")).lower()
-
-    @property
-    def tags(self) -> List[str]:
-        """List of tag strings; empty list if frontmatter 'tags' is absent or not a list."""
-        raw = self.frontmatter.get("tags", [])
-        if isinstance(raw, list):
-            return [str(t) for t in raw]
-        return []
-
-    def to_index_record(self) -> Dict[str, Any]:
-        """Return a dict for one record in search-index.json.
-
-        Keys: slug, title, date, category, status, tags, path.
-        """
-        return {
-            "slug":     self.slug,
-            "title":    self.title,
-            "date":     self.date_str,
-            "category": self.category,
-            "status":   self.status,
-            "tags":     self.tags,
-            "path":     self.rel_path,
-        }
-
-    def to_digest_block(self) -> str:
-        """Return a markdown block for DIGEST.md.
-
-        Format: ## heading, metadata lines (date, category, status, tags, path),
-        optional summary paragraph, trailing blank line.
-        """
-        lines = [
-            f"## {self.title}",
-            "",
-            f"date: {self.date_str}",
-            f"category: {self.category}",
-            f"status: {self.status}",
-        ]
-        if self.tags:
-            lines.append(f"tags: {', '.join(self.tags)}")
-        lines.append(f"path: {self.rel_path}")
-        if self.summary:
-            lines.append("")
-            lines.append(self.summary)
-        lines.append("")
-        return "\n".join(lines)
-
-
-# ---------------------------------------------------------------------------
-# Scanner
-# ---------------------------------------------------------------------------
-
-def scan_solutions(solutions_dir: Path, root: Path) -> List[SolutionEntry]:
-    """Recursively scan solutions_dir for *.md files and return parsed entries.
-
-    Files are skipped (with a warning) if they cannot be read, have no
-    parseable frontmatter, or are missing required ``title``/``date`` fields.
-    Slug collisions (two files with the same stem in different categories)
-    emit a warning.
-
-    Args:
-        solutions_dir: Root directory of the solutions tree (e.g.
-            ``.cg-docs/solutions/``).
-        root: Project root — used to compute relative paths in output.
-
-    Returns:
-        List of :class:`SolutionEntry` objects sorted by date descending,
-        then title ascending.  Empty-date entries sort last.
-
-    Example:
-        >>> from pathlib import Path
-        >>> from scripts.cg_index import scan_solutions
-        >>> entries = scan_solutions(Path(".cg-docs/solutions"), Path("."))
-        >>> print(len(entries), "solutions found")
-    """
-    entries: List[SolutionEntry] = []
-    seen_slugs: Dict[str, Path] = {}
-
-    for md_file in sorted(solutions_dir.rglob("*.md")):
-        try:
-            text = md_file.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
-            warnings.warn(f"Skipping {md_file}: {exc}", stacklevel=2)
-            continue
-
-        fm = parse_frontmatter(text)
-        if not fm:
-            warnings.warn(
-                f"Skipping {md_file}: no frontmatter found. "
-                "Add a --- block with at least a 'title' and 'date' field.",
-                stacklevel=2,
-            )
-            continue
-
-        missing_fields = [f for f in ("title", "date") if not fm.get(f)]
-        if missing_fields:
-            warnings.warn(
-                f"{md_file}: missing required field(s): {', '.join(missing_fields)}. "
-                "Add them to prevent silent fallback behaviour.",
-                stacklevel=2,
-            )
-
-        summary = extract_summary(text)
-
-        # Make path relative to repo root
-        try:
-            rel = md_file.relative_to(root)
-        except ValueError:
-            rel = md_file
-
-        entry = SolutionEntry(path=rel, frontmatter=fm, summary=summary)
-
-        # Slug collision check
-        if entry.slug in seen_slugs:
-            warnings.warn(
-                f"Slug collision: '{entry.slug}' appears in both "
-                f"'{seen_slugs[entry.slug]}' and '{rel}'. "
-                "Consider renaming one file to make slugs unique across all categories.",
-                stacklevel=2,
-            )
-        seen_slugs[entry.slug] = rel
-
-        entries.append(entry)
-
-    # Sort: date descending (empty dates sort last), then title ascending
-    def sort_key(e: SolutionEntry) -> Tuple[int, str]:
-        d = e.date_str if e.date_str else "0000-00-00"
-        try:
-            return (-int(d.replace("-", "")), e.title.lower())
-        except ValueError:
-            return (0, e.title.lower())
-
-    entries.sort(key=sort_key)
-    return entries
-
-
-# ---------------------------------------------------------------------------
-# Output builders
-# ---------------------------------------------------------------------------
-
-def build_index(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write ``search-index.json`` containing metadata for all entries.
-
-    All entries are included regardless of status.  The output is an atomic
-    write via a temp file + ``os.replace()`` to prevent partial files.
-
-    Args:
-        entries: List of :class:`SolutionEntry` objects to serialise.
-        out_path: Destination path for ``search-index.json``.
-            Parent directories are created automatically.
-
-    Returns:
-        None.  Prints a confirmation line to stdout.
-
-    Example:
-        >>> build_index(entries, Path(".cg-docs/search-index.json"))
-    """
-    records = [e.to_index_record() for e in entries]
-    payload = {
-        "generated": date.today().isoformat(),
-        "count": len(records),
-        "entries": records,
-    }
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    write_atomic(out_path, json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
-    print(f"[cg-index] Wrote {len(records)} entries to {out_path}")
-
-
-def build_digest(entries: List[SolutionEntry], out_path: Path) -> None:
-    """Write ``DIGEST.md`` containing only active solution entries.
-
-    Entries with ``status: active`` or no status field are included.  All
-    other statuses (``archived``, ``draft``, etc.) are silently excluded.
-    Entries with no status field emit a warning.
-
-    Args:
-        entries: Full list of :class:`SolutionEntry` objects.
-        out_path: Destination path for ``DIGEST.md``.
-            Parent directories are created automatically.
-
-    Returns:
-        None.  Prints a confirmation line to stdout.
-
-    Example:
-        >>> build_digest(entries, Path(".cg-docs/DIGEST.md"))
-    """
-    for e in entries:
-        if e.status == "":
-            warnings.warn(
-                f"{e.rel_path}: no 'status' field; treating as active in DIGEST.",
-                stacklevel=2,
-            )
-    active = [e for e in entries if e.status in ("active", "")]
-    lines = [
-        "# Compound GPID — Solution Digest",
-        "",
-        f"_Generated {date.today().isoformat()} · {len(active)} active solutions_",
-        "",
-    ]
-    for entry in active:
-        lines.append(entry.to_digest_block())
-
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    write_atomic(out_path, "\n".join(lines))
-    print(f"[cg-index] Wrote {len(active)} active entries to {out_path}")
+try:
+    from brain import __version__  # noqa: E402
+    from brain.legacy import build_digest, build_index, scan_solutions  # noqa: E402
+    from brain.utils import extract_summary, parse_frontmatter  # noqa: E402,F401
+except ImportError as exc:  # noqa: E402
+    __version__ = "unknown"
+    _BRAIN_IMPORT_ERROR: ImportError | None = exc
+else:
+    _BRAIN_IMPORT_ERROR = None
 
 
 # ---------------------------------------------------------------------------
@@ -464,6 +218,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                 file=sys.stderr,
             )
             return 1
+        if _BRAIN_IMPORT_ERROR is not None:
+            print(
+                f"[cg-index] ERROR: brain package not available ({_BRAIN_IMPORT_ERROR}).\n"
+                "Reinstall compound-gpid or run: pip install -e scripts/",
+                file=sys.stderr,
+            )
+            return 1
         try:
             from brain import build_brain
             from brain.renderer import render_brain
@@ -520,10 +281,18 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not do_index and not do_digest:
         do_index = True
 
+    if _BRAIN_IMPORT_ERROR is not None:
+        print(
+            f"[cg-index] ERROR: brain package not available ({_BRAIN_IMPORT_ERROR}).\n"
+            "Reinstall compound-gpid or run: pip install -e scripts/",
+            file=sys.stderr,
+        )
+        return 1
+
     try:
         with warnings.catch_warnings(record=True) as captured:
             warnings.simplefilter("always")
-            entries = scan_solutions(solutions_dir, root)
+            entries = scan_solutions(solutions_dir, root, want_summary=do_digest)
             if do_index:
                 build_index(entries, root / ".cg-docs" / "search-index.json")
             if do_digest:

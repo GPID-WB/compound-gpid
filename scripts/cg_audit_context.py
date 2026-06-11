@@ -670,7 +670,7 @@ def detect_duplicates(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[
                     "block_preview": entry["block"][:80],
                     "file_count": len(files_for_block),
                     "total_chars": entry["total_chars"],
-                    "estimated_tokens": entry["total_chars"] // 4,
+                    "total_redundant_tokens": entry["total_chars"] // 4,
                     "files": files_for_block,
                 }
             )
@@ -766,7 +766,7 @@ def classify_optimization_candidates(
     for duplicate in duplicates:
         if (
             duplicate["file_count"] >= THRESHOLD_DUPLICATE_FILES
-            and duplicate["estimated_tokens"] >= THRESHOLD_DUPLICATE_TOKENS
+            and duplicate["total_redundant_tokens"] >= THRESHOLD_DUPLICATE_TOKENS
         ):
             dup_reason = f"duplicate block appears in {duplicate['file_count']} files"
             immediate.append({"path": "(duplicate block)", "category": "duplicates", "reason": dup_reason})
@@ -1135,13 +1135,18 @@ def build_report(root: Path) -> dict[str, Any]:
     duplicates = detect_duplicates(root, files)
     context_loading_risks = build_context_loading_risks(root, files)
     candidates = classify_optimization_candidates(files, reference_matrix, model_inventory, duplicates)
+    total_characters = 0
+    total_estimated_tokens = 0
+    for file_record in files:
+        total_characters += int(file_record["characters"])
+        total_estimated_tokens += int(file_record["estimated_tokens"])
     report: dict[str, Any] = {
         "generated": datetime.now().isoformat(timespec="seconds"),
         "disclaimer": DISCLAIMER,
         "summary": {
             "total_files": len(files),
-            "total_characters": sum(int(f["characters"]) for f in files),
-            "total_estimated_tokens": sum(int(f["estimated_tokens"]) for f in files),
+            "total_characters": total_characters,
+            "total_estimated_tokens": total_estimated_tokens,
             "by_category": by_category,
         },
         "files": sorted(files, key=lambda row: row["path"]),
@@ -1352,7 +1357,7 @@ def render_markdown(report: dict[str, Any]) -> str:
                   for d in ordinary_violations] or ["- None"])
     lines.extend(["", "## Duplicate Paragraphs", ""])
     lines.extend(markdown_table(["Preview", "Files", "Estimated Tokens"], [
-        [d["block_preview"].replace("|", "\\|"), d["file_count"], d["estimated_tokens"]]
+        [d["block_preview"].replace("|", "\\|"), d["file_count"], d["total_redundant_tokens"]]
         for d in report["duplicates"]
     ]) if report["duplicates"] else ["- None"])
     lines.extend(["", "## Immediate Optimization Candidates", ""])

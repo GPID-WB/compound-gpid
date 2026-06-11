@@ -4357,6 +4357,10 @@ Describe "cg-roadmap-view.agent.md - view mode templates" {
         ($content -match '`tasks-milestone`') | Should Be $true
     }
 
+    It "tasks-milestone view includes a concrete markdown template" {
+        ($content -match '(?s)### `tasks-milestone`.*```.*\| Feature \| Status \|.*```') | Should Be $true
+    }
+
     It "defines fuzzy matching rules" {
         ($content -match '[Ff]uzzy [Mm]atching') | Should Be $true
     }
@@ -4551,9 +4555,8 @@ Describe "cg-resume.prompt.md - renders wip context inline (no agent dispatch)" 
 
     # P1.5: resume renders WIP inline from Step 2d data â€” no @cg-roadmap-view dispatch
     It "does NOT dispatch @cg-roadmap-view for wip in Step 3" {
-        # The only @cg-roadmap-view reference in cg-resume should NOT be in the
-        # context of dispatching it for WIP rendering (that was removed for P1.5).
-        # This checks that no dispatch call for wip view remains.
+        # Checks that no @cg-roadmap-view dispatch with view:wip was re-added
+        # after P1.5 removal.
         ($content -match '@cg-roadmap-view\s+with\s+`?view:\s*wip') | Should Be $false
     }
 
@@ -4597,6 +4600,24 @@ Describe "cg-plan.prompt.md - milestone selection uses inline rendering (P2.14)"
     # P3.6 â€” permissions block distinguishes structural vs display reads
     It "documents structural vs display read distinction in permissions" {
         ($content -match '(?i)(structural operations|for display)') | Should Be $true
+    }
+}
+
+Describe "cg-plan-review.prompt.md - roadmap-view side-idea capture" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan-review.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "dispatches @cg-roadmap-view with view: summary in Step 4 side-idea capture" {
+        ($content -match '@cg-roadmap-view[\s\S]*view:\s*summary') | Should Be $true
+    }
+}
+
+Describe "cg-ideate.prompt.md - roadmap-view idea capture" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-ideate.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "dispatches @cg-roadmap-view with view: summary before roadmap writes" {
+        ($content -match '@cg-roadmap-view[\s\S]*view:\s*summary') | Should Be $true
     }
 }
 
@@ -4723,6 +4744,23 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
 
     It "reads untracked files via Get-Content when git diff returns empty (P2.10)" {
         ($content -match 'Get-Content.*untracked|untracked.*Get-Content|\?\?.*Get-Content') | Should -Be $true
+    }
+
+    It "requires large commit groups to be split before proceeding (P1.8)" {
+        ($content -match '20 files[\s\S]{0,120}500 lines|500 lines[\s\S]{0,120}20 files') | Should -Be $true
+    }
+
+    It "uses --body-file instead of inline gh pr create --body (P0.1)" {
+        ($content -match '--body-file') | Should -Be $true
+        ($content -match 'gh pr create --title "<title>" --body "<body>"') | Should -Be $false
+    }
+
+    It "sanitizes untrusted plan objective content before PR body construction (P1.5)" {
+        ($content -match 'untrusted text[\s\S]{0,250}Ignore[\s\S]{0,250}Disregard[\s\S]{0,250}System:') | Should -Be $true
+    }
+
+    It "specifies commit-body criteria for complex commit groups (P2.13)" {
+        ($content -match 'more than 3 files[\s\S]{0,180}structural changes[\s\S]{0,180}3.5 most significant changes|more than 3 files[\s\S]{0,220}3–5 most significant changes') | Should -Be $true
     }
 
     It "supports --ask flag to enable interactive confirmation mode (default is auto-proceed)" {
@@ -4857,6 +4895,15 @@ Describe "cg-verify-pr.prompt.md - structure" {
 
     It "instructs using force-with-lease not plain --force (R10/safety)" {
         ($content -match 'force-with-lease') | Should -Be $true
+    }
+
+    It "enumerates modified files before staging CI fixes and forbids git add dot (P1.9)" {
+        ($content -match 'git diff --stat HEAD') | Should -Be $true
+        ($content -match 'Do not use `git add \.`|Do NOT use `git add \.`') | Should -Be $true
+    }
+
+    It "performs a non-blocking CI status poll after pushing fixes (P1.10)" {
+        ($content -match 'non-blocking CI status poll|gh pr checks|statusCheckRollup') | Should -Be $true
     }
 
     It "does NOT hardcode compound-gpid internal install paths (R11)" {
@@ -5993,5 +6040,49 @@ Describe "cg-skill-r-testing/references/test-integrity.md - P2.17 source priorit
         $extRefIdx      | Should -BeGreaterThan -1
         $handComputeIdx | Should -BeGreaterThan -1
         $extRefIdx      | Should -BeLessThan $handComputeIdx
+    }
+}
+
+Describe "cg-commit-push-pr.prompt.md - remaining push and classification safeguards" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "classifies only .cg-docs/plans as Plans/Knowledge" {
+        ($content -match 'Path starts with `\.cg-docs/plans/`') | Should -Be $true
+        ($content -match 'Path starts with `\.cg-docs/brainstorms/`, `\.cg-docs/solutions/`, or `\.cg-docs/reviews/`') | Should -Be $true
+    }
+
+    It "requires rejected and non-fast-forward evidence before offering rebase or force-with-lease" {
+        ($content -match 'contains both `rejected` and `non-fast-forward`') | Should -Be $true
+        ($content -match 'authentication, network, permission, protected-branch, or hook failures') | Should -Be $true
+    }
+}
+
+Describe "cg-verify-pr.prompt.md - remaining summary and shell safeguards" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-verify-pr.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "requires the CI summary table columns" {
+        ($content -match 'Check Name \| Prior Status \| New Status \| Action Taken') | Should -Be $true
+    }
+
+    It "scopes PowerShell-only syntax alternatives for bash/zsh" {
+        ($content -match '\$null.*PowerShell syntax') | Should -Be $true
+        ($content -match '/dev/null') | Should -Be $true
+        ($content -match 'head -n 1') | Should -Be $true
+    }
+}
+
+Describe "docs/reference.md and team-brain schema - remaining docs coverage" {
+    $reference = Get-Content (Join-Path $repoRoot "docs\reference.md") -Raw -Encoding UTF8
+    $schema = Get-Content (Join-Path $repoRoot "docs\team-brain-schema.md") -Raw -Encoding UTF8
+
+    It "documents cg-brain-init in shell commands" {
+        ($reference -match '\| `cg-brain-init` \| Project root \|') | Should -Be $true
+    }
+
+    It "documents private and private-sections fields" {
+        ($schema -match '`private`') | Should -Be $true
+        ($schema -match '`private-sections`') | Should -Be $true
     }
 }

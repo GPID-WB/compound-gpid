@@ -98,9 +98,11 @@ try:
     with os.fdopen(tmp_fd, 'w') as f:
         f.write(out)
     os.replace(tmp_path, path)
-except:
-    try: os.unlink(tmp_path)
-    except: pass
+except OSError:
+    try:
+        os.unlink(tmp_path)
+    except OSError:
+        pass
     raise
 PYEOF
         print_gray "Removed Compound GPID block from $PROFILE_FILE"
@@ -245,9 +247,11 @@ if updated or content:
         with os.fdopen(tmp_fd, 'w') as f:
             f.write(out)
         os.replace(tmp_path, path)
-    except:
-        try: os.unlink(tmp_path)
-        except: pass
+    except OSError:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
         raise
 PYEOF
     print_gray "Removed stale Compound GPID block from $PROFILE_FILE"

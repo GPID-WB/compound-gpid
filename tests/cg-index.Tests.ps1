@@ -174,41 +174,41 @@ Describe "cg-index.py --index" {
     }
 
     It "search-index.json is valid JSON" {
-        { Get-Content $indexFile -Raw | ConvertFrom-Json } | Should -Not -Throw
+        { Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json } | Should -Not -Throw
     }
 
     It "search-index.json contains a 'generated' field" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.generated | Should -Not -BeNullOrEmpty
     }
 
     It "search-index.json contains a 'count' field" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.count | Should -Be 1
     }
 
     It "search-index.json contains one entry with correct title" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries[0].title | Should -Be "Test Bug Fix"
     }
 
     It "search-index.json entry has a 'path' field" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries[0].path | Should -Not -BeNullOrEmpty
     }
 
     It "search-index.json entry has correct category from directory name" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries[0].category | Should -Be "bugs"
     }
 
     It "search-index.json entry has correct status" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries[0].status | Should -Be "active"
     }
 
     It "search-index.json entry does NOT contain a 'summary' field" {
-        $json = Get-Content $indexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $indexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         # search-index is metadata-only -- no full summaries
         ($json.entries[0] | Get-Member -Name summary -ErrorAction SilentlyContinue) | Should -BeNullOrEmpty
     }
@@ -232,18 +232,18 @@ Describe "cg-index.py --index includes all statuses" {
     $allStatusIndexFile = Join-Path $allStatusRoot ".cg-docs\search-index.json"
 
     It "includes both active and archived entries" {
-        $json = Get-Content $allStatusIndexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $allStatusIndexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.count | Should -Be 2
     }
 
     It "includes the archived entry in the index" {
-        $json = Get-Content $allStatusIndexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $allStatusIndexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries.title | Should -Contain "Archived Entry"
     }
 
     It "includes the active entry in the index" {
         # P3.2: verify active entry title explicitly, not just via count
-        $json = Get-Content $allStatusIndexFile -Raw | ConvertFrom-Json
+        $json = Get-Content $allStatusIndexFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entries.title | Should -Contain "Test Bug Fix"
     }
 }
@@ -272,36 +272,36 @@ Describe "cg-index.py --digest" {
     }
 
     It "DIGEST.md contains active entries" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         $content | Should -Match "Test Bug Fix"
         $content | Should -Match "Active Entry"
     }
 
     It "DIGEST.md omits archived entries" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         $content | Should -Not -Match "Archived Entry"
     }
 
     It "DIGEST.md uses one-field-per-line format for metadata" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         $content | Should -Match "date:"
         $content | Should -Match "category:"
         $content | Should -Match "status:"
     }
 
     It "DIGEST.md contains a prose summary for the test bug entry" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         # Summary should come from the ## Problem section
         $content | Should -Match "problem description"
     }
 
     It "DIGEST.md has a header line" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         $content | Should -Match "Compound GPID"
     }
 
     It "DIGEST.md includes entries with no status field (treated as active)" {
-        $content = Get-Content $digestFile -Raw
+        $content = Get-Content $digestFile -Raw -Encoding UTF8
         $content | Should -Match "No Status Entry"
     }
 }
@@ -379,7 +379,7 @@ Describe "cg-index.py - files without frontmatter" {
     }
 
     It "index contains only the valid entry" {
-        $json = Get-Content (Join-Path $skipRoot ".cg-docs\search-index.json") -Raw | ConvertFrom-Json
+        $json = Get-Content (Join-Path $skipRoot ".cg-docs\search-index.json") -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.count | Should -Be 1
     }
 }
@@ -394,11 +394,11 @@ Describe "cg-index.py - idempotency (--index)" {
     Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
 
     & $script:Python $cgIndex --index --root $idemRoot 2>&1 | Out-Null
-    $index1  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw
+    $index1  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw -Encoding UTF8
 
     # Second run (same date, so generated field matches)
     & $script:Python $cgIndex --index --root $idemRoot 2>&1 | Out-Null
-    $index2  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw
+    $index2  = Get-Content (Join-Path $idemRoot ".cg-docs\search-index.json") -Raw -Encoding UTF8
 
     It "search-index.json is identical on second run" {
         $index1 | Should -Be $index2
@@ -412,11 +412,11 @@ Describe "cg-index.py - idempotency (--brain)" {
     Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
 
     & $script:Python $cgIndex --brain --root $idemBrainRoot 2>&1 | Out-Null
-    $brain1 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw
+    $brain1 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw -Encoding UTF8
 
     # Second run (same date, deterministic scan order)
     & $script:Python $cgIndex --brain --root $idemBrainRoot 2>&1 | Out-Null
-    $brain2 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw
+    $brain2 = Get-Content (Join-Path $idemBrainRoot ".cg-docs\BRAIN.md") -Raw -Encoding UTF8
 
     It "BRAIN.md is identical on second run" {
         $brain1 | Should -Be $brain2
@@ -432,7 +432,7 @@ Describe "cg-index.py - frontmatter parser" {
     function Invoke-PyHelper {
         param([string[]]$Lines)
         $pyDir   = ($env:_CG_TEST_PYDIR).Trim()
-        $pathLine = "sys.path.insert(0, '" + $pyDir + "')"
+        $pathLine = 'sys.path.insert(0, r"' + $pyDir + '")'
         $allLines = @("import sys", $pathLine) + $Lines
         $pyFile = Join-Path ([System.IO.Path]::GetTempPath()) ("pyfm-" + [System.Guid]::NewGuid().ToString('N') + ".py")
         Set-Content -Path $pyFile -Value ($allLines -join "`n") -Encoding UTF8 -NoNewline
@@ -477,7 +477,7 @@ Describe "cg-index.py - extract_summary" {
     function Invoke-PyHelper2 {
         param([string[]]$Lines)
         $pyDir   = ($env:_CG_TEST_PYDIR).Trim()
-        $pathLine = "sys.path.insert(0, '" + $pyDir + "')"
+        $pathLine = 'sys.path.insert(0, r"' + $pyDir + '")'
         $allLines = @("import sys", $pathLine) + $Lines
         $pyFile = Join-Path ([System.IO.Path]::GetTempPath()) ("pysum-" + [System.Guid]::NewGuid().ToString('N') + ".py")
         Set-Content -Path $pyFile -Value ($allLines -join "`n") -Encoding UTF8 -NoNewline
@@ -573,26 +573,26 @@ Describe "cg-index.py --brain" {
     }
 
     It "brain-index.json is valid JSON" {
-        { Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json } | Should -Not -Throw
+        { Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw -Encoding UTF8 | ConvertFrom-Json } | Should -Not -Throw
     }
 
     It "brain-index.json contains a schema_version field" {
-        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.schema_version | Should -Not -BeNullOrEmpty
     }
 
     It "brain-index.json entity_count matches scanned files" {
-        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        $json = Get-Content (Join-Path $brainRoot ".cg-docs\brain-index.json") -Raw -Encoding UTF8 | ConvertFrom-Json
         $json.entity_count | Should -BeGreaterThan 0
     }
 
     It "BRAIN.md contains generated date" {
-        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN.md") -Raw
+        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN.md") -Raw -Encoding UTF8
         $content | Should -Match '\d{4}-\d{2}-\d{2}'
     }
 
     It "BRAIN-log.md contains entity title" {
-        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN-log.md") -Raw
+        $content = Get-Content (Join-Path $brainRoot ".cg-docs\BRAIN-log.md") -Raw -Encoding UTF8
         $content | Should -Match "Test Bug Fix"
     }
 
@@ -674,12 +674,12 @@ Describe "cg-index.py --brain BRAIN.md content" {
     $brainMd = Join-Path $brainContentRoot ".cg-docs\BRAIN.md"
 
     It "BRAIN.md contains a generated timestamp header" {
-        $content = Get-Content $brainMd -Raw
+        $content = Get-Content $brainMd -Raw -Encoding UTF8
         ($content -match 'Generated.*\d{4}-\d{2}-\d{2}|generated.*\d{4}-\d{2}-\d{2}') | Should -Be $true
     }
 
     It "BRAIN.md contains entity-type summary section" {
-        $content = Get-Content $brainMd -Raw
+        $content = Get-Content $brainMd -Raw -Encoding UTF8
         ($content -match 'solution|Entity Types') | Should -Be $true
     }
 }
@@ -705,13 +705,55 @@ Describe "cg-index.py --brain with roadmap.json" {
     }
 
     It "brain-index.json entity_count includes roadmap features" {
-        $json = Get-Content (Join-Path $roadmapRoot ".cg-docs\brain-index.json") -Raw | ConvertFrom-Json
+        $json = Get-Content (Join-Path $roadmapRoot ".cg-docs\brain-index.json") -Raw -Encoding UTF8 | ConvertFrom-Json
         # Should have at least 2 entities: the solution file + the roadmap feature
         $json.entity_count | Should -BeGreaterThan 1
     }
 
     It "BRAIN-log.md contains the roadmap feature" {
-        $content = Get-Content (Join-Path $roadmapRoot ".cg-docs\BRAIN-log.md") -Raw
+        $content = Get-Content (Join-Path $roadmapRoot ".cg-docs\BRAIN-log.md") -Raw -Encoding UTF8
         $content | Should -Match "Test Feature"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Remaining review coverage: behavioral import error and legacy cleanup warning
+# ---------------------------------------------------------------------------
+Describe "cg-index.py --brain behavioral ImportError handling" {
+    It "returns controlled error when brain package is unavailable" {
+        $isolated = Join-Path $TestDrive "isolated-cg-index"
+        New-Item -ItemType Directory -Path $isolated -Force | Out-Null
+        Copy-Item -Path $cgIndex -Destination (Join-Path $isolated "cg_index.py")
+
+        $root = Join-Path $TestDrive "isolated-root"
+        New-Item -ItemType Directory -Path (Join-Path $root ".cg-docs") -Force | Out-Null
+
+        $output = & $script:Python (Join-Path $isolated "cg_index.py") --brain --root $root 2>&1
+        $LASTEXITCODE | Should -Be 1
+        "$output" | Should -Match 'brain package not available'
+    }
+}
+
+Describe "cg-index.py --brain legacy cleanup warning" {
+    It "returns 0 and warns when legacy DIGEST.md cannot be removed" {
+        $legacyRoot = Join-Path $TestDrive "legacy-cleanup-root"
+        New-FixtureRoot $legacyRoot | Out-Null
+        $bugsDir = Join-Path $legacyRoot ".cg-docs\solutions\bugs"
+        Write-FixtureMd $bugsDir "2024-03-15-test-bug.md" $script:GoodFrontmatter | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $legacyRoot ".cg-docs\DIGEST.md") -Force | Out-Null
+
+        $output = & $script:Python $cgIndex --brain --root $legacyRoot 2>&1
+        $LASTEXITCODE | Should -Be 0
+        "$output" | Should -Match 'WARNING: could not remove legacy DIGEST\.md'
+    }
+}
+
+Describe "cg-index.py legacy scanner symlink containment" {
+    $legacySource = Get-Content (Join-Path $repoRoot "scripts\brain\legacy.py") -Raw -Encoding UTF8
+
+    It "resolves markdown paths before accepting them as repo-relative" {
+        ($legacySource -match 'resolve\(strict=True\)') | Should -Be $true
+        ($legacySource -match 'resolved\.relative_to') | Should -Be $true
+        ($legacySource -match 'outside the project root') | Should -Be $true
     }
 }

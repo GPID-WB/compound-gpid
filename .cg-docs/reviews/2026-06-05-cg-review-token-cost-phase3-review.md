@@ -4,7 +4,7 @@ plan: .cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md
 depth: architecture
 branch: codex/context-model-audit-phase1
 findings:
-  P1.1: open
+  P1.1: fixed
   P1.2: fixed
   P2.1: fixed
   P2.2: fixed
@@ -36,30 +36,30 @@ findings:
   P2.28: skipped
   P2.29: fixed
   P2.30: fixed
-  P3.1: open
-  P3.2: open
-  P3.3: open
-  P3.4: open
-  P3.5: open
-  P3.6: open
+  P3.1: advisory
+  P3.2: advisory
+  P3.3: advisory
+  P3.4: fixed
+  P3.5: fixed
+  P3.6: advisory
   P3.7: fixed
-  P3.8: open
+  P3.8: advisory
   P3.9: fixed
-  P3.10: open
-  P3.11: open
-  P3.12: open
+  P3.10: advisory
+  P3.11: advisory
+  P3.12: advisory
   P3.13: fixed
-  P3.14: open
-  P3.15: open
+  P3.14: advisory
+  P3.15: advisory
   P3.16: fixed
   P3.17: fixed
-  P3.18: open
+  P3.18: fixed
   P3.19: fixed
-  P3.20: open
-  P3.21: open
-  P3.22: open
+  P3.20: advisory
+  P3.21: advisory
+  P3.22: fixed
   P3.23: fixed
-  P3.24: open
+  P3.24: advisory
   P3.25: fixed
 ---
 

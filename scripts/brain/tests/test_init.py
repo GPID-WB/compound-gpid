@@ -43,6 +43,23 @@ class TestImports:
         assert ClusterStrategy is _Direct
 
 
+class TestInlineListParser:
+    def test_inline_list_none_returns_none(self) -> None:
+        from brain.utils import _parse_inline_list
+
+        assert _parse_inline_list("None") is None
+
+    def test_inline_list_empty_returns_empty_list(self) -> None:
+        from brain.utils import _parse_inline_list
+
+        assert _parse_inline_list("[]") == []
+
+    def test_inline_list_preserves_apostrophes(self) -> None:
+        from brain.utils import _parse_inline_list
+
+        assert _parse_inline_list('["children\'s data", testing]') == ["children's data", "testing"]
+
+
 # ---------------------------------------------------------------------------
 # Dataclass instantiation
 # ---------------------------------------------------------------------------

@@ -12,10 +12,6 @@ from pathlib import Path
 from typing import Dict
 from unittest.mock import MagicMock, patch
 
-# Ensure the scripts/ directory is importable from the test runner
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from team_brain.config import TeamBrainLocalConfig
 from team_brain.push import (
     _distill_pattern,

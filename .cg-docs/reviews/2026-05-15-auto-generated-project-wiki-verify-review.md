@@ -4,14 +4,14 @@ depth: light
 parent-review: .cg-docs/reviews/2026-05-15-auto-generated-project-wiki-review.md
 type: verification
 findings:
-  P2.1: open
-  P2.2: open
-  P3.1: open
-  P3.2: open
-  P3.3: open
-  P3.4: open
-  P3.5: open
-  P3.6: open
+  P2.1: fixed
+  P2.2: fixed
+  P3.1: fixed
+  P3.2: fixed
+  P3.3: fixed
+  P3.4: fixed
+  P3.5: fixed
+  P3.6: fixed
 ---
 
 ## Verify Review Report

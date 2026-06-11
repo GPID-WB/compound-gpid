@@ -4,35 +4,35 @@ findings:
   P1.1: fixed
   P1.2: fixed
   P2.1: fixed
-  P2.2: open
+  P2.2: fixed
   P2.3: fixed
   P2.4: fixed
-  P2.5: open
+  P2.5: fixed
   P2.6: fixed
   P2.7: fixed
-  P2.8: open
-  P2.9: open
-  P2.10: open
-  P2.11: open
-  P2.12: open
-  P2.13: open
-  P2.14: open
+  P2.8: fixed
+  P2.9: fixed
+  P2.10: fixed
+  P2.11: skipped
+  P2.12: fixed
+  P2.13: fixed
+  P2.14: fixed
   P2.15: fixed
   P2.16: fixed
   P2.17: fixed
-  P3.1: open
-  P3.2: open
-  P3.3: open
+  P3.1: advisory
+  P3.2: fixed
+  P3.3: advisory
   P3.4: fixed
   P3.5: fixed
   P3.6: fixed
-  P3.7: open
+  P3.7: fixed
   P3.8: fixed
-  P3.9: open
-  P3.10: open
-  P3.11: open
-  P3.12: open
-  P3.13: open
+  P3.9: fixed
+  P3.10: advisory
+  P3.11: advisory
+  P3.12: advisory
+  P3.13: fixed
 ---
 
 ## Review Report

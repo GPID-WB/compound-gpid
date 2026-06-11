@@ -87,6 +87,8 @@ internal-url-patterns:          # Optional. Hostname patterns stripped by the pr
 | `curation.schedule` | `weekly` | Curation bot run frequency |
 | `curation.auto-supersede` | `false` | Auto-apply supersession without approval |
 | `internal-url-patterns` | `[]` | Extra hostname patterns for privacy filter |
+| `private` | `false` | Entry-level privacy flag; `true` blocks the entry from being pushed |
+| `private-sections` | `[]` | Section headings to strip from an entry before push |
 
 ---
 
@@ -144,6 +146,8 @@ language: "<R|Python|Stata|both>"
 tags: [<searchable tags>]
 root-cause: "<brief root cause>"
 severity: "<P0|P1|P2|P3>"
+private: false                       # Optional: true blocks the whole entry from push
+private-sections: [Internal Notes]   # Optional: section headings stripped before push
 source-project: "compound-gpid"   # NEW: which project this came from
 pushed-date: "2026-05-20"         # NEW: when it was pushed to team brain
 ---

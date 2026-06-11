@@ -19,6 +19,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-update latest` | Anywhere | Unpin and return to tracking main |
 | `cg-update --list` | Anywhere | Browse available GitHub Releases |
 | `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
+| `cg-brain-init` | Project root | Initialize or configure Team Brain integration for the current project |
 
 ---
 

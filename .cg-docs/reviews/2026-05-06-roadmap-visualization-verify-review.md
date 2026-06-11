@@ -4,12 +4,12 @@ depth: light
 parent-review: .cg-docs/reviews/2026-05-06-roadmap-visualization-review.md
 type: verification
 findings:
-  V-P2.1: open
-  V-P2.2: open
-  V-P3.1: open
-  V-P3.2: open
-  V-P3.3: open
-  V-P3.4: open
+  V-P2.1: fixed
+  V-P2.2: fixed
+  V-P3.1: fixed
+  V-P3.2: fixed
+  V-P3.3: fixed
+  V-P3.4: fixed
 ---
 
 # Verify Review: Roadmap Visualization Feature

@@ -197,7 +197,7 @@ def _top_keywords_for_cluster(
     for kw_dict in entity_kw_dicts:
         for kw, score in kw_dict.items():
             totals[kw] += score
-    sorted_kws = sorted(totals.items(), key=lambda kv: kv[1], reverse=True)
+    sorted_kws = sorted(totals.items(), key=lambda kv: (-kv[1], kv[0]))
     return [kw for kw, _ in sorted_kws[:_LABEL_KEYWORDS]]
 
 
@@ -250,7 +250,7 @@ class _GreedyAgglomerative:
 
         # Sort pairs by Jaccard descending for greedy processing
         sorted_pairs = sorted(
-            candidate_pairs.items(), key=lambda kv: kv[1], reverse=True
+            candidate_pairs.items(), key=lambda kv: (-kv[1], kv[0])
         )
 
         # Greedy merge with Union-Find

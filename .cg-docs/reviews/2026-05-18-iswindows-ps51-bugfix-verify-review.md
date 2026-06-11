@@ -4,7 +4,7 @@ depth: light
 parent-review: .cg-docs/reviews/2026-05-18-iswindows-ps51-bugfix-review.md
 type: verification
 findings:
-  P3.1: open
+  P3.1: fixed
 ---
 
 ## Review Report

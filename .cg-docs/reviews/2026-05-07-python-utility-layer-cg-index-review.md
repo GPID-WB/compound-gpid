@@ -5,19 +5,19 @@ depth: thorough
 findings:
   P1.1: fixed
   P1.2: fixed
-  P1.3: open
+  P1.3: fixed
   P2.1: fixed
   P2.2: fixed
-  P2.3: open
+  P2.3: fixed
   P2.4: fixed
-  P2.5: open
+  P2.5: fixed
   P2.6: fixed
   P2.7: fixed
-  P2.8: open
-  P2.9: open
-  P2.10: open
-  P2.11: open
-  P2.12: open
+  P2.8: fixed
+  P2.9: fixed
+  P2.10: fixed
+  P2.11: fixed
+  P2.12: fixed
   P2.13: fixed
   P2.14: fixed
   P2.15: fixed
@@ -32,8 +32,8 @@ findings:
   P3.3: fixed
   P3.4: fixed
   P3.5: fixed
-  P3.6: open
-  P3.7: open
+  P3.6: fixed
+  P3.7: advisory
 ---
 
 ## Review Report

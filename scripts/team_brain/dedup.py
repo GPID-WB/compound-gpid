@@ -52,6 +52,9 @@ SUPERSESSION_JACCARD = 0.6
 #: Minimum number of word tokens required for a meaningful Jaccard comparison.
 MIN_TOKEN_COUNT = 3
 
+# Refuse unexpectedly large pattern files before materialising them.
+MAX_JSONL_BYTES = 20 * 1024 * 1024
+
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
@@ -177,6 +180,13 @@ def _load_all_patterns(patterns_dir: Path) -> List[dict]:
 
     for jsonl_path in sorted(patterns_dir.glob("*.jsonl")):
         try:
+            if jsonl_path.stat().st_size > MAX_JSONL_BYTES:
+                warnings.warn(
+                    f"Skipping {jsonl_path}: file exceeds {MAX_JSONL_BYTES} byte limit",
+                    UserWarning,
+                    stacklevel=3,
+                )
+                continue
             lines = jsonl_path.read_text(encoding="utf-8").splitlines()
         except OSError as exc:
             warnings.warn(f"Could not read {jsonl_path}: {exc}", UserWarning, stacklevel=3)
@@ -310,6 +320,7 @@ def detect_contradictions(patterns_dir: Path) -> List[ContradictionReport]:
         return []
 
     reports: List[ContradictionReport] = []
+    pattern_tokens = [_tokenize(entry.get("pattern", "")) for entry in entries]
 
     for i in range(len(entries)):
         for j in range(i + 1, len(entries)):
@@ -323,8 +334,8 @@ def detect_contradictions(patterns_dir: Path) -> List[ContradictionReport]:
                 continue
 
             # Primary grouping: Jaccard similarity on pattern text
-            tokens_a = _tokenize(a.get("pattern", ""))
-            tokens_b = _tokenize(b.get("pattern", ""))
+            tokens_a = pattern_tokens[i]
+            tokens_b = pattern_tokens[j]
 
             # Skip pairs where either entry has too few tokens to be meaningful
             if len(tokens_a) < MIN_TOKEN_COUNT or len(tokens_b) < MIN_TOKEN_COUNT:

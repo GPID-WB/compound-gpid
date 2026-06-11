@@ -244,6 +244,10 @@ Before presenting the final handoff options, capture any ideas that emerged duri
 
 - **If no adjacent ideas emerged from the Step 3.5 exchange**: Ask:
   > "No adjacent ideas surfaced during this session. Want to add anything to the roadmap anyway?"
+  >
+  > If the user wants to add an idea and `roadmap.json` exists, dispatch
+  > `@cg-roadmap-view` with `view: summary` before asking which milestone to
+  > use — consistent with Step 5b.
 - **If adjacent ideas surfaced during Step 3.5**: Summarize and ask:
   > "During our pushback discussion, we touched on [briefly summarize the adjacent ideas raised]. These could be added as ideas to [suggest the most relevant milestone]. Want me to add any of them? Or capture a different idea?"
   >

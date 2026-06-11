@@ -35,13 +35,13 @@ from team_brain.config import TeamBrainLocalConfig, load_team_brain_local_config
 from team_brain.distiller import distill_pattern
 from team_brain.privacy import run_privacy_filter
 from team_brain.schema import PatternEntry
+from parsing_utils import parse_frontmatter_with_body
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
 _GITHUB_API = "https://api.github.com"
-_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)^---\s*\n", re.DOTALL | re.MULTILINE)
 
 
 # ---------------------------------------------------------------------------
@@ -190,44 +190,11 @@ def _parse_frontmatter(content: str) -> tuple[dict, str]:
         fm, body = _parse_frontmatter("---\\ndate: 2026-05-20\\n---\\n# Title\\n")
         assert fm["date"] == "2026-05-20"
     """
-    m = _FRONTMATTER_RE.match(content)
-    if not m:
-        return {}, content
-
-    fm_text = m.group(1)
-    body = content[m.end():]
-    fm: dict = {}
-
-    for line in fm_text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if ":" not in line:
-            continue
-        key, _, raw_val = line.partition(":")
-        key = key.strip()
-        val = raw_val.strip()
-        # Strip outer quotes FIRST, then strip trailing inline comment.
-        # If we stripped the comment before unquoting, a title like
-        # `title: "My Fix #1"` would be truncated to `"My Fix` (quote + partial text).
-        if len(val) >= 2 and val[0] in ('"', "'") and val[-1] == val[0]:
-            val = val[1:-1]
-        elif " #" in val:
-            # Only strip unquoted inline comments (space before #)
-            val = val[: val.index(" #")].rstrip()
-        # Handle inline lists: [tag1, tag2]
-        if val.startswith("[") and val.endswith("]"):
-            fm[key] = [v.strip().strip("\"'") for v in val[1:-1].split(",") if v.strip()]
-            continue
-        # Coerce booleans
-        if val.lower() == "true":
-            fm[key] = True
-        elif val.lower() == "false":
-            fm[key] = False
-        else:
-            fm[key] = val
-
-    return fm, body
+    frontmatter, body = parse_frontmatter_with_body(content)
+    tags = frontmatter.get("tags")
+    if isinstance(tags, list):
+        frontmatter["tags"] = ["null" if tag is None else tag for tag in tags]
+    return frontmatter, body
 
 
 # ---------------------------------------------------------------------------
@@ -489,6 +456,7 @@ def push_entry(
     *,
     dry_run: bool = False,
     local_config_path: Path | None = None,
+    _today: str | None = None,
 ) -> PushResult:
     """Push a solution entry to the team brain central repo.
 
@@ -597,7 +565,7 @@ def push_entry(
         )
 
     # Inject source-project and pushed-date into the clean content
-    pushed_date = _date.today().isoformat()
+    pushed_date = _today or _date.today().isoformat()
     extra_fields = (
         f'source-project: "{config.project_name}"\n'
         f'pushed-date: "{pushed_date}"\n'

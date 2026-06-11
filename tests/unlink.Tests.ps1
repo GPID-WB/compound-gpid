@@ -5,7 +5,7 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
 # Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
-$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
+$script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 
 # unlink.ps1 uses junction operations (Remove-Item on junctions), which are
 # Windows-only. Skip all tests on macOS/Linux with a passing placeholder.
@@ -280,4 +280,3 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         $content | Should -Not -Match "Read-Host\s+''"
     }
 }
-

@@ -208,9 +208,15 @@ Describe "cg-wiki.agent.md - frontmatter" {
         ($fm -match 'description:') | Should -Be $true
     }
 
-    It "has tools: ['read', 'write', 'search']" {
+    It "has read tool" {
         ($tools -contains 'read') | Should -Be $true
+    }
+
+    It "has write tool" {
         ($tools -contains 'write') | Should -Be $true
+    }
+
+    It "has search tool" {
         ($tools -contains 'search') | Should -Be $true
     }
 
@@ -754,5 +760,16 @@ Describe "cg-skill-wiki/SKILL.md - Post-init Checklist is present" {
         # cg:auto markers are required for @cg-wiki to write to auto pages.
         # Checklist must mention them so the setup step is not skipped.
         ($content -match '(?is)Post-.*Checklist.*cg:auto:|cg:auto:.*Post-.*Checklist') | Should -Be $true
+    }
+}
+
+Describe "cg-wiki.agent.md - pages order validation" {
+    $agentFile = Join-Path $repoRoot ".github\agents\cg-wiki.agent.md"
+    $content = Get-Content $agentFile -Raw -Encoding UTF8
+
+    It "validates pages[].order uniqueness in Pre-Flight" {
+        ($content -match 'pages\[\]\.order') | Should -Be $true
+        ($content -match 'Duplicate page order') | Should -Be $true
+        ($content -match 'must be unique') | Should -Be $true
     }
 }

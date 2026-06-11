@@ -9,14 +9,11 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import tempfile
 import time
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from team_brain.config import TeamBrainLocalConfig
 from team_brain.pull import (
