@@ -172,16 +172,20 @@ Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColo
 # above, cg-index.cmd contains non-trivial Python resolver logic and is kept as
 # the committed authoritative wrapper in this same bin/ directory.
 $cgIndexCmdSrc = Join-Path $CompoundGpidDir "bin\cg-index.cmd"
+$cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
 if (Test-Path $cgIndexCmdSrc) {
-    Write-Host "  Registered: cg-index in $binDir" -ForegroundColor DarkGray
+    Copy-Item -Path $cgIndexCmdSrc -Destination $cgIndexCmdDst -Force
+    Write-Host "  Copied:  cg-index in $binDir" -ForegroundColor DarkGray
 } else {
     Write-Warning "  bin\cg-index.cmd not found in installation -- skipping cg-index wrapper."
 }
 
 # Verify cg-brain-init.cmd exists in bin/ (same pattern as cg-index.cmd).
 $cgBrainInitCmdSrc = Join-Path $CompoundGpidDir "bin\cg-brain-init.cmd"
+$cgBrainInitCmdDst = Join-Path $binDir "cg-brain-init.cmd"
 if (Test-Path $cgBrainInitCmdSrc) {
-    Write-Host "  Registered: cg-brain-init in $binDir" -ForegroundColor DarkGray
+    Copy-Item -Path $cgBrainInitCmdSrc -Destination $cgBrainInitCmdDst -Force
+    Write-Host "  Copied:  cg-brain-init in $binDir" -ForegroundColor DarkGray
 } else {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
 }
