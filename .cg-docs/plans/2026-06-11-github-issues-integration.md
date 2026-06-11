@@ -1,13 +1,15 @@
 ---
 date: 2026-06-11
 title: "GitHub Issues integration via gh CLI"
-status: active
+status: completed
+completed-date: 2026-06-11
 scope: "Deep"
 brainstorm: null
 language: "both"
 estimated-effort: "large"
 tags: [workflow-maturity, roadmap, github, issues, gh-cli]
 phases: 4
+completed-phases: [1, 2, 3, 4]
 ---
 
 # Plan: GitHub Issues Integration via gh CLI
