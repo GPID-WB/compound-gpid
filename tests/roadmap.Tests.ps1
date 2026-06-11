@@ -143,6 +143,29 @@ function Test-RoadmapSchema {
         $errors += "Invalid schemaVersion: $($Roadmap.schemaVersion)"
     }
 
+    # Optional top-level githubIssues config block
+    if ($null -ne $Roadmap.githubIssues) {
+        $gi = $Roadmap.githubIssues
+        # enabled must be a bool if present
+        if ($null -ne $gi.enabled -and $gi.enabled -isnot [bool]) {
+            $errors += "githubIssues.enabled must be a boolean (true/false)"
+        }
+        # repo if present must match owner/repo pattern
+        if ($null -ne $gi.repo) {
+            if ($gi.repo -isnot [string] -or $gi.repo -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
+                $errors += "githubIssues.repo must match 'owner/repo' pattern (e.g. 'GPID-WB/compound-gpid')"
+            }
+        }
+        # labelPrefix if present must be a non-empty string
+        if ($null -ne $gi.labelPrefix -and ($gi.labelPrefix -isnot [string] -or $gi.labelPrefix.Length -eq 0)) {
+            $errors += "githubIssues.labelPrefix must be a non-empty string"
+        }
+        # autoCreate if present must be a bool
+        if ($null -ne $gi.autoCreate -and $gi.autoCreate -isnot [bool]) {
+            $errors += "githubIssues.autoCreate must be a boolean (true/false)"
+        }
+    }
+
     if ($null -eq $Roadmap.milestones) {
         $errors += "Missing required field: milestones"
         return $errors
@@ -247,6 +270,41 @@ function Test-RoadmapSchema {
 
             if ($f.status -eq "done" -and $null -eq $f.plan) {
                 $errors += "Feature '$($f.id)' in milestone '$($m.id)': status is 'done' but plan is null (a completed feature must link its plan)"
+            }
+
+            # Optional per-feature github linkage block
+            if ($null -ne $f.github) {
+                $gh = $f.github
+                $fLabel = "Feature '$($f.id)' in milestone '$($m.id)'"
+
+                # issueNumber must be a positive integer
+                if ($null -ne $gh.issueNumber) {
+                    $isInt = ($gh.issueNumber -is [int] -or $gh.issueNumber -is [long]) -and $gh.issueNumber -gt 0
+                    if (-not $isInt) {
+                        $errors += "${fLabel}: github.issueNumber must be a positive integer"
+                    }
+                }
+
+                # issueUrl must be a https://github.com/* URL
+                if ($null -ne $gh.issueUrl) {
+                    if ($gh.issueUrl -isnot [string] -or $gh.issueUrl -notmatch '^https://github\.com/[^/]+/[^/]+/issues/\d+$') {
+                        $errors += "${fLabel}: github.issueUrl must match 'https://github.com/owner/repo/issues/<number>'"
+                    }
+                }
+
+                # repo if present must match owner/repo pattern
+                if ($null -ne $gh.repo) {
+                    if ($gh.repo -isnot [string] -or $gh.repo -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
+                        $errors += "${fLabel}: github.repo must match 'owner/repo' pattern"
+                    }
+                }
+
+                # createdAt if present must match yyyy-MM-dd
+                if ($null -ne $gh.createdAt) {
+                    if ($gh.createdAt -isnot [string] -or $gh.createdAt -notmatch '^\d{4}-\d{2}-\d{2}$') {
+                        $errors += "${fLabel}: github.createdAt must be a date string in 'yyyy-MM-dd' format"
+                    }
+                }
             }
         }
     }
@@ -1066,5 +1124,261 @@ Describe "Test-RecentStrategyDocument helper" {
         New-Item -ItemType Directory -Path $tmpDir | Out-Null
         New-Item -ItemType File -Path (Join-Path $tmpDir "session-notes.md") | Out-Null
         Test-RecentStrategyDocument $tmpDir -ReferenceDate $refDate | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# GitHub Issues integration -- optional schema fields (Phase 1)
+# ---------------------------------------------------------------------------
+
+Describe "roadmap.json schema -- GitHub Issues integration" {
+
+    # ------------------------------------------------------------------
+    # Backward compatibility: roadmaps without any GitHub fields are valid
+    # ------------------------------------------------------------------
+
+    It "accepts roadmap with no githubIssues field (backward compatible)" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    It "accepts feature with no github field (backward compatible)" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "Milestone 1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "Feature 1"; status = "planned"; plan = $null }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    # ------------------------------------------------------------------
+    # Valid githubIssues config
+    # ------------------------------------------------------------------
+
+    It "accepts valid githubIssues config block" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{
+                enabled     = $true
+                repo        = "owner/repo"
+                labelPrefix = "cg:"
+                autoCreate  = $false
+            }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    It "accepts githubIssues with only enabled=false and no repo" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = $false }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    # ------------------------------------------------------------------
+    # Invalid githubIssues config
+    # ------------------------------------------------------------------
+
+    It "rejects githubIssues.repo with missing slash (not owner/repo)" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = $true; repo = "justarepo" }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "githubIssues.repo"
+    }
+
+    It "rejects githubIssues.repo with leading slash" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = $true; repo = "/owner/repo" }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "githubIssues.repo"
+    }
+
+    It "rejects githubIssues.enabled as a string instead of bool" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = "yes" }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "githubIssues.enabled"
+    }
+
+    It "rejects githubIssues.autoCreate as a string instead of bool" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            githubIssues  = @{ enabled = $true; repo = "o/r"; autoCreate = "true" }
+            milestones    = @()
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "githubIssues.autoCreate"
+    }
+
+    # ------------------------------------------------------------------
+    # Valid per-feature github linkage
+    # ------------------------------------------------------------------
+
+    It "accepts feature with valid github linkage block" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{
+                           id = "f1"; title = "F1"; status = "planned"; plan = $null
+                           github = @{
+                               repo        = "owner/repo"
+                               issueNumber = 42
+                               issueUrl    = "https://github.com/owner/repo/issues/42"
+                               createdAt   = "2026-06-11"
+                           }
+                       }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    It "accepts feature with github block containing only issueNumber and issueUrl" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{
+                           id = "f1"; title = "F1"; status = "planned"; plan = $null
+                           github = @{
+                               issueNumber = 1
+                               issueUrl    = "https://github.com/a/b/issues/1"
+                           }
+                       }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        $errors.Count | Should -Be 0
+    }
+
+    # ------------------------------------------------------------------
+    # Invalid per-feature github linkage
+    # ------------------------------------------------------------------
+
+    It "rejects feature github.issueNumber as zero" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = 0; issueUrl = "https://github.com/o/r/issues/0" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "issueNumber"
+    }
+
+    It "rejects feature github.issueNumber as negative" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = -1; issueUrl = "https://github.com/o/r/issues/1" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "issueNumber"
+    }
+
+    It "rejects feature github.issueNumber as a string" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = "42"; issueUrl = "https://github.com/o/r/issues/42" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "issueNumber"
+    }
+
+    It "rejects feature github.issueUrl not matching https://github.com/ pattern" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = 1; issueUrl = "https://gitlab.com/owner/repo/issues/1" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "issueUrl"
+    }
+
+    It "rejects feature github.repo with invalid shape" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ repo = "not-a-valid-repo"; issueNumber = 1; issueUrl = "https://github.com/o/r/issues/1" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "github.repo"
+    }
+
+    It "rejects feature github.createdAt with invalid date format" {
+        $roadmap = @{
+            schemaVersion = "compound-gpid-roadmap-v1"
+            milestones    = @(
+                @{ id = "m1"; title = "M1"; objective = "x"; status = "planned"
+                   features = @(
+                       @{ id = "f1"; title = "F1"; status = "planned"; plan = $null
+                          github = @{ issueNumber = 1; issueUrl = "https://github.com/o/r/issues/1"; createdAt = "June 11, 2026" } }
+                   )
+                }
+            )
+        }
+        $errors = Test-RoadmapSchema $roadmap
+        ($errors -join " ") | Should -Match "createdAt"
     }
 }

@@ -6086,3 +6086,218 @@ Describe "docs/reference.md and team-brain schema - remaining docs coverage" {
         ($schema -match '`private-sections`') | Should -Be $true
     }
 }
+
+# ===========================================================================
+# GitHub Issues integration -- /cg-issues prompt and workflow guards
+# (Phase 2 Steps 3-4; Phase 3 Steps 5-8; Phase 4 Step 10)
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# /cg-issues prompt -- structural guards
+# ---------------------------------------------------------------------------
+
+Describe "/cg-issues.prompt.md - structural guards" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md"
+
+    Context "file must exist" {
+        It "cg-issues.prompt.md exists in .github/prompts/" {
+            Test-Path $promptFile | Should -Be $true
+        }
+    }
+
+    Context "orchestrator must have unrestricted tools" {
+        $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+        It "does not have a tools: key (a tools: whitelist strips write access from the orchestrating agent)" {
+            ($frontmatter -notmatch 'tools:') | Should -Be $true
+        }
+    }
+
+    Context "mode: default must be read-only status check" {
+        $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+        It "defaults to status mode when no argument is given" {
+            ($content -match 'status.*default|default.*status|no argument.*status|argument.*omitted.*status') | Should -Be $true
+        }
+
+        It "documents backfill, link, adopt, and setup modes" {
+            ($content -match '\bbackfill\b') | Should -Be $true
+            ($content -match '\blink\b') | Should -Be $true
+            ($content -match '\badopt\b') | Should -Be $true
+            ($content -match '\bsetup\b') | Should -Be $true
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-issues -- pre-flight checks
+# ---------------------------------------------------------------------------
+
+Describe "/cg-issues.prompt.md - pre-flight checks" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md") -Raw -Encoding UTF8
+
+    It "checks gh --version before calling any gh command" {
+        ($content -match 'gh --version|gh.*version') | Should -Be $true
+    }
+
+    It "checks gh auth status before calling any gh command" {
+        ($content -match 'gh auth status') | Should -Be $true
+    }
+
+    It "reads roadmap.json to find githubIssues config before proceeding" {
+        ($content -match 'githubIssues|roadmap.*config|github.*config') | Should -Be $true
+    }
+
+    It "gracefully handles missing gh by skipping or reporting rather than failing hard" {
+        ($content -match 'gh.*not found|gh.*unavailable|gracefully|skip.*gh|abort.*gh') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-issues -- confirmation and safety
+# ---------------------------------------------------------------------------
+
+Describe "/cg-issues.prompt.md - confirmation and safety" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md") -Raw -Encoding UTF8
+
+    It "requires confirmation before gh issue create" {
+        ($content -match 'confirm.*issue create|issue create.*confirm|ask.*create|create.*ask') | Should -Be $true
+    }
+
+    It "documents duplicate-prevention marker (hidden body marker)" {
+        ($content -match 'duplicate.*prevent|marker|compound-gpid-tracked|cg-tracked|hidden.*marker') | Should -Be $true
+    }
+
+    It "checks for existing issues before creating a new one (title search fallback)" {
+        ($content -match 'title.*search|search.*title|gh issue list.*search|existing.*issue') | Should -Be $true
+    }
+
+    It "handles missing labels with create/skip/cancel choice" {
+        ($content -match 'create.*skip.*cancel|skip.*cancel|missing.*label|label.*not.*exist') | Should -Be $true
+    }
+
+    It "validates plan paths before reading (starts with .cg-docs/plans/, no .., not absolute)" {
+        ($content -match '\.cg-docs/plans/|path.*valid|valid.*path') | Should -Be $true
+    }
+
+    It "treats roadmap titles and descriptions as untrusted (strips injection lines)" {
+        ($content -match 'untrusted|sanitize|strip.*Ignore|Disregard|Forget|injection') | Should -Be $true
+    }
+
+    It "never calls gh issue close directly" {
+        # Allow 'gh issue close' only in prohibition/documentation context (lines with not/never/do not)
+        $prohibited = ($content -split "`n") | Where-Object {
+            $_ -match 'gh issue close' -and $_ -notmatch '\bnot\b|\bnever\b|\bno\b'
+        }
+        $prohibited.Count | Should -Be 0
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-issues -- dispatch-only guards (no write without confirmation)
+# ---------------------------------------------------------------------------
+
+Describe "/cg-issues.prompt.md - dispatches @cg-roadmap for all writes" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-issues.prompt.md") -Raw -Encoding UTF8
+
+    It "dispatches @cg-roadmap for attaching issue metadata (not writing roadmap.json directly)" {
+        ($content -match '@cg-roadmap|cg-roadmap') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-resume must remain non-mutating (Phase 3 Step 5)
+# ---------------------------------------------------------------------------
+
+Describe "cg-resume.prompt.md - non-mutating with github issues" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md") -Raw -Encoding UTF8
+
+    It "does not call gh issue create in cg-resume" {
+        ($content -notmatch 'gh issue create') | Should -Be $true
+    }
+
+    It "does not dispatch @cg-issues adopt or backfill in cg-resume" {
+        ($content -notmatch '@cg-issues.*adopt|@cg-issues.*backfill|cg-issues.*adopt|cg-issues.*backfill') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-strategy -- GitHub issue handoff after roadmap changes (Phase 3 Step 6)
+# ---------------------------------------------------------------------------
+
+Describe "cg-strategy.prompt.md - github issues handoff" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-strategy.prompt.md") -Raw -Encoding UTF8
+
+    It "mentions cg-issues or GitHub Issues handoff after approved roadmap changes" {
+        ($content -match 'cg-issues|github.*issues.*handoff|backfill.*issues') | Should -Be $true
+    }
+
+    It "does not call gh issue create implicitly during strategy execution" {
+        ($content -notmatch 'gh issue create') | Should -Be $true
+    }
+
+    It "keeps roadmap writes through @cg-roadmap not direct gh calls" {
+        # gh.* must be word-bounded to avoid matching 'through @cg-roadmap'
+        ($content -notmatch '\bgh\b.*roadmap|directly.*\bgh\b.*milestone') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-plan -- asks about issue link for new work items (Phase 3 Step 7)
+# ---------------------------------------------------------------------------
+
+Describe "cg-plan.prompt.md - github issues awareness" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md") -Raw -Encoding UTF8
+
+    It "does not call gh issue create without user confirmation" {
+        ($content -notmatch 'gh issue create') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-work -- shows issue context, does not block on missing issue (Phase 3 Step 7)
+# ---------------------------------------------------------------------------
+
+Describe "cg-work.prompt.md - github issues awareness" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-work.prompt.md") -Raw -Encoding UTF8
+
+    It "does not call gh issue create without user confirmation" {
+        ($content -notmatch 'gh issue create') | Should -Be $true
+    }
+
+    It "does not block work when github issues are unavailable or user declines" {
+        ($content -match 'decline|skip.*issue|issue.*skip|does not block|gh.*unavailable') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# /cg-commit-push-pr -- Refs/Closes in PR body, no direct issue close (Phase 3 Step 8)
+# ---------------------------------------------------------------------------
+
+Describe "cg-commit-push-pr.prompt.md - github issues references" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md") -Raw -Encoding UTF8
+
+    It "uses Refs # for partial or uncertain completion" {
+        ($content -match 'Refs #|Refs \#') | Should -Be $true
+    }
+
+    It "uses Closes # only with explicit user confirmation" {
+        ($content -match 'Closes #|Closes \#') | Should -Be $true
+    }
+
+    It "does not call gh issue close directly" {
+        # Allow 'gh issue close' only in prohibition/documentation context (lines with not/never/no)
+        $prohibited = ($content -split "`n") | Where-Object {
+            $_ -match 'gh issue close' -and $_ -notmatch '\bnot\b|\bnever\b|\bno\b'
+        }
+        $prohibited.Count | Should -Be 0
+    }
+
+    It "does not claim full bidirectional sync (out of scope for v1)" {
+        # Allow 'bidirectional sync' only in prohibition/documentation context
+        $prohibited = ($content -split "`n") | Where-Object {
+            $_ -match 'bidirectional.*sync|full.*sync.*issue|auto.*sync' -and $_ -notmatch '\bNo\b|\bnot\b|\bnever\b|\bdo not\b'
+        }
+        $prohibited.Count | Should -Be 0
+    }
+}
