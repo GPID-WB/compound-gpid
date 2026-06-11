@@ -121,6 +121,9 @@ If `roadmap.json` exists at the project root, use the justified full read above 
 - Any features with `status: "active"` (work currently underway).
 - Scope health: what percentage of all features are `idea` or `planned`
   (not started).
+- **GitHub Issues (read-only)**: If a feature has a `github.issueNumber` field, display
+  the issue number and URL alongside the feature. Do NOT call `gh`, create issues, or
+  modify any data here.
 
 For `in-progress` milestones only, cross-check each feature that has a
 non-null `plan` path:

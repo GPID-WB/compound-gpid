@@ -168,10 +168,10 @@ foreach ($script in $scripts) {
 }
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
 
-# Copy cg-index.cmd from the committed file (single source of truth).
-# Unlike the simple PS1-calling wrappers above, cg-index.cmd contains
-# non-trivial Python resolver logic -- it lives in bin/ as the authoritative
-# copy; install.ps1 copies it rather than generating from an inline string.
+# Copy cg-index.cmd from the committed file (single source of truth). Unlike
+# the simple PS1-calling wrappers above, cg-index.cmd contains non-trivial
+# Python resolver logic and is kept as the committed authoritative wrapper in
+# this same bin/ directory.
 $cgIndexCmdSrc = Join-Path $CompoundGpidDir "bin\cg-index.cmd"
 $cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
 if (Test-Path $cgIndexCmdSrc) {
@@ -181,7 +181,7 @@ if (Test-Path $cgIndexCmdSrc) {
     Write-Warning "  bin\cg-index.cmd not found in installation -- skipping cg-index wrapper."
 }
 
-# Copy cg-brain-init.cmd from the committed file (same pattern as cg-index.cmd).
+# Verify cg-brain-init.cmd exists in bin/ (same pattern as cg-index.cmd).
 $cgBrainInitCmdSrc = Join-Path $CompoundGpidDir "bin\cg-brain-init.cmd"
 $cgBrainInitCmdDst = Join-Path $binDir "cg-brain-init.cmd"
 if (Test-Path $cgBrainInitCmdSrc) {

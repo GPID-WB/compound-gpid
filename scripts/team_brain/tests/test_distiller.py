@@ -6,11 +6,7 @@ empty fallback), truncation, and skipping logic for code blocks / headings.
 """
 from __future__ import annotations
 
-import sys
 import unittest
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from team_brain.distiller import DistillResult, distill_pattern
 

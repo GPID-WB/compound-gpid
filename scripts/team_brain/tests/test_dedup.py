@@ -10,16 +10,15 @@ Run from repo root:
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from unittest.mock import patch
 
 from team_brain.dedup import (
     ContradictionReport,
     JACCARD_THRESHOLD,
+    MAX_JSONL_BYTES,
     _jaccard,
     _load_all_patterns,
     _tokenize,
@@ -191,6 +190,25 @@ class TestLoadAllPatterns(unittest.TestCase):
         """Non-existent directory returns empty list without error."""
         result = _load_all_patterns(Path("/nonexistent/path/99999"))
         self.assertEqual(result, [])
+
+    def test_oversized_jsonl_skipped_with_warning(self):
+        """Oversized JSONL files are skipped before full read_text()."""
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp)
+            jsonl_path = p / "proj-a.jsonl"
+            jsonl_path.write_text("{}\n", encoding="utf-8")
+            original_stat = Path.stat
+
+            def fake_stat(path, *args, **kwargs):
+                result = original_stat(path, *args, **kwargs)
+                if path == jsonl_path:
+                    return type("Stat", (), {"st_size": MAX_JSONL_BYTES + 1})()
+                return result
+
+            with patch.object(Path, "stat", fake_stat):
+                with self.assertWarns(UserWarning):
+                    result = _load_all_patterns(p)
+            self.assertEqual(result, [])
 
     def test_empty_directory(self):
         """Empty patterns directory returns empty list."""

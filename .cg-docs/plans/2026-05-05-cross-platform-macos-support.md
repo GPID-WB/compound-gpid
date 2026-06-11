@@ -1,7 +1,7 @@
 ---
 date: 2026-05-05
 title: "Cross-platform macOS support — parallel shell scripts"
-status: active
+status: completed
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-05-05-cross-platform-macos-support.md"
 language: "both"

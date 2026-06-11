@@ -9,8 +9,8 @@ findings:
   P2.1: skipped
   P2.2: skipped
   P2.3: fixed
-  P2.4: open
-  P2.5: open
+  P2.4: fixed
+  P2.5: fixed
   P2.6: fixed
   P2.7: fixed
   P2.8: fixed

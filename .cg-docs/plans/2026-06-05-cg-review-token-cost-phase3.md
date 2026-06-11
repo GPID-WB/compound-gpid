@@ -1,7 +1,7 @@
 ---
 date: 2026-06-05
 title: "Phase 3: staged /cg-review routing + /cg-work review-mode integration"
-status: active
+status: completed
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md"
 language: "both"

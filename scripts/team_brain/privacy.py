@@ -113,7 +113,9 @@ _EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")
 #: like httr2::req_auth_bearer_token(token = ...) or unnest_tokens(tbl, token = ...).
 _CREDENTIAL_RE = re.compile(
     r"\b(?:password|passwd|secret|token|api[_\-]?key|auth[_\-]?key)\b"
-    r"\s*[:=]\s*\S+",
+    r"\s*[:=]\s*"
+    r"(?!(?:None|null|NULL|str|int|bool|float|Optional(?:\[[^\]]+\])?)\b)"
+    r"\S+",
     re.IGNORECASE,
 )
 

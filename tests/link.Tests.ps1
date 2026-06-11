@@ -5,7 +5,7 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
 # Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
-$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
+$script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 
 # link.ps1 uses junction operations (New-Item -ItemType Junction), which are
 # Windows-only. Skip all tests on macOS/Linux with a passing placeholder.
@@ -680,4 +680,3 @@ Describe "link.sh - no bootstrap index offer at link time" {
         ($content -match 'cg-index --all') | Should -Be $false
     }
 }
-

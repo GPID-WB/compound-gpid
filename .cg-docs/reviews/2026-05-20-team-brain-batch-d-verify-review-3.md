@@ -8,7 +8,7 @@ findings:
   P2.2: fixed
   P2.3: fixed
   P2.4: fixed
-  P3.1: open
+  P3.1: advisory
 ---
 
 ## Verify Review — Batch D Review 3 Fix Patches

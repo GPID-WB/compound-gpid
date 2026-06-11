@@ -10,14 +10,11 @@ Run from repo root:
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 import warnings
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from team_brain.curate import (
     _create_issue,

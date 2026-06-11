@@ -48,13 +48,11 @@ def _import_dedup():
     try:
         from team_brain.dedup import detect_contradictions
         return detect_contradictions
-    except ImportError:
-        # Fallback: add the scripts/ parent to sys.path and retry
-        _scripts = Path(__file__).parent.parent
-        if str(_scripts) not in sys.path:
-            sys.path.insert(0, str(_scripts))
-        from team_brain.dedup import detect_contradictions
-        return detect_contradictions
+    except ImportError as exc:
+        raise RuntimeError(
+            "team_brain.dedup is not importable. Run this command from an "
+            "installed compound-gpid checkout or set PYTHONPATH to scripts/."
+        ) from exc
 
 
 # ---------------------------------------------------------------------------

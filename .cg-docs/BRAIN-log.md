@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -102,8 +102,31 @@ _Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
 - **[2026-05-20-team-brain-batch-d-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
+- **[2026-06-11-github-issues-integration-review-2](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md)** · `review` · _—_ · `—`
+  > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-11
+
+- **[2026-06-11-github-issues-integration-review](.cg-docs/reviews/2026-06-11-github-issues-integration-review.md)** · `review` · _—_ · `2026-06-11`
+  > **Review mode**: full **Files reviewed**: 15 (new: `cg-issues.prompt.md`; modified: `cg-roadmap.agent.md`, 5 workflow…
+- **[2026-06-11-github-issues-integration-review-2-verify-review](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2-verify-review.md)** · `review` · _—_ · `2026-06-11`
+  > **Review mode**: light (verify pass) **Files reviewed**: 4 (`.github/prompts/cg-issues.prompt.md`, `.github/agents/cg…
+- **[Ambiguous 'warn before proceeding' in TOCTOU guard allows duplicate creation without user choice](.cg-docs/solutions/bugs/2026-06-11-ambiguous-warn-before-proceeding-toctou-guard.md)** · `solution` · _—_ · `2026-06-11`
+  > A `cg-issues.prompt.md` step included this TOCTOU guard: > "If a second match is found, warn the user before proceedi…
+- **[CLI injection, symlink traversal, and mode-gating bugs in LLM prompts that invoke gh CLI](.cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md)** · `solution` · _—_ · `2026-06-11`
+  > When authoring `cg-issues.prompt.md` — a prompt that instructs an LLM agent to run `gh issue create` with data from `…
+- **[GitHub Issues integration via gh CLI](.cg-docs/plans/2026-06-11-github-issues-integration.md)** · `plan` · _completed_ · `2026-06-11`
+  > Add optional, project-level GitHub Issues integration to Compound GPID so teams can coordinate roadmap work items thr…
+- **[Invalid regex character class range: hyphen placement between non-ascending code points](.cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md)** · `solution` · _—_ · `2026-06-11`
+  > An agent spec (`cg-roadmap.agent.md`) included this validation regex as prose guidance: The sequence `/-` inside the …
+- **[LLM 'resolve canonical path' instruction without tool call is unenforceable — symlink traversal remains exploitable](.cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md)** · `solution` · _—_ · `2026-06-11`
+  > A prompt included this path-validation step as a defense against symlink traversal: > "Resolve the path to its canoni…
+- **[Untrusted content containing triple-backtick sequences breaks out of fenced code blocks](.cg-docs/solutions/testing-patterns/2026-06-11-fenced-block-delimiter-collision-in-untrusted-content.md)** · `solution` · _—_ · `2026-06-11`
+  > A prompt (e.g., `cg-issues.prompt.md`) instructs an agent to embed untrusted content (plan file body, roadmap descrip…
+- **[Within-prompt section drift: operational step and Safety Rules summary can diverge silently](.cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md)** · `solution` · _—_ · `2026-06-11`
+  > `cg-issues.prompt.md` maintained an injection-token blocklist in two places: **Step 6 (operational)**: > Strip lines …
 
 ## 2026-06-10
 
@@ -140,7 +163,7 @@ _Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
 
 ## 2026-06-07
 
-- **[Token Optimization Phase 5 - Knowledge Brain and Context Selectivity](.cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md)** · `plan` · _active_ · `2026-06-07`
+- **[Token Optimization Phase 5 - Knowledge Brain and Context Selectivity](.cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md)** · `plan` · _completed_ · `2026-06-07`
   > Reduce runtime token cost from large generated memory and context artifacts by making Knowledge Brain and project con…
 
 ## 2026-06-06
@@ -151,14 +174,14 @@ _Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
   > Review of the Phase 4 `/cg-plan` and `/cg-work` context slimming implementation.
 - **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
   > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
-- **[Phase 4: /cg-plan and /cg-work prompt/context slimming](.cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md)** · `plan` · _active_ · `2026-06-06`
+- **[Phase 4: /cg-plan and /cg-work prompt/context slimming](.cg-docs/plans/2026-06-06-cg-plan-work-context-slimming-phase4.md)** · `plan` · _completed_ · `2026-06-06`
   > Reduce token burden in `/cg-plan` and `/cg-work` by turning both prompts into tighter workflow routers while preservi…
 
 ## 2026-06-05
 
 - **[cg-index.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH](.cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md)** · `solution` · _—_ · `2026-06-05`
   > On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-index --brain` raise…
-- **[Phase 3: staged /cg-review routing + /cg-work review-mode integration](.cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md)** · `plan` · _active_ · `2026-06-05`
+- **[Phase 3: staged /cg-review routing + /cg-work review-mode integration](.cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md)** · `plan` · _completed_ · `2026-06-05`
   > Reduce token and model-call cost for review workflows by making `/cg-review` staged and risk-aware by default, and ad…
 
 ## 2026-06-04
@@ -425,7 +448,7 @@ _Generated 2026-06-10 · 362 artifacts (newest first) + 108 roadmap features_
   > Add a branch-offer step to `/cg-plan` so users can create a feature branch at plan time — not just from `/cg-brainsto…
 - **[Cross-platform macOS support for plugin distribution](.cg-docs/brainstorms/2026-05-05-cross-platform-macos-support.md)** · `brainstorm` · _decided_ · `2026-05-05`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Cross-platform macOS support — parallel shell scripts](.cg-docs/plans/2026-05-05-cross-platform-macos-support.md)** · `plan` · _active_ · `2026-05-05`
+- **[Cross-platform macOS support — parallel shell scripts](.cg-docs/plans/2026-05-05-cross-platform-macos-support.md)** · `plan` · _completed_ · `2026-05-05`
   > Add macOS support to the Compound GPID plugin distribution by creating parallel bash scripts (`install.sh`, `link.sh`…
 - **[duplicates tag clears r\(N\) — insert count before conditional display](.cg-docs/solutions/data-quality/2026-05-05-duplicates-tag-clears-r-N-use-count-before-conditional-display.md)** · `solution` · _—_ · `2026-05-05`
   > The following pattern produces a silently-suppressed diagnostic: `display as error` never fires even when duplicates …

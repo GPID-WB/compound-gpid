@@ -19,6 +19,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-update latest` | Anywhere | Unpin and return to tracking main |
 | `cg-update --list` | Anywhere | Browse available GitHub Releases |
 | `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
+| `cg-brain-init` | Project root | Initialize or configure Team Brain integration for the current project |
 
 ---
 
@@ -60,10 +61,11 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-compound-refresh` | Claude Sonnet 4.6 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
 | `/cg-brain-rebuild` | Claude Sonnet 4.6 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` changes from collaborators, after manually editing solution files, after a `/cg-compound` run where brain rebuild was skipped, or when the brain is stale. Verifies success by exit code (primary), stdout stats line (secondary), and `BRAIN.md` existence (tertiary). |
 | `/cg-wiki [init\|rebuild\|restructure\|convert\|status\|help] [--propose]` | Claude Sonnet 4.6 | Manage the project wiki (`wiki/` by default). No args = status table. `init` bootstraps the wiki on an existing project (creates `_wiki.yml` and all wiki pages from a project-type template). `rebuild` regenerates all auto-managed pages from current codebase + charter. `rebuild <page-id>` targets a single page. `restructure` lets you add/remove/reorder pages interactively. `convert` generates GitHub Wiki–compatible layout (Home.md, _Sidebar.md). `--propose` shows diffs before writing. Wiki initialized at `/cg-setup` or `/cg-wiki init`; updated automatically by `/cg-compound`. |
-| `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. |
+| `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. Displays linked GitHub issue numbers (read-only) alongside active features when present. |
 | `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
 | `/cg-diagnose` | Claude Sonnet 4.6 | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
-| `/cg-commit-push-pr` | Claude Sonnet 4.6 | Stage changes into logical commits (grouped by file type: code, tests, docs, config, plans), generate conventional commit messages, push, and open a PR with a plan-driven description. Proposes commit splits interactively. Requires `gh` CLI for PR creation — degrades gracefully with install instructions if missing. |
+| `/cg-issues [status\|backfill\|link\|adopt\|setup]` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create or link issues for unlinked features (requires confirmation per issue). `link`: attach an existing issue to a feature. `adopt`: import a GitHub issue as a new roadmap feature. `setup`: configure `githubIssues` in `roadmap.json`. Requires `gh` CLI and authentication. Degrades gracefully when `gh` is unavailable. Dispatches `@cg-roadmap` for all roadmap writes. |
+| `/cg-commit-push-pr` | Claude Sonnet 4.6 | Stage changes into logical commits (grouped by file type: code, tests, docs, config, plans), generate conventional commit messages, push, and open a PR with a plan-driven description. Adds `Refs #` or `Closes #` to the PR body when features have linked GitHub issues (`Closes #` only with explicit user confirmation). Proposes commit splits interactively. Requires `gh` CLI for PR creation — degrades gracefully with install instructions if missing. |
 | `/cg-verify-pr [--propose]` | Claude Sonnet 4.6 | Check CI status on the current branch's PR and auto-fix failures. Classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific). One fix round per invocation; 2-round cap tracked via `fix(ci):` commit count. Re-invoke after CI re-runs to apply a second round. Use `--propose` for observe-only diagnosis (no commits or pushes). |
 
 ### `cg-index --brain` — Diagnostic Warnings
@@ -275,7 +277,7 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 |-------|-------|-------|----------------|
 | `@cg-roadmap` | Manages `roadmap.json`: add/remove milestones and features, link plans, update statuses | Haiku 4.5 | **Yes** |
 
-> `@cg-roadmap` is the **only** agent users interact with directly. Invoke it in Copilot Chat to manage your project roadmap. Other prompts (`/cg-plan`, `/cg-work`, `/cg-brainstorm`) dispatch it automatically for roadmap updates (when `roadmap.json` exists).
+> `@cg-roadmap` is the **only** agent users interact with directly (via `@cg-roadmap` in Copilot Chat) to manage your project roadmap. Prompts like `/cg-issues`, `/cg-plan`, and `/cg-work` dispatch it automatically for roadmap updates when `roadmap.json` exists.
 
 ### `roadmap.json` Schema
 
@@ -283,8 +285,36 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 |-------|------|--------|
 | `milestones[].status` | derived | `planned`, `in-progress`, `done` |
 | `features[].status` | set | `idea`, `planned`, `active`, `done` |
+| `githubIssues` | object | Optional top-level GitHub Issues config block (see below) |
+| `features[].github` | object | Optional per-feature GitHub issue linkage (see below) |
 
 Milestone status is computed by `@cg-roadmap` from feature statuses (never set directly by users). Feature `active` maps to milestone `in-progress`. After all features in a milestone are marked `done`, `/cg-work` dispatches `@cg-roadmap` to mark the milestone as `done` (see Step 3.8). IDs are kebab-case and immutable after creation. `features[].plan` is a nullable path to a `.cg-docs/plans/` file.
+
+#### `githubIssues` block (optional)
+
+Stored as a top-level key in `roadmap.json`. All sub-fields are optional.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `enabled` | bool | `false` | Enable GitHub Issues integration for this project |
+| `repo` | string | — | `owner/repo` identifying the GitHub repository |
+| `labelPrefix` | string | `—` | Prefix for auto-created labels (e.g. `"cg:"`) — absent/null means no prefix |
+| `autoCreate` | bool | `false` | If `true`, `/cg-issues backfill` may offer batch creation (still requires per-issue confirmation) |
+
+Configure with `/cg-issues setup` or `/cg-setup`. `@cg-roadmap` is the only agent that writes this block.
+
+#### `features[].github` block (optional)
+
+Per-feature GitHub issue linkage. All sub-fields are optional; omit the entire block when no issue is linked.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `repo` | string | — | `owner/repo` — overrides top-level when issue lives in a different repo |
+| `issueNumber` | integer | — | Positive integer GitHub issue number |
+| `issueUrl` | string | — | Full URL: `https://github.com/owner/repo/issues/<number>` |
+| `createdAt` | string | — | ISO date `yyyy-MM-dd` when the link was created |
+
+Attach with `/cg-issues link` or `/cg-issues backfill`. Adding `github` metadata never changes `features[].status`.
 
 ---
 

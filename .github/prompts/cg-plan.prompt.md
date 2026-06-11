@@ -184,6 +184,12 @@ If `roadmap.json` does not exist, skip.
 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching.
 2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted `roadmap.json` status read; if unchanged, tell the user to run `@cg-roadmap` directly.
 3. If no match, ask whether to add this plan to a milestone. Show already-loaded milestone names inline as `- <milestone-title> (<done>/<total>)`. Dispatch `@cg-roadmap` to add the feature, or create a milestone first if needed. Verify after dispatch.
+4. **GitHub Issues check (optional)**: After the roadmap link is confirmed, check if
+   `roadmap.json` has `githubIssues.enabled: true` and the linked feature does NOT have a
+   `github` block. If so, suggest:
+   > "This work item has no linked GitHub issue. Run `/cg-issues link` to attach one, or
+   > `/cg-issues backfill` for all unlinked features."
+   This is a suggestion only — plan creation is never blocked by missing issue links.
 
 ### Step 6: Handoff
 

@@ -10,7 +10,7 @@ findings:
   P1.5: fixed
   P1.6: fixed
   P1.7: fixed
-  P1.vc1: open
+  P1.vc1: skipped
   P1.vc2: fixed
   P1.vc3: fixed
   P2.1: fixed

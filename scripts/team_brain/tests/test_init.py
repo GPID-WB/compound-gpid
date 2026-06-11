@@ -13,14 +13,11 @@ Run from repo root:
 from __future__ import annotations
 
 import os
-import sys
 import tempfile
 import unittest
 import warnings
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from team_brain.init import (
     _gh_available,

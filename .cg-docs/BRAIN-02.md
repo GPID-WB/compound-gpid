@@ -1,11 +1,8 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-06-10_
+_Generated 2026-06-11_
 
-## Architecture Research
-Objective / Knowledge Brain
-Objective / Quality Loop
-Objective
+## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
 
 _Keywords: `architecture research
 objective` · `knowledge brain

@@ -104,6 +104,7 @@ class TestModelExtraction:
         assert audit.classify_model_tier("Claude Opus 4.6") == "premium"
         assert audit.classify_model_tier("Claude Sonnet 4.6") == "standard"
         assert audit.classify_model_tier("Claude Haiku 4.5") == "economy"
+        assert audit.classify_model_tier("Experimental Local Model") == "unknown"
 
 
 class TestReferenceCounting:
@@ -115,6 +116,12 @@ class TestReferenceCounting:
 
     def test_counts_file_refs(self) -> None:
         assert audit.count_references("x", "Read compound-gpid.md")["file_refs"] == 1
+
+    def test_counts_tool_refs(self) -> None:
+        assert audit.count_references("x", "Use run_in_terminal for checks")["tool_refs"] == 1
+
+    def test_counts_load_verbs(self) -> None:
+        assert audit.count_references("x", "Read the prompt and load the skill")["load_verbs"] == 1
 
     def test_multiple_refs_summed(self) -> None:
         row = audit.count_references(
@@ -519,12 +526,12 @@ class TestBroadTools:
 
 class TestDuplicateEscalation:
     def test_duplicate_above_threshold_immediate(self) -> None:
-        dup = {"file_count": 4, "estimated_tokens": 1200, "files": ["a.md", "b.md", "c.md", "d.md"]}
+        dup = {"file_count": 4, "total_redundant_tokens": 1200, "files": ["a.md", "b.md", "c.md", "d.md"]}
         result = audit.classify_optimization_candidates([], [], {"declarations": [], "missing": [], "drift": [], "premium_usage": []}, [dup])
         assert any(e["category"] == "duplicates" for e in result["immediate"])
 
     def test_duplicate_below_token_threshold_not_immediate(self) -> None:
-        dup = {"file_count": 4, "estimated_tokens": 500, "files": ["a.md", "b.md", "c.md", "d.md"]}
+        dup = {"file_count": 4, "total_redundant_tokens": 500, "files": ["a.md", "b.md", "c.md", "d.md"]}
         result = audit.classify_optimization_candidates([], [], {"declarations": [], "missing": [], "drift": [], "premium_usage": []}, [dup])
         assert not any(e["category"] == "duplicates" for e in result["immediate"])
 

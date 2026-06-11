@@ -156,8 +156,17 @@ and count, no feature table.
 
 ### `tasks-milestone` — Features in one milestone
 
-Same as `milestone` view but focused on the feature table only (omit
-objective and progress bar). Fuzzy-match `filter` to a milestone title.
+Fuzzy-match `filter` to a milestone title. Render only the title heading and
+feature table; omit objective and progress bar:
+
+```
+## <status-badge> <milestone-title> (<done>/<total>)
+
+| Feature | Status |
+|---|---|
+| <title> | <feature-badge> |
+...
+```
 
 ### `detail` — Single feature detail
 

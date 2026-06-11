@@ -5,7 +5,7 @@
 # Compatible with Pester 3.4+ (ships built-in on Windows)
 
 # Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
-$script:OnWindows = ((Test-Path variable:IsWindows) -and $IsWindows -or $env:OS -eq "Windows_NT")
+$script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 
 # install.ps1 manages .cmd wrappers and the Windows registry PATH. Skip all
 # tests on macOS/Linux. install.sh is tested in bash-scripts.Tests.ps1.
@@ -14,6 +14,18 @@ if (-not $script:OnWindows) {
         It "platform check: install.ps1 tests require Windows" { $true | Should -Be $true }
     }
     return
+}
+
+function Get-PythonForCgIndexSmoke {
+    foreach ($cmd in @("python3", "python", "py")) {
+        $found = Get-Command $cmd -ErrorAction SilentlyContinue
+        if (-not $found) { continue }
+        try {
+            $ver = & $cmd --version 2>&1
+            if ("$ver".Trim() -match '^Python\s+\d') { return $cmd }
+        } catch {}
+    }
+    return $null
 }
 
 Describe "install.ps1 - Git check" {
@@ -369,13 +381,13 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
     }
 }
 
-Describe "install.ps1 - Phase 1 smoke test" -Tags @("Pending") {
-    # This test becomes active after Phase 2 delivers scripts/cg_index.py.
-    # Marked Pending so it appears in test output without failing the suite.
-    It "cg-index --version exits 0 with non-empty output" -Pending {
+Describe "install.ps1 - cg-index smoke test" {
+    It "cg-index --version exits 0 with non-empty output" {
         $repoRoot = Split-Path $PSScriptRoot -Parent
         $wrapper  = Join-Path $repoRoot "bin\cg-index.cmd"
         if (-not (Test-Path $wrapper)) { Set-ItResult -Skipped -Because "cg-index.cmd not found" }
+        $python = Get-PythonForCgIndexSmoke
+        if (-not $python) { Set-ItResult -Skipped -Because "Python is not available" }
         $output   = & cmd /c "`"$wrapper`" --version 2>&1"
         $LASTEXITCODE | Should -Be 0
         $output       | Should -Not -BeNullOrEmpty
