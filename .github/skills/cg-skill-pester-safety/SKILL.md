@@ -153,11 +153,58 @@ In a long fix-triage session (accumulated brainstorm + plan + implementation + r
 - Long interactive session OR large test file (300+ tests) → **use `execution_subagent`**
 - Any session + `prompt-tools.Tests.ps1` → **always use `execution_subagent`**
 
+## `prompt-tools.Tests.ps1` — Regex Test Quality Anti-Patterns
+
+When writing or reviewing `-match` assertions in `prompt-tools.Tests.ps1`, watch for these three failure modes. Each produces a permanently-green test that covers less than it claims.
+
+### 1. Dead arm from typo (born broken)
+
+A misspelled alternation arm never matches — the test passes via a sibling arm. Invisible at code review because the spelling looks plausible.
+
+```powershell
+# ❌ 'fall back' never matches 'falls back to plan policy'
+($content -match 'warn.*plan policy|fall back.*plan') | Should -Be $true
+
+# ✅ Derived directly from the prompt text
+($content -match 'warn.*plan policy|falls back.*plan') | Should -Be $true
+```
+
+**Prevention**: Before writing an arm, read the actual prompt line and copy the exact wording. Then verify each arm in isolation. See `.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md`.
+
+### 2. Always-true first arm (first branch swallows everything)
+
+The first arm matches all inputs that satisfy the test intent, so later arms are never evaluated. `Forget` can be deleted from the prompt and the test still passes.
+
+```powershell
+# ❌ Ignore.*Override always matches; Override.*Forget is never required
+($content -match 'Ignore.*Override|Override.*Forget') | Should -Be $true
+
+# ✅ Each word asserted independently
+($content -match 'Ignore') | Should -Be $true
+($content -match 'Override') | Should -Be $true
+($content -match 'Forget') | Should -Be $true
+```
+
+See `.cg-docs/solutions/testing-patterns/2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md`.
+
+### 3. Stale arm after prompt refactoring (was correct, now dead)
+
+An arm was valid at creation time. After the prompt text changed, the arm no longer matches — but the test passes via a surviving sibling arm. The dead arm may accidentally rescue the test if the surviving arm is later removed.
+
+**Prevention**: After any prompt refactor, re-derive all related regex patterns from the new text rather than minimally editing old ones. See `.cg-docs/solutions/testing-patterns/2026-05-05-stale-alternation-after-prompt-refactoring.md`.
+
+### General rule
+
+For all three variants: **test each alternation arm independently before committing**. A passing combined test does not prove all arms match.
+
+---
+
 ## Related
 
 - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — Full diagnosis and root cause
 - `.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md` — Why single-location documentation is insufficient; dual-location strategy
 - `.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md` — Context overflow crash even with safe PowerShell patterns; fix-triage long-session guidance
+- `.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md` — Typo variant: dead-from-inception arm; prevention checklist
 
 ## PowerShell Helper Anti-Patterns
 

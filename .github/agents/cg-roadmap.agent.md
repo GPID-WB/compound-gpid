@@ -236,6 +236,7 @@ Typically dispatched by `/cg-issues adopt`.
   5. Every `features[].status` is one of `idea`, `planned`, `active`, `done`.
   6. If `githubIssues` is present: `repo` matches `owner/repo`, `enabled` and `autoCreate` are booleans.
   7. If any `features[].github` is present: `issueNumber` is a positive integer, `issueUrl` matches `^https://github\.com/[^/]+/[^/]+/issues/[1-9]\d*$`, `repo` matches `owner/repo` pattern, `createdAt` matches `^\d{4}-\d{2}-\d{2}$`.
+  8. Every `milestones[]` entry has an `objective` field (non-empty string). If missing, prompt the user before writing.
   If any check fails, fix it before writing.
 - Confirm destructive operations (remove) with the user before executing.
 - When dispatched as a subagent, do not ask questions -- use the information
