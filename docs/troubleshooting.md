@@ -581,6 +581,8 @@ Duplicate prevention checks three tiers:
 2. Hidden body marker `<!-- compound-gpid-tracked: <feature-id> -->` — issue was created by Compound GPID.
 3. Title similarity search — surfaced for user review.
 
+GitHub search can be fuzzy. If a broad search appears to match a different hyphenated feature ID, verify the issue body contains the exact `compound-gpid-tracked: <feature-id>` marker before linking.
+
 If a duplicate is created despite these checks, link the feature to the existing issue manually:
 
 ```
@@ -628,3 +630,9 @@ Roadmap status and GitHub issue state are tracked independently — a closed iss
 1. **Keep the linkage**: If work is complete, advance the roadmap feature status separately via `@cg-roadmap`.
 2. **Update the linked issue**: Use `/cg-issues link` with a new open issue number to replace the stale reference.
 3. **Remove the linkage**: Ask `@cg-roadmap` to clear the `github` block: "Remove the `github` block from feature `<feature-id>`."
+
+### `/cg-strategy` or `/cg-resume` suggests `/cg-issues backfill`
+
+This is expected when GitHub Issues are enabled and newly added, changed, active, planned, or otherwise relevant work items do not have a `github` block in `roadmap.json`. The prompt is a handoff only: `/cg-strategy` and `/cg-resume` do not create issues automatically.
+
+After a one-time backlog backfill, this reminder should usually be delta-based. Use `/cg-issues backfill` for newly added unlinked roadmap items, or `/cg-issues link` when an existing GitHub issue should track the feature.

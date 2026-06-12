@@ -788,13 +788,13 @@ check the Copilot UI if that identity matters.
 
 **Modes**:
 - `status` (default, read-only): Show which features have linked issues and which do not. Safe to run at any time.
-- `backfill`: Create or link GitHub issues for all unlinked features. Each issue requires your explicit confirmation.
+- `backfill`: Create or link GitHub issues for unlinked features. Issue creation requires explicit confirmation; for large batches, the user may explicitly confirm the selected batch scope.
 - `link`: Attach an existing GitHub issue to a specific feature by number. Does not change feature status.
 - `adopt`: Import a GitHub issue as a new roadmap feature (created at `planned`). Does not change the linked issue's state.
 - `setup`: Configure `githubIssues.repo`, `labelPrefix`, and `autoCreate` in `roadmap.json` via `@cg-roadmap`.
 
 **Key behaviors**:
-- Never creates issues without per-issue confirmation — `autoCreate: true` is opt-in and does not bypass confirmation.
+- Never creates issues without explicit confirmation — `autoCreate: true` is opt-in and does not bypass confirmation.
 - Three-tier duplicate prevention: stored metadata → hidden body marker search → title search.
 - Missing labels surface a create/skip/cancel choice — never silently fails.
 - Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute).
@@ -802,13 +802,16 @@ check the Copilot UI if that identity matters.
 - All roadmap writes go through `@cg-roadmap` (never writes `roadmap.json` directly).
 - Never calls `gh issue close`. Issue closure happens through the PR body (`Closes #`).
 - Degrades gracefully when `gh` is not installed or not authenticated.
+- GitHub Issues are tracking handles for roadmap work items, not the source of truth. Keep working through `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, and `/cg-commit-push-pr` as usual.
 
 **GitHub Issues appear in workflow at**:
-- `/cg-resume`: displays linked issue number alongside active features (read-only, non-blocking)
-- `/cg-strategy`: after approved roadmap changes, offers a handoff to `/cg-issues backfill` (optional — never automatic)
+- `/cg-resume`: displays linked issue numbers alongside active features (read-only, non-blocking). If current active/planned work is missing issue links, it may suggest `/cg-issues link` or `/cg-issues backfill`.
+- `/cg-strategy`: after approved roadmap changes, offers a delta-based handoff to `/cg-issues backfill` for newly added or changed unlinked work items (optional — never automatic)
 - `/cg-plan`: after linking a plan to a roadmap feature, suggests `/cg-issues link` if no issue is linked (non-blocking — does not block plan registration)
 - `/cg-work`: displays the linked issue at the start; suggests `/cg-issues link` if missing (non-blocking)
 - `/cg-commit-push-pr`: adds `Refs #` or `Closes #` to the PR body from linked issue metadata
+
+After a one-time backfill, normal use is delta-based: when new roadmap features are added later, run `/cg-issues backfill` or `/cg-issues link` for those new unlinked work items. Do not manually close linked issues during implementation; let PR merge close them when the PR body uses `Closes #`.
 
 **When NOT to use**:
 - When GitHub Issues integration is disabled (`githubIssues.enabled: false` or absent) — run `/cg-issues setup` first. You can also configure GitHub Issues during project onboarding via `/cg-setup`.
