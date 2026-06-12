@@ -511,8 +511,8 @@
           "id": "github-issues-integration",
           "title": "GitHub Issues integration (optional, via gh CLI)",
           "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive — not a replacement for the existing roadmap feature.",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-11-github-issues-integration.md"
         },
         {
           "id": "pr-verification-pipeline",
@@ -790,5 +790,11 @@
         }
       ]
     }
-  ]
+  ],
+  "githubIssues": {
+    "enabled": true,
+    "repo": "GPID-WB/compound-gpid",
+    "labelPrefix": "cg:",
+    "autoCreate": false
+  }
 }
