@@ -728,8 +728,8 @@
           "id": "goal-driven-execution",
           "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
           "description": "Transform the /cg-plan → /cg-work → /cg-review pipeline into a goal-driven execution loop inspired by Codex Goals. The plan becomes a completion contract defining six properties: outcome (what should be true when done), verification surface (tests/benchmarks/artifacts that prove it), constraints (what must not regress), boundaries (allowed scope), iteration policy (how to choose next action), and blocked-stop condition (when to pause and report). /cg-work executes against this contract — validating inline, self-reviewing against criteria, and continuing until evidence confirms the outcome or a blocker is hit. Deviation policy is declared in the plan: 'ask' (pause for permission), 'autonomous' (deviate and report), or 'strict' (never deviate). A full implementation report is produced at completion showing: what was achieved vs. planned, any deviations with justification, evidence gathered, and remaining uncertainty. The separate /cg-review command remains available for adversarial/cross-model review but is no longer required as a default post-work step.",
-          "status": "idea",
-          "plan": null,
+          "status": "planned",
+          "plan": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
           "github": {
             "issueNumber": 83,
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/83",
