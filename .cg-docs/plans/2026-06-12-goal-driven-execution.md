@@ -1,14 +1,16 @@
 ---
 date: 2026-06-12
 title: "Goal-driven execution for /cg-plan and /cg-work"
-status: active
+status: completed
+completed-date: 2026-06-12
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md"
 language: "PowerShell/Markdown"
 estimated-effort: "large"
 phases: 4
-completed-phases: []
-current-phase: 1
+completed-phases: [1, 2, 3, 4]
+current-phase: 4
+execution-report: .cg-docs/work-reports/2026-06-12-goal-driven-execution.md
 deviation-policy: ask
 tags: [workflow, cg-plan, cg-work, goal-driven-execution, validation, completion-contract]
 ---
