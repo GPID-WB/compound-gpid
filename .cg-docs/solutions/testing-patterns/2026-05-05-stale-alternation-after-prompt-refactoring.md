@@ -119,3 +119,4 @@ rather than alternation:
 
 - [2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md](2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md) — always-true first branch variant (root cause differs: structural vs. became-stale)
 - [2026-04-15-pester-dotall-flag-required-for-multiline-regex.md](2026-04-15-pester-dotall-flag-required-for-multiline-regex.md) — related regex correctness issue in Pester
+- [2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md](2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md) — third variant: arm dead from inception due to typo; distinct from stale-after-refactoring

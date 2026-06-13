@@ -140,7 +140,15 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - For Standard or Deep tasks before invoking `/cg-work`
 - When you want `/cg-work` to have clear scope boundaries and verification checkpoints
 
-**What happens**: The prompt first **checks for prior work** — it scans `.cg-docs/plans/` for any existing plan on the same feature and offers to refine, follow up from, or start fresh. It then reads any relevant brainstorm, researches your codebase, assesses the implementation scope, and creates a step-by-step plan with files to create/modify, tests to write, and acceptance criteria. A confidence check validates completeness, testability, dependencies, risk coverage, and scope clarity before finalizing. If `roadmap.json` exists, the prompt offers to link the plan to a matching roadmap feature.
+**What happens**: The prompt first **checks for prior work** — it scans `.cg-docs/plans/` for any existing plan on the same feature and offers to refine, follow up from, or start fresh. It then reads any relevant brainstorm, researches your codebase, assesses the implementation scope, and creates a step-by-step plan with files to create/modify, tests to write, and acceptance criteria. Every saved plan includes a `## Completion Contract` section (Outcome, Verification Surface, Constraints, Boundaries, Iteration Policy, Blocked-Stop Conditions) that `/cg-work` uses as its execution authority. The contract is **previewed for user approval before the plan is written** — approval is treated as signing the contract. A confidence check validates completeness, testability, dependencies, risk coverage, and scope clarity before finalizing. If `roadmap.json` exists, the prompt offers to link the plan to a matching roadmap feature.
+
+**Deviation policy**: Control how `/cg-work` handles necessary departures from the plan using the `deviate:` argument:
+
+| Argument | Stored value | Behavior during `/cg-work` |
+|---|---|---|
+| `deviate:ask` (default) | `ask` | Pause before any deviation; record decision. |
+| `deviate:auto` or `deviate:autonomous` | `autonomous` | Allow justified deviation; record decision and impact. |
+| `deviate:strict` | `strict` | Never deviate; blocked-stop unless the plan is revised. |
 
 **Scope assessment**: The prompt classifies scope before writing the plan:
 
@@ -199,7 +207,13 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - To implement a known Lightweight task without a prior plan (the prompt generates a brief inline plan)
 - To continue an implementation that was interrupted in a previous session
 
-**What happens**: The prompt loads the most recent plan (or generates a short inline plan for Lightweight tasks when no plan file exists) and implements it step by step — writing code, tests, and documentation. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The plan file is updated to `completed` status.
+**What happens**: The prompt loads the most recent plan (or generates a short inline plan for Lightweight tasks when no plan file exists) and implements it step by step — writing code, tests, and documentation. **Goal-driven execution loop**: `/cg-work` reads the plan's `## Completion Contract` as its execution authority and creates a durable execution report at `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` before implementation starts. Completion is only recorded when required evidence passes a strict evidence gate (an actually executed check — not static inspection alone) or an explicit accepted exception with rationale is logged in the report. Deviations, accepted exceptions, and evidence results are all recorded in the execution report. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The plan file is updated to `completed` status.
+
+**Deviation policy**: The active policy for the run comes from the plan's `deviation-policy` frontmatter (set when planning) unless overridden at runtime with a `deviate:` argument. Same values as `/cg-plan` above: `ask` (default, pauses before deviating), `autonomous` (deviates with audit trail), `strict` (blocked-stop on any deviation).
+
+**Execution report** (`.cg-docs/work-reports/`): Created early in the run and updated incrementally. Contains the active deviation policy, completed steps/phases, all deviations with decisions, accepted exceptions with rationale, evidence table (mirroring the plan's Verification Surface), constraints check, remaining uncertainty, and final status. If a blocked run is resumed, a new run/resume section is appended — prior accountability evidence is preserved.
+
+**Legacy plans** (no `## Completion Contract`): `/cg-work` halts and offers to generate a minimal compatibility contract for approval before proceeding.
 
 **Inline plan handling** (when no plan file is found):
 - The prompt does a keyword search across `.cg-docs/plans/` first — an existing relevant plan may not have been the most recent.
@@ -219,13 +233,14 @@ The prompt scans its own output for:
 
 **Scenarios**:
 - *Normal implementation*: Load the plan, implement step by step, commit at each checkpoint.
-- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase to continue with, then use `/cg-work phaseN`.
-- *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan before starting.
-- *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint. `/cg-resume` shows phase progress and the next command when you return to a paused phased plan.
-- *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). To re-run a completed phase, manually remove N from `completed-phases` in the plan frontmatter, then run `/cg-work phaseN`.
-- *Roadmap-linked feature*: The roadmap feature transitions automatically: idea → planned (on `/cg-plan`) → active (on `/cg-work` start) → done (when you complete the plan).
+- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase to continue with, then use `/cg-work phaseN`. The existing execution report is resumed (a new run/resume section is appended).
+- *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan (including a minimal completion contract) before starting.
+- *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint and evidence gate check.
+- *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). The evidence gate checks only the verification rows for phase N before writing to `completed-phases`.
+- *Roadmap-linked feature*: The roadmap feature transitions automatically: idea → planned (on `/cg-plan`) → active (on `/cg-work` start) → done (when you complete the plan, after evidence gate passes).
+- *Override deviation policy at runtime*: Add `deviate:autonomous` to proceed without pause on minor plan adjustments, while still logging them in the execution report.
 
-**Handoff options**: `/cg-review` (review the changes), `/cg-compound` (capture learnings), `/cg-fixbug` (discovered a bug mid-implementation), `/cg-plan` (next feature).
+**Handoff options**: `/cg-review` (remains available for adversarial/cross-model review — no longer required as the default post-work step when evidence gates pass), `/cg-compound` (capture learnings), `/cg-fixbug` (discovered a bug mid-implementation), `/cg-plan` (next feature).
 
 **When NOT to use**:
 - For tasks that clearly span multiple files or days without a plan — use `/cg-plan` first. `/cg-work` will warn you if the scope looks too large for an inline plan.
@@ -788,13 +803,13 @@ check the Copilot UI if that identity matters.
 
 **Modes**:
 - `status` (default, read-only): Show which features have linked issues and which do not. Safe to run at any time.
-- `backfill`: Create or link GitHub issues for all unlinked features. Each issue requires your explicit confirmation.
+- `backfill`: Create or link GitHub issues for unlinked features. Issue creation requires explicit confirmation; for large batches, the user may explicitly confirm the selected batch scope.
 - `link`: Attach an existing GitHub issue to a specific feature by number. Does not change feature status.
 - `adopt`: Import a GitHub issue as a new roadmap feature (created at `planned`). Does not change the linked issue's state.
 - `setup`: Configure `githubIssues.repo`, `labelPrefix`, and `autoCreate` in `roadmap.json` via `@cg-roadmap`.
 
 **Key behaviors**:
-- Never creates issues without per-issue confirmation — `autoCreate: true` is opt-in and does not bypass confirmation.
+- Never creates issues without explicit confirmation — `autoCreate: true` is opt-in and does not bypass confirmation.
 - Three-tier duplicate prevention: stored metadata → hidden body marker search → title search.
 - Missing labels surface a create/skip/cancel choice — never silently fails.
 - Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute).
@@ -802,13 +817,16 @@ check the Copilot UI if that identity matters.
 - All roadmap writes go through `@cg-roadmap` (never writes `roadmap.json` directly).
 - Never calls `gh issue close`. Issue closure happens through the PR body (`Closes #`).
 - Degrades gracefully when `gh` is not installed or not authenticated.
+- GitHub Issues are tracking handles for roadmap work items, not the source of truth. Keep working through `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, and `/cg-commit-push-pr` as usual.
 
 **GitHub Issues appear in workflow at**:
-- `/cg-resume`: displays linked issue number alongside active features (read-only, non-blocking)
-- `/cg-strategy`: after approved roadmap changes, offers a handoff to `/cg-issues backfill` (optional — never automatic)
+- `/cg-resume`: displays linked issue numbers alongside active features (read-only, non-blocking). If current active/planned work is missing issue links, it may suggest `/cg-issues link` or `/cg-issues backfill`.
+- `/cg-strategy`: after approved roadmap changes, offers a delta-based handoff to `/cg-issues backfill` for newly added or changed unlinked work items (optional — never automatic)
 - `/cg-plan`: after linking a plan to a roadmap feature, suggests `/cg-issues link` if no issue is linked (non-blocking — does not block plan registration)
 - `/cg-work`: displays the linked issue at the start; suggests `/cg-issues link` if missing (non-blocking)
 - `/cg-commit-push-pr`: adds `Refs #` or `Closes #` to the PR body from linked issue metadata
+
+After a one-time backfill, normal use is delta-based: when new roadmap features are added later, run `/cg-issues backfill` or `/cg-issues link` for those new unlinked work items. Do not manually close linked issues during implementation; let PR merge close them when the PR body uses `Closes #`.
 
 **When NOT to use**:
 - When GitHub Issues integration is disabled (`githubIssues.enabled: false` or absent) — run `/cg-issues setup` first. You can also configure GitHub Issues during project onboarding via `/cg-setup`.

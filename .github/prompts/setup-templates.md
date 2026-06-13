@@ -142,21 +142,23 @@ Create the following directories and `.gitkeep` files if they do not already exi
 │   └── .gitkeep
 ├── strategy/
 │   └── .gitkeep
-└── solutions/
-    ├── build-errors/
-    │   └── .gitkeep
-    ├── bugs/
-    │   └── .gitkeep
-    ├── data-quality/
-    │   └── .gitkeep
-    ├── environment-issues/
-    │   └── .gitkeep
-    ├── git-workflows/
-    │   └── .gitkeep
-    ├── performance-issues/
-    │   └── .gitkeep
-    └── testing-patterns/
-        └── .gitkeep
+├── solutions/
+│   ├── build-errors/
+│   │   └── .gitkeep
+│   ├── bugs/
+│   │   └── .gitkeep
+│   ├── data-quality/
+│   │   └── .gitkeep
+│   ├── environment-issues/
+│   │   └── .gitkeep
+│   ├── git-workflows/
+│   │   └── .gitkeep
+│   ├── performance-issues/
+│   │   └── .gitkeep
+│   └── testing-patterns/
+│       └── .gitkeep
+└── work-reports/
+    └── .gitkeep
 ```
 
 ---
@@ -226,6 +228,7 @@ without touching existing files:
 .cg-docs/archive/
 .cg-docs/brainstorms/
 .cg-docs/plans/
+.cg-docs/work-reports/
 .cg-docs/solutions/build-errors/
 .cg-docs/solutions/bugs/
 .cg-docs/solutions/data-quality/

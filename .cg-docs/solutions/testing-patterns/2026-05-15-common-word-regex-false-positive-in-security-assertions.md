@@ -123,5 +123,6 @@ When adding presence tests for new security or behavioral rules in `.md` files:
 ## Related
 
 - `.cg-docs/solutions/testing-patterns/2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md` — alternation (`a|b|c`) hides which branch is actually tested
+- `.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md` — alternation arm dead from inception due to spelling typo; test passes via sibling arm
 - `.cg-docs/solutions/testing-patterns/2026-05-05-pester-regex-assert-string-message-false-positive-inlist.md` — false positives from list membership tests
 - `.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md` — the injection scan rule these tests should verify

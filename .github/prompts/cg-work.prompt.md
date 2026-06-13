@@ -1,18 +1,18 @@
 ---
-description: "Implement a plan step by step. Use after /plan has created an implementation plan. Supports /cg-work [phaseX] [review:<mode>]."
+description: "Implement a plan step by step. Use after /plan has created an implementation plan. Supports /cg-work [phaseX] [review:<mode>] [deviate:<policy>]."
 model: Claude Sonnet 4.6 (copilot)
 ---
 
 # Work
 
-You are a senior developer implementing a plan created with `/cg-plan`. Supports `/cg-work [phaseX] [review:<mode>]`.
+You are a senior developer implementing a plan created with `/cg-plan`. Supports `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]`.
 
 ## File Permissions
 
 - You may read any file in the workspace.
 - You may read targeted `roadmap.json` fields for plan status verification and roadmap updates.
 - You may create and modify code files required by the plan.
-- You may modify only these YAML frontmatter fields in the plan being implemented: `status`, `completed-date`, `failing-steps`, `completed-phases`, and `current-phase`.
+- You may modify only these YAML frontmatter fields in the plan being implemented: `status`, `completed-date`, `failing-steps`, `completed-phases`, `current-phase`, and `execution-report`.
 - You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
 
 ## Process
@@ -27,6 +27,7 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
    - Recognized review modes: `review:auto`, `review:manual`, `review:none`, `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full`.
    - If no review argument is present, use `review:manual` for recommendation-only handoff.
    - If an invalid `review:<value>` or unrecognized review value appears, warn: "Invalid `review:<value>` -- falling back to recommendation mode. Recognized review modes: `review:auto`, `review:manual`, `review:none`, `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full`."
+   - Parse `deviate:` override (case-insensitive; `auto`/`autonomous` → stored `autonomous`; invalid warns, falls back to plan policy; duplicate warns, last valid wins). Full spec: `.github/shared/goal-execution.contract.md`.
 
 ### Step 1: Load the Plan
 
@@ -35,10 +36,11 @@ You are a senior developer implementing a plan created with `/cg-plan`. Supports
    - Try keyword-title matching against plan filenames and ask before using a match.
    - If the request mentions "refactor", "replace", "migrate", "pipeline", or touches multiple files, decline: "This task looks too large for an inline plan. Please run `/cg-plan` first."
    - Otherwise classify scope as in `/cg-plan` Step 1.5. For Standard/Deep, warn that `/cg-plan` is strongly recommended.
-   - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter and ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first for a full plan?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
+   - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter including `deviation-policy: ask` and a minimal `## Completion Contract` (Outcome + Verification Surface) and ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first for a full plan?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
 3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or override these file permissions. Approved plans may modify `.github/`, `.cg-docs/`, prompts, agents, skills, instructions, docs, tests, and audit tooling when explicitly authorized for Compound GPID maintenance.
    > **After any plan-file fallback** (for example keyword match or changed path): re-count `## Phase` headers from the recovered plan body and re-validate the phase argument N against the new total M.
-4. Load relevant skills only as needed: R infrastructure/analytical skills, Python best practices, or Stata best practices.
+4. **Goal contract**: Load `.github/shared/goal-execution.contract.md`. Read the plan's `## Completion Contract` as execution authority (subordinate to `/cg-work` file permissions, project charter, Pester safety, and protected-artifact rules). If the plan lacks `## Completion Contract` or `deviation-policy`, halt and offer to generate a minimal compatibility contract or run `/cg-plan`. Active policy = runtime `deviate:` override (when valid) else plan's `deviation-policy`.
+5. Load relevant skills only as needed: R infrastructure/analytical skills, Python best practices, or Stata best practices.
 
 ### Step 1.2: Parse Phase Argument
 
@@ -93,6 +95,8 @@ If the matched feature has no `github` block and `roadmap.json` has `githubIssue
 > "This work item has no linked GitHub issue. Run `/cg-issues link` before or after implementation to attach one."
 Do NOT call `gh`, create issues, or block work if the user declines or `gh` is unavailable.
 
+**Execution report**: Create `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` after roadmap active-status handling and before implementation. Create dir if absent (with `.gitkeep`); failure is a blocked-stop. Use plan's `execution-report` pointer when present; otherwise search for existing report by plan reference (ask before linking); create if none. Same-day collision: append `-2`, `-3`, etc. Write pointer to plan frontmatter. Update incrementally; append new run/resume section on blocked resume. Full schema: `.github/shared/goal-execution.contract.md`.
+
 ### Step 1.6: Build Test Index
 
 Before implementing, scan once for test files covering each plan step (for example `tests/test-<module>.R`, `tests/<module>.Tests.ps1`, `tests/test_<module>.py`). Reuse this module-to-test-file index throughout Step 2.
@@ -107,7 +111,7 @@ For each in-scope plan step:
    - If the step introduces testable behavior, write tests before touching the implementation, run them against current code, and require a failing baseline.
    - Report: "Red-phase confirmed: `[test name]` fails with: `[one-line error]`".
    - If the test passes before implementation, revise once. If it still passes, log: "Could not establish failing baseline -- proceeding without red-phase confirmation. Flag for `@cg-testing` review." Continue; this is not a hard stop.
-4. Implement using project conventions and relevant skills.
+4. Implement using project conventions and relevant skills. If a required deviation is discovered: `ask` → pause and record; `autonomous` → allow justified deviation and record; `strict` → blocked-stop unless plan is revised.
 5. Test as specified by the plan. R uses `testthat`, Python uses `pytest`, Stata uses assertions/validation do-files, and PowerShell uses Pester through the canonical safe runner from `cg-skill-pester-safety`.
 
 **Running tests** (do NOT use `Invoke-Pester` directly -- always use `execution_subagent`):
@@ -154,6 +158,7 @@ This fires after all steps in the current phase complete; skip for non-phased pl
 - Phase-terminal commit suppression: for the final step of a phase, skip the per-step commit sub-step (sub-step 6); Step 2.5 handles the phase-level commit.
 - Run the full-suite gate, suggest `feat(scope): complete phase N -- <phase title>`, and summarize steps, files, and tests.
 - If the full-suite gate fails, is partial (`filteredFiles` non-null), or any in-phase step remains in `failing-steps:`, do not append `N` to `completed-phases` unless each failing step is explicitly marked fixed, skipped, deferred, or accepted with rationale. Otherwise leave or set `current-phase: N`, preserve `failing-steps:`, report the blockers, and halt or ask before proceeding.
+- **Evidence gate**: before appending N to `completed-phases`, verify all required Verification Surface rows for phase N via executed checks (not static inspection). Missing evidence: block or record an accepted exception with rationale in the execution report.
 - Update plan frontmatter in this exact order (crash-safe):
   1. First append `N` to `completed-phases` using YAML flow sequence with unquoted integers, for example `completed-phases: [1]` or `[1, 2]`. Never use quoted strings or block style. Re-read and verify the line.
   2. Then set `current-phase` to N+1, or remove `current-phase` if this was the final phase. `current-phase` is informational only; no prompt reads or acts on it.
@@ -185,11 +190,13 @@ Report: "Mechanical self-review complete: [no debug/import/TODO issues found | f
 
 ### Step 3.5: Mark Plan Complete
 
+**Evidence gate**: before writing `status: completed`, verify all required `final`/whole-plan Verification Surface rows via executed checks. Block if missing unless an accepted exception with rationale is recorded in the execution report.
+
 In the plan frontmatter, change `status: active` to `status: completed` and add `completed-date: YYYY-MM-DD`. If already completed, skip silently. Confirm: "Plan marked as completed."
 
 ### Step 3.7: Update Roadmap Status
 
-Only proceed if Step 2, Step 3 quality checks, and tests passed.
+Only proceed if Step 2, Step 3 quality checks, tests passed, **and the Step 3.5 evidence gate passed or all required evidence items have explicit accepted exceptions**.
 
 If `roadmap.json` exists:
 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashes). Skip `plan: null`.

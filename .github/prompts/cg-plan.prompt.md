@@ -24,7 +24,8 @@ You are a senior data science architect creating a structured implementation pla
 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Check whether the requested work aligns with the charter. Flag conflicts before proceeding.
 5. Parse flags: `--no-phases` sets `phases-default = false`; otherwise `true`. `--no-brain` sets `brain-enabled = false`; otherwise `true`.
-6. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits your GitHub Copilot model picker. If Copilot Auto is selected, I will not infer or name the hidden underlying model. If the actual Auto-selected model matters, check Copilot UI/hover details."
+6. Parse `deviate:` flag (case-insensitive): `deviate:ask` (default), `deviate:auto` or `deviate:autonomous` both map to stored `autonomous`, `deviate:strict`. Omitted defaults to `ask`. Empty/invalid values warn and fall back to `ask`. Duplicate `deviate:` tokens warn and the last valid value wins. Store the resolved value as `deviation-policy` in the plan frontmatter. Full spec: `.github/shared/goal-execution.contract.md`.
+7. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits your GitHub Copilot model picker. If Copilot Auto is selected, I will not infer or name the hidden underlying model. If the actual Auto-selected model matters, check Copilot UI/hover details."
 
 ### Step 0.5: Check for Prior Work
 
@@ -105,6 +106,7 @@ scope: "<Lightweight|Standard|Deep>"
 brainstorm: "<link or null>"
 language: "<R|Python|Stata|both>"
 estimated-effort: "<small|medium|large>"
+deviation-policy: "<ask|autonomous|strict>"
 tags: [<tags>]
 ---
 
@@ -129,7 +131,34 @@ tags: [<tags>]
 ## Documentation Checklist
 ## Risks & Mitigations
 ## Out of Scope
+
+## Completion Contract
+
+### Outcome
+<one or two sentences: observable state when done>
+
+### Verification Surface
+| ID | Evidence Required | Command/Artifact | Required |
+|----|-------------------|------------------|----------|
+| V1 | | | yes |
+
+### Constraints
+| ID | Constraint | Check |
+|----|------------|-------|
+| C1 | | |
+
+### Boundaries
+- Allowed: ...
+- Out of scope: ...
+
+### Iteration Policy
+1. ...
+
+### Blocked-Stop Conditions
+- ...
 ```
+
+For Deep phased plans, add an optional `Phase` column to Verification Surface and Constraints tables. For Lightweight plans, a condensed contract (Outcome + Verification Surface only) is acceptable. See `.github/shared/goal-execution.contract.md` for full schema details.
 
 For Standard/Deep plans, include enough detail for `/cg-work` to implement without rediscovering requirements. Keep requirement IDs unique and mapped to steps.
 
@@ -152,8 +181,23 @@ If phasing:
    ### 2. <Step Name>
    ```
 
-### Step 4: Save and Validate
+### Step 4: Contract Preview, Save, and Validate
 
+Before saving the plan, present a **completion contract preview** for user approval. The preview must include, in order:
+
+1. **Outcome** — one or two sentences.
+2. **Verification Surface table** — use the variant (non-phased or phased) appropriate to the plan. For Deep phased plans, include an optional `Phase` column with phase integers or `final`.
+3. **Constraints table** (abbreviated for Lightweight plans).
+4. **Boundaries** — in/out of scope bullets.
+5. **Iteration Policy** — ordered decisions.
+6. **Blocked-Stop Conditions** — halting conditions.
+7. **Deviation policy** — the resolved stored value from Step 0.
+
+Ask: "Here is the completion contract for this plan. Approve to save, or request adjustments."
+
+Do **not** write the plan before the user approves the contract preview. On approval, proceed to save.
+
+**Save:**
 1. Save to `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md`.
 2. Present for review and ask if steps need adjustment.
 3. Verify unique Requirement IDs; renumber duplicates.

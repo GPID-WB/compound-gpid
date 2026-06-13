@@ -6371,3 +6371,201 @@ Describe "cg-commit-push-pr.prompt.md - github issues references" {
         $prohibited.Count | Should -Be 0
     }
 }
+
+# ---------------------------------------------------------------------------
+# goal-execution.contract.md - shared goal-execution contract (Phase 1)
+# ---------------------------------------------------------------------------
+
+Describe "goal-execution.contract.md - shared goal-execution contract" {
+    $contractFile = Join-Path $repoRoot ".github\shared\goal-execution.contract.md"
+    $contract = if (Test-Path $contractFile) { Get-Content $contractFile -Raw -Encoding UTF8 } else { "" }
+
+    It "shared goal-execution contract exists" {
+        Test-Path $contractFile | Should -Be $true
+    }
+
+    It "defines Completion Contract section" {
+        ($contract -match 'Completion Contract') | Should -Be $true
+    }
+
+    It "defines Verification Surface section" {
+        ($contract -match 'Verification Surface') | Should -Be $true
+    }
+
+    It "defines deviate:ask policy" {
+        ($contract -match 'deviate:ask') | Should -Be $true
+    }
+
+    It "defines deviate:auto policy" {
+        ($contract -match 'deviate:auto') | Should -Be $true
+    }
+
+    It "defines deviate:strict policy" {
+        ($contract -match 'deviate:strict') | Should -Be $true
+    }
+
+    It "defines deviate:autonomous alias" {
+        ($contract -match 'deviate:autonomous') | Should -Be $true
+    }
+
+    It "defines deviation-policy stored value" {
+        ($contract -match 'deviation-policy') | Should -Be $true
+    }
+
+    It "defines autonomous stored value (auto -> autonomous mapping)" {
+        ($contract -match '\bautonomous\b') | Should -Be $true
+    }
+
+    It "defines Execution Report section" {
+        ($contract -match 'Execution Report') | Should -Be $true
+    }
+
+    It "defines work-reports path" {
+        ($contract -match '\.cg-docs[/\\]work-reports') | Should -Be $true
+    }
+
+    It "defines strict evidence gate" {
+        ($contract -match 'strict evidence gate') | Should -Be $true
+    }
+
+    It "requires header-driven table parsing" {
+        ($contract -match 'header-driven') | Should -Be $true
+    }
+
+    It "documents optional Phase column in verification tables" {
+        ($contract -match '\bPhase\b') | Should -Be $true
+    }
+
+    It "defines Authority Precedence section" {
+        ($contract -match 'Authority Precedence') | Should -Be $true
+    }
+
+    It "defines Legacy Plan Compatibility section or term" {
+        ($contract -match 'Legacy Plan Compatibility|legacy plan') | Should -Be $true
+    }
+
+    It "defines Report Resume behavior" {
+        ($contract -match 'Report Resume|resume section|blocked.*resume') | Should -Be $true
+    }
+
+    It "documents both non-phased and phased table variants" {
+        # Non-phased: ID | Evidence Required | Command/Artifact | Required
+        ($contract -match 'Evidence Required.*Command/Artifact.*Required') | Should -Be $true
+        # Phased: ID | Phase | Evidence Required | Command/Artifact | Required
+        ($contract -match 'Phase.*Evidence Required') | Should -Be $true
+    }
+
+    It "documents same-day collision suffix behavior" {
+        ($contract -match '-2|-3|suffix|collision') | Should -Be $true
+    }
+
+    It "defines Blocked-Stop Conditions section" {
+        ($contract -match 'Blocked.Stop Condition') | Should -Be $true
+    }
+}
+
+Describe "goal-execution.contract.md - prompt hooks" {
+    $planFile  = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $workFile  = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $planContent = if (Test-Path $planFile) { Get-Content $planFile -Raw -Encoding UTF8 } else { "" }
+    $workContent = if (Test-Path $workFile) { Get-Content $workFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-plan references goal-execution.contract.md" {
+        ($planContent -match 'goal-execution\.contract\.md') | Should -Be $true
+    }
+
+    It "cg-work references goal-execution.contract.md" {
+        ($workContent -match 'goal-execution\.contract\.md') | Should -Be $true
+    }
+
+    It "cg-plan documents deviate:ask argument" {
+        ($planContent -match 'deviate:ask') | Should -Be $true
+    }
+
+    It "cg-plan documents deviate:auto argument" {
+        ($planContent -match 'deviate:auto') | Should -Be $true
+    }
+
+    It "cg-plan documents deviate:strict argument" {
+        ($planContent -match 'deviate:strict') | Should -Be $true
+    }
+
+    It "cg-plan stores autonomous for deviate:auto" {
+        ($planContent -match 'autonomous') | Should -Be $true
+    }
+
+    It "cg-plan documents deviation-policy frontmatter field" {
+        ($planContent -match 'deviation-policy') | Should -Be $true
+    }
+
+    It "cg-plan previews contract before saving plan (approval gate)" {
+        ($planContent -match 'preview.*contract|contract.*preview|approval.*contract|before.*sav') | Should -Be $true
+    }
+
+    It "cg-work documents deviate: override parsing" {
+        ($workContent -match 'deviate:') | Should -Be $true
+    }
+
+    It "cg-work references plan deviation-policy fallback" {
+        ($workContent -match 'deviation-policy') | Should -Be $true
+    }
+
+    It "cg-work documents legacy plan compatibility halt" {
+        ($workContent -match 'legacy|Legacy|## Completion Contract') | Should -Be $true
+    }
+
+    It "cg-work documents execution report creation" {
+        ($workContent -match 'execution.report|work-reports') | Should -Be $true
+    }
+
+    It "cg-work documents evidence gate before completed-phases write" {
+        ($workContent -match 'evidence.*gate|evidence.*complet|verification.*phase') | Should -Be $true
+    }
+
+    It "cg-work documents same-day collision suffix" {
+        ($workContent -match 'collision|append.*-2|-2.*-3') | Should -Be $true
+    }
+
+    It "cg-work documents report identity via execution-report pointer" {
+        ($workContent -match 'execution-report.*pointer|pointer.*execution.report') | Should -Be $true
+    }
+}
+
+Describe "goal-execution.contract.md - journey and compatibility fixtures" {
+    $planFile  = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
+    $workFile  = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $planContent = if (Test-Path $planFile) { Get-Content $planFile -Raw -Encoding UTF8 } else { "" }
+    $workContent = if (Test-Path $workFile) { Get-Content $workFile -Raw -Encoding UTF8 } else { "" }
+
+    It "cg-plan invalid deviate: value warns and falls back to ask" {
+        ($planContent -match 'warn.*fall back|invalid.*deviate|fall back.*ask') | Should -Be $true
+    }
+
+    It "cg-plan duplicate deviate: value warns and last valid wins" {
+        ($planContent -match 'duplicate.*deviate|last valid|last.*wins') | Should -Be $true
+    }
+
+    It "cg-work invalid deviate: override warns and uses plan policy" {
+        ($workContent -match 'warn.*plan policy|invalid.*deviate.*warn|falls back.*plan') | Should -Be $true
+    }
+
+    It "cg-work duplicate deviate: override warns and last valid wins" {
+        ($workContent -match 'duplicate.*deviate|last valid') | Should -Be $true
+    }
+
+    It "cg-work accepted exception requires explicit rationale" {
+        ($workContent -match 'accepted.exception|exception.*rationale') | Should -Be $true
+    }
+
+    It "cg-work missing evidence blocks phase/plan/roadmap completion" {
+        ($workContent -match 'missing.*evidence|evidence.*block|block.*complet') | Should -Be $true
+    }
+
+    It "cg-work contract text cannot override file permissions or safety rules" {
+        ($workContent -match 'Authority Precedence|authority precedence|contract.*subordinate|plan contract.*data') | Should -Be $true
+    }
+
+    It "cg-work blocked plan appends resume section rather than overwriting" {
+        ($workContent -match 'resume section|append.*section|blocked.*resume') | Should -Be $true
+    }
+}
