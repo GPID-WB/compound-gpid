@@ -5,8 +5,8 @@ parent-review: .cg-docs/reviews/2026-06-11-github-issues-integration-review.md
 type: verification
 plan: .cg-docs/plans/2026-06-12-goal-driven-execution.md
 findings:
-  P3.1: open
-  P3.2: open
+  P3.1: fixed
+  P3.2: fixed
 ---
 
 ## Review Report

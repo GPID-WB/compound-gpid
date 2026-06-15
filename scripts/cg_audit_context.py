@@ -56,6 +56,9 @@ SCAN_CATEGORIES = {
     "roadmap": "roadmap.json",
 }
 
+MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
+MODEL_ROLES = {"inherited", "coding", "review", "reasoning", "mechanical", "fallback"}
+
 THRESHOLD_INSTRUCTION_IMMEDIATE = 1500
 THRESHOLD_INSTRUCTION_CRITICAL = 3000
 THRESHOLD_PROMPT_IMMEDIATE = 3000
@@ -176,6 +179,9 @@ RELEASE_READINESS_CHECKLIST = [
     "Guardrail failures are zero, or warnings are documented as maintenance-intentional.",
     "Ordinary model-picker prompts still omit model:.",
     "Premium model usage remains zero.",
+    "Model catalog covers every prompt and agent with one role assignment.",
+    "OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks are reviewed.",
+    "Exact GPT frontmatter support is validated in VS Code/Copilot before broad GPT prompt edits.",
     "/cg-review and /cg-work remain conditional, not broad, dispatch workflows.",
     "Broad Brain/context reads are targeted, justified, or maintenance-only.",
     "Top remaining optimization candidates are reviewed and accepted or filed as future work.",
@@ -289,6 +295,10 @@ def classify_model_tier(model: str | None) -> str:
     """
     if not model:
         return "missing"
+    normalized = normalize_model_name(model)
+    catalog_model = model_catalog_model_lookup({}).get(normalized)
+    if catalog_model:
+        return str(catalog_model.get("tier", "unknown"))
     if "Opus" in model:
         return "premium"
     if "Sonnet" in model:
@@ -315,6 +325,58 @@ def normalize_model_name(model: str | None) -> str:
     return _COPILOT_SUFFIX_RE.sub("", model or "").strip()
 
 
+def load_model_catalog(root: Path) -> dict[str, Any]:
+    """Load the durable model governance catalog.
+
+    Returns an empty catalog shape when the file is absent so tests can build
+    minimal temporary repositories without copying the production catalog.
+    """
+    path = root / MODEL_CATALOG_PATH
+    empty = {
+        "schemaVersion": 0,
+        "policy": {},
+        "frontmatterSupport": [],
+        "models": [],
+        "assignments": [],
+    }
+    if not path.exists():
+        return empty
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        return {**empty, "load_error": f"{path}: {exc}"}
+    for key in empty:
+        payload.setdefault(key, empty[key])
+    return payload
+
+
+def model_catalog_model_lookup(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Return model metadata keyed by normalized model name."""
+    return {
+        normalize_model_name(str(row.get("name", ""))): row
+        for row in catalog.get("models", [])
+        if row.get("name")
+    }
+
+
+def model_catalog_support_lookup(catalog: dict[str, Any]) -> dict[str, str]:
+    """Return frontmatter support status keyed by normalized model name."""
+    return {
+        normalize_model_name(str(row.get("model", ""))): str(row.get("status", "unknown"))
+        for row in catalog.get("frontmatterSupport", [])
+        if row.get("model")
+    }
+
+
+def model_catalog_assignment_lookup(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Return expected prompt/agent assignments keyed by repository path."""
+    return {
+        str(row.get("path")): row
+        for row in catalog.get("assignments", [])
+        if row.get("path")
+    }
+
+
 def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     """Extract model governance metadata from all prompt and agent files.
 
@@ -326,6 +388,10 @@ def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> l
         List of dicts with keys: ``path``, ``category``, ``model``, ``model_tier``,
         ``has_escalation_condition``, ``tools``.
     """
+    catalog = load_model_catalog(root)
+    model_lookup = model_catalog_model_lookup(catalog)
+    support_lookup = model_catalog_support_lookup(catalog)
+    assignment_lookup = model_catalog_assignment_lookup(catalog)
     declarations: list[dict[str, Any]] = []
     for file_record in files:
         if file_record["category"] not in ("prompts", "agents"):
@@ -337,16 +403,28 @@ def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> l
         if model is not None:
             model = str(model)
         path_string = file_record["path"]
+        normalized = normalize_model_name(model)
+        catalog_model = model_lookup.get(normalized, {})
+        assignment = assignment_lookup.get(path_string, {})
         model_tier = (
             "model-picker"
             if model is None and path_string in ORDINARY_MODEL_PICKER_PROMPTS
-            else classify_model_tier(model)
+            else str(catalog_model.get("tier") or classify_model_tier(model))
         )
         declarations.append({
             "path": path_string,
             "category": file_record["category"],
             "model": model,
+            "normalized_model": normalized,
             "model_tier": model_tier,
+            "vendor": catalog_model.get("vendor") or ("inherited" if model_tier == "model-picker" else "unknown"),
+            "family": catalog_model.get("family") or ("Auto" if model_tier == "model-picker" else "unknown"),
+            "role": assignment.get("role", "unknown"),
+            "preferred_model": assignment.get("preferredModel"),
+            "frontmatter_mode": assignment.get("frontmatterMode"),
+            "frontmatter_support": support_lookup.get(normalized) if normalized else None,
+            "catalog_policy_status": catalog_model.get("policyStatus"),
+            "catalog_rationale": assignment.get("rationale"),
             "has_escalation_condition": bool(ESCALATION_RE.search(content)),
             "tools": fm.get("tools"),
         })
@@ -372,7 +450,19 @@ def parse_model_guide(path: Path) -> dict[str, str]:
     """
     if not path.exists():
         return {}
-    guide: dict[str, str] = {}
+    guide = parse_model_guide_assignments(path)
+    return {filename: row["model"] for filename, row in guide.items()}
+
+
+def parse_model_guide_assignments(path: Path) -> dict[str, dict[str, str]]:
+    """Parse model-guide assignment tables with ``File | Model | Role | Rationale``.
+
+    The parser remains tolerant of the older two-column table form, but returns
+    empty role/rationale values for those rows.
+    """
+    if not path.exists():
+        return {}
+    guide: dict[str, dict[str, str]] = {}
     in_table = False
     for line in path.read_text(encoding="utf-8-sig").splitlines():
         stripped = line.strip()
@@ -388,9 +478,30 @@ def parse_model_guide(path: Path) -> dict[str, str]:
             continue
         filename = cells[0].strip("` ")
         model = cells[1].strip("` ")
+        role = cells[2].strip("` ") if len(cells) > 2 else ""
+        rationale = cells[3].strip("` ") if len(cells) > 3 else ""
         if filename and filename != "---------------":
-            guide[filename] = model
+            guide[filename] = {"model": model, "role": role, "rationale": rationale}
     return guide
+
+
+def model_guide_matches_declaration(declaration: dict[str, Any], expected: str | None) -> bool:
+    """Return whether a model-guide value matches one prompt/agent declaration.
+
+    Inherited/model-picker prompts intentionally omit ``model:`` frontmatter.
+    The model guide documents those rows as ``Copilot model picker`` so humans
+    can distinguish them from missing metadata; treat that wording as equivalent
+    to absent frontmatter only when the catalog role is explicitly inherited.
+    """
+    if not expected:
+        return True
+    actual = normalize_model_name(declaration.get("model"))
+    guide_value = normalize_model_name(expected)
+    if actual == guide_value:
+        return True
+    if declaration.get("model") is None and declaration.get("role") == "inherited":
+        return guide_value.lower() in {"copilot model picker", "model picker", "inherited"}
+    return False
 
 
 def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[str, Any]:
@@ -405,12 +516,51 @@ def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[s
         ``premium_usage``, ``ordinary_model_picker_violations``.
     """
     declarations = extract_model_declarations(root, files)
+    catalog = load_model_catalog(root)
+    assignment_lookup = model_catalog_assignment_lookup(catalog)
+    support_lookup = model_catalog_support_lookup(catalog)
     guide = parse_model_guide(root / "docs" / "model-guide.md")
     missing = [d for d in declarations if d["model_tier"] == "missing"]
+    missing_catalog_assignments = [d for d in declarations if d["role"] == "unknown"]
+    invalid_catalog_roles = [
+        d for d in declarations
+        if d["role"] != "unknown" and d["role"] not in MODEL_ROLES
+    ]
+    stale_model_names = [
+        d for d in declarations
+        if d["model"] is not None and d["vendor"] == "unknown"
+    ]
+    openai_first_violations = []
+    haiku_role_violations = []
+    sonnet_role_violations = []
+    frontmatter_support_gaps = []
+    for declaration in declarations:
+        if declaration["model"] is None:
+            continue
+        role = declaration.get("role")
+        vendor = declaration.get("vendor")
+        normalized = declaration.get("normalized_model")
+        preferred = declaration.get("preferred_model")
+        preferred_support = support_lookup.get(normalize_model_name(str(preferred))) if preferred else None
+        if role in ("coding", "review", "reasoning") and vendor == "anthropic":
+            if role == "review" and declaration.get("frontmatter_mode") == "manual-cross-vendor":
+                sonnet_role_violations.append(declaration)
+            else:
+                openai_first_violations.append(declaration)
+        if role != "mechanical" and normalized == "Claude Haiku 4.5":
+            haiku_role_violations.append(declaration)
+        if normalized == "Claude Sonnet 4.6" and role not in ("fallback",):
+            if declaration.get("frontmatter_mode") != "manual-cross-vendor":
+                sonnet_role_violations.append(declaration)
+        if preferred and preferred_support in ("picker-only", "unsupported", "not-tested", None):
+            frontmatter_support_gaps.append({**declaration, "preferred_model_support": preferred_support or "missing"})
+    catalog_paths = set(assignment_lookup)
+    declaration_paths = {d["path"] for d in declarations}
+    unused_catalog_assignments = sorted(catalog_paths - declaration_paths)
     drift = []
     for declaration in declarations:
         expected = guide.get(Path(declaration["path"]).name)
-        if expected and normalize_model_name(declaration["model"]) != normalize_model_name(expected):
+        if expected and not model_guide_matches_declaration(declaration, expected):
             drift.append(
                 {
                     "path": declaration["path"],
@@ -426,9 +576,22 @@ def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[s
     return {
         "declarations": declarations,
         "missing": missing,
+        "missing_catalog_assignments": missing_catalog_assignments,
+        "invalid_catalog_roles": invalid_catalog_roles,
+        "stale_model_names": stale_model_names,
+        "openai_first_violations": openai_first_violations,
+        "haiku_role_violations": haiku_role_violations,
+        "sonnet_role_violations": sonnet_role_violations,
+        "frontmatter_support_gaps": frontmatter_support_gaps,
+        "unused_catalog_assignments": unused_catalog_assignments,
         "drift": drift,
         "premium_usage": premium_usage,
         "ordinary_model_picker_violations": ordinary_model_picker_violations,
+        "catalog": {
+            "path": MODEL_CATALOG_PATH,
+            "load_error": catalog.get("load_error"),
+            "assignment_count": len(assignment_lookup),
+        },
     }
 
 
@@ -908,6 +1071,9 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
             "missing_model_count": len(model_inventory.get("missing", [])),
             "model_drift_count": len(model_inventory.get("drift", [])),
             "ordinary_model_picker_violations": len(model_inventory.get("ordinary_model_picker_violations", [])),
+            "openai_first_violations": len(model_inventory.get("openai_first_violations", [])),
+            "haiku_role_violations": len(model_inventory.get("haiku_role_violations", [])),
+            "sonnet_role_violations": len(model_inventory.get("sonnet_role_violations", [])),
         },
         "context_loading": _count_context_levels(context_rows),
         "review_agent_counts": _review_agent_counts_from_contract(root),
@@ -1006,6 +1172,9 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
             "ordinary_model_picker_violations": len(inventory.get("ordinary_model_picker_violations", [])),
             "missing_model_count": len(inventory.get("missing", [])),
             "model_drift_count": len(inventory.get("drift", [])),
+            "openai_first_violations": len(inventory.get("openai_first_violations", [])),
+            "haiku_role_violations": len(inventory.get("haiku_role_violations", [])),
+            "sonnet_role_violations": len(inventory.get("sonnet_role_violations", [])),
         },
     }
 
@@ -1043,6 +1212,25 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
         fail(premium["path"], "premium model usage requires explicit future allowlist and rationale")
     for drift in report.get("model_inventory", {}).get("drift", []):
         fail(drift["path"], "model guide drift")
+    inventory = report.get("model_inventory", {})
+    if inventory.get("catalog", {}).get("load_error"):
+        fail(MODEL_CATALOG_PATH, f"model catalog could not be parsed: {inventory['catalog']['load_error']}")
+    for row in inventory.get("missing_catalog_assignments", []):
+        fail(row["path"], "prompt/agent is missing a model-catalog role assignment")
+    for row in inventory.get("invalid_catalog_roles", []):
+        fail(row["path"], f"invalid model-catalog role: {row.get('role')}")
+    for path in inventory.get("unused_catalog_assignments", []):
+        fail(path, "model-catalog assignment has no matching prompt/agent file")
+    for row in inventory.get("stale_model_names", []):
+        fail(row["path"], f"frontmatter model is not in model catalog: {row.get('model')}")
+    for row in inventory.get("openai_first_violations", []):
+        fail(row["path"], f"{row.get('role')} workflow is not OpenAI-first: {row.get('model')}")
+    for row in inventory.get("haiku_role_violations", []):
+        fail(row["path"], "Haiku is allowed only for mechanical workflows")
+    for row in inventory.get("sonnet_role_violations", []):
+        fail(row["path"], "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default")
+    for row in inventory.get("frontmatter_support_gaps", []):
+        warn(row["path"], f"preferred model frontmatter support is {row.get('preferred_model_support')}: {row.get('preferred_model')}")
 
     for row in report.get("files", []):
         path = row["path"]
@@ -1255,6 +1443,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- Ordinary model-picker violations: {model_governance.get('ordinary_model_picker_violations', 0)}",
         f"- Missing model declarations: {model_governance.get('missing_model_count', 0)}",
         f"- Model drift count: {model_governance.get('model_drift_count', 0)}",
+        f"- OpenAI-first violations: {model_governance.get('openai_first_violations', 0)}",
+        f"- Haiku role violations: {model_governance.get('haiku_role_violations', 0)}",
+        f"- Sonnet role violations: {model_governance.get('sonnet_role_violations', 0)}",
         f"- Context loading signals: risk={context_loading.get('risk', 0)}, justified={context_loading.get('justified', 0)}, targeted={context_loading.get('targeted', 0)}",
     ])
     review_counts = benchmark.get("review_agent_counts", {}).get("counts", {})
@@ -1336,10 +1527,49 @@ def render_markdown(report: dict[str, Any]) -> str:
     else:
         lines.append("- None")
     lines.extend(["", "## Model Inventory", ""])
-    lines.extend(markdown_table(["Path", "Category", "Model", "Tier"], [
-        [d["path"], d["category"], d["model"] or "(missing)", d["model_tier"]]
+    catalog_info = report["model_inventory"].get("catalog", {})
+    lines.extend([
+        f"- Catalog: `{catalog_info.get('path', MODEL_CATALOG_PATH)}`",
+        f"- Catalog assignments: {catalog_info.get('assignment_count', 0)}",
+    ])
+    if catalog_info.get("load_error"):
+        lines.append(f"- Catalog load error: {catalog_info['load_error']}")
+    lines.extend([""])
+    lines.extend(markdown_table(["Path", "Category", "Model", "Vendor", "Family", "Role", "Tier", "Preferred", "Support"], [
+        [
+            d["path"],
+            d["category"],
+            d["model"] or "(model picker)",
+            d.get("vendor", ""),
+            d.get("family", ""),
+            d.get("role", ""),
+            d["model_tier"],
+            d.get("preferred_model") or "",
+            d.get("frontmatter_support") or "",
+        ]
         for d in report["model_inventory"]["declarations"]
     ]))
+    lines.extend(["", "## Model Policy Violations", ""])
+    policy_sections = [
+        ("Missing catalog assignments", "missing_catalog_assignments", "role assignment missing"),
+        ("Invalid catalog roles", "invalid_catalog_roles", "invalid role"),
+        ("Stale model names", "stale_model_names", "model not in catalog"),
+        ("OpenAI-first violations", "openai_first_violations", "not OpenAI-first"),
+        ("Haiku role violations", "haiku_role_violations", "Haiku outside mechanical role"),
+        ("Sonnet role violations", "sonnet_role_violations", "Sonnet lacks fallback/cross-vendor role"),
+        ("Preferred model support gaps", "frontmatter_support_gaps", "frontmatter support not confirmed"),
+    ]
+    for title, key, reason in policy_sections:
+        rows = report["model_inventory"].get(key, [])
+        lines.append(f"### {title}")
+        if rows:
+            lines.extend([
+                f"- {d['path']}: {d.get('model') or '(model picker)'}; role={d.get('role')}; preferred={d.get('preferred_model')}; support={d.get('preferred_model_support', d.get('frontmatter_support'))}; {reason}"
+                for d in rows
+            ])
+        else:
+            lines.append("- None")
+        lines.append("")
     lines.extend(["", "## Missing Model Declarations", ""])
     missing = report["model_inventory"]["missing"]
     lines.extend([f"- {d['path']}" for d in missing] or ["- None"])

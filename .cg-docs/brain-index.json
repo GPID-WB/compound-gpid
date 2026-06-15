@@ -1,5 +1,5 @@
 {
-  "edge_count": 186,
+  "edge_count": 196,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -239,6 +239,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
       "target": ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target": ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
       "target_missing": false
     },
     {
@@ -788,6 +794,42 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
+      "target": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-11-github-issues-integration-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target": ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -821,6 +863,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
       "target": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
+      "target": ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
       "target_missing": false
     },
     {
@@ -1004,6 +1052,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
+      "target": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1115,6 +1169,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-06-11-github-issues-integration.md",
       "target": "roadmap.json#github-issues-integration",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target": "roadmap.json#goal-driven-execution",
       "target_missing": false
     }
   ],
@@ -2243,6 +2303,35 @@
       ]
     },
     {
+      "date": "2026-06-12",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
+      "slug": "2026-06-12-goal-driven-execution",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "workflow",
+        "cg-plan",
+        "cg-work",
+        "goal-driven-execution",
+        "validation",
+        "completion-contract"
+      ],
+      "title": "Goal-driven execution for /cg-plan and /cg-work",
+      "top_keywords": [
+        "cg-plan",
+        "cg-work",
+        "/cg-plan",
+        "/cg-work",
+        "prompt",
+        "approach",
+        "shared contract",
+        "deviate:auto",
+        ".github/prompts/cg-plan.prompt.md",
+        ".github/prompts/cg-work.prompt.md"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3131,9 +3220,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
-        "prompt-tools.tests.ps1",
         "test",
         "failure",
+        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3297,14 +3386,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "repos.json",
         "should not",
+        "repos.json",
         "should be",
         "cg-review-repos",
         "--full",
-        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
+        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3332,9 +3421,9 @@
         "light",
         "/cg-review",
         "test scenarios",
-        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md"
+        "verify-review.md",
+        "/cg-review light"
       ]
     },
     {
@@ -3569,8 +3658,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "run-tests.ps1",
         "update.sh",
+        "run-tests.ps1",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -3658,8 +3747,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "cg-index.cmd",
-        "scripts/cg-index.py"
+        "scripts/cg-index.py",
+        "python3"
       ]
     },
     {
@@ -4127,6 +4216,64 @@
       ]
     },
     {
+      "date": "2026-06-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "slug": "2026-06-12-goal-driven-execution",
+      "status": "completed",
+      "summary": "Transform the `/cg-plan` -> `/cg-work` workflow into a Compound GPID-native goal-driven execution loop inspired by Codex Goals. `/cg-plan` should create a plan-as-completion-contract, and `/cg-work` should execute against that contract until evidence proves completion or a blocked-stop condition is hit.",
+      "tags": [
+        "workflow",
+        "cg-plan",
+        "cg-work",
+        "goal-driven-execution",
+        "validation",
+        "completion-contract"
+      ],
+      "title": "Goal-driven execution for /cg-plan and /cg-work",
+      "top_keywords": [
+        "cg-work",
+        "/cg-work",
+        "cg-plan",
+        "/cg-plan",
+        "deviate:",
+        "phase",
+        "prompt-tools.tests.ps1",
+        "autonomous",
+        ".cg-docs/work-reports/",
+        "test scenarios"
+      ]
+    },
+    {
+      "date": "2026-06-15",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
+      "slug": "2026-06-15-model-selection-and-governance-finish",
+      "status": "active",
+      "summary": "Finish the `Token Optimization & Model Governance` milestone by replacing the current token-first model policy with an explicit performance-aware, OpenAI-first policy for GitHub Copilot workflows. The plugin should prefer OpenAI models for coding, review, reasoning, documentation, and analysis when the prompt does not intentionally inherit the user's Copilot chat-box model. Anthropic Sonnet should be a targeted fallback or escalation model, and Haiku should be reserved for extremely cheap mechanical work.",
+      "tags": [
+        "model-governance",
+        "token-optimization",
+        "prompt-slimming",
+        "cross-vendor-review",
+        "openai",
+        "copilot"
+      ],
+      "title": "Finish Token Optimization and OpenAI-First Model Governance",
+      "top_keywords": [
+        "roadmap.json",
+        "test scenarios",
+        "@cg-roadmap",
+        "cg-work",
+        "/cg-work",
+        ".github/shared/review-routing.contract.md",
+        "model",
+        "docs/model-guide.md",
+        "docs/reference.md",
+        "tests/model-assignments.tests.ps1"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -4165,8 +4312,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "cg-resume.prompt.md",
         "/cg-fix-triage",
+        "cg-resume.prompt.md",
         "fix"
       ]
     },
@@ -4382,12 +4529,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
-        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills"
+        "feat/r-dialect-skills",
+        "docs/reference.md"
       ]
     },
     {
@@ -4840,8 +4987,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "run-tests.ps1",
         "tests/run-tests.ps1",
+        "run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -4887,12 +5034,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
-        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
+        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -5260,12 +5407,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
-        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
+        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -5553,7 +5700,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "2026-05-13-pr-verification-pipeline-review.md"
+        "unlink\\.sh"
       ]
     },
     {
@@ -6327,6 +6474,94 @@
       ]
     },
     {
+      "date": "2026-06-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
+      "slug": "2026-06-11-github-issues-integration-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-11-github-issues-integration-review.md` **Files reviewed**: 9 (`.github/prompts/cg-plan.prompt.md`, `.github/prompts/cg-work.prompt.md`, `.github/prompts/setup-templates.md`, `.github/shared/goal-execution.contract.md`, `docs/reference.md`, `docs/workflow.md`, `roadmap.json`, `tests/prompt-tools.Tests.ps1`, `.cg-docs/work-reports/`) **Findings**: 2 (P0: 0, P1: 0, P2: 0, P3: 2)",
+      "tags": [],
+      "title": "2026-06-11-github-issues-integration-verify-review",
+      "top_keywords": [
+        "solutions/",
+        "@cg-code-quality",
+        "roadmap.json",
+        "cg-work",
+        "done",
+        ".github/prompts/cg-plan.prompt.md",
+        ".github/prompts/cg-work.prompt.md",
+        ".github/prompts/setup-templates.md",
+        ".github/shared/goal-execution.contract.md",
+        "docs/reference.md"
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "slug": "2026-06-12-goal-driven-execution-review",
+      "status": "",
+      "summary": "**Date**: 2026-06-12 **Mode**: architecture (all 8 standard agents + mandatory emphasis on @cg-architecture, @cg-performance, @cg-testing) **Scope**: Goal-driven execution changes — `.github/shared/goal-execution.contract.md` (new), `cg-plan.prompt.md`, `cg-work.prompt.md`, `setup-templates.md`, `docs/reference.md`, `docs/workflow.md`, `roadmap.json`, `tests/prompt-tools.Tests.ps1`",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-review",
+      "top_keywords": [
+        "roadmap.json",
+        "cg-work",
+        "cg-work.prompt.md",
+        "fixed",
+        "setup-templates.md",
+        "cg-plan",
+        "[fixed]",
+        "/cg-work",
+        "goal-execution.contract.md",
+        "advisory"
+      ]
+    },
+    {
+      "date": "2026-06-15",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-2",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Files reviewed**: 11 changed or new files **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-2",
+      "top_keywords": [
+        "cg-plan.prompt.md",
+        "copilot model picker",
+        "inherited",
+        "model:",
+        "cg-brainstorm.prompt.md",
+        "cg-ideate.prompt.md",
+        "cg-plan-review.prompt.md",
+        "cg-review-repos.prompt.md",
+        "cg-strategy.prompt.md",
+        "2026-06-12-goal-driven-execution-review.md"
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Files reviewed**: 6 (cg-work.prompt.md, cg-plan.prompt.md, setup-templates.md, goal-execution.contract.md, tests/prompt-tools.Tests.ps1, roadmap.json) **Findings**: 0 (P0: 0, P1: 0, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review",
+      "top_keywords": [
+        "cg-work.prompt.md",
+        "cg-plan.prompt.md",
+        "setup-templates.md",
+        "goal-execution.contract.md",
+        "roadmap.json",
+        "cg-work",
+        "2026-06-12-goal-driven-execution-review.md",
+        "review",
+        "findings",
+        "collision"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -6590,14 +6825,14 @@
       "top_keywords": [
         "else",
         "ast",
-        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->"
+        "->",
+        "utf-8"
       ]
     },
     {
@@ -6617,10 +6852,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
-        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
+        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -7075,13 +7310,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
-        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1"
+        ".ps1",
+        "result-verification.md"
       ]
     },
     {
@@ -7193,12 +7428,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
+        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -7223,9 +7458,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
+        "/cg-setup",
         "link.ps1",
         "link.sh",
-        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -7256,13 +7491,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
-        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
+        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -7935,6 +8170,38 @@
       ]
     },
     {
+      "date": "2026-06-12",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
+      "slug": "2026-06-12-roadmap-milestone-missing-objective-field",
+      "status": "",
+      "summary": "During a full-suite regression gate after an unrelated fix-triage session, the roadmap schema test failed: The `workflow-maturity` milestone had been present for weeks and had already been marked `\"status\": \"done\"`, but it was created and maintained without an `objective` field. The schema validation test caught it only because the full suite happened to run as part of a regression gate.",
+      "tags": [
+        "roadmap",
+        "schema",
+        "validation",
+        "milestone",
+        "objective",
+        "json",
+        "roadmap.json",
+        "schema-validation",
+        "pester"
+      ],
+      "title": "roadmap.json milestone missing required 'objective' field passes silently until schema validation",
+      "top_keywords": [
+        "roadmap.json",
+        "objective",
+        "roadmap.tests.ps1",
+        "roadmap",
+        "workflow-maturity",
+        "milestone",
+        "schema",
+        "json",
+        "validation",
+        "title"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -8408,15 +8675,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "file.txt",
+        "subdir\\file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "backslash",
-        "separator"
+        "file.txt",
+        "backslash"
       ]
     },
     {
@@ -8653,11 +8920,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
-        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
+        "structure"
       ]
     },
     {
@@ -9132,9 +9399,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
-        "cg-review.prompt.md",
         "delegate",
         "file-writing",
+        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -9171,8 +9438,8 @@
         "must",
         "contract",
         "pipeline",
-        "cg-fix-triage.prompt.md",
-        "downstream"
+        "downstream",
+        "location"
       ]
     },
     {
@@ -9389,8 +9656,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "prompt-tools.tests.ps1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -9420,16 +9687,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "select-string",
         "test",
+        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging",
-        "crashes"
+        "debugging"
       ]
     },
     {
@@ -9516,9 +9783,9 @@
         "failure",
         "guard",
         "fragile",
-        "cg-work.prompt.md",
         "tests",
         "step-ordering",
+        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -9606,8 +9873,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "-quiet",
+        "prompt-tools.tests.ps1",
         "pester",
         "execution_subagent",
         "quiet",
@@ -9703,14 +9970,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
-        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "context"
+        "last-run.json",
+        "tests\\last-run.json"
       ]
     },
     {
@@ -9949,7 +10216,6 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
-        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -9957,6 +10223,7 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
+        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -10417,8 +10684,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "source-scanning",
+        "link.ps1",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -10449,14 +10716,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
-        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern"
+        "pattern",
+        "unlink.ps1"
       ]
     },
     {
@@ -10719,13 +10986,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
-        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->"
+        "<!-- folder: docs -->",
+        "$dirs.count | should -begreaterthan 0"
       ]
     },
     {
@@ -11085,6 +11352,68 @@
         "ignore",
         "disregard",
         "forget"
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md",
+      "slug": "2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling",
+      "status": "",
+      "summary": "A journey-fixture test was written to verify that `/cg-work` warns when an invalid `deviate:` override is provided and falls back to the plan's policy: The prompt text being tested (from `cg-work.prompt.md` Step 0 flag parsing): > `invalid warns, falls back to plan policy` At first glance, `fall back.*plan` appears to match. However: - The prompt text contains **\"falls back\"** (with \"s\") - The regex arm requires **\"fall back\"** (without \"s\") PowerShell's `-match` is case-insensitive but not spelling-tolerant. The third arm **never matched**. The second arm also never matched (the prompt does not contain \"override\" in this context). The test passed...",
+      "tags": [
+        "pester",
+        "powershell",
+        "regex",
+        "alternation",
+        "dead-arm",
+        "typo",
+        "spelling",
+        "-match",
+        "prompt-testing",
+        "false-positive"
+      ],
+      "title": "Regex arm silently dead from inception due to typo — test passes via sibling arm",
+      "top_keywords": [
+        "arm",
+        "typo",
+        "regex",
+        "matches",
+        "fall back.*plan",
+        "fall back",
+        "falls back",
+        "test",
+        "dead",
+        "inception"
+      ]
+    },
+    {
+      "date": "2026-06-15",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
+      "slug": "2026-06-15-inherited-model-picker-drift-equivalence",
+      "status": "",
+      "summary": "The OpenAI-first model-governance pass added a durable model catalog and changed `docs/model-guide.md` to describe each prompt and agent with a target model, role, and rationale. For inherited prompts, the guide used the human-readable model value `Copilot model picker`. That collided with the actual prompt contract: ordinary model-picker prompts intentionally omit `model:` frontmatter. The audit compared the missing frontmatter value (`None`, normalized to an empty string) against `Copilot model picker` and reported those rows as model-guide drift. This was not just a red-phase mismatch. After the explicit Sonnet/Haiku assignments are migrated in Phase 2, inherited prompts such as `/cg-plan`, `/cg-plan-review`, `/cg-brainstorm`,...",
+      "tags": [
+        "model-governance",
+        "audit",
+        "model-picker",
+        "drift",
+        "token-optimization",
+        "regression-tests"
+      ],
+      "title": "Inherited model-picker prompts need explicit audit equivalence",
+      "top_keywords": [
+        "prompts",
+        "audit",
+        "model-picker",
+        "cg-plan",
+        "copilot model picker",
+        "model:",
+        "model-guide.md",
+        "cg-plan.prompt.md",
+        "inherited",
+        "explicit"
       ]
     },
     {
@@ -12773,12 +13102,12 @@
         "workflow maturity\nobjective",
         "branch",
         "creation",
+        "github",
+        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity",
-        "objective",
-        "improve"
+        "maturity"
       ]
     },
     {
@@ -12795,12 +13124,12 @@
         "workflow maturity\nobjective",
         "phased",
         "structure",
+        "github",
+        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity",
-        "objective",
-        "improve"
+        "maturity"
       ]
     },
     {
@@ -12817,12 +13146,12 @@
         "workflow maturity\nobjective",
         "phased",
         "execution",
+        "github",
+        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity",
-        "objective",
-        "improve"
+        "maturity"
       ]
     },
     {
@@ -12841,10 +13170,10 @@
         "visualization",
         "agent",
         "prompt",
+        "github",
+        "integration",
         "feature",
-        "milestone",
-        "workflow",
-        "maturity"
+        "milestone"
       ]
     },
     {
@@ -12861,12 +13190,12 @@
         "workflow maturity\nobjective",
         "test-correctness",
         "assessment",
+        "github",
+        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity",
-        "objective",
-        "improve"
+        "maturity"
       ]
     },
     {
@@ -12874,16 +13203,16 @@
       "entity_type": "feature",
       "path": "roadmap.json#github-issues-integration",
       "slug": "github-issues-integration",
-      "status": "idea",
+      "status": "done",
       "summary": "GitHub Issues integration (optional, via gh CLI)",
       "tags": [],
       "title": "GitHub Issues integration (optional, via gh CLI)",
       "top_keywords": [
         "workflow maturity\nobjective",
-        "optional",
         "github",
-        "issues",
         "integration",
+        "issues",
+        "optional",
         "via",
         "cli",
         "feature",
@@ -12910,7 +13239,7 @@
         "parity",
         "contributing",
         "contributing.md",
-        "feature"
+        "github"
       ]
     },
     {
@@ -12930,9 +13259,9 @@
         "splitting",
         "push",
         "creation",
-        "feature",
-        "milestone",
-        "workflow"
+        "github",
+        "integration",
+        "feature"
       ]
     },
     {
@@ -12950,11 +13279,11 @@
         "verification",
         "auto-fix",
         "dispatch",
+        "github",
+        "integration",
         "feature",
         "milestone",
-        "workflow",
-        "maturity",
-        "objective"
+        "workflow"
       ]
     },
     {
@@ -12962,21 +13291,21 @@
       "entity_type": "feature",
       "path": "roadmap.json#goal-driven-execution",
       "slug": "goal-driven-execution",
-      "status": "idea",
+      "status": "done",
       "summary": "Goal-driven execution — plan-as-completion-contract with integrated validation",
       "tags": [],
       "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
       "top_keywords": [
         "workflow maturity\nobjective",
-        "execution",
         "goal-driven",
+        "execution",
         "plan-as-completion-contract",
         "integrated",
         "validation",
+        "github",
+        "integration",
         "feature",
-        "milestone",
-        "workflow",
-        "maturity"
+        "milestone"
       ]
     },
     {
@@ -13468,7 +13797,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#model-tier-definitions",
       "slug": "model-tier-definitions",
-      "status": "idea",
+      "status": "done",
       "summary": "Define model tiers and escalation rules",
       "tags": [],
       "title": "Define model tiers and escalation rules",
@@ -13490,7 +13819,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#model-policy-tests",
       "slug": "model-policy-tests",
-      "status": "idea",
+      "status": "done",
       "summary": "Add model-policy tests",
       "tags": [],
       "title": "Add model-policy tests",
@@ -13512,7 +13841,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#prompt-frontmatter-model-update",
       "slug": "prompt-frontmatter-model-update",
-      "status": "idea",
+      "status": "done",
       "summary": "Update prompt frontmatter model and agent choices",
       "tags": [],
       "title": "Update prompt frontmatter model and agent choices",
@@ -13534,7 +13863,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#agent-model-tool-governance",
       "slug": "agent-model-tool-governance",
-      "status": "idea",
+      "status": "active",
       "summary": "Update custom agents for model and tool governance",
       "tags": [],
       "title": "Update custom agents for model and tool governance",
@@ -13556,7 +13885,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#shrink-always-on-context",
       "slug": "shrink-always-on-context",
-      "status": "idea",
+      "status": "active",
       "summary": "Shrink always-on context",
       "tags": [],
       "title": "Shrink always-on context",
@@ -13578,7 +13907,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#prompt-skill-split",
       "slug": "prompt-skill-split",
-      "status": "idea",
+      "status": "active",
       "summary": "Split large prompts into thin entrypoints and on-demand skills",
       "tags": [],
       "title": "Split large prompts into thin entrypoints and on-demand skills",
@@ -13600,7 +13929,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#stage-context-contracts",
       "slug": "stage-context-contracts",
-      "status": "idea",
+      "status": "done",
       "summary": "Add stage-specific context contracts",
       "tags": [],
       "title": "Add stage-specific context contracts",
@@ -13622,7 +13951,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#review-deterministic-first",
       "slug": "review-deterministic-first",
-      "status": "idea",
+      "status": "done",
       "summary": "Make review cheaper with deterministic checks first",
       "tags": [],
       "title": "Make review cheaper with deterministic checks first",
@@ -13644,7 +13973,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#token-benchmark-before-after",
       "slug": "token-benchmark-before-after",
-      "status": "idea",
+      "status": "done",
       "summary": "Benchmark before and after",
       "tags": [],
       "title": "Benchmark before and after",
@@ -13666,7 +13995,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#token-optimization-compound",
       "slug": "token-optimization-compound",
-      "status": "idea",
+      "status": "done",
       "summary": "Capture the learning",
       "tags": [],
       "title": "Capture the learning",
@@ -13684,13 +14013,13 @@
       ]
     }
   ],
-  "entity_count": 480,
-  "generated": "2026-06-11",
+  "entity_count": 490,
+  "generated": "2026-06-15",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 323,
+      "entity_count": 334,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -13729,6 +14058,7 @@
         ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
         ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
         ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
+        ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -13792,6 +14122,8 @@
         ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
         ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
         ".cg-docs/plans/2026-06-11-github-issues-integration.md",
+        ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+        ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -13889,6 +14221,10 @@
         ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2-verify-review.md",
         ".cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md",
         ".cg-docs/reviews/2026-06-11-github-issues-integration-review.md",
+        ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -13926,6 +14262,7 @@
         ".cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md",
         ".cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md",
         ".cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md",
+        ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -13956,6 +14293,7 @@
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md",
         ".cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md",
         ".cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md",
+        ".cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md",
@@ -14005,6 +14343,8 @@
         ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md",
         ".cg-docs/solutions/testing-patterns/2026-06-11-fenced-block-delimiter-collision-in-untrusted-content.md",
         ".cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -14018,11 +14358,11 @@
       ],
       "keywords": [
         "roadmap.json",
-        "prompt-tools.tests.ps1",
-        "tests/prompt-tools.tests.ps1"
+        "cg-work",
+        "prompt-tools.tests.ps1"
       ],
-      "label": "Roadmap.Json / Prompt-Tools.Tests.Ps1 / Tests/Prompt-Tools.Tests.Ps1",
-      "slug": "roadmap-json-prompt-tools-tests-ps1-tests-prompt-tools-tests-ps1"
+      "label": "Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1",
+      "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
       "entity_count": 108,

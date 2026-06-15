@@ -106,6 +106,102 @@ class TestModelExtraction:
         assert audit.classify_model_tier("Claude Haiku 4.5") == "economy"
         assert audit.classify_model_tier("Experimental Local Model") == "unknown"
 
+    def test_catalog_enriches_vendor_role_and_preferred_model(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("Claude Sonnet 4.6"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "Claude Sonnet 4.6",
+                        "vendor": "anthropic",
+                        "family": "Claude",
+                        "tier": "standard",
+                        "policyStatus": "fallback",
+                    },
+                    {
+                        "name": "GPT-5.3-Codex",
+                        "vendor": "openai",
+                        "family": "GPT-5-Codex",
+                        "tier": "standard",
+                        "policyStatus": "preferred",
+                    },
+                ],
+                "frontmatterSupport": [
+                    {"model": "Claude Sonnet 4.6", "status": "frontmatter-supported"},
+                    {"model": "GPT-5.3-Codex", "status": "not-tested"},
+                ],
+                "assignments": [
+                    {
+                        "path": ".github/prompts/x.prompt.md",
+                        "role": "coding",
+                        "preferredModel": "GPT-5.3-Codex",
+                        "frontmatterMode": "explicit",
+                        "rationale": "coding test",
+                    }
+                ],
+            }),
+        )
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        declaration = inventory["declarations"][0]
+        assert declaration["vendor"] == "anthropic"
+        assert declaration["role"] == "coding"
+        assert declaration["preferred_model"] == "GPT-5.3-Codex"
+        assert inventory["openai_first_violations"][0]["path"] == ".github/prompts/x.prompt.md"
+        assert inventory["frontmatter_support_gaps"][0]["preferred_model_support"] == "not-tested"
+
+    def test_missing_catalog_assignment_is_reported(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("GPT-5.3-Codex"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "GPT-5.3-Codex",
+                        "vendor": "openai",
+                        "family": "GPT-5-Codex",
+                        "tier": "standard",
+                        "policyStatus": "preferred",
+                    }
+                ],
+                "frontmatterSupport": [{"model": "GPT-5.3-Codex", "status": "frontmatter-supported"}],
+                "assignments": [],
+            }),
+        )
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["missing_catalog_assignments"][0]["path"] == ".github/prompts/x.prompt.md"
+
+    def test_haiku_non_mechanical_role_is_violation(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/agents/x.agent.md", _frontmatter("Claude Haiku 4.5"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "Claude Haiku 4.5",
+                        "vendor": "anthropic",
+                        "family": "Claude",
+                        "tier": "economy",
+                        "policyStatus": "mechanical-only",
+                    }
+                ],
+                "frontmatterSupport": [{"model": "Claude Haiku 4.5", "status": "frontmatter-supported"}],
+                "assignments": [
+                    {
+                        "path": ".github/agents/x.agent.md",
+                        "role": "review",
+                        "preferredModel": "GPT-5.3-Codex",
+                        "frontmatterMode": "explicit",
+                    }
+                ],
+            }),
+        )
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["haiku_role_violations"][0]["path"] == ".github/agents/x.agent.md"
+
 
 class TestReferenceCounting:
     def test_counts_agent_refs(self) -> None:
@@ -443,6 +539,48 @@ class TestModelGuideParser:
         _write(tmp_path / "docs" / "model-guide.md", guide_md)
         result = audit.parse_model_guide(tmp_path / "docs" / "model-guide.md")
         assert result.get("cg-code-quality.agent.md") == "Claude Haiku 4.5"
+
+    def test_assignment_rows_parse_role_and_rationale(self, tmp_path: Path) -> None:
+        guide_md = (
+            "### Prompts\n\n"
+            "| File | Model | Role | Rationale |\n"
+            "| --- | --- | --- | --- |\n"
+            "| cg-work.prompt.md | GPT-5.3-Codex | coding | Implementation workflow |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        result = audit.parse_model_guide_assignments(tmp_path / "docs" / "model-guide.md")
+        row = result["cg-work.prompt.md"]
+        assert row["model"] == "GPT-5.3-Codex"
+        assert row["role"] == "coding"
+        assert row["rationale"] == "Implementation workflow"
+
+    def test_inherited_model_picker_guide_row_does_not_drift(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [],
+                "frontmatterSupport": [],
+                "assignments": [
+                    {
+                        "path": ".github/prompts/cg-plan.prompt.md",
+                        "role": "inherited",
+                        "preferredModel": None,
+                        "frontmatterMode": "inherited",
+                    }
+                ],
+            }),
+        )
+        guide_md = (
+            "### Prompts\n\n"
+            "| File | Model | Role | Rationale |\n"
+            "| --- | --- | --- | --- |\n"
+            "| cg-plan.prompt.md | Copilot model picker | inherited | Planning inherits the user's chosen model. |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["drift"] == []
 
 
 # ---------------------------------------------------------------------------

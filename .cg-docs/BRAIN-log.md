@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-15 · 382 artifacts (newest first) + 108 roadmap features_
 
 ## undated
 
@@ -106,6 +106,32 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-15
+
+- **[2026-06-12-goal-driven-execution-verify-review-2](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md)** · `review` · _—_ · `2026-06-15`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[Finish Token Optimization and OpenAI-First Model Governance](.cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md)** · `plan` · _active_ · `2026-06-15`
+  > Finish the `Token Optimization & Model Governance` milestone by replacing the current token-first model policy with a…
+- **[Inherited model-picker prompts need explicit audit equivalence](.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md)** · `solution` · _—_ · `2026-06-15`
+  > The OpenAI-first model-governance pass added a durable model catalog and changed `docs/model-guide.md` to describe ea…
+
+## 2026-06-12
+
+- **[2026-06-11-github-issues-integration-verify-review](.cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md)** · `review` · _—_ · `2026-06-12`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-11-github-issues-integration-review…
+- **[2026-06-12-goal-driven-execution-review](.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md)** · `review` · _—_ · `2026-06-12`
+  > **Date**: 2026-06-12 **Mode**: architecture (all 8 standard agents + mandatory emphasis on @cg-architecture, @cg-perf…
+- **[2026-06-12-goal-driven-execution-verify-review](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md)** · `review` · _—_ · `2026-06-12`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[Goal-driven execution for /cg-plan and /cg-work](.cg-docs/brainstorms/2026-06-12-goal-driven-execution.md)** · `brainstorm` · _decided_ · `2026-06-12`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Goal-driven execution for /cg-plan and /cg-work](.cg-docs/plans/2026-06-12-goal-driven-execution.md)** · `plan` · _completed_ · `2026-06-12`
+  > Transform the `/cg-plan` -> `/cg-work` workflow into a Compound GPID-native goal-driven execution loop inspired by Co…
+- **[Regex arm silently dead from inception due to typo — test passes via sibling arm](.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md)** · `solution` · _—_ · `2026-06-12`
+  > A journey-fixture test was written to verify that `/cg-work` warns when an invalid `deviate:` override is provided an…
+- **[roadmap.json milestone missing required 'objective' field passes silently until schema validation](.cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md)** · `solution` · _—_ · `2026-06-12`
+  > During a full-suite regression gate after an unrelated fix-triage session, the roadmap schema test failed: The `workf…
 
 ## 2026-06-11
 
@@ -939,7 +965,7 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
 
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
-- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
+- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _active_ · `—`
   > Update custom agents for model and tool governance
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
@@ -1023,9 +1049,9 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > /cg-fixbug test-correctness assessment
 - **[Full model audit across prompts and agents](roadmap.json#full-model-audit)** · `feature` · _done_ · `—`
   > Full model audit across prompts and agents
-- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
+- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _done_ · `—`
   > GitHub Issues integration (optional, via gh CLI)
-- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
+- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _done_ · `—`
   > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan \[from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
   > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
@@ -1037,11 +1063,11 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
-- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
+- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _done_ · `—`
   > Add model-policy tests
 - **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
-- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
+- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _done_ · `—`
   > Define model tiers and escalation rules
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
   > Multi-folder workspace awareness in copilot-instructions.md and prompts
@@ -1069,15 +1095,15 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > Project scanner agent for deep project analysis
 - **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
-- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _idea_ · `—`
+- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _active_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
-- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
+- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _done_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`
   > Per-finding status tracking in review files
@@ -1091,7 +1117,7 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _idea_ · `—`
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _active_ · `—`
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
@@ -1105,7 +1131,7 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
 - **[Smart /cg-setup for existing projects \(scan → draft → targeted questions → approve\)](roadmap.json#smart-setup-existing-projects)** · `feature` · _done_ · `—`
   > Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)
-- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _idea_ · `—`
+- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _done_ · `—`
   > Add stage-specific context contracts
 - **[Stage control knobs for workflow prompts \(blocked on external workflow research\)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
   > Stage control knobs for workflow prompts (blocked on external workflow research)
@@ -1141,9 +1167,9 @@ _Generated 2026-06-11 · 372 artifacts (newest first) + 108 roadmap features_
   > Tiered model escalation — super-advanced model dispatch
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _done_ · `—`
   > Audit current context and model usage
-- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
+- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _done_ · `—`
   > Benchmark before and after
-- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
+- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _done_ · `—`
   > Capture the learning
 - **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
   > Migration path from vanilla Copilot (detect and merge existing instructions)

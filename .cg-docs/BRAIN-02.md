@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-06-11_
+_Generated 2026-06-15_
 
 ## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
 
@@ -151,7 +151,7 @@ objective`_ · 108 entities
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[/cg-fixbug test-correctness assessment](roadmap.json#fixbug-test-correctness-assessment)** · `feature` · _done_ · `—`
   > /cg-fixbug test-correctness assessment
-- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
+- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _done_ · `—`
   > GitHub Issues integration (optional, via gh CLI)
 - **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
@@ -159,7 +159,7 @@ objective`_ · 108 entities
   > /cg-commit-push-pr — logical commit splitting, push, and PR creation
 - **[/cg-verify-pr — CI check verification and auto-fix dispatch](roadmap.json#cg-verify-pr)** · `feature` · _done_ · `—`
   > /cg-verify-pr — CI check verification and auto-fix dispatch
-- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
+- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _done_ · `—`
   > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
@@ -205,25 +205,25 @@ objective`_ · 108 entities
   > Agent-verified outcome definitions with acceptance evals
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _done_ · `—`
   > Audit current context and model usage
-- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
+- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _done_ · `—`
   > Define model tiers and escalation rules
-- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
+- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _done_ · `—`
   > Add model-policy tests
-- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _idea_ · `—`
+- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
+- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _active_ · `—`
   > Update custom agents for model and tool governance
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _idea_ · `—`
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _active_ · `—`
   > Shrink always-on context
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _active_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
-- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _idea_ · `—`
+- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _done_ · `—`
   > Add stage-specific context contracts
-- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
+- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _done_ · `—`
   > Make review cheaper with deterministic checks first
-- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
+- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _done_ · `—`
   > Benchmark before and after
-- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
+- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _done_ · `—`
   > Capture the learning
 
 ## Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent

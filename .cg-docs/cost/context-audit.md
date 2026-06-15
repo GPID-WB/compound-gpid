@@ -1,28 +1,28 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-12T15:57:08_
+_Generated: 2026-06-15T19:03:05_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
-- Total files: 87
-- Total characters: 1622746
-- Total estimated tokens: 405659
+- Total files: 88
+- Total characters: 1643367
+- Total estimated tokens: 410813
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 23 | 247308 | 61819 |
-| agents | 17 | 92024 | 23001 |
-| skills | 21 | 103653 | 25906 |
+| prompts | 23 | 245733 | 61425 |
+| agents | 17 | 92145 | 23031 |
+| skills | 21 | 106165 | 26534 |
 | instructions | 4 | 17340 | 4334 |
-| shared | 4 | 16163 | 4040 |
+| shared | 5 | 29466 | 7365 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 191222 | 47803 |
+| docs | 10 | 196907 | 49224 |
 | brain | 4 | 257610 | 64401 |
 | brain_index | 1 | 570006 | 142501 |
 | context | 1 | 62921 | 15730 |
-| roadmap | 1 | 62866 | 15716 |
+| roadmap | 1 | 63441 | 15860 |
 
 ## Top 15 Largest Files
 
@@ -32,13 +32,13 @@ _Generated: 2026-06-12T15:57:08_
 | .cg-docs/BRAIN-log.md | brain | 134886 | 33721 |
 | .cg-docs/BRAIN-01.md | brain | 96589 | 24147 |
 | docs/workflow.md | docs | 64134 | 16033 |
+| roadmap.json | roadmap | 63441 | 15860 |
 | compound-gpid.context.md | context | 62921 | 15730 |
-| roadmap.json | roadmap | 62866 | 15716 |
-| docs/reference.md | docs | 41288 | 10322 |
+| docs/reference.md | docs | 41453 | 10363 |
 | docs/troubleshooting.md | docs | 29037 | 7259 |
 | .cg-docs/BRAIN-02.md | brain | 24813 | 6203 |
-| .github/prompts/cg-work.prompt.md | prompts | 22849 | 5712 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
+| .github/prompts/cg-work.prompt.md | prompts | 21455 | 5363 |
 | .github/prompts/cg-review.prompt.md | prompts | 18976 | 4744 |
 | .github/prompts/cg-review-repos.prompt.md | prompts | 18268 | 4567 |
 | docs/context-files.md | docs | 15592 | 3898 |
@@ -48,8 +48,8 @@ _Generated: 2026-06-12T15:57:08_
 
 | Workflow | Path | Tokens | Refs | Model Tier | Context Risk | Dispatch | Conditional |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| /cg-plan | .github/prompts/cg-plan.prompt.md | 3263 | 23 | model-picker | 0 | limited | False |
-| /cg-work | .github/prompts/cg-work.prompt.md | 5712 | 48 | standard | 1 | conditional | True |
+| /cg-plan | .github/prompts/cg-plan.prompt.md | 3218 | 23 | model-picker | 0 | limited | False |
+| /cg-work | .github/prompts/cg-work.prompt.md | 5363 | 48 | standard | 1 | conditional | True |
 | /cg-review | .github/prompts/cg-review.prompt.md | 4744 | 53 | standard | 0 | conditional | True |
 | /cg-compound | .github/prompts/cg-compound.prompt.md | 2409 | 28 | standard | 0 | limited | False |
 | /cg-resume | .github/prompts/cg-resume.prompt.md | 2936 | 19 | economy | 0 | limited | False |
@@ -58,8 +58,11 @@ _Generated: 2026-06-12T15:57:08_
 - Premium model usage count: 0
 - Ordinary model-picker violations: 0
 - Missing model declarations: 0
-- Model drift count: 0
-- Context loading signals: risk=31, justified=10, targeted=84
+- Model drift count: 21
+- OpenAI-first violations: 19
+- Haiku role violations: 2
+- Sonnet role violations: 19
+- Context loading signals: risk=31, justified=10, targeted=85
 
 ### Review-Agent Counts
 
@@ -77,7 +80,88 @@ _Generated: 2026-06-12T15:57:08_
 
 ## Guardrails
 
-- Failures: 0
+- **FAIL** .github/prompts/cg-brain-rebuild.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-commit-push-pr.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-compound-refresh.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-compound.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-diagnose.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-fix-problems.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-fix-triage.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-fixbug.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-review.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-verify-pr.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-wiki.prompt.md: model guide drift
+- **FAIL** .github/prompts/cg-work.prompt.md: model guide drift
+- **FAIL** .github/agents/cg-adversarial.agent.md: model guide drift
+- **FAIL** .github/agents/cg-architecture.agent.md: model guide drift
+- **FAIL** .github/agents/cg-code-quality.agent.md: model guide drift
+- **FAIL** .github/agents/cg-data-quality.agent.md: model guide drift
+- **FAIL** .github/agents/cg-fix-problems.agent.md: model guide drift
+- **FAIL** .github/agents/cg-performance.agent.md: model guide drift
+- **FAIL** .github/agents/cg-plan-critic.agent.md: model guide drift
+- **FAIL** .github/agents/cg-testing.agent.md: model guide drift
+- **FAIL** .github/agents/cg-wiki.agent.md: model guide drift
+- **FAIL** .github/prompts/cg-brain-rebuild.prompt.md: reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-commit-push-pr.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-compound-refresh.prompt.md: reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-compound.prompt.md: reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-diagnose.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-fix-problems.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-fix-triage.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-fixbug.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-verify-pr.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-wiki.prompt.md: reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/prompts/cg-work.prompt.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-architecture.agent.md: review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-code-quality.agent.md: review workflow is not OpenAI-first: Claude Haiku 4.5 (copilot)
+- **FAIL** .github/agents/cg-data-quality.agent.md: review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-fix-problems.agent.md: coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-performance.agent.md: review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-plan-critic.agent.md: review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-testing.agent.md: review workflow is not OpenAI-first: Claude Haiku 4.5 (copilot)
+- **FAIL** .github/agents/cg-wiki.agent.md: reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)
+- **FAIL** .github/agents/cg-code-quality.agent.md: Haiku is allowed only for mechanical workflows
+- **FAIL** .github/agents/cg-testing.agent.md: Haiku is allowed only for mechanical workflows
+- **FAIL** .github/prompts/cg-brain-rebuild.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-commit-push-pr.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-compound-refresh.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-compound.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-diagnose.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-fix-problems.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-fix-triage.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-fixbug.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-review.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-verify-pr.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-wiki.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/prompts/cg-work.prompt.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-adversarial.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-architecture.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-data-quality.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-fix-problems.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-performance.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-plan-critic.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **FAIL** .github/agents/cg-wiki.agent.md: Sonnet requires fallback or cross-vendor rationale and must not be a blanket default
+- **WARN** .github/prompts/cg-brain-rebuild.prompt.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/prompts/cg-commit-push-pr.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-compound-refresh.prompt.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/prompts/cg-compound.prompt.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/prompts/cg-diagnose.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-fix-problems.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-fix-triage.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-fixbug.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-review.prompt.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/prompts/cg-verify-pr.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/prompts/cg-wiki.prompt.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/prompts/cg-work.prompt.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/agents/cg-adversarial.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/agents/cg-architecture.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/agents/cg-code-quality.agent.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/agents/cg-data-quality.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/agents/cg-fix-problems.agent.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/agents/cg-performance.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/agents/cg-plan-critic.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
+- **WARN** .github/agents/cg-testing.agent.md: preferred model frontmatter support is not-tested: GPT-5.3-Codex
+- **WARN** .github/agents/cg-wiki.agent.md: preferred model frontmatter support is not-tested: GPT-5.4
 - **WARN** .github/prompts/cg-work.prompt.md: high-frequency prompt estimated tokens > 5000
 - **WARN** .github/agents/cg-learnings-researcher.agent.md: context-loading risk requires review: .cg-docs/
 - **WARN** .github/agents/cg-learnings-researcher.agent.md: context-loading risk requires review: .cg-docs/
@@ -117,6 +201,9 @@ _Generated: 2026-06-12T15:57:08_
 - [ ] Guardrail failures are zero, or warnings are documented as maintenance-intentional.
 - [ ] Ordinary model-picker prompts still omit model:.
 - [ ] Premium model usage remains zero.
+- [ ] Model catalog covers every prompt and agent with one role assignment.
+- [ ] OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks are reviewed.
+- [ ] Exact GPT frontmatter support is validated in VS Code/Copilot before broad GPT prompt edits.
 - [ ] /cg-review and /cg-work remain conditional, not broad, dispatch workflows.
 - [ ] Broad Brain/context reads are targeted, justified, or maintenance-only.
 - [ ] Top remaining optimization candidates are reviewed and accepted or filed as future work.
@@ -233,10 +320,10 @@ _Generated: 2026-06-12T15:57:08_
 | risk | docs/reference.md | 268 | .cg-docs/ | broad context-loading instruction | \| `@cg-release-scanner` \| Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` \| Claude Haiku 4.5 \| No \| |
 | risk | docs/workflow.md | 263 | .cg-docs/ | broad context-loading instruction | 1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern. |
 | justified | .github/prompts/cg-compound.prompt.md | 196 | compound-gpid.context.md | explicit expansion rationale | 1. Context expansion: reading targeted `compound-gpid.context.md` sections |
-| justified | .github/prompts/cg-plan.prompt.md | 235 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching. |
+| justified | .github/prompts/cg-plan.prompt.md | 228 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching. |
 | justified | .github/prompts/cg-resume.prompt.md | 114 | roadmap.json | explicit expansion rationale | <!-- Context expansion: reading full roadmap.json because /cg-resume computes |
-| justified | .github/prompts/cg-work.prompt.md | 39 | .cg-docs/ | maintenance/tooling workflow | - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter **including `deviation-policy: ask` and a minimal `## Completion Contract` section (Outcome + Veri |
-| justified | .github/prompts/cg-work.prompt.md | 208 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
+| justified | .github/prompts/cg-work.prompt.md | 39 | .cg-docs/ | maintenance/tooling workflow | - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter including `deviation-policy: ask` and a minimal `## Completion Contract` (Outcome + Verification S |
+| justified | .github/prompts/cg-work.prompt.md | 202 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
 | justified | .github/shared/context-loading.contract.md | 34 | compound-gpid.context.md | maintenance/tooling workflow | - `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or confl |
 | justified | .github/skills/cg-skill-brain-query/SKILL.md | 78 | BRAIN-NN.md | explicit expansion rationale | `Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.` |
 | justified | docs/reference.md | 62 | BRAIN.md | maintenance/tooling workflow | \| `/cg-brain-rebuild` \| Claude Sonnet 4.6 \| Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg |
@@ -269,9 +356,9 @@ _Generated: 2026-06-12T15:57:08_
 | targeted | .github/prompts/cg-plan-review.prompt.md | 32 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If not: scan `.cg-docs/plans/` for the most recent file with `status: active` or `status: in-progress` in its frontmatter (sort by YYYY-MM-DD filename prefix; for ties use the frontmatter `date:` field; for remaining  |
 | targeted | .github/prompts/cg-plan.prompt.md | 12 | roadmap.json | targeted or guarded context-loading instruction | - You may read targeted `roadmap.json` fields for structural operations and inline milestone rendering. |
 | targeted | .github/prompts/cg-plan.prompt.md | 24 | compound-gpid.context.md | targeted or guarded context-loading instruction | 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and st |
-| targeted | .github/prompts/cg-plan.prompt.md | 39 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords. |
-| targeted | .github/prompts/cg-plan.prompt.md | 70 | .cg-docs/ | targeted or guarded context-loading instruction | 1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an |
-| targeted | .github/prompts/cg-plan.prompt.md | 236 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted  |
+| targeted | .github/prompts/cg-plan.prompt.md | 32 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords. |
+| targeted | .github/prompts/cg-plan.prompt.md | 63 | .cg-docs/ | targeted or guarded context-loading instruction | 1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an |
+| targeted | .github/prompts/cg-plan.prompt.md | 229 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted  |
 | targeted | .github/prompts/cg-resume.prompt.md | 13 | roadmap.json | targeted or guarded context-loading instruction | - You may read `roadmap.json` in the project root only for the justified structured milestone health and drift checks in Step 2d. |
 | targeted | .github/prompts/cg-resume.prompt.md | 49 | compound-gpid.context.md | targeted or guarded context-loading instruction | If `compound-gpid.context.md` exists, read only headings or snippets relevant |
 | targeted | .github/prompts/cg-resume.prompt.md | 89 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with: |
@@ -284,52 +371,136 @@ _Generated: 2026-06-12T15:57:08_
 
 - Risk signals: 31
 - Justified full/maintenance signals: 10
-- Targeted/guarded signals: 84
+- Targeted/guarded signals: 85
 
 ## Model Inventory
 
-| Path | Category | Model | Tier |
-| --- | --- | --- | --- |
-| .github/prompts/cg-brain-rebuild.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-brainstorm.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-commit-push-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-compound-refresh.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-compound.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-devtag.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-diagnose.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fix-problems.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fix-triage.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fixbug.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-ideate.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-issues.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-plan-review.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-plan.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-resume.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-review-repos.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-review.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-roadmap-view.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-setup.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-strategy.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-verify-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-wiki.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-work.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-adversarial.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-architecture.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-code-quality.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-data-quality.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-documentation.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-fix-problems.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-learnings-researcher.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-performance.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-plan-critic.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-project-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-release-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-reproducibility.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-roadmap-view.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-roadmap.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-testing.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-version-control.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-wiki.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
+- Catalog: `.github/shared/model-catalog.json`
+- Catalog assignments: 40
+
+| Path | Category | Model | Vendor | Family | Role | Tier | Preferred | Support |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| .github/prompts/cg-brain-rebuild.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-brainstorm.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-commit-push-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-compound-refresh.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-compound.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-devtag.prompt.md | prompts | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-diagnose.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fix-problems.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fix-triage.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fixbug.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-ideate.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-issues.prompt.md | prompts | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-plan-review.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-plan.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-resume.prompt.md | prompts | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-review-repos.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-review.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-roadmap-view.prompt.md | prompts | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-setup.prompt.md | prompts | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-strategy.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-verify-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-wiki.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-work.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-adversarial.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-architecture.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-code-quality.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | review | economy | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-data-quality.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-documentation.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-fix-problems.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-learnings-researcher.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-performance.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-plan-critic.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-project-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-release-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-reproducibility.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-roadmap-view.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-roadmap.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-testing.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | review | economy | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-version-control.agent.md | agents | Claude Haiku 4.5 (copilot) | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-wiki.agent.md | agents | Claude Sonnet 4.6 (copilot) | anthropic | Claude | reasoning | standard | GPT-5.4 | frontmatter-supported |
+
+## Model Policy Violations
+
+### Missing catalog assignments
+- None
+
+### Invalid catalog roles
+- None
+
+### Stale model names
+- None
+
+### OpenAI-first violations
+- .github/prompts/cg-brain-rebuild.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-commit-push-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-compound-refresh.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-compound.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-diagnose.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-fix-problems.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-fix-triage.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-fixbug.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-verify-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-wiki.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/prompts/cg-work.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-architecture.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-code-quality.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-data-quality.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-fix-problems.agent.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-performance.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-plan-critic.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-testing.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=frontmatter-supported; not OpenAI-first
+- .github/agents/cg-wiki.agent.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; not OpenAI-first
+
+### Haiku role violations
+- .github/agents/cg-code-quality.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=frontmatter-supported; Haiku outside mechanical role
+- .github/agents/cg-testing.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=frontmatter-supported; Haiku outside mechanical role
+
+### Sonnet role violations
+- .github/prompts/cg-brain-rebuild.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-commit-push-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-compound-refresh.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-compound.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-diagnose.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-fix-problems.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-fix-triage.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-fixbug.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-review.prompt.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-verify-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-wiki.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/prompts/cg-work.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-adversarial.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-architecture.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-data-quality.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-fix-problems.agent.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-performance.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-plan-critic.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+- .github/agents/cg-wiki.agent.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=frontmatter-supported; Sonnet lacks fallback/cross-vendor role
+
+### Preferred model support gaps
+- .github/prompts/cg-brain-rebuild.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-commit-push-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-compound-refresh.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-compound.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-diagnose.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-fix-problems.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-fix-triage.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-fixbug.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-review.prompt.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-verify-pr.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-wiki.prompt.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/prompts/cg-work.prompt.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-adversarial.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-architecture.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-code-quality.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-data-quality.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-fix-problems.agent.md: Claude Sonnet 4.6 (copilot); role=coding; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-performance.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-plan-critic.agent.md: Claude Sonnet 4.6 (copilot); role=review; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-testing.agent.md: Claude Haiku 4.5 (copilot); role=review; preferred=GPT-5.3-Codex; support=not-tested; frontmatter support not confirmed
+- .github/agents/cg-wiki.agent.md: Claude Sonnet 4.6 (copilot); role=reasoning; preferred=GPT-5.4; support=not-tested; frontmatter support not confirmed
+
 
 ## Missing Model Declarations
 
@@ -337,7 +508,27 @@ _Generated: 2026-06-12T15:57:08_
 
 ## Model Drift
 
-- None
+- .github/prompts/cg-brain-rebuild.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/prompts/cg-commit-push-pr.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-compound-refresh.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/prompts/cg-compound.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/prompts/cg-diagnose.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-fix-problems.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-fix-triage.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-fixbug.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-review.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/prompts/cg-verify-pr.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/prompts/cg-wiki.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/prompts/cg-work.prompt.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/agents/cg-adversarial.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/agents/cg-architecture.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/agents/cg-code-quality.agent.md: frontmatter `Claude Haiku 4.5 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/agents/cg-data-quality.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/agents/cg-fix-problems.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/agents/cg-performance.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/agents/cg-plan-critic.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
+- .github/agents/cg-testing.agent.md: frontmatter `Claude Haiku 4.5 (copilot)` vs model-guide `GPT-5.3-Codex`
+- .github/agents/cg-wiki.agent.md: frontmatter `Claude Sonnet 4.6 (copilot)` vs model-guide `GPT-5.4`
 
 ## Premium Model Usage
 
@@ -357,13 +548,13 @@ c | 3 | 351 |
 ## Immediate Optimization Candidates
 
 - .github/prompts/cg-brainstorm.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-commit-push-pr.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-fixbug.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
+- .github/prompts/cg-commit-push-pr.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5; model guide drift
+- .github/prompts/cg-fixbug.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5; model guide drift
 - .github/prompts/cg-plan.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - .github/prompts/cg-review-repos.prompt.md (prompts): prompt estimated tokens >= 3000
-- .github/prompts/cg-review.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
+- .github/prompts/cg-review.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5; model guide drift
 - .github/prompts/cg-setup.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
-- .github/prompts/cg-work.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5
+- .github/prompts/cg-work.prompt.md (prompts): prompt estimated tokens >= 3000; reference count >= 5; model guide drift
 - .github/skills/cg-skill-brain-query/SKILL.md (skills): skill estimated tokens >= 2000
 - .github/skills/cg-skill-pester-safety/SKILL.md (skills): skill estimated tokens >= 2000
 - .github/skills/cg-skill-project-scanner/SKILL.md (skills): skill estimated tokens >= 2000
@@ -373,31 +564,33 @@ c | 3 | 351 |
 
 ## Needs Review
 
-- .github/prompts/cg-brain-rebuild.prompt.md (prompts): reference count >= 5
-- .github/prompts/cg-compound-refresh.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-compound.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-diagnose.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-fix-problems.prompt.md (prompts): reference count >= 5
-- .github/prompts/cg-fix-triage.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
+- .github/prompts/cg-brain-rebuild.prompt.md (prompts): reference count >= 5; model guide drift
+- .github/prompts/cg-compound-refresh.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5; model guide drift
+- .github/prompts/cg-compound.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5; model guide drift
+- .github/prompts/cg-diagnose.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5; model guide drift
+- .github/prompts/cg-fix-problems.prompt.md (prompts): reference count >= 5; model guide drift
+- .github/prompts/cg-fix-triage.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5; model guide drift
 - .github/prompts/cg-ideate.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-issues.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-plan-review.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-resume.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
 - .github/prompts/cg-roadmap-view.prompt.md (prompts): reference count >= 5
 - .github/prompts/cg-strategy.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-verify-pr.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5
-- .github/prompts/cg-wiki.prompt.md (prompts): reference count >= 5
-- .github/agents/cg-architecture.agent.md (agents): reference count >= 5
-- .github/agents/cg-code-quality.agent.md (agents): reference count >= 5
-- .github/agents/cg-data-quality.agent.md (agents): reference count >= 5
+- .github/prompts/cg-verify-pr.prompt.md (prompts): prompt size exceeds review threshold; reference count >= 5; model guide drift
+- .github/prompts/cg-wiki.prompt.md (prompts): reference count >= 5; model guide drift
+- .github/agents/cg-adversarial.agent.md (agents): model guide drift
+- .github/agents/cg-architecture.agent.md (agents): reference count >= 5; model guide drift
+- .github/agents/cg-code-quality.agent.md (agents): reference count >= 5; model guide drift
+- .github/agents/cg-data-quality.agent.md (agents): reference count >= 5; model guide drift
 - .github/agents/cg-documentation.agent.md (agents): reference count >= 5
-- .github/agents/cg-fix-problems.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5
-- .github/agents/cg-performance.agent.md (agents): reference count >= 5
+- .github/agents/cg-fix-problems.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5; model guide drift
+- .github/agents/cg-performance.agent.md (agents): reference count >= 5; model guide drift
+- .github/agents/cg-plan-critic.agent.md (agents): model guide drift
 - .github/agents/cg-project-scanner.agent.md (agents): reference count >= 5
 - .github/agents/cg-roadmap-view.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5
 - .github/agents/cg-roadmap.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5
-- .github/agents/cg-testing.agent.md (agents): reference count >= 5
-- .github/agents/cg-wiki.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5
+- .github/agents/cg-testing.agent.md (agents): reference count >= 5; model guide drift
+- .github/agents/cg-wiki.agent.md (agents): agent estimated tokens >= 1500; reference count >= 5; model guide drift
 - .github/skills/cg-skill-setup/SKILL.md (skills): skill estimated tokens >= 1200
 - .github/skills/cg-skill-stata-best-practices/SKILL.md (skills): skill estimated tokens >= 1200
 - .github/skills/cg-skill-windows-cmd-python-detection/SKILL.md (skills): skill estimated tokens >= 1200

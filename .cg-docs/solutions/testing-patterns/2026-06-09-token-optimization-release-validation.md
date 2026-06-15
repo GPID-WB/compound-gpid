@@ -126,3 +126,4 @@ For future token, prompt, context-loading, or model-governance changes:
 - `.cg-docs/cost/token-optimization-release-checklist.md`
 - `.cg-docs/cost/token-optimization-follow-ups.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
+- `.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md`

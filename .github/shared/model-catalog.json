@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "defaultVendor": "openai",
+    "codingPreferredModel": "GPT-5.3-Codex",
+    "reviewDefaultModel": "GPT-5.4",
+    "mechanicalFallbackModel": "Claude Haiku 4.5",
+    "inheritedSource": "GitHub Copilot model picker",
+    "notes": [
+      "Explicit model assignments are OpenAI-first unless a path is intentionally inherited, mechanical-only, or documented as a cross-vendor fallback.",
+      "Sonnet is reserved for targeted fallback or cross-vendor contrast, not blanket coding defaults.",
+      "Haiku is reserved for extremely simple mechanical workflows.",
+      "Copilot frontmatter support for displayed model strings must be validated in VS Code/Copilot before broad frontmatter rewrites."
+    ]
+  },
+  "frontmatterSupport": [
+    {
+      "model": "Auto",
+      "status": "picker-only",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "GPT-5.3-Codex",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "GPT-5.4",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "GPT-5.5",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "GPT-5 mini",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "GPT-5.4 mini",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "Claude Sonnet 4.6",
+      "status": "frontmatter-supported",
+      "provenance": "Existing repository frontmatter"
+    },
+    {
+      "model": "Claude Haiku 4.5",
+      "status": "frontmatter-supported",
+      "provenance": "Existing repository frontmatter"
+    },
+    {
+      "model": "Claude Opus 4.6",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "Claude Opus 4.7",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "Claude Opus 4.8",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "Claude Opus 4.5",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    },
+    {
+      "model": "Gemini 2.5 Pro",
+      "status": "not-tested",
+      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+    }
+  ],
+  "models": [
+    {"name": "Auto", "vendor": "github-auto", "family": "Auto", "roles": ["inherited"], "tier": "picker", "policyStatus": "allowed"},
+    {"name": "GPT-5.3-Codex", "vendor": "openai", "family": "GPT-5-Codex", "roles": ["coding", "review"], "tier": "standard", "policyStatus": "preferred"},
+    {"name": "GPT-5.4", "vendor": "openai", "family": "GPT-5", "roles": ["review", "reasoning"], "tier": "standard", "policyStatus": "preferred"},
+    {"name": "GPT-5.5", "vendor": "openai", "family": "GPT-5", "roles": ["reasoning", "review"], "tier": "standard", "policyStatus": "preferred"},
+    {"name": "GPT-5 mini", "vendor": "openai", "family": "GPT-5", "roles": ["mechanical"], "tier": "economy", "policyStatus": "allowed"},
+    {"name": "GPT-5.4 mini", "vendor": "openai", "family": "GPT-5", "roles": ["mechanical"], "tier": "economy", "policyStatus": "allowed"},
+    {"name": "Claude Sonnet 4.6", "vendor": "anthropic", "family": "Claude", "roles": ["fallback", "cross-vendor-review"], "tier": "standard", "policyStatus": "fallback"},
+    {"name": "Claude Haiku 4.5", "vendor": "anthropic", "family": "Claude", "roles": ["mechanical"], "tier": "economy", "policyStatus": "mechanical-only"},
+    {"name": "Claude Opus 4.5", "vendor": "anthropic", "family": "Claude", "roles": ["fallback"], "tier": "premium", "policyStatus": "user-selected-only"},
+    {"name": "Claude Opus 4.6", "vendor": "anthropic", "family": "Claude", "roles": ["fallback"], "tier": "premium", "policyStatus": "user-selected-only"},
+    {"name": "Claude Opus 4.7", "vendor": "anthropic", "family": "Claude", "roles": ["fallback"], "tier": "premium", "policyStatus": "user-selected-only"},
+    {"name": "Claude Opus 4.8", "vendor": "anthropic", "family": "Claude", "roles": ["fallback"], "tier": "premium", "policyStatus": "user-selected-only"},
+    {"name": "Gemini 2.5 Pro", "vendor": "google", "family": "Gemini", "roles": ["cross-vendor-review", "reasoning"], "tier": "standard", "policyStatus": "fallback"}
+  ],
+  "assignments": [
+    {"path": ".github/prompts/cg-brain-rebuild.prompt.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first."},
+    {"path": ".github/prompts/cg-brainstorm.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Creative exploration inherits the user's chosen model."},
+    {"path": ".github/prompts/cg-commit-push-pr.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Commit and PR generation follows implementation context."},
+    {"path": ".github/prompts/cg-compound-refresh.prompt.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Refresh work needs synthesis over prior learning artifacts."},
+    {"path": ".github/prompts/cg-compound.prompt.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Knowledge capture benefits from high-quality synthesis."},
+    {"path": ".github/prompts/cg-devtag.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Simple tag/status maintenance is mechanical and cost-sensitive."},
+    {"path": ".github/prompts/cg-diagnose.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Diagnostics often lead to code repair."},
+    {"path": ".github/prompts/cg-fix-problems.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Problem fixing is coding work."},
+    {"path": ".github/prompts/cg-fix-triage.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Fix triage needs code-aware judgment."},
+    {"path": ".github/prompts/cg-fixbug.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Bug fixing is coding work."},
+    {"path": ".github/prompts/cg-ideate.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Ideation inherits the user's chosen model."},
+    {"path": ".github/prompts/cg-issues.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Issue status queries are mechanical."},
+    {"path": ".github/prompts/cg-plan-review.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Plan review inherits the user's selected review model."},
+    {"path": ".github/prompts/cg-plan.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Planning inherits the user's chosen model."},
+    {"path": ".github/prompts/cg-resume.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Resume/status reconstruction is primarily mechanical."},
+    {"path": ".github/prompts/cg-review-repos.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Repository review exploration inherits the user's model."},
+    {"path": ".github/prompts/cg-review.prompt.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "manual-cross-vendor", "rationale": "Default review should be OpenAI-first, with manual cross-vendor rerun when generator vendor requires contrast."},
+    {"path": ".github/prompts/cg-roadmap-view.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Read-only roadmap rendering is mechanical."},
+    {"path": ".github/prompts/cg-setup.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Setup checks are mechanical unless escalated by failures."},
+    {"path": ".github/prompts/cg-strategy.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Strategy exploration inherits the user's chosen model."},
+    {"path": ".github/prompts/cg-verify-pr.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "PR verification is code-aware."},
+    {"path": ".github/prompts/cg-wiki.prompt.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki maintenance benefits from synthesis."},
+    {"path": ".github/prompts/cg-work.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Implementation workflow should prefer GPT-5.3-Codex."},
+    {"path": ".github/agents/cg-adversarial.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "manual-cross-vendor", "rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed."},
+    {"path": ".github/agents/cg-architecture.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Architecture review needs strong reasoning."},
+    {"path": ".github/agents/cg-code-quality.agent.md", "role": "review", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Code-quality review benefits from Codex specialization."},
+    {"path": ".github/agents/cg-data-quality.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Data-quality review needs strong analytical reasoning."},
+    {"path": ".github/agents/cg-documentation.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Documentation checks are usually mechanical and cheap."},
+    {"path": ".github/agents/cg-fix-problems.agent.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Fix application is coding work."},
+    {"path": ".github/agents/cg-learnings-researcher.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Learning artifact lookup is mostly retrieval and classification."},
+    {"path": ".github/agents/cg-performance.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Performance review needs analytical reasoning."},
+    {"path": ".github/agents/cg-plan-critic.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Plan criticism should use a strong OpenAI reasoning model."},
+    {"path": ".github/agents/cg-project-scanner.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Project scanning is structured and mechanical."},
+    {"path": ".github/agents/cg-release-scanner.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Release scanning is bounded and mechanical."},
+    {"path": ".github/agents/cg-reproducibility.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Reproducibility checklist work is structured and cheap."},
+    {"path": ".github/agents/cg-roadmap-view.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Roadmap viewing is read-only mechanical work."},
+    {"path": ".github/agents/cg-roadmap.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Roadmap field updates are mechanical when plan evidence is supplied."},
+    {"path": ".github/agents/cg-testing.agent.md", "role": "review", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Test review is code-aware and should be OpenAI-first."},
+    {"path": ".github/agents/cg-version-control.agent.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Version-control checks are structured and cheap."},
+    {"path": ".github/agents/cg-wiki.agent.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki curation benefits from synthesis."}
+  ]
+}
