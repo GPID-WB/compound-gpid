@@ -742,8 +742,8 @@ Describe "SCHEMA_VERSION - dialect marker" {
         Test-Path $schemaFile | Should -Be $true
     }
 
-    It "SCHEMA_VERSION contains brain-engine marker" {
-        ($content -match 'brain-engine') | Should -Be $true
+    It "SCHEMA_VERSION contains a descriptive slug (date-prefixed, non-empty)" {
+        ($content -match '^\d{4}-\d{2}-\d{2}-.+') | Should -Be $true
     }
 }
 
