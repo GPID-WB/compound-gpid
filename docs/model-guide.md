@@ -40,6 +40,27 @@ The source of truth is `.github/shared/model-catalog.json`. `docs/model-guide.md
 must stay in sync with prompt/agent frontmatter and the catalog assignment
 matrix.
 
+## Current Rollout Status
+
+As of 2026-06-16, the model-governance rollout is in Phase 1:
+
+- the model catalog, guide, release checklist, and context-audit guardrails are
+  in place;
+- inherited model-picker prompts are represented in documentation as
+  `Copilot model picker` and in executable prompt metadata by omitting
+  `model:`;
+- the audit treats those two inherited representations as equivalent;
+- exact GPT frontmatter strings are still `not-tested` until GitHub Copilot in
+  VS Code accepts them in prompt and agent YAML;
+- broad Sonnet/Haiku frontmatter migrations remain blocked until that runtime
+  validation is complete, or until the workflow explicitly chooses an inherited
+  model-picker fallback.
+
+Do not mark the Token Optimization & Model Governance milestone complete until
+the external VS Code/Copilot checks in the release checklist pass and the
+remaining model drift/support-gap findings are either resolved or documented as
+accepted exceptions.
+
 ## Frontmatter Support Status
 
 The current model list comes from the user's GitHub Copilot model picker

@@ -88,9 +88,16 @@ To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json]
 ```
 
-Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, detects duplicate paragraph blocks, benchmarks `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup behavior, and writes reports to `.cg-docs/cost/` (default). Requires `scripts/brain/` from this repository.
+Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, enriches declarations from `.github/shared/model-catalog.json`, detects duplicate paragraph blocks, benchmarks `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup behavior, and writes reports to `.cg-docs/cost/` (default). Requires `scripts/brain/` from this repository.
 
 Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. The generated Markdown includes Benchmark Summary, Guardrails, Context Loading Risks, Review Dispatch Burden, Model Inventory, and a release-readiness checklist.
+
+Model-governance guardrails report unknown or stale model names, missing catalog
+assignments, invalid roles, OpenAI-first violations, Haiku/Sonnet role
+violations, support gaps, and model-guide drift. Inherited model-picker prompts
+are a deliberate exception: a missing `model:` frontmatter key matches
+`Copilot model picker` in `docs/model-guide.md` only when the catalog role is
+`inherited`.
 
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
