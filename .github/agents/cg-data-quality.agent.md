@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews data input validation, type checking, missing value handling, and schema consistency. Trilingual R/Python/Stata."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

@@ -4698,8 +4698,8 @@ Describe "cg-commit-push-pr.prompt.md - frontmatter" {
         ($frontmatter -match 'description:') | Should -Be $true
     }
 
-    It "is assigned Claude Sonnet 4.6" {
-        ($frontmatter -match 'Claude Sonnet 4\.6') | Should -Be $true
+    It "is assigned GPT-5.3-Codex for OpenAI-first commit and PR workflow" {
+        ($frontmatter -match 'GPT-5\.3-Codex') | Should -Be $true
     }
 
     It "does not have a tools: restriction" {
@@ -4829,8 +4829,8 @@ Describe "cg-verify-pr.prompt.md - frontmatter" {
         ($frontmatter -match 'description:') | Should -Be $true
     }
 
-    It "is assigned Claude Sonnet 4.6" {
-        ($frontmatter -match 'Claude Sonnet 4\.6') | Should -Be $true
+    It "is assigned GPT-5.3-Codex for OpenAI-first PR verification" {
+        ($frontmatter -match 'GPT-5\.3-Codex') | Should -Be $true
     }
 
     It "does not have a tools: restriction" {

@@ -1,6 +1,6 @@
 ---
 description: "Load context and resume interrupted work. Use at the start of a session to pick up where you left off."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 ---
 
 # Resume

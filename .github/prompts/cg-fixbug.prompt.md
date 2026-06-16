@@ -1,6 +1,6 @@
 ---
 description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Fix Bug

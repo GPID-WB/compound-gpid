@@ -984,8 +984,8 @@
           "id": "agent-model-tool-governance",
           "title": "Update custom agents for model and tool governance",
           "description": "Move model/tool governance into custom agents where appropriate. Agents define their intended role, tool access, model posture, and escalation behavior. Produces: updated .github/agents/*.agent.md, clear separation between lightweight/standard/deep-review/adversarial agents, restricted tool access for agents that don't need broad capabilities, premium agents gated behind explicit escalation.",
-          "status": "active",
-          "plan": null,
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
           "github": {
             "issueNumber": 92,
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/92",

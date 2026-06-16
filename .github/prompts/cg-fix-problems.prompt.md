@@ -1,6 +1,6 @@
 ---
 description: "Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Fix Problems

@@ -7,13 +7,13 @@
       "targeted": 85
     },
     "model_governance": {
-      "haiku_role_violations": 2,
+      "haiku_role_violations": 0,
       "missing_model_count": 0,
-      "model_drift_count": 21,
-      "openai_first_violations": 19,
+      "model_drift_count": 0,
+      "openai_first_violations": 0,
       "ordinary_model_picker_violations": 0,
       "premium_usage_count": 0,
-      "sonnet_role_violations": 19
+      "sonnet_role_violations": 0
     },
     "review_agent_counts": {
       "available": true,
@@ -50,17 +50,17 @@
       {
         "agent_refs": 13,
         "available": true,
-        "characters": 21455,
+        "characters": 21441,
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 1,
         "context_targeted_count": 6,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5363,
+        "estimated_tokens": 5360,
         "file_refs": 11,
         "load_verbs": 22,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
         "path": ".github/prompts/cg-work.prompt.md",
         "skill_refs": 2,
@@ -70,17 +70,17 @@
       {
         "agent_refs": 22,
         "available": true,
-        "characters": 18976,
+        "characters": 18956,
         "conditional_routing": true,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4744,
+        "estimated_tokens": 4739,
         "file_refs": 8,
         "load_verbs": 18,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
         "path": ".github/prompts/cg-review.prompt.md",
         "skill_refs": 5,
@@ -90,17 +90,17 @@
       {
         "agent_refs": 5,
         "available": true,
-        "characters": 9636,
+        "characters": 9616,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
-        "estimated_tokens": 2409,
+        "estimated_tokens": 2404,
         "file_refs": 15,
         "load_verbs": 6,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
         "path": ".github/prompts/cg-compound.prompt.md",
         "skill_refs": 2,
@@ -110,17 +110,17 @@
       {
         "agent_refs": 3,
         "available": true,
-        "characters": 11745,
+        "characters": 11735,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 6,
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
-        "estimated_tokens": 2936,
+        "estimated_tokens": 2933,
         "file_refs": 15,
         "load_verbs": 1,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "path": ".github/prompts/cg-resume.prompt.md",
         "skill_refs": 0,
@@ -386,7 +386,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 268,
+      "line": 275,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |"
@@ -461,7 +461,7 @@
       "line": 62,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
-      "snippet": "| `/cg-brain-rebuild` | Claude Sonnet 4.6 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg"
+      "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch"
     },
     {
       "artifact": "roadmap.json",
@@ -1061,12 +1061,12 @@
       "line": 55,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
-      "snippet": "| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | Claude Sonnet 4.6 | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase"
+      "snippet": "| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) "
     },
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 122,
+      "line": 129,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -1074,7 +1074,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 445,
+      "line": 452,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -1082,7 +1082,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 448,
+      "line": 455,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -1146,7 +1146,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 774,
+      "line": 791,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
@@ -1154,7 +1154,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 815,
+      "line": 832,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute)."
@@ -1340,134 +1340,134 @@
   "files": [
     {
       "category": "brain",
-      "characters": 96589,
-      "estimated_tokens": 24147,
+      "characters": 99778,
+      "estimated_tokens": 24944,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
       "category": "brain",
-      "characters": 24813,
-      "estimated_tokens": 6203,
+      "characters": 24819,
+      "estimated_tokens": 6204,
       "path": ".cg-docs/BRAIN-02.md"
     },
     {
       "category": "brain",
-      "characters": 134886,
-      "estimated_tokens": 33721,
+      "characters": 137834,
+      "estimated_tokens": 34458,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
       "category": "brain",
-      "characters": 1322,
-      "estimated_tokens": 330,
+      "characters": 1280,
+      "estimated_tokens": 320,
       "path": ".cg-docs/BRAIN.md"
     },
     {
       "category": "brain_index",
-      "characters": 570006,
-      "estimated_tokens": 142501,
+      "characters": 584836,
+      "estimated_tokens": 146209,
       "path": ".cg-docs/brain-index.json"
     },
     {
       "category": "agents",
-      "characters": 3140,
-      "estimated_tokens": 785,
+      "characters": 3120,
+      "estimated_tokens": 780,
       "path": ".github/agents/cg-adversarial.agent.md"
     },
     {
       "category": "agents",
-      "characters": 4125,
-      "estimated_tokens": 1031,
+      "characters": 4105,
+      "estimated_tokens": 1026,
       "path": ".github/agents/cg-architecture.agent.md"
     },
     {
       "category": "agents",
-      "characters": 3751,
-      "estimated_tokens": 937,
+      "characters": 3738,
+      "estimated_tokens": 934,
       "path": ".github/agents/cg-code-quality.agent.md"
     },
     {
       "category": "agents",
-      "characters": 4313,
-      "estimated_tokens": 1078,
+      "characters": 4293,
+      "estimated_tokens": 1073,
       "path": ".github/agents/cg-data-quality.agent.md"
     },
     {
       "category": "agents",
-      "characters": 2576,
-      "estimated_tokens": 644,
+      "characters": 2566,
+      "estimated_tokens": 641,
       "path": ".github/agents/cg-documentation.agent.md"
     },
     {
       "category": "agents",
-      "characters": 9484,
-      "estimated_tokens": 2371,
+      "characters": 9470,
+      "estimated_tokens": 2367,
       "path": ".github/agents/cg-fix-problems.agent.md"
     },
     {
       "category": "agents",
-      "characters": 4331,
-      "estimated_tokens": 1082,
+      "characters": 4321,
+      "estimated_tokens": 1080,
       "path": ".github/agents/cg-learnings-researcher.agent.md"
     },
     {
       "category": "agents",
-      "characters": 5046,
-      "estimated_tokens": 1261,
+      "characters": 5026,
+      "estimated_tokens": 1256,
       "path": ".github/agents/cg-performance.agent.md"
     },
     {
       "category": "agents",
-      "characters": 4180,
-      "estimated_tokens": 1045,
+      "characters": 4160,
+      "estimated_tokens": 1040,
       "path": ".github/agents/cg-plan-critic.agent.md"
     },
     {
       "category": "agents",
-      "characters": 5723,
-      "estimated_tokens": 1430,
+      "characters": 5713,
+      "estimated_tokens": 1428,
       "path": ".github/agents/cg-project-scanner.agent.md"
     },
     {
       "category": "agents",
-      "characters": 5575,
-      "estimated_tokens": 1393,
+      "characters": 5565,
+      "estimated_tokens": 1391,
       "path": ".github/agents/cg-release-scanner.agent.md"
     },
     {
       "category": "agents",
-      "characters": 3282,
-      "estimated_tokens": 820,
+      "characters": 3272,
+      "estimated_tokens": 818,
       "path": ".github/agents/cg-reproducibility.agent.md"
     },
     {
       "category": "agents",
-      "characters": 7664,
-      "estimated_tokens": 1916,
+      "characters": 7654,
+      "estimated_tokens": 1913,
       "path": ".github/agents/cg-roadmap-view.agent.md"
     },
     {
       "category": "agents",
-      "characters": 11570,
-      "estimated_tokens": 2892,
+      "characters": 11560,
+      "estimated_tokens": 2890,
       "path": ".github/agents/cg-roadmap.agent.md"
     },
     {
       "category": "agents",
-      "characters": 3544,
-      "estimated_tokens": 886,
+      "characters": 3531,
+      "estimated_tokens": 882,
       "path": ".github/agents/cg-testing.agent.md"
     },
     {
       "category": "agents",
-      "characters": 2872,
-      "estimated_tokens": 718,
+      "characters": 2862,
+      "estimated_tokens": 715,
       "path": ".github/agents/cg-version-control.agent.md"
     },
     {
       "category": "agents",
-      "characters": 10969,
-      "estimated_tokens": 2742,
+      "characters": 10949,
+      "estimated_tokens": 2737,
       "path": ".github/agents/cg-wiki.agent.md"
     },
     {
@@ -1502,8 +1502,8 @@
     },
     {
       "category": "prompts",
-      "characters": 4761,
-      "estimated_tokens": 1190,
+      "characters": 4741,
+      "estimated_tokens": 1185,
       "path": ".github/prompts/cg-brain-rebuild.prompt.md"
     },
     {
@@ -1514,50 +1514,50 @@
     },
     {
       "category": "prompts",
-      "characters": 13231,
-      "estimated_tokens": 3307,
+      "characters": 13217,
+      "estimated_tokens": 3304,
       "path": ".github/prompts/cg-commit-push-pr.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 6379,
-      "estimated_tokens": 1594,
+      "characters": 6359,
+      "estimated_tokens": 1589,
       "path": ".github/prompts/cg-compound-refresh.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 9636,
-      "estimated_tokens": 2409,
+      "characters": 9616,
+      "estimated_tokens": 2404,
       "path": ".github/prompts/cg-compound.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 3096,
-      "estimated_tokens": 774,
+      "characters": 3086,
+      "estimated_tokens": 771,
       "path": ".github/prompts/cg-devtag.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 9978,
-      "estimated_tokens": 2494,
+      "characters": 9964,
+      "estimated_tokens": 2491,
       "path": ".github/prompts/cg-diagnose.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 3886,
-      "estimated_tokens": 971,
+      "characters": 3872,
+      "estimated_tokens": 968,
       "path": ".github/prompts/cg-fix-problems.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 8414,
-      "estimated_tokens": 2103,
+      "characters": 8400,
+      "estimated_tokens": 2100,
       "path": ".github/prompts/cg-fix-triage.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 13232,
-      "estimated_tokens": 3308,
+      "characters": 13218,
+      "estimated_tokens": 3304,
       "path": ".github/prompts/cg-fixbug.prompt.md"
     },
     {
@@ -1568,8 +1568,8 @@
     },
     {
       "category": "prompts",
-      "characters": 11822,
-      "estimated_tokens": 2955,
+      "characters": 11812,
+      "estimated_tokens": 2953,
       "path": ".github/prompts/cg-issues.prompt.md"
     },
     {
@@ -1586,8 +1586,8 @@
     },
     {
       "category": "prompts",
-      "characters": 11745,
-      "estimated_tokens": 2936,
+      "characters": 11735,
+      "estimated_tokens": 2933,
       "path": ".github/prompts/cg-resume.prompt.md"
     },
     {
@@ -1598,20 +1598,20 @@
     },
     {
       "category": "prompts",
-      "characters": 18976,
-      "estimated_tokens": 4744,
+      "characters": 18956,
+      "estimated_tokens": 4739,
       "path": ".github/prompts/cg-review.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 3914,
-      "estimated_tokens": 978,
+      "characters": 3904,
+      "estimated_tokens": 976,
       "path": ".github/prompts/cg-roadmap-view.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 21833,
-      "estimated_tokens": 5458,
+      "characters": 21823,
+      "estimated_tokens": 5455,
       "path": ".github/prompts/cg-setup.prompt.md"
     },
     {
@@ -1622,20 +1622,20 @@
     },
     {
       "category": "prompts",
-      "characters": 11553,
-      "estimated_tokens": 2888,
+      "characters": 11539,
+      "estimated_tokens": 2884,
       "path": ".github/prompts/cg-verify-pr.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 5990,
-      "estimated_tokens": 1497,
+      "characters": 5970,
+      "estimated_tokens": 1492,
       "path": ".github/prompts/cg-wiki.prompt.md"
     },
     {
       "category": "prompts",
-      "characters": 21455,
-      "estimated_tokens": 5363,
+      "characters": 21441,
+      "estimated_tokens": 5360,
       "path": ".github/prompts/cg-work.prompt.md"
     },
     {
@@ -1658,8 +1658,8 @@
     },
     {
       "category": "shared",
-      "characters": 13077,
-      "estimated_tokens": 3269,
+      "characters": 13542,
+      "estimated_tokens": 3385,
       "path": ".github/shared/model-catalog.json"
     },
     {
@@ -1796,8 +1796,8 @@
     },
     {
       "category": "context",
-      "characters": 62921,
-      "estimated_tokens": 15730,
+      "characters": 63437,
+      "estimated_tokens": 15859,
       "path": "compound-gpid.context.md"
     },
     {
@@ -1826,14 +1826,14 @@
     },
     {
       "category": "docs",
-      "characters": 8736,
-      "estimated_tokens": 2184,
+      "characters": 9901,
+      "estimated_tokens": 2475,
       "path": "docs/model-guide.md"
     },
     {
       "category": "docs",
-      "characters": 41453,
-      "estimated_tokens": 10363,
+      "characters": 41870,
+      "estimated_tokens": 10467,
       "path": "docs/reference.md"
     },
     {
@@ -1856,350 +1856,21 @@
     },
     {
       "category": "docs",
-      "characters": 64134,
-      "estimated_tokens": 16033,
+      "characters": 65090,
+      "estimated_tokens": 16272,
       "path": "docs/workflow.md"
     },
     {
       "category": "roadmap",
-      "characters": 63441,
-      "estimated_tokens": 15860,
+      "characters": 63503,
+      "estimated_tokens": 15875,
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-15T19:03:05",
+  "generated": "2026-06-16T10:41:45",
   "guardrails": {
-    "failures": [
-      {
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-review.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-performance.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-testing.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "model guide drift"
-      },
-      {
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Haiku 4.5 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "coding workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-performance.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-testing.agent.md",
-        "reason": "review workflow is not OpenAI-first: Claude Haiku 4.5 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "reasoning workflow is not OpenAI-first: Claude Sonnet 4.6 (copilot)"
-      },
-      {
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "Haiku is allowed only for mechanical workflows"
-      },
-      {
-        "path": ".github/agents/cg-testing.agent.md",
-        "reason": "Haiku is allowed only for mechanical workflows"
-      },
-      {
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-review.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-performance.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      },
-      {
-        "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default"
-      }
-    ],
+    "failures": [],
     "warnings": [
-      {
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-review.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/agents/cg-performance.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
-      {
-        "path": ".github/agents/cg-testing.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.3-Codex"
-      },
-      {
-        "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "preferred model frontmatter support is not-tested: GPT-5.4"
-      },
       {
         "path": ".github/prompts/cg-work.prompt.md",
         "reason": "high-frequency prompt estimated tokens > 5000"
@@ -2338,21 +2009,21 @@
     },
     "declarations": [
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/prompts/cg-brain-rebuild.prompt.md",
         "preferred_model": "GPT-5.4",
         "role": "reasoning",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": null,
@@ -2372,55 +2043,55 @@
         "vendor": "inherited"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Commit and PR generation follows implementation context.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-commit-push-pr.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Refresh work needs synthesis over prior learning artifacts.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/prompts/cg-compound-refresh.prompt.md",
         "preferred_model": "GPT-5.4",
         "role": "reasoning",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Knowledge capture benefits from high-quality synthesis.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/prompts/cg-compound.prompt.md",
         "preferred_model": "GPT-5.4",
         "role": "reasoning",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -2430,7 +2101,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/prompts/cg-devtag.prompt.md",
@@ -2440,72 +2111,72 @@
         "vendor": "anthropic"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Diagnostics often lead to code repair.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-diagnose.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Problem fixing is coding work.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-fix-problems.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Fix triage needs code-aware judgment.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-fix-triage.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Bug fixing is coding work.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-fixbug.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": null,
@@ -2532,7 +2203,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/prompts/cg-issues.prompt.md",
@@ -2583,7 +2254,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/prompts/cg-resume.prompt.md",
@@ -2610,21 +2281,21 @@
         "vendor": "inherited"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Default review should be OpenAI-first, with manual cross-vendor rerun when generator vendor requires contrast.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "manual-cross-vendor",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/prompts/cg-review.prompt.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -2634,7 +2305,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/prompts/cg-roadmap-view.prompt.md",
@@ -2651,7 +2322,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/prompts/cg-setup.prompt.md",
@@ -2678,67 +2349,67 @@
         "vendor": "inherited"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "PR verification is code-aware.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-verify-pr.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Wiki maintenance benefits from synthesis.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/prompts/cg-wiki.prompt.md",
         "preferred_model": "GPT-5.4",
         "role": "reasoning",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Implementation workflow should prefer GPT-5.3-Codex.",
         "category": "prompts",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/prompts/cg-work.prompt.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
         "tools": null,
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "manual-cross-vendor",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-adversarial.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
@@ -2746,19 +2417,19 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Architecture review needs strong reasoning.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-architecture.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
@@ -2766,19 +2437,19 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "mechanical-only",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Code-quality review benefits from Codex specialization.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/agents/cg-code-quality.agent.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "review",
@@ -2786,19 +2457,19 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Data-quality review needs strong analytical reasoning.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-data-quality.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
@@ -2806,7 +2477,7 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -2816,7 +2487,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-documentation.agent.md",
@@ -2829,16 +2500,16 @@
         "vendor": "anthropic"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Fix application is coding work.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.3-Codex",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/agents/cg-fix-problems.agent.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "coding",
@@ -2849,7 +2520,7 @@
           "terminalLastCommand",
           "get_errors"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -2859,7 +2530,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-learnings-researcher.agent.md",
@@ -2872,16 +2543,16 @@
         "vendor": "anthropic"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Performance review needs analytical reasoning.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-performance.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
@@ -2889,19 +2560,19 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Plan criticism should use a strong OpenAI reasoning model.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-plan-critic.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "review",
@@ -2909,7 +2580,7 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -2919,7 +2590,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-project-scanner.agent.md",
@@ -2939,7 +2610,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-release-scanner.agent.md",
@@ -2959,7 +2630,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-reproducibility.agent.md",
@@ -2979,7 +2650,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-roadmap-view.agent.md",
@@ -2998,7 +2669,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-roadmap.agent.md",
@@ -3011,16 +2682,16 @@
         "vendor": "anthropic"
       },
       {
-        "catalog_policy_status": "mechanical-only",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Test review is code-aware and should be OpenAI-first.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5-Codex",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
         "path": ".github/agents/cg-testing.agent.md",
         "preferred_model": "GPT-5.3-Codex",
         "role": "review",
@@ -3028,7 +2699,7 @@
           "read",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       },
       {
         "catalog_policy_status": "mechanical-only",
@@ -3038,7 +2709,7 @@
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
+        "model": "Claude Haiku 4.5",
         "model_tier": "economy",
         "normalized_model": "Claude Haiku 4.5",
         "path": ".github/agents/cg-version-control.agent.md",
@@ -3051,16 +2722,16 @@
         "vendor": "anthropic"
       },
       {
-        "catalog_policy_status": "fallback",
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Wiki curation benefits from synthesis.",
         "category": "agents",
-        "family": "Claude",
+        "family": "GPT-5",
         "frontmatter_mode": "explicit",
         "frontmatter_support": "frontmatter-supported",
         "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
+        "model": "GPT-5.4",
         "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
+        "normalized_model": "GPT-5.4",
         "path": ".github/agents/cg-wiki.agent.md",
         "preferred_model": "GPT-5.4",
         "role": "reasoning",
@@ -3069,1282 +2740,24 @@
           "write",
           "search"
         ],
-        "vendor": "anthropic"
+        "vendor": "openai"
       }
     ],
-    "drift": [
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/prompts/cg-compound-refresh.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/prompts/cg-compound.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-diagnose.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-fix-problems.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-fix-triage.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-fixbug.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/prompts/cg-review.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-verify-pr.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/prompts/cg-wiki.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/prompts/cg-work.prompt.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-adversarial.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-architecture.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Haiku 4.5 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/agents/cg-code-quality.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-data-quality.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/agents/cg-fix-problems.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-performance.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-plan-critic.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Haiku 4.5 (copilot)",
-        "model_guide_model": "GPT-5.3-Codex",
-        "path": ".github/agents/cg-testing.agent.md"
-      },
-      {
-        "frontmatter_model": "Claude Sonnet 4.6 (copilot)",
-        "model_guide_model": "GPT-5.4",
-        "path": ".github/agents/cg-wiki.agent.md"
-      }
-    ],
-    "frontmatter_support_gaps": [
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Commit and PR generation follows implementation context.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Refresh work needs synthesis over prior learning artifacts.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Knowledge capture benefits from high-quality synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Diagnostics often lead to code repair.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Problem fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix triage needs code-aware judgment.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Bug fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Default review should be OpenAI-first, with manual cross-vendor rerun when generator vendor requires contrast.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "manual-cross-vendor",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-review.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "PR verification is code-aware.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki maintenance benefits from synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Implementation workflow should prefer GPT-5.3-Codex.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-work.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "manual-cross-vendor",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Architecture review needs strong reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-architecture.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Code-quality review benefits from Codex specialization.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Data-quality review needs strong analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix application is coding work.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "coding",
-        "tools": [
-          "read",
-          "search",
-          "editFiles",
-          "terminalLastCommand",
-          "get_errors"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Performance review needs analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-performance.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Plan criticism should use a strong OpenAI reasoning model.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Test review is code-aware and should be OpenAI-first.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-testing.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "preferred_model_support": "not-tested",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki curation benefits from synthesis.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-wiki.agent.md",
-        "preferred_model": "GPT-5.4",
-        "preferred_model_support": "not-tested",
-        "role": "reasoning",
-        "tools": [
-          "read",
-          "write",
-          "search"
-        ],
-        "vendor": "anthropic"
-      }
-    ],
-    "haiku_role_violations": [
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Code-quality review benefits from Codex specialization.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Test review is code-aware and should be OpenAI-first.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-testing.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      }
-    ],
+    "drift": [],
+    "frontmatter_support_gaps": [],
+    "haiku_role_violations": [],
     "invalid_catalog_roles": [],
     "missing": [],
     "missing_catalog_assignments": [],
-    "openai_first_violations": [
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Commit and PR generation follows implementation context.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Refresh work needs synthesis over prior learning artifacts.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Knowledge capture benefits from high-quality synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Diagnostics often lead to code repair.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Problem fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix triage needs code-aware judgment.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Bug fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "PR verification is code-aware.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki maintenance benefits from synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Implementation workflow should prefer GPT-5.3-Codex.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-work.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Architecture review needs strong reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-architecture.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Code-quality review benefits from Codex specialization.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-code-quality.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Data-quality review needs strong analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix application is coding work.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": [
-          "read",
-          "search",
-          "editFiles",
-          "terminalLastCommand",
-          "get_errors"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Performance review needs analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-performance.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Plan criticism should use a strong OpenAI reasoning model.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "mechanical-only",
-        "catalog_rationale": "Test review is code-aware and should be OpenAI-first.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Haiku 4.5 (copilot)",
-        "model_tier": "economy",
-        "normalized_model": "Claude Haiku 4.5",
-        "path": ".github/agents/cg-testing.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki curation benefits from synthesis.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-wiki.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": [
-          "read",
-          "write",
-          "search"
-        ],
-        "vendor": "anthropic"
-      }
-    ],
+    "openai_first_violations": [],
     "ordinary_model_picker_violations": [],
     "premium_usage": [],
-    "sonnet_role_violations": [
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Commit and PR generation follows implementation context.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Refresh work needs synthesis over prior learning artifacts.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Knowledge capture benefits from high-quality synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Diagnostics often lead to code repair.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Problem fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix triage needs code-aware judgment.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Bug fixing is coding work.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-fixbug.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Default review should be OpenAI-first, with manual cross-vendor rerun when generator vendor requires contrast.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "manual-cross-vendor",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-review.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "PR verification is code-aware.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki maintenance benefits from synthesis.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-wiki.prompt.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Implementation workflow should prefer GPT-5.3-Codex.",
-        "category": "prompts",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/prompts/cg-work.prompt.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": null,
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "manual-cross-vendor",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Architecture review needs strong reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-architecture.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Data-quality review needs strong analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-data-quality.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Fix application is coding work.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-fix-problems.agent.md",
-        "preferred_model": "GPT-5.3-Codex",
-        "role": "coding",
-        "tools": [
-          "read",
-          "search",
-          "editFiles",
-          "terminalLastCommand",
-          "get_errors"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Performance review needs analytical reasoning.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-performance.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Plan criticism should use a strong OpenAI reasoning model.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "review",
-        "tools": [
-          "read",
-          "search"
-        ],
-        "vendor": "anthropic"
-      },
-      {
-        "catalog_policy_status": "fallback",
-        "catalog_rationale": "Wiki curation benefits from synthesis.",
-        "category": "agents",
-        "family": "Claude",
-        "frontmatter_mode": "explicit",
-        "frontmatter_support": "frontmatter-supported",
-        "has_escalation_condition": false,
-        "model": "Claude Sonnet 4.6 (copilot)",
-        "model_tier": "standard",
-        "normalized_model": "Claude Sonnet 4.6",
-        "path": ".github/agents/cg-wiki.agent.md",
-        "preferred_model": "GPT-5.4",
-        "role": "reasoning",
-        "tools": [
-          "read",
-          "write",
-          "search"
-        ],
-        "vendor": "anthropic"
-      }
-    ],
+    "sonnet_role_violations": [],
     "stale_model_names": [],
     "unused_catalog_assignments": []
   },
   "optimization_candidates": {
-    "acceptable_count": 44,
+    "acceptable_count": 46,
     "immediate": [
       {
         "category": "prompts",
@@ -4354,12 +2767,12 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5; model guide drift"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5; model guide drift"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "category": "prompts",
@@ -4374,7 +2787,7 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-review.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5; model guide drift"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "category": "prompts",
@@ -4384,7 +2797,7 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5; model guide drift"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
         "category": "skills",
@@ -4421,32 +2834,32 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5; model guide drift"
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5; model guide drift"
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5; model guide drift"
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5; model guide drift"
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
@@ -4481,32 +2894,27 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5; model guide drift"
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "reference count >= 5; model guide drift"
-      },
-      {
-        "category": "agents",
-        "path": ".github/agents/cg-adversarial.agent.md",
-        "reason": "model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
@@ -4516,17 +2924,12 @@
       {
         "category": "agents",
         "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5; model guide drift"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-performance.agent.md",
-        "reason": "reference count >= 5; model guide drift"
-      },
-      {
-        "category": "agents",
-        "path": ".github/agents/cg-plan-critic.agent.md",
-        "reason": "model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
@@ -4546,12 +2949,12 @@
       {
         "category": "agents",
         "path": ".github/agents/cg-testing.agent.md",
-        "reason": "reference count >= 5; model guide drift"
+        "reason": "reference count >= 5"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5; model guide drift"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
       },
       {
         "category": "skills",
@@ -4935,28 +3338,28 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 92145,
-        "estimated_tokens": 23031,
+        "characters": 91905,
+        "estimated_tokens": 22971,
         "files": 17
       },
       "brain": {
-        "characters": 257610,
-        "estimated_tokens": 64401,
+        "characters": 263711,
+        "estimated_tokens": 65926,
         "files": 4
       },
       "brain_index": {
-        "characters": 570006,
-        "estimated_tokens": 142501,
+        "characters": 584836,
+        "estimated_tokens": 146209,
         "files": 1
       },
       "context": {
-        "characters": 62921,
-        "estimated_tokens": 15730,
+        "characters": 63437,
+        "estimated_tokens": 15859,
         "files": 1
       },
       "docs": {
-        "characters": 196907,
-        "estimated_tokens": 49224,
+        "characters": 199445,
+        "estimated_tokens": 49858,
         "files": 10
       },
       "instructions": {
@@ -4965,18 +3368,18 @@
         "files": 4
       },
       "prompts": {
-        "characters": 245733,
-        "estimated_tokens": 61425,
+        "characters": 245485,
+        "estimated_tokens": 61364,
         "files": 23
       },
       "roadmap": {
-        "characters": 63441,
-        "estimated_tokens": 15860,
+        "characters": 63503,
+        "estimated_tokens": 15875,
         "files": 1
       },
       "shared": {
-        "characters": 29466,
-        "estimated_tokens": 7365,
+        "characters": 29931,
+        "estimated_tokens": 7481,
         "files": 5
       },
       "skills": {
@@ -4990,8 +3393,8 @@
         "files": 1
       }
     },
-    "total_characters": 1643367,
-    "total_estimated_tokens": 410813,
+    "total_characters": 1667391,
+    "total_estimated_tokens": 416819,
     "total_files": 88
   }
 }

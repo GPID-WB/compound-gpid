@@ -42,7 +42,8 @@ matrix.
 
 ## Current Rollout Status
 
-As of 2026-06-16, the model-governance rollout is in Phase 1:
+As of 2026-06-16, the OpenAI-first model-governance rollout has completed the
+frontmatter validation and production model-assignment migration:
 
 - the model catalog, guide, release checklist, and context-audit guardrails are
   in place;
@@ -50,32 +51,32 @@ As of 2026-06-16, the model-governance rollout is in Phase 1:
   `Copilot model picker` and in executable prompt metadata by omitting
   `model:`;
 - the audit treats those two inherited representations as equivalent;
-- exact GPT frontmatter strings are still `not-tested` until GitHub Copilot in
-  VS Code accepts them in prompt and agent YAML;
-- broad Sonnet/Haiku frontmatter migrations remain blocked until that runtime
-  validation is complete, or until the workflow explicitly chooses an inherited
-  model-picker fallback.
+- exact GPT frontmatter strings for `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`,
+  `GPT-5 mini`, and `GPT-5.4 mini` were manually validated in VS Code/Copilot
+  on 2026-06-16 using temporary `_model-validation-*` prompts;
+- production prompt and agent frontmatter has been synced to the catalog;
+- the context/model audit reports zero model drift, zero OpenAI-first
+  violations, zero Haiku role violations, and zero Sonnet role violations.
 
 Do not mark the Token Optimization & Model Governance milestone complete until
-the external VS Code/Copilot checks in the release checklist pass and the
-remaining model drift/support-gap findings are either resolved or documented as
-accepted exceptions.
+the remaining context-slimming and prompt/skill split closure evidence for
+#93 and #94 is resolved or documented as accepted rationale.
 
 ## Frontmatter Support Status
 
 The current model list comes from the user's GitHub Copilot model picker
-screenshot on 2026-06-15. Existing Claude frontmatter proves only those current
-strings are accepted by this repository. GPT model strings remain `not-tested`
-until VS Code/Copilot validates them in prompt/agent frontmatter.
+screenshot on 2026-06-15. Existing Claude frontmatter proved the Claude strings
+were accepted by this repository. The OpenAI strings below were manually
+validated in VS Code/Copilot on 2026-06-16.
 
 | Model | Vendor | Family | Frontmatter status | Role |
 | --- | --- | --- | --- | --- |
 | Auto | github-auto | Auto | picker-only | inherited |
-| GPT-5.3-Codex | openai | GPT-5-Codex | not-tested | coding, review |
-| GPT-5.4 | openai | GPT-5 | not-tested | review, reasoning |
-| GPT-5.5 | openai | GPT-5 | not-tested | reasoning, review |
-| GPT-5 mini | openai | GPT-5 | not-tested | mechanical |
-| GPT-5.4 mini | openai | GPT-5 | not-tested | mechanical |
+| GPT-5.3-Codex | openai | GPT-5-Codex | frontmatter-supported | coding, review |
+| GPT-5.4 | openai | GPT-5 | frontmatter-supported | review, reasoning |
+| GPT-5.5 | openai | GPT-5 | frontmatter-supported | reasoning, review |
+| GPT-5 mini | openai | GPT-5 | frontmatter-supported | mechanical |
+| GPT-5.4 mini | openai | GPT-5 | frontmatter-supported | mechanical |
 | Claude Sonnet 4.6 | anthropic | Claude | frontmatter-supported | fallback, cross-vendor-review |
 | Claude Haiku 4.5 | anthropic | Claude | frontmatter-supported | mechanical |
 | Gemini 2.5 Pro | google | Gemini | not-tested | cross-vendor-review, reasoning |

@@ -1,6 +1,6 @@
 ---
 description: "Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 # Model: Haiku 4.5 — 3 git commands with clear rules; reasoning=2, creativity=1. See docs/model-guide.md (2026-04-07 audit).
 ---
 

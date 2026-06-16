@@ -1,6 +1,6 @@
 ---
 description: "Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Diagnose Crash

@@ -9,11 +9,11 @@ estimated-effort: "large"
 deviation-policy: "ask"
 tags: [model-governance, token-optimization, prompt-slimming, cross-vendor-review, openai, copilot]
 phases: 6
-completed-phases: [1]
-current-phase: 2
+completed-phases: [1, 2, 3, 5]
+current-phase: 4
 execution-report: ".cg-docs/work-reports/2026-06-15-model-selection-and-governance-finish.md"
 failing-steps:
-  - "Phase 2 is blocked on external VS Code/Copilot validation for exact GPT prompt/agent frontmatter strings."
+  - "Phase 4 remains open for bounded context-slimming and prompt/skill split closure evidence for #93 and #94."
 roadmap-features:
   - token-optimization-model-governance/agent-model-tool-governance
   - token-optimization-model-governance/shrink-always-on-context

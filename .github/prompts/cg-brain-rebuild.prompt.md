@@ -1,6 +1,6 @@
 ---
 description: "Rebuild the project knowledge brain (BRAIN.md + indexes)."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 ---
 
 # Brain Rebuild

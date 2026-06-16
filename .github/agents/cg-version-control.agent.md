@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews version control practices: commit hygiene, branching, .gitignore, sensitive data exposure. Trilingual R/Python/Stata."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 tools: ['read', 'search']
 user-invocable: false
 ---

@@ -21,28 +21,28 @@
     },
     {
       "model": "GPT-5.3-Codex",
-      "status": "not-tested",
-      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+      "status": "frontmatter-supported",
+      "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
       "model": "GPT-5.4",
-      "status": "not-tested",
-      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+      "status": "frontmatter-supported",
+      "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
       "model": "GPT-5.5",
-      "status": "not-tested",
-      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+      "status": "frontmatter-supported",
+      "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
       "model": "GPT-5 mini",
-      "status": "not-tested",
-      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+      "status": "frontmatter-supported",
+      "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
       "model": "GPT-5.4 mini",
-      "status": "not-tested",
-      "provenance": "GitHub Copilot model picker UI, 2026-06-15 screenshot"
+      "status": "frontmatter-supported",
+      "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
       "model": "Claude Sonnet 4.6",
