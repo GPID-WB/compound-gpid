@@ -1,5 +1,5 @@
 {
-  "edge_count": 196,
+  "edge_count": 200,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -245,6 +245,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
       "target": ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
+      "target": ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
       "target_missing": false
     },
     {
@@ -825,6 +831,12 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
       "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
       "target_missing": false
@@ -869,6 +881,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
       "target": ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
+      "target": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
       "target_missing": false
     },
     {
@@ -1055,6 +1073,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
       "target": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
+      "target": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
       "target_missing": false
     },
     {
@@ -2329,6 +2353,34 @@
         "deviate:auto",
         ".github/prompts/cg-plan.prompt.md",
         ".github/prompts/cg-work.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
+      "slug": "2026-06-16-token-context-optimization-closure",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "token-optimization",
+        "context-loading",
+        "prompt-splitting",
+        "model-governance",
+        "audit"
+      ],
+      "title": "Token Context Optimization Closure",
+      "top_keywords": [
+        "/cg-work",
+        "roadmap.json",
+        ".cg-docs/",
+        "cg-work",
+        "compound-gpid.context.md",
+        "approach",
+        "docs-only",
+        "fix",
+        "accept",
+        "/cg-token-audit"
       ]
     },
     {
@@ -4271,6 +4323,34 @@
         "docs/model-guide.md",
         "docs/reference.md",
         "tests/model-assignments.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
+      "slug": "2026-06-16-token-context-optimization-closure",
+      "status": "active",
+      "summary": "Close the remaining Token Optimization & Model Governance work for #93 and #94 with a bounded, evidence-driven implementation: classify current audit warnings, fix ordinary broad context-loading where measurable, slim or justify `/cg-work`, and add a small user-facing `/cg-token-audit` command backed by deterministic Python analysis.",
+      "tags": [
+        "token-optimization",
+        "context-loading",
+        "prompt-splitting",
+        "model-governance",
+        "audit"
+      ],
+      "title": "Token Context Optimization Closure",
+      "top_keywords": [
+        "cg-token-audit",
+        "/cg-token-audit",
+        "roadmap.json",
+        "/cg-work",
+        "compound-gpid.context.md",
+        "cg-work",
+        "python3 -m pytest scripts/tests/test_audit_context.py",
+        "cg_audit_context.py",
+        "test scenarios",
+        "@cg-roadmap"
       ]
     },
     {
@@ -6537,6 +6617,28 @@
         "cg-review-repos.prompt.md",
         "cg-strategy.prompt.md",
         "2026-06-12-goal-driven-execution-review.md"
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-3",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Files reviewed**: current token context optimization changes, including audit tooling, `/cg-token-audit`, wrappers, prompt slimming, docs, and tests. **Findings**: 0 (P0: 0, P1: 0, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-3",
+      "top_keywords": [
+        "token-advice.md",
+        "2026-06-12-goal-driven-execution-review.md",
+        "run-tests.ps1",
+        "review",
+        "passed",
+        "verification",
+        "reviewed_warnings",
+        "recommendations",
+        "report",
+        "notes"
       ]
     },
     {
@@ -11417,6 +11519,35 @@
       ]
     },
     {
+      "date": "2026-06-16",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
+      "slug": "2026-06-16-reviewed-warning-classifications-close-token-work",
+      "status": "",
+      "summary": "The Token Optimization & Model Governance milestone had no audit failures after the OpenAI-first model-governance migration, but #93 and #94 could not honestly close while the audit still emitted context-loading and token warnings. Treating all warnings as blockers would force a broad prompt rewrite. Treating all warnings as harmless would hide real always-on context regressions. The hard part was distinguishing three cases: - prompt or agent wording that should be fixed because it broadens ordinary runtime context; - maintenance, safety, roadmap, setup, release, or research reads that are intentionally broad and should remain; - documentation wording that mentions broad artifacts...",
+      "tags": [
+        "token-optimization",
+        "warning-classification",
+        "context-loading",
+        "model-governance",
+        "documentation",
+        "release-readiness"
+      ],
+      "title": "Reviewed warning classifications close token work without hiding risk",
+      "top_keywords": [
+        "fix",
+        ".cg-docs/cost/token-advice.md",
+        "reviewed",
+        "2026-06-16-token-context-optimization-closure.md",
+        "cg-work",
+        "warnings",
+        "docs-only",
+        "passed",
+        "accept",
+        ".cg-docs/cost/context-audit.md"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -13863,7 +13994,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#agent-model-tool-governance",
       "slug": "agent-model-tool-governance",
-      "status": "active",
+      "status": "done",
       "summary": "Update custom agents for model and tool governance",
       "tags": [],
       "title": "Update custom agents for model and tool governance",
@@ -14013,13 +14144,13 @@
       ]
     }
   ],
-  "entity_count": 490,
-  "generated": "2026-06-15",
+  "entity_count": 494,
+  "generated": "2026-06-16",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 334,
+      "entity_count": 338,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -14059,6 +14190,7 @@
         ".cg-docs/brainstorms/2026-06-01-fixbug-test-correctness-assessment.md",
         ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
         ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
+        ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -14124,6 +14256,7 @@
         ".cg-docs/plans/2026-06-11-github-issues-integration.md",
         ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
         ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
+        ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -14224,6 +14357,7 @@
         ".cg-docs/reviews/2026-06-11-github-issues-integration-verify-review.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -14345,6 +14479,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md",
         ".cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md",
         ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

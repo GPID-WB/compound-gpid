@@ -104,19 +104,20 @@ OpenAI frontmatter support, prompt/agent matrix sync, docs/reference sync, and
 audit/Pester guardrails all pass. GitHub issue #92 was closed on 2026-06-16
 with an evidence comment, and the matching roadmap feature was marked `done`.
 
-Issues #93 and #94 remain open. The latest audit still reports non-blocking
-context-loading warnings and a high-frequency `/cg-work` token warning. Those
-warnings need either bounded slimming/splitting work or explicit accepted
-rationale before the milestone can honestly close.
+This report was superseded on 2026-06-16 by
+`.cg-docs/work-reports/2026-06-16-token-context-optimization-closure.md`.
+That later closure work prepared #93/#94 evidence: final audit failures are
+zero, reviewed warnings are `fix=0`, `accept=19`, `docs-only=3`, and `/cg-work`
+is below the 5,000-token audit threshold.
 
 ## Next Phase
 
-Phase 4 should decide the remaining #93/#94 scope:
+Phase 4 decided the remaining #93/#94 scope in the 2026-06-16 closure work:
 
-1. perform bounded slimming/splitting only where the audit still identifies
-   measurable risk or high-frequency token burden; or
-2. document why the remaining warnings are intentional maintenance/safety
-   reads, then close #93/#94 with accepted-rationale evidence.
+1. fix ordinary prompt broad-read warnings where the audit classified them as
+   `fix`;
+2. keep maintenance/safety and docs-only warnings as accepted rationale;
+3. add `/cg-token-audit` as a thin deterministic advisory entrypoint.
 
-Do not mark the milestone complete until that decision is recorded and the
-roadmap/issues are updated consistently.
+Roadmap and GitHub issue updates still need to be performed through
+`@cg-roadmap` / the issue workflow.

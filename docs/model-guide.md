@@ -42,8 +42,8 @@ matrix.
 
 ## Current Rollout Status
 
-As of 2026-06-16, the OpenAI-first model-governance rollout has completed the
-frontmatter validation and production model-assignment migration:
+As of 2026-06-16, the OpenAI-first model-governance rollout and the remaining
+context-slimming / prompt-entrypoint closure work have completed:
 
 - the model catalog, guide, release checklist, and context-audit guardrails are
   in place;
@@ -56,11 +56,19 @@ frontmatter validation and production model-assignment migration:
   on 2026-06-16 using temporary `_model-validation-*` prompts;
 - production prompt and agent frontmatter has been synced to the catalog;
 - the context/model audit reports zero model drift, zero OpenAI-first
-  violations, zero Haiku role violations, and zero Sonnet role violations.
+  violations, zero Haiku role violations, and zero Sonnet role violations;
+- audit warning review reports `fix=0`, with remaining warnings classified as
+  accepted maintenance/safety reads or docs-only wording;
+- `/cg-work` has been slimmed below the 5,000-token audit threshold while
+  preserving safety, review-routing, roadmap-write, and goal-execution
+  behavior;
+- `/cg-token-audit` is available as a thin advisory entrypoint backed by
+  deterministic tooling and generated `token-advice.md`.
 
-Do not mark the Token Optimization & Model Governance milestone complete until
-the remaining context-slimming and prompt/skill split closure evidence for
-#93 and #94 is resolved or documented as accepted rationale.
+Closure evidence for #93 and #94 is recorded in
+`.cg-docs/work-reports/2026-06-16-token-context-optimization-closure.md`.
+Actual roadmap and GitHub issue status updates must still be routed through
+`@cg-roadmap` / the GitHub issue workflow rather than edited casually.
 
 ## Frontmatter Support Status
 
@@ -107,6 +115,7 @@ validated in VS Code/Copilot on 2026-06-16.
 | cg-roadmap-view.prompt.md | Claude Haiku 4.5 | mechanical | Read-only roadmap rendering is mechanical. |
 | cg-setup.prompt.md | Claude Haiku 4.5 | mechanical | Setup checks are mechanical unless escalated by failures. |
 | cg-strategy.prompt.md | Copilot model picker | inherited | Strategy exploration inherits the user's chosen model. |
+| cg-token-audit.prompt.md | Claude Haiku 4.5 | mechanical | Token advice delegates analysis to deterministic tooling and only summarizes generated recommendations. |
 | cg-verify-pr.prompt.md | GPT-5.3-Codex | coding | PR verification is code-aware. |
 | cg-wiki.prompt.md | GPT-5.4 | reasoning | Wiki maintenance benefits from synthesis. |
 | cg-work.prompt.md | GPT-5.3-Codex | coding | Implementation workflow should prefer GPT-5.3-Codex. |
@@ -139,7 +148,7 @@ Before merging model or prompt-governance changes in the `compound-gpid` repo,
 run the context audit:
 
 ```bash
-python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both
+python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations
 ```
 
 The generated guardrails must show:
@@ -151,6 +160,7 @@ The generated guardrails must show:
 - no Sonnet default without fallback or cross-vendor rationale;
 - no model-guide drift;
 - no unconfirmed runtime claim about Copilot model-picker behavior.
+- no reviewed warning classified as `fix`.
 
 For release candidates, also complete
 `.cg-docs/cost/token-optimization-release-checklist.md`. The static audit can

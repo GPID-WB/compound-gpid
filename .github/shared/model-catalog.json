@@ -116,6 +116,7 @@
     {"path": ".github/prompts/cg-roadmap-view.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Read-only roadmap rendering is mechanical."},
     {"path": ".github/prompts/cg-setup.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Setup checks are mechanical unless escalated by failures."},
     {"path": ".github/prompts/cg-strategy.prompt.md", "role": "inherited", "preferredModel": null, "frontmatterMode": "inherited", "rationale": "Strategy exploration inherits the user's chosen model."},
+    {"path": ".github/prompts/cg-token-audit.prompt.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Token advice delegates analysis to deterministic tooling and only summarizes generated recommendations."},
     {"path": ".github/prompts/cg-verify-pr.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "PR verification is code-aware."},
     {"path": ".github/prompts/cg-wiki.prompt.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki maintenance benefits from synthesis."},
     {"path": ".github/prompts/cg-work.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Implementation workflow should prefer GPT-5.3-Codex."},

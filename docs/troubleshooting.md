@@ -15,12 +15,12 @@ Known issues and step-by-step fixes for Compound GPID.
 Python is required but not found (checked: python3, python, py).
 ```
 
-**Windows symptom** (when running `cg-index` directly):
+**Windows symptom** (when running `cg-index` or `cg-token-audit` directly):
 ```
 ERROR: Python is not available (checked: python3, python, py).
 ```
 
-**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. It requires Python 3.8+. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python.
+**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. `cg-token-audit` runs the Python context/model audit that powers `/cg-token-audit`. Both require Python 3.8+. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python.
 
 **Fix (Windows)**:
 ```powershell
@@ -42,7 +42,7 @@ xcode-select --install
 brew install python@3.11
 ```
 
-**Note**: if Python is absent, the core Compound GPID workflow (prompts, agents, skills) continues to work. Only `cg-index` is unavailable, which means `DIGEST.md` and `search-index.json` won't be generated. `cg-learnings-researcher` falls back to direct directory scanning automatically.
+**Note**: if Python is absent, the core Compound GPID workflow (prompts, agents, skills) continues to work. `cg-index`, `/cg-brain-rebuild`, and `/cg-token-audit` are unavailable until Python is installed. `cg-learnings-researcher` falls back to direct directory scanning automatically.
 
 ---
 
@@ -87,7 +87,8 @@ $env:PATH -split ';' | Select-String 'compound'
 **Verify the bin directory exists and contains the wrappers**:
 ```powershell
 Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
-# Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd
+# Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd, cg-index.cmd,
+# cg-brain-init.cmd, cg-token-audit.cmd
 ```
 
 > **PATH length truncation**: If `C:\WBG\.compound-gpid\bin` is present in the registry

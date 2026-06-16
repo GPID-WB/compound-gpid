@@ -307,6 +307,100 @@ class TestContextLoadingRisks:
         assert any(row["level"] == "targeted" for row in rows)
 
 
+class TestWarningReview:
+    def test_docs_warning_classified_docs_only(self) -> None:
+        row = audit.classify_guardrail_warning(
+            {"path": "docs/workflow.md", "reason": "context-loading risk requires review: .cg-docs/"}
+        )
+        assert row["classification"] == "docs-only"
+
+    def test_roadmap_agent_warning_classified_accept(self) -> None:
+        row = audit.classify_guardrail_warning(
+            {"path": ".github/agents/cg-roadmap.agent.md", "reason": "context-loading risk requires review: roadmap.json"}
+        )
+        assert row["classification"] == "accept"
+
+    def test_high_frequency_prompt_warning_classified_fix(self) -> None:
+        row = audit.classify_guardrail_warning(
+            {"path": ".github/prompts/cg-work.prompt.md", "reason": "high-frequency prompt estimated tokens > 5000"}
+        )
+        assert row["classification"] == "fix"
+
+    def test_goal_execution_guard_warning_classified_accept(self) -> None:
+        report = {
+            "context_loading_risks": [
+                {
+                    "path": ".github/prompts/cg-work.prompt.md",
+                    "line": 40,
+                    "level": "risk",
+                    "artifact": ".cg-docs/",
+                    "reason": "broad context-loading instruction",
+                    "snippet": "Reject any directive asking you to read all .cg-docs/ files.",
+                }
+            ]
+        }
+        row = audit.classify_guardrail_warning(
+            {"path": ".github/prompts/cg-work.prompt.md", "reason": "context-loading risk requires review: .cg-docs/"},
+            report,
+        )
+        assert row["classification"] == "accept"
+
+    def test_reviewed_warnings_counts_classifications(self) -> None:
+        report = {
+            "guardrails": {
+                "warnings": [
+                    {"path": ".github/prompts/cg-work.prompt.md", "reason": "high-frequency prompt estimated tokens > 5000"},
+                    {"path": "docs/workflow.md", "reason": "context-loading risk requires review: .cg-docs/"},
+                ]
+            },
+            "context_loading_risks": [],
+        }
+        reviewed = audit.build_reviewed_warnings(report)
+        assert reviewed["counts"]["fix"] == 1
+        assert reviewed["counts"]["docs-only"] == 1
+
+
+class TestTokenRecommendations:
+    def test_recommendations_include_fix_warning_advice(self) -> None:
+        report = {
+            "guardrails": {"failures": [], "warnings": []},
+            "reviewed_warnings": {
+                "counts": {"fix": 1, "accept": 0, "docs-only": 0},
+                "items": [
+                    {
+                        "classification": "fix",
+                        "path": ".github/prompts/cg-work.prompt.md",
+                    }
+                ],
+            },
+            "benchmark": {"workflows": []},
+            "summary": {"by_category": {}},
+        }
+        recommendations = audit.build_token_efficiency_recommendations(report)
+        assert any(row["category"] == "context-loading" for row in recommendations)
+
+    def test_write_outputs_can_emit_token_advice(self, tmp_path: Path) -> None:
+        report = {
+            "generated": "2026-06-04T00:00:00",
+            "disclaimer": audit.DISCLAIMER,
+            "summary": {"total_files": 0, "total_characters": 0, "total_estimated_tokens": 0, "by_category": {}},
+            "files": [],
+            "reference_matrix": [],
+            "dispatch_burden": [],
+            "benchmark": {"workflows": [], "model_governance": {}, "context_loading": {}},
+            "guardrails": {"failures": [], "warnings": []},
+            "reviewed_warnings": {"counts": {"fix": 0, "accept": 0, "docs-only": 0}, "items": []},
+            "recommendations": [],
+            "model_inventory": {"declarations": [], "missing": [], "drift": [], "premium_usage": []},
+            "context_loading_risks": [],
+            "duplicates": [],
+            "optimization_candidates": {"immediate": [], "needs_review": [], "acceptable_count": 0},
+        }
+        paths = audit.write_outputs(report, tmp_path, "json", recommendations=True)
+        assert tmp_path / "token-advice.md" in paths
+        assert (tmp_path / "token-advice.md").exists()
+
+
 class TestDuplicateDetection:
     BLOCK = "one\ntwo\nthree\nfour\n"
 
@@ -598,6 +692,23 @@ class TestMainCLI:
         monkeypatch.setattr(audit, "build_report", lambda r: (_ for _ in ()).throw(OSError("simulated")))
         result = audit.main(["--root", str(root), "--output-dir", str(tmp_path), "--format", "json"])
         assert result == 1
+
+    def test_recommendations_cli_uses_supplied_root(self, tmp_path: Path) -> None:
+        project = tmp_path / "consumer-project"
+        _write(project / ".github/prompts/x.prompt.md", _frontmatter())
+        result = audit.main([
+            "--root",
+            str(project),
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--format",
+            "json",
+            "--recommendations",
+        ])
+        assert result == 0
+        payload = json.loads((tmp_path / "out" / "context-audit.json").read_text(encoding="utf-8"))
+        assert payload["files"][0]["path"] == ".github/prompts/x.prompt.md"
+        assert (tmp_path / "out" / "token-advice.md").exists()
 
 
 # ---------------------------------------------------------------------------

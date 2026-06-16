@@ -12,7 +12,8 @@ restructure, check status, or convert the project wiki.
 
 - You may read any file in the workspace.
 - You may dispatch `@cg-wiki` to create or modify files in the wiki folder
-  (default `wiki/`, configurable in `compound-gpid.context.md`).
+  (default `wiki/`, configurable via the targeted `## Wiki Configuration`
+  section in `compound-gpid.context.md`).
 - You may modify `_wiki.yml` directly in `restructure` mode only. All wiki
   page file writes (`.md` files) are delegated to `@cg-wiki`. You must NOT
   create, modify, or delete any other files directly.
@@ -41,8 +42,8 @@ restructure, check status, or convert the project wiki.
    Proceeding without project context."
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. If `compound-gpid.context.md` exists, read it for wiki folder configuration
-   (`## Wiki Configuration` section). Otherwise skip silently.
+3. If `compound-gpid.context.md` exists, read only its `## Wiki Configuration`
+   section for the wiki folder. Otherwise skip silently.
 
 **Step 0 flag parse**: Before any dispatch, check for `--propose` flag. If present,
 set `propose = true` — this will be passed to `@cg-wiki` for all write operations.

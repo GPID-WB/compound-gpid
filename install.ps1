@@ -9,7 +9,7 @@
 #   1b. Verifies Python is available (python3, python, or py -- required for cg-index).
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
-#      so cg-link, cg-unlink, cg-update, cg-index are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-index, and cg-token-audit are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # Python requirement: Python 3.8+ is required (used by cg-index for knowledge indexing).
@@ -52,7 +52,7 @@ Write-Host "  Found: $gitVersion" -ForegroundColor DarkGray
 # -----------------------------------------------------------------------
 # Step 1b: Verify Python is available
 # -----------------------------------------------------------------------
-# Required for cg-index (knowledge indexing). Probes python3 -> python -> py.
+# Required for cg-index and cg-token-audit. Probes python3 -> python -> py.
 # All three candidates are verified against the Windows Store stub: Store stubs
 # register aliases (including python3 on Windows 11) that open the Store App
 # instead of running Python. Verification runs `<cmd> --version` and checks
@@ -191,6 +191,17 @@ if (Test-Path $cgBrainInitCmdSrc) {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
 }
 
+# Copy cg-token-audit.cmd from the committed file (same Python resolver pattern
+# as cg-index.cmd).
+$cgTokenAuditCmdSrc = Join-Path $CompoundGpidDir "bin\cg-token-audit.cmd"
+$cgTokenAuditCmdDst = Join-Path $binDir "cg-token-audit.cmd"
+if (Test-Path $cgTokenAuditCmdSrc) {
+    Copy-Item -Path $cgTokenAuditCmdSrc -Destination $cgTokenAuditCmdDst -Force
+    Write-Host "  Copied:  cg-token-audit in $binDir" -ForegroundColor DarkGray
+} else {
+    Write-Warning "  bin\cg-token-audit.cmd not found in installation -- skipping cg-token-audit wrapper."
+}
+
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
 # Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
 # is blocked by Constrained Language Mode on enterprise machines.
@@ -233,7 +244,7 @@ if (Test-Path $PROFILE -ErrorAction SilentlyContinue) {
     }
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -271,7 +282,8 @@ Write-Host "  cg-update  -- Pull latest updates                    (run from any
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
-Write-Host "  cg-index   -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"
 Write-Host ""
 Write-Host "Quick start:"
 Write-Host "  1. Restart VS Code / Positron and your terminal"

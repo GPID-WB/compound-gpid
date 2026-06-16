@@ -207,4 +207,25 @@ Describe "cg-brain-init registration parity" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'cg-brain-init'
     }
+
+    It "bin/cg-token-audit exists in the repo" {
+        $binPath = Join-Path $repoRoot "bin/cg-token-audit"
+        Test-Path $binPath | Should -Be $true
+    }
+
+    It "bin/cg-token-audit.cmd exists in the repo" {
+        $binPath = Join-Path $repoRoot "bin/cg-token-audit.cmd"
+        Test-Path $binPath | Should -Be $true
+    }
+
+    It "install.ps1 copies cg-token-audit.cmd to bin/" {
+        $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        $installPs1 | Should -Match 'cg-token-audit\.cmd'
+    }
+
+    It "install.sh creates cg-token-audit wrapper in bin/" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'cg-token-audit'
+        $installSh | Should -Match 'cg_audit_context\.py'
+    }
 }

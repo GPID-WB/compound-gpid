@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-06-15_
+_Generated 2026-06-16_
 
 ## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
 
@@ -211,7 +211,7 @@ objective`_ · 108 entities
   > Add model-policy tests
 - **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _active_ · `—`
+- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _done_ · `—`
   > Update custom agents for model and tool governance
 - **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _active_ · `—`
   > Shrink always-on context

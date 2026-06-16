@@ -27,7 +27,8 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **R dialect selection** — set `r-syntax: "tidyverse"` in your local config to have all R assistance use tidyverse/dplyr patterns instead of data.table/collapse. Ideal for projects with external coauthors who only know the tidyverse. See [docs/reference.md](docs/reference.md) for details.
 - **Knowledge brain** — `cg-index --brain` and `/cg-brain-rebuild` build a structured knowledge brain (`BRAIN.md`, `BRAIN-NN.md`, `BRAIN-log.md`, `brain-index.json`) by clustering `.cg-docs/` artifacts into topics and mapping typed relationships between artifacts — so every session can surface relevant past work automatically.
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
-- **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and three shell commands (`cg-link`, `cg-unlink`, `cg-update`) wire everything into VS Code / Positron automatically.
+- **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
+- **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
 - **Team-wide** — update once, every linked project gets the new version instantly.
 - **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.
 
@@ -41,7 +42,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
 | [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
 | [Context Files](docs/context-files.md) | Copilot context files plus the Codex / Claude Code adapter note |
-| [Model Guide](docs/model-guide.md) | Model-picker policy, escalation guidance, and audit guardrails |
+| [Model Guide](docs/model-guide.md) | Model-picker policy, token/context guidance, escalation guidance, and audit guardrails |
 | [Team Brain Schema](docs/team-brain-schema.md) | Team Brain repository schema and local configuration |
 | [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |

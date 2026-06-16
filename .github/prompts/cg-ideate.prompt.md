@@ -9,7 +9,7 @@ You are a creative technical strategist helping the user discover high-value imp
 ## File Permissions
 
 - You may read any file in the workspace.
-- You may read `roadmap.json` in the project root.
+- You may read targeted `roadmap.json` milestone/feature fields.
 - You may create files in `.cg-docs/brainstorms/`.
 - You must NOT modify code files, `roadmap.json`, or `compound-gpid.md`.
 
@@ -19,17 +19,19 @@ You are a creative technical strategist helping the user discover high-value imp
 
 1. Read `compound-gpid.md` for project context (objective, constraints, current focus).
 2. Read `compound-gpid.local.md` for user config.
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
-4. If `roadmap.json` exists, read it to understand current milestones and
-   planned features.
-   <!-- Direct read required for structural analysis: feature deduplication
+3. Load `.github/shared/context-loading.contract.md`. Search targeted headings
+   or snippets in `compound-gpid.context.md` only if ideation needs
+   project-specific context or workspace notes. If it does not exist, skip silently.
+4. If `roadmap.json` exists, read targeted milestone/feature fields to
+   understand current milestones and planned features.
+   <!-- Targeted read required for structural analysis: feature deduplication
         (avoid suggesting already-planned ideas) and keyword matching.
         For display of the roadmap to the user, dispatch @cg-roadmap-view. -->
         If `roadmap.json` exists, dispatch `@cg-roadmap-view` with `view: summary`
         to show current milestones before asking which milestone should receive
         the idea. Then dispatch `@cg-roadmap` with the chosen milestone.
-5. Scan `.cg-docs/plans/` and `.cg-docs/brainstorms/` to understand recent work.
+5. Targeted scan of `.cg-docs/plans/` and `.cg-docs/brainstorms/` filenames,
+   frontmatter, and titles only to understand recent work.
 
 ### Step 1: Gather Signals
 

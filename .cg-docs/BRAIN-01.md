@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-15_
+_Generated 2026-06-16_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 334 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 338 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -81,6 +81,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 334 entit
 - **[Context and model-governance audit infrastructure](.cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md)** · `brainstorm` · _decided_ · `2026-06-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Goal-driven execution for /cg-plan and /cg-work](.cg-docs/brainstorms/2026-06-12-goal-driven-execution.md)** · `brainstorm` · _decided_ · `2026-06-12`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Token Context Optimization Closure](.cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md)** · `brainstorm` · _decided_ · `2026-06-16`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
@@ -212,6 +214,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 334 entit
   > Transform the `/cg-plan` -> `/cg-work` workflow into a Compound GPID-native goal-driven execution loop inspired by Co…
 - **[Finish Token Optimization and OpenAI-First Model Governance](.cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md)** · `plan` · _active_ · `2026-06-15`
   > Finish the `Token Optimization & Model Governance` milestone by replacing the current token-first model policy with a…
+- **[Token Context Optimization Closure](.cg-docs/plans/2026-06-16-token-context-optimization-closure.md)** · `plan` · _active_ · `2026-06-16`
+  > Close the remaining Token Optimization & Model Governance work for #93 and #94 with a bounded, evidence-driven implem…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -411,6 +415,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 334 entit
 - **[2026-06-12-goal-driven-execution-review](.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md)** · `review` · _—_ · `2026-06-12`
   > **Date**: 2026-06-12 **Mode**: architecture (all 8 standard agents + mandatory emphasis on @cg-architecture, @cg-perf…
 - **[2026-06-12-goal-driven-execution-verify-review-2](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md)** · `review` · _—_ · `2026-06-15`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[2026-06-12-goal-driven-execution-verify-review-3](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md)** · `review` · _—_ · `2026-06-16`
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
 - **[2026-06-12-goal-driven-execution-verify-review](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md)** · `review` · _—_ · `2026-06-12`
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
@@ -654,6 +660,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 334 entit
   > A journey-fixture test was written to verify that `/cg-work` warns when an invalid `deviate:` override is provided an…
 - **[Inherited model-picker prompts need explicit audit equivalence](.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md)** · `solution` · _—_ · `2026-06-15`
   > The OpenAI-first model-governance pass added a durable model catalog and changed `docs/model-guide.md` to describe ea…
+- **[Reviewed warning classifications close token work without hiding risk](.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md)** · `solution` · _—_ · `2026-06-16`
+  > The Token Optimization & Model Governance milestone had no audit failures after the OpenAI-first model-governance mig…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`

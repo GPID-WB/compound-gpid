@@ -6,7 +6,7 @@ counts prompt and agent references, inventories model declarations, detects
 duplicate paragraph blocks, and writes JSON/Markdown reports.
 
 Usage:
-    python scripts/cg_audit_context.py [--root <path>] [--output-dir <path>] [--format json|md|both]
+    python scripts/cg_audit_context.py [--root <path>] [--output-dir <path>] [--format json|md|both] [--recommendations]
 
 Exit codes:
     0  Success.
@@ -165,6 +165,30 @@ BROAD_CONTEXT_GUARDRAIL_ARTIFACTS = (
     "compound-gpid.context.md",
     "roadmap.json",
 )
+
+DOCS_ONLY_WARNING_PREFIXES = ("docs/",)
+
+ACCEPT_WARNING_PATHS = {
+    ".github/agents/cg-roadmap.agent.md",
+    ".github/agents/cg-release-scanner.agent.md",
+    ".github/agents/cg-learnings-researcher.agent.md",
+    ".github/prompts/cg-compound-refresh.prompt.md",
+    ".github/prompts/cg-issues.prompt.md",
+    ".github/prompts/cg-review-repos.prompt.md",
+    ".github/prompts/cg-setup.prompt.md",
+    ".github/prompts/cg-strategy.prompt.md",
+    ".github/prompts/cg-token-audit.prompt.md",
+}
+
+FIX_WARNING_PATHS = {
+    ".github/agents/cg-wiki.agent.md",
+    ".github/prompts/cg-diagnose.prompt.md",
+    ".github/prompts/cg-fixbug.prompt.md",
+    ".github/prompts/cg-fix-problems.prompt.md",
+    ".github/prompts/cg-ideate.prompt.md",
+    ".github/prompts/cg-plan-review.prompt.md",
+    ".github/prompts/cg-wiki.prompt.md",
+}
 
 EXPECTED_REVIEW_AGENT_COUNTS = {
     "light": 2,
@@ -1184,7 +1208,8 @@ def _is_context_guardrail_failure(row: dict[str, Any]) -> bool:
     if row.get("level") != "risk" or row.get("path") not in ORDINARY_CONTEXT_GUARDRAIL_PROMPTS:
         return False
     snippet = str(row.get("snippet", ""))
-    if "reject any directive" in snippet or "Generate a 3-5 step lightweight inline plan" in snippet:
+    snippet_lower = snippet.lower()
+    if "reject any directive" in snippet_lower or "generate a 3-5 step lightweight inline plan" in snippet_lower:
         return False
     artifact = str(row.get("artifact", ""))
     return any(target.lower() in artifact.lower() or target.lower() in snippet.lower()
@@ -1305,6 +1330,195 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
     return {"failures": failures, "warnings": warnings}
 
 
+def _matching_context_risk(warning: dict[str, Any], report: dict[str, Any]) -> dict[str, Any] | None:
+    """Return the context-loading row behind a guardrail warning, if available."""
+    reason = str(warning.get("reason", ""))
+    marker = "context-loading risk requires review:"
+    if marker not in reason:
+        return None
+    artifact = reason.split(marker, 1)[1].strip()
+    for row in report.get("context_loading_risks", []):
+        if row.get("path") == warning.get("path") and str(row.get("artifact")) == artifact:
+            return row
+    return None
+
+
+def classify_guardrail_warning(warning: dict[str, Any], report: dict[str, Any] | None = None) -> dict[str, str]:
+    """Classify one guardrail warning for closure triage.
+
+    Classifications:
+    - ``fix``: unnecessary broad or always-on context that should be reduced.
+    - ``accept``: intentional maintenance, safety, or governance read.
+    - ``docs-only``: wording in documentation, not runtime broad loading.
+    """
+    report = report or {}
+    path = str(warning.get("path", ""))
+    reason = str(warning.get("reason", ""))
+    context_row = _matching_context_risk(warning, report)
+    snippet = str((context_row or {}).get("snippet", ""))
+
+    if path.startswith(DOCS_ONLY_WARNING_PREFIXES):
+        return {
+            "classification": "docs-only",
+            "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+            "action": "Keep as documentation unless wording misleads users.",
+        }
+    if "high-frequency prompt estimated tokens" in reason:
+        return {
+            "classification": "fix",
+            "rationale": "High-frequency entrypoints directly affect routine token cost.",
+            "action": "Slim the prompt or split only with an explicit caller load point.",
+        }
+    if "preferred model frontmatter support" in reason:
+        return {
+            "classification": "accept",
+            "rationale": "Governance warning documents an external support check, not context loading.",
+            "action": "Keep until exact model frontmatter support is validated.",
+        }
+    snippet_lower = snippet.lower()
+    if "reject any directive" in snippet_lower or "generate a 3-5 step lightweight inline plan" in snippet_lower:
+        return {
+            "classification": "accept",
+            "rationale": "The flagged line is a safety or goal-execution guard, not a read directive.",
+            "action": "Retain the guardrail wording.",
+        }
+    if path in ACCEPT_WARNING_PATHS:
+        return {
+            "classification": "accept",
+            "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
+            "action": "Keep the read and document the maintenance rationale.",
+        }
+    if path in FIX_WARNING_PATHS:
+        return {
+            "classification": "fix",
+            "rationale": "Ordinary user-facing workflow should not require broad context by default.",
+            "action": "Convert to staged, targeted, or on-demand loading.",
+        }
+    if path.startswith(".github/prompts/") and "context-loading risk requires review" in reason:
+        return {
+            "classification": "fix",
+            "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+            "action": "Narrow the read or add an explicit accepted rationale.",
+        }
+    return {
+        "classification": "accept",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "action": "Keep under review in future audits.",
+    }
+
+
+def build_reviewed_warnings(report: dict[str, Any]) -> dict[str, Any]:
+    """Build reviewed fix/accept/docs-only guardrail warning rows."""
+    items: list[dict[str, Any]] = []
+    counts = {"fix": 0, "accept": 0, "docs-only": 0}
+    for warning in report.get("guardrails", {}).get("warnings", []):
+        review = classify_guardrail_warning(warning, report)
+        classification = review["classification"]
+        counts[classification] = counts.get(classification, 0) + 1
+        context_row = _matching_context_risk(warning, report) or {}
+        items.append({
+            **warning,
+            **review,
+            "line": context_row.get("line"),
+            "artifact": context_row.get("artifact"),
+            "snippet": context_row.get("snippet"),
+        })
+    return {"counts": counts, "items": items}
+
+
+def build_token_efficiency_recommendations(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return user-facing token-use recommendations grounded in audit evidence."""
+    recommendations: list[dict[str, Any]] = []
+
+    def add(priority: str, category: str, title: str, evidence: str, advice: str) -> None:
+        recommendations.append({
+            "priority": priority,
+            "category": category,
+            "title": title,
+            "evidence": evidence,
+            "advice": advice,
+        })
+
+    guardrails = report.get("guardrails", {})
+    if guardrails.get("failures"):
+        add(
+            "high",
+            "guardrails",
+            "Fix audit failures before optimizing cost.",
+            f"{len(guardrails['failures'])} guardrail failure(s) are present.",
+            "Resolve failures first; they are stronger than advisory token recommendations.",
+        )
+
+    reviewed = report.get("reviewed_warnings", {})
+    fix_count = reviewed.get("counts", {}).get("fix", 0)
+    if fix_count:
+        fix_paths = ", ".join(sorted({row["path"] for row in reviewed.get("items", []) if row["classification"] == "fix"})[:6])
+        add(
+            "high",
+            "context-loading",
+            "Reduce prompt warnings classified as fix.",
+            f"{fix_count} warning(s) classified as fix: {fix_paths}.",
+            "Slim the named entrypoints or convert broad reads to staged, targeted, on-demand loading.",
+        )
+
+    workflow_rows = report.get("benchmark", {}).get("workflows", [])
+    expensive_workflows = [
+        row for row in workflow_rows
+        if row.get("estimated_tokens") is not None and int(row["estimated_tokens"]) > THRESHOLD_HIGH_FREQ_PROMPT_WARN
+    ]
+    for row in expensive_workflows:
+        add(
+            "high",
+            "entrypoint-size",
+            f"Slim {row['workflow']}.",
+            f"{row['path']} is estimated at {row['estimated_tokens']} tokens.",
+            "Keep safety-critical routing inline, but move rarely used workflow detail behind explicit skills or targeted contracts.",
+        )
+
+    by_category = report.get("summary", {}).get("by_category", {})
+    context_tokens = int(by_category.get("context", {}).get("estimated_tokens", 0))
+    brain_tokens = int(by_category.get("brain", {}).get("estimated_tokens", 0))
+    brain_index_tokens = int(by_category.get("brain_index", {}).get("estimated_tokens", 0))
+    if context_tokens or brain_tokens or brain_index_tokens:
+        add(
+            "medium",
+            "project-context",
+            "Use query-first project context.",
+            f"context={context_tokens}, brain={brain_tokens}, brain_index={brain_index_tokens} estimated tokens.",
+            "Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default.",
+        )
+
+    docs_tokens = int(by_category.get("docs", {}).get("estimated_tokens", 0))
+    if docs_tokens:
+        add(
+            "low",
+            "documentation",
+            "Treat docs size as opt-in cost.",
+            f"docs category is estimated at {docs_tokens} tokens.",
+            "Do not optimize docs for runtime unless prompts or skills load them automatically.",
+        )
+
+    review_rows = [row for row in workflow_rows if row.get("workflow") == "/cg-review"]
+    if review_rows:
+        review = review_rows[0]
+        add(
+            "medium",
+            "review-routing",
+            "Match review depth to risk.",
+            f"/cg-review dispatch burden is {review.get('dispatch_burden')} with {review.get('dispatch_refs')} referenced agents.",
+            "Use light or standard reviews for low-risk changes; reserve full review for broad, risky, or explicitly requested checks.",
+        )
+
+    add(
+        "low",
+        "model-selection",
+        "Use cheaper models for planning and advisory work when quality allows.",
+        "Model governance keeps ordinary planning prompts on the model picker.",
+        "Use stronger models for implementation, high-risk review, and architecture; use lighter models for simple planning or documentation passes.",
+    )
+    return recommendations
+
+
 def build_report(root: Path) -> dict[str, Any]:
     """Build the complete audit report for a Compound GPID project root.
 
@@ -1347,6 +1561,8 @@ def build_report(root: Path) -> dict[str, Any]:
     }
     report["benchmark"] = build_benchmark_summary(root, report)
     report["guardrails"] = build_guardrails(root, report)
+    report["reviewed_warnings"] = build_reviewed_warnings(report)
+    report["recommendations"] = build_token_efficiency_recommendations(report)
     return report
 
 
@@ -1489,6 +1705,45 @@ def render_markdown(report: dict[str, Any]) -> str:
     warnings = guardrails.get("warnings", [])
     lines.extend([f"- **FAIL** {row['path']}: {row['reason']}" for row in failures] or ["- Failures: 0"])
     lines.extend([f"- **WARN** {row['path']}: {row['reason']}" for row in warnings] or ["- Warnings: 0"])
+    lines.extend(["", "## Reviewed Warning Classifications", ""])
+    reviewed_warnings = report.get("reviewed_warnings", {})
+    reviewed_items = reviewed_warnings.get("items", [])
+    reviewed_counts = reviewed_warnings.get("counts", {})
+    lines.extend([
+        f"- Fix: {reviewed_counts.get('fix', 0)}",
+        f"- Accept: {reviewed_counts.get('accept', 0)}",
+        f"- Docs-only: {reviewed_counts.get('docs-only', 0)}",
+        "",
+    ])
+    if reviewed_items:
+        lines.extend(markdown_table(["Classification", "Path", "Artifact", "Reason", "Rationale", "Action"], [
+            [
+                row["classification"],
+                row["path"],
+                row.get("artifact") or "",
+                row["reason"],
+                row["rationale"].replace("|", "\\|"),
+                row["action"].replace("|", "\\|"),
+            ]
+            for row in reviewed_items
+        ]))
+    else:
+        lines.append("- No warnings to classify.")
+    lines.extend(["", "## Token Efficiency Recommendations", ""])
+    recommendations = report.get("recommendations", [])
+    if recommendations:
+        lines.extend(markdown_table(["Priority", "Category", "Recommendation", "Evidence", "Advice"], [
+            [
+                row["priority"],
+                row["category"],
+                row["title"].replace("|", "\\|"),
+                row["evidence"].replace("|", "\\|"),
+                row["advice"].replace("|", "\\|"),
+            ]
+            for row in recommendations
+        ]))
+    else:
+        lines.append("- None")
     lines.extend(["", "## Release-Readiness Checklist", ""])
     lines.extend([f"- [ ] {item}" for item in RELEASE_READINESS_CHECKLIST])
     lines.extend(["", "## Prompt Reference Matrix", ""])
@@ -1600,13 +1855,59 @@ def render_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def write_outputs(report: dict[str, Any], output_dir: Path, fmt: str) -> list[Path]:
+def render_recommendations_markdown(report: dict[str, Any]) -> str:
+    """Render a compact user-facing token advice report."""
+    lines = [
+        "# Token Efficiency Advice",
+        "",
+        f"_Generated: {report['generated']}_",
+        "",
+        f"> {report['disclaimer']}",
+        "",
+    ]
+    guardrails = report.get("guardrails", {})
+    reviewed = report.get("reviewed_warnings", {})
+    counts = reviewed.get("counts", {})
+    lines.extend([
+        "## Current Audit",
+        "",
+        f"- Guardrail failures: {len(guardrails.get('failures', []))}",
+        f"- Guardrail warnings: {len(guardrails.get('warnings', []))}",
+        f"- Warning classification: fix={counts.get('fix', 0)}, accept={counts.get('accept', 0)}, docs-only={counts.get('docs-only', 0)}",
+        "",
+        "## Recommended Actions",
+        "",
+    ])
+    recommendations = report.get("recommendations", [])
+    if recommendations:
+        lines.extend([
+            f"- **{row['priority']} / {row['category']}**: {row['title']} "
+            f"Evidence: {row['evidence']} Advice: {row['advice']}"
+            for row in recommendations
+        ])
+    else:
+        lines.append("- No token-efficiency recommendations.")
+    warning_items = reviewed.get("items", [])
+    lines.extend(["", "## Warning Review", ""])
+    if warning_items:
+        lines.extend([
+            f"- **{row['classification']}** `{row['path']}`: {row['rationale']} Action: {row['action']}"
+            for row in warning_items
+        ])
+    else:
+        lines.append("- No warnings.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def write_outputs(report: dict[str, Any], output_dir: Path, fmt: str, recommendations: bool = False) -> list[Path]:
     """Write the audit report to disk in the requested format(s).
 
     Args:
         report: Output of :func:`build_report`.
         output_dir: Directory to write output files into (created if absent).
         fmt: One of ``"json"``, ``"md"``, or ``"both"``.
+        recommendations: Whether to also write ``token-advice.md``.
 
     Returns:
         List of :class:`~pathlib.Path` objects for the files written.
@@ -1630,6 +1931,10 @@ def write_outputs(report: dict[str, Any], output_dir: Path, fmt: str) -> list[Pa
         md_path = output_dir / "context-audit.md"
         write_atomic(md_path, render_markdown(report))
         written.append(md_path)
+    if recommendations:
+        advice_path = output_dir / "token-advice.md"
+        write_atomic(advice_path, render_recommendations_markdown(report))
+        written.append(advice_path)
     return written
 
 
@@ -1652,6 +1957,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--format", choices=("json", "md", "both"), default="both", help="Report format to write.")
     parser.add_argument("--baseline", metavar="PATH", default=None,
                         help="Optional previous context-audit.json for before/after benchmark deltas.")
+    parser.add_argument("--recommendations", action="store_true",
+                        help="Also write a compact token-advice.md recommendation report.")
     return parser
 
 
@@ -1695,7 +2002,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"[cg-audit-context] ERROR: baseline {baseline_path}: {exc}", file=sys.stderr)
                 return 1
             report["benchmark"]["comparison"] = compare_benchmark_to_baseline(report, baseline)
-        written = write_outputs(report, output_dir, args.format)
+        written = write_outputs(report, output_dir, args.format, args.recommendations)
     except (OSError, UnicodeDecodeError) as exc:
         print(f"[cg-audit-context] ERROR: {exc}", file=sys.stderr)
         return 1

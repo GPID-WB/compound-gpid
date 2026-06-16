@@ -381,6 +381,46 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-token-audit.cmd copy" {
+    Context "single source of truth" {
+        It "cg-token-audit.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-token-audit.cmd"
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "cg-token-audit.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-token-audit.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-token-audit.cmd guards each python probe with a 'where' pre-check to prevent stderr leak" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-token-audit.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul')  | Should -Be $true
+            ($content -match 'where py\s+>nul')      | Should -Be $true
+        }
+
+        It "cg-token-audit.cmd references cg_audit_context.py" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-token-audit.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'cg_audit_context\.py') | Should -Be $true
+        }
+
+        It "install.ps1 copies cg-token-audit.cmd rather than generating it inline" {
+            $repoRoot      = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgTokenAuditCmdSrc.*cg-token-audit\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgTokenAuditCmdSrc')           | Should -Be $true
+        }
+    }
+}
+
 Describe "install.ps1 - cg-index smoke test" {
     It "cg-index --version exits 0 with non-empty output" {
         $repoRoot = Split-Path $PSScriptRoot -Parent
