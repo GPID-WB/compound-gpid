@@ -22,8 +22,9 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
+3. Load `.github/shared/context-loading.contract.md`. Search targeted headings
+   or snippets in `compound-gpid.context.md` only if bug diagnosis needs
+   project-specific context or workspace notes. If it does not exist, skip silently.
 4. If `compound-gpid.md` does not exist, warn the user:
    "No project charter found. Run `/cg-setup` to create one. Proceeding
    without project context."
