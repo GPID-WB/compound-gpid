@@ -89,6 +89,7 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Refresh knowledge base | `/cg-compound-refresh` |
 | Rebuild knowledge brain | `/cg-brain-rebuild` |
 | Manage project wiki | `/cg-wiki` |
+| Analyze token/context usage | `/cg-token-audit` |
 | Manage GitHub Issues for roadmap items | `/cg-issues` |
 | Ready to commit, push, and open PR | `/cg-commit-push-pr` |
 | CI checks failing on PR | `/cg-verify-pr` |

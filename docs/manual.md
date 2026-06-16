@@ -10,7 +10,7 @@ All documentation lives here in `docs/`. Start with [Installation](installation.
 | [workflow.md](workflow.md) | The full workflow loop: Brainstorm → Plan → Work → Review → Compound. Covers how to use each command, when to use it, different scenarios, and when NOT to use it. |
 | [reference.md](reference.md) | Quick-reference tables: all commands, agents, skills, configuration fields, auto-escalation rules, directory structure, and document schemas |
 | [context-files.md](context-files.md) | Deep dive on the three Copilot context files — `copilot-instructions.md`, `compound-gpid.md`, and `compound-gpid.context.md` — plus the Codex / Claude Code `AGENTS.md` adapter note |
-| [model-guide.md](model-guide.md) | Model-picker policy, premium-model escalation guidance, and audit guardrails |
+| [model-guide.md](model-guide.md) | Model-picker policy, token/context guidance, premium-model escalation guidance, and audit guardrails |
 | [team-brain-schema.md](team-brain-schema.md) | Team Brain repository schema, local configuration, and GitHub Actions expectations |
 | [versioning.md](versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [troubleshooting.md](troubleshooting.md) | Known issues and step-by-step fixes |
@@ -24,4 +24,4 @@ Compound GPID is a structured workflow for AI-assisted development. The typical 
 /cg-brainstorm → /cg-plan → /cg-plan-review → /cg-work → /cg-review → /cg-fix-triage → /cg-compound
 ```
 
-Short on time? Use [Reference](reference.md) to look up a specific command. Starting fresh? See [Installation](installation.md). Resuming interrupted work? Run `/cg-resume` in Copilot Chat.
+Short on time? Use [Reference](reference.md) to look up a specific command. Starting fresh? See [Installation](installation.md). Resuming interrupted work? Run `/cg-resume` in Copilot Chat. Want cost/context advice for the current project? Run `/cg-token-audit`.

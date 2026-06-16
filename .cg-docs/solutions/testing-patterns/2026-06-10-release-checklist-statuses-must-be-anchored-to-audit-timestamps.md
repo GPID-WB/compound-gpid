@@ -100,4 +100,5 @@ When building a release checklist that records validation evidence:
 
 - [External validation must not be marked passed from static evidence](.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md)
 - [Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)
+- [Reviewed warning classifications close token work without hiding risk](.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md)
 - [Token Optimization Release Candidate Checklist](.cg-docs/cost/token-optimization-release-checklist.md) — the fixed checklist applying this pattern

@@ -119,3 +119,4 @@ routing:
 - `.cg-docs/solutions/testing-patterns/2026-05-14-classification-step-must-exhaustively-cover-enum-values.md` - classification logic must cover every declared value
 - `.cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md` - source scanning as a regression guard for textual anti-patterns
 - `.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md` - inherited model-picker prompts need semantic equivalence in model-guide drift checks
+- `.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md` - reviewed warning classifications convert audit warnings into closure evidence without hiding real failures

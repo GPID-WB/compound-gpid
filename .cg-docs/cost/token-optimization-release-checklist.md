@@ -16,7 +16,7 @@ behavior.
 > **Re-run requirement**: Statuses in the Release Gates table reflect the audit
 > run recorded in `.cg-docs/cost/context-audit.json`. If any `.github/` file
 > changes after that run, re-execute
-> `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both`
+> `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`
 > and verify `Failures: 0` and `premium_usage_count: 0` before citing any
 > "Passed in Codex" status for a future release candidate. Review the release
 > candidate with `/cg-review full` before merge.
@@ -28,7 +28,7 @@ behavior.
 | Context/model audit generated successfully | `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both` exits 0; see `"generated"` field in `context-audit.json` for the run timestamp | Passed in Codex (2026-06-16) |
 | Phase 6 benchmark summary reviewed | Audit `Benchmark Summary` includes `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup | Passed in Codex (2026-06-16) |
 | Guardrail failures are zero | Audit `Guardrails` section reports `Failures: 0` | Passed in Codex (2026-06-16), failures 0 |
-| Guardrail warnings are classified | See warning triage below | Passed in Codex (2026-06-16); remaining warnings are non-blocking context-loading/token-slimming follow-ups for #93/#94 |
+| Guardrail warnings are classified | See warning triage below | Passed in Codex (2026-06-16); final audit reports failures 0 and reviewed warnings `fix=0`, `accept=19`, `docs-only=3` |
 | Premium model usage is absent or explicitly justified | Audit model governance shows `premium_usage_count: 0`, or every nonzero item has a release-approved rationale | Passed in Codex (2026-06-16), count 0 |
 | Ordinary model-picker prompts omit `model:` | Audit shows `ordinary_model_picker_violations: 0` | Passed in Codex (2026-06-16), count 0 |
 | Model catalog is complete | `.github/shared/model-catalog.json` has one assignment for every prompt and agent, with role, preferred model, frontmatter mode, and rationale | Passed in Codex (2026-06-16) |
@@ -40,11 +40,13 @@ behavior.
 | Knowledge Brain retrieval remains selective | `cg-skill-brain-query` keeps the BRAIN.md index, matched-topic, and no-wholesale `brain-index.json` rules | Passed in Codex (2026-06-09) |
 | Broad context loading is not reintroduced in ordinary prompts | Audit has no guardrail failures for ordinary-prompt broad reads | Passed in Codex (2026-06-09) |
 | `_tmp/` is not durable project storage | `rg -n "_tmp/" . --glob '!_tmp/**'` finds no documentation or workflow instruction treating `_tmp/` as durable | Passed in Codex (2026-06-09); only a negative policy statement was found |
-| Python audit tests pass | `python3 -m pytest scripts/tests/test_audit_context.py` exits 0 | Passed in Codex (2026-06-16), 74 tests |
-| Safe Pester runner passes | `. tests\Run-Tests.ps1` passes in VS Code/PowerShell; `tests/last-run.json` `FailedCount` is `0` | Passed in Codex/PowerShell (2026-06-16), 2170 passed, 0 failed |
+| Python audit tests pass | `python3 -m pytest scripts/tests/test_audit_context.py` exits 0 | Passed in Codex (2026-06-16), 82 tests |
+| Safe Pester runner passes | `. tests\Run-Tests.ps1` passes in VS Code/PowerShell; `tests/last-run.json` `FailedCount` is `0` | Passed in Codex/PowerShell (2026-06-16), 2194 passed, 0 failed |
 | Manual VS Code/Copilot runtime checklist is complete | All 12 rows in the manual validation table below are signed off with validator and date | External validation required |
 | Follow-up items are separate from blockers | `.cg-docs/cost/token-optimization-follow-ups.md` lists non-blockers separately | Passed in Codex (2026-06-09) |
-| #92 model/tool governance closure | GitHub issue #92 has a closure evidence comment; roadmap feature `agent-model-tool-governance` is `done` | Passed (2026-06-16); #93 and #94 remain open |
+| #92 model/tool governance closure | GitHub issue #92 has a closure evidence comment; roadmap feature `agent-model-tool-governance` is `done` | Passed (2026-06-16) |
+| #93 shrink always-on context closure evidence | Final audit has no `fix` warnings; ordinary broad reads were narrowed or classified accepted/docs-only; `/cg-work` is below the 5,000-token audit threshold | Evidence prepared (2026-06-16); roadmap/GitHub issue updates must be performed by `@cg-roadmap` / issue workflow |
+| #94 thin entrypoints and on-demand skills closure evidence | `/cg-token-audit` is a thin deterministic advisory prompt; no broad prompt split was introduced without an explicit load point; split/slimming rationale is recorded in the work report | Evidence prepared (2026-06-16); roadmap/GitHub issue updates must be performed by `@cg-roadmap` / issue workflow |
 
 ## Command Set
 
@@ -57,7 +59,7 @@ Run these from the repository root.
 
 ```bash
 python3 -m pytest scripts/tests/test_audit_context.py
-python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both
+python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations
 git diff --check
 ```
 
