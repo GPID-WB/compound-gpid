@@ -5303,9 +5303,11 @@ Describe "docs/model-guide.md - explicit assignment governance" {
     $guideFile = Join-Path $repoRoot "docs\model-guide.md"
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    It "documents standard-pinned operational prompts rather than requiring a per-prompt table" {
-        ($content -match 'standard-pinned operational prompts') | Should -Be $true
-        ($content -match 'No ordinary workflow prompt may hard-code any model') | Should -Be $true
+    It "documents catalog-backed explicit assignments and inherited model-picker equivalence" {
+        ($content -match '\.github/shared/model-catalog\.json') | Should -Be $true
+        ($content -match 'Copilot model picker') | Should -Be $true
+        ($content -match 'omitting\s+`model:`') | Should -Be $true
+        ($content -match 'the audit treats those two inherited representations as equivalent') | Should -Be $true
     }
 }
 
