@@ -1,0 +1,6 @@
+#!/bin/bash
+# bin/cg-token-audit -- Compound GPID token/context audit (macOS/Linux)
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/cg_audit_context.py" "$@"

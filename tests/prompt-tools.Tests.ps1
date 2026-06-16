@@ -5262,6 +5262,67 @@ Describe "copilot-instructions.md - /cg-brain-rebuild in Workflow Entry Points" 
 }
 
 # ---------------------------------------------------------------------------
+# Token audit prompt registration and root handling
+# ---------------------------------------------------------------------------
+
+Describe "cg-token-audit.prompt.md - command contract" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-token-audit.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+    $frontmatter = Get-Frontmatter -FilePath $promptFile
+
+    It "exists in the repository" {
+        Test-Path $promptFile | Should -Be $true
+    }
+
+    It "has mechanical model frontmatter" {
+        ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should -Be $true
+    }
+
+    It "runs cg-token-audit with explicit project root" {
+        ($content -match 'cg-token-audit --root \. --output-dir \.cg-docs/cost --format both --recommendations') | Should -Be $true
+    }
+
+    It "explains explicit --root . protects consumer-project audits" {
+        ($content -match 'current project|user.?s current') | Should -Be $true
+        ($content -match 'not the installed plugin repository') | Should -Be $true
+    }
+
+    It "is advisory and does not auto-fix" {
+        ($content -match 'advisory') | Should -Be $true
+        ($content -match 'Do not auto-fix anything|does not modify') | Should -Be $true
+    }
+
+    It "loads the context-loading contract instead of broad context artifacts" {
+        ($content -match 'context-loading\.contract\.md') | Should -Be $true
+        ($content -match 'Do not read `\.cg-docs/`, `BRAIN\*\.md`, `brain-index\.json`') | Should -Be $true
+    }
+}
+
+Describe "copilot-instructions.md - /cg-token-audit in Workflow Entry Points" {
+    $instructionsFile = Join-Path $repoRoot ".github\copilot-instructions.md"
+    $rawContent = Get-Content $instructionsFile -Raw -Encoding UTF8
+    $section = if ($rawContent -match '(?s)(## Workflow Entry Points.*?)(\r?\n## |\z)') { $Matches[1] } else { "" }
+
+    It "references /cg-token-audit in Workflow Entry Points" {
+        ($section -match '/cg-token-audit') | Should -Be $true
+    }
+}
+
+Describe "docs/reference.md - /cg-token-audit registration" {
+    $refFile = Join-Path $repoRoot "docs\reference.md"
+    $content = Get-Content $refFile -Raw -Encoding UTF8
+
+    It "docs/reference.md lists /cg-token-audit" {
+        ($content -match '/cg-token-audit') | Should -Be $true
+    }
+
+    It "docs/reference.md documents --recommendations output" {
+        ($content -match '--recommendations') | Should -Be $true
+        ($content -match 'token-advice\.md') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Batch B â€” cg-compound.prompt.md uses --brain not --digest
 # ---------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@
 #
 # What this does:
 #   1. Verifies Git is available.
-#   1b. Verifies python3 is available (required for cg-index knowledge indexing).
+#   1b. Verifies python3 is available (required for cg-index and cg-token-audit).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
 #      so cg-link, cg-unlink, cg-update are available from any terminal.
@@ -225,6 +225,19 @@ EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
 
+# cg-token-audit calls the context/model-governance audit directly.
+WRAPPER="$BIN_DIR/cg-token-audit"
+cat > "$WRAPPER" <<'EOF'
+#!/bin/bash
+# bin/cg-token-audit -- Compound GPID token/context audit (macOS/Linux)
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/cg_audit_context.py" "$@"
+EOF
+chmod +x "$WRAPPER"
+print_gray "Created: $WRAPPER"
+
 # ---------------------------------------------------------------------------
 # Step 4: Add bin/ to PATH via shell profile (idempotent)
 # ---------------------------------------------------------------------------
@@ -316,6 +329,7 @@ printf '  cg-update  -- Pull latest updates                    (run from anywher
 printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)\n'
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
+printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'
 printf '\n'
 printf 'To uninstall: bash "%s/scripts/install.sh" --uninstall\n' "$COMPOUND_GPID_DIR"
 printf '\n'

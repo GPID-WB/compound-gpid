@@ -55,7 +55,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -109,6 +109,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-unlink'
         $content | Should -Match 'cg-update'
         $content | Should -Match 'cg-index'
+        $content | Should -Match 'cg-token-audit'
     }
 
     It "initializes .cg-version" {
@@ -394,6 +395,33 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
     It "install.sh generates a cg-index wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-index'
+    }
+}
+
+Describe "bash-scripts - bin/cg-token-audit wrapper content" {
+    $wrapperPath    = Join-Path $repoRoot "bin/cg-token-audit"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-token-audit references cg_audit_context.py" {
+        $wrapperContent | Should -Match 'cg_audit_context\.py'
+    }
+
+    It "bin/cg-token-audit invokes python3" {
+        $wrapperContent | Should -Match '\bpython3\b'
+    }
+
+    It "bin/cg-token-audit passes arguments via `"`$@`"" {
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "bin/cg-token-audit uses SCRIPT_DIR for self-relative path" {
+        $wrapperContent | Should -Match 'SCRIPT_DIR'
+    }
+
+    It "install.sh generates a cg-token-audit wrapper" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        $installSh | Should -Match 'cg-token-audit'
+        $installSh | Should -Match 'cg_audit_context\.py'
     }
 }
 
