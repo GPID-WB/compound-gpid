@@ -1,45 +1,45 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-12T15:57:08_
+_Generated: 2026-06-16T10:41:45_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
-- Total files: 87
-- Total characters: 1622746
-- Total estimated tokens: 405659
+- Total files: 88
+- Total characters: 1667391
+- Total estimated tokens: 416819
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 23 | 247308 | 61819 |
-| agents | 17 | 92024 | 23001 |
-| skills | 21 | 103653 | 25906 |
+| prompts | 23 | 245485 | 61364 |
+| agents | 17 | 91905 | 22971 |
+| skills | 21 | 106165 | 26534 |
 | instructions | 4 | 17340 | 4334 |
-| shared | 4 | 16163 | 4040 |
+| shared | 5 | 29931 | 7481 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 191222 | 47803 |
-| brain | 4 | 257610 | 64401 |
-| brain_index | 1 | 570006 | 142501 |
-| context | 1 | 62921 | 15730 |
-| roadmap | 1 | 62866 | 15716 |
+| docs | 10 | 199445 | 49858 |
+| brain | 4 | 263711 | 65926 |
+| brain_index | 1 | 584836 | 146209 |
+| context | 1 | 63437 | 15859 |
+| roadmap | 1 | 63503 | 15875 |
 
 ## Top 15 Largest Files
 
 | Path | Category | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| .cg-docs/brain-index.json | brain_index | 570006 | 142501 |
-| .cg-docs/BRAIN-log.md | brain | 134886 | 33721 |
-| .cg-docs/BRAIN-01.md | brain | 96589 | 24147 |
-| docs/workflow.md | docs | 64134 | 16033 |
-| compound-gpid.context.md | context | 62921 | 15730 |
-| roadmap.json | roadmap | 62866 | 15716 |
-| docs/reference.md | docs | 41288 | 10322 |
+| .cg-docs/brain-index.json | brain_index | 584836 | 146209 |
+| .cg-docs/BRAIN-log.md | brain | 137834 | 34458 |
+| .cg-docs/BRAIN-01.md | brain | 99778 | 24944 |
+| docs/workflow.md | docs | 65090 | 16272 |
+| roadmap.json | roadmap | 63503 | 15875 |
+| compound-gpid.context.md | context | 63437 | 15859 |
+| docs/reference.md | docs | 41870 | 10467 |
 | docs/troubleshooting.md | docs | 29037 | 7259 |
-| .cg-docs/BRAIN-02.md | brain | 24813 | 6203 |
-| .github/prompts/cg-work.prompt.md | prompts | 22849 | 5712 |
-| .github/prompts/cg-setup.prompt.md | prompts | 21833 | 5458 |
-| .github/prompts/cg-review.prompt.md | prompts | 18976 | 4744 |
+| .cg-docs/BRAIN-02.md | brain | 24819 | 6204 |
+| .github/prompts/cg-setup.prompt.md | prompts | 21823 | 5455 |
+| .github/prompts/cg-work.prompt.md | prompts | 21441 | 5360 |
+| .github/prompts/cg-review.prompt.md | prompts | 18956 | 4739 |
 | .github/prompts/cg-review-repos.prompt.md | prompts | 18268 | 4567 |
 | docs/context-files.md | docs | 15592 | 3898 |
 | .github/prompts/cg-brainstorm.prompt.md | prompts | 15192 | 3798 |
@@ -48,18 +48,21 @@ _Generated: 2026-06-12T15:57:08_
 
 | Workflow | Path | Tokens | Refs | Model Tier | Context Risk | Dispatch | Conditional |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| /cg-plan | .github/prompts/cg-plan.prompt.md | 3263 | 23 | model-picker | 0 | limited | False |
-| /cg-work | .github/prompts/cg-work.prompt.md | 5712 | 48 | standard | 1 | conditional | True |
-| /cg-review | .github/prompts/cg-review.prompt.md | 4744 | 53 | standard | 0 | conditional | True |
-| /cg-compound | .github/prompts/cg-compound.prompt.md | 2409 | 28 | standard | 0 | limited | False |
-| /cg-resume | .github/prompts/cg-resume.prompt.md | 2936 | 19 | economy | 0 | limited | False |
+| /cg-plan | .github/prompts/cg-plan.prompt.md | 3218 | 23 | model-picker | 0 | limited | False |
+| /cg-work | .github/prompts/cg-work.prompt.md | 5360 | 48 | standard | 1 | conditional | True |
+| /cg-review | .github/prompts/cg-review.prompt.md | 4739 | 53 | standard | 0 | conditional | True |
+| /cg-compound | .github/prompts/cg-compound.prompt.md | 2404 | 28 | standard | 0 | limited | False |
+| /cg-resume | .github/prompts/cg-resume.prompt.md | 2933 | 19 | economy | 0 | limited | False |
 | Knowledge Brain/context lookup | .github/skills/cg-skill-brain-query/SKILL.md | 2541 | 0 |  | 10 | none | False |
 
 - Premium model usage count: 0
 - Ordinary model-picker violations: 0
 - Missing model declarations: 0
 - Model drift count: 0
-- Context loading signals: risk=31, justified=10, targeted=84
+- OpenAI-first violations: 0
+- Haiku role violations: 0
+- Sonnet role violations: 0
+- Context loading signals: risk=31, justified=10, targeted=85
 
 ### Review-Agent Counts
 
@@ -117,6 +120,9 @@ _Generated: 2026-06-12T15:57:08_
 - [ ] Guardrail failures are zero, or warnings are documented as maintenance-intentional.
 - [ ] Ordinary model-picker prompts still omit model:.
 - [ ] Premium model usage remains zero.
+- [ ] Model catalog covers every prompt and agent with one role assignment.
+- [ ] OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks are reviewed.
+- [ ] Exact GPT frontmatter support is validated in VS Code/Copilot before broad GPT prompt edits.
 - [ ] /cg-review and /cg-work remain conditional, not broad, dispatch workflows.
 - [ ] Broad Brain/context reads are targeted, justified, or maintenance-only.
 - [ ] Top remaining optimization candidates are reviewed and accepted or filed as future work.
@@ -230,16 +236,16 @@ _Generated: 2026-06-12T15:57:08_
 | risk | .github/prompts/cg-wiki.prompt.md | 44 | compound-gpid.context.md | broad context-loading instruction | 3. If `compound-gpid.context.md` exists, read it for wiki folder configuration |
 | risk | .github/prompts/cg-work.prompt.md | 40 | .cg-docs/ | broad context-loading instruction | 3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or overri |
 | risk | docs/context-files.md | 227 | compound-gpid.context.md | broad context-loading instruction | 3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately. |
-| risk | docs/reference.md | 268 | .cg-docs/ | broad context-loading instruction | \| `@cg-release-scanner` \| Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` \| Claude Haiku 4.5 \| No \| |
+| risk | docs/reference.md | 275 | .cg-docs/ | broad context-loading instruction | \| `@cg-release-scanner` \| Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` \| Claude Haiku 4.5 \| No \| |
 | risk | docs/workflow.md | 263 | .cg-docs/ | broad context-loading instruction | 1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern. |
 | justified | .github/prompts/cg-compound.prompt.md | 196 | compound-gpid.context.md | explicit expansion rationale | 1. Context expansion: reading targeted `compound-gpid.context.md` sections |
-| justified | .github/prompts/cg-plan.prompt.md | 235 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching. |
+| justified | .github/prompts/cg-plan.prompt.md | 228 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching. |
 | justified | .github/prompts/cg-resume.prompt.md | 114 | roadmap.json | explicit expansion rationale | <!-- Context expansion: reading full roadmap.json because /cg-resume computes |
-| justified | .github/prompts/cg-work.prompt.md | 39 | .cg-docs/ | maintenance/tooling workflow | - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter **including `deviation-policy: ask` and a minimal `## Completion Contract` section (Outcome + Veri |
-| justified | .github/prompts/cg-work.prompt.md | 208 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
+| justified | .github/prompts/cg-work.prompt.md | 39 | .cg-docs/ | maintenance/tooling workflow | - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter including `deviation-policy: ask` and a minimal `## Completion Contract` (Outcome + Verification S |
+| justified | .github/prompts/cg-work.prompt.md | 202 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
 | justified | .github/shared/context-loading.contract.md | 34 | compound-gpid.context.md | maintenance/tooling workflow | - `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or confl |
 | justified | .github/skills/cg-skill-brain-query/SKILL.md | 78 | BRAIN-NN.md | explicit expansion rationale | `Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.` |
-| justified | docs/reference.md | 62 | BRAIN.md | maintenance/tooling workflow | \| `/cg-brain-rebuild` \| Claude Sonnet 4.6 \| Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg |
+| justified | docs/reference.md | 62 | BRAIN.md | maintenance/tooling workflow | \| `/cg-brain-rebuild` \| GPT-5.4 \| Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch |
 | justified | docs/reference.md | 67 | roadmap.json | maintenance/tooling workflow | \| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` \| Claude Haiku 4.5 \| Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create |
 | justified | docs/workflow.md | 680 | roadmap.json | maintenance/tooling workflow | **Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed. |
 | targeted | .github/agents/cg-learnings-researcher.agent.md | 37 | .cg-docs/ | targeted or guarded context-loading instruction | Read `.cg-docs/search-index.json` for metadata-level filtering. Use this when: |
@@ -269,9 +275,9 @@ _Generated: 2026-06-12T15:57:08_
 | targeted | .github/prompts/cg-plan-review.prompt.md | 32 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If not: scan `.cg-docs/plans/` for the most recent file with `status: active` or `status: in-progress` in its frontmatter (sort by YYYY-MM-DD filename prefix; for ties use the frontmatter `date:` field; for remaining  |
 | targeted | .github/prompts/cg-plan.prompt.md | 12 | roadmap.json | targeted or guarded context-loading instruction | - You may read targeted `roadmap.json` fields for structural operations and inline milestone rendering. |
 | targeted | .github/prompts/cg-plan.prompt.md | 24 | compound-gpid.context.md | targeted or guarded context-loading instruction | 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and st |
-| targeted | .github/prompts/cg-plan.prompt.md | 39 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords. |
-| targeted | .github/prompts/cg-plan.prompt.md | 70 | .cg-docs/ | targeted or guarded context-loading instruction | 1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an |
-| targeted | .github/prompts/cg-plan.prompt.md | 236 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted  |
+| targeted | .github/prompts/cg-plan.prompt.md | 32 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords. |
+| targeted | .github/prompts/cg-plan.prompt.md | 63 | .cg-docs/ | targeted or guarded context-loading instruction | 1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an |
+| targeted | .github/prompts/cg-plan.prompt.md | 229 | .cg-docs/ | targeted or guarded context-loading instruction | 2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: "Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned." Verify with a targeted  |
 | targeted | .github/prompts/cg-resume.prompt.md | 13 | roadmap.json | targeted or guarded context-loading instruction | - You may read `roadmap.json` in the project root only for the justified structured milestone health and drift checks in Step 2d. |
 | targeted | .github/prompts/cg-resume.prompt.md | 49 | compound-gpid.context.md | targeted or guarded context-loading instruction | If `compound-gpid.context.md` exists, read only headings or snippets relevant |
 | targeted | .github/prompts/cg-resume.prompt.md | 89 | .cg-docs/ | targeted or guarded context-loading instruction | Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with: |
@@ -284,52 +290,79 @@ _Generated: 2026-06-12T15:57:08_
 
 - Risk signals: 31
 - Justified full/maintenance signals: 10
-- Targeted/guarded signals: 84
+- Targeted/guarded signals: 85
 
 ## Model Inventory
 
-| Path | Category | Model | Tier |
-| --- | --- | --- | --- |
-| .github/prompts/cg-brain-rebuild.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-brainstorm.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-commit-push-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-compound-refresh.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-compound.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-devtag.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-diagnose.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fix-problems.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fix-triage.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-fixbug.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-ideate.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-issues.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-plan-review.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-plan.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-resume.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-review-repos.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-review.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-roadmap-view.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-setup.prompt.md | prompts | Claude Haiku 4.5 (copilot) | economy |
-| .github/prompts/cg-strategy.prompt.md | prompts | (missing) | model-picker |
-| .github/prompts/cg-verify-pr.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-wiki.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/prompts/cg-work.prompt.md | prompts | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-adversarial.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-architecture.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-code-quality.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-data-quality.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-documentation.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-fix-problems.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-learnings-researcher.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-performance.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-plan-critic.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
-| .github/agents/cg-project-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-release-scanner.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-reproducibility.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-roadmap-view.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-roadmap.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-testing.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-version-control.agent.md | agents | Claude Haiku 4.5 (copilot) | economy |
-| .github/agents/cg-wiki.agent.md | agents | Claude Sonnet 4.6 (copilot) | standard |
+- Catalog: `.github/shared/model-catalog.json`
+- Catalog assignments: 40
+
+| Path | Category | Model | Vendor | Family | Role | Tier | Preferred | Support |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| .github/prompts/cg-brain-rebuild.prompt.md | prompts | GPT-5.4 | openai | GPT-5 | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-brainstorm.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-commit-push-pr.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-compound-refresh.prompt.md | prompts | GPT-5.4 | openai | GPT-5 | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-compound.prompt.md | prompts | GPT-5.4 | openai | GPT-5 | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-devtag.prompt.md | prompts | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-diagnose.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fix-problems.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fix-triage.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-fixbug.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-ideate.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-issues.prompt.md | prompts | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-plan-review.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-plan.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-resume.prompt.md | prompts | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-review-repos.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-review.prompt.md | prompts | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-roadmap-view.prompt.md | prompts | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-setup.prompt.md | prompts | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/prompts/cg-strategy.prompt.md | prompts | (model picker) | inherited | Auto | inherited | model-picker |  |  |
+| .github/prompts/cg-verify-pr.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/prompts/cg-wiki.prompt.md | prompts | GPT-5.4 | openai | GPT-5 | reasoning | standard | GPT-5.4 | frontmatter-supported |
+| .github/prompts/cg-work.prompt.md | prompts | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-adversarial.agent.md | agents | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-architecture.agent.md | agents | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-code-quality.agent.md | agents | GPT-5.3-Codex | openai | GPT-5-Codex | review | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-data-quality.agent.md | agents | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-documentation.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-fix-problems.agent.md | agents | GPT-5.3-Codex | openai | GPT-5-Codex | coding | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-learnings-researcher.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-performance.agent.md | agents | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-plan-critic.agent.md | agents | GPT-5.4 | openai | GPT-5 | review | standard | GPT-5.4 | frontmatter-supported |
+| .github/agents/cg-project-scanner.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-release-scanner.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-reproducibility.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-roadmap-view.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-roadmap.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-testing.agent.md | agents | GPT-5.3-Codex | openai | GPT-5-Codex | review | standard | GPT-5.3-Codex | frontmatter-supported |
+| .github/agents/cg-version-control.agent.md | agents | Claude Haiku 4.5 | anthropic | Claude | mechanical | economy | Claude Haiku 4.5 | frontmatter-supported |
+| .github/agents/cg-wiki.agent.md | agents | GPT-5.4 | openai | GPT-5 | reasoning | standard | GPT-5.4 | frontmatter-supported |
+
+## Model Policy Violations
+
+### Missing catalog assignments
+- None
+
+### Invalid catalog roles
+- None
+
+### Stale model names
+- None
+
+### OpenAI-first violations
+- None
+
+### Haiku role violations
+- None
+
+### Sonnet role violations
+- None
+
+### Preferred model support gaps
+- None
+
 
 ## Missing Model Declarations
 

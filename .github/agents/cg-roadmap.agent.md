@@ -1,6 +1,6 @@
 ﻿---
 description: "Handles atomic roadmap.json writes: add/remove milestones and features, update statuses, link plans. The only agent users interact with directly. For strategic restructuring (rethinking scope or priorities), use `/cg-strategy`."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 tools: ['read', 'write']
 user-invocable: true
 ---

@@ -1,6 +1,6 @@
 ---
 description: "Reviews implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. Dispatched by /cg-plan-review."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

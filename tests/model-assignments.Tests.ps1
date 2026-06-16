@@ -13,7 +13,8 @@
 #     frontmatter) and uses -cmatch for case-sensitive matching.
 #   - For tier-assignment rationale and override guidance, see docs/model-guide.md.
 #
-# Run with: Invoke-Pester tests/model-assignments.Tests.ps1 -Quiet
+# Run from VS Code/PowerShell with the repository safe runner:
+#   . tests\Run-Tests.ps1
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
@@ -123,28 +124,29 @@ Describe "docs/model-guide.md - structure and sync" {
     It "documents recommended model selection" {
         $content | Should -Match "Recommended Model Selection"
         $content | Should -Match "Normal daily use"
-        $content | Should -Match "Auto"
+        $content | Should -Match "GPT-5\.3-Codex"
     }
 
-    It "documents escalation guidance" {
-        $content | Should -Match "Escalation Guidance"
-        $content | Should -Match "High-stakes architecture"
-        $content | Should -Match "user-initiated"
-    }
-
-    It "documents governance principle" {
+    It "documents OpenAI-first governance" {
         $content | Should -Match "Governance Principle"
-        $content | Should -Match "does not hard-code expensive premium models"
-        $content | Should -Match "explicit budget decision"
+        $content | Should -Match "Explicit model assignments are OpenAI-first"
+        $content | Should -Match "Sonnet is a targeted fallback"
+        $content | Should -Match "Haiku is allowed only"
     }
 
-    It "documents standard-pinned operational prompts without claiming premium defaults" {
+    It "documents prompt and agent assignment tables" {
+        $content | Should -Match "### Prompts"
+        $content | Should -Match "### Agents"
+        $content | Should -Match "File \| Model \| Role \| Rationale"
+    }
+
+    It "documents model-catalog source of truth and validation guardrails" {
         $content | Should -Match "Explicit Model Assignments"
-        $content | Should -Match "standard-pinned operational prompts"
+        $content | Should -Match "\.github/shared/model-catalog\.json"
         $content | Should -Match "cg-work\.prompt\.md"
         $content | Should -Match "cg-review\.prompt\.md"
-        $content | Should -Match "No ordinary workflow prompt may hard-code any model"
-        $content | Should -Match "No prompt currently has an explicit premium model assignment"
+        $content | Should -Match "no Haiku assignment outside mechanical workflows"
+        $content | Should -Match "exact GPT frontmatter support"
     }
 }
 

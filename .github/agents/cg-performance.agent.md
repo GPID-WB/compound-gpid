@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews performance: vectorization, memory efficiency, algorithm complexity, collapse + data.table optimization. Trilingual R/Python/Stata."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

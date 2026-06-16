@@ -1,6 +1,6 @@
 ---
 description: "Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Fix Triage

@@ -1,6 +1,6 @@
 ---
 description: "Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Verify PR

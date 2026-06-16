@@ -1,6 +1,6 @@
 ---
 description: "Implement a plan step by step. Use after /plan has created an implementation plan. Supports /cg-work [phaseX] [review:<mode>] [deviate:<policy>]."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Work

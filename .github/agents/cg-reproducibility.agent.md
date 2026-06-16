@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews reproducibility: environment lockfiles, relative paths, random seeds, deterministic outputs. Trilingual R/Python/Stata."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 tools: ['read', 'search']
 user-invocable: false
 ---

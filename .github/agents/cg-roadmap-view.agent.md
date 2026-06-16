@@ -1,6 +1,6 @@
 ---
 description: "Read-only roadmap renderer. Dispatched by /cg-roadmap-view and other prompts for contextual roadmap display. Never modifies files. Developer-only — not invoked directly by users."
-model: Claude Haiku 4.5 (copilot)
+model: Claude Haiku 4.5
 tools: ['read']
 user-invocable: false
 ---

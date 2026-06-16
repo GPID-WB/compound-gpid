@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews test coverage, edge cases, test quality, and testing patterns. Trilingual R/Python/Stata."
-model: Claude Haiku 4.5 (copilot)
+model: GPT-5.3-Codex
 tools: ['read', 'search']
 user-invocable: false
 ---

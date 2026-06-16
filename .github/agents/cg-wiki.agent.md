@@ -1,6 +1,6 @@
 ---
 description: "Creates and maintains the project wiki (wiki/ folder). Dispatched by /cg-setup (init), /cg-compound (update), and /cg-wiki (rebuild, convert). Never invoked directly by users."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'write', 'search']
 user-invocable: false
 ---

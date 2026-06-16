@@ -25,22 +25,26 @@ behavior.
 
 | Gate | Evidence | Status |
 |------|----------|--------|
-| Context/model audit generated successfully | `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both` exits 0; see `"generated"` field in `context-audit.json` for the run timestamp | Passed in Codex (2026-06-09); re-run if `.github/` files change |
-| Phase 6 benchmark summary reviewed | Audit `Benchmark Summary` includes `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup | Passed in Codex (2026-06-09) |
-| Guardrail failures are zero | Audit `Guardrails` section reports `Failures: 0` | Passed in Codex (2026-06-09), failures 0 |
-| Guardrail warnings are classified | See warning triage below | Passed in Codex (2026-06-09), 28 warnings classified |
-| Premium model usage is absent or explicitly justified | Audit model governance shows `premium_usage_count: 0`, or every nonzero item has a release-approved rationale | Passed in Codex (2026-06-09), count 0 |
-| Ordinary model-picker prompts omit `model:` | Audit shows `ordinary_model_picker_violations: 0` | Passed in Codex (2026-06-09), count 0 |
+| Context/model audit generated successfully | `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both` exits 0; see `"generated"` field in `context-audit.json` for the run timestamp | Passed in Codex (2026-06-16) |
+| Phase 6 benchmark summary reviewed | Audit `Benchmark Summary` includes `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup | Passed in Codex (2026-06-16) |
+| Guardrail failures are zero | Audit `Guardrails` section reports `Failures: 0` | Passed in Codex (2026-06-16), failures 0 |
+| Guardrail warnings are classified | See warning triage below | Passed in Codex (2026-06-16); remaining warnings are non-blocking context-loading/token-slimming follow-ups for #93/#94 |
+| Premium model usage is absent or explicitly justified | Audit model governance shows `premium_usage_count: 0`, or every nonzero item has a release-approved rationale | Passed in Codex (2026-06-16), count 0 |
+| Ordinary model-picker prompts omit `model:` | Audit shows `ordinary_model_picker_violations: 0` | Passed in Codex (2026-06-16), count 0 |
+| Model catalog is complete | `.github/shared/model-catalog.json` has one assignment for every prompt and agent, with role, preferred model, frontmatter mode, and rationale | Passed in Codex (2026-06-16) |
+| OpenAI-first model policy is enforced | Audit reports vendor/family/role inventory plus OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks | Passed in Codex (2026-06-16): model drift 0, OpenAI-first violations 0, Haiku role violations 0, Sonnet role violations 0 |
+| Exact GPT frontmatter support is recorded | VS Code/Copilot validates whether `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`, `GPT-5 mini`, and `GPT-5.4 mini` are accepted in prompt/agent YAML frontmatter | Passed in VS Code/Copilot (2026-06-16); temporary `_model-validation-*` prompt canaries and model selector matched each frontmatter string |
 | `/cg-plan` model-context note is present | Static prompt inspection confirms the model-picker note and Copilot Auto guidance | Passed in Codex (2026-06-09) through audit guardrails; Pester prompt-contract tests remain external |
 | `/cg-review` routed modes remain intact | Shared routing contract and audit review-agent counts match light 2, standard 8, data-risk 8, architecture 8, full 10 | Passed in Codex (2026-06-09) |
 | `/cg-work review:*` modes remain intact | Prompt and audit guardrails preserve `review:auto`, `review:manual`, `review:none`, and explicit `review:<mode>` behavior | Passed in Codex (2026-06-09) |
 | Knowledge Brain retrieval remains selective | `cg-skill-brain-query` keeps the BRAIN.md index, matched-topic, and no-wholesale `brain-index.json` rules | Passed in Codex (2026-06-09) |
 | Broad context loading is not reintroduced in ordinary prompts | Audit has no guardrail failures for ordinary-prompt broad reads | Passed in Codex (2026-06-09) |
 | `_tmp/` is not durable project storage | `rg -n "_tmp/" . --glob '!_tmp/**'` finds no documentation or workflow instruction treating `_tmp/` as durable | Passed in Codex (2026-06-09); only a negative policy statement was found |
-| Python audit tests pass | `python3 -m pytest scripts/tests/test_audit_context.py` exits 0 | Passed in Codex (2026-06-09), 67 tests |
-| Safe Pester runner passes | `. tests\Run-Tests.ps1` passes in VS Code/PowerShell; `tests/last-run.json` `FailedCount` is `0` | External validation required |
+| Python audit tests pass | `python3 -m pytest scripts/tests/test_audit_context.py` exits 0 | Passed in Codex (2026-06-16), 74 tests |
+| Safe Pester runner passes | `. tests\Run-Tests.ps1` passes in VS Code/PowerShell; `tests/last-run.json` `FailedCount` is `0` | Passed in Codex/PowerShell (2026-06-16), 2170 passed, 0 failed |
 | Manual VS Code/Copilot runtime checklist is complete | All 12 rows in the manual validation table below are signed off with validator and date | External validation required |
 | Follow-up items are separate from blockers | `.cg-docs/cost/token-optimization-follow-ups.md` lists non-blockers separately | Passed in Codex (2026-06-09) |
+| #92 model/tool governance closure | GitHub issue #92 has a closure evidence comment; roadmap feature `agent-model-tool-governance` is `done` | Passed (2026-06-16); #93 and #94 remain open |
 
 ## Command Set
 
@@ -88,7 +92,7 @@ Do not run ad hoc `Invoke-Pester` commands for this release check.
 
 Record validator initials and date in the **Validated by / Date** column when
 checking each row. The parent gate "Manual VS Code/Copilot runtime checklist is
-complete" may only be marked done after all 12 rows carry a sign-off.
+complete" may only be marked done after every row carries a sign-off.
 
 | Surface | Harness | Expected result | Status | Validated by / Date |
 |---------|---------|-----------------|--------|---------------------|
@@ -104,6 +108,9 @@ complete" may only be marked done after all 12 rows carry a sign-off.
 | `/cg-resume` | VS Code/Copilot | Loads pending work and roadmap health without carrying unrelated roadmap or Brain records into the session summary | External validation required | |
 | Knowledge Brain selective retrieval | VS Code/Copilot | Uses `.cg-docs/BRAIN.md` as the entry point, selects matched topics, opens only relevant `BRAIN-NN.md` sections, and does not consume the tooling JSON wholesale | External validation required | |
 | Model-picker behavior | VS Code/Copilot | Ordinary model-picker prompts use the selected Copilot model; Auto is not described as a named hidden model; premium model use is user-initiated or explicitly justified | External validation required | |
+| GPT-5.3-Codex frontmatter | VS Code/Copilot | A test prompt/agent with `model: GPT-5.3-Codex` is accepted and dispatched as that model, or the catalog remains `not-tested`/fallback and broad frontmatter edits are blocked | Passed | User / 2026-06-16 |
+| GPT reasoning frontmatter | VS Code/Copilot | `GPT-5.4`, `GPT-5.5`, `GPT-5 mini`, and `GPT-5.4 mini` are tested for exact YAML frontmatter support before production assignment | Passed | User / 2026-06-16 |
+| Cross-vendor review handoff | VS Code/Copilot | If generated code came from Anthropic, `/cg-review` instructs OpenAI review; if generated by OpenAI, it emits a non-OpenAI contrast handoff when available without changing route depth | External validation required | |
 
 ## Audit Warning Triage
 

@@ -1,6 +1,6 @@
 ---
 description: "Stage changes into logical commits, push, and open a PR with plan-driven description."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.3-Codex
 ---
 
 # Commit, Push, and Open PR

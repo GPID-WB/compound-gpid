@@ -1,6 +1,6 @@
 ﻿---
 description: "Reviews project structure, modularity, separation of concerns, and dependency management. Trilingual R/Python/Stata."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

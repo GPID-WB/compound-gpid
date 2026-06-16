@@ -1,6 +1,6 @@
 ---
 description: "Manage the project wiki: rebuild pages, restructure sections, check status, or convert to GitHub Wiki format."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 ---
 
 # Wiki
