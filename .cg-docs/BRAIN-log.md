@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-22 · 390 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -106,6 +106,20 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-22
+
+- **[2026-06-12-goal-driven-execution-verify-review-4](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md)** · `review` · _—_ · `2026-06-22`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[Workflow telemetry needs source-aware path and tool extraction](.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md)** · `solution` · _—_ · `2026-06-22`
+  > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
+- **[Workflow Token Baseline and Test Integration](.cg-docs/plans/2026-06-22-workflow-token-baseline.md)** · `plan` · _active_ · `2026-06-22`
+  > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
+
+## 2026-06-18
+
+- **[Token-Efficiency Workflow Strategy](.cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md)** · `strategy` · _—_ · `2026-06-18`
+  > Compound GPID already has a substantial token/model-governance foundation:
 
 ## 2026-06-16
 
@@ -1088,6 +1102,24 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
   > Per-step test enforcement in /cg-work
+- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _idea_ · `—`
+  > Phase 1.1 — Workflow-level token baseline and test integration
+- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _idea_ · `—`
+  > Phase 1.2 — Knowledge Brain query and budgeted retrieval
+- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _idea_ · `—`
+  > Phase 1.3 — Command-output summarization wrappers
+- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _idea_ · `—`
+  > Phase 1.4 — Progressive-disclosure skills and scoped instructions
+- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _idea_ · `—`
+  > Phase 1.5 — Handoff, resume, and active-state compaction
+- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _idea_ · `—`
+  > Phase 1.6 — Token dashboard and regression checks
+- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
+  > Phase 2.1 — Cross-agent packaging adapters
+- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _idea_ · `—`
+  > Phase 2.2 — Optional retrieval backend evaluation
+- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _idea_ · `—`
+  > Phase 2.3 — Snapshot and external-research modes
 - **[Phased execution in /cg-work](roadmap.json#phased-execution-cg-work)** · `feature` · _done_ · `—`
   > Phased execution in /cg-work
 - **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
@@ -1108,7 +1140,7 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
 - **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _active_ · `—`
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _done_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
@@ -1128,7 +1160,7 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _active_ · `—`
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _done_ · `—`
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
