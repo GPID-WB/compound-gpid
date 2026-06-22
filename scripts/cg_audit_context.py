@@ -83,6 +83,53 @@ AGENT_REF_RE = re.compile(r"@cg-[a-z-]+")
 SKILL_REF_RE = re.compile(r"cg-skill-[a-z-]+")
 TOOL_REF_RE = re.compile(r"\b(?:read_file|edit_file|run_in_terminal|grep_search|semantic_search)\b")
 LOAD_VERB_RE = re.compile(r"\b(?:must read|load .+skill|consult|dispatch)\b", re.IGNORECASE)
+WORKFLOW_TOOL_REF_RE = re.compile(
+    r"\b(?:read_file|edit_file|run_in_terminal|grep_search|semantic_search|"
+    r"execution_subagent|apply_patch|Task|TodoWrite|TodoRead|AskUserQuestion)\b"
+)
+WORKFLOW_PATH_REF_RE = re.compile(
+    r"(?P<path>"
+    r"(?:\.github|\.cg-docs|docs|scripts|tests)[\\/][A-Za-z0-9._/@+\-]+"
+    r"|\. tests[\\/][A-Za-z0-9._/@+\-]+"
+    r"|compound-gpid(?:\.context|\.local)?\.md"
+    r"|roadmap\.json"
+    r"|BRAIN(?:-\d+|-log)?\.md"
+    r"|brain-index\.json"
+    r"|context\.md"
+    r"|model-guide\.md"
+    r"|copilot-instructions(?:\.template)?\.md"
+    r")",
+    re.IGNORECASE,
+)
+WORKFLOW_SOURCE_PATH_PREFIXES = (
+    ".github/shared/",
+    ".github/prompts/",
+    ".github/agents/",
+    ".github/skills/",
+    ".github/instructions/",
+    ".cg-docs/plans/",
+    ".cg-docs/strategy/",
+    ".cg-docs/reviews/",
+    ".cg-docs/work-reports/",
+    ".cg-docs/solutions/",
+    ".cg-docs/brainstorms/",
+    "docs/",
+    "scripts/",
+    "tests/",
+)
+WORKFLOW_SOURCE_EXACT_PATHS = {
+    ".cg-docs/brain-index.json",
+    ".cg-docs/charter.md",
+    "compound-gpid.md",
+    "compound-gpid.local.md",
+    "compound-gpid.context.md",
+    "roadmap.json",
+    "brain-index.json",
+    "context.md",
+    "model-guide.md",
+    "copilot-instructions.md",
+    "copilot-instructions.template.md",
+}
 ESCALATION_RE = re.compile(r"\b(?:escalat|opus required|borderline|frontier|highest capability)\b", re.IGNORECASE)
 _COPILOT_SUFFIX_RE = re.compile(r"\s*\(copilot\)\s*$", re.IGNORECASE)
 _PARAGRAPH_SEP_RE = re.compile(r"\n\s*\n")
@@ -137,12 +184,21 @@ ORDINARY_MODEL_PICKER_PROMPTS = {
     ".github/prompts/cg-strategy.prompt.md",
 }
 
+WORKFLOW_REGISTRY = (
+    {"workflow_id": "cg-brainstorm", "workflow": "/cg-brainstorm", "path": ".github/prompts/cg-brainstorm.prompt.md"},
+    {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
+    {"workflow_id": "cg-work", "workflow": "/cg-work", "path": ".github/prompts/cg-work.prompt.md"},
+    {"workflow_id": "cg-review", "workflow": "/cg-review", "path": ".github/prompts/cg-review.prompt.md"},
+    {"workflow_id": "cg-fix-triage", "workflow": "/cg-fix-triage", "path": ".github/prompts/cg-fix-triage.prompt.md"},
+    {"workflow_id": "cg-compound", "workflow": "/cg-compound", "path": ".github/prompts/cg-compound.prompt.md"},
+    {"workflow_id": "cg-resume", "workflow": "/cg-resume", "path": ".github/prompts/cg-resume.prompt.md"},
+    {"workflow_id": "cg-diagnose", "workflow": "/cg-diagnose", "path": ".github/prompts/cg-diagnose.prompt.md"},
+    {"workflow_id": "cg-token-audit", "workflow": "/cg-token-audit", "path": ".github/prompts/cg-token-audit.prompt.md"},
+)
+
 BENCHMARK_PROMPTS = {
-    "/cg-plan": ".github/prompts/cg-plan.prompt.md",
-    "/cg-work": ".github/prompts/cg-work.prompt.md",
-    "/cg-review": ".github/prompts/cg-review.prompt.md",
-    "/cg-compound": ".github/prompts/cg-compound.prompt.md",
-    "/cg-resume": ".github/prompts/cg-resume.prompt.md",
+    row["workflow"]: row["path"]
+    for row in WORKFLOW_REGISTRY
 }
 
 HIGH_FREQUENCY_PROMPTS = set(BENCHMARK_PROMPTS.values())
@@ -972,6 +1028,231 @@ def _count_context_levels(rows: Sequence[dict[str, Any]], path: str | None = Non
     }
 
 
+def validate_workflow_registry(registry: Sequence[dict[str, str]]) -> None:
+    """Validate stable workflow registry rows.
+
+    Args:
+        registry: Sequence of dicts with ``workflow_id``, ``workflow``, and
+            ``path`` keys.
+
+    Raises:
+        ValueError: If a required key is missing or a workflow id is duplicated.
+    """
+    seen: set[str] = set()
+    for index, row in enumerate(registry, start=1):
+        for key in ("workflow_id", "workflow", "path"):
+            if not row.get(key):
+                raise ValueError(f"Workflow registry row {index} is missing {key}")
+        workflow_id = row["workflow_id"]
+        if workflow_id in seen:
+            raise ValueError(f"Duplicate workflow_id: {workflow_id}")
+        seen.add(workflow_id)
+
+
+def _observability(status: str, measurement_note: str) -> dict[str, str]:
+    return {"status": status, "measurement_note": measurement_note}
+
+
+def workflow_observability(available: bool) -> dict[str, dict[str, str]]:
+    """Return Phase 1.1 observability statuses for one workflow row.
+
+    Runtime-only quantities are intentionally marked ``not_observed`` until
+    future command-output instrumentation exists.
+    """
+    source_status = "observed" if available else "not_observed"
+    static_status = "partially_observed" if available else "not_observed"
+    return {
+        "prompt_source": _observability(
+            source_status,
+            "Derived from the workflow prompt file when it exists.",
+        ),
+        "estimated_token_pressure": _observability(
+            source_status,
+            "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+        ),
+        "files_read": _observability(
+            static_status,
+            "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+        ),
+        "skills_loaded": _observability(
+            static_status,
+            "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+        ),
+        "agents_dispatched": _observability(
+            static_status,
+            "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+        ),
+        "mcp_tool_usage": _observability(
+            static_status,
+            "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+        ),
+        "command_output_size": _observability(
+            "not_observed",
+            "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+        ),
+        "summary_size": _observability(
+            "not_observed",
+            "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+        ),
+    }
+
+
+def validate_observability_matrix(observability: dict[str, dict[str, str]]) -> None:
+    """Validate that every observability metric has a known status."""
+    allowed = {"observed", "partially_observed", "not_observed", "not_applicable"}
+    for metric, row in observability.items():
+        status = row.get("status")
+        if not status:
+            raise ValueError(f"Observability metric {metric} is missing status")
+        if status not in allowed:
+            raise ValueError(f"Observability metric {metric} has invalid status: {status}")
+
+
+def _unique_matches(pattern: re.Pattern[str], content: str) -> list[str]:
+    return sorted({match.group(0) for match in pattern.finditer(content)})
+
+
+def _line_matches_with_action(pattern: re.Pattern[str], content: str) -> list[str]:
+    values: set[str] = set()
+    for line in content.splitlines():
+        if not (CONTEXT_RISK_ACTION_RE.search(line) or LOAD_VERB_RE.search(line)):
+            continue
+        values.update(match.group(0) for match in pattern.finditer(line))
+    return sorted(values)
+
+
+def _normalize_workflow_path_reference(value: str) -> str:
+    path = value.strip().strip("`'\"()[]{}<>,;:")
+    while path.endswith("."):
+        path = path[:-1]
+    path = path.replace("\\", "/")
+    if path.startswith("./"):
+        path = path[2:]
+    if path.startswith(". tests/"):
+        path = "tests/" + path[len(". tests/"):]
+    return path
+
+
+def _is_workflow_source_path(path: str) -> bool:
+    if path in WORKFLOW_SOURCE_EXACT_PATHS:
+        return True
+    if re.fullmatch(r"BRAIN(?:-\d+|-log)?\.md", path, re.IGNORECASE):
+        return True
+    if re.fullmatch(r"\.cg-docs/BRAIN(?:-\d+|-log)?\.md", path, re.IGNORECASE):
+        return True
+    return path.startswith(WORKFLOW_SOURCE_PATH_PREFIXES)
+
+
+def _workflow_path_matches(content: str, *, require_action: bool = False) -> list[str]:
+    values: set[str] = set()
+    for line in content.splitlines():
+        if require_action and not (CONTEXT_RISK_ACTION_RE.search(line) or LOAD_VERB_RE.search(line)):
+            continue
+        for match in WORKFLOW_PATH_REF_RE.finditer(line):
+            path = _normalize_workflow_path_reference(match.group("path"))
+            if _is_workflow_source_path(path):
+                values.add(path)
+    return sorted(values)
+
+
+def _large_context_warning_status(path: str, candidates: dict[str, Any]) -> str:
+    for row in candidates.get("immediate", []):
+        if row.get("path") == path:
+            return "immediate"
+    for row in candidates.get("needs_review", []):
+        if row.get("path") == path:
+            return "needs_review"
+    return "none"
+
+
+def _duplicate_pressure_for_path(path: str, duplicates: Sequence[dict[str, Any]]) -> int:
+    return sum(
+        int(row.get("total_redundant_tokens", 0))
+        for row in duplicates
+        if path in row.get("files", [])
+    )
+
+
+def build_workflow_telemetry(root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    """Build Phase 1.1 workflow-level token/context telemetry.
+
+    The telemetry is deterministic and source-derived. It intentionally marks
+    runtime-only fields as unobserved rather than inferring transcript behavior.
+    """
+    validate_workflow_registry(WORKFLOW_REGISTRY)
+    files_by_path = {row["path"]: row for row in report.get("files", [])}
+    refs_by_path = {row["path"]: row for row in report.get("reference_matrix", [])}
+    dispatch_by_path = {row["path"]: row for row in report.get("dispatch_burden", [])}
+    models_by_path = {
+        row["path"]: row
+        for row in report.get("model_inventory", {}).get("declarations", [])
+    }
+    context_rows = report.get("context_loading_risks", [])
+    duplicates = report.get("duplicates", [])
+    candidates = report.get("optimization_candidates", {})
+    workflow_rows: list[dict[str, Any]] = []
+    observability_matrix: dict[str, dict[str, dict[str, str]]] = {}
+
+    for workflow in WORKFLOW_REGISTRY:
+        path_string = workflow["path"]
+        file_row = files_by_path.get(path_string)
+        prompt_path = root / path_string
+        content = prompt_path.read_text(encoding="utf-8-sig") if prompt_path.exists() else ""
+        ref_row = refs_by_path.get(path_string, {})
+        dispatch_row = dispatch_by_path.get(path_string, {})
+        model_row = models_by_path.get(path_string, {})
+        context_counts = _count_context_levels(context_rows, path_string)
+        observability = workflow_observability(file_row is not None)
+        validate_observability_matrix(observability)
+        observability_matrix[workflow["workflow_id"]] = observability
+        file_references = _workflow_path_matches(content)
+        likely_file_reads = _workflow_path_matches(content, require_action=True)
+        tool_references = _unique_matches(WORKFLOW_TOOL_REF_RE, content)
+        file_ref_count = max(int(ref_row.get("file_refs", 0)), len(file_references))
+        tool_ref_count = max(int(ref_row.get("tool_refs", 0)), len(tool_references))
+        agent_ref_count = int(ref_row.get("agent_refs", 0))
+        skill_ref_count = int(ref_row.get("skill_refs", 0))
+        load_verb_count = int(ref_row.get("load_verbs", 0))
+        workflow_rows.append({
+            "workflow_id": workflow["workflow_id"],
+            "workflow": workflow["workflow"],
+            "path": path_string,
+            "available": file_row is not None,
+            "characters": int(file_row["characters"]) if file_row else None,
+            "estimated_tokens": int(file_row["estimated_tokens"]) if file_row else None,
+            "total_refs": file_ref_count + agent_ref_count + skill_ref_count + tool_ref_count + load_verb_count,
+            "file_refs": file_ref_count,
+            "agent_refs": agent_ref_count,
+            "skill_refs": skill_ref_count,
+            "tool_refs": tool_ref_count,
+            "load_verbs": load_verb_count,
+            "file_references": file_references,
+            "likely_file_reads": likely_file_reads,
+            "skill_references": _unique_matches(SKILL_REF_RE, content),
+            "likely_skill_loads": _line_matches_with_action(SKILL_REF_RE, content),
+            "agent_references": _unique_matches(AGENT_REF_RE, content),
+            "tool_references": tool_references,
+            "model": model_row.get("model"),
+            "model_tier": model_row.get("model_tier"),
+            "context_risk_count": context_counts["risk"],
+            "context_justified_count": context_counts["justified"],
+            "context_targeted_count": context_counts["targeted"],
+            "dispatch_refs": int(dispatch_row.get("dispatch_refs", 0)),
+            "conditional_routing": bool(dispatch_row.get("conditional_routing", False)),
+            "dispatch_burden": dispatch_row.get("burden_level", "none"),
+            "repeated_context_tokens": _duplicate_pressure_for_path(path_string, duplicates),
+            "large_context_warning_status": _large_context_warning_status(path_string, candidates),
+            "observability": observability,
+        })
+
+    return {
+        "schema_version": 1,
+        "workflows": workflow_rows,
+        "observability_matrix": observability_matrix,
+        "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
+    }
+
+
 def _review_agent_counts_from_contract(root: Path) -> dict[str, Any]:
     """Return statically measurable review-agent counts from the shared contract.
 
@@ -1012,44 +1293,35 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
         Dict containing workflow rows, aggregate model/context signals, and
         static review-agent counts.
     """
-    files_by_path = {row["path"]: row for row in report.get("files", [])}
-    refs_by_path = {row["path"]: row for row in report.get("reference_matrix", [])}
-    dispatch_by_path = {row["path"]: row for row in report.get("dispatch_burden", [])}
-    models_by_path = {
-        row["path"]: row
-        for row in report.get("model_inventory", {}).get("declarations", [])
-    }
     context_rows = report.get("context_loading_risks", [])
-    workflows: list[dict[str, Any]] = []
-
-    for workflow, path in BENCHMARK_PROMPTS.items():
-        file_row = files_by_path.get(path)
-        ref_row = refs_by_path.get(path, {})
-        dispatch_row = dispatch_by_path.get(path, {})
-        model_row = models_by_path.get(path, {})
-        context_counts = _count_context_levels(context_rows, path)
-        workflows.append(
-            {
-                "workflow": workflow,
-                "path": path,
-                "available": file_row is not None,
-                "characters": int(file_row["characters"]) if file_row else None,
-                "estimated_tokens": int(file_row["estimated_tokens"]) if file_row else None,
-                "total_refs": int(ref_row.get("total_refs", 0)),
-                "file_refs": int(ref_row.get("file_refs", 0)),
-                "agent_refs": int(ref_row.get("agent_refs", 0)),
-                "skill_refs": int(ref_row.get("skill_refs", 0)),
-                "load_verbs": int(ref_row.get("load_verbs", 0)),
-                "model": model_row.get("model"),
-                "model_tier": model_row.get("model_tier"),
-                "context_risk_count": context_counts["risk"],
-                "context_justified_count": context_counts["justified"],
-                "context_targeted_count": context_counts["targeted"],
-                "dispatch_refs": int(dispatch_row.get("dispatch_refs", 0)),
-                "conditional_routing": bool(dispatch_row.get("conditional_routing", False)),
-                "dispatch_burden": dispatch_row.get("burden_level", "none"),
-            }
-        )
+    telemetry = report.get("workflow_telemetry") or build_workflow_telemetry(root, report)
+    workflows: list[dict[str, Any]] = [
+        {
+            "workflow_id": row.get("workflow_id"),
+            "workflow": row["workflow"],
+            "path": row["path"],
+            "available": row.get("available"),
+            "characters": row.get("characters"),
+            "estimated_tokens": row.get("estimated_tokens"),
+            "total_refs": row.get("total_refs", 0),
+            "file_refs": row.get("file_refs", 0),
+            "agent_refs": row.get("agent_refs", 0),
+            "skill_refs": row.get("skill_refs", 0),
+            "tool_refs": row.get("tool_refs", 0),
+            "load_verbs": row.get("load_verbs", 0),
+            "model": row.get("model"),
+            "model_tier": row.get("model_tier"),
+            "context_risk_count": row.get("context_risk_count", 0),
+            "context_justified_count": row.get("context_justified_count", 0),
+            "context_targeted_count": row.get("context_targeted_count", 0),
+            "dispatch_refs": row.get("dispatch_refs", 0),
+            "conditional_routing": row.get("conditional_routing", False),
+            "dispatch_burden": row.get("dispatch_burden", "none"),
+            "command_output_status": row.get("observability", {}).get("command_output_size", {}).get("status"),
+            "summary_output_status": row.get("observability", {}).get("summary_size", {}).get("status"),
+        }
+        for row in telemetry.get("workflows", [])
+    ]
 
     brain_skill = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
     brain_text = brain_skill.read_text(encoding="utf-8-sig") if brain_skill.exists() else ""
@@ -1559,6 +1831,7 @@ def build_report(root: Path) -> dict[str, Any]:
         "duplicates": duplicates,
         "optimization_candidates": candidates,
     }
+    report["workflow_telemetry"] = build_workflow_telemetry(root, report)
     report["benchmark"] = build_benchmark_summary(root, report)
     report["guardrails"] = build_guardrails(root, report)
     report["reviewed_warnings"] = build_reviewed_warnings(report)

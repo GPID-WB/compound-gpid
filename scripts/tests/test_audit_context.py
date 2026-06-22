@@ -861,6 +861,30 @@ class TestMdOutput:
 
 
 class TestPhase6Benchmark:
+    def test_workflow_registry_covers_phase_1_1_commands(self) -> None:
+        commands = [row["workflow"] for row in audit.WORKFLOW_REGISTRY]
+        workflow_ids = [row["workflow_id"] for row in audit.WORKFLOW_REGISTRY]
+        assert commands == [
+            "/cg-brainstorm",
+            "/cg-plan",
+            "/cg-work",
+            "/cg-review",
+            "/cg-fix-triage",
+            "/cg-compound",
+            "/cg-resume",
+            "/cg-diagnose",
+            "/cg-token-audit",
+        ]
+        assert len(workflow_ids) == len(set(workflow_ids))
+
+    def test_duplicate_workflow_ids_fail_registry_validation(self) -> None:
+        registry = [
+            {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
+            {"workflow_id": "cg-plan", "workflow": "/cg-work", "path": ".github/prompts/cg-work.prompt.md"},
+        ]
+        with pytest.raises(ValueError, match="Duplicate workflow_id"):
+            audit.validate_workflow_registry(registry)
+
     def test_builds_workflow_benchmark_rows(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None) + "Context expansion: reading `roadmap.json` because targeted fields.\n")
         _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none route-aware staged mode @cg-code-quality\n")
@@ -878,11 +902,78 @@ class TestPhase6Benchmark:
         }
         benchmark = audit.build_benchmark_summary(tmp_path, report)
         names = {row["workflow"] for row in benchmark["workflows"]}
-        assert {"/cg-plan", "/cg-work", "/cg-review", "/cg-compound", "/cg-resume", "Knowledge Brain/context lookup"} <= names
+        assert {
+            "/cg-brainstorm",
+            "/cg-plan",
+            "/cg-work",
+            "/cg-review",
+            "/cg-fix-triage",
+            "/cg-compound",
+            "/cg-resume",
+            "/cg-diagnose",
+            "/cg-token-audit",
+            "Knowledge Brain/context lookup",
+        } <= names
         cg_plan = next(row for row in benchmark["workflows"] if row["workflow"] == "/cg-plan")
         assert cg_plan["model_tier"] == "model-picker"
         brain = next(row for row in benchmark["workflows"] if row["workflow"] == "Knowledge Brain/context lookup")
         assert brain["query_first"] is True
+
+    def test_workflow_telemetry_marks_missing_prompts_unavailable(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        report = audit.build_report(tmp_path)
+        telemetry = report["workflow_telemetry"]
+        missing = next(row for row in telemetry["workflows"] if row["workflow"] == "/cg-token-audit")
+        assert missing["available"] is False
+        assert missing["characters"] is None
+        assert missing["estimated_tokens"] is None
+        assert missing["observability"]["estimated_token_pressure"]["status"] == "not_observed"
+
+    def test_workflow_telemetry_observability_statuses_are_explicit(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter(None)
+            + "Read compound-gpid.md, load cg-skill-brain-query, dispatch @cg-roadmap, then use run_in_terminal.\n",
+        )
+        report = audit.build_report(tmp_path)
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-token-audit")
+        assert row["file_references"] == ["compound-gpid.md"]
+        assert row["likely_file_reads"] == ["compound-gpid.md"]
+        assert row["skill_references"] == ["cg-skill-brain-query"]
+        assert row["likely_skill_loads"] == ["cg-skill-brain-query"]
+        assert row["agent_references"] == ["@cg-roadmap"]
+        assert row["tool_references"] == ["run_in_terminal"]
+        assert row["observability"]["files_read"]["status"] == "partially_observed"
+        assert row["observability"]["skills_loaded"]["status"] == "partially_observed"
+        assert row["observability"]["agents_dispatched"]["status"] == "partially_observed"
+        assert row["observability"]["command_output_size"]["status"] == "not_observed"
+        assert row["observability"]["summary_size"]["status"] == "not_observed"
+
+    def test_workflow_telemetry_extracts_shared_paths_and_execution_subagent(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-work.prompt.md",
+            _frontmatter(None)
+            + "Load `.github/shared/context-loading.contract.md` before Step 1.\n"
+            + "Load `.github/shared/goal-execution.contract.md` for the contract.\n"
+            + "Read `.github/shared/review-routing.contract.md` for review routing.\n"
+            + "Use execution_subagent to run `. tests\\Run-Tests.ps1` safely.\n",
+        )
+        report = audit.build_report(tmp_path)
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-work")
+        assert ".github/shared/context-loading.contract.md" in row["file_references"]
+        assert ".github/shared/goal-execution.contract.md" in row["file_references"]
+        assert ".github/shared/review-routing.contract.md" in row["file_references"]
+        assert "tests/Run-Tests.ps1" in row["file_references"]
+        assert ".github/shared/context-loading.contract.md" in row["likely_file_reads"]
+        assert ".github/shared/review-routing.contract.md" in row["likely_file_reads"]
+        assert "execution_subagent" in row["tool_references"]
+        assert row["tool_refs"] == 1
+
+    def test_workflow_observability_schema_requires_status(self) -> None:
+        observability = audit.workflow_observability(True)
+        del observability["summary_size"]["status"]
+        with pytest.raises(ValueError, match="summary_size"):
+            audit.validate_observability_matrix(observability)
 
     def test_baseline_comparison_reports_deltas(self) -> None:
         current = {
