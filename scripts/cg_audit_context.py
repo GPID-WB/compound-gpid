@@ -6,7 +6,7 @@ counts prompt and agent references, inventories model declarations, detects
 duplicate paragraph blocks, and writes JSON/Markdown reports.
 
 Usage:
-    python scripts/cg_audit_context.py [--root <path>] [--output-dir <path>] [--format json|md|both] [--recommendations]
+    python scripts/cg_audit_context.py [--root <path>] [--output-dir <path>] [--format json|md|both] [--baseline context-audit.json] [--recommendations] [--token-output-dir <path>] [--no-token-artifacts]
 
 Exit codes:
     0  Success.
@@ -27,7 +27,9 @@ if sys.version_info < (3, 8):
     sys.exit(1)
 
 import argparse
+import csv
 import hashlib
+import io
 import json
 import re
 from datetime import datetime
@@ -55,6 +57,14 @@ SCAN_CATEGORIES = {
     "context": "compound-gpid.context.md",
     "roadmap": "roadmap.json",
 }
+
+TOKEN_ARTIFACT_FILENAMES = (
+    "TOKEN-BUDGET.md",
+    "token-audit.json",
+    "context-map.json",
+    "workflow-costs.csv",
+    "large-context-warnings.md",
+)
 
 MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
 MODEL_ROLES = {"inherited", "coding", "review", "reasoning", "mechanical", "fallback"}
@@ -107,6 +117,8 @@ WORKFLOW_SOURCE_PATH_PREFIXES = (
     ".github/agents/",
     ".github/skills/",
     ".github/instructions/",
+    ".cg-docs/cost/",
+    ".cg-docs/token/",
     ".cg-docs/plans/",
     ".cg-docs/strategy/",
     ".cg-docs/reviews/",
@@ -2173,6 +2185,261 @@ def render_recommendations_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def build_token_audit_artifact(report: dict[str, Any]) -> dict[str, Any]:
+    """Return the canonical workflow-token baseline payload."""
+    return {
+        "schema_version": 1,
+        "generated": report.get("generated"),
+        "disclaimer": report.get("disclaimer", DISCLAIMER),
+        "summary": report.get("summary", {}),
+        "workflow_telemetry": report.get("workflow_telemetry", {}),
+        "benchmark": report.get("benchmark", {}),
+        "guardrails": report.get("guardrails", {}),
+        "reviewed_warnings": report.get("reviewed_warnings", {}),
+        "optimization_candidates": report.get("optimization_candidates", {}),
+        "measurement_policy": {
+            "token_estimate": "chars/4 heuristic",
+            "savings_claims": "hypotheses until measured with comparable repository probes",
+            "runtime_fields": "not inferred when not deterministically observed",
+        },
+    }
+
+
+def build_context_map_artifact(report: dict[str, Any]) -> dict[str, Any]:
+    """Return workflow-to-context reference mapping for token artifacts."""
+    context_rows_by_path: dict[str, list[dict[str, Any]]] = {}
+    for row in report.get("context_loading_risks", []):
+        context_rows_by_path.setdefault(row.get("path", ""), []).append({
+            "line": row.get("line"),
+            "level": row.get("level"),
+            "artifact": row.get("artifact"),
+            "reason": row.get("reason"),
+            "snippet": row.get("snippet"),
+        })
+
+    workflows = []
+    for row in report.get("workflow_telemetry", {}).get("workflows", []):
+        path = row.get("path", "")
+        workflows.append({
+            "workflow_id": row.get("workflow_id"),
+            "workflow": row.get("workflow"),
+            "path": path,
+            "available": row.get("available"),
+            "file_references": row.get("file_references", []),
+            "likely_file_reads": row.get("likely_file_reads", []),
+            "skill_references": row.get("skill_references", []),
+            "likely_skill_loads": row.get("likely_skill_loads", []),
+            "agent_references": row.get("agent_references", []),
+            "tool_references": row.get("tool_references", []),
+            "context_loading_signals": context_rows_by_path.get(path, []),
+            "observability": row.get("observability", {}),
+        })
+
+    return {
+        "schema_version": 1,
+        "generated": report.get("generated"),
+        "measurement_note": report.get("workflow_telemetry", {}).get("measurement_note"),
+        "workflows": workflows,
+    }
+
+
+def render_workflow_costs_csv(report: dict[str, Any]) -> str:
+    """Render workflow telemetry as stable CSV."""
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator="\n")
+    writer.writerow([
+        "workflow_id",
+        "workflow",
+        "path",
+        "available",
+        "estimated_tokens",
+        "total_refs",
+        "file_refs",
+        "skill_refs",
+        "agent_refs",
+        "tool_refs",
+        "load_verbs",
+        "context_risk_count",
+        "context_justified_count",
+        "context_targeted_count",
+        "dispatch_refs",
+        "dispatch_burden",
+        "command_output_status",
+        "summary_output_status",
+    ])
+    for row in report.get("workflow_telemetry", {}).get("workflows", []):
+        observability = row.get("observability", {})
+        writer.writerow([
+            row.get("workflow_id"),
+            row.get("workflow"),
+            row.get("path"),
+            row.get("available"),
+            row.get("estimated_tokens"),
+            row.get("total_refs"),
+            row.get("file_refs"),
+            row.get("skill_refs"),
+            row.get("agent_refs"),
+            row.get("tool_refs"),
+            row.get("load_verbs"),
+            row.get("context_risk_count"),
+            row.get("context_justified_count"),
+            row.get("context_targeted_count"),
+            row.get("dispatch_refs"),
+            row.get("dispatch_burden"),
+            observability.get("command_output_size", {}).get("status"),
+            observability.get("summary_size", {}).get("status"),
+        ])
+    return output.getvalue()
+
+
+def render_token_budget_markdown(report: dict[str, Any]) -> str:
+    """Render a human-readable workflow token budget baseline."""
+    telemetry = report.get("workflow_telemetry", {})
+    workflows = telemetry.get("workflows", [])
+    measured = sum(1 for row in workflows if row.get("available"))
+    missing = len(workflows) - measured
+    lines = [
+        "# Workflow Token Budget Baseline",
+        "",
+        f"_Generated: {report.get('generated')}_",
+        "",
+        f"> {report.get('disclaimer', DISCLAIMER)}",
+        "",
+        "This is a baseline artifact, not evidence of token savings. Treat any",
+        "token-saving claim as a hypothesis until measured with comparable",
+        "repository probes.",
+        "",
+        "## Source Scope",
+        "",
+        f"- Source files counted: {report.get('summary', {}).get('total_files', 0)}",
+        f"- Source estimated tokens: {report.get('summary', {}).get('total_estimated_tokens', 0)}",
+        f"- Workflow rows: {len(workflows)}",
+        f"- Workflows with prompt source observed: {measured}",
+        f"- Workflows without prompt source observed: {missing}",
+        "",
+        "Generated `.cg-docs/cost/` and `.cg-docs/token/` outputs are audit",
+        "artifacts. They are not part of the normal workflow source-pressure scan.",
+        "",
+        "## Workflow Budgets",
+        "",
+    ]
+    lines.extend(markdown_table(
+        [
+            "Workflow",
+            "Path",
+            "Tokens",
+            "Refs",
+            "Context Risk",
+            "Dispatch",
+            "Command Output",
+            "Summary",
+        ],
+        [
+            [
+                row.get("workflow"),
+                row.get("path"),
+                row.get("estimated_tokens"),
+                row.get("total_refs"),
+                row.get("context_risk_count"),
+                row.get("dispatch_burden"),
+                row.get("observability", {}).get("command_output_size", {}).get("status"),
+                row.get("observability", {}).get("summary_size", {}).get("status"),
+            ]
+            for row in workflows
+        ],
+    ))
+    lines.extend([
+        "",
+        "## Observability Boundaries",
+        "",
+        "- `observed`: measured from repository source files.",
+        "- `partially_observed`: statically visible in prompt text, but actual",
+        "  runtime behavior depends on the execution path.",
+        "- `not_observed`: not instrumented in Phase 1.1 and not inferred.",
+        "",
+        "Command-output size and summary size are intentionally `not_observed`",
+        "until command-output summary wrappers or transcript instrumentation exist.",
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def render_large_context_warnings_markdown(report: dict[str, Any]) -> str:
+    """Render large context warning candidates without copying large bodies."""
+    candidates = report.get("optimization_candidates", {})
+    immediate = candidates.get("immediate", [])
+    needs_review = candidates.get("needs_review", [])
+    duplicates = report.get("duplicates", [])
+    lines = [
+        "# Large Context Warnings",
+        "",
+        f"_Generated: {report.get('generated')}_",
+        "",
+        f"> {report.get('disclaimer', DISCLAIMER)}",
+        "",
+        "This file lists large or repeated context signals by path and reason only.",
+        "It intentionally avoids copying large prompt, instruction, skill, or",
+        "duplicate block bodies.",
+        "",
+        "## Immediate",
+        "",
+    ]
+    lines.extend([
+        f"- `{row['path']}` ({row['category']}): {row['reason']}"
+        for row in immediate
+    ] or ["- None"])
+    lines.extend(["", "## Needs Review", ""])
+    lines.extend([
+        f"- `{row['path']}` ({row['category']}): {row['reason']}"
+        for row in needs_review
+    ] or ["- None"])
+    lines.extend(["", "## Repeated Context Blocks", ""])
+    if duplicates:
+        lines.extend(markdown_table(
+            ["Preview", "Files", "Estimated Redundant Tokens"],
+            [
+                [
+                    row.get("block_preview", "").replace("|", "\\|"),
+                    row.get("file_count"),
+                    row.get("total_redundant_tokens"),
+                ]
+                for row in duplicates
+            ],
+        ))
+    else:
+        lines.append("- None")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def write_token_artifacts(report: dict[str, Any], output_dir: Path) -> list[Path]:
+    """Write the additive `.cg-docs/token/` workflow baseline artifacts."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    artifacts = {
+        "TOKEN-BUDGET.md": render_token_budget_markdown(report),
+        "token-audit.json": json.dumps(
+            build_token_audit_artifact(report),
+            indent=2,
+            ensure_ascii=False,
+            sort_keys=True,
+        ) + "\n",
+        "context-map.json": json.dumps(
+            build_context_map_artifact(report),
+            indent=2,
+            ensure_ascii=False,
+            sort_keys=True,
+        ) + "\n",
+        "workflow-costs.csv": render_workflow_costs_csv(report),
+        "large-context-warnings.md": render_large_context_warnings_markdown(report),
+    }
+    written: list[Path] = []
+    for name in TOKEN_ARTIFACT_FILENAMES:
+        path = output_dir / name
+        write_atomic(path, artifacts[name])
+        written.append(path)
+    return written
+
+
 def write_outputs(report: dict[str, Any], output_dir: Path, fmt: str, recommendations: bool = False) -> list[Path]:
     """Write the audit report to disk in the requested format(s).
 
@@ -2232,6 +2499,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
                         help="Optional previous context-audit.json for before/after benchmark deltas.")
     parser.add_argument("--recommendations", action="store_true",
                         help="Also write a compact token-advice.md recommendation report.")
+    parser.add_argument("--token-output-dir", metavar="PATH", default=None,
+                        help="Output directory for workflow token baseline artifacts (defaults to .cg-docs/token/).")
+    parser.add_argument("--no-token-artifacts", action="store_true",
+                        help="Do not write the additive .cg-docs/token/ workflow baseline artifacts.")
     return parser
 
 
@@ -2263,6 +2534,9 @@ def main(argv: list[str] | None = None) -> int:
     output_dir = Path(args.output_dir) if args.output_dir else Path(".cg-docs") / "cost"
     if not output_dir.is_absolute():
         output_dir = root / output_dir
+    token_output_dir = Path(args.token_output_dir) if args.token_output_dir else Path(".cg-docs") / "token"
+    if not token_output_dir.is_absolute():
+        token_output_dir = root / token_output_dir
     try:
         report = build_report(root)
         if args.baseline:
@@ -2276,6 +2550,8 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             report["benchmark"]["comparison"] = compare_benchmark_to_baseline(report, baseline)
         written = write_outputs(report, output_dir, args.format, args.recommendations)
+        if not args.no_token_artifacts:
+            written.extend(write_token_artifacts(report, token_output_dir))
     except (OSError, UnicodeDecodeError) as exc:
         print(f"[cg-audit-context] ERROR: {exc}", file=sys.stderr)
         return 1

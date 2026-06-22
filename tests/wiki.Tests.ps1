@@ -699,6 +699,13 @@ Describe "docs/_wiki.yml - reference.md is auto-ownership for command-reference 
         ($ymlContent -match '(?s)id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!-\s+id:).)*?sections:') | Should -Be $true
         ($ymlContent -match 'managed:\s*true') | Should -Be $true
     }
+
+    It "reference.md entry registers shell-commands as a managed section" {
+        # The shell command table contains exact CLI names such as
+        # cg-token-audit. Keeping it outside markers makes wiki updates skip
+        # even when the detailed command section is managed.
+        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}shell-commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+    }
 }
 
 Describe "docs/reference.md - contains cg:auto section markers for plugin-managed content" {
@@ -713,6 +720,25 @@ Describe "docs/reference.md - contains cg:auto section markers for plugin-manage
 
     It "docs/reference.md contains cg:auto:end closing marker" {
         ($content -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
+    }
+
+    It "docs/reference.md wraps the shell command table in a managed section" {
+        ($content -match '(?s)<!--\s*cg:auto:shell-commands\s*-->.*cg-token-audit.*<!--\s*cg:auto:end\s*-->') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-wiki/SKILL.md - conflict detection avoids generic token false positives" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-wiki\SKILL.md"
+    $content = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+
+    It "conflict detection is based on high-signal topic keys" {
+        ($content -match 'high-signal topic keys') | Should -Be $true
+        ($content -match 'exact command names') | Should -Be $true
+    }
+
+    It "generic workflow/token/audit words do not block by themselves" {
+        ($content -match 'Do not block on generic component words') | Should -Be $true
+        ($content -match '`workflow`.*`token`.*`audit`.*`telemetry`') | Should -Be $true
     }
 }
 

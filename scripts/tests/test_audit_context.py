@@ -5,6 +5,8 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import csv
+import io
 import json
 from pathlib import Path
 
@@ -582,7 +584,16 @@ class TestIntegration:
     @pytest.mark.integration
     def test_full_run_on_real_repo(self, tmp_path: Path) -> None:
         root = Path(__file__).resolve().parents[2]
-        assert audit.main(["--root", str(root), "--output-dir", str(tmp_path), "--format", "json"]) == 0
+        assert audit.main([
+            "--root",
+            str(root),
+            "--output-dir",
+            str(tmp_path),
+            "--token-output-dir",
+            str(tmp_path / "token"),
+            "--format",
+            "json",
+        ]) == 0
         payload = json.loads((tmp_path / "context-audit.json").read_text(encoding="utf-8"))
         assert payload["summary"]["total_files"] > 0
 
@@ -968,6 +979,75 @@ class TestPhase6Benchmark:
         assert ".github/shared/review-routing.contract.md" in row["likely_file_reads"]
         assert "execution_subagent" in row["tool_references"]
         assert row["tool_refs"] == 1
+
+    def test_workflow_telemetry_tracks_generated_report_reads_without_scanning_outputs(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter("Claude Haiku 4.5")
+            + "Read `.cg-docs/cost/token-advice.md` and `.cg-docs/token/TOKEN-BUDGET.md`.\n",
+        )
+        _write(tmp_path / ".cg-docs/cost/token-advice.md", "Generated advice")
+        _write(tmp_path / ".cg-docs/token/TOKEN-BUDGET.md", "Generated budget")
+
+        report = audit.build_report(tmp_path)
+
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-token-audit")
+        assert ".cg-docs/cost/token-advice.md" in row["file_references"]
+        assert ".cg-docs/token/TOKEN-BUDGET.md" in row["file_references"]
+        assert ".cg-docs/cost/token-advice.md" in row["likely_file_reads"]
+        assert ".cg-docs/token/TOKEN-BUDGET.md" in row["likely_file_reads"]
+        scanned_paths = {item["path"] for item in report["files"]}
+        assert ".cg-docs/cost/token-advice.md" not in scanned_paths
+        assert ".cg-docs/token/TOKEN-BUDGET.md" not in scanned_paths
+
+    def test_token_artifacts_are_written_with_expected_shapes(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter("Claude Haiku 4.5")
+            + "Read `.github/shared/context-loading.contract.md` and run_in_terminal.\n",
+        )
+        report = audit.build_report(tmp_path)
+        token_dir = tmp_path / ".cg-docs/token"
+
+        paths = audit.write_token_artifacts(report, token_dir)
+
+        assert {path.name for path in paths} == set(audit.TOKEN_ARTIFACT_FILENAMES)
+        token_payload = json.loads((token_dir / "token-audit.json").read_text(encoding="utf-8"))
+        assert token_payload["schema_version"] == 1
+        assert len(token_payload["workflow_telemetry"]["workflows"]) == 9
+
+        context_payload = json.loads((token_dir / "context-map.json").read_text(encoding="utf-8"))
+        assert context_payload["schema_version"] == 1
+        assert len(context_payload["workflows"]) == 9
+        token_audit_context = next(
+            row for row in context_payload["workflows"] if row["workflow"] == "/cg-token-audit"
+        )
+        assert ".github/shared/context-loading.contract.md" in token_audit_context["file_references"]
+        assert "run_in_terminal" in token_audit_context["tool_references"]
+
+        cost_rows = list(csv.DictReader(io.StringIO((token_dir / "workflow-costs.csv").read_text(encoding="utf-8"))))
+        assert len(cost_rows) == 9
+        token_audit_cost = next(row for row in cost_rows if row["workflow"] == "/cg-token-audit")
+        assert token_audit_cost["command_output_status"] == "not_observed"
+        assert token_audit_cost["summary_output_status"] == "not_observed"
+
+        budget = (token_dir / "TOKEN-BUDGET.md").read_text(encoding="utf-8")
+        assert "not evidence of token savings" in budget
+        assert "not_observed" in budget
+        warnings = (token_dir / "large-context-warnings.md").read_text(encoding="utf-8")
+        assert "Large Context Warnings" in warnings
+
+    def test_main_writes_token_artifacts_by_default(self, tmp_path: Path) -> None:
+        root = tmp_path / "project"
+        _write(root / ".github/prompts/cg-token-audit.prompt.md", _frontmatter("Claude Haiku 4.5"))
+        output_dir = tmp_path / "legacy-cost"
+
+        result = audit.main(["--root", str(root), "--output-dir", str(output_dir), "--format", "json"])
+
+        assert result == 0
+        assert (output_dir / "context-audit.json").exists()
+        assert (root / ".cg-docs/token/TOKEN-BUDGET.md").exists()
+        assert (root / ".cg-docs/token/token-audit.json").exists()
 
     def test_workflow_observability_schema_requires_status(self) -> None:
         observability = audit.workflow_observability(True)

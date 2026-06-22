@@ -17,6 +17,8 @@ pages:
     ownership: "auto"
     order: 3
     sections:
+      - id: "shell-commands"
+        managed: true
       - id: "commands"
         managed: true
   - id: "context-files"

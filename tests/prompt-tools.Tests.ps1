@@ -5296,6 +5296,12 @@ Describe "cg-token-audit.prompt.md - command contract" {
         ($content -match 'context-loading\.contract\.md') | Should -Be $true
         ($content -match 'Do not read `\.cg-docs/`, `BRAIN\*\.md`, `brain-index\.json`') | Should -Be $true
     }
+
+    It "allows audit-generated reports under cost and token output directories" {
+        ($content -match '\.cg-docs/cost/') | Should -Be $true
+        ($content -match '\.cg-docs/token/') | Should -Be $true
+        ($content -match 'report files under\s+`\.cg-docs/cost/`\s+and `\.cg-docs/token/`') | Should -Be $true
+    }
 }
 
 Describe "copilot-instructions.md - /cg-token-audit in Workflow Entry Points" {
@@ -5319,6 +5325,14 @@ Describe "docs/reference.md - /cg-token-audit registration" {
     It "docs/reference.md documents --recommendations output" {
         ($content -match '--recommendations') | Should -Be $true
         ($content -match 'token-advice\.md') | Should -Be $true
+    }
+
+    It "docs/reference.md documents workflow token baseline artifacts" {
+        ($content -match '\.cg-docs/token/TOKEN-BUDGET\.md') | Should -Be $true
+        ($content -match '\.cg-docs/token/token-audit\.json') | Should -Be $true
+        ($content -match '\.cg-docs/token/context-map\.json') | Should -Be $true
+        ($content -match '\.cg-docs/token/workflow-costs\.csv') | Should -Be $true
+        ($content -match '\.cg-docs/token/large-context-warnings\.md') | Should -Be $true
     }
 }
 

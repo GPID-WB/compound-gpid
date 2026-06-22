@@ -10,6 +10,7 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 
 > Available from PowerShell on Windows and from bash/zsh on macOS.
 
+<!-- cg:auto:shell-commands -->
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
 | `cg-link` | Project root | Create per-subdirectory junctions in `.github/` and generate `copilot-instructions.md` from template - enables all Copilot prompts in this project |
@@ -20,7 +21,8 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-update --list` | Anywhere | Browse available GitHub Releases |
 | `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration for the current project |
-| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context/model audit reports and compact token-efficiency advice |
+| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate legacy `.cg-docs/cost/` reports, additive `.cg-docs/token/` workflow baseline artifacts, and compact token-efficiency advice |
+<!-- cg:auto:end -->
 
 ---
 
@@ -62,7 +64,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-compound-refresh` | GPT-5.4 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
 | `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` changes from collaborators, after manually editing solution files, after a `/cg-compound` run where brain rebuild was skipped, or when the brain is stale. Verifies success by exit code (primary), stdout stats line (secondary), and `BRAIN.md` existence (tertiary). |
 | `/cg-wiki [init\|rebuild\|restructure\|convert\|status\|help] [--propose]` | GPT-5.4 | Manage the project wiki (`wiki/` by default). No args = status table. `init` bootstraps the wiki on an existing project (creates `_wiki.yml` and all wiki pages from a project-type template). `rebuild` regenerates all auto-managed pages from current codebase + charter. `rebuild <page-id>` targets a single page. `restructure` lets you add/remove/reorder pages interactively. `convert` generates GitHub Wiki–compatible layout (Home.md, _Sidebar.md). `--propose` shows diffs before writing. Wiki initialized at `/cg-setup` or `/cg-wiki init`; updated automatically by `/cg-compound`. |
-| `/cg-token-audit` | Claude Haiku 4.5 | Advisory token/context usage analysis. Runs `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`, then summarizes `.cg-docs/cost/token-advice.md`. Does not modify project configuration or source files. |
+| `/cg-token-audit` | Claude Haiku 4.5 | Advisory token/context usage analysis. Runs `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`, writes legacy `.cg-docs/cost/` reports plus additive `.cg-docs/token/` workflow baseline artifacts, then summarizes `.cg-docs/cost/token-advice.md`. Does not modify project configuration or source files. |
 | `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. Displays linked GitHub issue numbers (read-only) alongside active features when present, and may suggest `/cg-issues link` or `/cg-issues backfill` when relevant current work is unlinked. |
 | `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
 | `/cg-diagnose` | GPT-5.3-Codex | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
@@ -88,12 +90,22 @@ To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 
 ```
 cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations
-python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json] [--recommendations]
+python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json] [--recommendations] [--token-output-dir PATH] [--no-token-artifacts]
 ```
 
-Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, enriches declarations from `.github/shared/model-catalog.json`, detects duplicate paragraph blocks, benchmarks `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup behavior, and writes reports to `.cg-docs/cost/` (default). Requires `scripts/brain/` from this repository. The installed `cg-token-audit` wrapper runs the same script from any linked project; pass `--root .` from the project root so the consumer project is audited.
+Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, enriches declarations from `.github/shared/model-catalog.json`, detects duplicate paragraph blocks, and benchmarks `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-fix-triage`, `/cg-compound`, `/cg-resume`, `/cg-diagnose`, `/cg-token-audit`, and Knowledge Brain/context lookup behavior. Runtime-only quantities such as command-output size and summary size are marked `not_observed` until explicit instrumentation exists. The audit writes legacy reports to `.cg-docs/cost/` (default `--output-dir`) and additive workflow baseline artifacts to `.cg-docs/token/` by default. Requires `scripts/brain/` from this repository. The installed `cg-token-audit` wrapper runs the same script from any linked project; pass `--root .` from the project root so the consumer project is audited.
 
-Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only warning classifications and token-efficiency recommendations. The generated Markdown includes Benchmark Summary, Guardrails, Reviewed Warning Classifications, Token Efficiency Recommendations, Context Loading Risks, Review Dispatch Burden, Model Inventory, and a release-readiness checklist.
+Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only warning classifications and token-efficiency recommendations. Use `--token-output-dir PATH` to move the workflow baseline artifacts, or `--no-token-artifacts` for a legacy-only run. The generated Markdown includes Benchmark Summary, Guardrails, Reviewed Warning Classifications, Token Efficiency Recommendations, Context Loading Risks, Review Dispatch Burden, Model Inventory, and a release-readiness checklist.
+
+Workflow baseline artifacts:
+
+| Artifact | Purpose |
+|----------|---------|
+| `.cg-docs/token/TOKEN-BUDGET.md` | Human-readable workflow baseline, observability boundaries, and the no-savings-claim policy |
+| `.cg-docs/token/token-audit.json` | Canonical JSON baseline payload with workflow telemetry, benchmark, guardrails, and warning classifications |
+| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |
+| `.cg-docs/token/workflow-costs.csv` | Spreadsheet-friendly workflow rows for the nine tracked `/cg-*` workflows |
+| `.cg-docs/token/large-context-warnings.md` | Large prompt/instruction/skill and repeated-context warnings without copying large bodies |
 
 Model-governance guardrails report unknown or stale model names, missing catalog
 assignments, invalid roles, OpenAI-first violations, Haiku/Sonnet role
