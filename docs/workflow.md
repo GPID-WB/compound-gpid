@@ -213,6 +213,12 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 
 **Execution report** (`.cg-docs/work-reports/`): Created early in the run and updated incrementally. Contains the active deviation policy, completed steps/phases, all deviations with decisions, accepted exceptions with rationale, evidence table (mirroring the plan's Verification Surface), constraints check, remaining uncertainty, and final status. If a blocked run is resumed, a new run/resume section is appended — prior accountability evidence is preserved.
 
+**Active state** (`.cg-docs/active-state/current.json`): Compact restart aid
+for long workflows. It stores artifact paths, current phase, evidence status,
+unresolved decisions, and the exact next command. It does not replace the
+execution report and must not contain transcript dumps, raw command output,
+full diffs, or full review text.
+
 **Legacy plans** (no `## Completion Contract`): `/cg-work` halts and offers to generate a minimal compatibility contract for approval before proceeding.
 
 **Inline plan handling** (when no plan file is found):
@@ -494,6 +500,11 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - To get a quick overview of what is in progress across all workflow artifacts
 
 **What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-docs/reviews/` for open and skipped findings, and inspects `git status`/`git log` for in-progress code changes. For phased plans, displays phase progress (e.g., "Phase progress: 2/4 phases completed. Next: `/cg-work phase3`"). Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it displays milestone progress with completion counts, surfaces roadmap/plan status drift, and surfaces unstarted roadmap ideas from active milestones.
+
+If `.cg-docs/active-state/current.json` exists, `/cg-resume` validates the
+referenced paths and shows an Active State Snapshot before pending work. The
+snapshot is artifact-reference-first and may provide the exact next command
+when it matches the scanned project state.
 
 **Scenarios**:
 - *Normal session start*: Run `/cg-resume` to see: active plans, open review findings, pending brainstorms, and current git state in one view.

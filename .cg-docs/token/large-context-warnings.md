@@ -1,6 +1,6 @@
 # Large Context Warnings
 
-_Generated: 2026-06-23T13:39:18_
+_Generated: 2026-06-23T13:54:11_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -14,6 +14,7 @@ duplicate block bodies.
 - `.github/prompts/cg-commit-push-pr.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - `.github/prompts/cg-fixbug.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - `.github/prompts/cg-plan.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
+- `.github/prompts/cg-resume.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - `.github/prompts/cg-review-repos.prompt.md` (prompts): prompt estimated tokens >= 3000
 - `.github/prompts/cg-review.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
 - `.github/prompts/cg-setup.prompt.md` (prompts): prompt estimated tokens >= 3000; reference count >= 5
@@ -36,7 +37,6 @@ duplicate block bodies.
 - `.github/prompts/cg-ideate.prompt.md` (prompts): reference count >= 5
 - `.github/prompts/cg-issues.prompt.md` (prompts): prompt size exceeds review threshold; reference count >= 5
 - `.github/prompts/cg-plan-review.prompt.md` (prompts): reference count >= 5
-- `.github/prompts/cg-resume.prompt.md` (prompts): prompt size exceeds review threshold; reference count >= 5
 - `.github/prompts/cg-roadmap-view.prompt.md` (prompts): reference count >= 5
 - `.github/prompts/cg-strategy.prompt.md` (prompts): prompt size exceeds review threshold; reference count >= 5
 - `.github/prompts/cg-token-audit.prompt.md` (prompts): reference count >= 5

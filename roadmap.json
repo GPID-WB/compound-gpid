@@ -1099,8 +1099,8 @@
         {
           "id": "phase-1-5-handoff-resume-compaction",
           "title": "Phase 1.5 \u2014 Handoff, resume, and active-state compaction",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md"
         },
         {
           "id": "phase-1-6-token-dashboard-regression",

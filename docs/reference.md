@@ -162,6 +162,17 @@ are a deliberate exception: a missing `model:` frontmatter key matches
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
 
+### Active-State Handoff Records
+
+Long-running workflows may write a compact restart aid at
+`.cg-docs/active-state/current.json`. The schema is defined in
+`.github/shared/active-state.contract.md`. Records contain artifact paths,
+current phase, evidence status, unresolved decisions, and an exact
+`nextCommand`; they must not copy transcripts, raw command output, full review
+findings, or full report bodies. `/cg-resume` reads the record when present and
+validates referenced paths before using it. `/cg-diagnose` may include the same
+compact pointers in crash recovery handoffs, but remains read-only.
+
 For token-optimization release candidates, complete
 `.cg-docs/cost/token-optimization-release-checklist.md` after generating the
 audit. Keep non-blocking issues in

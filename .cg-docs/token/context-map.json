@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-23T13:39:18",
+  "generated": "2026-06-23T13:54:11",
   "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
   "schema_version": 1,
   "workflows": [
@@ -222,14 +222,14 @@
         {
           "artifact": ".cg-docs/",
           "level": "justified",
-          "line": 39,
+          "line": 40,
           "reason": "maintenance/tooling workflow",
           "snippet": "- Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A"
         },
         {
           "artifact": "roadmap.json",
           "level": "justified",
-          "line": 198,
+          "line": 204,
           "reason": "explicit expansion rationale",
           "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
         },
@@ -243,35 +243,28 @@
         {
           "artifact": "compound-gpid.context.md",
           "level": "targeted",
-          "line": 24,
+          "line": 25,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and sta"
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 90,
+          "line": 91,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
         },
         {
-          "artifact": ".cg-docs/",
-          "level": "targeted",
-          "line": 102,
-          "reason": "targeted or guarded context-loading instruction",
-          "snippet": "**Execution report**: Create `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` after roadmap active-status handling and before implementation. Create dir if absent; failure is blocked. Use plan `execution-report` when pr"
-        },
-        {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 201,
+          "line": 207,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 205,
+          "line": 211,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
         }
@@ -280,6 +273,7 @@
         ".cg-docs/plans/",
         ".cg-docs/plans/YYYY-MM-DD-",
         ".cg-docs/work-reports/YYYY-MM-DD-",
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         ".github/shared/goal-execution.contract.md",
         ".github/shared/review-routing.contract.md",
@@ -297,6 +291,7 @@
       "likely_file_reads": [
         ".cg-docs/plans/YYYY-MM-DD-",
         ".cg-docs/work-reports/YYYY-MM-DD-",
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         ".github/shared/goal-execution.contract.md",
         ".github/shared/review-routing.contract.md",
@@ -655,7 +650,7 @@
         {
           "artifact": "roadmap.json",
           "level": "justified",
-          "line": 114,
+          "line": 125,
           "reason": "explicit expansion rationale",
           "snippet": "<!-- Context expansion: reading full roadmap.json because /cg-resume computes"
         },
@@ -676,28 +671,28 @@
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 89,
+          "line": 100,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with:"
         },
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 104,
+          "line": 115,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "Scan `.cg-docs/brainstorms/` for all `.md` files with `status: decided`. For each, check if a corresponding plan file exists in `.cg-docs/plans/` (match by date and title similarity, or a `brainstorm:` frontmatter field "
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 119,
+          "line": 130,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "If `roadmap.json` exists at the project root, use the justified full read above to compute:"
         },
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 138,
+          "line": 149,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "Scan `.cg-docs/reviews/` metadata for `.md` files (skip `.gitkeep`). For each file:"
         }
@@ -707,6 +702,7 @@
         ".cg-docs/plans/",
         ".cg-docs/reviews/",
         ".cg-docs/strategy/",
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         "compound-gpid.context.md",
         "compound-gpid.local.md",
@@ -720,6 +716,7 @@
         ".cg-docs/brainstorms/",
         ".cg-docs/plans/",
         ".cg-docs/reviews/",
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         "compound-gpid.context.md",
         "compound-gpid.local.md",
@@ -776,6 +773,7 @@
         ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
         ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
         ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         "compound-gpid.context.md",
         "compound-gpid.local.md",
@@ -786,6 +784,7 @@
         "tests/roadmap.Tests.ps1"
       ],
       "likely_file_reads": [
+        ".github/shared/active-state.contract.md",
         ".github/shared/context-loading.contract.md",
         "compound-gpid.local.md",
         "compound-gpid.md",

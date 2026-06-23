@@ -78,16 +78,16 @@
       {
         "agent_refs": 12,
         "available": true,
-        "characters": 19881,
+        "characters": 20003,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 0,
-        "context_targeted_count": 6,
+        "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 4970,
-        "file_refs": 16,
+        "estimated_tokens": 5000,
+        "file_refs": 17,
         "load_verbs": 22,
         "model": "GPT-5.3-Codex",
         "model_tier": "standard",
@@ -95,7 +95,7 @@
         "skill_refs": 2,
         "summary_output_status": "not_observed",
         "tool_refs": 1,
-        "total_refs": 53,
+        "total_refs": 54,
         "workflow": "/cg-work",
         "workflow_id": "cg-work"
       },
@@ -174,7 +174,7 @@
       {
         "agent_refs": 3,
         "available": true,
-        "characters": 11735,
+        "characters": 12637,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 1,
@@ -182,7 +182,7 @@
         "context_targeted_count": 6,
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
-        "estimated_tokens": 2933,
+        "estimated_tokens": 3159,
         "file_refs": 15,
         "load_verbs": 1,
         "model": "Claude Haiku 4.5",
@@ -198,7 +198,7 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 10078,
+        "characters": 10590,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 0,
@@ -206,8 +206,8 @@
         "context_targeted_count": 0,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2519,
-        "file_refs": 12,
+        "estimated_tokens": 2647,
+        "file_refs": 13,
         "load_verbs": 1,
         "model": "GPT-5.3-Codex",
         "model_tier": "standard",
@@ -215,7 +215,7 @@
         "skill_refs": 1,
         "summary_output_status": "not_observed",
         "tool_refs": 1,
-        "total_refs": 15,
+        "total_refs": 16,
         "workflow": "/cg-diagnose",
         "workflow_id": "cg-diagnose"
       },
@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T13:39:18",
+  "generated": "2026-06-23T13:54:11",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -287,7 +287,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 46,
+    "acceptable_count": 47,
     "immediate": [
       {
         "category": "prompts",
@@ -307,6 +307,11 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-plan.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-resume.prompt.md",
         "reason": "prompt estimated tokens >= 3000; reference count >= 5"
       },
       {
@@ -405,11 +410,6 @@
         "category": "prompts",
         "path": ".github/prompts/cg-plan-review.prompt.md",
         "reason": "reference count >= 5"
-      },
-      {
-        "category": "prompts",
-        "path": ".github/prompts/cg-resume.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
         "category": "prompts",
@@ -546,13 +546,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 276969,
-        "estimated_tokens": 69242,
+        "characters": 279157,
+        "estimated_tokens": 69788,
         "files": 4
       },
       "brain_index": {
-        "characters": 614521,
-        "estimated_tokens": 153630,
+        "characters": 618934,
+        "estimated_tokens": 154733,
         "files": 1
       },
       "context": {
@@ -561,8 +561,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 207064,
-        "estimated_tokens": 51763,
+        "characters": 208280,
+        "estimated_tokens": 52066,
         "files": 10
       },
       "instructions": {
@@ -571,19 +571,19 @@
         "files": 4
       },
       "prompts": {
-        "characters": 248230,
-        "estimated_tokens": 62049,
+        "characters": 249766,
+        "estimated_tokens": 62433,
         "files": 24
       },
       "roadmap": {
-        "characters": 66906,
-        "estimated_tokens": 16726,
+        "characters": 66971,
+        "estimated_tokens": 16742,
         "files": 1
       },
       "shared": {
-        "characters": 30200,
-        "estimated_tokens": 7548,
-        "files": 5
+        "characters": 33456,
+        "estimated_tokens": 8362,
+        "files": 6
       },
       "skills": {
         "characters": 107586,
@@ -596,9 +596,9 @@
         "files": 1
       }
     },
-    "total_characters": 1727533,
-    "total_estimated_tokens": 431856,
-    "total_files": 89
+    "total_characters": 1740207,
+    "total_estimated_tokens": 435022,
+    "total_files": 90
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
@@ -1097,18 +1097,19 @@
         ],
         "agent_refs": 12,
         "available": true,
-        "characters": 19881,
+        "characters": 20003,
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 0,
-        "context_targeted_count": 6,
+        "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 4970,
+        "estimated_tokens": 5000,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
           ".cg-docs/work-reports/YYYY-MM-DD-",
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
           ".github/shared/review-routing.contract.md",
@@ -1123,11 +1124,12 @@
           "tests/test-",
           "tests/test_"
         ],
-        "file_refs": 16,
+        "file_refs": 17,
         "large_context_warning_status": "immediate",
         "likely_file_reads": [
           ".cg-docs/plans/YYYY-MM-DD-",
           ".cg-docs/work-reports/YYYY-MM-DD-",
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
           ".github/shared/review-routing.contract.md",
@@ -1191,7 +1193,7 @@
           "execution_subagent"
         ],
         "tool_refs": 1,
-        "total_refs": 53,
+        "total_refs": 54,
         "workflow": "/cg-work",
         "workflow_id": "cg-work"
       },
@@ -1489,19 +1491,20 @@
         ],
         "agent_refs": 3,
         "available": true,
-        "characters": 11735,
+        "characters": 12637,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 6,
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
-        "estimated_tokens": 2933,
+        "estimated_tokens": 3159,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
           ".cg-docs/reviews/",
           ".cg-docs/strategy/",
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1512,11 +1515,12 @@
           "roadmap.json"
         ],
         "file_refs": 15,
-        "large_context_warning_status": "needs_review",
+        "large_context_warning_status": "immediate",
         "likely_file_reads": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
           ".cg-docs/reviews/",
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1575,19 +1579,20 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 10078,
+        "characters": 10590,
         "conditional_routing": false,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 0,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2519,
+        "estimated_tokens": 2647,
         "file_references": [
           ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
           ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
           ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
           ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1597,9 +1602,10 @@
           "tests/last-run.json",
           "tests/roadmap.Tests.ps1"
         ],
-        "file_refs": 12,
+        "file_refs": 13,
         "large_context_warning_status": "needs_review",
         "likely_file_reads": [
+          ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           "compound-gpid.local.md",
           "compound-gpid.md",
@@ -1656,7 +1662,7 @@
           "execution_subagent"
         ],
         "tool_refs": 1,
-        "total_refs": 15,
+        "total_refs": 16,
         "workflow": "/cg-diagnose",
         "workflow_id": "cg-diagnose"
       },

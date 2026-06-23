@@ -4,7 +4,7 @@ _Generated 2026-06-23_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 374 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -226,6 +226,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 374 entit
   > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
 - **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
+- **[Handoff Resume and Active-State Compaction](.cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact…
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
 - **[Progressive Disclosure Skills and Scoped Instructions](.cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md)** · `plan` · _completed_ · `2026-06-23`
@@ -443,6 +445,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 374 entit
 - **[2026-06-23-command-output-summarization-wrappers-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md)** · `review` · _—_ · `2026-06-23`
   > No blocking findings.
 - **[2026-06-23-command-output-summarization-wrappers-verify-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
+- **[2026-06-23-handoff-resume-active-state-compaction-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-handoff-resume-active-state-compaction-verify-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md)** · `review` · _—_ · `2026-06-23`
   > No verification findings.
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md)** · `review` · _—_ · `2026-06-23`
   > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
@@ -708,6 +714,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 374 entit
   > The Token Optimization & Model Governance milestone had no audit failures after the OpenAI-first model-governance mig…
 - **[Workflow telemetry needs source-aware path and tool extraction](.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md)** · `solution` · _—_ · `2026-06-22`
   > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
+- **[Active-state handoff records should be artifact-reference-first](.cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md)** · `solution` · _—_ · `2026-06-23`
+  > Long `/cg-work` sessions can span phases, review loops, blocked stops, and crash recovery. Reconstructing state from …
 - **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
   > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
 - **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
@@ -744,7 +752,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 374 entit
   > Phase 1.3 — Command-output summarization wrappers
 - **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _done_ · `—`
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions
-- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _idea_ · `—`
+- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
   > Phase 1.5 — Handoff, resume, and active-state compaction
 - **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _idea_ · `—`
   > Phase 1.6 — Token dashboard and regression checks
