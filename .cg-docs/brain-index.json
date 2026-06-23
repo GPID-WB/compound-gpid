@@ -1,5 +1,5 @@
 {
-  "edge_count": 202,
+  "edge_count": 206,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -843,8 +843,26 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
       "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+      "target": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
       "target_missing": false
     },
     {
@@ -899,6 +917,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
       "target": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
+      "target": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
       "target_missing": false
     },
     {
@@ -4370,7 +4394,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
       "slug": "2026-06-22-workflow-token-baseline",
-      "status": "active",
+      "status": "completed",
       "summary": "Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic audit layer, adding first-class `.cg-docs/token/` artifacts, preserving `.cg-docs/cost/` and `/cg-token-audit` compatibility, and integrating Python audit/brain/team-brain validation through the canonical safe test runner.",
       "tags": [
         "token-efficiency",
@@ -4391,6 +4415,34 @@
         "tests/run-tests.ps1",
         "token-budget.md",
         "cg_audit_context.py"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval",
+      "status": "completed",
+      "summary": "Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns targeted, budget-aware context summaries for workflow prompts, while preserving the existing generated Brain artifacts and query-first fallback protocol.",
+      "tags": [
+        "token-efficiency",
+        "knowledge-brain",
+        "retrieval",
+        "cg-index",
+        "context-budget"
+      ],
+      "title": "Knowledge Brain Query and Budgeted Retrieval",
+      "top_keywords": [
+        "brain.md",
+        "cg-index query",
+        "query",
+        "scripts/brain/tests/test_query.py",
+        "test_query.py",
+        "cg-index --brain",
+        "brain",
+        "cg-index",
+        "cg-skill-brain-query",
+        "phase"
       ]
     },
     {
@@ -6704,6 +6756,28 @@
       ]
     },
     {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-5",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Review scope**: current Phase 1.1 workflow token baseline branch, with emphasis on:",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-5",
+      "top_keywords": [
+        "docs/reference.md",
+        ".cg-docs/token/",
+        "large-context-warnings.md",
+        "cg_audit_context.py",
+        ".cg-docs/cost/",
+        "--no-token-artifacts",
+        "test_audit_context.py",
+        "reference.md",
+        "token-budget.md",
+        "scripts/cg_audit_context.py"
+      ]
+    },
+    {
       "date": "2026-06-12",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
@@ -6723,6 +6797,50 @@
         "review",
         "findings",
         "collision"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval-review",
+      "status": "",
+      "summary": "**Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tests/test_query.py`, `.github/skills/cg-skill-brain-query/SKILL.md`, `tests/prompt-tools.Tests.ps1`, `docs/reference.md`, `docs/workflow.md`, `roadmap.json`.",
+      "tags": [],
+      "title": "2026-06-23-knowledge-brain-query-budgeted-retrieval-review",
+      "top_keywords": [
+        "roadmap.json",
+        "brain.md",
+        "brain-index.json",
+        "brain-nn.md",
+        "brain",
+        "query",
+        "cg-index",
+        "review",
+        "retrieval",
+        "findings"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review",
+      "status": "",
+      "summary": "No verification findings. The required evidence passed after the budget-estimation correction:",
+      "tags": [],
+      "title": "2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review",
+      "top_keywords": [
+        "verification",
+        "query",
+        "brain",
+        "review",
+        "knowledge",
+        "budgeted",
+        "retrieval",
+        "python3 -m pytest scripts/brain/tests scripts/tests scripts/team_brain/tests -q",
+        "640 passed, 5 subtests passed",
+        "pwsh -noprofile -command \". ./tests/run-tests.ps1\""
       ]
     },
     {
@@ -11639,6 +11757,34 @@
       ]
     },
     {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
+      "slug": "2026-06-23-budgeted-knowledge-brain-query",
+      "status": "",
+      "summary": "Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implementation bounded selected snippets, but a real-repo smoke check showed final Markdown and JSON output could still exceed the requested budget after adding metadata, excluded notes, and Brain build warnings.",
+      "tags": [
+        "knowledge-brain",
+        "token-efficiency",
+        "cg-index",
+        "retrieval",
+        "testing"
+      ],
+      "title": "Budgeted Knowledge Brain query needs rendered-output budget gates",
+      "top_keywords": [
+        "budget",
+        "brain",
+        "query",
+        "knowledge",
+        "budgeted",
+        "rendered-output",
+        "gates",
+        "2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+        "problem",
+        "root"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -11878,6 +12024,50 @@
         "cg-plan",
         "skill.md",
         "agents.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md",
+      "slug": "2026-06-23-cg-strategy-icm-okf-roadmap-prompt",
+      "status": "",
+      "summary": "Copy the prompt below into a `/cg-strategy` session.",
+      "tags": [],
+      "title": "Prompt for /cg-strategy: ICM and OKF Roadmap Integration",
+      "top_keywords": [
+        "cg-strategy",
+        "/cg-strategy",
+        "compound engineering",
+        "compound-gpid.context.md",
+        "knowledge/",
+        ".cg-docs/solutions/",
+        ".cg-docs",
+        "icm",
+        "okf",
+        "roadmap"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md",
+      "slug": "2026-06-23-icm-okf-integration-concept",
+      "status": "",
+      "summary": "Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, Brain artifacts, generated indexes, roadmaps, plans, reviews, solution documents, work reports, and docs. This has improved reliability, but it creates three scaling risks: 1. Agents may over-read historical or generated artifacts when they only need a small current-stage context. 2. Durable knowledge, workflow history, generated retrieval indexes, and current work state are close enough that their boundaries are easy to blur. 3. More compounding can paradoxically make future work slower unless the project distinguishes what is source truth, what is archive, and...",
+      "tags": [],
+      "title": "ICM and OKF Integration Concept for Compound GPID",
+      "top_keywords": [
+        "knowledge/",
+        "compound-gpid.context.md",
+        ".cg-docs/solutions/",
+        ".cg-docs",
+        "compound engineering",
+        "icm",
+        "okf",
+        "compound-gpid.md",
+        "implementation",
+        "cg-index"
       ]
     },
     {
@@ -14261,7 +14451,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#phase-1-1-workflow-token-baseline",
       "slug": "phase-1-1-workflow-token-baseline",
-      "status": "idea",
+      "status": "done",
       "summary": "Phase 1.1 — Workflow-level token baseline and test integration",
       "tags": [],
       "title": "Phase 1.1 — Workflow-level token baseline and test integration",
@@ -14283,7 +14473,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#phase-1-2-knowledge-brain-query",
       "slug": "phase-1-2-knowledge-brain-query",
-      "status": "idea",
+      "status": "done",
       "summary": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
       "tags": [],
       "title": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
@@ -14455,13 +14645,13 @@
       ]
     }
   ],
-  "entity_count": 507,
-  "generated": "2026-06-22",
+  "entity_count": 514,
+  "generated": "2026-06-23",
   "schema_version": "0.2.0",
-  "topic_count": 3,
+  "topic_count": 2,
   "topics": [
     {
-      "entity_count": 352,
+      "entity_count": 366,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -14572,6 +14762,7 @@
         ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
         ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
+        ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -14675,7 +14866,10 @@
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+        ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -14804,6 +14998,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
         ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
         ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -14814,7 +15009,16 @@
         ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
         ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
         ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
-        ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md"
+        ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md",
+        "roadmap.json#phase-1-1-workflow-token-baseline",
+        "roadmap.json#phase-1-2-knowledge-brain-query",
+        "roadmap.json#phase-1-3-command-output-summaries",
+        "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
+        "roadmap.json#phase-1-5-handoff-resume-compaction",
+        "roadmap.json#phase-1-6-token-dashboard-regression",
+        "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
+        "roadmap.json#phase-2-2-optional-retrieval-backends",
+        "roadmap.json#phase-2-3-snapshot-external-research-modes"
       ],
       "keywords": [
         "roadmap.json",
@@ -14943,27 +15147,6 @@
       ],
       "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Quality Loop\nObjective",
       "slug": "architecture-research-objective-knowledge-brain-objective-quality-loop-objective"
-    },
-    {
-      "entity_count": 9,
-      "entity_paths": [
-        "roadmap.json#phase-1-1-workflow-token-baseline",
-        "roadmap.json#phase-1-2-knowledge-brain-query",
-        "roadmap.json#phase-1-3-command-output-summaries",
-        "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
-        "roadmap.json#phase-1-5-handoff-resume-compaction",
-        "roadmap.json#phase-1-6-token-dashboard-regression",
-        "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
-        "roadmap.json#phase-2-2-optional-retrieval-backends",
-        "roadmap.json#phase-2-3-snapshot-external-research-modes"
-      ],
-      "keywords": [
-        "phase",
-        "make compound",
-        "token efficiency core system\nobjective"
-      ],
-      "label": "Phase / Make Compound / Token Efficiency Core System\nObjective",
-      "slug": "phase-make-compound-token-efficiency-core-system-objective"
     }
   ]
 }

@@ -86,6 +86,23 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 
+### `cg-index query` — Budgeted Knowledge Brain Retrieval
+
+Use `cg-index query` when a workflow needs prior project knowledge without
+opening generated Brain partitions by hand:
+
+```bash
+cg-index query --intent plan --query "workflow token baseline" --budget 600 --format md
+cg-index query --intent review --query "Pester safe runner" --changed-file tests/Run-Tests.ps1 --budget 600 --format json
+```
+
+The query mode returns a short answer, selected artifact paths, snippets,
+selection/exclusion reasons, stale/conflict flags, confidence, and a heuristic
+token estimate. It is local and deterministic; it does not use vector search,
+external services, or optional retrieval backends. If query mode is unavailable
+or insufficient, fall back to the `BRAIN.md` topic index and matched
+`BRAIN-NN.md` sections.
+
 ### `cg-token-audit` / `cg-audit-context` — Context and Model-Governance Audit
 
 ```

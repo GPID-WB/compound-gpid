@@ -770,7 +770,9 @@ Release-readiness checks:
 - `/cg-work` preserves `review:auto`, `review:manual`, `review:none`, and explicit `review:<mode>` behavior.
 - Knowledge Brain lookup remains query-first: start from the generated topic
   index, follow matched topics, and avoid wholesale tooling-index consumption
-  during ordinary workflows.
+  during ordinary workflows. Prefer `cg-index query --intent <workflow>
+  --query "<directive>" --budget <tokens>` when available; fall back to
+  `BRAIN.md` topic traversal when the CLI is unavailable or insufficient.
 - `.cg-docs/inbox/` remains a holding area for unprocessed strategy ideas.
   Inbox entries are not approved roadmap items until a separate strategy or
   roadmap session promotes them.

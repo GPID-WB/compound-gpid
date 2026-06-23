@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-06-22_
+_Generated 2026-06-23_
 
 ## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
 
@@ -225,27 +225,3 @@ objective`_ · 108 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _done_ · `—`
   > Capture the learning
-
-## Phase / Make Compound / Token Efficiency Core System Objective
-
-_Keywords: `phase` · `make compound` · `token efficiency core system
-objective`_ · 9 entities
-
-- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _idea_ · `—`
-  > Phase 1.1 — Workflow-level token baseline and test integration
-- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _idea_ · `—`
-  > Phase 1.2 — Knowledge Brain query and budgeted retrieval
-- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _idea_ · `—`
-  > Phase 1.3 — Command-output summarization wrappers
-- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _idea_ · `—`
-  > Phase 1.4 — Progressive-disclosure skills and scoped instructions
-- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _idea_ · `—`
-  > Phase 1.5 — Handoff, resume, and active-state compaction
-- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _idea_ · `—`
-  > Phase 1.6 — Token dashboard and regression checks
-- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
-  > Phase 2.1 — Cross-agent packaging adapters
-- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _idea_ · `—`
-  > Phase 2.2 — Optional retrieval backend evaluation
-- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _idea_ · `—`
-  > Phase 2.3 — Snapshot and external-research modes

@@ -3390,6 +3390,13 @@ Describe "Phase 6 Knowledge Brain broad-read guardrails" {
         ($content -match 'Do NOT read all BRAIN-NN\.md sub-files|read all BRAIN-NN\.md sub-files blindly') | Should -Be $true
     }
 
+    It "prefers budgeted cg-index query with intent, budget, and BRAIN.md fallback" {
+        ($content -match 'cg-index query') | Should -Be $true
+        ($content -match '--intent <brainstorm\|plan\|work\|review\|compound\|resume>') | Should -Be $true
+        ($content -match '--budget <tokens>') | Should -Be $true
+        ($content -match '(?s)If `cg-index query` is unavailable.*fall back to.*BRAIN\.md') | Should -Be $true
+    }
+
     It "does not tell agents to read brain-index.json wholesale while allowing tooling query use" {
         ($content -match 'brain-index\.json') | Should -Be $true
         ($content -match '(?s)agents must not read it wholesale|prompt agents must not read it wholesale') | Should -Be $true

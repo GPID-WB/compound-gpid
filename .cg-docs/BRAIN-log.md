@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-22 · 390 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 397 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -107,13 +107,30 @@ _Generated 2026-06-22 · 390 artifacts (newest first) + 117 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-06-23
+
+- **[2026-06-12-goal-driven-execution-verify-review-5](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md)** · `review` · _—_ · `2026-06-23`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[2026-06-23-knowledge-brain-query-budgeted-retrieval-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md)** · `review` · _—_ · `2026-06-23`
+  > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
+- **[2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings. The required evidence passed after the budget-estimation correction:
+- **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
+- **[ICM and OKF Integration Concept for Compound GPID](.cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md)** · `strategy` · _—_ · `2026-06-23`
+  > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
+- **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
+- **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
+  > Copy the prompt below into a `/cg-strategy` session.
+
 ## 2026-06-22
 
 - **[2026-06-12-goal-driven-execution-verify-review-4](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md)** · `review` · _—_ · `2026-06-22`
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
 - **[Workflow telemetry needs source-aware path and tool extraction](.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md)** · `solution` · _—_ · `2026-06-22`
   > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
-- **[Workflow Token Baseline and Test Integration](.cg-docs/plans/2026-06-22-workflow-token-baseline.md)** · `plan` · _active_ · `2026-06-22`
+- **[Workflow Token Baseline and Test Integration](.cg-docs/plans/2026-06-22-workflow-token-baseline.md)** · `plan` · _completed_ · `2026-06-22`
   > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
 
 ## 2026-06-18
@@ -1102,9 +1119,9 @@ _Generated 2026-06-22 · 390 artifacts (newest first) + 117 roadmap features_
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
   > Per-step test enforcement in /cg-work
-- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _idea_ · `—`
+- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _done_ · `—`
   > Phase 1.1 — Workflow-level token baseline and test integration
-- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _idea_ · `—`
+- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
   > Phase 1.2 — Knowledge Brain query and budgeted retrieval
 - **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _idea_ · `—`
   > Phase 1.3 — Command-output summarization wrappers
