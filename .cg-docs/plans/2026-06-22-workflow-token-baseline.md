@@ -1,7 +1,8 @@
 ---
 date: 2026-06-22
 title: "Workflow Token Baseline and Test Integration"
-status: active
+status: completed
+completed-date: 2026-06-23
 execution-report: .cg-docs/work-reports/2026-06-22-workflow-token-baseline.md
 scope: "Deep"
 brainstorm: null
@@ -10,8 +11,7 @@ estimated-effort: "large"
 deviation-policy: "ask"
 tags: [token-efficiency, workflow-baseline, audit, validation, pester-safety]
 phases: 5
-completed-phases: [1]
-current-phase: 2
+completed-phases: [1, 2, 3, 4, 5]
 roadmap-features:
   - token-efficiency-core-system/phase-1-1-workflow-token-baseline
 ---
