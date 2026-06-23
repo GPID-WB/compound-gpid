@@ -1114,7 +1114,7 @@
       "id": "token-efficiency-portability-expansion",
       "title": "Token Efficiency Portability & Optional Retrieval Expansion",
       "objective": "After the native token-efficiency core is measurable, generate cross-agent packaging adapters and evaluate optional retrieval or snapshot tooling behind explicit opt-in gates.",
-      "status": "in-progress",
+      "status": "done",
       "features": [
         {
           "id": "phase-2-1-cross-agent-packaging-adapters",
@@ -1131,8 +1131,8 @@
         {
           "id": "phase-2-3-snapshot-external-research-modes",
           "title": "Phase 2.3 \u2014 Snapshot and external-research modes",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md"
         }
       ]
     }

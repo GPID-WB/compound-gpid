@@ -15,6 +15,11 @@ Optional retrieval backend candidates are documented in
 `.github/shared/retrieval-backends.json`. The registry is evaluation-only:
 `native-brain-query` remains the only active backend.
 
+Snapshot and external-research mode candidates are documented in
+[Snapshot and External-Research Modes](snapshot-external-research.md) and
+tracked in `.github/shared/snapshot-research-modes.json`. The registry is
+evaluation-only: `local-workflow` remains the only active mode.
+
 ---
 
 ## Shell Commands

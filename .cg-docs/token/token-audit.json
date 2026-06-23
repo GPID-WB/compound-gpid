@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T14:21:00",
+  "generated": "2026-06-23T14:26:40",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -291,7 +291,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 49,
+    "acceptable_count": 51,
     "immediate": [
       {
         "category": "prompts",
@@ -533,7 +533,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 163,
+        "line": 168,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -575,9 +575,9 @@
         "files": 1
       },
       "docs": {
-        "characters": 212619,
-        "estimated_tokens": 53151,
-        "files": 11
+        "characters": 214637,
+        "estimated_tokens": 53654,
+        "files": 12
       },
       "instructions": {
         "characters": 17340,
@@ -590,14 +590,14 @@
         "files": 24
       },
       "roadmap": {
-        "characters": 67146,
-        "estimated_tokens": 16786,
+        "characters": 67198,
+        "estimated_tokens": 16799,
         "files": 1
       },
       "shared": {
-        "characters": 36458,
-        "estimated_tokens": 9112,
-        "files": 7
+        "characters": 38732,
+        "estimated_tokens": 9680,
+        "files": 8
       },
       "skills": {
         "characters": 107586,
@@ -610,9 +610,9 @@
         "files": 1
       }
     },
-    "total_characters": 1772726,
-    "total_estimated_tokens": 443153,
-    "total_files": 92
+    "total_characters": 1777070,
+    "total_estimated_tokens": 444237,
+    "total_files": 94
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",

@@ -1,14 +1,14 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-23T14:21:00_
+_Generated: 2026-06-23T14:26:40_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
-- Total files: 92
-- Total characters: 1772726
-- Total estimated tokens: 443153
+- Total files: 94
+- Total characters: 1777070
+- Total estimated tokens: 444237
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
@@ -16,13 +16,13 @@ _Generated: 2026-06-23T14:21:00_
 | agents | 17 | 92520 | 23125 |
 | skills | 21 | 107586 | 26890 |
 | instructions | 4 | 17340 | 4334 |
-| shared | 7 | 36458 | 9112 |
+| shared | 8 | 38732 | 9680 |
 | template | 1 | 1633 | 408 |
-| docs | 11 | 212619 | 53151 |
+| docs | 12 | 214637 | 53654 |
 | brain | 4 | 287585 | 71896 |
 | brain_index | 1 | 635388 | 158847 |
 | context | 1 | 64564 | 16141 |
-| roadmap | 1 | 67146 | 16786 |
+| roadmap | 1 | 67198 | 16799 |
 
 ## Top 15 Largest Files
 
@@ -31,10 +31,10 @@ _Generated: 2026-06-23T14:21:00_
 | .cg-docs/brain-index.json | brain_index | 635388 | 158847 |
 | .cg-docs/BRAIN-log.md | brain | 150193 | 37548 |
 | .cg-docs/BRAIN-01.md | brain | 114860 | 28715 |
-| docs/workflow.md | docs | 67544 | 16886 |
-| roadmap.json | roadmap | 67146 | 16786 |
+| docs/workflow.md | docs | 67835 | 16958 |
+| roadmap.json | roadmap | 67198 | 16799 |
 | compound-gpid.context.md | context | 64564 | 16141 |
-| docs/reference.md | docs | 48952 | 12238 |
+| docs/reference.md | docs | 49230 | 12307 |
 | docs/troubleshooting.md | docs | 29195 | 7298 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21795 | 5448 |
 | .cg-docs/BRAIN-02.md | brain | 21392 | 5348 |
@@ -106,7 +106,7 @@ _Generated: 2026-06-23T14:21:00_
 | Priority | Category | Recommendation | Evidence | Advice |
 | --- | --- | --- | --- | --- |
 | medium | project-context | Use query-first project context. | context=16141, brain=71896, brain_index=158847 estimated tokens. | Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default. |
-| low | documentation | Treat docs size as opt-in cost. | docs category is estimated at 53151 tokens. | Do not optimize docs for runtime unless prompts or skills load them automatically. |
+| low | documentation | Treat docs size as opt-in cost. | docs category is estimated at 53654 tokens. | Do not optimize docs for runtime unless prompts or skills load them automatically. |
 | medium | review-routing | Match review depth to risk. | /cg-review dispatch burden is conditional with 10 referenced agents. | Use light or standard reviews for low-risk changes; reserve full review for broad, risky, or explicitly requested checks. |
 | low | model-selection | Use cheaper models for planning and advisory work when quality allows. | Model governance keeps ordinary planning prompts on the model picker. | Use stronger models for implementation, high-risk review, and architecture; use lighter models for simple planning or documentation passes. |
 
@@ -206,7 +206,7 @@ _Generated: 2026-06-23T14:21:00_
 | Level | Path | Line | Artifact | Reason | Snippet |
 | --- | --- | --- | --- | --- | --- |
 | risk | docs/context-files.md | 233 | compound-gpid.context.md | broad context-loading instruction | 3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately. |
-| risk | docs/reference.md | 163 | .cg-docs/ | broad context-loading instruction | \| `.cg-docs/token/context-map.json` \| Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals \| |
+| risk | docs/reference.md | 168 | .cg-docs/ | broad context-loading instruction | \| `.cg-docs/token/context-map.json` \| Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals \| |
 | risk | docs/workflow.md | 739 | .cg-docs/ | broad context-loading instruction | 6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and |
 | justified | .github/agents/cg-learnings-researcher.agent.md | 24 | .cg-docs/ | explicit expansion rationale | Context expansion: reading `.cg-docs/DIGEST.md` because this researcher needs |
 | justified | .github/agents/cg-roadmap.agent.md | 24 | roadmap.json | explicit expansion rationale | Context expansion: reading full `roadmap.json` because roadmap-manager writes |
@@ -224,9 +224,9 @@ _Generated: 2026-06-23T14:21:00_
 | justified | .github/prompts/cg-work.prompt.md | 204 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
 | justified | .github/shared/context-loading.contract.md | 34 | compound-gpid.context.md | maintenance/tooling workflow | - `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or confl |
 | justified | .github/skills/cg-skill-brain-query/SKILL.md | 96 | BRAIN-NN.md | explicit expansion rationale | `Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.` |
-| justified | docs/reference.md | 81 | BRAIN.md | maintenance/tooling workflow | \| `/cg-brain-rebuild` \| GPT-5.4 \| Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch |
-| justified | docs/reference.md | 87 | roadmap.json | maintenance/tooling workflow | \| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` \| Claude Haiku 4.5 \| Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create |
-| justified | docs/reference.md | 154 | .cg-docs/ | maintenance/tooling workflow | Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only wa |
+| justified | docs/reference.md | 86 | BRAIN.md | maintenance/tooling workflow | \| `/cg-brain-rebuild` \| GPT-5.4 \| Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch |
+| justified | docs/reference.md | 92 | roadmap.json | maintenance/tooling workflow | \| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` \| Claude Haiku 4.5 \| Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create |
+| justified | docs/reference.md | 159 | .cg-docs/ | maintenance/tooling workflow | Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only wa |
 | justified | docs/workflow.md | 691 | roadmap.json | maintenance/tooling workflow | **Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed. |
 | targeted | .github/agents/cg-learnings-researcher.agent.md | 38 | .cg-docs/ | targeted or guarded context-loading instruction | Read `.cg-docs/search-index.json` for metadata-level filtering. Use this when: |
 | targeted | .github/agents/cg-learnings-researcher.agent.md | 48 | .cg-docs/ | targeted or guarded context-loading instruction | Search only selected `.cg-docs/solutions/` subdirectories directly. Use this when: |

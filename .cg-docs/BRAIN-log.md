@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 421 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -112,6 +112,10 @@ _Generated 2026-06-23 · 421 artifacts (newest first) + 117 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
 - **[2026-06-23-optional-retrieval-backend-evaluation-verify-review](.cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
+- **[2026-06-23-snapshot-external-research-modes-review](.cg-docs/reviews/2026-06-23-snapshot-external-research-modes-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`
+- **[2026-06-23-snapshot-external-research-modes-verify-review](.cg-docs/reviews/2026-06-23-snapshot-external-research-modes-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`
 - **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
@@ -167,6 +171,10 @@ _Generated 2026-06-23 · 421 artifacts (newest first) + 117 roadmap features_
   > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
 - **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
   > Copy the prompt below into a `/cg-strategy` session.
+- **[Snapshot and External-Research Modes](.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.3 by defining tested opt-in governance for future snapshot and external-research modes without imple…
+- **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
+  > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
 - **[Token Dashboard and Regression Checks](.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md)** · `plan` · _completed_ · `2026-06-23`
   > Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and determinist…
 - **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
@@ -1183,7 +1191,7 @@ _Generated 2026-06-23 · 421 artifacts (newest first) + 117 roadmap features_
   > Phase 2.1 — Cross-agent packaging adapters
 - **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _done_ · `—`
   > Phase 2.2 — Optional retrieval backend evaluation
-- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _idea_ · `—`
+- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _done_ · `—`
   > Phase 2.3 — Snapshot and external-research modes
 - **[Phased execution in /cg-work](roadmap.json#phased-execution-cg-work)** · `feature` · _done_ · `—`
   > Phased execution in /cg-work

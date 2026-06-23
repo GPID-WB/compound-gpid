@@ -768,6 +768,12 @@ explicitly implements a backend. Use `.github/shared/retrieval-backends.json`
 and `docs/retrieval-backends.md` to review candidates and gates; do not treat
 the registry as runtime configuration.
 
+Snapshot and external-research mode work is also evaluation-only until a future
+roadmap item explicitly implements a mode. Use
+`.github/shared/snapshot-research-modes.json` and
+`docs/snapshot-external-research.md` to review candidates and gates; ordinary
+workflows remain local by default.
+
 Token-efficiency advice:
 
 - Run `/cg-token-audit` from a linked project when you want a compact advisory
