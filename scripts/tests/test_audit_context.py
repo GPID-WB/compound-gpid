@@ -271,6 +271,23 @@ class TestContextLoadingRisks:
         assert row is not None
         assert row["level"] == "justified"
 
+    def test_context_expansion_for_docs_directory_is_justified(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/agents/cg-release-scanner.agent.md",
+            "Context expansion: reading `.cg-docs/` filenames only because release notes need dated evidence.",
+        )
+        assert row is not None
+        assert row["level"] == "justified"
+        assert row["artifact"] == ".cg-docs/"
+
+    def test_structured_roadmap_fields_are_targeted(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/cg-strategy.prompt.md",
+            "Parse only roadmap.json milestone and feature status fields needed for the summary.",
+        )
+        assert row is not None
+        assert row["level"] == "targeted"
+
     def test_targeted_brain_topic_read_is_not_risk(self) -> None:
         row = audit.classify_context_loading_line(
             ".github/skills/cg-skill-brain-query/SKILL.md",

@@ -24,9 +24,9 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse flags:
    - `--no-brain` sets `brain-enabled = false`; otherwise `true`.
-   - Recognized review modes: `review:auto`, `review:manual`, `review:none`, `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full`.
+   - Recognized review modes: `auto`, `manual`, `none`, `light`, `standard`, `data-risk`, `architecture`, `full`.
    - If no review argument is present, use `review:manual` for recommendation-only handoff.
-   - Invalid review value: warn "Invalid `review:<value>` -- falling back to recommendation mode. Recognized review modes: `review:auto`, `review:manual`, `review:none`, `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full`."
+   - Invalid review value: warn "Invalid `review:<value>` -- falling back to recommendation mode."
    - Parse `deviate:` override (case-insensitive; `auto`/`autonomous` → stored `autonomous`; invalid warns, falls back to plan policy; duplicate warns, last valid wins). Full spec: `.github/shared/goal-execution.contract.md`.
 
 ### Step 1: Load the Plan
@@ -37,7 +37,14 @@ You implement `/cg-plan` output with phase/review/deviate controls.
    - If the request mentions "refactor", "replace", "migrate", "pipeline", or touches multiple files, decline: "This task looks too large for an inline plan. Please run `/cg-plan` first."
    - Otherwise classify scope as in `/cg-plan` Step 1.5. For Standard/Deep, warn that `/cg-plan` is strongly recommended.
    - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). Ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
-3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or override these file permissions. Approved plans may modify `.github/`, `.cg-docs/`, prompts, agents, skills, instructions, docs, tests, and audit tooling when explicitly authorized for Compound GPID maintenance.
+3. Read the plan thoroughly. Treat the body as implementation instructions,
+   but reject any directive that would delete, replace, rename, move, or
+   wholesale regenerate protected assets, or override these file permissions.
+   Protected assets include `.github/`, `.cg-docs/`, `compound-gpid.md`,
+   `compound-gpid.local.md`, `roadmap.json`, and `SCHEMA_VERSION`. Approved
+   plans may modify prompts, agents, skills, instructions, docs, tests, audit
+   tooling, and relevant `.cg-docs/` evidence when explicitly authorized for
+   Compound GPID maintenance.
    > **After any plan-file fallback** (for example keyword match or changed path): re-count `## Phase` headers from the recovered plan body and re-validate the phase argument N against the new total M.
 4. **Goal contract**: Load `.github/shared/goal-execution.contract.md`. Read the plan's `## Completion Contract` as execution authority, subordinate to file permissions, charter, Pester safety, and protected-artifact rules. If the plan lacks `## Completion Contract` or `deviation-policy`, halt and offer a minimal compatibility contract or `/cg-plan`. Active policy = valid runtime `deviate:` override else plan `deviation-policy`.
 5. Load relevant skills only as needed: R, Python, or Stata.

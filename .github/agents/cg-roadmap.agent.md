@@ -21,7 +21,12 @@ prompts dispatch you as a subagent for roadmap modifications.
 
 ## Schema
 
-`roadmap.json` structure -- always read the file before writing:
+Context expansion: reading full `roadmap.json` because roadmap-manager writes
+must preserve unrelated milestones, derived statuses, GitHub metadata, and
+schema invariants. Expected decision: compute and write the minimal valid JSON
+change requested by the caller.
+
+`roadmap.json` structure:
 
 ```json
 {
@@ -187,7 +192,10 @@ Typically dispatched by `/cg-issues setup` or `/cg-setup` after the user confirm
 1. Receive: `repo` (required), `enabled` (default `false`), `labelPrefix` (optional), `autoCreate` (default `false`).
 2. Validate `repo` matches `owner/repo` pattern. If invalid, report and stop.
 3. If `labelPrefix` is supplied, validate it matches `^[-A-Za-z0-9_. :/]*$`. If invalid (e.g., contains `"`, `` ` ``, `$`, `&`, `;`), report: "`labelPrefix` contains shell-unsafe characters. Use only letters, digits, spaces, and `-_. :/`." and stop.
-4. Read `roadmap.json`. If no top-level `githubIssues` key exists, create it. If it exists, merge the supplied fields.
+4. Context expansion: reading full `roadmap.json` because GitHub Issues setup
+   must preserve existing milestones and feature links while merging the
+   optional top-level `githubIssues` block. If no top-level `githubIssues` key
+   exists, create it. If it exists, merge the supplied fields.
 5. **Never** set `autoCreate: true` without explicit user instruction.
 6. Write the file.
 7. Confirm: "GitHub Issues integration configured: `<repo>`."
@@ -226,7 +234,7 @@ Typically dispatched by `/cg-issues adopt`.
 
 ## Rules
 
-- Always read `roadmap.json` before making changes (never work from memory).
+- Always parse full `roadmap.json` before making changes (never work from memory).
   If the file does not exist, run the **Initialize** operation first.
 - **JSON validation before every write** -- after composing the JSON, verify:
   1. No trailing commas after the last item in any array or object.

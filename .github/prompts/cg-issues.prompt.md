@@ -21,7 +21,8 @@ Run these checks before any mode-specific work. If a check fails, report clearly
 
 ### PF1 — Read project config
 
-1. Read `roadmap.json` from the project root.
+1. Context expansion: reading full `roadmap.json` because issue status/linking
+   needs the configured GitHub Issues block and feature-level issue links.
 2. If `roadmap.json` is missing, report: "`roadmap.json` not found. Run `@cg-roadmap` to initialize it." and stop.
 3. Look for the optional top-level `githubIssues` block. Extract:
    - `enabled` (bool, default `false` if absent)
@@ -52,7 +53,8 @@ Run these checks before any mode-specific work. If a check fails, report clearly
 
 Display the current GitHub Issues state of the project's roadmap work items.
 
-1. Read `roadmap.json`. For each feature that has a `github` block, display:
+1. Parse only `roadmap.json` milestone, feature, and `github` fields. For each
+   feature that has a `github` block, display:
    - Milestone and feature title
    - Issue number and URL
    Whether `gh` can confirm the issue is still open: run `gh issue view <number> --json state`. If `gh` is available but returns a non-zero exit code, display "unverified (gh returned error)" rather than the stored state. If `gh` is not available, note "cannot verify — `gh` unavailable".

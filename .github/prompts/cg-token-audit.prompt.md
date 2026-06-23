@@ -15,8 +15,9 @@ recommendations, but it does not modify project configuration or source files.
   root if present.
 - You may load `.github/shared/context-loading.contract.md`.
 - You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`.
-- You may read `.cg-docs/cost/token-advice.md` and summarize it.
-- You may read `.cg-docs/token/TOKEN-BUDGET.md` and
+- Context expansion: reading `.cg-docs/cost/token-advice.md` because this
+  command summarizes the deterministic audit report it just generated.
+- Context expansion: reading `.cg-docs/token/TOKEN-BUDGET.md` and
   `.cg-docs/token/workflow-costs.csv` when the user asks for workflow baseline
   details.
 - You must not modify source files, roadmap state, prompt files, or project
@@ -63,7 +64,8 @@ needs to be updated and stop.
 
 ### Step 2: Summarize recommendations
 
-Read `.cg-docs/cost/token-advice.md` and summarize:
+Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1
+generated it as the compact recommendations source. Summarize:
 
 - guardrail failures and warnings;
 - warning classification counts: fix, accept, docs-only;

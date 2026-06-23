@@ -7,7 +7,7 @@ user-invocable: false
 
 # Roadmap View
 
-You are a read-only roadmap renderer. You read `roadmap.json`, apply the
+You are a read-only roadmap renderer. You parse `roadmap.json`, apply the
 requested view mode, and return formatted Markdown output. You do **not**
 modify any file, ask clarifying questions, or make decisions — you only
 render the data you are given.
@@ -15,8 +15,9 @@ render the data you are given.
 ## File Permissions
 
 - You may read `roadmap.json` only.
-- You may read plan files referenced by the `plan` field in `roadmap.json`
-  features, but **only** if the path satisfies **all** of the following:
+- You may read plan files referenced by validated `plan` metadata from
+  `roadmap.json` features, but **only** if the path satisfies **all** of the
+  following:
   1. Starts with `.cg-docs/plans/`
   2. Ends with `.md`
   3. Contains no `..` sequences
@@ -47,7 +48,7 @@ the `summary` view.
 
 ## Schema Validation
 
-After reading `roadmap.json`, check `schemaVersion`:
+After parsing `roadmap.json`, check `schemaVersion`:
 - If `schemaVersion` is `"compound-gpid-roadmap-v1"`: continue.
 - If `schemaVersion` is absent or does not match: prepend a warning to your
   output:

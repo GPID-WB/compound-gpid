@@ -1,5 +1,5 @@
 {
-  "edge_count": 208,
+  "edge_count": 210,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -872,6 +872,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
@@ -935,6 +941,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
       "target": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
+      "target": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
       "target_missing": false
     },
     {
@@ -4486,6 +4498,34 @@
       ]
     },
     {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions",
+      "status": "completed",
+      "summary": "Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary workflows load minimal context by default and expand only through targeted, justified reads.",
+      "tags": [
+        "token-efficiency",
+        "progressive-disclosure",
+        "context-loading",
+        "skills",
+        "instructions"
+      ],
+      "title": "Progressive Disclosure Skills and Scoped Instructions",
+      "top_keywords": [
+        "roadmap.json",
+        "instructions",
+        "compound-gpid.context.md",
+        "phase",
+        ".cg-docs/",
+        "progressive-disclosure",
+        "run-tests.ps1",
+        "skills",
+        "audit",
+        "contract"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -6925,6 +6965,50 @@
         "python3 -m pytest scripts/brain/tests scripts/tests scripts/team_brain/tests -q",
         "640 passed, 5 subtests passed",
         "pwsh -noprofile -command \". ./tests/run-tests.ps1\""
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions-review",
+      "status": "",
+      "summary": "No blocking findings.",
+      "tags": [],
+      "title": "2026-06-23-progressive-disclosure-scoped-instructions-review",
+      "top_keywords": [
+        "test_audit_context.py",
+        "run-tests.ps1",
+        "implementation",
+        "review",
+        "progressive",
+        "disclosure",
+        "skills",
+        "scoped",
+        "instructions",
+        ".github/prompts/cg-compound-refresh.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions-verify-review",
+      "status": "",
+      "summary": "No verification findings.",
+      "tags": [],
+      "title": "2026-06-23-progressive-disclosure-scoped-instructions-verify-review",
+      "top_keywords": [
+        "run-tests.ps1",
+        "verification",
+        "review",
+        "progressive",
+        "disclosure",
+        "skills",
+        "scoped",
+        "instructions",
+        "fix: 0",
+        "docs-only: 2"
       ]
     },
     {
@@ -11897,6 +11981,34 @@
       ]
     },
     {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
+      "slug": "2026-06-23-progressive-disclosure-context-loading-contract",
+      "status": "",
+      "summary": "Broad phrases such as \"read roadmap.json\" or \"scan .cg-docs\" can be interpreted as default whole-artifact loading. That increases context pressure and makes static audit findings harder to distinguish from intentional maintenance reads.",
+      "tags": [
+        "token-efficiency",
+        "context-loading",
+        "prompts",
+        "audit",
+        "progressive-disclosure"
+      ],
+      "title": "Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale",
+      "top_keywords": [
+        "progressive-disclosure",
+        "prompt",
+        "expansion",
+        "semantics",
+        "explicit",
+        "rationale",
+        "cleanup",
+        "preserve",
+        "2026-06-23-progressive-disclosure-scoped-instructions.md",
+        "problem"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -14629,7 +14741,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
       "slug": "phase-1-4-progressive-disclosure-cleanup",
-      "status": "idea",
+      "status": "done",
       "summary": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
       "tags": [],
       "title": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
@@ -14757,13 +14869,13 @@
       ]
     }
   ],
-  "entity_count": 518,
+  "entity_count": 522,
   "generated": "2026-06-23",
   "schema_version": "0.2.0",
   "topic_count": 2,
   "topics": [
     {
-      "entity_count": 370,
+      "entity_count": 374,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -14876,6 +14988,7 @@
         ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
         ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
         ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+        ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -14985,6 +15098,8 @@
         ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md",
         ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
         ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+        ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -15115,6 +15230,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

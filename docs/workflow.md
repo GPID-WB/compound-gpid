@@ -260,7 +260,7 @@ The prompt scans its own output for:
 - You want a verified bug document captured in `.cg-docs/solutions/bugs/`
 
 **What happens**: The prompt walks through five stages with hard stops at reproduce and verify:
-1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern.
+1. **Intake**: Describe the bug; search only relevant `.cg-docs/solutions/bugs/` filenames, tags, and matched solution snippets for any prior occurrence of the same pattern.
 2. **Reproduce** *(hard stop)*: Write a failing test that reproduces the bug. Does not proceed until the test confirms the bug exists.
 3. **Diagnose**: State a root-cause hypothesis with evidence.
 4. **Fix** *(hard stop)*: Implement the fix and verify all tests pass — both the reproduction test and the full suite. Does not proceed until tests confirm the fix.

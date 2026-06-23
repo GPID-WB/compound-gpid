@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-06-23 · 518 entities · 2 topics · 208 edges_
+_Generated 2026-06-23 · 522 entities · 2 topics · 210 edges_
 
 ## How to Use
 
@@ -13,7 +13,7 @@ _Generated 2026-06-23 · 518 entities · 2 topics · 208 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 370 | BRAIN-01.md |
+| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 374 | BRAIN-01.md |
 | 2 | [Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective](BRAIN-02.md#architecture-research-objective-knowledge-brain-objective-quality-loop-objective) | 108 | BRAIN-02.md |
 
 ## Entity Summary
@@ -22,9 +22,9 @@ _Generated 2026-06-23 · 518 entities · 2 topics · 208 edges_
 |------|-------|
 | brainstorm | 42 |
 | feature | 117 |
-| plan | 70 |
-| review | 113 |
-| solution | 163 |
+| plan | 71 |
+| review | 115 |
+| solution | 164 |
 | strategy | 13 |
 
 _40 entities not assigned to any topic_
@@ -35,6 +35,6 @@ _40 entities not assigned to any topic_
 |-----------|-------|
 | decided_from | 42 |
 | implements | 20 |
-| references | 43 |
+| references | 44 |
 | reviews | 65 |
-| verifies | 38 |
+| verifies | 39 |

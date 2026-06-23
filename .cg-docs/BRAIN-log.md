@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 401 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 405 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -119,6 +119,10 @@ _Generated 2026-06-23 · 401 artifacts (newest first) + 117 roadmap features_
   > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md)** · `review` · _—_ · `2026-06-23`
   > No verification findings. The required evidence passed after the budget-estimation correction:
+- **[2026-06-23-progressive-disclosure-scoped-instructions-review](.cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-progressive-disclosure-scoped-instructions-verify-review](.cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
 - **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
   > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
 - **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
@@ -129,6 +133,10 @@ _Generated 2026-06-23 · 401 artifacts (newest first) + 117 roadmap features_
   > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
+- **[Progressive Disclosure Skills and Scoped Instructions](.cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary …
+- **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
+  > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
 - **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
   > Copy the prompt below into a `/cg-strategy` session.
 
@@ -1133,7 +1141,7 @@ _Generated 2026-06-23 · 401 artifacts (newest first) + 117 roadmap features_
   > Phase 1.2 — Knowledge Brain query and budgeted retrieval
 - **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
   > Phase 1.3 — Command-output summarization wrappers
-- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _idea_ · `—`
+- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _done_ · `—`
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions
 - **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _idea_ · `—`
   > Phase 1.5 — Handoff, resume, and active-state compaction

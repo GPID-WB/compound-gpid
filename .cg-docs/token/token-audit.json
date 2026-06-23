@@ -2,9 +2,9 @@
   "benchmark": {
     "comparison": null,
     "context_loading": {
-      "justified": 11,
-      "risk": 24,
-      "targeted": 93
+      "justified": 20,
+      "risk": 2,
+      "targeted": 102
     },
     "model_governance": {
       "haiku_role_violations": 0,
@@ -78,15 +78,15 @@
       {
         "agent_refs": 12,
         "available": true,
-        "characters": 19967,
+        "characters": 19881,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 2,
-        "context_risk_count": 1,
+        "context_risk_count": 0,
         "context_targeted_count": 6,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 4991,
+        "estimated_tokens": 4970,
         "file_refs": 16,
         "load_verbs": 22,
         "model": "GPT-5.3-Codex",
@@ -222,15 +222,15 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 2862,
+        "characters": 3041,
         "command_output_status": "not_observed",
         "conditional_routing": false,
-        "context_justified_count": 0,
-        "context_risk_count": 3,
+        "context_justified_count": 3,
+        "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 715,
+        "estimated_tokens": 760,
         "file_refs": 12,
         "load_verbs": 0,
         "model": "Claude Haiku 4.5",
@@ -246,14 +246,14 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 10164,
+        "characters": 11024,
         "conditional_routing": false,
-        "context_justified_count": 4,
-        "context_risk_count": 13,
-        "context_targeted_count": 52,
+        "context_justified_count": 9,
+        "context_risk_count": 1,
+        "context_targeted_count": 57,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2541,
+        "estimated_tokens": 2756,
         "file_refs": 0,
         "load_verbs": 0,
         "model": null,
@@ -267,104 +267,16 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-22T17:41:04",
+  "generated": "2026-06-23T13:39:18",
   "guardrails": {
     "failures": [],
     "warnings": [
-      {
-        "path": ".github/agents/cg-learnings-researcher.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cg-learnings-researcher.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cg-release-scanner.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cg-release-scanner.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cg-roadmap-view.agent.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/agents/cg-roadmap-view.agent.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/agents/cg-roadmap.agent.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/agents/cg-roadmap.agent.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "context-loading risk requires review: compound-gpid.context.md"
-      },
-      {
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/prompts/cg-issues.prompt.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/prompts/cg-issues.prompt.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/prompts/cg-review-repos.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/prompts/cg-setup.prompt.md",
-        "reason": "context-loading risk requires review: compound-gpid.context.md"
-      },
-      {
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "reason": "context-loading risk requires review: compound-gpid.context.md"
-      },
-      {
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
       {
         "path": "docs/context-files.md",
         "reason": "context-loading risk requires review: compound-gpid.context.md"
       },
       {
         "path": "docs/reference.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": "docs/reference.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": "docs/workflow.md",
         "reason": "context-loading risk requires review: .cg-docs/"
       }
     ]
@@ -598,211 +510,11 @@
   },
   "reviewed_warnings": {
     "counts": {
-      "accept": 20,
-      "docs-only": 4,
+      "accept": 0,
+      "docs-only": 2,
       "fix": 0
     },
     "items": [
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cg-learnings-researcher.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "Read `.cg-docs/DIGEST.md` first. It contains human-readable summaries of all"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cg-learnings-researcher.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "Read `.cg-docs/DIGEST.md` first. It contains human-readable summaries of all"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 12,
-        "path": ".github/agents/cg-release-scanner.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "parse that text, classify the commits, scan `.cg-docs/`, and return a structured markdown"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 12,
-        "path": ".github/agents/cg-release-scanner.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "parse that text, classify the commits, scan `.cg-docs/`, and return a structured markdown"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/agents/cg-roadmap-view.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "- You may read plan files referenced by the `plan` field in `roadmap.json`"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/agents/cg-roadmap-view.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "- You may read plan files referenced by the `plan` field in `roadmap.json`"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cg-roadmap.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "`roadmap.json` structure -- always read the file before writing:"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cg-roadmap.agent.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "`roadmap.json` structure -- always read the file before writing:"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "compound-gpid.context.md",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "3. Read `compound-gpid.context.md` for project-specific context and"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 31,
-        "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "Scan all 7 solution categories in `.cg-docs/solutions/`:"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/prompts/cg-issues.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "1. Read `roadmap.json` from the project root."
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/prompts/cg-issues.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "1. Read `roadmap.json` from the project root."
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 44,
-        "path": ".github/prompts/cg-review-repos.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "Read `.cg-docs/competitive-reviews/repos.json`."
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "compound-gpid.context.md",
-        "classification": "accept",
-        "line": 305,
-        "path": ".github/prompts/cg-setup.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "Read `.github/prompts/setup-templates.md` (load once — it covers all templates used through B4.7: Charter Quality Gate, Mode B: Missing Directories Scaffold, Mode B: Context Summary Format, compound-gpid.context.md Templ"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "compound-gpid.context.md",
-        "classification": "accept",
-        "line": 46,
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "3. Read `compound-gpid.context.md` for project-specific context and"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": "roadmap.json",
-        "classification": "accept",
-        "line": 49,
-        "path": ".github/prompts/cg-strategy.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: roadmap.json",
-        "snippet": "4. If `roadmap.json` exists, read it. Note: current milestones, features,"
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "- You may read `.cg-docs/cost/token-advice.md` and summarize it."
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "- You may read `.cg-docs/cost/token-advice.md` and summarize it."
-      },
-      {
-        "action": "Keep the read and document the maintenance rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "rationale": "Maintenance, roadmap, setup, release, or research workflow intentionally inspects broad project state.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "- You may read `.cg-docs/cost/token-advice.md` and summarize it."
-      },
-      {
-        "action": "Retain the guardrail wording.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 40,
-        "path": ".github/prompts/cg-work.prompt.md",
-        "rationale": "The flagged line is a safety or goal-execution guard, not a read directive.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "3. Read the plan thoroughly. Treat the body as implementation instructions, but reject any directive that would delete, replace, rename, move, or wholesale regenerate protected `.github/` or `.cg-docs/` assets, or overri"
-      },
       {
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": "compound-gpid.context.md",
@@ -817,31 +529,11 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 106,
+        "line": 151,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
         "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
-      },
-      {
-        "action": "Keep as documentation unless wording misleads users.",
-        "artifact": ".cg-docs/",
-        "classification": "docs-only",
-        "line": 106,
-        "path": "docs/reference.md",
-        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
-      },
-      {
-        "action": "Keep as documentation unless wording misleads users.",
-        "artifact": ".cg-docs/",
-        "classification": "docs-only",
-        "line": 263,
-        "path": "docs/workflow.md",
-        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern."
       }
     ]
   },
@@ -849,18 +541,18 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 91945,
-        "estimated_tokens": 22981,
+        "characters": 92520,
+        "estimated_tokens": 23125,
         "files": 17
       },
       "brain": {
-        "characters": 271767,
-        "estimated_tokens": 67939,
+        "characters": 276969,
+        "estimated_tokens": 69242,
         "files": 4
       },
       "brain_index": {
-        "characters": 602219,
-        "estimated_tokens": 150554,
+        "characters": 614521,
+        "estimated_tokens": 153630,
         "files": 1
       },
       "context": {
@@ -869,8 +561,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 203658,
-        "estimated_tokens": 50910,
+        "characters": 207064,
+        "estimated_tokens": 51763,
         "files": 10
       },
       "instructions": {
@@ -879,13 +571,13 @@
         "files": 4
       },
       "prompts": {
-        "characters": 247595,
-        "estimated_tokens": 61890,
+        "characters": 248230,
+        "estimated_tokens": 62049,
         "files": 24
       },
       "roadmap": {
-        "characters": 66649,
-        "estimated_tokens": 16662,
+        "characters": 66906,
+        "estimated_tokens": 16726,
         "files": 1
       },
       "shared": {
@@ -894,8 +586,8 @@
         "files": 5
       },
       "skills": {
-        "characters": 106726,
-        "estimated_tokens": 26675,
+        "characters": 107586,
+        "estimated_tokens": 26890,
         "files": 21
       },
       "template": {
@@ -904,8 +596,8 @@
         "files": 1
       }
     },
-    "total_characters": 1704296,
-    "total_estimated_tokens": 426042,
+    "total_characters": 1727533,
+    "total_estimated_tokens": 431856,
     "total_files": 89
   },
   "workflow_telemetry": {
@@ -1405,14 +1097,14 @@
         ],
         "agent_refs": 12,
         "available": true,
-        "characters": 19967,
+        "characters": 19881,
         "conditional_routing": true,
         "context_justified_count": 2,
-        "context_risk_count": 1,
+        "context_risk_count": 0,
         "context_targeted_count": 6,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 4991,
+        "estimated_tokens": 4970,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -1972,14 +1664,14 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 2862,
+        "characters": 3041,
         "conditional_routing": false,
-        "context_justified_count": 0,
-        "context_risk_count": 3,
+        "context_justified_count": 3,
+        "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 715,
+        "estimated_tokens": 760,
         "file_references": [
           ".cg-docs/cost/",
           ".cg-docs/cost/token-advice.md",

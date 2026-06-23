@@ -302,7 +302,9 @@ After Q7 (or skip): build the charter draft from the user's answers (do **not** 
 
 #### B0.5. Pre-load templates
 
-Read `.github/prompts/setup-templates.md` (load once — it covers all templates used through B4.7: Charter Quality Gate, Mode B: Missing Directories Scaffold, Mode B: Context Summary Format, compound-gpid.context.md Template). Continue silently.
+Context expansion: reading `.github/prompts/setup-templates.md` because
+returning-project setup reuses the charter/context templates through B4.7,
+including the `compound-gpid.context.md` template. Continue silently.
 
 #### B1. Read existing config
 

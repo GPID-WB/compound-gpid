@@ -43,15 +43,17 @@ produce concrete decisions.
    > Is this an analytical (statistics/modeling) or technical
    > (infrastructure/API) project?"
 
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
+3. Search targeted headings/snippets in `compound-gpid.context.md` for
+   project-specific context and workspace notes. If it does not exist, skip silently.
+   Use the narrowest heading needed for the strategy trigger.
 
-4. If `roadmap.json` exists, read it. Note: current milestones, features,
-   their statuses. Compute: how many features are unstarted vs. in
-   progress vs. done.
-   <!-- Direct read required for structural computation (unstarted/done
-        counts, milestone status). Display is handled by @cg-roadmap-view
-        dispatch in Step 0 item 6 below. Do NOT eliminate this direct read. -->
+4. If `roadmap.json` exists, parse only milestone/feature IDs, titles,
+   statuses, and plan links needed to compute: how many features are
+   unstarted vs. in progress vs. done.
+   <!-- Context expansion: reading roadmap.json structured fields because
+        strategy needs milestone/feature counts before deciding whether to
+        rethink direction. Display is handled by @cg-roadmap-view dispatch in
+        Step 0 item 6 below. Do NOT eliminate this structured read. -->
 
 5. *(Deferred)* Recent brainstorm and plan context is loaded in Step 2 if
    the trigger is mid-project or post-milestone (triggers 2 or 3). Do not
