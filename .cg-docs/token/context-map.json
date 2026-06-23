@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-23T13:54:11",
+  "generated": "2026-06-23T14:09:10",
   "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
   "schema_version": 1,
   "workflows": [
@@ -854,12 +854,12 @@
           "level": "justified",
           "line": 20,
           "reason": "explicit expansion rationale",
-          "snippet": "- Context expansion: reading `.cg-docs/token/TOKEN-BUDGET.md` and"
+          "snippet": "- Context expansion: reading `.cg-docs/token/TOKEN-DASHBOARD.md`,"
         },
         {
           "artifact": ".cg-docs/",
           "level": "justified",
-          "line": 67,
+          "line": 68,
           "reason": "explicit expansion rationale",
           "snippet": "Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1"
         },
@@ -873,7 +873,7 @@
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 35,
+          "line": 36,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`,"
         }
@@ -883,6 +883,8 @@
         ".cg-docs/cost/token-advice.md",
         ".cg-docs/token/",
         ".cg-docs/token/TOKEN-BUDGET.md",
+        ".cg-docs/token/TOKEN-DASHBOARD.md",
+        ".cg-docs/token/regression-check.json",
         ".cg-docs/token/workflow-costs.csv",
         ".github/shared/context-loading.contract.md",
         "brain-index.json",
@@ -894,7 +896,7 @@
       ],
       "likely_file_reads": [
         ".cg-docs/cost/token-advice.md",
-        ".cg-docs/token/TOKEN-BUDGET.md",
+        ".cg-docs/token/TOKEN-DASHBOARD.md",
         ".github/shared/context-loading.contract.md",
         "brain-index.json",
         "compound-gpid.local.md",

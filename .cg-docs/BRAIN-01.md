@@ -4,7 +4,7 @@ _Generated 2026-06-23_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -232,6 +232,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entit
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
 - **[Progressive Disclosure Skills and Scoped Instructions](.cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary …
+- **[Token Dashboard and Regression Checks](.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and determinist…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -458,6 +460,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entit
   > No blocking findings.
 - **[2026-06-23-progressive-disclosure-scoped-instructions-verify-review](.cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md)** · `review` · _—_ · `2026-06-23`
   > No verification findings.
+- **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
+- **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -722,6 +728,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entit
   > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
 - **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
   > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
+- **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
+  > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -754,7 +762,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 378 entit
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions
 - **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
   > Phase 1.5 — Handoff, resume, and active-state compaction
-- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _idea_ · `—`
+- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
   > Phase 1.6 — Token dashboard and regression checks
 - **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
   > Phase 2.1 — Cross-agent packaging adapters

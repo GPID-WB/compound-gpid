@@ -60,8 +60,10 @@ SCAN_CATEGORIES = {
 
 TOKEN_ARTIFACT_FILENAMES = (
     "TOKEN-BUDGET.md",
+    "TOKEN-DASHBOARD.md",
     "token-audit.json",
     "context-map.json",
+    "regression-check.json",
     "workflow-costs.csv",
     "large-context-warnings.md",
 )
@@ -2243,6 +2245,74 @@ def build_context_map_artifact(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _workflow_budget_status(row: dict[str, Any]) -> dict[str, Any]:
+    """Return deterministic budget status for one workflow row."""
+    tokens = row.get("estimated_tokens")
+    status = "unknown" if tokens is None else "pass"
+    threshold_warning = None
+    threshold_failure = None
+    if row.get("path") in HIGH_FREQUENCY_PROMPTS and tokens is not None:
+        token_count = int(tokens)
+        threshold_warning = THRESHOLD_HIGH_FREQ_PROMPT_WARN
+        threshold_failure = THRESHOLD_HIGH_FREQ_PROMPT_FAIL
+        if token_count > THRESHOLD_HIGH_FREQ_PROMPT_FAIL:
+            status = "fail"
+        elif token_count > THRESHOLD_HIGH_FREQ_PROMPT_WARN:
+            status = "warn"
+    return {
+        "workflow": row.get("workflow"),
+        "path": row.get("path"),
+        "estimated_tokens": tokens,
+        "status": status,
+        "threshold_warning": threshold_warning,
+        "threshold_failure": threshold_failure,
+    }
+
+
+def build_token_regression_check(report: dict[str, Any]) -> dict[str, Any]:
+    """Build a compact machine-readable token regression summary."""
+    guardrails = report.get("guardrails", {})
+    failures = guardrails.get("failures", [])
+    warnings = guardrails.get("warnings", [])
+    benchmark = report.get("benchmark", {})
+    comparison = benchmark.get("comparison")
+    workflow_budget = [
+        _workflow_budget_status(row)
+        for row in benchmark.get("workflows", [])
+    ]
+
+    if failures:
+        status = "fail"
+    elif comparison and comparison.get("workflows"):
+        status = "pass"
+    else:
+        status = "baseline"
+
+    return {
+        "schema_version": 1,
+        "generated": report.get("generated"),
+        "status": status,
+        "status_reason": {
+            "fail": "Deterministic guardrail failures are present.",
+            "pass": "No deterministic guardrail failures were found for a comparable baseline run.",
+            "baseline": "No baseline comparison was supplied; current audit is the baseline.",
+        }[status],
+        "failures": failures,
+        "warnings": warnings,
+        "workflow_budget": workflow_budget,
+        "comparison": {
+            "status": "available" if comparison and comparison.get("workflows") else "not_supplied",
+            "workflows": (comparison or {}).get("workflows", []),
+            "model_governance": (comparison or {}).get("model_governance", {}),
+        },
+        "measurement_policy": {
+            "token_estimate": "chars/4 heuristic",
+            "savings_claims": "not made without comparable repository probes",
+            "failure_rule": "guardrail failures fail the regression check; advisory warnings remain warnings",
+        },
+    }
+
+
 def render_workflow_costs_csv(report: dict[str, Any]) -> str:
     """Render workflow telemetry as stable CSV."""
     output = io.StringIO()
@@ -2290,6 +2360,79 @@ def render_workflow_costs_csv(report: dict[str, Any]) -> str:
             observability.get("summary_size", {}).get("status"),
         ])
     return output.getvalue()
+
+
+def render_token_dashboard_markdown(report: dict[str, Any]) -> str:
+    """Render a compact token dashboard for maintainers."""
+    regression = build_token_regression_check(report)
+    telemetry = report.get("workflow_telemetry", {})
+    workflows = telemetry.get("workflows", [])
+    guardrails = report.get("guardrails", {})
+    reviewed = report.get("reviewed_warnings", {}).get("counts", {})
+    context_loading = report.get("benchmark", {}).get("context_loading", {})
+    top_workflows = sorted(
+        workflows,
+        key=lambda row: int(row.get("estimated_tokens") or 0),
+        reverse=True,
+    )[:5]
+    lines = [
+        "# Token Dashboard",
+        "",
+        f"_Generated: {report.get('generated')}_",
+        "",
+        f"> {report.get('disclaimer', DISCLAIMER)}",
+        "",
+        "This dashboard is an observability artifact, not evidence of token",
+        "savings. Treat savings claims as hypotheses until measured with",
+        "comparable repository probes.",
+        "",
+        "## Regression Status",
+        "",
+        f"- Status: `{regression['status']}`",
+        f"- Reason: {regression['status_reason']}",
+        f"- Guardrail failures: {len(guardrails.get('failures', []))}",
+        f"- Guardrail warnings: {len(guardrails.get('warnings', []))}",
+        f"- Baseline comparison: {regression['comparison']['status']}",
+        "",
+        "## Source Scope",
+        "",
+        f"- Source files counted: {report.get('summary', {}).get('total_files', 0)}",
+        f"- Source estimated tokens: {report.get('summary', {}).get('total_estimated_tokens', 0)}",
+        f"- Workflow rows: {len(workflows)}",
+        "",
+        "## Highest Workflow Budgets",
+        "",
+    ]
+    lines.extend(markdown_table(
+        ["Workflow", "Path", "Tokens", "Refs", "Context Risk", "Budget Status"],
+        [
+            [
+                row.get("workflow"),
+                row.get("path"),
+                row.get("estimated_tokens"),
+                row.get("total_refs"),
+                row.get("context_risk_count"),
+                _workflow_budget_status(row).get("status"),
+            ]
+            for row in top_workflows
+        ],
+    ) if top_workflows else ["- No workflow rows available."])
+    lines.extend([
+        "",
+        "## Context and Warning Summary",
+        "",
+        f"- Context loading signals: risk={context_loading.get('risk', 0)}, justified={context_loading.get('justified', 0)}, targeted={context_loading.get('targeted', 0)}",
+        f"- Reviewed warnings: fix={reviewed.get('fix', 0)}, accept={reviewed.get('accept', 0)}, docs-only={reviewed.get('docs-only', 0)}",
+        "",
+        "## Observability Boundaries",
+        "",
+        "- `baseline`: no comparable baseline was supplied.",
+        "- `pass`: comparable baseline supplied and no deterministic guardrail failures were found.",
+        "- `fail`: deterministic guardrail failures are present.",
+        "- Runtime command-output size and summary size remain explicit observed/not_observed fields.",
+        "",
+    ])
+    return "\n".join(lines)
 
 
 def render_token_budget_markdown(report: dict[str, Any]) -> str:
@@ -2417,6 +2560,7 @@ def write_token_artifacts(report: dict[str, Any], output_dir: Path) -> list[Path
     output_dir.mkdir(parents=True, exist_ok=True)
     artifacts = {
         "TOKEN-BUDGET.md": render_token_budget_markdown(report),
+        "TOKEN-DASHBOARD.md": render_token_dashboard_markdown(report),
         "token-audit.json": json.dumps(
             build_token_audit_artifact(report),
             indent=2,
@@ -2425,6 +2569,12 @@ def write_token_artifacts(report: dict[str, Any], output_dir: Path) -> list[Path
         ) + "\n",
         "context-map.json": json.dumps(
             build_context_map_artifact(report),
+            indent=2,
+            ensure_ascii=False,
+            sort_keys=True,
+        ) + "\n",
+        "regression-check.json": json.dumps(
+            build_token_regression_check(report),
             indent=2,
             ensure_ascii=False,
             sort_keys=True,

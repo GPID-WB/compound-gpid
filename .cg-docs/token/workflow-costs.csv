@@ -7,4 +7,4 @@ cg-fix-triage,/cg-fix-triage,.github/prompts/cg-fix-triage.prompt.md,True,2100,2
 cg-compound,/cg-compound,.github/prompts/cg-compound.prompt.md,True,2404,28,15,2,5,0,6,0,1,2,1,limited,not_observed,not_observed
 cg-resume,/cg-resume,.github/prompts/cg-resume.prompt.md,True,3159,19,15,0,3,0,1,0,1,6,2,limited,not_observed,not_observed
 cg-diagnose,/cg-diagnose,.github/prompts/cg-diagnose.prompt.md,True,2647,16,13,1,0,1,1,0,0,0,0,none,not_observed,not_observed
-cg-token-audit,/cg-token-audit,.github/prompts/cg-token-audit.prompt.md,True,760,12,12,0,0,0,0,0,3,2,0,none,not_observed,not_observed
+cg-token-audit,/cg-token-audit,.github/prompts/cg-token-audit.prompt.md,True,790,14,14,0,0,0,0,0,3,2,0,none,not_observed,not_observed

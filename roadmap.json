@@ -1070,7 +1070,7 @@
       "id": "token-efficiency-core-system",
       "title": "Token Efficiency Core System",
       "objective": "Make Compound GPID measurably more token-efficient across its core workflow using native audits, budgeted Brain retrieval, compact command summaries, progressive-disclosure skills, handoff compaction, and regression checks.",
-      "status": "in-progress",
+      "status": "done",
       "features": [
         {
           "id": "phase-1-1-workflow-token-baseline",
@@ -1105,8 +1105,8 @@
         {
           "id": "phase-1-6-token-dashboard-regression",
           "title": "Phase 1.6 \u2014 Token dashboard and regression checks",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md"
         }
       ]
     },

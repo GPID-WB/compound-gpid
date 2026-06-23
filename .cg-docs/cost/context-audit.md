@@ -1,40 +1,40 @@
 # Context and Model-Governance Audit
 
-_Generated: 2026-06-23T13:54:11_
+_Generated: 2026-06-23T14:09:10_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
 ## Summary
 
 - Total files: 90
-- Total characters: 1740207
-- Total estimated tokens: 435022
+- Total characters: 1753523
+- Total estimated tokens: 438352
 
 | Category | Files | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| prompts | 24 | 249766 | 62433 |
+| prompts | 24 | 249887 | 62463 |
 | agents | 17 | 92520 | 23125 |
 | skills | 21 | 107586 | 26890 |
 | instructions | 4 | 17340 | 4334 |
 | shared | 6 | 33456 | 8362 |
 | template | 1 | 1633 | 408 |
-| docs | 10 | 208280 | 52066 |
-| brain | 4 | 279157 | 69788 |
-| brain_index | 1 | 618934 | 154733 |
+| docs | 10 | 209092 | 52269 |
+| brain | 4 | 283289 | 70822 |
+| brain_index | 1 | 627135 | 156783 |
 | context | 1 | 64564 | 16141 |
-| roadmap | 1 | 66971 | 16742 |
+| roadmap | 1 | 67021 | 16755 |
 
 ## Top 15 Largest Files
 
 | Path | Category | Characters | Estimated Tokens |
 | --- | --- | --- | --- |
-| .cg-docs/brain-index.json | brain_index | 618934 | 154733 |
-| .cg-docs/BRAIN-log.md | brain | 145979 | 36494 |
-| .cg-docs/BRAIN-01.md | brain | 110646 | 27661 |
-| docs/workflow.md | docs | 67003 | 16750 |
-| roadmap.json | roadmap | 66971 | 16742 |
+| .cg-docs/brain-index.json | brain_index | 627135 | 156783 |
+| .cg-docs/BRAIN-log.md | brain | 148045 | 37011 |
+| .cg-docs/BRAIN-01.md | brain | 112712 | 28178 |
+| docs/workflow.md | docs | 67269 | 16817 |
+| roadmap.json | roadmap | 67021 | 16755 |
 | compound-gpid.context.md | context | 64564 | 16141 |
-| docs/reference.md | docs | 47681 | 11920 |
+| docs/reference.md | docs | 48227 | 12056 |
 | docs/troubleshooting.md | docs | 29195 | 7298 |
 | .github/prompts/cg-setup.prompt.md | prompts | 21795 | 5448 |
 | .cg-docs/BRAIN-02.md | brain | 21392 | 5348 |
@@ -56,8 +56,8 @@ _Generated: 2026-06-23T13:54:11_
 | /cg-compound | .github/prompts/cg-compound.prompt.md | 2404 | 28 | standard | 0 | limited | False |
 | /cg-resume | .github/prompts/cg-resume.prompt.md | 3159 | 19 | economy | 0 | limited | False |
 | /cg-diagnose | .github/prompts/cg-diagnose.prompt.md | 2647 | 16 | standard | 0 | none | False |
-| /cg-token-audit | .github/prompts/cg-token-audit.prompt.md | 760 | 12 | economy | 0 | none | False |
-| Knowledge Brain/context lookup | .github/skills/cg-skill-brain-query/SKILL.md | 2756 | 0 |  | 1 | none | False |
+| /cg-token-audit | .github/prompts/cg-token-audit.prompt.md | 790 | 14 | economy | 0 | none | False |
+| Knowledge Brain/context lookup | .github/skills/cg-skill-brain-query/SKILL.md | 2756 | 0 |  | 2 | none | False |
 
 - Premium model usage count: 0
 - Ordinary model-picker violations: 0
@@ -66,7 +66,7 @@ _Generated: 2026-06-23T13:54:11_
 - OpenAI-first violations: 0
 - Haiku role violations: 0
 - Sonnet role violations: 0
-- Context loading signals: risk=2, justified=20, targeted=102
+- Context loading signals: risk=3, justified=20, targeted=102
 
 ### Review-Agent Counts
 
@@ -87,24 +87,26 @@ _Generated: 2026-06-23T13:54:11_
 - Failures: 0
 - **WARN** docs/context-files.md: context-loading risk requires review: compound-gpid.context.md
 - **WARN** docs/reference.md: context-loading risk requires review: .cg-docs/
+- **WARN** docs/workflow.md: context-loading risk requires review: .cg-docs/
 
 ## Reviewed Warning Classifications
 
 - Fix: 0
 - Accept: 0
-- Docs-only: 2
+- Docs-only: 3
 
 | Classification | Path | Artifact | Reason | Rationale | Action |
 | --- | --- | --- | --- | --- | --- |
 | docs-only | docs/context-files.md | compound-gpid.context.md | context-loading risk requires review: compound-gpid.context.md | Documentation wording can mention broad artifacts without causing runtime prompt loading. | Keep as documentation unless wording misleads users. |
 | docs-only | docs/reference.md | .cg-docs/ | context-loading risk requires review: .cg-docs/ | Documentation wording can mention broad artifacts without causing runtime prompt loading. | Keep as documentation unless wording misleads users. |
+| docs-only | docs/workflow.md | .cg-docs/ | context-loading risk requires review: .cg-docs/ | Documentation wording can mention broad artifacts without causing runtime prompt loading. | Keep as documentation unless wording misleads users. |
 
 ## Token Efficiency Recommendations
 
 | Priority | Category | Recommendation | Evidence | Advice |
 | --- | --- | --- | --- | --- |
-| medium | project-context | Use query-first project context. | context=16141, brain=69788, brain_index=154733 estimated tokens. | Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default. |
-| low | documentation | Treat docs size as opt-in cost. | docs category is estimated at 52066 tokens. | Do not optimize docs for runtime unless prompts or skills load them automatically. |
+| medium | project-context | Use query-first project context. | context=16141, brain=70822, brain_index=156783 estimated tokens. | Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default. |
+| low | documentation | Treat docs size as opt-in cost. | docs category is estimated at 52269 tokens. | Do not optimize docs for runtime unless prompts or skills load them automatically. |
 | medium | review-routing | Match review depth to risk. | /cg-review dispatch burden is conditional with 10 referenced agents. | Use light or standard reviews for low-risk changes; reserve full review for broad, risky, or explicitly requested checks. |
 | low | model-selection | Use cheaper models for planning and advisory work when quality allows. | Model governance keeps ordinary planning prompts on the model picker. | Use stronger models for implementation, high-risk review, and architecture; use lighter models for simple planning or documentation passes. |
 
@@ -204,7 +206,8 @@ _Generated: 2026-06-23T13:54:11_
 | Level | Path | Line | Artifact | Reason | Snippet |
 | --- | --- | --- | --- | --- | --- |
 | risk | docs/context-files.md | 227 | compound-gpid.context.md | broad context-loading instruction | 3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately. |
-| risk | docs/reference.md | 151 | .cg-docs/ | broad context-loading instruction | \| `.cg-docs/token/context-map.json` \| Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals \| |
+| risk | docs/reference.md | 152 | .cg-docs/ | broad context-loading instruction | \| `.cg-docs/token/context-map.json` \| Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals \| |
+| risk | docs/workflow.md | 739 | .cg-docs/ | broad context-loading instruction | 6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and |
 | justified | .github/agents/cg-learnings-researcher.agent.md | 24 | .cg-docs/ | explicit expansion rationale | Context expansion: reading `.cg-docs/DIGEST.md` because this researcher needs |
 | justified | .github/agents/cg-roadmap.agent.md | 24 | roadmap.json | explicit expansion rationale | Context expansion: reading full `roadmap.json` because roadmap-manager writes |
 | justified | .github/agents/cg-roadmap.agent.md | 195 | roadmap.json | maintenance/tooling workflow | 4. Context expansion: reading full `roadmap.json` because GitHub Issues setup |
@@ -215,8 +218,8 @@ _Generated: 2026-06-23T13:54:11_
 | justified | .github/prompts/cg-review-repos.prompt.md | 44 | .cg-docs/ | explicit expansion rationale | Context expansion: reading `.cg-docs/competitive-reviews/repos.json` because |
 | justified | .github/prompts/cg-strategy.prompt.md | 53 | roadmap.json | explicit expansion rationale | <!-- Context expansion: reading roadmap.json structured fields because |
 | justified | .github/prompts/cg-token-audit.prompt.md | 18 | .cg-docs/ | explicit expansion rationale | - Context expansion: reading `.cg-docs/cost/token-advice.md` because this |
-| justified | .github/prompts/cg-token-audit.prompt.md | 20 | .cg-docs/ | explicit expansion rationale | - Context expansion: reading `.cg-docs/token/TOKEN-BUDGET.md` and |
-| justified | .github/prompts/cg-token-audit.prompt.md | 67 | .cg-docs/ | explicit expansion rationale | Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1 |
+| justified | .github/prompts/cg-token-audit.prompt.md | 20 | .cg-docs/ | explicit expansion rationale | - Context expansion: reading `.cg-docs/token/TOKEN-DASHBOARD.md`, |
+| justified | .github/prompts/cg-token-audit.prompt.md | 68 | .cg-docs/ | explicit expansion rationale | Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1 |
 | justified | .github/prompts/cg-work.prompt.md | 40 | .cg-docs/ | maintenance/tooling workflow | - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A |
 | justified | .github/prompts/cg-work.prompt.md | 204 | roadmap.json | explicit expansion rationale | 1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe |
 | justified | .github/shared/context-loading.contract.md | 34 | compound-gpid.context.md | maintenance/tooling workflow | - `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or confl |
@@ -277,14 +280,13 @@ _Generated: 2026-06-23T13:54:11_
 | targeted | .github/prompts/cg-strategy.prompt.md | 94 | .cg-docs/ | targeted or guarded context-loading instruction | **Context scan (triggers 2 and 3 only)**: scan `.cg-docs/brainstorms/` |
 | targeted | .github/prompts/cg-strategy.prompt.md | 174 | roadmap.json | targeted or guarded context-loading instruction | 2. **Verify once**: read `roadmap.json` after the dispatch and confirm |
 | targeted | .github/prompts/cg-token-audit.prompt.md | 17 | .cg-docs/ | context artifact reference with loading verb | - You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`. |
-| targeted | .github/prompts/cg-token-audit.prompt.md | 35 | .cg-docs/ | targeted or guarded context-loading instruction | 4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`, |
+| targeted | .github/prompts/cg-token-audit.prompt.md | 36 | .cg-docs/ | targeted or guarded context-loading instruction | 4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`, |
 | targeted | .github/prompts/cg-verify-pr.prompt.md | 27 | compound-gpid.context.md | targeted or guarded context-loading instruction | 3. Read `compound-gpid.context.md` for project-specific context if it exists; skip silently otherwise. |
 | targeted | .github/prompts/cg-wiki.prompt.md | 45 | compound-gpid.context.md | targeted or guarded context-loading instruction | 3. If `compound-gpid.context.md` exists, read only its `## Wiki Configuration` |
 | targeted | .github/prompts/cg-work.prompt.md | 13 | roadmap.json | targeted or guarded context-loading instruction | - You may read targeted `roadmap.json` fields for plan/roadmap status. |
 | targeted | .github/prompts/cg-work.prompt.md | 25 | compound-gpid.context.md | targeted or guarded context-loading instruction | 3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and sta |
-| targeted | .github/prompts/cg-work.prompt.md | 91 | roadmap.json | targeted or guarded context-loading instruction | If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: "Update feature with plan path `<plan-path>` to status active." Skip `active`/`done`. Run on |
 
-- Risk signals: 2
+- Risk signals: 3
 - Justified full/maintenance signals: 20
 - Targeted/guarded signals: 102
 

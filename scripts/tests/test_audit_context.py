@@ -1053,6 +1053,13 @@ class TestPhase6Benchmark:
         assert "not_observed" in budget
         warnings = (token_dir / "large-context-warnings.md").read_text(encoding="utf-8")
         assert "Large Context Warnings" in warnings
+        dashboard = (token_dir / "TOKEN-DASHBOARD.md").read_text(encoding="utf-8")
+        assert "Token Dashboard" in dashboard
+        assert "Regression Status" in dashboard
+        regression = json.loads((token_dir / "regression-check.json").read_text(encoding="utf-8"))
+        assert regression["schema_version"] == 1
+        assert f"Status: `{regression['status']}`" in dashboard
+        assert regression["comparison"]["status"] in {"not_supplied", "available"}
 
     def test_main_writes_token_artifacts_by_default(self, tmp_path: Path) -> None:
         root = tmp_path / "project"
@@ -1064,7 +1071,9 @@ class TestPhase6Benchmark:
         assert result == 0
         assert (output_dir / "context-audit.json").exists()
         assert (root / ".cg-docs/token/TOKEN-BUDGET.md").exists()
+        assert (root / ".cg-docs/token/TOKEN-DASHBOARD.md").exists()
         assert (root / ".cg-docs/token/token-audit.json").exists()
+        assert (root / ".cg-docs/token/regression-check.json").exists()
 
     def test_main_can_disable_token_artifacts_for_legacy_run(self, tmp_path: Path) -> None:
         root = tmp_path / "project"
@@ -1117,6 +1126,62 @@ class TestPhase6Benchmark:
         assert row["total_refs_delta"] == -2
         assert row["context_risk_count_delta"] == -2
         assert comparison["model_governance"]["premium_usage_count_delta"] == -1
+
+    def test_token_regression_check_status_baseline_without_comparison(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {"failures": [], "warnings": []},
+            "benchmark": {"workflows": []},
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "baseline"
+        assert regression["comparison"]["status"] == "not_supplied"
+        assert "No baseline comparison" in regression["status_reason"]
+
+    def test_token_regression_check_status_pass_with_comparison(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {"failures": [], "warnings": []},
+            "benchmark": {
+                "workflows": [],
+                "comparison": {
+                    "workflows": [{"workflow": "/cg-plan", "estimated_tokens_delta": 0}],
+                    "model_governance": {},
+                },
+            },
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "pass"
+        assert regression["comparison"]["status"] == "available"
+
+    def test_token_regression_check_status_fail_for_guardrail_failure(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {
+                "failures": [{"path": ".github/prompts/cg-work.prompt.md", "reason": "high-frequency prompt estimated tokens > 6000"}],
+                "warnings": [],
+            },
+            "benchmark": {
+                "workflows": [
+                    {
+                        "workflow": "/cg-work",
+                        "path": ".github/prompts/cg-work.prompt.md",
+                        "estimated_tokens": audit.THRESHOLD_HIGH_FREQ_PROMPT_FAIL + 1,
+                    }
+                ],
+                "comparison": {"workflows": [{"workflow": "/cg-work"}]},
+            },
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "fail"
+        assert regression["workflow_budget"][0]["status"] == "fail"
+        assert regression["failures"][0]["path"] == ".github/prompts/cg-work.prompt.md"
 
     def test_malformed_baseline_returns_exit_code_1(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         root = Path(__file__).resolve().parents[2]

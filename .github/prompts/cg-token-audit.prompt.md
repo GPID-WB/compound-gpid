@@ -17,9 +17,10 @@ recommendations, but it does not modify project configuration or source files.
 - You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`.
 - Context expansion: reading `.cg-docs/cost/token-advice.md` because this
   command summarizes the deterministic audit report it just generated.
-- Context expansion: reading `.cg-docs/token/TOKEN-BUDGET.md` and
-  `.cg-docs/token/workflow-costs.csv` when the user asks for workflow baseline
-  details.
+- Context expansion: reading `.cg-docs/token/TOKEN-DASHBOARD.md`,
+  `.cg-docs/token/regression-check.json`, `.cg-docs/token/TOKEN-BUDGET.md`,
+  and `.cg-docs/token/workflow-costs.csv` when the user asks for workflow
+  baseline or regression details.
 - You must not modify source files, roadmap state, prompt files, or project
   configuration. The audit command may write only its report files under
   `.cg-docs/cost/` and `.cg-docs/token/`.
@@ -48,9 +49,9 @@ cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendatio
 The explicit `--root .` is required so the audit analyzes the user's current
 project, not the installed plugin repository.
 
-The command also writes additive workflow baseline artifacts under
-`.cg-docs/token/` by default. These do not replace the legacy `.cg-docs/cost/`
-reports used by existing `/cg-token-audit` summaries.
+The command also writes additive workflow baseline, dashboard, and regression
+artifacts under `.cg-docs/token/` by default. These do not replace the legacy
+`.cg-docs/cost/` reports used by existing `/cg-token-audit` summaries.
 
 If `cg-token-audit` is unavailable, run the repository-local fallback only when
 `scripts/cg_audit_context.py` exists in the current project:

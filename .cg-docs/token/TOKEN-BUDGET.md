@@ -1,6 +1,6 @@
 # Workflow Token Budget Baseline
 
-_Generated: 2026-06-23T13:54:11_
+_Generated: 2026-06-23T14:09:10_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -11,7 +11,7 @@ repository probes.
 ## Source Scope
 
 - Source files counted: 90
-- Source estimated tokens: 435022
+- Source estimated tokens: 438352
 - Workflow rows: 9
 - Workflows with prompt source observed: 9
 - Workflows without prompt source observed: 0
@@ -31,7 +31,7 @@ artifacts. They are not part of the normal workflow source-pressure scan.
 | /cg-compound | .github/prompts/cg-compound.prompt.md | 2404 | 28 | 0 | limited | not_observed | not_observed |
 | /cg-resume | .github/prompts/cg-resume.prompt.md | 3159 | 19 | 0 | limited | not_observed | not_observed |
 | /cg-diagnose | .github/prompts/cg-diagnose.prompt.md | 2647 | 16 | 0 | none | not_observed | not_observed |
-| /cg-token-audit | .github/prompts/cg-token-audit.prompt.md | 760 | 12 | 0 | none | not_observed | not_observed |
+| /cg-token-audit | .github/prompts/cg-token-audit.prompt.md | 790 | 14 | 0 | none | not_observed | not_observed |
 
 ## Observability Boundaries
 

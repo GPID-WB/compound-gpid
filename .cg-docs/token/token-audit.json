@@ -3,7 +3,7 @@
     "comparison": null,
     "context_loading": {
       "justified": 20,
-      "risk": 2,
+      "risk": 3,
       "targeted": 102
     },
     "model_governance": {
@@ -222,7 +222,7 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 3041,
+        "characters": 3162,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 3,
@@ -230,8 +230,8 @@
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 760,
-        "file_refs": 12,
+        "estimated_tokens": 790,
+        "file_refs": 14,
         "load_verbs": 0,
         "model": "Claude Haiku 4.5",
         "model_tier": "economy",
@@ -239,7 +239,7 @@
         "skill_refs": 0,
         "summary_output_status": "not_observed",
         "tool_refs": 0,
-        "total_refs": 12,
+        "total_refs": 14,
         "workflow": "/cg-token-audit",
         "workflow_id": "cg-token-audit"
       },
@@ -249,7 +249,7 @@
         "characters": 11024,
         "conditional_routing": false,
         "context_justified_count": 9,
-        "context_risk_count": 1,
+        "context_risk_count": 2,
         "context_targeted_count": 57,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T13:54:11",
+  "generated": "2026-06-23T14:09:10",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -277,6 +277,10 @@
       },
       {
         "path": "docs/reference.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/workflow.md",
         "reason": "context-loading risk requires review: .cg-docs/"
       }
     ]
@@ -511,7 +515,7 @@
   "reviewed_warnings": {
     "counts": {
       "accept": 0,
-      "docs-only": 2,
+      "docs-only": 3,
       "fix": 0
     },
     "items": [
@@ -529,11 +533,21 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 151,
+        "line": 152,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
         "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 739,
+        "path": "docs/workflow.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and"
       }
     ]
   },
@@ -546,13 +560,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 279157,
-        "estimated_tokens": 69788,
+        "characters": 283289,
+        "estimated_tokens": 70822,
         "files": 4
       },
       "brain_index": {
-        "characters": 618934,
-        "estimated_tokens": 154733,
+        "characters": 627135,
+        "estimated_tokens": 156783,
         "files": 1
       },
       "context": {
@@ -561,8 +575,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 208280,
-        "estimated_tokens": 52066,
+        "characters": 209092,
+        "estimated_tokens": 52269,
         "files": 10
       },
       "instructions": {
@@ -571,13 +585,13 @@
         "files": 4
       },
       "prompts": {
-        "characters": 249766,
-        "estimated_tokens": 62433,
+        "characters": 249887,
+        "estimated_tokens": 62463,
         "files": 24
       },
       "roadmap": {
-        "characters": 66971,
-        "estimated_tokens": 16742,
+        "characters": 67021,
+        "estimated_tokens": 16755,
         "files": 1
       },
       "shared": {
@@ -596,8 +610,8 @@
         "files": 1
       }
     },
-    "total_characters": 1740207,
-    "total_estimated_tokens": 435022,
+    "total_characters": 1753523,
+    "total_estimated_tokens": 438352,
     "total_files": 90
   },
   "workflow_telemetry": {
@@ -1670,19 +1684,21 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 3041,
+        "characters": 3162,
         "conditional_routing": false,
         "context_justified_count": 3,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 760,
+        "estimated_tokens": 790,
         "file_references": [
           ".cg-docs/cost/",
           ".cg-docs/cost/token-advice.md",
           ".cg-docs/token/",
           ".cg-docs/token/TOKEN-BUDGET.md",
+          ".cg-docs/token/TOKEN-DASHBOARD.md",
+          ".cg-docs/token/regression-check.json",
           ".cg-docs/token/workflow-costs.csv",
           ".github/shared/context-loading.contract.md",
           "brain-index.json",
@@ -1692,11 +1708,11 @@
           "roadmap.json",
           "scripts/cg_audit_context.py"
         ],
-        "file_refs": 12,
+        "file_refs": 14,
         "large_context_warning_status": "needs_review",
         "likely_file_reads": [
           ".cg-docs/cost/token-advice.md",
-          ".cg-docs/token/TOKEN-BUDGET.md",
+          ".cg-docs/token/TOKEN-DASHBOARD.md",
           ".github/shared/context-loading.contract.md",
           "brain-index.json",
           "compound-gpid.local.md",
@@ -1746,7 +1762,7 @@
         "skill_refs": 0,
         "tool_references": [],
         "tool_refs": 0,
-        "total_refs": 12,
+        "total_refs": 14,
         "workflow": "/cg-token-audit",
         "workflow_id": "cg-token-audit"
       }

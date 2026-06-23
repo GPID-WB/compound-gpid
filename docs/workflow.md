@@ -736,10 +736,14 @@ or review-routing changes.
 3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`.
 4. If comparing against a prior report, rerun with `--baseline <previous-context-audit.json>`.
 5. Run the PowerShell safe test runner in VS Code/PowerShell: `. tests\Run-Tests.ps1`, then inspect `tests/last-run.json`.
-6. Open the generated audit report and review `Benchmark Summary`,
+6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and
+   `.cg-docs/token/regression-check.json`; interpret `baseline` as no
+   comparable prior audit supplied, `pass` as no deterministic guardrail
+   failures in a comparable run, and `fail` as guardrail failures present.
+7. Open the generated audit report and review `Benchmark Summary`,
    `Guardrails`, `Context Loading Risks`, `Review Dispatch Burden`, and
    `Model Inventory`.
-7. Complete `.cg-docs/cost/token-optimization-release-checklist.md` and record
+8. Complete `.cg-docs/cost/token-optimization-release-checklist.md` and record
    any non-blocking items in `.cg-docs/cost/token-optimization-follow-ups.md`.
 
 Model-governance checks:

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 409 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 413 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -104,6 +104,10 @@ _Generated 2026-06-23 · 409 artifacts (newest first) + 117 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[2026-06-11-github-issues-integration-review-2](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md)** · `review` · _—_ · `—`
   > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
+- **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
+- **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
@@ -147,6 +151,10 @@ _Generated 2026-06-23 · 409 artifacts (newest first) + 117 roadmap features_
   > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
 - **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
   > Copy the prompt below into a `/cg-strategy` session.
+- **[Token Dashboard and Regression Checks](.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and determinist…
+- **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
+  > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
 
 ## 2026-06-22
 
@@ -1153,7 +1161,7 @@ _Generated 2026-06-23 · 409 artifacts (newest first) + 117 roadmap features_
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions
 - **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
   > Phase 1.5 — Handoff, resume, and active-state compaction
-- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _idea_ · `—`
+- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
   > Phase 1.6 — Token dashboard and regression checks
 - **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
   > Phase 2.1 — Cross-agent packaging adapters
