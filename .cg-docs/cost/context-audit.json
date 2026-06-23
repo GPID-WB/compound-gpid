@@ -278,7 +278,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 158,
+      "line": 163,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
       "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
@@ -422,7 +422,7 @@
     {
       "artifact": "BRAIN.md",
       "level": "justified",
-      "line": 76,
+      "line": 81,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch"
@@ -430,7 +430,7 @@
     {
       "artifact": "roadmap.json",
       "level": "justified",
-      "line": 82,
+      "line": 87,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create"
@@ -438,7 +438,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "justified",
-      "line": 149,
+      "line": 154,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only wa"
@@ -1134,7 +1134,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 30,
+      "line": 35,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate legacy `.cg-docs/cost/` reports, additive `.cg-docs/token/` workflow baseline artifacts, and compact token-"
@@ -1142,7 +1142,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 31,
+      "line": 36,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `cg-test-summary --root . --format json` | Project root | Summarize existing `tests/last-run.json` without running tests; stores the redacted source artifact under `.cg-docs/token/outputs/` |"
@@ -1150,7 +1150,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 69,
+      "line": 74,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) "
@@ -1158,7 +1158,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 208,
+      "line": 213,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -1166,7 +1166,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 354,
+      "line": 359,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No"
@@ -1174,7 +1174,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 533,
+      "line": 538,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -1182,7 +1182,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 536,
+      "line": 541,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -1254,7 +1254,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 827,
+      "line": 832,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
@@ -1262,7 +1262,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 868,
+      "line": 873,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute)."
@@ -1443,8 +1443,8 @@
   "files": [
     {
       "category": "brain",
-      "characters": 113751,
-      "estimated_tokens": 28437,
+      "characters": 114860,
+      "estimated_tokens": 28715,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
@@ -1455,8 +1455,8 @@
     },
     {
       "category": "brain",
-      "characters": 149084,
-      "estimated_tokens": 37271,
+      "characters": 150193,
+      "estimated_tokens": 37548,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
@@ -1467,8 +1467,8 @@
     },
     {
       "category": "brain_index",
-      "characters": 631420,
-      "estimated_tokens": 157855,
+      "characters": 635388,
+      "estimated_tokens": 158847,
       "path": ".cg-docs/brain-index.json"
     },
     {
@@ -1779,6 +1779,12 @@
     },
     {
       "category": "shared",
+      "characters": 3002,
+      "estimated_tokens": 750,
+      "path": ".github/shared/retrieval-backends.json"
+    },
+    {
+      "category": "shared",
       "characters": 3006,
       "estimated_tokens": 751,
       "path": ".github/shared/review-routing.contract.md"
@@ -1947,9 +1953,15 @@
     },
     {
       "category": "docs",
-      "characters": 48697,
-      "estimated_tokens": 12174,
+      "characters": 48952,
+      "estimated_tokens": 12238,
       "path": "docs/reference.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1423,
+      "estimated_tokens": 355,
+      "path": "docs/retrieval-backends.md"
     },
     {
       "category": "docs",
@@ -1971,18 +1983,18 @@
     },
     {
       "category": "docs",
-      "characters": 67269,
-      "estimated_tokens": 16817,
+      "characters": 67544,
+      "estimated_tokens": 16886,
       "path": "docs/workflow.md"
     },
     {
       "category": "roadmap",
-      "characters": 67082,
-      "estimated_tokens": 16770,
+      "characters": 67146,
+      "estimated_tokens": 16786,
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-23T14:16:06",
+  "generated": "2026-06-23T14:21:00",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -2773,7 +2785,7 @@
     "unused_catalog_assignments": []
   },
   "optimization_candidates": {
-    "acceptable_count": 47,
+    "acceptable_count": 49,
     "immediate": [
       {
         "category": "prompts",
@@ -2998,14 +3010,14 @@
     {
       "advice": "Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default.",
       "category": "project-context",
-      "evidence": "context=16141, brain=71341, brain_index=157855 estimated tokens.",
+      "evidence": "context=16141, brain=71896, brain_index=158847 estimated tokens.",
       "priority": "medium",
       "title": "Use query-first project context."
     },
     {
       "advice": "Do not optimize docs for runtime unless prompts or skills load them automatically.",
       "category": "documentation",
-      "evidence": "docs category is estimated at 52663 tokens.",
+      "evidence": "docs category is estimated at 53151 tokens.",
       "priority": "low",
       "title": "Treat docs size as opt-in cost."
     },
@@ -3416,7 +3428,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 158,
+        "line": 163,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -3442,13 +3454,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 285367,
-        "estimated_tokens": 71341,
+        "characters": 287585,
+        "estimated_tokens": 71896,
         "files": 4
       },
       "brain_index": {
-        "characters": 631420,
-        "estimated_tokens": 157855,
+        "characters": 635388,
+        "estimated_tokens": 158847,
         "files": 1
       },
       "context": {
@@ -3457,9 +3469,9 @@
         "files": 1
       },
       "docs": {
-        "characters": 210666,
-        "estimated_tokens": 52663,
-        "files": 10
+        "characters": 212619,
+        "estimated_tokens": 53151,
+        "files": 11
       },
       "instructions": {
         "characters": 17340,
@@ -3472,14 +3484,14 @@
         "files": 24
       },
       "roadmap": {
-        "characters": 67082,
-        "estimated_tokens": 16770,
+        "characters": 67146,
+        "estimated_tokens": 16786,
         "files": 1
       },
       "shared": {
-        "characters": 33456,
-        "estimated_tokens": 8362,
-        "files": 6
+        "characters": 36458,
+        "estimated_tokens": 9112,
+        "files": 7
       },
       "skills": {
         "characters": 107586,
@@ -3492,9 +3504,9 @@
         "files": 1
       }
     },
-    "total_characters": 1761521,
-    "total_estimated_tokens": 440352,
-    "total_files": 90
+    "total_characters": 1772726,
+    "total_estimated_tokens": 443153,
+    "total_files": 92
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",

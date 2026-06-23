@@ -1125,8 +1125,8 @@
         {
           "id": "phase-2-2-optional-retrieval-backends",
           "title": "Phase 2.2 \u2014 Optional retrieval backend evaluation",
-          "status": "idea",
-          "plan": null
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md"
         },
         {
           "id": "phase-2-3-snapshot-external-research-modes",

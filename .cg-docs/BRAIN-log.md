@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 417 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 421 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -108,6 +108,10 @@ _Generated 2026-06-23 · 417 artifacts (newest first) + 117 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
 - **[2026-06-23-cross-agent-packaging-adapters-verify-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
+- **[2026-06-23-optional-retrieval-backend-evaluation-review](.cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
+- **[2026-06-23-optional-retrieval-backend-evaluation-verify-review](.cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
 - **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
@@ -153,6 +157,10 @@ _Generated 2026-06-23 · 417 artifacts (newest first) + 117 roadmap features_
   > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
+- **[Optional Retrieval Backend Evaluation](.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.2 by adding a deterministic evaluation matrix for optional retrieval backends without enabling any n…
+- **[Optional retrieval backends must stay default-disabled during evaluation](.cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a reg…
 - **[Progressive Disclosure Skills and Scoped Instructions](.cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary …
 - **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
@@ -1173,7 +1181,7 @@ _Generated 2026-06-23 · 417 artifacts (newest first) + 117 roadmap features_
   > Phase 1.6 — Token dashboard and regression checks
 - **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
   > Phase 2.1 — Cross-agent packaging adapters
-- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _idea_ · `—`
+- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _done_ · `—`
   > Phase 2.2 — Optional retrieval backend evaluation
 - **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _idea_ · `—`
   > Phase 2.3 — Snapshot and external-research modes

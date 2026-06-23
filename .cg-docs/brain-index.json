@@ -1,5 +1,5 @@
 {
-  "edge_count": 215,
+  "edge_count": 216,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -959,6 +959,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
       "target": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
+      "target": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
       "target_missing": false
     },
     {
@@ -4587,6 +4593,34 @@
     {
       "date": "2026-06-23",
       "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation",
+      "status": "completed",
+      "summary": "Complete Phase 2.2 by adding a deterministic evaluation matrix for optional retrieval backends without enabling any new backend, dependency, network call, or external service.",
+      "tags": [
+        "retrieval",
+        "evaluation",
+        "opt-in",
+        "governance",
+        "token-efficiency"
+      ],
+      "title": "Optional Retrieval Backend Evaluation",
+      "top_keywords": [
+        "evaluation",
+        "retrieval",
+        "roadmap.json",
+        "phase",
+        "backend",
+        "tests",
+        "roadmap",
+        "evaluate-only",
+        "documentation",
+        "docs/retrieval-backends.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
       "slug": "2026-06-23-progressive-disclosure-scoped-instructions",
       "status": "completed",
@@ -7168,6 +7202,50 @@
         "python3 -m pytest scripts/brain/tests scripts/tests scripts/team_brain/tests -q",
         "640 passed, 5 subtests passed",
         "pwsh -noprofile -command \". ./tests/run-tests.ps1\""
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`",
+      "tags": [],
+      "title": "2026-06-23-optional-retrieval-backend-evaluation-review",
+      "top_keywords": [
+        "review",
+        "optional",
+        "retrieval",
+        "backend",
+        "implementation",
+        "findings",
+        "validation",
+        "native-brain-query",
+        "evaluation",
+        "notes"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`",
+      "tags": [],
+      "title": "2026-06-23-optional-retrieval-backend-evaluation-verify-review",
+      "top_keywords": [
+        "verify",
+        "review",
+        "findings",
+        "optional",
+        "retrieval",
+        "backend",
+        "evaluation",
+        "reviewed",
+        "outcome",
+        ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md"
       ]
     },
     {
@@ -12286,6 +12364,34 @@
     {
       "date": "2026-06-23",
       "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
+      "slug": "2026-06-23-optional-retrieval-backends-default-disabled",
+      "status": "",
+      "summary": "Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a registry without guardrails can silently turn evaluation into runtime configuration.",
+      "tags": [
+        "retrieval",
+        "opt-in",
+        "privacy",
+        "token-efficiency",
+        "governance"
+      ],
+      "title": "Optional retrieval backends must stay default-disabled during evaluation",
+      "top_keywords": [
+        "retrieval",
+        ".github/shared/retrieval-backends.json",
+        "optional",
+        "evaluation",
+        "backends",
+        "must",
+        "stay",
+        "default-disabled",
+        "retrieval-backends.json",
+        "native-brain-query"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
       "path": ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
       "slug": "2026-06-23-progressive-disclosure-context-loading-contract",
       "status": "",
@@ -15160,7 +15266,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#phase-2-2-optional-retrieval-backends",
       "slug": "phase-2-2-optional-retrieval-backends",
-      "status": "idea",
+      "status": "done",
       "summary": "Phase 2.2 — Optional retrieval backend evaluation",
       "tags": [],
       "title": "Phase 2.2 — Optional retrieval backend evaluation",
@@ -15200,13 +15306,13 @@
       ]
     }
   ],
-  "entity_count": 534,
+  "entity_count": 538,
   "generated": "2026-06-23",
   "schema_version": "0.2.0",
   "topic_count": 2,
   "topics": [
     {
-      "entity_count": 386,
+      "entity_count": 390,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -15321,6 +15427,7 @@
         ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
         ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
         ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+        ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
         ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
         ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -15436,6 +15543,8 @@
         ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md",
         ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
         ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md",
+        ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md",
         ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
         ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
         ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md",
@@ -15572,6 +15681,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",

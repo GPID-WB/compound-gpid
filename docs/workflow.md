@@ -763,6 +763,11 @@ Model-governance checks:
   for cross-vendor contrast. Use Sonnet only as a targeted fallback or contrast
   model, and use Haiku only for extremely simple mechanical work.
 
+Optional retrieval backend work is evaluation-only until a future roadmap item
+explicitly implements a backend. Use `.github/shared/retrieval-backends.json`
+and `docs/retrieval-backends.md` to review candidates and gates; do not treat
+the registry as runtime configuration.
+
 Token-efficiency advice:
 
 - Run `/cg-token-audit` from a linked project when you want a compact advisory

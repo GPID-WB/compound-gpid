@@ -10,6 +10,11 @@ root only when that repo is intentionally maintained with that agent family.
 These files are not installed by `cg-link` and do not change GitHub Copilot
 behavior.
 
+Optional retrieval backend candidates are documented in
+[Retrieval Backend Evaluation](retrieval-backends.md) and tracked in
+`.github/shared/retrieval-backends.json`. The registry is evaluation-only:
+`native-brain-query` remains the only active backend.
+
 ---
 
 ## Shell Commands

@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T14:16:06",
+  "generated": "2026-06-23T14:21:00",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -291,7 +291,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 47,
+    "acceptable_count": 49,
     "immediate": [
       {
         "category": "prompts",
@@ -533,7 +533,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 158,
+        "line": 163,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -560,13 +560,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 285367,
-        "estimated_tokens": 71341,
+        "characters": 287585,
+        "estimated_tokens": 71896,
         "files": 4
       },
       "brain_index": {
-        "characters": 631420,
-        "estimated_tokens": 157855,
+        "characters": 635388,
+        "estimated_tokens": 158847,
         "files": 1
       },
       "context": {
@@ -575,9 +575,9 @@
         "files": 1
       },
       "docs": {
-        "characters": 210666,
-        "estimated_tokens": 52663,
-        "files": 10
+        "characters": 212619,
+        "estimated_tokens": 53151,
+        "files": 11
       },
       "instructions": {
         "characters": 17340,
@@ -590,14 +590,14 @@
         "files": 24
       },
       "roadmap": {
-        "characters": 67082,
-        "estimated_tokens": 16770,
+        "characters": 67146,
+        "estimated_tokens": 16786,
         "files": 1
       },
       "shared": {
-        "characters": 33456,
-        "estimated_tokens": 8362,
-        "files": 6
+        "characters": 36458,
+        "estimated_tokens": 9112,
+        "files": 7
       },
       "skills": {
         "characters": 107586,
@@ -610,9 +610,9 @@
         "files": 1
       }
     },
-    "total_characters": 1761521,
-    "total_estimated_tokens": 440352,
-    "total_files": 90
+    "total_characters": 1772726,
+    "total_estimated_tokens": 443153,
+    "total_files": 92
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
