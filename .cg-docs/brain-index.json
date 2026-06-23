@@ -1,5 +1,5 @@
 {
-  "edge_count": 213,
+  "edge_count": 215,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -885,6 +885,12 @@
     },
     {
       "edge_type": "references",
+      "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
+      "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
       "source": ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
       "target": ".cg-docs/plans/2026-04-07-full-model-audit.md",
       "target_missing": false
@@ -1277,6 +1283,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
       "target": "roadmap.json#goal-driven-execution",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "target": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
       "target_missing": false
     }
   ],
@@ -4490,6 +4502,35 @@
     {
       "date": "2026-06-23",
       "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters",
+      "status": "completed",
+      "summary": "Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, version-controlled adapter files that consumer projects can opt into without changing GitHub Copilot prompt behavior.",
+      "tags": [
+        "cross-agent",
+        "adapters",
+        "codex",
+        "claude",
+        "packaging",
+        "compatibility"
+      ],
+      "title": "Cross-Agent Packaging Adapters",
+      "top_keywords": [
+        "agents.md",
+        "claude code",
+        "roadmap.json",
+        "phase",
+        ".github/",
+        "python3 -m pytest scripts/tests/test_agent_adapters.py -q",
+        "test_agent_adapters.py",
+        "run-tests.ps1",
+        "adapters",
+        "cross-agent"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
       "path": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
       "slug": "2026-06-23-handoff-resume-active-state-compaction",
       "status": "completed",
@@ -6998,6 +7039,50 @@
       ]
     },
     {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`",
+      "tags": [],
+      "title": "2026-06-23-cross-agent-packaging-adapters-review",
+      "top_keywords": [
+        "review",
+        "adapters",
+        "implementation",
+        "findings",
+        "cross-agent",
+        "packaging",
+        "notes",
+        "validation",
+        "reviewed",
+        "outcome"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`",
+      "tags": [],
+      "title": "2026-06-23-cross-agent-packaging-adapters-verify-review",
+      "top_keywords": [
+        "adapters",
+        "verify",
+        "review",
+        "findings",
+        "cross-agent",
+        "packaging",
+        "reviewed",
+        "outcome",
+        ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+        "adapters/readme.md"
+      ]
+    },
+    {
       "date": "2026-06-23",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md",
@@ -9326,6 +9411,34 @@
         "agents",
         "cg-work",
         ".github/agents/cg-*.agent.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
+      "slug": "2026-06-23-cross-agent-adapters-are-opt-in-source-packages",
+      "status": "",
+      "summary": "The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer projects had no packaged adapter source to copy. Putting compatibility rules into `.github/` files would alter the Copilot-oriented runtime surface and risk confusing normal Copilot users.",
+      "tags": [
+        "codex",
+        "claude-code",
+        "adapters",
+        "packaging",
+        "copilot-compatibility"
+      ],
+      "title": "Cross-agent adapters should be opt-in source packages",
+      "top_keywords": [
+        "agents.md",
+        "adapters",
+        "adapters/codex/agents.md",
+        "adapters/claude/claude.md",
+        "source",
+        "opt-in",
+        "cross-agent",
+        "packages",
+        "claude.md",
+        "root"
       ]
     },
     {
@@ -15025,7 +15138,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
       "slug": "phase-2-1-cross-agent-packaging-adapters",
-      "status": "idea",
+      "status": "done",
       "summary": "Phase 2.1 — Cross-agent packaging adapters",
       "tags": [],
       "title": "Phase 2.1 — Cross-agent packaging adapters",
@@ -15087,13 +15200,13 @@
       ]
     }
   ],
-  "entity_count": 530,
+  "entity_count": 534,
   "generated": "2026-06-23",
   "schema_version": "0.2.0",
   "topic_count": 2,
   "topics": [
     {
-      "entity_count": 382,
+      "entity_count": 386,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -15205,6 +15318,7 @@
         ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
         ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+        ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
         ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
         ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
         ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
@@ -15316,6 +15430,8 @@
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
         ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md",
         ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md",
+        ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md",
         ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md",
         ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md",
         ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
@@ -15375,6 +15491,7 @@
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
+        ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",

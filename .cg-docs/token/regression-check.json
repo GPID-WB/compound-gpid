@@ -5,7 +5,7 @@
     "workflows": []
   },
   "failures": [],
-  "generated": "2026-06-23T14:09:10",
+  "generated": "2026-06-23T14:16:06",
   "measurement_policy": {
     "failure_rule": "guardrail failures fail the regression check; advisory warnings remain warnings",
     "savings_claims": "not made without comparable repository probes",

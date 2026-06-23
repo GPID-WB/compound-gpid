@@ -1,6 +1,6 @@
 # Large Context Warnings
 
-_Generated: 2026-06-23T14:09:10_
+_Generated: 2026-06-23T14:16:06_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 

@@ -270,7 +270,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "risk",
-      "line": 227,
+      "line": 233,
       "path": "docs/context-files.md",
       "reason": "broad context-loading instruction",
       "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
@@ -278,7 +278,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 152,
+      "line": 158,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
       "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
@@ -422,7 +422,7 @@
     {
       "artifact": "BRAIN.md",
       "level": "justified",
-      "line": 70,
+      "line": 76,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch"
@@ -430,7 +430,7 @@
     {
       "artifact": "roadmap.json",
       "level": "justified",
-      "line": 76,
+      "line": 82,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create"
@@ -438,7 +438,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "justified",
-      "line": 143,
+      "line": 149,
       "path": "docs/reference.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only wa"
@@ -1078,7 +1078,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 48,
+      "line": 54,
       "path": "docs/context-files.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "`compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts "
@@ -1086,7 +1086,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 63,
+      "line": 69,
       "path": "docs/context-files.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant"
@@ -1094,7 +1094,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 190,
+      "line": 196,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "1. **`/cg-compound`** — after you solve a non-trivial problem, run `/cg-compound`. It saves a solution doc to `.cg-docs/solutions/` and optionally extracts project-specific facts (recurring gotchas, data caveats) directl"
@@ -1102,7 +1102,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 226,
+      "line": 232,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "2. Run `/cg-setup` in Copilot Chat — this creates `compound-gpid.md`, `compound-gpid.local.md`, and `compound-gpid.context.md`."
@@ -1110,7 +1110,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 240,
+      "line": 247,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| You just solved a non-trivial problem | Run `/cg-compound` — it updates `compound-gpid.context.md` and `.cg-docs/solutions/` |"
@@ -1118,7 +1118,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 243,
+      "line": 250,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |"
@@ -1134,7 +1134,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 24,
+      "line": 30,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate legacy `.cg-docs/cost/` reports, additive `.cg-docs/token/` workflow baseline artifacts, and compact token-"
@@ -1142,7 +1142,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 25,
+      "line": 31,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `cg-test-summary --root . --format json` | Project root | Summarize existing `tests/last-run.json` without running tests; stores the redacted source artifact under `.cg-docs/token/outputs/` |"
@@ -1150,7 +1150,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 63,
+      "line": 69,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) "
@@ -1158,7 +1158,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 202,
+      "line": 208,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -1166,7 +1166,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 348,
+      "line": 354,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No"
@@ -1174,7 +1174,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 525,
+      "line": 533,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -1182,7 +1182,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 528,
+      "line": 536,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -1443,8 +1443,8 @@
   "files": [
     {
       "category": "brain",
-      "characters": 112712,
-      "estimated_tokens": 28178,
+      "characters": 113751,
+      "estimated_tokens": 28437,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
@@ -1455,8 +1455,8 @@
     },
     {
       "category": "brain",
-      "characters": 148045,
-      "estimated_tokens": 37011,
+      "characters": 149084,
+      "estimated_tokens": 37271,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
@@ -1467,8 +1467,8 @@
     },
     {
       "category": "brain_index",
-      "characters": 627135,
-      "estimated_tokens": 156783,
+      "characters": 631420,
+      "estimated_tokens": 157855,
       "path": ".cg-docs/brain-index.json"
     },
     {
@@ -1923,14 +1923,14 @@
     },
     {
       "category": "docs",
-      "characters": 15592,
-      "estimated_tokens": 3898,
+      "characters": 16253,
+      "estimated_tokens": 4063,
       "path": "docs/context-files.md"
     },
     {
       "category": "docs",
-      "characters": 13295,
-      "estimated_tokens": 3323,
+      "characters": 13738,
+      "estimated_tokens": 3434,
       "path": "docs/installation.md"
     },
     {
@@ -1947,8 +1947,8 @@
     },
     {
       "category": "docs",
-      "characters": 48227,
-      "estimated_tokens": 12056,
+      "characters": 48697,
+      "estimated_tokens": 12174,
       "path": "docs/reference.md"
     },
     {
@@ -1977,12 +1977,12 @@
     },
     {
       "category": "roadmap",
-      "characters": 67021,
-      "estimated_tokens": 16755,
+      "characters": 67082,
+      "estimated_tokens": 16770,
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-23T14:09:10",
+  "generated": "2026-06-23T14:16:06",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -2998,14 +2998,14 @@
     {
       "advice": "Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default.",
       "category": "project-context",
-      "evidence": "context=16141, brain=70822, brain_index=156783 estimated tokens.",
+      "evidence": "context=16141, brain=71341, brain_index=157855 estimated tokens.",
       "priority": "medium",
       "title": "Use query-first project context."
     },
     {
       "advice": "Do not optimize docs for runtime unless prompts or skills load them automatically.",
       "category": "documentation",
-      "evidence": "docs category is estimated at 52269 tokens.",
+      "evidence": "docs category is estimated at 52663 tokens.",
       "priority": "low",
       "title": "Treat docs size as opt-in cost."
     },
@@ -3406,7 +3406,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": "compound-gpid.context.md",
         "classification": "docs-only",
-        "line": 227,
+        "line": 233,
         "path": "docs/context-files.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: compound-gpid.context.md",
@@ -3416,7 +3416,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 152,
+        "line": 158,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -3442,13 +3442,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 283289,
-        "estimated_tokens": 70822,
+        "characters": 285367,
+        "estimated_tokens": 71341,
         "files": 4
       },
       "brain_index": {
-        "characters": 627135,
-        "estimated_tokens": 156783,
+        "characters": 631420,
+        "estimated_tokens": 157855,
         "files": 1
       },
       "context": {
@@ -3457,8 +3457,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 209092,
-        "estimated_tokens": 52269,
+        "characters": 210666,
+        "estimated_tokens": 52663,
         "files": 10
       },
       "instructions": {
@@ -3472,8 +3472,8 @@
         "files": 24
       },
       "roadmap": {
-        "characters": 67021,
-        "estimated_tokens": 16755,
+        "characters": 67082,
+        "estimated_tokens": 16770,
         "files": 1
       },
       "shared": {
@@ -3492,8 +3492,8 @@
         "files": 1
       }
     },
-    "total_characters": 1753523,
-    "total_estimated_tokens": 438352,
+    "total_characters": 1761521,
+    "total_estimated_tokens": 440352,
     "total_files": 90
   },
   "workflow_telemetry": {

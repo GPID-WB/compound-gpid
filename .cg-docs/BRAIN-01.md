@@ -4,7 +4,7 @@ _Generated 2026-06-23_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 386 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -226,6 +226,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entit
   > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
 - **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
+- **[Cross-Agent Packaging Adapters](.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, versio…
 - **[Handoff Resume and Active-State Compaction](.cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact…
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
@@ -448,6 +450,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entit
   > No blocking findings.
 - **[2026-06-23-command-output-summarization-wrappers-verify-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md)** · `review` · _—_ · `2026-06-23`
   > No verification findings.
+- **[2026-06-23-cross-agent-packaging-adapters-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
+- **[2026-06-23-cross-agent-packaging-adapters-verify-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
 - **[2026-06-23-handoff-resume-active-state-compaction-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md)** · `review` · _—_ · `2026-06-23`
   > No blocking findings.
 - **[2026-06-23-handoff-resume-active-state-compaction-verify-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md)** · `review` · _—_ · `2026-06-23`
@@ -566,6 +572,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entit
   > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
 - **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
   > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
+- **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
+  > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
 - **[git stderr swallowed by 2>&1 redirect into an unused variable](.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md)** · `solution` · _—_ · `2026-03-04`
   > A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>…
 - **[PS5.1 ErrorActionPreference=Stop promotes git informational stderr into terminating errors](.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md)** · `solution` · _—_ · `2026-03-05`
@@ -764,7 +772,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 382 entit
   > Phase 1.5 — Handoff, resume, and active-state compaction
 - **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
   > Phase 1.6 — Token dashboard and regression checks
-- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
+- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
   > Phase 2.1 — Cross-agent packaging adapters
 - **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _idea_ · `—`
   > Phase 2.2 — Optional retrieval backend evaluation

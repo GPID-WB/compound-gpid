@@ -98,6 +98,9 @@ and creates three config files:
 > Copilot-oriented `.github/prompts`, `.github/skills`, and `.github/agents`
 > files. It is not required for normal GitHub Copilot installation and does not
 > change how Copilot discovers `/cg-*` prompts.
+> Reusable opt-in adapters are packaged under `adapters/`: copy
+> `adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into the consumer
+> repository root only when that repository is maintained with that agent.
 
 ---
 
@@ -141,6 +144,10 @@ This creates **per-subdirectory symlinks** inside `.github/` for the Compound GP
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
+
+Optional cross-agent adapters are not installed by `cg-link`. If a macOS-linked
+project is also maintained with Codex or Claude Code, copy the matching file
+from `adapters/` into the project root and commit it intentionally.
 
 ### Step 4 — Configure your project (once per project)
 

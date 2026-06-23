@@ -1,6 +1,6 @@
 # Token Dashboard
 
-_Generated: 2026-06-23T14:09:10_
+_Generated: 2026-06-23T14:16:06_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -19,7 +19,7 @@ comparable repository probes.
 ## Source Scope
 
 - Source files counted: 90
-- Source estimated tokens: 438352
+- Source estimated tokens: 440352
 - Workflow rows: 9
 
 ## Highest Workflow Budgets

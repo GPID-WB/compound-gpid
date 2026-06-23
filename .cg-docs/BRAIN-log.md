@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 413 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 417 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -104,6 +104,10 @@ _Generated 2026-06-23 · 413 artifacts (newest first) + 117 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[2026-06-11-github-issues-integration-review-2](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md)** · `review` · _—_ · `—`
   > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
+- **[2026-06-23-cross-agent-packaging-adapters-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
+- **[2026-06-23-cross-agent-packaging-adapters-verify-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
 - **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
@@ -139,6 +143,10 @@ _Generated 2026-06-23 · 413 artifacts (newest first) + 117 roadmap features_
   > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
 - **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
   > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
+- **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
+  > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
+- **[Cross-Agent Packaging Adapters](.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, versio…
 - **[Handoff Resume and Active-State Compaction](.cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact…
 - **[ICM and OKF Integration Concept for Compound GPID](.cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md)** · `strategy` · _—_ · `2026-06-23`
@@ -1163,7 +1171,7 @@ _Generated 2026-06-23 · 413 artifacts (newest first) + 117 roadmap features_
   > Phase 1.5 — Handoff, resume, and active-state compaction
 - **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
   > Phase 1.6 — Token dashboard and regression checks
-- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _idea_ · `—`
+- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
   > Phase 2.1 — Cross-agent packaging adapters
 - **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _idea_ · `—`
   > Phase 2.2 — Optional retrieval backend evaluation

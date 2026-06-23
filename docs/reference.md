@@ -4,6 +4,12 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 
 > See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the Codex / Claude Code `AGENTS.md` adapter. See [Troubleshooting](troubleshooting.md) for known issues.
 
+Optional cross-agent adapter source files live under `adapters/`. Copy
+`adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into a consumer repo
+root only when that repo is intentionally maintained with that agent family.
+These files are not installed by `cg-link` and do not change GitHub Copilot
+behavior.
+
 ---
 
 ## Shell Commands
@@ -466,7 +472,9 @@ After linking and configuring, your project will contain:
 
 ```
 your-project/
-├── AGENTS.md                 # optional Codex / Claude Code adapter; not used by GitHub Copilot
+├── AGENTS.md                 # optional Codex adapter; not used by GitHub Copilot
+├── CLAUDE.md                 # optional Claude Code adapter; not used by GitHub Copilot
+├── adapters/                 # source package for optional cross-agent adapters
 ├── .github/
 │   ├── prompts/              → junction to C:\WBG\.compound-gpid\.github\prompts\
 │   ├── skills/               → junction to C:\WBG\.compound-gpid\.github\skills\

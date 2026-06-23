@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T14:09:10",
+  "generated": "2026-06-23T14:16:06",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -523,7 +523,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": "compound-gpid.context.md",
         "classification": "docs-only",
-        "line": 227,
+        "line": 233,
         "path": "docs/context-files.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: compound-gpid.context.md",
@@ -533,7 +533,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 152,
+        "line": 158,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -560,13 +560,13 @@
         "files": 17
       },
       "brain": {
-        "characters": 283289,
-        "estimated_tokens": 70822,
+        "characters": 285367,
+        "estimated_tokens": 71341,
         "files": 4
       },
       "brain_index": {
-        "characters": 627135,
-        "estimated_tokens": 156783,
+        "characters": 631420,
+        "estimated_tokens": 157855,
         "files": 1
       },
       "context": {
@@ -575,8 +575,8 @@
         "files": 1
       },
       "docs": {
-        "characters": 209092,
-        "estimated_tokens": 52269,
+        "characters": 210666,
+        "estimated_tokens": 52663,
         "files": 10
       },
       "instructions": {
@@ -590,8 +590,8 @@
         "files": 24
       },
       "roadmap": {
-        "characters": 67021,
-        "estimated_tokens": 16755,
+        "characters": 67082,
+        "estimated_tokens": 16770,
         "files": 1
       },
       "shared": {
@@ -610,8 +610,8 @@
         "files": 1
       }
     },
-    "total_characters": 1753523,
-    "total_estimated_tokens": 438352,
+    "total_characters": 1761521,
+    "total_estimated_tokens": 440352,
     "total_files": 90
   },
   "workflow_telemetry": {
