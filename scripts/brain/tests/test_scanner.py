@@ -6,6 +6,7 @@ Run from repo root:
 from __future__ import annotations
 
 import json
+import warnings
 from pathlib import Path
 
 import pytest
@@ -78,6 +79,17 @@ class TestScanAllEntityTypes:
         _write(tmp_path / ".cg-docs/archive/old.md", _md("Old doc"))
         entities = scan_all(tmp_path)
         assert entities == []
+
+    def test_generated_audit_dirs_are_skipped_without_warning(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".cg-docs/cost/context-audit.md", "# Generated cost report\n")
+        _write(tmp_path / ".cg-docs/token/TOKEN-BUDGET.md", "# Generated token baseline\n")
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            entities = scan_all(tmp_path)
+
+        assert entities == []
+        assert not any("Unknown .cg-docs/ subdirectory" in str(w.message) for w in caught)
 
     def test_files_directly_in_cg_docs_are_skipped(self, tmp_path: Path) -> None:
         """DIGEST.md at the top level must be skipped (rel_parts length == 1)."""
@@ -284,6 +296,10 @@ class TestScanRoadmap:
 class TestDirToTypeMapping:
     def test_archive_maps_to_none(self) -> None:
         assert _DIR_TO_TYPE["archive"] is None
+
+    def test_generated_audit_dirs_map_to_none(self) -> None:
+        assert _DIR_TO_TYPE["cost"] is None
+        assert _DIR_TO_TYPE["token"] is None
 
     def test_known_types_present(self) -> None:
         for dir_name in ("solutions", "plans", "brainstorms", "reviews", "strategy"):

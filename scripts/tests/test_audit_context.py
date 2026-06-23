@@ -1049,6 +1049,28 @@ class TestPhase6Benchmark:
         assert (root / ".cg-docs/token/TOKEN-BUDGET.md").exists()
         assert (root / ".cg-docs/token/token-audit.json").exists()
 
+    def test_main_can_disable_token_artifacts_for_legacy_run(self, tmp_path: Path) -> None:
+        root = tmp_path / "project"
+        _write(root / ".github/prompts/cg-token-audit.prompt.md", _frontmatter("Claude Haiku 4.5"))
+        output_dir = tmp_path / "legacy-cost"
+        token_dir = root / ".cg-docs/token"
+
+        result = audit.main([
+            "--root",
+            str(root),
+            "--output-dir",
+            str(output_dir),
+            "--format",
+            "json",
+            "--no-token-artifacts",
+        ])
+
+        assert result == 0
+        assert (output_dir / "context-audit.json").exists()
+        for filename in audit.TOKEN_ARTIFACT_FILENAMES:
+            assert not (token_dir / filename).exists()
+        assert not token_dir.exists()
+
     def test_workflow_observability_schema_requires_status(self) -> None:
         observability = audit.workflow_observability(True)
         del observability["summary_size"]["status"]
