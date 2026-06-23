@@ -436,7 +436,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - To bootstrap a wiki on an existing project that has no `_wiki.yml` yet (`/cg-wiki init`)
 - To generate a GitHub Wiki–compatible layout (`/cg-wiki convert`)
 
-**What happens**: Manages the project wiki — a user-facing documentation folder (default: `wiki/`, configurable via `## Wiki Configuration` in `compound-gpid.context.md`). The wiki is governed by a `_wiki.yml` manifest that tracks pages, their order, and ownership (`auto` = plugin-managed, `manual` = user-written, never touched by the agent). Auto-managed sections are wrapped in `<!-- cg:auto:section-id -->` markers so user edits outside markers are always preserved.
+**What happens**: Manages the project wiki — a user-facing documentation folder (default: `wiki/`, configurable via `## Wiki Configuration` in `compound-gpid.context.md`; this repository uses `docs/`). The wiki is governed by a `_wiki.yml` manifest that tracks pages, their order, and ownership (`auto` = plugin-managed, `manual` = user-written, never touched by the agent). Auto-managed sections are wrapped in `<!-- cg:auto:section-id -->` markers so user edits outside markers are always preserved.
 
 **Note**: `/cg-wiki` is automatically dispatched by `/cg-compound` whenever a captured solution has user-facing implications (new CLI command, changed behavior, new dependency). You rarely need to run it manually.
 
@@ -464,7 +464,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - As a substitute for `/cg-compound` — the wiki reflects current state; institutional knowledge goes in `.cg-docs/`
 - To write manual documentation — use `/cg-wiki restructure` to register a new `manual`-ownership page, then edit the file directly
 
-**Output**: Files in the configured wiki folder (default: `wiki/`), including the updated `_wiki.yml` manifest inside that folder.
+**Output**: Files in the configured wiki folder (default: `wiki/`; `docs/` in this repository), including the updated `_wiki.yml` manifest inside that folder.
 
 ---
 

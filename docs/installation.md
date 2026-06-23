@@ -13,7 +13,7 @@ This page covers installing Compound GPID on a new machine, linking it to a proj
 ## Windows installation
 
 > **Requirements**: Windows 10/11, PowerShell 5.1+, git, **Python 3.8+**.
-> Python is required by the `cg-index` knowledge indexer and the `cg-token-audit` context/model audit. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](#python-not-found) in Troubleshooting if you run into issues.
+> Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](#python-not-found) in Troubleshooting if you run into issues.
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -46,7 +46,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compou
 & "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available.
+This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
 
 > ⚠️ **IMPORTANT — After install, restart both your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes — `cg-link` will not be found until the terminal is restarted.
@@ -107,7 +107,7 @@ and creates three config files:
 ## macOS installation
 
 > **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), git, **Python 3.8+**.
-> `python3` ships with Xcode Command Line Tools (installed automatically on most Macs). If you have never installed Xcode tools, run `xcode-select --install` first. Python is required by the `cg-index` knowledge indexer and the `cg-token-audit` context/model audit. If `python3` is not on your PATH, `install.sh` will fail and print install instructions.
+> `python3` ships with Xcode Command Line Tools (installed automatically on most Macs). If you have never installed Xcode tools, run `xcode-select --install` first. Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the `cg-*-summary` wrappers. If `python3` is not on your PATH, `install.sh` will fail and print install instructions.
 
 ### Step 1 — Clone (once per machine)
 
@@ -124,7 +124,7 @@ bash ~/.compound-gpid/scripts/install.sh
 ```
 
 This:
-- Creates bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-token-audit`) in `~/.compound-gpid/bin/`
+- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-token-audit`) in `~/.compound-gpid/bin/`; the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
 - Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
 - Writes `.cg-version` (set to `latest`) in the install directory
 
