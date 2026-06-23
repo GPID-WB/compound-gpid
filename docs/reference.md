@@ -22,6 +22,11 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 | `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration for the current project |
 | `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate legacy `.cg-docs/cost/` reports, additive `.cg-docs/token/` workflow baseline artifacts, and compact token-efficiency advice |
+| `cg-test-summary --root . --format json` | Project root | Summarize existing `tests/last-run.json` without running tests; stores the redacted source artifact under `.cg-docs/token/outputs/` |
+| `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, risk tags, and store the full redacted `git diff` under `.cg-docs/token/outputs/` |
+| `cg-log-summary --root . --format json` | Project root | Summarize branch-local first-parent commits and notable files |
+| `cg-tree-summary --root . --max-entries 120 --format md` | Project root | Summarize a bounded repository tree while excluding generated outputs and common dependency/cache folders |
+| `cg-problems-summary --root . --input problems.json --format json` | Project root | Summarize optional diagnostics JSON/text; reports unavailable when no diagnostics file is provided |
 <!-- cg:auto:end -->
 
 ---
@@ -102,6 +107,29 @@ token estimate. It is local and deterministic; it does not use vector search,
 external services, or optional retrieval backends. If query mode is unavailable
 or insufficient, fall back to the `BRAIN.md` topic index and matched
 `BRAIN-NN.md` sections.
+
+### Command Output Summary Wrappers
+
+Use the `cg-*-summary` wrappers when a workflow needs compact evidence from
+noisy local command surfaces while retaining the full source output on disk:
+
+```bash
+cg-test-summary --root . --format json
+cg-diff-summary --root . --format md
+cg-log-summary --root . --format json
+cg-tree-summary --root . --max-entries 80 --format md
+cg-problems-summary --root . --input diagnostics.json --format json
+```
+
+The wrappers are local stdlib tooling. They do not call external services,
+mutate GitHub, or replace required validation commands. `cg-test-summary`
+only reads existing `tests/last-run.json`; it does not run Pester, pytest, R,
+or Stata. Full raw/source outputs are redacted for common secret-looking
+patterns and written under `.cg-docs/token/outputs/YYYYMMDD-HHMMSS-<kind>/`.
+Keep that directory for short-lived validation evidence, not durable project
+knowledge; record final decisions in plans, reviews, work reports, and
+solutions instead. Treat any token-saving benefit as a hypothesis until
+measured against the same workflow probe in this repository.
 
 ### `cg-token-audit` / `cg-audit-context` — Context and Model-Governance Audit
 

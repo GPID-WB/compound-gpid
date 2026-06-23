@@ -4,7 +4,7 @@ _Generated 2026-06-23_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 366 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 370 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -224,6 +224,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 366 entit
   > Close the remaining Token Optimization & Model Governance work for #93 and #94 with a bounded, evidence-driven implem…
 - **[Workflow Token Baseline and Test Integration](.cg-docs/plans/2026-06-22-workflow-token-baseline.md)** · `plan` · _completed_ · `2026-06-22`
   > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
+- **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
@@ -436,6 +438,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 366 entit
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
 - **[2026-06-12-goal-driven-execution-verify-review](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md)** · `review` · _—_ · `2026-06-12`
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[2026-06-23-command-output-summarization-wrappers-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-command-output-summarization-wrappers-verify-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md)** · `review` · _—_ · `2026-06-23`
   > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md)** · `review` · _—_ · `2026-06-23`
@@ -698,6 +704,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 366 entit
   > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
 - **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
   > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
+- **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
+  > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -724,7 +732,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 366 entit
   > Phase 1.1 — Workflow-level token baseline and test integration
 - **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
   > Phase 1.2 — Knowledge Brain query and budgeted retrieval
-- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _idea_ · `—`
+- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
   > Phase 1.3 — Command-output summarization wrappers
 - **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _idea_ · `—`
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions

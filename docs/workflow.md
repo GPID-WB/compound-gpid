@@ -760,6 +760,12 @@ Token-efficiency advice:
 - Use the advice to choose lighter models for simple planning, match review
   depth to risk, and avoid broad context reads unless a workflow explicitly
   justifies them.
+- Prefer `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`,
+  `cg-tree-summary`, and `cg-problems-summary` when a workflow needs compact
+  evidence from noisy local outputs. These wrappers preserve validation
+  semantics: they summarize existing outputs, store redacted raw artifacts
+  under `.cg-docs/token/outputs/`, and do not replace required test or review
+  commands.
 
 Release-readiness checks:
 

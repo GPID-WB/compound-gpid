@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 397 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-06-23 · 401 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -111,12 +111,20 @@ _Generated 2026-06-23 · 397 artifacts (newest first) + 117 roadmap features_
 
 - **[2026-06-12-goal-driven-execution-verify-review-5](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md)** · `review` · _—_ · `2026-06-23`
   > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[2026-06-23-command-output-summarization-wrappers-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-command-output-summarization-wrappers-verify-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md)** · `review` · _—_ · `2026-06-23`
   > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
 - **[2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md)** · `review` · _—_ · `2026-06-23`
   > No verification findings. The required evidence passed after the budget-estimation correction:
 - **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
   > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
+- **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
+- **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
+  > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
 - **[ICM and OKF Integration Concept for Compound GPID](.cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md)** · `strategy` · _—_ · `2026-06-23`
   > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
@@ -1123,7 +1131,7 @@ _Generated 2026-06-23 · 397 artifacts (newest first) + 117 roadmap features_
   > Phase 1.1 — Workflow-level token baseline and test integration
 - **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
   > Phase 1.2 — Knowledge Brain query and budgeted retrieval
-- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _idea_ · `—`
+- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
   > Phase 1.3 — Command-output summarization wrappers
 - **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _idea_ · `—`
   > Phase 1.4 — Progressive-disclosure skills and scoped instructions
