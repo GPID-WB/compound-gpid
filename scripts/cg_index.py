@@ -5,12 +5,14 @@ Scans .cg-docs/ artifacts and roadmap.json, then builds a rich multi-file
 brain knowledge index.
 
 Usage:
+    cg-index query --intent <intent> --query <text> [--changed-file <path>] [--budget <n>] [--format json|md] [--root <path>]
     cg-index [--brain] [--root <path>] [--version] [--help]
 
     # Legacy (deprecated — use --brain):
     cg-index [--index] [--digest] [--all] [--root <path>]
 
 Modes:
+    query      Return budgeted Knowledge Brain retrieval output.
     --brain    Build the full brain knowledge index: BRAIN.md, BRAIN-01.md,
                BRAIN-log.md, brain-index.json.  Also removes legacy
                DIGEST.md and search-index.json on success.
@@ -71,6 +73,49 @@ else:
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
+def build_query_arg_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser for ``cg-index query``."""
+    parser = argparse.ArgumentParser(
+        prog="cg-index query",
+        description="Query the local Knowledge Brain with a bounded token budget.",
+    )
+    parser.add_argument(
+        "--intent",
+        required=True,
+        choices=("brainstorm", "plan", "work", "review", "compound", "resume"),
+        help="Workflow intent used to rank Knowledge Brain artifacts.",
+    )
+    parser.add_argument(
+        "--query",
+        required=True,
+        help="Search directive or question.",
+    )
+    parser.add_argument(
+        "--changed-file",
+        action="append",
+        default=[],
+        help="Changed or relevant file path. Repeat for multiple paths.",
+    )
+    parser.add_argument(
+        "--budget",
+        type=int,
+        default=800,
+        help="Maximum estimated output tokens. Minimum: 120.",
+    )
+    parser.add_argument(
+        "--format",
+        choices=("json", "md"),
+        default="md",
+        help="Output format for prompts/tools or humans.",
+    )
+    parser.add_argument(
+        "--root",
+        metavar="PATH",
+        default=None,
+        help="Project root directory (defaults to current working directory).",
+    )
+    return parser
 
 def build_arg_parser() -> argparse.ArgumentParser:
     """Build and return the CLI argument parser for ``cg-index``.
@@ -151,6 +196,29 @@ def main(argv: Optional[List[str]] = None) -> int:
         >>> import sys
         >>> sys.exit(main(["--brain"]))
     """
+    if argv is None:
+        argv = sys.argv[1:]
+    if argv and argv[0] == "query":
+        parser = build_query_arg_parser()
+        args = parser.parse_args(argv[1:])
+        root = Path(args.root).resolve() if args.root else Path.cwd()
+        try:
+            from brain.query import query_from_args
+
+            rendered = query_from_args(
+                root,
+                intent=args.intent,
+                query=args.query,
+                changed_files=args.changed_file,
+                budget_tokens=args.budget,
+                output_format=args.format,
+            )
+        except ValueError as exc:
+            print(f"[cg-index] ERROR: {exc}", file=sys.stderr)
+            return 1
+        print(rendered, end="")
+        return 0
+
     parser = build_arg_parser()
     args = parser.parse_args(argv)
 

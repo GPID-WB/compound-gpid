@@ -3336,7 +3336,7 @@ Describe "cg-work.prompt.md - review mode integration" {
     }
 
     It "invalid review values warn and fall back to recommendation mode" {
-        ($content -match '(?s)invalid `review:<value>`|unrecognized review') | Should -Be $true
+        ($content -match '(?s)invalid `review:<value>`|Invalid review value|unrecognized review') | Should -Be $true
         ($content -match '(?s)fall back.*recommendation mode|fallback.*recommendation') | Should -Be $true
     }
 }
@@ -3388,6 +3388,13 @@ Describe "Phase 6 Knowledge Brain broad-read guardrails" {
         ($content -match 'BRAIN\.md') | Should -Be $true
         ($content -match '(?s)Match Topics.*Open Sub-files|matched topic') | Should -Be $true
         ($content -match 'Do NOT read all BRAIN-NN\.md sub-files|read all BRAIN-NN\.md sub-files blindly') | Should -Be $true
+    }
+
+    It "prefers budgeted cg-index query with intent, budget, and BRAIN.md fallback" {
+        ($content -match 'cg-index query') | Should -Be $true
+        ($content -match '--intent <brainstorm\|plan\|work\|review\|compound\|resume>') | Should -Be $true
+        ($content -match '--budget <tokens>') | Should -Be $true
+        ($content -match '(?s)If `cg-index query` is unavailable.*fall back to.*BRAIN\.md') | Should -Be $true
     }
 
     It "does not tell agents to read brain-index.json wholesale while allowing tooling query use" {
@@ -5296,6 +5303,12 @@ Describe "cg-token-audit.prompt.md - command contract" {
         ($content -match 'context-loading\.contract\.md') | Should -Be $true
         ($content -match 'Do not read `\.cg-docs/`, `BRAIN\*\.md`, `brain-index\.json`') | Should -Be $true
     }
+
+    It "allows audit-generated reports under cost and token output directories" {
+        ($content -match '\.cg-docs/cost/') | Should -Be $true
+        ($content -match '\.cg-docs/token/') | Should -Be $true
+        ($content -match 'report files under\s+`\.cg-docs/cost/`\s+and `\.cg-docs/token/`') | Should -Be $true
+    }
 }
 
 Describe "copilot-instructions.md - /cg-token-audit in Workflow Entry Points" {
@@ -5319,6 +5332,14 @@ Describe "docs/reference.md - /cg-token-audit registration" {
     It "docs/reference.md documents --recommendations output" {
         ($content -match '--recommendations') | Should -Be $true
         ($content -match 'token-advice\.md') | Should -Be $true
+    }
+
+    It "docs/reference.md documents workflow token baseline artifacts" {
+        ($content -match '\.cg-docs/token/TOKEN-BUDGET\.md') | Should -Be $true
+        ($content -match '\.cg-docs/token/token-audit\.json') | Should -Be $true
+        ($content -match '\.cg-docs/token/context-map\.json') | Should -Be $true
+        ($content -match '\.cg-docs/token/workflow-costs\.csv') | Should -Be $true
+        ($content -match '\.cg-docs/token/large-context-warnings\.md') | Should -Be $true
     }
 }
 
@@ -6625,10 +6646,78 @@ Describe "goal-execution.contract.md - journey and compatibility fixtures" {
     }
 
     It "cg-work contract text cannot override file permissions or safety rules" {
-        ($workContent -match 'Authority Precedence|authority precedence|contract.*subordinate|plan contract.*data') | Should -Be $true
+        ($workContent -match 'Authority Precedence|authority precedence|contract.*subordinate|plan contract.*data|under file permissions') | Should -Be $true
     }
 
     It "cg-work blocked plan appends resume section rather than overwriting" {
         ($workContent -match 'resume section|append.*section|blocked.*resume') | Should -Be $true
+    }
+}
+
+Describe "active-state handoff contract - compact resume records" {
+    $contractFile = Join-Path $repoRoot ".github\shared\active-state.contract.md"
+    $workFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
+    $resumeFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $diagnoseFile = Join-Path $repoRoot ".github\prompts\cg-diagnose.prompt.md"
+    $templateFile = Join-Path $repoRoot ".github\prompts\resume-templates.md"
+    $docsReference = Join-Path $repoRoot "docs\reference.md"
+    $docsWorkflow = Join-Path $repoRoot "docs\workflow.md"
+
+    $contract = if (Test-Path $contractFile) { Get-Content $contractFile -Raw -Encoding UTF8 } else { "" }
+    $workContent = if (Test-Path $workFile) { Get-Content $workFile -Raw -Encoding UTF8 } else { "" }
+    $resumeContent = if (Test-Path $resumeFile) { Get-Content $resumeFile -Raw -Encoding UTF8 } else { "" }
+    $diagnoseContent = if (Test-Path $diagnoseFile) { Get-Content $diagnoseFile -Raw -Encoding UTF8 } else { "" }
+    $templateContent = if (Test-Path $templateFile) { Get-Content $templateFile -Raw -Encoding UTF8 } else { "" }
+    $referenceContent = if (Test-Path $docsReference) { Get-Content $docsReference -Raw -Encoding UTF8 } else { "" }
+    $workflowContent = if (Test-Path $docsWorkflow) { Get-Content $docsWorkflow -Raw -Encoding UTF8 } else { "" }
+
+    It "defines current active-state path and schema version" {
+        ($contract -match '\.cg-docs/active-state/current\.json') | Should -Be $true
+        ($contract -match 'compound-gpid-active-state-v1') | Should -Be $true
+    }
+
+    It "requires exact next command, evidence status, unresolved decisions, and artifact refs" {
+        ($contract -match 'nextCommand') | Should -Be $true
+        ($contract -match 'evidenceStatus') | Should -Be $true
+        ($contract -match 'unresolvedDecisions') | Should -Be $true
+        ($contract -match 'artifactRefs') | Should -Be $true
+    }
+
+    It "forbids transcript dumps and raw command output in active-state records" {
+        ($contract -match 'Do not copy full plan bodies') | Should -Be $true
+        ($contract -match 'transcript') | Should -Be $true
+        ($contract -match 'raw command-output|raw command output') | Should -Be $true
+    }
+
+    It "cg-work is allowed and instructed to update active-state records" {
+        ($workContent -match '\.cg-docs/active-state') | Should -Be $true
+        ($workContent -match 'create or update|create/update|update') | Should -Be $true
+        ($workContent -match 'exact\s+`nextCommand`|exact\s+nextCommand') | Should -Be $true
+    }
+
+    It "cg-resume reads active-state records as untrusted data and validates references" {
+        ($resumeContent -match '\.cg-docs/active-state/current\.json') | Should -Be $true
+        ($resumeContent -match 'untrusted data') | Should -Be $true
+        ($resumeContent -match 'validate referenced paths|validates the referenced paths') | Should -Be $true
+    }
+
+    It "cg-resume preserves non-mutating behavior" {
+        ($resumeContent -match 'You may NOT create, modify, or delete any files') | Should -Be $true
+    }
+
+    It "cg-diagnose uses compact pointers but does not write active-state files" {
+        ($diagnoseContent -match '\.cg-docs/active-state/current\.json') | Should -Be $true
+        ($diagnoseContent -match 'Do not write active-state files') | Should -Be $true
+        ($diagnoseContent -match 'compact handoff pointers') | Should -Be $true
+    }
+
+    It "resume template includes Active State Snapshot and exact next command" {
+        ($templateContent -match 'Active State Snapshot') | Should -Be $true
+        ($templateContent -match 'Exact next command') | Should -Be $true
+    }
+
+    It "docs explain active-state as a compact restart aid, not durable transcript storage" {
+        (($referenceContent + $workflowContent) -match 'compact restart aid') | Should -Be $true
+        (($referenceContent + $workflowContent) -match 'must not copy transcripts|must not contain transcript dumps') | Should -Be $true
     }
 }

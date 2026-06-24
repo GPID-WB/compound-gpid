@@ -5,6 +5,8 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import csv
+import io
 import json
 from pathlib import Path
 
@@ -268,6 +270,23 @@ class TestContextLoadingRisks:
         )
         assert row is not None
         assert row["level"] == "justified"
+
+    def test_context_expansion_for_docs_directory_is_justified(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/agents/cg-release-scanner.agent.md",
+            "Context expansion: reading `.cg-docs/` filenames only because release notes need dated evidence.",
+        )
+        assert row is not None
+        assert row["level"] == "justified"
+        assert row["artifact"] == ".cg-docs/"
+
+    def test_structured_roadmap_fields_are_targeted(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/cg-strategy.prompt.md",
+            "Parse only roadmap.json milestone and feature status fields needed for the summary.",
+        )
+        assert row is not None
+        assert row["level"] == "targeted"
 
     def test_targeted_brain_topic_read_is_not_risk(self) -> None:
         row = audit.classify_context_loading_line(
@@ -582,7 +601,16 @@ class TestIntegration:
     @pytest.mark.integration
     def test_full_run_on_real_repo(self, tmp_path: Path) -> None:
         root = Path(__file__).resolve().parents[2]
-        assert audit.main(["--root", str(root), "--output-dir", str(tmp_path), "--format", "json"]) == 0
+        assert audit.main([
+            "--root",
+            str(root),
+            "--output-dir",
+            str(tmp_path),
+            "--token-output-dir",
+            str(tmp_path / "token"),
+            "--format",
+            "json",
+        ]) == 0
         payload = json.loads((tmp_path / "context-audit.json").read_text(encoding="utf-8"))
         assert payload["summary"]["total_files"] > 0
 
@@ -861,6 +889,30 @@ class TestMdOutput:
 
 
 class TestPhase6Benchmark:
+    def test_workflow_registry_covers_phase_1_1_commands(self) -> None:
+        commands = [row["workflow"] for row in audit.WORKFLOW_REGISTRY]
+        workflow_ids = [row["workflow_id"] for row in audit.WORKFLOW_REGISTRY]
+        assert commands == [
+            "/cg-brainstorm",
+            "/cg-plan",
+            "/cg-work",
+            "/cg-review",
+            "/cg-fix-triage",
+            "/cg-compound",
+            "/cg-resume",
+            "/cg-diagnose",
+            "/cg-token-audit",
+        ]
+        assert len(workflow_ids) == len(set(workflow_ids))
+
+    def test_duplicate_workflow_ids_fail_registry_validation(self) -> None:
+        registry = [
+            {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
+            {"workflow_id": "cg-plan", "workflow": "/cg-work", "path": ".github/prompts/cg-work.prompt.md"},
+        ]
+        with pytest.raises(ValueError, match="Duplicate workflow_id"):
+            audit.validate_workflow_registry(registry)
+
     def test_builds_workflow_benchmark_rows(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None) + "Context expansion: reading `roadmap.json` because targeted fields.\n")
         _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none route-aware staged mode @cg-code-quality\n")
@@ -878,11 +930,178 @@ class TestPhase6Benchmark:
         }
         benchmark = audit.build_benchmark_summary(tmp_path, report)
         names = {row["workflow"] for row in benchmark["workflows"]}
-        assert {"/cg-plan", "/cg-work", "/cg-review", "/cg-compound", "/cg-resume", "Knowledge Brain/context lookup"} <= names
+        assert {
+            "/cg-brainstorm",
+            "/cg-plan",
+            "/cg-work",
+            "/cg-review",
+            "/cg-fix-triage",
+            "/cg-compound",
+            "/cg-resume",
+            "/cg-diagnose",
+            "/cg-token-audit",
+            "Knowledge Brain/context lookup",
+        } <= names
         cg_plan = next(row for row in benchmark["workflows"] if row["workflow"] == "/cg-plan")
         assert cg_plan["model_tier"] == "model-picker"
         brain = next(row for row in benchmark["workflows"] if row["workflow"] == "Knowledge Brain/context lookup")
         assert brain["query_first"] is True
+
+    def test_workflow_telemetry_marks_missing_prompts_unavailable(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        report = audit.build_report(tmp_path)
+        telemetry = report["workflow_telemetry"]
+        missing = next(row for row in telemetry["workflows"] if row["workflow"] == "/cg-token-audit")
+        assert missing["available"] is False
+        assert missing["characters"] is None
+        assert missing["estimated_tokens"] is None
+        assert missing["observability"]["estimated_token_pressure"]["status"] == "not_observed"
+
+    def test_workflow_telemetry_observability_statuses_are_explicit(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter(None)
+            + "Read compound-gpid.md, load cg-skill-brain-query, dispatch @cg-roadmap, then use run_in_terminal.\n",
+        )
+        report = audit.build_report(tmp_path)
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-token-audit")
+        assert row["file_references"] == ["compound-gpid.md"]
+        assert row["likely_file_reads"] == ["compound-gpid.md"]
+        assert row["skill_references"] == ["cg-skill-brain-query"]
+        assert row["likely_skill_loads"] == ["cg-skill-brain-query"]
+        assert row["agent_references"] == ["@cg-roadmap"]
+        assert row["tool_references"] == ["run_in_terminal"]
+        assert row["observability"]["files_read"]["status"] == "partially_observed"
+        assert row["observability"]["skills_loaded"]["status"] == "partially_observed"
+        assert row["observability"]["agents_dispatched"]["status"] == "partially_observed"
+        assert row["observability"]["command_output_size"]["status"] == "not_observed"
+        assert row["observability"]["summary_size"]["status"] == "not_observed"
+
+    def test_workflow_telemetry_extracts_shared_paths_and_execution_subagent(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-work.prompt.md",
+            _frontmatter(None)
+            + "Load `.github/shared/context-loading.contract.md` before Step 1.\n"
+            + "Load `.github/shared/goal-execution.contract.md` for the contract.\n"
+            + "Read `.github/shared/review-routing.contract.md` for review routing.\n"
+            + "Use execution_subagent to run `. tests\\Run-Tests.ps1` safely.\n",
+        )
+        report = audit.build_report(tmp_path)
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-work")
+        assert ".github/shared/context-loading.contract.md" in row["file_references"]
+        assert ".github/shared/goal-execution.contract.md" in row["file_references"]
+        assert ".github/shared/review-routing.contract.md" in row["file_references"]
+        assert "tests/Run-Tests.ps1" in row["file_references"]
+        assert ".github/shared/context-loading.contract.md" in row["likely_file_reads"]
+        assert ".github/shared/review-routing.contract.md" in row["likely_file_reads"]
+        assert "execution_subagent" in row["tool_references"]
+        assert row["tool_refs"] == 1
+
+    def test_workflow_telemetry_tracks_generated_report_reads_without_scanning_outputs(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter("Claude Haiku 4.5")
+            + "Read `.cg-docs/cost/token-advice.md` and `.cg-docs/token/TOKEN-BUDGET.md`.\n",
+        )
+        _write(tmp_path / ".cg-docs/cost/token-advice.md", "Generated advice")
+        _write(tmp_path / ".cg-docs/token/TOKEN-BUDGET.md", "Generated budget")
+
+        report = audit.build_report(tmp_path)
+
+        row = next(item for item in report["workflow_telemetry"]["workflows"] if item["workflow"] == "/cg-token-audit")
+        assert ".cg-docs/cost/token-advice.md" in row["file_references"]
+        assert ".cg-docs/token/TOKEN-BUDGET.md" in row["file_references"]
+        assert ".cg-docs/cost/token-advice.md" in row["likely_file_reads"]
+        assert ".cg-docs/token/TOKEN-BUDGET.md" in row["likely_file_reads"]
+        scanned_paths = {item["path"] for item in report["files"]}
+        assert ".cg-docs/cost/token-advice.md" not in scanned_paths
+        assert ".cg-docs/token/TOKEN-BUDGET.md" not in scanned_paths
+
+    def test_token_artifacts_are_written_with_expected_shapes(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-token-audit.prompt.md",
+            _frontmatter("Claude Haiku 4.5")
+            + "Read `.github/shared/context-loading.contract.md` and run_in_terminal.\n",
+        )
+        report = audit.build_report(tmp_path)
+        token_dir = tmp_path / ".cg-docs/token"
+
+        paths = audit.write_token_artifacts(report, token_dir)
+
+        assert {path.name for path in paths} == set(audit.TOKEN_ARTIFACT_FILENAMES)
+        token_payload = json.loads((token_dir / "token-audit.json").read_text(encoding="utf-8"))
+        assert token_payload["schema_version"] == 1
+        assert len(token_payload["workflow_telemetry"]["workflows"]) == 9
+
+        context_payload = json.loads((token_dir / "context-map.json").read_text(encoding="utf-8"))
+        assert context_payload["schema_version"] == 1
+        assert len(context_payload["workflows"]) == 9
+        token_audit_context = next(
+            row for row in context_payload["workflows"] if row["workflow"] == "/cg-token-audit"
+        )
+        assert ".github/shared/context-loading.contract.md" in token_audit_context["file_references"]
+        assert "run_in_terminal" in token_audit_context["tool_references"]
+
+        cost_rows = list(csv.DictReader(io.StringIO((token_dir / "workflow-costs.csv").read_text(encoding="utf-8"))))
+        assert len(cost_rows) == 9
+        token_audit_cost = next(row for row in cost_rows if row["workflow"] == "/cg-token-audit")
+        assert token_audit_cost["command_output_status"] == "not_observed"
+        assert token_audit_cost["summary_output_status"] == "not_observed"
+
+        budget = (token_dir / "TOKEN-BUDGET.md").read_text(encoding="utf-8")
+        assert "not evidence of token savings" in budget
+        assert "not_observed" in budget
+        warnings = (token_dir / "large-context-warnings.md").read_text(encoding="utf-8")
+        assert "Large Context Warnings" in warnings
+        dashboard = (token_dir / "TOKEN-DASHBOARD.md").read_text(encoding="utf-8")
+        assert "Token Dashboard" in dashboard
+        assert "Regression Status" in dashboard
+        regression = json.loads((token_dir / "regression-check.json").read_text(encoding="utf-8"))
+        assert regression["schema_version"] == 1
+        assert f"Status: `{regression['status']}`" in dashboard
+        assert regression["comparison"]["status"] in {"not_supplied", "available"}
+
+    def test_main_writes_token_artifacts_by_default(self, tmp_path: Path) -> None:
+        root = tmp_path / "project"
+        _write(root / ".github/prompts/cg-token-audit.prompt.md", _frontmatter("Claude Haiku 4.5"))
+        output_dir = tmp_path / "legacy-cost"
+
+        result = audit.main(["--root", str(root), "--output-dir", str(output_dir), "--format", "json"])
+
+        assert result == 0
+        assert (output_dir / "context-audit.json").exists()
+        assert (root / ".cg-docs/token/TOKEN-BUDGET.md").exists()
+        assert (root / ".cg-docs/token/TOKEN-DASHBOARD.md").exists()
+        assert (root / ".cg-docs/token/token-audit.json").exists()
+        assert (root / ".cg-docs/token/regression-check.json").exists()
+
+    def test_main_can_disable_token_artifacts_for_legacy_run(self, tmp_path: Path) -> None:
+        root = tmp_path / "project"
+        _write(root / ".github/prompts/cg-token-audit.prompt.md", _frontmatter("Claude Haiku 4.5"))
+        output_dir = tmp_path / "legacy-cost"
+        token_dir = root / ".cg-docs/token"
+
+        result = audit.main([
+            "--root",
+            str(root),
+            "--output-dir",
+            str(output_dir),
+            "--format",
+            "json",
+            "--no-token-artifacts",
+        ])
+
+        assert result == 0
+        assert (output_dir / "context-audit.json").exists()
+        for filename in audit.TOKEN_ARTIFACT_FILENAMES:
+            assert not (token_dir / filename).exists()
+        assert not token_dir.exists()
+
+    def test_workflow_observability_schema_requires_status(self) -> None:
+        observability = audit.workflow_observability(True)
+        del observability["summary_size"]["status"]
+        with pytest.raises(ValueError, match="summary_size"):
+            audit.validate_observability_matrix(observability)
 
     def test_baseline_comparison_reports_deltas(self) -> None:
         current = {
@@ -907,6 +1126,62 @@ class TestPhase6Benchmark:
         assert row["total_refs_delta"] == -2
         assert row["context_risk_count_delta"] == -2
         assert comparison["model_governance"]["premium_usage_count_delta"] == -1
+
+    def test_token_regression_check_status_baseline_without_comparison(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {"failures": [], "warnings": []},
+            "benchmark": {"workflows": []},
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "baseline"
+        assert regression["comparison"]["status"] == "not_supplied"
+        assert "No baseline comparison" in regression["status_reason"]
+
+    def test_token_regression_check_status_pass_with_comparison(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {"failures": [], "warnings": []},
+            "benchmark": {
+                "workflows": [],
+                "comparison": {
+                    "workflows": [{"workflow": "/cg-plan", "estimated_tokens_delta": 0}],
+                    "model_governance": {},
+                },
+            },
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "pass"
+        assert regression["comparison"]["status"] == "available"
+
+    def test_token_regression_check_status_fail_for_guardrail_failure(self) -> None:
+        report = {
+            "generated": "2026-06-23T00:00:00",
+            "guardrails": {
+                "failures": [{"path": ".github/prompts/cg-work.prompt.md", "reason": "high-frequency prompt estimated tokens > 6000"}],
+                "warnings": [],
+            },
+            "benchmark": {
+                "workflows": [
+                    {
+                        "workflow": "/cg-work",
+                        "path": ".github/prompts/cg-work.prompt.md",
+                        "estimated_tokens": audit.THRESHOLD_HIGH_FREQ_PROMPT_FAIL + 1,
+                    }
+                ],
+                "comparison": {"workflows": [{"workflow": "/cg-work"}]},
+            },
+        }
+
+        regression = audit.build_token_regression_check(report)
+
+        assert regression["status"] == "fail"
+        assert regression["workflow_budget"][0]["status"] == "fail"
+        assert regression["failures"][0]["path"] == ".github/prompts/cg-work.prompt.md"
 
     def test_malformed_baseline_returns_exit_code_1(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         root = Path(__file__).resolve().parents[2]

@@ -110,7 +110,9 @@ When writing to an `auto` page:
 
 1. **Plugin-managed section (inside markers)**: The plugin replaces the entire section content with the new content. No notification. This is the normal update path.
 
-2. **User content outside markers**: The plugin detects that new information may conflict with existing user content by checking whether any of these keywords appear in user-owned sections of the same page: the changed function name, CLI flag, config key, or behavior name.
+2. **User content outside markers**: The plugin detects that new information may conflict with existing user content by checking only high-signal topic keys in user-owned sections of the same page: exact command names (`/cg-token-audit`), CLI executables (`cg-token-audit`), CLI flags (`--token-output-dir`), config keys, file/artifact paths, function names, class names, or explicit behavior names from the change. Ignore occurrences inside existing `cg:auto` sections.
+   - Do not block on generic component words by themselves, including `workflow`, `token`, `audit`, `telemetry`, `context`, `model`, `report`, `baseline`, `command`, or `output`, unless they appear as part of an exact high-signal key.
+   - If all exact high-signal keys for the topic are already inside plugin-managed sections, write the managed section normally.
    - If detected: notify the user before writing:
      > "New information about `<topic>` may conflict with user-written content in `<folder>/<page>.md` (outside plugin-managed sections). Review and reconcile manually. Skipping auto-update for this page."
    - If not detected: write managed sections without notification.

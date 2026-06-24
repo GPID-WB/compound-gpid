@@ -17,6 +17,8 @@ pages:
     ownership: "auto"
     order: 3
     sections:
+      - id: "shell-commands"
+        managed: true
       - id: "commands"
         managed: true
   - id: "context-files"
@@ -34,24 +36,34 @@ pages:
     title: "Team Brain Schema"
     ownership: "manual"
     order: 6
+  - id: "retrieval-backends"
+    file: "retrieval-backends.md"
+    title: "Retrieval Backends"
+    ownership: "manual"
+    order: 7
+  - id: "snapshot-external-research"
+    file: "snapshot-external-research.md"
+    title: "Snapshot and External Research"
+    ownership: "manual"
+    order: 8
   - id: "versioning"
     file: "versioning.md"
     title: "Versioning"
     ownership: "manual"
-    order: 7
+    order: 9
   - id: "troubleshooting"
     file: "troubleshooting.md"
     title: "Troubleshooting"
     ownership: "manual"
-    order: 8
+    order: 10
   - id: "manual"
     file: "manual.md"
     title: "Manual"
     ownership: "manual"
-    order: 9
+    order: 11
   - id: "competitive-reviews"
     file: "competitive-reviews.md"
     title: "Competitive Reviews"
     ownership: "manual"
-    order: 10
-lastUpdated: "2026-06-16"
+    order: 12
+lastUpdated: "2026-06-23"

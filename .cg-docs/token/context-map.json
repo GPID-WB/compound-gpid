@@ -1,0 +1,947 @@
+{
+  "generated": "2026-06-23T14:26:40",
+  "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
+  "schema_version": 1,
+  "workflows": [
+    {
+      "agent_references": [
+        "@cg-roadmap",
+        "@cg-roadmap-view"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 27,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "first. Do not read full `compound-gpid.context.md` by default; search"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 41,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "Scan `.cg-docs/brainstorms/` for any existing brainstorms related to this topic:"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 235,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "- Verify with a targeted `roadmap.json` read; confirm the feature was added."
+        }
+      ],
+      "file_references": [
+        ".cg-docs/brainstorms/",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/brainstorms/",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query"
+      ],
+      "tool_references": [
+        "Task"
+      ],
+      "workflow": "/cg-brainstorm",
+      "workflow_id": "cg-brainstorm"
+    },
+    {
+      "agent_references": [
+        "@cg-roadmap"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "roadmap.json",
+          "level": "justified",
+          "line": 228,
+          "reason": "explicit expansion rationale",
+          "snippet": "1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching."
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 12,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "- You may read targeted `roadmap.json` fields for structural operations and inline milestone rendering."
+        },
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 24,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and st"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 32,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords."
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 63,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 229,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: \"Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned.\" Verify with a targeted "
+        }
+      ],
+      "file_references": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/plans/",
+        ".cg-docs/plans/YYYY-MM-DD-",
+        ".cg-docs/solutions/",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/goal-execution.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/plans/",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/goal-execution.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query"
+      ],
+      "tool_references": [],
+      "workflow": "/cg-plan",
+      "workflow_id": "cg-plan"
+    },
+    {
+      "agent_references": [
+        "@cg-fix-problems",
+        "@cg-roadmap",
+        "@cg-testing"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": ".cg-docs/",
+          "level": "justified",
+          "line": 40,
+          "reason": "maintenance/tooling workflow",
+          "snippet": "- Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "justified",
+          "line": 204,
+          "reason": "explicit expansion rationale",
+          "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 13,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "- You may read targeted `roadmap.json` fields for plan/roadmap status."
+        },
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 25,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and sta"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 91,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 207,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 211,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
+        }
+      ],
+      "file_references": [
+        ".cg-docs/plans/",
+        ".cg-docs/plans/YYYY-MM-DD-",
+        ".cg-docs/work-reports/YYYY-MM-DD-",
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/goal-execution.contract.md",
+        ".github/shared/review-routing.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "docs/style",
+        "roadmap.json",
+        "tests/Run-Tests.ps1",
+        "tests/docs",
+        "tests/last-run.json",
+        "tests/test-",
+        "tests/test_"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/plans/YYYY-MM-DD-",
+        ".cg-docs/work-reports/YYYY-MM-DD-",
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/goal-execution.contract.md",
+        ".github/shared/review-routing.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json",
+        "tests/Run-Tests.ps1",
+        "tests/last-run.json",
+        "tests/test-",
+        "tests/test_"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-work.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query",
+        "cg-skill-pester-safety"
+      ],
+      "tool_references": [
+        "execution_subagent"
+      ],
+      "workflow": "/cg-work",
+      "workflow_id": "cg-work"
+    },
+    {
+      "agent_references": [
+        "@cg-adversarial",
+        "@cg-architecture",
+        "@cg-code-quality",
+        "@cg-data-quality",
+        "@cg-documentation",
+        "@cg-learnings-researcher",
+        "@cg-performance",
+        "@cg-reproducibility",
+        "@cg-testing",
+        "@cg-version-control"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 23,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 82,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the "
+        }
+      ],
+      "file_references": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/plans/",
+        ".cg-docs/reviews/",
+        ".cg-docs/reviews/2026-04-21-foo-review.md",
+        ".cg-docs/solutions/",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/review-routing.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/reviews/",
+        ".cg-docs/solutions/",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/review-routing.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query",
+        "cg-skill-python-best-practices",
+        "cg-skill-stata-best-practices"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-review.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query",
+        "cg-skill-python-best-practices",
+        "cg-skill-r-analytical",
+        "cg-skill-r-technical",
+        "cg-skill-stata-best-practices"
+      ],
+      "tool_references": [],
+      "workflow": "/cg-review",
+      "workflow_id": "cg-review"
+    },
+    {
+      "agent_references": [],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 22,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently."
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 39,
+          "reason": "context artifact reference with loading verb",
+          "snippet": "2. If none exist: \"> No review reports found in `.cg-docs/reviews/`. Run `/cg-review` first to generate a review report.\" Then stop."
+        }
+      ],
+      "file_references": [
+        ".cg-docs/reviews/",
+        ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "tests/Run-Tests.ps1",
+        "tests/last-run.json",
+        "tests/prompt-tools.Tests.ps1"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/reviews/",
+        ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "tests/Run-Tests.ps1",
+        "tests/last-run.json"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query",
+        "cg-skill-fix-triage-migrate",
+        "cg-skill-r-analytical",
+        "cg-skill-r-technical"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-fix-triage.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query",
+        "cg-skill-fix-triage-migrate",
+        "cg-skill-python-best-practices",
+        "cg-skill-r-analytical",
+        "cg-skill-r-technical",
+        "cg-skill-stata-best-practices"
+      ],
+      "tool_references": [
+        "execution_subagent"
+      ],
+      "workflow": "/cg-fix-triage",
+      "workflow_id": "cg-fix-triage"
+    },
+    {
+      "agent_references": [
+        "@cg-wiki"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "justified",
+          "line": 196,
+          "reason": "explicit expansion rationale",
+          "snippet": "1. Context expansion: reading targeted `compound-gpid.context.md` sections"
+        },
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 40,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "full `compound-gpid.context.md` by default; search targeted headings or"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 188,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "1. Search `.cg-docs/solutions/` titles, frontmatter, and targeted snippets for related existing solutions."
+        }
+      ],
+      "file_references": [
+        ".cg-docs/solutions/",
+        ".github/shared/context-loading.contract.md",
+        "BRAIN.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "copilot-instructions.md"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/solutions/",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-brain-query"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "skill_references": [
+        "cg-skill-brain-query",
+        "cg-skill-wiki"
+      ],
+      "tool_references": [],
+      "workflow": "/cg-compound",
+      "workflow_id": "cg-compound"
+    },
+    {
+      "agent_references": [
+        "@cg-roadmap",
+        "@cg-roadmap-view"
+      ],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": "roadmap.json",
+          "level": "justified",
+          "line": 125,
+          "reason": "explicit expansion rationale",
+          "snippet": "<!-- Context expansion: reading full roadmap.json because /cg-resume computes"
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 13,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "- You may read `roadmap.json` in the project root only for the justified structured milestone health and drift checks in Step 2d."
+        },
+        {
+          "artifact": "compound-gpid.context.md",
+          "level": "targeted",
+          "line": 49,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "If `compound-gpid.context.md` exists, read only headings or snippets relevant"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 100,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with:"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 115,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "Scan `.cg-docs/brainstorms/` for all `.md` files with `status: decided`. For each, check if a corresponding plan file exists in `.cg-docs/plans/` (match by date and title similarity, or a `brainstorm:` frontmatter field "
+        },
+        {
+          "artifact": "roadmap.json",
+          "level": "targeted",
+          "line": 130,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "If `roadmap.json` exists at the project root, use the justified full read above to compute:"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 149,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "Scan `.cg-docs/reviews/` metadata for `.md` files (skip `.gitkeep`). For each file:"
+        }
+      ],
+      "file_references": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/plans/",
+        ".cg-docs/reviews/",
+        ".cg-docs/strategy/",
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "docs/brainstorms/",
+        "docs/plans/",
+        "docs/solutions/",
+        "roadmap.json"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/brainstorms/",
+        ".cg-docs/plans/",
+        ".cg-docs/reviews/",
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json"
+      ],
+      "likely_skill_loads": [],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "skill_references": [],
+      "tool_references": [],
+      "workflow": "/cg-resume",
+      "workflow_id": "cg-resume"
+    },
+    {
+      "agent_references": [],
+      "available": true,
+      "context_loading_signals": [],
+      "file_references": [
+        ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "copilot-instructions.md",
+        "tests/Run-Tests.ps1",
+        "tests/last-run.json",
+        "tests/roadmap.Tests.ps1"
+      ],
+      "likely_file_reads": [
+        ".github/shared/active-state.contract.md",
+        ".github/shared/context-loading.contract.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "tests/Run-Tests.ps1",
+        "tests/last-run.json"
+      ],
+      "likely_skill_loads": [
+        "cg-skill-pester-safety"
+      ],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-diagnose.prompt.md",
+      "skill_references": [
+        "cg-skill-pester-safety"
+      ],
+      "tool_references": [
+        "execution_subagent"
+      ],
+      "workflow": "/cg-diagnose",
+      "workflow_id": "cg-diagnose"
+    },
+    {
+      "agent_references": [],
+      "available": true,
+      "context_loading_signals": [
+        {
+          "artifact": ".cg-docs/",
+          "level": "justified",
+          "line": 18,
+          "reason": "explicit expansion rationale",
+          "snippet": "- Context expansion: reading `.cg-docs/cost/token-advice.md` because this"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "justified",
+          "line": 20,
+          "reason": "explicit expansion rationale",
+          "snippet": "- Context expansion: reading `.cg-docs/token/TOKEN-DASHBOARD.md`,"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "justified",
+          "line": 68,
+          "reason": "explicit expansion rationale",
+          "snippet": "Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1"
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 17,
+          "reason": "context artifact reference with loading verb",
+          "snippet": "- You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`."
+        },
+        {
+          "artifact": ".cg-docs/",
+          "level": "targeted",
+          "line": 36,
+          "reason": "targeted or guarded context-loading instruction",
+          "snippet": "4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`,"
+        }
+      ],
+      "file_references": [
+        ".cg-docs/cost/",
+        ".cg-docs/cost/token-advice.md",
+        ".cg-docs/token/",
+        ".cg-docs/token/TOKEN-BUDGET.md",
+        ".cg-docs/token/TOKEN-DASHBOARD.md",
+        ".cg-docs/token/regression-check.json",
+        ".cg-docs/token/workflow-costs.csv",
+        ".github/shared/context-loading.contract.md",
+        "brain-index.json",
+        "compound-gpid.context.md",
+        "compound-gpid.local.md",
+        "compound-gpid.md",
+        "roadmap.json",
+        "scripts/cg_audit_context.py"
+      ],
+      "likely_file_reads": [
+        ".cg-docs/cost/token-advice.md",
+        ".cg-docs/token/TOKEN-DASHBOARD.md",
+        ".github/shared/context-loading.contract.md",
+        "brain-index.json",
+        "compound-gpid.local.md",
+        "compound-gpid.md"
+      ],
+      "likely_skill_loads": [],
+      "observability": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "skill_references": [],
+      "tool_references": [],
+      "workflow": "/cg-token-audit",
+      "workflow_id": "cg-token-audit"
+    }
+  ]
+}

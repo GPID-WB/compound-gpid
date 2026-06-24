@@ -41,7 +41,8 @@ provided, warn and proceed in delta mode.
 
 ## Step 1: Read Registry
 
-Read `.cg-docs/competitive-reviews/repos.json`.
+Context expansion: reading `.cg-docs/competitive-reviews/repos.json` because
+competitive review needs the configured repository registry.
 
 If the file is missing:
 

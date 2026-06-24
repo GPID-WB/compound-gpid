@@ -24,6 +24,12 @@ GitHub Copilot prompt libraries. GitHub Copilot does not use `AGENTS.md`.
 | File | Purpose | Committed? | Who creates it | Who updates it |
 |------|---------|-----------|---------------|----------------|
 | `AGENTS.md` | Compatibility adapter that tells Codex / Claude Code how to execute Copilot-oriented `/cg-*` prompts, load `cg-skill-*` files, and emulate `@cg-*` agents | Optional | Maintainer | Maintainer |
+| `CLAUDE.md` | Claude Code-specific compatibility adapter with the same Compound GPID dispatch contract | Optional | Maintainer | Maintainer |
+
+Reusable source adapters live under `adapters/` in the Compound GPID install.
+Copy `adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into a consumer
+repository root only when that repository is intentionally maintained with that
+agent family. `cg-link` does not install these files automatically.
 
 ---
 
@@ -47,10 +53,10 @@ cg-link / cg-update
 
 `compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts search relevant headings or snippets first instead of loading the whole file by default.
 
-`AGENTS.md`, when present, is not part of the Copilot context chain. It exists
-only for Codex / Claude Code-compatible agents and should be scoped that way in
-the file itself. Put compatibility rules there instead of editing the
-Copilot-oriented `.github/` assets.
+`AGENTS.md` and `CLAUDE.md`, when present, are not part of the Copilot context
+chain. They exist only for Codex / Claude Code-compatible agents and should be
+scoped that way in the file itself. Put compatibility rules there instead of
+editing the Copilot-oriented `.github/` assets.
 
 ---
 
@@ -229,7 +235,8 @@ Bad entries are **transient or task-specific**:
 
 If you are maintaining the plugin itself from Codex or Claude Code, keep
 `AGENTS.md` committed as the local adapter. Consumer projects using only GitHub
-Copilot do not need it.
+Copilot do not need it. Consumer projects that also use Codex or Claude Code
+can copy the matching adapter from `adapters/`.
 
 ### Keeping them up to date
 
@@ -241,7 +248,7 @@ Copilot do not need it.
 | A data source moved or a variable caveat changed | Edit `compound-gpid.context.md` directly |
 | `/cg-resume` reports `last-reviewed` is stale | Run `/cg-strategy` to review and update the charter |
 | New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |
-| You need Codex / Claude Code to run `/cg-*` prompts from this repo | Update `AGENTS.md`; do not change `.github/` assets just for Codex / Claude compatibility |
+| You need Codex / Claude Code to run `/cg-*` prompts from this repo | Copy or update the matching root adapter from `adapters/`; do not change `.github/` assets just for Codex / Claude compatibility |
 
 ### Common mistakes
 
@@ -263,16 +270,16 @@ This file is meant to be shared — it is institutional memory for the whole tea
 **Putting Codex / Claude compatibility rules into `.github/` files**
 The `.github/` prompt, skill, agent, and instruction files are designed for
 GitHub Copilot. Put Codex / Claude dispatch rules and tool mappings in
-`AGENTS.md` so the Copilot runtime stays unchanged.
+`AGENTS.md` or `CLAUDE.md` so the Copilot runtime stays unchanged.
 
 ---
 
 ## Summary Table
 
-| | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` | `AGENTS.md` |
+| | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` | `AGENTS.md` / `CLAUDE.md` |
 |--|---|---|---|---|
 | **When read** | Every Copilot session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Selectively by heading/snippet when a workflow needs tactical facts | Codex / Claude Code sessions only |
-| **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` | Maintainer |
+| **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` | Maintainer copies from `adapters/` |
 | **Updated by** | `cg-update` (automatic) | You + `/cg-strategy` | You + `/cg-compound` | Maintainer |
 | **Structure** | Fixed (from template) | Fixed (4 sections) | Free-form (by topic) | Agent instructions |
 | **Committed to git** | Yes | Yes | Yes | Optional |

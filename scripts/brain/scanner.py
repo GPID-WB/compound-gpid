@@ -14,9 +14,8 @@ Supported entity types and their source directories::
     strategy    →  .cg-docs/strategy/*.md
     feature     →  roadmap.json (virtual paths: roadmap.json#<feature-id>)
 
-Files in ``.cg-docs/archive/`` and any unrecognised top-level directories
-(e.g. the ``DIGEST.md`` file placed directly in ``.cg-docs/``) are silently
-skipped.
+Files in ``.cg-docs/archive/``, generated audit-output directories, and files
+placed directly in ``.cg-docs/`` (e.g. ``DIGEST.md``) are silently skipped.
 """
 from __future__ import annotations
 
@@ -42,6 +41,8 @@ _DIR_TO_TYPE: Dict[str, Optional[str]] = {
     "competitive-reviews": "review",
     "strategy": "strategy",
     "archive": None,  # Archived files are excluded from the brain
+    "cost": None,  # Generated audit reports are excluded from the brain
+    "token": None,  # Generated workflow token reports are excluded from the brain
 }
 
 
@@ -55,8 +56,8 @@ def scan_all(root: Path) -> List[Entity]:
 
     Walks the entire ``.cg-docs/`` tree with ``rglob("*.md")``, determines the
     entity type from the top-level subdirectory name, and builds one
-    :class:`~brain.Entity` per file.  Directories not in :data:`_DIR_TO_TYPE`
-    and the ``archive/`` directory are silently skipped.
+    :class:`~brain.Entity` per file.  Directories mapped to ``None`` in
+    :data:`_DIR_TO_TYPE` are silently skipped.
 
     The raw file text is stored in :attr:`~brain.Entity.text` so that the
     extractor can process it without re-reading the file.

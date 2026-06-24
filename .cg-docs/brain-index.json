@@ -1,5 +1,5 @@
 {
-  "edge_count": 200,
+  "edge_count": 218,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -837,8 +837,56 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
       "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+      "target": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
+      "target": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
+      "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
       "target_missing": false
     },
     {
@@ -887,6 +935,54 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
       "target": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
+      "target": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md",
+      "target": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
+      "target": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
+      "target": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
+      "target": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
+      "target": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md",
+      "target": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
+      "target": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
       "target_missing": false
     },
     {
@@ -1199,6 +1295,18 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
       "target": "roadmap.json#goal-driven-execution",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "target": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
+      "target": "roadmap.json#phase-2-3-snapshot-external-research-modes",
       "target_missing": false
     }
   ],
@@ -4354,6 +4462,259 @@
       ]
     },
     {
+      "date": "2026-06-22",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
+      "slug": "2026-06-22-workflow-token-baseline",
+      "status": "completed",
+      "summary": "Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic audit layer, adding first-class `.cg-docs/token/` artifacts, preserving `.cg-docs/cost/` and `/cg-token-audit` compatibility, and integrating Python audit/brain/team-brain validation through the canonical safe test runner.",
+      "tags": [
+        "token-efficiency",
+        "workflow-baseline",
+        "audit",
+        "validation",
+        "pester-safety"
+      ],
+      "title": "Workflow Token Baseline and Test Integration",
+      "top_keywords": [
+        ".cg-docs/token/",
+        ".cg-docs/cost/",
+        "/cg-token-audit",
+        "cg-token-audit",
+        "run-tests.ps1",
+        "roadmap.json",
+        "scripts/cg_audit_context.py",
+        "tests/run-tests.ps1",
+        "token-budget.md",
+        "cg_audit_context.py"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+      "slug": "2026-06-23-command-output-summarization-wrappers",
+      "status": "completed",
+      "summary": "Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and return compact structured summaries for tests, diffs, logs, trees, and diagnostics without changing existing validation semantics.",
+      "tags": [
+        "token-efficiency",
+        "command-output",
+        "summaries",
+        "validation",
+        "git"
+      ],
+      "title": "Command Output Summarization Wrappers",
+      "top_keywords": [
+        ".cg-docs/token/outputs/",
+        "scripts/tests/test_cg_summary.py",
+        "cg_summary.py",
+        "test_cg_summary.py",
+        "last-run.json",
+        "problems",
+        "tree",
+        "tests/last-run.json",
+        "wrappers",
+        "cg-test-summary"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters",
+      "status": "completed",
+      "summary": "Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, version-controlled adapter files that consumer projects can opt into without changing GitHub Copilot prompt behavior.",
+      "tags": [
+        "cross-agent",
+        "adapters",
+        "codex",
+        "claude",
+        "packaging",
+        "compatibility"
+      ],
+      "title": "Cross-Agent Packaging Adapters",
+      "top_keywords": [
+        "agents.md",
+        "claude code",
+        "roadmap.json",
+        "phase",
+        ".github/",
+        "python3 -m pytest scripts/tests/test_agent_adapters.py -q",
+        "test_agent_adapters.py",
+        "run-tests.ps1",
+        "adapters",
+        "cross-agent"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
+      "slug": "2026-06-23-handoff-resume-active-state-compaction",
+      "status": "completed",
+      "summary": "Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact paths, phase/evidence status, unresolved decisions, and exact next commands instead of repeated transcript context.",
+      "tags": [
+        "token-efficiency",
+        "resume",
+        "handoff",
+        "active-state",
+        "compaction"
+      ],
+      "title": "Handoff Resume and Active-State Compaction",
+      "top_keywords": [
+        "/cg-resume",
+        "/cg-diagnose",
+        "cg-resume",
+        "cg-diagnose",
+        "active-state",
+        "/cg-work",
+        "cg-work",
+        "phase",
+        "tests/prompt-tools.tests.ps1",
+        "handoff"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval",
+      "status": "completed",
+      "summary": "Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns targeted, budget-aware context summaries for workflow prompts, while preserving the existing generated Brain artifacts and query-first fallback protocol.",
+      "tags": [
+        "token-efficiency",
+        "knowledge-brain",
+        "retrieval",
+        "cg-index",
+        "context-budget"
+      ],
+      "title": "Knowledge Brain Query and Budgeted Retrieval",
+      "top_keywords": [
+        "brain.md",
+        "cg-index query",
+        "query",
+        "scripts/brain/tests/test_query.py",
+        "test_query.py",
+        "cg-index --brain",
+        "brain",
+        "cg-index",
+        "cg-skill-brain-query",
+        "phase"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation",
+      "status": "completed",
+      "summary": "Complete Phase 2.2 by adding a deterministic evaluation matrix for optional retrieval backends without enabling any new backend, dependency, network call, or external service.",
+      "tags": [
+        "retrieval",
+        "evaluation",
+        "opt-in",
+        "governance",
+        "token-efficiency"
+      ],
+      "title": "Optional Retrieval Backend Evaluation",
+      "top_keywords": [
+        "evaluation",
+        "retrieval",
+        "roadmap.json",
+        "phase",
+        "backend",
+        "tests",
+        "roadmap",
+        "evaluate-only",
+        "documentation",
+        "docs/retrieval-backends.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions",
+      "status": "completed",
+      "summary": "Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary workflows load minimal context by default and expand only through targeted, justified reads.",
+      "tags": [
+        "token-efficiency",
+        "progressive-disclosure",
+        "context-loading",
+        "skills",
+        "instructions"
+      ],
+      "title": "Progressive Disclosure Skills and Scoped Instructions",
+      "top_keywords": [
+        "roadmap.json",
+        "instructions",
+        "compound-gpid.context.md",
+        "phase",
+        ".cg-docs/",
+        "progressive-disclosure",
+        "run-tests.ps1",
+        "skills",
+        "audit",
+        "contract"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
+      "slug": "2026-06-23-snapshot-external-research-modes",
+      "status": "completed",
+      "summary": "Complete Phase 2.3 by defining tested opt-in governance for future snapshot and external-research modes without implementing snapshot capture, browser/web research, network calls, or external integrations.",
+      "tags": [
+        "snapshot",
+        "external-research",
+        "opt-in",
+        "governance",
+        "evidence"
+      ],
+      "title": "Snapshot and External-Research Modes",
+      "top_keywords": [
+        "roadmap.json",
+        "mode",
+        "phase",
+        "snapshot",
+        "external-research",
+        "registry",
+        "roadmap",
+        "documentation",
+        "docs/snapshot-external-research.md",
+        "docs/reference.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
+      "slug": "2026-06-23-token-dashboard-regression-checks",
+      "status": "completed",
+      "summary": "Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and deterministic regression check surface. The work must make token pressure visible and comparable without claiming savings unless measured by comparable repository probes.",
+      "tags": [
+        "token-efficiency",
+        "dashboard",
+        "regression",
+        "audit",
+        "validation"
+      ],
+      "title": "Token Dashboard and Regression Checks",
+      "top_keywords": [
+        "/cg-token-audit",
+        "regression-check.json",
+        "regression",
+        "dashboard",
+        "cg-token-audit",
+        "roadmap.json",
+        "phase",
+        "python3 -m pytest scripts/tests/test_audit_context.py -q",
+        "test_audit_context.py",
+        "run-tests.ps1"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -6642,6 +7003,50 @@
       ]
     },
     {
+      "date": "2026-06-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-4",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Files reviewed**: 4 current Phase 1 token-baseline files:",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-4",
+      "top_keywords": [
+        "roadmap.json",
+        "execution_subagent",
+        "/cg-work",
+        "cg-work",
+        "cg_audit_context.py",
+        "compound-gpid.md",
+        "2026-06-12-goal-driven-execution-review.md",
+        "test_audit_context.py",
+        "2026-06-22-workflow-token-baseline.md",
+        "run-tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-5",
+      "status": "",
+      "summary": "**Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` **Review scope**: current Phase 1.1 workflow token baseline branch, with emphasis on:",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-5",
+      "top_keywords": [
+        "docs/reference.md",
+        ".cg-docs/token/",
+        "large-context-warnings.md",
+        "cg_audit_context.py",
+        ".cg-docs/cost/",
+        "--no-token-artifacts",
+        "test_audit_context.py",
+        "reference.md",
+        "token-budget.md",
+        "scripts/cg_audit_context.py"
+      ]
+    },
+    {
       "date": "2026-06-12",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
@@ -6661,6 +7066,358 @@
         "review",
         "findings",
         "collision"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md",
+      "slug": "2026-06-23-command-output-summarization-wrappers-review",
+      "status": "",
+      "summary": "No blocking findings.",
+      "tags": [],
+      "title": "2026-06-23-command-output-summarization-wrappers-review",
+      "top_keywords": [
+        "cg-test-summary",
+        "roadmap.json",
+        "test_cg_summary.py",
+        "implementation",
+        "review",
+        "command",
+        "summarization",
+        "wrappers",
+        "scripts/cg_summary.py",
+        "scripts/tests/test_cg_summary.py"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md",
+      "slug": "2026-06-23-command-output-summarization-wrappers-verify-review",
+      "status": "",
+      "summary": "No verification findings.",
+      "tags": [],
+      "title": "2026-06-23-command-output-summarization-wrappers-verify-review",
+      "top_keywords": [
+        "verification",
+        "command",
+        "wrappers",
+        "review",
+        "summarization",
+        "python3 -m pytest scripts/tests/test_cg_summary.py -q",
+        "14 passed",
+        "python3 -m pytest scripts/tests scripts/brain/tests scripts/team_brain/tests -q",
+        "654 passed, 17 warnings, 5 subtests passed",
+        "pwsh -noprofile -command \". ./tests/run-tests.ps1\""
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`",
+      "tags": [],
+      "title": "2026-06-23-cross-agent-packaging-adapters-review",
+      "top_keywords": [
+        "review",
+        "adapters",
+        "implementation",
+        "findings",
+        "cross-agent",
+        "packaging",
+        "notes",
+        "validation",
+        "reviewed",
+        "outcome"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md",
+      "slug": "2026-06-23-cross-agent-packaging-adapters-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`",
+      "tags": [],
+      "title": "2026-06-23-cross-agent-packaging-adapters-verify-review",
+      "top_keywords": [
+        "adapters",
+        "verify",
+        "review",
+        "findings",
+        "cross-agent",
+        "packaging",
+        "reviewed",
+        "outcome",
+        ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+        "adapters/readme.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md",
+      "slug": "2026-06-23-handoff-resume-active-state-compaction-review",
+      "status": "",
+      "summary": "No blocking findings.",
+      "tags": [],
+      "title": "2026-06-23-handoff-resume-active-state-compaction-review",
+      "top_keywords": [
+        "cg-work",
+        "/cg-work",
+        "cg-resume",
+        "cg-diagnose",
+        "run-tests.ps1",
+        "active-state",
+        "review",
+        "implementation",
+        "compaction",
+        "handoff"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md",
+      "slug": "2026-06-23-handoff-resume-active-state-compaction-verify-review",
+      "status": "",
+      "summary": "No verification findings.",
+      "tags": [],
+      "title": "2026-06-23-handoff-resume-active-state-compaction-verify-review",
+      "top_keywords": [
+        "verification",
+        "active-state",
+        "prompt-tools",
+        "review",
+        "handoff",
+        "resume",
+        "compaction",
+        "1339 passed, 0 failed",
+        "fix: 0",
+        "docs-only: 2"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval-review",
+      "status": "",
+      "summary": "**Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tests/test_query.py`, `.github/skills/cg-skill-brain-query/SKILL.md`, `tests/prompt-tools.Tests.ps1`, `docs/reference.md`, `docs/workflow.md`, `roadmap.json`.",
+      "tags": [],
+      "title": "2026-06-23-knowledge-brain-query-budgeted-retrieval-review",
+      "top_keywords": [
+        "roadmap.json",
+        "brain.md",
+        "brain-index.json",
+        "brain-nn.md",
+        "brain",
+        "query",
+        "cg-index",
+        "review",
+        "retrieval",
+        "findings"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+      "slug": "2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review",
+      "status": "",
+      "summary": "No verification findings. The required evidence passed after the budget-estimation correction:",
+      "tags": [],
+      "title": "2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review",
+      "top_keywords": [
+        "verification",
+        "query",
+        "brain",
+        "review",
+        "knowledge",
+        "budgeted",
+        "retrieval",
+        "python3 -m pytest scripts/brain/tests scripts/tests scripts/team_brain/tests -q",
+        "640 passed, 5 subtests passed",
+        "pwsh -noprofile -command \". ./tests/run-tests.ps1\""
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`",
+      "tags": [],
+      "title": "2026-06-23-optional-retrieval-backend-evaluation-review",
+      "top_keywords": [
+        "review",
+        "optional",
+        "retrieval",
+        "backend",
+        "implementation",
+        "findings",
+        "validation",
+        "native-brain-query",
+        "evaluation",
+        "notes"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md",
+      "slug": "2026-06-23-optional-retrieval-backend-evaluation-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`",
+      "tags": [],
+      "title": "2026-06-23-optional-retrieval-backend-evaluation-verify-review",
+      "top_keywords": [
+        "verify",
+        "review",
+        "findings",
+        "optional",
+        "retrieval",
+        "backend",
+        "evaluation",
+        "reviewed",
+        "outcome",
+        ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions-review",
+      "status": "",
+      "summary": "No blocking findings.",
+      "tags": [],
+      "title": "2026-06-23-progressive-disclosure-scoped-instructions-review",
+      "top_keywords": [
+        "test_audit_context.py",
+        "run-tests.ps1",
+        "implementation",
+        "review",
+        "progressive",
+        "disclosure",
+        "skills",
+        "scoped",
+        "instructions",
+        ".github/prompts/cg-compound-refresh.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
+      "slug": "2026-06-23-progressive-disclosure-scoped-instructions-verify-review",
+      "status": "",
+      "summary": "No verification findings.",
+      "tags": [],
+      "title": "2026-06-23-progressive-disclosure-scoped-instructions-verify-review",
+      "top_keywords": [
+        "run-tests.ps1",
+        "verification",
+        "review",
+        "progressive",
+        "disclosure",
+        "skills",
+        "scoped",
+        "instructions",
+        "fix: 0",
+        "docs-only: 2"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-snapshot-external-research-modes-review.md",
+      "slug": "2026-06-23-snapshot-external-research-modes-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`",
+      "tags": [],
+      "title": "2026-06-23-snapshot-external-research-modes-review",
+      "top_keywords": [
+        "review",
+        "snapshot",
+        "external-research",
+        "implementation",
+        "findings",
+        "local-workflow",
+        "modes",
+        "notes",
+        "validation",
+        "reviewed"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-snapshot-external-research-modes-verify-review.md",
+      "slug": "2026-06-23-snapshot-external-research-modes-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`",
+      "tags": [],
+      "title": "2026-06-23-snapshot-external-research-modes-verify-review",
+      "top_keywords": [
+        "verify",
+        "review",
+        "findings",
+        "snapshot",
+        "external-research",
+        "modes",
+        "reviewed",
+        "outcome",
+        ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
+        ".github/shared/snapshot-research-modes.json"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md",
+      "slug": "2026-06-23-token-dashboard-regression-checks-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`",
+      "tags": [],
+      "title": "2026-06-23-token-dashboard-regression-checks-review",
+      "top_keywords": [
+        "review",
+        "baseline",
+        "regression-check.json",
+        "token-dashboard.md",
+        "dashboard",
+        "regression",
+        "implementation",
+        "findings",
+        "token",
+        "notes"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md",
+      "slug": "2026-06-23-token-dashboard-regression-checks-verify-review",
+      "status": "",
+      "summary": "Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`",
+      "tags": [],
+      "title": "2026-06-23-token-dashboard-regression-checks-verify-review",
+      "top_keywords": [
+        "token",
+        "verify",
+        "regression",
+        "findings",
+        "verification",
+        "baseline",
+        "not_supplied",
+        "dashboard",
+        "review",
+        "reviewed"
       ]
     },
     {
@@ -8816,6 +9573,34 @@
         "agents",
         "cg-work",
         ".github/agents/cg-*.agent.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
+      "slug": "2026-06-23-cross-agent-adapters-are-opt-in-source-packages",
+      "status": "",
+      "summary": "The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer projects had no packaged adapter source to copy. Putting compatibility rules into `.github/` files would alter the Copilot-oriented runtime surface and risk confusing normal Copilot users.",
+      "tags": [
+        "codex",
+        "claude-code",
+        "adapters",
+        "packaging",
+        "copilot-compatibility"
+      ],
+      "title": "Cross-agent adapters should be opt-in source packages",
+      "top_keywords": [
+        "agents.md",
+        "adapters",
+        "adapters/codex/agents.md",
+        "adapters/claude/claude.md",
+        "source",
+        "opt-in",
+        "cross-agent",
+        "packages",
+        "claude.md",
+        "root"
       ]
     },
     {
@@ -11548,6 +12333,232 @@
       ]
     },
     {
+      "date": "2026-06-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
+      "slug": "2026-06-22-workflow-telemetry-source-path-tool-extraction",
+      "status": "",
+      "summary": "Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation still populated `file_references`, `likely_file_reads`, and `tool_references` with the legacy `FILE_REF_RE` and `TOOL_REF_RE` patterns. That undercounted the actual static prompt surface. For example, `/cg-work` explicitly loads or reads: - `.github/shared/context-loading.contract.md` - `.github/shared/goal-execution.contract.md` - `.github/shared/review-routing.contract.md` - `tests/Run-Tests.ps1` It also references `execution_subagent` for the safe Pester runner workflow. The generated audit row omitted those shared-contract paths and reported no workflow tool references, even though all of that evidence was present in the prompt source.",
+      "tags": [
+        "token-efficiency",
+        "workflow-telemetry",
+        "context-audit",
+        "static-analysis",
+        "prompt-parsing",
+        "regression-tests"
+      ],
+      "title": "Workflow telemetry needs source-aware path and tool extraction",
+      "top_keywords": [
+        "cg-work",
+        "passed",
+        "run-tests.ps1",
+        "execution_subagent",
+        ".github/shared/context-loading.contract.md",
+        ".github/shared/goal-execution.contract.md",
+        ".github/shared/review-routing.contract.md",
+        "tests/run-tests.ps1",
+        ".cg-docs/cost/",
+        "cg_audit_context.py"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md",
+      "slug": "2026-06-23-active-state-handoff-records",
+      "status": "",
+      "summary": "Long `/cg-work` sessions can span phases, review loops, blocked stops, and crash recovery. Reconstructing state from chat transcript repeats context and risks losing the exact next command.",
+      "tags": [
+        "active-state",
+        "resume",
+        "handoff",
+        "token-efficiency",
+        "prompt-contracts"
+      ],
+      "title": "Active-state handoff records should be artifact-reference-first",
+      "top_keywords": [
+        "active-state",
+        "handoff",
+        "/cg-work",
+        "/cg-resume",
+        ".github/shared/active-state.contract.md",
+        "records",
+        "artifact-reference-first",
+        "cg-work",
+        "cg-resume",
+        "2026-06-23-handoff-resume-active-state-compaction.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
+      "slug": "2026-06-23-budgeted-knowledge-brain-query",
+      "status": "",
+      "summary": "Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implementation bounded selected snippets, but a real-repo smoke check showed final Markdown and JSON output could still exceed the requested budget after adding metadata, excluded notes, and Brain build warnings.",
+      "tags": [
+        "knowledge-brain",
+        "token-efficiency",
+        "cg-index",
+        "retrieval",
+        "testing"
+      ],
+      "title": "Budgeted Knowledge Brain query needs rendered-output budget gates",
+      "top_keywords": [
+        "budget",
+        "brain",
+        "query",
+        "knowledge",
+        "budgeted",
+        "rendered-output",
+        "gates",
+        "2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+        "problem",
+        "root"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
+      "slug": "2026-06-23-command-output-summary-wrappers",
+      "status": "",
+      "summary": "Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw output into the agent context is noisy, but discarding raw output loses auditability.",
+      "tags": [
+        "token-efficiency",
+        "summaries",
+        "validation",
+        "pester-safety",
+        "git"
+      ],
+      "title": "Command-output summary wrappers should preserve raw evidence without replacing validation",
+      "top_keywords": [
+        "validation",
+        "cg-test-summary",
+        "raw",
+        "wrappers",
+        "evidence",
+        "command-output",
+        "summary",
+        "preserve",
+        "replacing",
+        "2026-06-23-command-output-summarization-wrappers.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
+      "slug": "2026-06-23-optional-retrieval-backends-default-disabled",
+      "status": "",
+      "summary": "Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a registry without guardrails can silently turn evaluation into runtime configuration.",
+      "tags": [
+        "retrieval",
+        "opt-in",
+        "privacy",
+        "token-efficiency",
+        "governance"
+      ],
+      "title": "Optional retrieval backends must stay default-disabled during evaluation",
+      "top_keywords": [
+        "retrieval",
+        ".github/shared/retrieval-backends.json",
+        "optional",
+        "evaluation",
+        "backends",
+        "must",
+        "stay",
+        "default-disabled",
+        "retrieval-backends.json",
+        "native-brain-query"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
+      "slug": "2026-06-23-progressive-disclosure-context-loading-contract",
+      "status": "",
+      "summary": "Broad phrases such as \"read roadmap.json\" or \"scan .cg-docs\" can be interpreted as default whole-artifact loading. That increases context pressure and makes static audit findings harder to distinguish from intentional maintenance reads.",
+      "tags": [
+        "token-efficiency",
+        "context-loading",
+        "prompts",
+        "audit",
+        "progressive-disclosure"
+      ],
+      "title": "Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale",
+      "top_keywords": [
+        "progressive-disclosure",
+        "prompt",
+        "expansion",
+        "semantics",
+        "explicit",
+        "rationale",
+        "cleanup",
+        "preserve",
+        "2026-06-23-progressive-disclosure-scoped-instructions.md",
+        "problem"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md",
+      "slug": "2026-06-23-snapshot-external-research-modes-need-opt-in-gates",
+      "status": "",
+      "summary": "Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow execution: large transcript captures, copyright-sensitive source copying, network failures, privacy exposure, and reproducibility gaps.",
+      "tags": [
+        "snapshot",
+        "external-research",
+        "opt-in",
+        "copyright",
+        "privacy",
+        "token-efficiency"
+      ],
+      "title": "Snapshot and external-research modes need opt-in gates before implementation",
+      "top_keywords": [
+        "snapshot",
+        "external-research",
+        "opt-in",
+        ".github/shared/snapshot-research-modes.json",
+        "default_enabled: false",
+        "modes",
+        "gates",
+        "implementation",
+        "snapshot-research-modes.json",
+        "local-workflow"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
+      "slug": "2026-06-23-token-dashboard-regression-check",
+      "status": "",
+      "summary": "Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple files to know whether the current run was just a baseline, a comparable clean run, or a deterministic regression.",
+      "tags": [
+        "token-efficiency",
+        "dashboard",
+        "regression",
+        "audit",
+        "measurement"
+      ],
+      "title": "Token dashboards need explicit baseline/pass/fail semantics",
+      "top_keywords": [
+        "baseline",
+        ".cg-docs/token/token-dashboard.md",
+        ".cg-docs/token/regression-check.json",
+        "token",
+        "semantics",
+        "explicit",
+        "dashboards",
+        "token-dashboard.md",
+        "regression-check.json",
+        "problem"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -11765,6 +12776,72 @@
         "ideas",
         "workflow",
         "maturity"
+      ]
+    },
+    {
+      "date": "2026-06-18",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md",
+      "slug": "2026-06-18-token-efficiency-workflow-strategy",
+      "status": "",
+      "summary": "Compound GPID already has a substantial token/model-governance foundation:",
+      "tags": [],
+      "title": "Token-Efficiency Workflow Strategy",
+      "top_keywords": [
+        "/cg-work",
+        "cg-work",
+        "/cg-token-audit",
+        "/cg-plan",
+        "/cg-resume",
+        "cg-index query",
+        ".cg-docs/token/",
+        "cg-plan",
+        "skill.md",
+        "agents.md"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md",
+      "slug": "2026-06-23-cg-strategy-icm-okf-roadmap-prompt",
+      "status": "",
+      "summary": "Copy the prompt below into a `/cg-strategy` session.",
+      "tags": [],
+      "title": "Prompt for /cg-strategy: ICM and OKF Roadmap Integration",
+      "top_keywords": [
+        "cg-strategy",
+        "/cg-strategy",
+        "compound engineering",
+        "compound-gpid.context.md",
+        "knowledge/",
+        ".cg-docs/solutions/",
+        ".cg-docs",
+        "icm",
+        "okf",
+        "roadmap"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md",
+      "slug": "2026-06-23-icm-okf-integration-concept",
+      "status": "",
+      "summary": "Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, Brain artifacts, generated indexes, roadmaps, plans, reviews, solution documents, work reports, and docs. This has improved reliability, but it creates three scaling risks: 1. Agents may over-read historical or generated artifacts when they only need a small current-stage context. 2. Durable knowledge, workflow history, generated retrieval indexes, and current work state are close enough that their boundaries are easy to blur. 3. More compounding can paradoxically make future work slower unless the project distinguishes what is source truth, what is archive, and...",
+      "tags": [],
+      "title": "ICM and OKF Integration Concept for Compound GPID",
+      "top_keywords": [
+        "knowledge/",
+        "compound-gpid.context.md",
+        ".cg-docs/solutions/",
+        ".cg-docs",
+        "compound engineering",
+        "icm",
+        "okf",
+        "compound-gpid.md",
+        "implementation",
+        "cg-index"
       ]
     },
     {
@@ -14016,7 +15093,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#shrink-always-on-context",
       "slug": "shrink-always-on-context",
-      "status": "active",
+      "status": "done",
       "summary": "Shrink always-on context",
       "tags": [],
       "title": "Shrink always-on context",
@@ -14038,7 +15115,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#prompt-skill-split",
       "slug": "prompt-skill-split",
-      "status": "active",
+      "status": "done",
       "summary": "Split large prompts into thin entrypoints and on-demand skills",
       "tags": [],
       "title": "Split large prompts into thin entrypoints and on-demand skills",
@@ -14142,15 +15219,213 @@
         "milestone",
         "optimization"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-1-workflow-token-baseline",
+      "slug": "phase-1-1-workflow-token-baseline",
+      "status": "done",
+      "summary": "Phase 1.1 — Workflow-level token baseline and test integration",
+      "tags": [],
+      "title": "Phase 1.1 — Workflow-level token baseline and test integration",
+      "top_keywords": [
+        "token efficiency core system\nobjective",
+        "make compound",
+        "token",
+        "phase",
+        "workflow-level",
+        "baseline",
+        "test",
+        "integration",
+        "core",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-2-knowledge-brain-query",
+      "slug": "phase-1-2-knowledge-brain-query",
+      "status": "done",
+      "summary": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
+      "tags": [],
+      "title": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
+      "top_keywords": [
+        "knowledge brain",
+        "token efficiency core system\nobjective",
+        "make compound",
+        "brain",
+        "budgeted",
+        "retrieval",
+        "phase",
+        "knowledge",
+        "query",
+        "core"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-3-command-output-summaries",
+      "slug": "phase-1-3-command-output-summaries",
+      "status": "done",
+      "summary": "Phase 1.3 — Command-output summarization wrappers",
+      "tags": [],
+      "title": "Phase 1.3 — Command-output summarization wrappers",
+      "top_keywords": [
+        "token efficiency core system\nobjective",
+        "make compound",
+        "phase",
+        "command-output",
+        "summarization",
+        "wrappers",
+        "core",
+        "feature",
+        "milestone",
+        "token"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
+      "slug": "phase-1-4-progressive-disclosure-cleanup",
+      "status": "done",
+      "summary": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
+      "tags": [],
+      "title": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
+      "top_keywords": [
+        "token efficiency core system\nobjective",
+        "make compound",
+        "progressive-disclosure",
+        "skills",
+        "phase",
+        "scoped",
+        "instructions",
+        "core",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-5-handoff-resume-compaction",
+      "slug": "phase-1-5-handoff-resume-compaction",
+      "status": "done",
+      "summary": "Phase 1.5 — Handoff, resume, and active-state compaction",
+      "tags": [],
+      "title": "Phase 1.5 — Handoff, resume, and active-state compaction",
+      "top_keywords": [
+        "token efficiency core system\nobjective",
+        "make compound",
+        "handoff",
+        "compaction",
+        "phase",
+        "resume",
+        "active-state",
+        "core",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-1-6-token-dashboard-regression",
+      "slug": "phase-1-6-token-dashboard-regression",
+      "status": "done",
+      "summary": "Phase 1.6 — Token dashboard and regression checks",
+      "tags": [],
+      "title": "Phase 1.6 — Token dashboard and regression checks",
+      "top_keywords": [
+        "token efficiency core system\nobjective",
+        "make compound",
+        "token",
+        "regression",
+        "phase",
+        "dashboard",
+        "core",
+        "feature",
+        "milestone",
+        "efficiency"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
+      "slug": "phase-2-1-cross-agent-packaging-adapters",
+      "status": "done",
+      "summary": "Phase 2.1 — Cross-agent packaging adapters",
+      "tags": [],
+      "title": "Phase 2.1 — Cross-agent packaging adapters",
+      "top_keywords": [
+        "token efficiency portability",
+        "optional retrieval expansion\nobjective",
+        "cross-agent",
+        "packaging",
+        "adapters",
+        "phase",
+        "optional",
+        "retrieval",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-2-2-optional-retrieval-backends",
+      "slug": "phase-2-2-optional-retrieval-backends",
+      "status": "done",
+      "summary": "Phase 2.2 — Optional retrieval backend evaluation",
+      "tags": [],
+      "title": "Phase 2.2 — Optional retrieval backend evaluation",
+      "top_keywords": [
+        "token efficiency portability",
+        "optional retrieval expansion\nobjective",
+        "optional",
+        "retrieval",
+        "phase",
+        "backend",
+        "evaluation",
+        "feature",
+        "milestone",
+        "token"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#phase-2-3-snapshot-external-research-modes",
+      "slug": "phase-2-3-snapshot-external-research-modes",
+      "status": "done",
+      "summary": "Phase 2.3 — Snapshot and external-research modes",
+      "tags": [],
+      "title": "Phase 2.3 — Snapshot and external-research modes",
+      "top_keywords": [
+        "token efficiency portability",
+        "optional retrieval expansion\nobjective",
+        "snapshot",
+        "phase",
+        "external-research",
+        "modes",
+        "optional",
+        "retrieval",
+        "feature",
+        "milestone"
+      ]
     }
   ],
-  "entity_count": 494,
-  "generated": "2026-06-16",
+  "entity_count": 542,
+  "generated": "2026-06-23",
   "schema_version": "0.2.0",
-  "topic_count": 3,
+  "topic_count": 2,
   "topics": [
     {
-      "entity_count": 338,
+      "entity_count": 394,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -14169,6 +15444,7 @@
         ".cg-docs/brainstorms/2026-04-10-fix-problems-agent-and-prompt.md",
         ".cg-docs/brainstorms/2026-04-14-pushback-side-ideas-schema-bypass.md",
         ".cg-docs/brainstorms/2026-04-16-context-layer-restructuring.md",
+        ".cg-docs/brainstorms/2026-04-17-structural-pester-crash-prevention.md",
         ".cg-docs/brainstorms/2026-04-20-reduce-late-sequence-token-cost.md",
         ".cg-docs/brainstorms/2026-04-21-competitive-repo-review-system.md",
         ".cg-docs/brainstorms/2026-04-23-review-convergence-verify-mode.md",
@@ -14223,6 +15499,8 @@
         ".cg-docs/plans/2026-04-14-pushback-plan-review-side-ideas-schema-bypass.md",
         ".cg-docs/plans/2026-04-15-per-step-test-failure-handling.md",
         ".cg-docs/plans/2026-04-16-context-layer-restructuring.md",
+        ".cg-docs/plans/2026-04-17-structural-pester-crash-prevention-v2.md",
+        ".cg-docs/plans/2026-04-17-structural-pester-crash-prevention.md",
         ".cg-docs/plans/2026-04-20-fix-triage-migrate.md",
         ".cg-docs/plans/2026-04-20-prompt-prose-compression.md",
         ".cg-docs/plans/2026-04-21-competitive-repo-review-system.md",
@@ -14257,6 +15535,15 @@
         ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
         ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
         ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
+        ".cg-docs/plans/2026-06-22-workflow-token-baseline.md",
+        ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md",
+        ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+        ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md",
+        ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md",
+        ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md",
+        ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
+        ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
+        ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -14289,6 +15576,7 @@
         ".cg-docs/reviews/2026-04-16-context-layer-restructuring-review.md",
         ".cg-docs/reviews/2026-04-17-context-layer-review.md",
         ".cg-docs/reviews/2026-04-17-context-layer-verify-review.md",
+        ".cg-docs/reviews/2026-04-17-structural-pester-crash-prevention-v2-review.md",
         ".cg-docs/reviews/2026-04-20-prompt-prose-compression-review-2.md",
         ".cg-docs/reviews/2026-04-20-prompt-prose-compression-review-3.md",
         ".cg-docs/reviews/2026-04-20-prompt-prose-compression-review-4.md",
@@ -14358,7 +15646,25 @@
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-3.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md",
         ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md",
+        ".cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md",
+        ".cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md",
+        ".cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md",
+        ".cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md",
+        ".cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md",
+        ".cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-snapshot-external-research-modes-review.md",
+        ".cg-docs/reviews/2026-06-23-snapshot-external-research-modes-verify-review.md",
+        ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md",
+        ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -14410,6 +15716,7 @@
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
+        ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -14425,22 +15732,28 @@
         ".cg-docs/solutions/testing-patterns/2026-03-02-prompt-file-permission-guardrails.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-add-if-missing-creates-duplicate-config-headers.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md",
+        ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         ".cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md",
         ".cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
         ".cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md",
         ".cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md",
         ".cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md",
         ".cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
         ".cg-docs/solutions/testing-patterns/2026-04-13-dead-step-after-wait-prompt-session-terminator.md",
         ".cg-docs/solutions/testing-patterns/2026-04-13-prompt-interaction-branch-completeness.md",
         ".cg-docs/solutions/testing-patterns/2026-04-15-new-validation-branch-requires-dedicated-test.md",
         ".cg-docs/solutions/testing-patterns/2026-04-15-pester-dotall-flag-required-for-multiline-regex.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md",
         ".cg-docs/solutions/testing-patterns/2026-04-15-prompt-step-silent-skip-antipattern-fallback-required.md",
         ".cg-docs/solutions/testing-patterns/2026-04-15-roadmap-plan-linkage-must-be-audited-at-completion.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md",
         ".cg-docs/solutions/testing-patterns/2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md",
         ".cg-docs/solutions/testing-patterns/2026-04-20-behavioral-pester-tests-for-skill-md-files.md",
         ".cg-docs/solutions/testing-patterns/2026-04-21-prompt-step-forward-dependency-deferred-marker.md",
@@ -14480,6 +15793,14 @@
         ".cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md",
         ".cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md",
         ".cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md",
+        ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -14489,7 +15810,17 @@
         ".cg-docs/strategy/2026-05-05-workflow-maturity.md",
         ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
         ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
-        ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md"
+        ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
+        ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md",
+        "roadmap.json#phase-1-1-workflow-token-baseline",
+        "roadmap.json#phase-1-2-knowledge-brain-query",
+        "roadmap.json#phase-1-3-command-output-summaries",
+        "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
+        "roadmap.json#phase-1-5-handoff-resume-compaction",
+        "roadmap.json#phase-1-6-token-dashboard-regression",
+        "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
+        "roadmap.json#phase-2-2-optional-retrieval-backends",
+        "roadmap.json#phase-2-3-snapshot-external-research-modes"
       ],
       "keywords": [
         "roadmap.json",
@@ -14618,28 +15949,6 @@
       ],
       "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Quality Loop\nObjective",
       "slug": "architecture-research-objective-knowledge-brain-objective-quality-loop-objective"
-    },
-    {
-      "entity_count": 10,
-      "entity_paths": [
-        ".cg-docs/brainstorms/2026-04-17-structural-pester-crash-prevention.md",
-        ".cg-docs/plans/2026-04-17-structural-pester-crash-prevention-v2.md",
-        ".cg-docs/plans/2026-04-17-structural-pester-crash-prevention.md",
-        ".cg-docs/reviews/2026-04-17-structural-pester-crash-prevention-v2-review.md",
-        ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
-        ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
-        ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
-        ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
-        ".cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md",
-        ".cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md"
-      ],
-      "keywords": [
-        "run-tests.ps1",
-        "last-run.json",
-        "execution_subagent"
-      ],
-      "label": "Run-Tests.Ps1 / Last-Run.Json / Execution_Subagent",
-      "slug": "run-tests-ps1-last-run-json-execution-subagent"
     }
   ]
 }

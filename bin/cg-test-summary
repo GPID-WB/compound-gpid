@@ -1,0 +1,5 @@
+#!/bin/bash
+# bin/cg-test-summary -- summarize existing test runner output without running tests.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/cg_summary.py" test "$@"

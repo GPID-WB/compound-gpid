@@ -21,7 +21,8 @@ Use a **tiered retrieval** strategy -- try each tier in order and stop when you 
 
 ### Tier 1: DIGEST.md (fast, summaries only)
 
-Read `.cg-docs/DIGEST.md` first. It contains human-readable summaries of all
+Context expansion: reading `.cg-docs/DIGEST.md` because this researcher needs
+the compact generated solution summary before opening full solution files. It contains human-readable summaries of all
 **active** solutions in a compact format. Use this for a quick scan when:
 - You need to confirm whether a relevant solution exists before reading full files.
 - The task is straightforward and a summary is sufficient.
@@ -44,7 +45,7 @@ Read `.cg-docs/search-index.json` for metadata-level filtering. Use this when:
 
 ### Tier 3: Direct file scan (full content)
 
-Scan `.cg-docs/solutions/` subdirectories directly. Use this when:
+Search only selected `.cg-docs/solutions/` subdirectories directly. Use this when:
 - Neither DIGEST.md nor search-index.json exists.
 - Tier 1/2 found a relevant slug and you need the full solution text.
 - The task is complex enough that full file content is needed to extract takeaways.

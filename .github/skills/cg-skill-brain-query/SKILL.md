@@ -18,6 +18,24 @@ skill provides the **protocol** (how to search, evaluate, and apply findings).
 
 Execute these steps in order:
 
+### Step 0 — Prefer Budgeted CLI Query
+
+If `cg-index query` is available, run it before manual Brain traversal:
+
+```text
+cg-index query --intent <brainstorm|plan|work|review|compound|resume> --query "<search directive>" --budget <tokens> --format md
+```
+
+Add `--changed-file <path>` for each relevant changed or target file when the
+calling workflow has that scope. Use a small budget by default (for example
+600-1000 estimated tokens) unless the calling prompt gives a stricter budget.
+
+If the command succeeds and returns relevant selected artifacts, use that
+bounded output as the Brain findings and continue with Step 10 citation rules.
+If `cg-index query` is unavailable, fails, returns no relevant artifacts, or the
+calling workflow needs manual contradiction/staleness inspection, fall back to
+Step 1 and use the `BRAIN.md` topic-index protocol below.
+
 ### Step 1 — Existence Check
 
 Check whether `.cg-docs/BRAIN.md` exists. If it does not exist, **skip all

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
+_Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
 
 ## undated
 
@@ -104,8 +104,95 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[2026-06-11-github-issues-integration-review-2](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md)** · `review` · _—_ · `—`
   > **Plan**: `.cg-docs/plans/2026-06-11-github-issues-integration.md` **Review Date**: 2026-06-11 **Cycle**: Second revi…
+- **[2026-06-23-cross-agent-packaging-adapters-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
+- **[2026-06-23-cross-agent-packaging-adapters-verify-review](.cg-docs/reviews/2026-06-23-cross-agent-packaging-adapters-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md`
+- **[2026-06-23-optional-retrieval-backend-evaluation-review](.cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
+- **[2026-06-23-optional-retrieval-backend-evaluation-verify-review](.cg-docs/reviews/2026-06-23-optional-retrieval-backend-evaluation-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md`
+- **[2026-06-23-snapshot-external-research-modes-review](.cg-docs/reviews/2026-06-23-snapshot-external-research-modes-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`
+- **[2026-06-23-snapshot-external-research-modes-verify-review](.cg-docs/reviews/2026-06-23-snapshot-external-research-modes-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md`
+- **[2026-06-23-token-dashboard-regression-checks-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
+- **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
+  > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-06-23
+
+- **[2026-06-12-goal-driven-execution-verify-review-5](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md)** · `review` · _—_ · `2026-06-23`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[2026-06-23-command-output-summarization-wrappers-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-command-output-summarization-wrappers-verify-review](.cg-docs/reviews/2026-06-23-command-output-summarization-wrappers-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
+- **[2026-06-23-handoff-resume-active-state-compaction-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-handoff-resume-active-state-compaction-verify-review](.cg-docs/reviews/2026-06-23-handoff-resume-active-state-compaction-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
+- **[2026-06-23-knowledge-brain-query-budgeted-retrieval-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-review.md)** · `review` · _—_ · `2026-06-23`
+  > **Review mode**: architecture **Files reviewed**: `scripts/cg_index.py`, `scripts/brain/query.py`, `scripts/brain/tes…
+- **[2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review](.cg-docs/reviews/2026-06-23-knowledge-brain-query-budgeted-retrieval-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings. The required evidence passed after the budget-estimation correction:
+- **[2026-06-23-progressive-disclosure-scoped-instructions-review](.cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-review.md)** · `review` · _—_ · `2026-06-23`
+  > No blocking findings.
+- **[2026-06-23-progressive-disclosure-scoped-instructions-verify-review](.cg-docs/reviews/2026-06-23-progressive-disclosure-scoped-instructions-verify-review.md)** · `review` · _—_ · `2026-06-23`
+  > No verification findings.
+- **[Active-state handoff records should be artifact-reference-first](.cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md)** · `solution` · _—_ · `2026-06-23`
+  > Long `/cg-work` sessions can span phases, review loops, blocked stops, and crash recovery. Reconstructing state from …
+- **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
+- **[Command Output Summarization Wrappers](.cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.3 by adding native command-output summarization wrappers that keep raw noisy output on disk and ret…
+- **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
+  > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
+- **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
+  > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
+- **[Cross-Agent Packaging Adapters](.cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, versio…
+- **[Handoff Resume and Active-State Compaction](.cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact…
+- **[ICM and OKF Integration Concept for Compound GPID](.cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md)** · `strategy` · _—_ · `2026-06-23`
+  > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
+- **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
+- **[Optional Retrieval Backend Evaluation](.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.2 by adding a deterministic evaluation matrix for optional retrieval backends without enabling any n…
+- **[Optional retrieval backends must stay default-disabled during evaluation](.cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a reg…
+- **[Progressive Disclosure Skills and Scoped Instructions](.cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md)** · `plan` · _completed_ · `2026-06-23`
+  > Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary …
+- **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
+  > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
+- **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
+  > Copy the prompt below into a `/cg-strategy` session.
+- **[Snapshot and External-Research Modes](.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 2.3 by defining tested opt-in governance for future snapshot and external-research modes without imple…
+- **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
+  > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
+- **[Token Dashboard and Regression Checks](.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md)** · `plan` · _completed_ · `2026-06-23`
+  > Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and determinist…
+- **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
+  > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
+
+## 2026-06-22
+
+- **[2026-06-12-goal-driven-execution-verify-review-4](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-4.md)** · `review` · _—_ · `2026-06-22`
+  > **Review mode**: light (verify pass) **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md`…
+- **[Workflow telemetry needs source-aware path and tool extraction](.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md)** · `solution` · _—_ · `2026-06-22`
+  > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
+- **[Workflow Token Baseline and Test Integration](.cg-docs/plans/2026-06-22-workflow-token-baseline.md)** · `plan` · _completed_ · `2026-06-22`
+  > Build the Phase 1.1 workflow-level token/context baseline for Compound GPID by extending the existing deterministic a…
+
+## 2026-06-18
+
+- **[Token-Efficiency Workflow Strategy](.cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md)** · `strategy` · _—_ · `2026-06-18`
+  > Compound GPID already has a substantial token/model-governance foundation:
 
 ## 2026-06-16
 
@@ -1088,6 +1175,24 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
   > Per-step test enforcement in /cg-work
+- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _done_ · `—`
+  > Phase 1.1 — Workflow-level token baseline and test integration
+- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
+  > Phase 1.2 — Knowledge Brain query and budgeted retrieval
+- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
+  > Phase 1.3 — Command-output summarization wrappers
+- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _done_ · `—`
+  > Phase 1.4 — Progressive-disclosure skills and scoped instructions
+- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
+  > Phase 1.5 — Handoff, resume, and active-state compaction
+- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
+  > Phase 1.6 — Token dashboard and regression checks
+- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
+  > Phase 2.1 — Cross-agent packaging adapters
+- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _done_ · `—`
+  > Phase 2.2 — Optional retrieval backend evaluation
+- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _done_ · `—`
+  > Phase 2.3 — Snapshot and external-research modes
 - **[Phased execution in /cg-work](roadmap.json#phased-execution-cg-work)** · `feature` · _done_ · `—`
   > Phased execution in /cg-work
 - **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
@@ -1108,7 +1213,7 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
 - **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _active_ · `—`
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _done_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
@@ -1128,7 +1233,7 @@ _Generated 2026-06-16 · 386 artifacts (newest first) + 108 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _active_ · `—`
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _done_ · `—`
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)

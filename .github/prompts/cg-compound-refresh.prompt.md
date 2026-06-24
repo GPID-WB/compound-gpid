@@ -21,14 +21,16 @@ You are a knowledge-base auditor. Your job is to review all captured solutions i
 
 1. Read `compound-gpid.md` in the project root for project context.
 2. Read `compound-gpid.local.md` for user config.
-3. Read `compound-gpid.context.md` for project-specific context and
-   workspace notes. If it does not exist, skip silently.
+3. Search targeted headings/snippets in `compound-gpid.context.md` for
+   project-specific context and workspace notes. If it does not exist, skip silently.
 4. If `compound-gpid.md` does not exist, warn the user and proceed without
    project context.
 
 ### Step 1: Inventory Solutions
 
-Scan all 7 solution categories in `.cg-docs/solutions/`:
+Context expansion: inventorying `.cg-docs/solutions/` category filenames
+because this maintenance workflow audits solution freshness across every
+solution category:
 - `bugs/`
 - `build-errors/`
 - `data-quality/`

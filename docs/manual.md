@@ -12,6 +12,8 @@ All documentation lives here in `docs/`. Start with [Installation](installation.
 | [context-files.md](context-files.md) | Deep dive on the three Copilot context files — `copilot-instructions.md`, `compound-gpid.md`, and `compound-gpid.context.md` — plus the Codex / Claude Code `AGENTS.md` adapter note |
 | [model-guide.md](model-guide.md) | Model-picker policy, token/context guidance, premium-model escalation guidance, and audit guardrails |
 | [team-brain-schema.md](team-brain-schema.md) | Team Brain repository schema, local configuration, and GitHub Actions expectations |
+| [retrieval-backends.md](retrieval-backends.md) | Evaluation-only registry for optional retrieval backend candidates; `native-brain-query` remains the only active backend |
+| [snapshot-external-research.md](snapshot-external-research.md) | Evaluation-only registry for future snapshot and external-research modes; `local-workflow` remains the only active mode |
 | [versioning.md](versioning.md) | Version management — pin to a release, browse tags, return to main |
 | [troubleshooting.md](troubleshooting.md) | Known issues and step-by-step fixes |
 | [competitive-reviews.md](competitive-reviews.md) | Maintainer guide for `/cg-review-repos` competitive-review workflows |

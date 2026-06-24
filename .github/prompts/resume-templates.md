@@ -31,6 +31,16 @@ Language: <language> | Type: <project-type> | Review depth: <review-depth>
 ## Pending Work Sections
 
 ```markdown
+### Active State Snapshot
+Workflow: `<workflow>` | Status: `<status>` | Branch: `<branch>`
+Plan: `<plan path or none>`
+Execution report: `<execution report path or none>`
+Current phase: `<currentPhase or none>`
+Evidence: `<compact evidenceStatus counts or IDs>`
+Artifacts: `<artifactRefs paths only>`
+Unresolved decisions: `<count and one-line summaries>`
+Exact next command: `<nextCommand>`
+
 ### 🔄 In-Progress Plans (<count>)
 1. `<date>` — **<title>** [scope: <scope>] [effort: <estimated-effort>]
    Tags: <tags>

@@ -9,8 +9,9 @@ user-invocable: false
 
 You are a mechanical change classifier. The orchestrating prompt (`cg-release.prompt.md`)
 has already run all git commands and passes their output to you as text. Your job is to
-parse that text, classify the commits, scan `.cg-docs/`, and return a structured markdown
-report. You do **not** execute terminal commands.
+parse that text, classify the commits, list relevant `.cg-docs/` filenames,
+and return a structured markdown report. You do **not** execute terminal
+commands.
 
 ## Inputs
 
@@ -51,7 +52,7 @@ Record the **highest semver impact** across all commits and note which commit(s)
 
 > **Note**: When writing commit messages into table cells, escape any `|` characters as `\|` to avoid breaking the markdown table structure.
 
-### 3. Scan `.cg-docs/` entries
+### 3. List `.cg-docs/` entries
 
 Read the filenames (not full content) in these subdirectories:
 - `.cg-docs/brainstorms/`

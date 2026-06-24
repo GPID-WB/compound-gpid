@@ -213,6 +213,12 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 
 **Execution report** (`.cg-docs/work-reports/`): Created early in the run and updated incrementally. Contains the active deviation policy, completed steps/phases, all deviations with decisions, accepted exceptions with rationale, evidence table (mirroring the plan's Verification Surface), constraints check, remaining uncertainty, and final status. If a blocked run is resumed, a new run/resume section is appended — prior accountability evidence is preserved.
 
+**Active state** (`.cg-docs/active-state/current.json`): Compact restart aid
+for long workflows. It stores artifact paths, current phase, evidence status,
+unresolved decisions, and the exact next command. It does not replace the
+execution report and must not contain transcript dumps, raw command output,
+full diffs, or full review text.
+
 **Legacy plans** (no `## Completion Contract`): `/cg-work` halts and offers to generate a minimal compatibility contract for approval before proceeding.
 
 **Inline plan handling** (when no plan file is found):
@@ -260,7 +266,7 @@ The prompt scans its own output for:
 - You want a verified bug document captured in `.cg-docs/solutions/bugs/`
 
 **What happens**: The prompt walks through five stages with hard stops at reproduce and verify:
-1. **Intake**: Describe the bug; search `.cg-docs/solutions/bugs/` for any prior occurrence of the same pattern.
+1. **Intake**: Describe the bug; search only relevant `.cg-docs/solutions/bugs/` filenames, tags, and matched solution snippets for any prior occurrence of the same pattern.
 2. **Reproduce** *(hard stop)*: Write a failing test that reproduces the bug. Does not proceed until the test confirms the bug exists.
 3. **Diagnose**: State a root-cause hypothesis with evidence.
 4. **Fix** *(hard stop)*: Implement the fix and verify all tests pass — both the reproduction test and the full suite. Does not proceed until tests confirm the fix.
@@ -430,7 +436,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - To bootstrap a wiki on an existing project that has no `_wiki.yml` yet (`/cg-wiki init`)
 - To generate a GitHub Wiki–compatible layout (`/cg-wiki convert`)
 
-**What happens**: Manages the project wiki — a user-facing documentation folder (default: `wiki/`, configurable via `## Wiki Configuration` in `compound-gpid.context.md`). The wiki is governed by a `_wiki.yml` manifest that tracks pages, their order, and ownership (`auto` = plugin-managed, `manual` = user-written, never touched by the agent). Auto-managed sections are wrapped in `<!-- cg:auto:section-id -->` markers so user edits outside markers are always preserved.
+**What happens**: Manages the project wiki — a user-facing documentation folder (default: `wiki/`, configurable via `## Wiki Configuration` in `compound-gpid.context.md`; this repository uses `docs/`). The wiki is governed by a `_wiki.yml` manifest that tracks pages, their order, and ownership (`auto` = plugin-managed, `manual` = user-written, never touched by the agent). Auto-managed sections are wrapped in `<!-- cg:auto:section-id -->` markers so user edits outside markers are always preserved.
 
 **Note**: `/cg-wiki` is automatically dispatched by `/cg-compound` whenever a captured solution has user-facing implications (new CLI command, changed behavior, new dependency). You rarely need to run it manually.
 
@@ -458,7 +464,7 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - As a substitute for `/cg-compound` — the wiki reflects current state; institutional knowledge goes in `.cg-docs/`
 - To write manual documentation — use `/cg-wiki restructure` to register a new `manual`-ownership page, then edit the file directly
 
-**Output**: Files in the configured wiki folder (default: `wiki/`), including the updated `_wiki.yml` manifest inside that folder.
+**Output**: Files in the configured wiki folder (default: `wiki/`; `docs/` in this repository), including the updated `_wiki.yml` manifest inside that folder.
 
 ---
 
@@ -494,6 +500,11 @@ After each fix, `/cg-fix-triage` runs a targeted partial test suite to verify th
 - To get a quick overview of what is in progress across all workflow artifacts
 
 **What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-docs/reviews/` for open and skipped findings, and inspects `git status`/`git log` for in-progress code changes. For phased plans, displays phase progress (e.g., "Phase progress: 2/4 phases completed. Next: `/cg-work phase3`"). Presents a structured summary and suggests the most logical next action. If `roadmap.json` exists, it displays milestone progress with completion counts, surfaces roadmap/plan status drift, and surfaces unstarted roadmap ideas from active milestones.
+
+If `.cg-docs/active-state/current.json` exists, `/cg-resume` validates the
+referenced paths and shows an Active State Snapshot before pending work. The
+snapshot is artifact-reference-first and may provide the exact next command
+when it matches the scanned project state.
 
 **Scenarios**:
 - *Normal session start*: Run `/cg-resume` to see: active plans, open review findings, pending brainstorms, and current git state in one view.
@@ -725,10 +736,14 @@ or review-routing changes.
 3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`.
 4. If comparing against a prior report, rerun with `--baseline <previous-context-audit.json>`.
 5. Run the PowerShell safe test runner in VS Code/PowerShell: `. tests\Run-Tests.ps1`, then inspect `tests/last-run.json`.
-6. Open the generated audit report and review `Benchmark Summary`,
+6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and
+   `.cg-docs/token/regression-check.json`; interpret `baseline` as no
+   comparable prior audit supplied, `pass` as no deterministic guardrail
+   failures in a comparable run, and `fail` as guardrail failures present.
+7. Open the generated audit report and review `Benchmark Summary`,
    `Guardrails`, `Context Loading Risks`, `Review Dispatch Burden`, and
    `Model Inventory`.
-7. Complete `.cg-docs/cost/token-optimization-release-checklist.md` and record
+8. Complete `.cg-docs/cost/token-optimization-release-checklist.md` and record
    any non-blocking items in `.cg-docs/cost/token-optimization-follow-ups.md`.
 
 Model-governance checks:
@@ -748,6 +763,17 @@ Model-governance checks:
   for cross-vendor contrast. Use Sonnet only as a targeted fallback or contrast
   model, and use Haiku only for extremely simple mechanical work.
 
+Optional retrieval backend work is evaluation-only until a future roadmap item
+explicitly implements a backend. Use `.github/shared/retrieval-backends.json`
+and `docs/retrieval-backends.md` to review candidates and gates; do not treat
+the registry as runtime configuration.
+
+Snapshot and external-research mode work is also evaluation-only until a future
+roadmap item explicitly implements a mode. Use
+`.github/shared/snapshot-research-modes.json` and
+`docs/snapshot-external-research.md` to review candidates and gates; ordinary
+workflows remain local by default.
+
 Token-efficiency advice:
 
 - Run `/cg-token-audit` from a linked project when you want a compact advisory
@@ -760,6 +786,12 @@ Token-efficiency advice:
 - Use the advice to choose lighter models for simple planning, match review
   depth to risk, and avoid broad context reads unless a workflow explicitly
   justifies them.
+- Prefer `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`,
+  `cg-tree-summary`, and `cg-problems-summary` when a workflow needs compact
+  evidence from noisy local outputs. These wrappers preserve validation
+  semantics: they summarize existing outputs, store redacted raw artifacts
+  under `.cg-docs/token/outputs/`, and do not replace required test or review
+  commands.
 
 Release-readiness checks:
 
@@ -770,7 +802,9 @@ Release-readiness checks:
 - `/cg-work` preserves `review:auto`, `review:manual`, `review:none`, and explicit `review:<mode>` behavior.
 - Knowledge Brain lookup remains query-first: start from the generated topic
   index, follow matched topics, and avoid wholesale tooling-index consumption
-  during ordinary workflows.
+  during ordinary workflows. Prefer `cg-index query --intent <workflow>
+  --query "<directive>" --budget <tokens>` when available; fall back to
+  `BRAIN.md` topic traversal when the CLI is unavailable or insufficient.
 - `.cg-docs/inbox/` remains a holding area for unprocessed strategy ideas.
   Inbox entries are not approved roadmap items until a separate strategy or
   roadmap session promotes them.

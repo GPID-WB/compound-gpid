@@ -1,0 +1,113 @@
+{
+  "comparison": {
+    "model_governance": {},
+    "status": "not_supplied",
+    "workflows": []
+  },
+  "failures": [],
+  "generated": "2026-06-23T14:26:40",
+  "measurement_policy": {
+    "failure_rule": "guardrail failures fail the regression check; advisory warnings remain warnings",
+    "savings_claims": "not made without comparable repository probes",
+    "token_estimate": "chars/4 heuristic"
+  },
+  "schema_version": 1,
+  "status": "baseline",
+  "status_reason": "No baseline comparison was supplied; current audit is the baseline.",
+  "warnings": [
+    {
+      "path": "docs/context-files.md",
+      "reason": "context-loading risk requires review: compound-gpid.context.md"
+    },
+    {
+      "path": "docs/reference.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": "docs/workflow.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    }
+  ],
+  "workflow_budget": [
+    {
+      "estimated_tokens": 3798,
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-brainstorm"
+    },
+    {
+      "estimated_tokens": 3218,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-plan"
+    },
+    {
+      "estimated_tokens": 5000,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-work"
+    },
+    {
+      "estimated_tokens": 4739,
+      "path": ".github/prompts/cg-review.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-review"
+    },
+    {
+      "estimated_tokens": 2100,
+      "path": ".github/prompts/cg-fix-triage.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-fix-triage"
+    },
+    {
+      "estimated_tokens": 2404,
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-compound"
+    },
+    {
+      "estimated_tokens": 3159,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-resume"
+    },
+    {
+      "estimated_tokens": 2647,
+      "path": ".github/prompts/cg-diagnose.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-diagnose"
+    },
+    {
+      "estimated_tokens": 790,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "status": "pass",
+      "threshold_failure": 6000,
+      "threshold_warning": 5000,
+      "workflow": "/cg-token-audit"
+    },
+    {
+      "estimated_tokens": 2756,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "status": "pass",
+      "threshold_failure": null,
+      "threshold_warning": null,
+      "workflow": "Knowledge Brain/context lookup"
+    }
+  ]
+}

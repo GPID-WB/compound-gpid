@@ -8,7 +8,7 @@ root-cause: "A zero-failure audit can still leave ambiguous warnings unless each
 severity: "P2"
 plan: ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md"
 work-report: ".cg-docs/work-reports/2026-06-16-token-context-optimization-closure.md"
-related: [".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md"]
+related: [".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md", ".cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md"]
 ---
 
 # Reviewed Warning Classifications Close Token Work Without Hiding Risk
@@ -116,3 +116,4 @@ work:
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md`
+- `.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md`

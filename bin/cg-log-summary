@@ -1,0 +1,5 @@
+#!/bin/bash
+# bin/cg-log-summary -- summarize branch-local commits and notable files.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/../scripts/cg_summary.py" log "$@"

@@ -4,23 +4,46 @@ Quick reference for all Compound GPID commands, agents, skills, configuration, a
 
 > See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the Codex / Claude Code `AGENTS.md` adapter. See [Troubleshooting](troubleshooting.md) for known issues.
 
+Optional cross-agent adapter source files live under `adapters/`. Copy
+`adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into a consumer repo
+root only when that repo is intentionally maintained with that agent family.
+These files are not installed by `cg-link` and do not change GitHub Copilot
+behavior.
+
+Optional retrieval backend candidates are documented in
+[Retrieval Backend Evaluation](retrieval-backends.md) and tracked in
+`.github/shared/retrieval-backends.json`. The registry is evaluation-only:
+`native-brain-query` remains the only active backend.
+
+Snapshot and external-research mode candidates are documented in
+[Snapshot and External-Research Modes](snapshot-external-research.md) and
+tracked in `.github/shared/snapshot-research-modes.json`. The registry is
+evaluation-only: `local-workflow` remains the only active mode.
+
 ---
 
 ## Shell Commands
 
-> Available from PowerShell on Windows and from bash/zsh on macOS.
+> Core install commands are available from PowerShell on Windows and from bash/zsh on macOS. The `cg-*-summary` wrappers are bash wrappers in `bin/`; use them from bash/zsh or run `python scripts/cg_summary.py <kind>` directly on Windows.
 
+<!-- cg:auto:shell-commands -->
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
-| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` and generate `copilot-instructions.md` from template - enables all Copilot prompts in this project |
-| `cg-unlink` | Project root | Remove CG-managed junctions (existing `.github/` content is preserved) |
-| `cg-update` | Anywhere | Update to latest (or stay on pinned version). Accepts optional version argument — see Version Management below. |
-| `cg-update <version>` | Anywhere | Pin to a specific release tag, e.g. `cg-update v0.2.0` |
-| `cg-update latest` | Anywhere | Unpin and return to tracking main |
-| `cg-update --list` | Anywhere | Browse available GitHub Releases |
-| `cg-update --fix` | Anywhere | Repair a broken installation — cleans untracked files, discards local changes, and pulls latest |
-| `cg-brain-init` | Project root | Initialize or configure Team Brain integration for the current project |
-| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context/model audit reports and compact token-efficiency advice |
+| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` and generate `copilot-instructions.md` from the template. |
+| `cg-unlink` | Project root | Remove Compound GPID-managed junctions while preserving existing `.github/` content. |
+| `cg-update [<version>\|latest\|--list\|--fix]` | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. |
+| `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
+| `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |
+| `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |
+| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. |
+| `cg-test-summary --root . --format json` | Project root | Summarize `tests/last-run.json` without running tests and store a redacted source artifact. |
+| `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. |
+| `cg-log-summary --root . --format json` | Project root | Summarize branch-local first-parent commits and notable files. |
+| `cg-tree-summary --root . --max-entries 120 --format md` | Project root | Summarize a bounded repository tree while excluding generated outputs, dependencies, and caches. |
+| `cg-problems-summary --root . --input problems.json --format json` | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. |
+
+Windows installs include matching `.cmd` wrappers for the core install commands where platform-specific launch behavior is required.
+<!-- cg:auto:end -->
 
 ---
 
@@ -47,63 +70,108 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 <!-- cg:auto:commands -->
 | Prompt | Model | Purpose |
 |--------|-------|---------|
-| `/cg-setup` | Claude Haiku 4.5 | Configure project or load context for returning projects |
-| `/cg-strategy` | Copilot model picker | Full project visioning and direction-setting. Structures ideas into milestones, or rethinks the roadmap mid-project. Dispatches `@cg-roadmap` for all writes. When GitHub Issues are enabled, recommends `/cg-issues backfill` for newly added or changed unlinked work items; it never creates issues automatically. **Requires `compound-gpid.md`** — run `/cg-setup` first. |
-| `/cg-ideate` | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use when you don't have a specific task in mind. |
-| `/cg-brainstorm [--no-branch]` | Copilot model picker | Clarify fuzzy requirements through guided questions. **Auto-branch at Step 1.7** — on the default branch, automatically creates and switches to a feature branch before any clarifying questions (no prompt). On a feature branch, prompts stay or new. If the workspace is not a git repo, offers `git init` first. Use `--no-branch` to skip branching entirely. Automatically checks `.cg-docs/brainstorms/` for prior work on the same topic before starting fresh. Classifies task as software or non-software (Thinking Partner mode). Assesses scope (Lightweight / Standard / Deep) and adapts question depth accordingly. After proposing approaches, runs an always-on devil's advocate challenge covering problem validity, simplicity, effort-value, and charter alignment before the decision is finalized. |
-| `/cg-plan [--no-phases] [deviate:<policy>]` | Copilot model picker | Research + structured implementation plan. **Branch offer at Step 0.7** — before gathering context, offers to create a git branch derived from your request. Automatically checks `.cg-docs/plans/` for prior work before starting fresh. Assesses implementation scope (Lightweight / Standard / Deep) and adapts plan detail. **Phases by default** — all plans are automatically organized into numbered phases unless `--no-phases` is passed or the plan has ≤ 2 steps. **Completion contract** — every saved plan includes a `## Completion Contract` section (Outcome, Verification Surface, Constraints, Boundaries, Iteration Policy, Blocked-Stop Conditions). The contract is previewed for user approval before the plan is saved. Use `deviate:ask` (default), `deviate:auto` (autonomous), or `deviate:strict` to set the deviation policy stored in plan frontmatter as `deviation-policy`. Includes confidence check before finalizing. |
-| `/cg-plan-review` | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Can review existing plans standalone or be run right after `/cg-plan`. Dispatches `@cg-plan-critic`. |
-| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) to execute a specific phase of a phased plan; without an argument, executes all remaining phases sequentially. **Goal-driven execution** — reads the plan's `## Completion Contract` as execution authority; completion is only recorded when required evidence passes or an explicit accepted exception is logged in the execution report (`.cg-docs/work-reports/`). **Deviation policy** — uses the plan's `deviation-policy` frontmatter value by default; override at runtime with `deviate:ask`, `deviate:auto`/`deviate:autonomous` (both stored as `autonomous`), or `deviate:strict`. Deviation decisions and accepted exceptions are recorded in the execution report. Legacy plans without a contract are halted with an offer to generate a minimal compatibility contract. Review handoff is mode-aware: default/`review:manual` recommends a routed `/cg-review` command without dispatching review agents, `review:auto` dispatches route-appropriate agents using the shared review-routing contract, and `review:none` suppresses review handoff. `/cg-review` remains available but is no longer required as the default post-work step when evidence gates pass. Builds a test index before implementing, runs mechanical self-review (Step 3.2) after all steps complete, and auto-marks roadmap features as `active`. If all features in a milestone are marked done, marks the milestone complete via `@cg-roadmap` (Step 3.8). |
-| `/cg-fixbug` | GPT-5.3-Codex | Structured bug-fix: intake → expected-behavior source (Step 1.5, MANDATORY) → reproduce with diagnostic fork (hard stop) → test-gap classification (Step 2.5) → diagnose → fix with red-green proof (hard stop) → document. Checks prior bug solutions at intake. |
-| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | GPT-5.4 | Multi-agent code review with P0/P1/P2/P3 findings. Uses staged routing by default: small low-risk changes route to `light`, normal changes to `standard`, statistical/survey/poverty/welfare/joins/aggregation/reproducibility-sensitive changes to `data-risk`, architecture/performance-heavy changes to `architecture`, and security/release/high-risk or explicit requests to `full`. `thorough` remains accepted as a backward-compatible alias for `full`. **Autofix is the default** — safe mechanical fixes (`[safe_auto]`) are applied automatically; statistical functions, welfare/income variables, and weight parameters are never auto-fixed (escalated to `[manual]`). Use `--report-only` to disable autofix and present findings one-at-a-time for Fix/Skip/Discuss. `mode:autofix` is now a no-op (accepted for backward compatibility). `mode:verify` switches to verification mode — re-runs a `light` review with suppression of expected fix-consequence P2/P3 findings; P0/P1 and new cross-file breakage are always reported. Note: `--report-only` and `mode:verify` are mutually exclusive — if both are passed, `mode:verify` wins. |
-| `/cg-fix-triage [IDs\|PRIORITY\|--migrate]` | GPT-5.3-Codex | Apply review findings by ID or priority level. If the report has more than 15 open findings and no arguments are given, warns before proceeding and recommends priority batches (`P0 P1`, `P2`, `P3`); respond `batch` to get the commands and stop, or `yes` to proceed. Use `--migrate` to backfill per-finding status tracking on legacy review files (pre-v0.4.3). |
-| `/cg-fix-problems` | GPT-5.3-Codex | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets you select scope and severity, then dispatches `@cg-fix-problems` to apply fixes. Auto mode is dispatched silently by `/cg-work` when `get_errors` returns errors in files touched by the current implementation step (errors only, 2-round budget). |
-| `/cg-compound [--no-enrich] [--propose]` | GPT-5.4 | Capture solutions as reusable knowledge in `.cg-docs/solutions/`. Cross-references related existing solutions. **Auto-enriches by default** — automatically writes key findings to `compound-gpid.context.md` (no prompt) and updates the project wiki (folder configured via `## Wiki Configuration` in `compound-gpid.context.md`) when the captured solution has user-facing implications. In Step 6, offers to suggest updates to `.github/instructions/` or `.github/skills/` files (the user applies them manually). Use `--no-enrich` to skip `compound-gpid.context.md` and wiki enrichment. Use `--propose` to review proposed wiki changes before they are applied. |
-| `/cg-compound-refresh` | GPT-5.4 | Audit `.cg-docs/solutions/` for staleness, drift, and consolidation opportunities. Archives instead of deleting. |
-| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` changes from collaborators, after manually editing solution files, after a `/cg-compound` run where brain rebuild was skipped, or when the brain is stale. Verifies success by exit code (primary), stdout stats line (secondary), and `BRAIN.md` existence (tertiary). |
-| `/cg-wiki [init\|rebuild\|restructure\|convert\|status\|help] [--propose]` | GPT-5.4 | Manage the project wiki (`wiki/` by default). No args = status table. `init` bootstraps the wiki on an existing project (creates `_wiki.yml` and all wiki pages from a project-type template). `rebuild` regenerates all auto-managed pages from current codebase + charter. `rebuild <page-id>` targets a single page. `restructure` lets you add/remove/reorder pages interactively. `convert` generates GitHub Wiki–compatible layout (Home.md, _Sidebar.md). `--propose` shows diffs before writing. Wiki initialized at `/cg-setup` or `/cg-wiki init`; updated automatically by `/cg-compound`. |
-| `/cg-token-audit` | Claude Haiku 4.5 | Advisory token/context usage analysis. Runs `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`, then summarizes `.cg-docs/cost/token-advice.md`. Does not modify project configuration or source files. |
-| `/cg-resume` | Claude Haiku 4.5 | Load context, check schema version, scan pending work (active plans, open review findings, in-progress git changes), and resume interrupted sessions. Shows roadmap milestone progress. Displays linked GitHub issue numbers (read-only) alongside active features when present, and may suggest `/cg-issues link` or `/cg-issues backfill` when relevant current work is unlinked. |
-| `/cg-roadmap-view [--milestone\|--tasks\|--detail\|--status\|--wip\|--plan\|--help] [<name>]` | Claude Haiku 4.5 | Display the project roadmap in chat. Flags control the view: no flags = summary table; `--wip` = in-progress milestones; `--milestone <name>` = single milestone detail; `--tasks [<name>]` = feature lists; `--detail <name>` = single feature; `--detail <name> --plan` = feature plus linked plan summary; `--status idea\|planned\|active\|done` = features by status. Names are fuzzy-matched. |
-| `/cg-diagnose` | GPT-5.3-Codex | Post-crash forensics. Inspects VS Code logs (`main.log`, `renderer.log`, `exthost.log`), classifies the crash category (Pester / listener leak / rapid edits / extension host / unknown), checks for uncommitted work, and recommends recovery steps. Hands off to `/cg-resume`. |
-| `/cg-issues [status\|backfill\|link\|adopt\|setup]` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create or link issues for unlinked features after explicit confirmation. `link`: attach an existing issue to a feature. `adopt`: import a GitHub issue as a new roadmap feature. `setup`: configure `githubIssues` in `roadmap.json`. Requires `gh` CLI and authentication. Degrades gracefully when `gh` is unavailable. Dispatches `@cg-roadmap` for all roadmap writes. |
-| `/cg-commit-push-pr` | GPT-5.3-Codex | Stage changes into logical commits (grouped by file type: code, tests, docs, config, plans), generate conventional commit messages, push, and open a PR with a plan-driven description. Adds `Refs #` or `Closes #` to the PR body when features have linked GitHub issues (`Closes #` only with explicit user confirmation). Proposes commit splits interactively. Requires `gh` CLI for PR creation — degrades gracefully with install instructions if missing. |
-| `/cg-verify-pr [--propose]` | GPT-5.3-Codex | Check CI status on the current branch's PR and auto-fix failures. Classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific). One fix round per invocation; 2-round cap tracked via `fix(ci):` commit count. Re-invoke after CI re-runs to apply a second round. Use `--propose` for observe-only diagnosis (no commits or pushes). |
+| `/cg-setup` | Claude Haiku 4.5 | Configure a new project or load context for a returning project. |
+| `/cg-strategy` | Copilot model picker | Structure or rethink the project vision and roadmap; dispatches roadmap writes. |
+| `/cg-ideate` | Copilot model picker | Generate, critique, and filter possible next work when the task is not yet selected. |
+| `/cg-brainstorm [--no-branch]` | Copilot model picker | Clarify fuzzy requirements, assess scope, check prior brainstorms, and challenge proposed approaches. |
+| `/cg-plan [--no-phases] [deviate:<policy>]` | Copilot model picker | Create a researched implementation plan with phases and a completion contract. |
+| `/cg-plan-review` | Copilot model picker | Review implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. |
+| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Execute a plan against its completion contract, record evidence, and update roadmap state. |
+| `/cg-fixbug` | GPT-5.3-Codex | Structured bug-fix workflow: intake, expected-behavior source at Step 1.5, reproduce, test-gap classification at Step 2.5, diagnose, fix with red-green proof, verify, document. |
+| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | GPT-5.4 | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
+| `/cg-fix-triage` | GPT-5.3-Codex | Apply review findings from saved reports by priority or finding ID. |
+| `/cg-fix-problems` | GPT-5.3-Codex | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
+| `/cg-compound` | GPT-5.4 | Capture a verified solved problem as reusable knowledge in `.cg-docs/solutions/`. Offers `.github/` instruction or skill update suggestions; the user applies those changes manually. |
+| `/cg-compound-refresh` | GPT-5.4 | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
+| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (BRAIN.md + indexes). |
+| `/cg-resume` | Claude Haiku 4.5 | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
+| `/cg-diagnose` | GPT-5.3-Codex | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
+| `/cg-roadmap-view` | Claude Haiku 4.5 | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
+| `/cg-token-audit` | Claude Haiku 4.5 | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
+| `/cg-wiki` | GPT-5.4 | Manage the project wiki: status, init, rebuild, restructure, or convert. |
+| `/cg-issues` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-commit-push-pr` | GPT-5.3-Codex | Stage changes into logical commits, push, and open a PR with plan-driven description. |
+| `/cg-verify-pr` | GPT-5.3-Codex | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
+| `/cg-devtag` | Claude Haiku 4.5 | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
+| `/cg-review-repos` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Developer-only. |
 
 ### `cg-index --brain` — Diagnostic Warnings
 
-`cg-index --brain` writes scan-pass warnings to **stderr** during execution:
+`cg-index --brain` writes scan-pass warnings to stderr during execution:
 
 | Message | Meaning |
 |---------|---------|
-| `[cg-index] WARNING: Skipping <file>: …` | File could not be read (UnicodeDecodeError, OSError) — excluded from brain index. |
-| `[cg-index] WARNING: Skipping <file>: no frontmatter found` | File lacks a `---` YAML block — excluded from index. |
-| `[cg-index] WARNING: <file>: missing required field(s): …` | Frontmatter is missing `title` or `date` — included but may sort incorrectly. |
-| `[cg-index] WARNING: Duplicate frontmatter key '<key>'` | Frontmatter has a repeated key — only the last value is used. |
-| `[cg-index] WARNING: roadmap feature … has no 'id'; skipping` | Roadmap feature entry lacks an `id` field — not linked in the brain. |
+| `[cg-index] WARNING: Skipping <file>: ...` | File could not be read and was excluded from the Brain index. |
+| `[cg-index] WARNING: Skipping <file>: no frontmatter found` | File lacks a `---` frontmatter block and was excluded from the index. |
+| `[cg-index] WARNING: <file>: missing required field(s): ...` | Frontmatter is missing required metadata such as `title` or `date`. |
+| `[cg-index] WARNING: Duplicate frontmatter key <key>` | Frontmatter repeats a key; the last value is used. |
+| `[cg-index] WARNING: roadmap feature ... has no id` | A roadmap feature lacks an `id` and is skipped for Brain linking. |
 
 To capture warnings: `cg-index --brain 2>brain-warnings.txt`.
 
+### `cg-index query` — Budgeted Knowledge Brain Retrieval
+
+Use `cg-index query` when a workflow needs prior project knowledge without opening generated Brain partitions by hand:
+
+```bash
+cg-index query --intent plan --query "workflow token baseline" --budget 600 --format md
+cg-index query --intent review --query "Pester safe runner" --changed-file tests/Run-Tests.ps1 --budget 600 --format json
+```
+
+The query mode returns a short answer, selected artifact paths, snippets, selection and exclusion reasons, stale or conflict flags, confidence, and a heuristic token estimate. It is local and deterministic; it does not use vector search, external services, or optional retrieval backends.
+
+### Command Output Summary Wrappers
+
+Use the `cg-*-summary` wrappers when a workflow needs compact evidence from noisy local command surfaces while retaining the full source output on disk:
+
+```bash
+cg-test-summary --root . --format json
+cg-diff-summary --root . --format md
+cg-log-summary --root . --format json
+cg-tree-summary --root . --max-entries 80 --format md
+cg-problems-summary --root . --input diagnostics.json --format json
+```
+
+The wrappers are local stdlib tooling. They do not call external services, mutate GitHub, or replace required validation commands. `cg-test-summary` only reads existing `tests/last-run.json`; it does not run Pester, pytest, R, or Stata. Full raw/source outputs are redacted for common secret-looking patterns and written under `.cg-docs/token/outputs/YYYYMMDD-HHMMSS-<kind>/`. Keep that directory for short-lived validation evidence, not durable project knowledge; record final decisions in plans, reviews, work reports, and solutions instead.
+
 ### `cg-token-audit` / `cg-audit-context` — Context and Model-Governance Audit
 
-```
+```bash
 cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations
-python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json] [--recommendations]
+python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json] [--recommendations] [--token-output-dir PATH] [--no-token-artifacts]
 ```
 
-Inventories context-contributing files, estimates token burden (chars/4 heuristic), counts prompt and agent references, inventories model declarations, enriches declarations from `.github/shared/model-catalog.json`, detects duplicate paragraph blocks, benchmarks `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup behavior, and writes reports to `.cg-docs/cost/` (default). Requires `scripts/brain/` from this repository. The installed `cg-token-audit` wrapper runs the same script from any linked project; pass `--root .` from the project root so the consumer project is audited.
+Inventories context-contributing files, estimates token burden with a chars/4 heuristic, counts prompt and agent references, inventories model declarations, detects duplicate paragraph blocks, and benchmarks the tracked `/cg-*` workflows plus Knowledge Brain/context lookup behavior.
 
-Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only warning classifications and token-efficiency recommendations. The generated Markdown includes Benchmark Summary, Guardrails, Reviewed Warning Classifications, Token Efficiency Recommendations, Context Loading Risks, Review Dispatch Burden, Model Inventory, and a release-readiness checklist.
+Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`. The token regression check reports `baseline` when no previous comparable audit is supplied, `pass` when a comparable run has no deterministic guardrail failures, and `fail` when guardrail failures are present.
 
-Model-governance guardrails report unknown or stale model names, missing catalog
-assignments, invalid roles, OpenAI-first violations, Haiku/Sonnet role
-violations, support gaps, and model-guide drift. Inherited model-picker prompts
-are a deliberate exception: a missing `model:` frontmatter key matches
-`Copilot model picker` in `docs/model-guide.md` only when the catalog role is
-`inherited`.
+Workflow baseline artifacts:
+
+| Artifact | Purpose |
+|----------|---------|
+| `.cg-docs/token/TOKEN-BUDGET.md` | Human-readable workflow baseline, observability boundaries, and no-savings-claim policy. |
+| `.cg-docs/token/TOKEN-DASHBOARD.md` | Compact maintainer dashboard with regression status, highest workflow budgets, and warning/context summaries. |
+| `.cg-docs/token/token-audit.json` | Canonical JSON baseline payload with workflow telemetry, benchmarks, guardrails, and warning classifications. |
+| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |
+| `.cg-docs/token/regression-check.json` | Machine-readable token regression status derived from deterministic guardrails and optional baseline comparison. |
+| `.cg-docs/token/workflow-costs.csv` | Spreadsheet-friendly workflow rows for tracked workflows. |
+| `.cg-docs/token/large-context-warnings.md` | Large prompt/instruction/skill and repeated-context warnings without copying large bodies. |
+
+Model-governance guardrails report unknown or stale model names, missing catalog assignments, invalid roles, OpenAI-first violations, support gaps, and model-guide drift. Runtime-only quantities such as command-output size and summary size remain explicit observed/not_observed fields until instrumentation exists.
 
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
+
+### Active-State Handoff Records
+
+Long-running workflows may write a compact restart aid at
+`.cg-docs/active-state/current.json`. The schema is defined in
+`.github/shared/active-state.contract.md`. Records contain artifact paths,
+current phase, evidence status, unresolved decisions, and an exact
+`nextCommand`; they must not copy transcripts, raw command output, full review
+findings, or full report bodies. `/cg-resume` reads the record when present and
+validates referenced paths before using it. `/cg-diagnose` may include the same
+compact pointers in crash recovery handoffs, but remains read-only.
 
 For token-optimization release candidates, complete
 `.cg-docs/cost/token-optimization-release-checklist.md` after generating the
@@ -275,7 +343,7 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 
 | Agent | Focus | Model | User-invocable |
 |-------|-------|-------|----------------|
-| `@cg-release-scanner` | Classifies commits by conventional commit prefix, scans `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |
+| `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |
 
 > `@cg-release-scanner` is dispatched exclusively by `/cg-release`. It is **not user-invokable** directly. It receives the pre-collected git commit log and window parameters from the orchestrating prompt, classifies commits (feat/fix/docs/breaking), matches `.cg-docs/` plan and solution entries by keyword, and returns a structured markdown report with Semver Impact recommendation and SCHEMA_VERSION signals.
 
@@ -396,7 +464,9 @@ After linking and configuring, your project will contain:
 
 ```
 your-project/
-├── AGENTS.md                 # optional Codex / Claude Code adapter; not used by GitHub Copilot
+├── AGENTS.md                 # optional Codex adapter; not used by GitHub Copilot
+├── CLAUDE.md                 # optional Claude Code adapter; not used by GitHub Copilot
+├── adapters/                 # source package for optional cross-agent adapters
 ├── .github/
 │   ├── prompts/              → junction to C:\WBG\.compound-gpid\.github\prompts\
 │   ├── skills/               → junction to C:\WBG\.compound-gpid\.github\skills\

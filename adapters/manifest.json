@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "package": "compound-gpid-cross-agent-adapters",
+  "description": "Optional root-level compatibility adapters for agents that do not natively load GitHub Copilot prompt libraries.",
+  "adapters": [
+    {
+      "id": "codex",
+      "source": "adapters/codex/AGENTS.md",
+      "target_filename": "AGENTS.md",
+      "agent_family": "Codex",
+      "opt_in": true
+    },
+    {
+      "id": "claude-code",
+      "source": "adapters/claude/CLAUDE.md",
+      "target_filename": "CLAUDE.md",
+      "agent_family": "Claude Code",
+      "opt_in": true
+    }
+  ],
+  "copilot_behavior": "unchanged"
+}

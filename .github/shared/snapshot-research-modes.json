@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "current_mode": "local-workflow",
+  "policy": {
+    "default_mode": "local-workflow",
+    "evaluation_only": true,
+    "non_local_modes_default_enabled": false,
+    "no_external_action_without_explicit_user_request": true
+  },
+  "required_gates": [
+    "explicit_opt_in",
+    "source_attribution",
+    "privacy_review",
+    "copyright_safe_summary",
+    "reproducibility_note",
+    "token_budget_review",
+    "rollback_plan"
+  ],
+  "modes": [
+    {
+      "id": "local-workflow",
+      "name": "Local workflow mode",
+      "status": "current",
+      "kind": "local",
+      "default_enabled": true,
+      "requires_explicit_opt_in": false,
+      "network_required": false,
+      "description": "Default Compound GPID behavior using local repo files, generated Brain artifacts, and local validation outputs."
+    },
+    {
+      "id": "snapshot-candidate",
+      "name": "Snapshot candidate mode",
+      "status": "evaluate-only",
+      "kind": "local",
+      "default_enabled": false,
+      "requires_explicit_opt_in": true,
+      "network_required": false,
+      "gates": [
+        "explicit_opt_in",
+        "privacy_review",
+        "reproducibility_note",
+        "token_budget_review",
+        "rollback_plan"
+      ],
+      "description": "Potential future mode for bounded local state snapshots; no capture or replay implementation is added in Phase 2.3."
+    },
+    {
+      "id": "external-research-candidate",
+      "name": "External research candidate mode",
+      "status": "deferred",
+      "kind": "external",
+      "default_enabled": false,
+      "requires_explicit_opt_in": true,
+      "network_required": true,
+      "gates": [
+        "explicit_opt_in",
+        "source_attribution",
+        "privacy_review",
+        "copyright_safe_summary",
+        "reproducibility_note",
+        "token_budget_review",
+        "rollback_plan"
+      ],
+      "description": "Potential future mode for explicitly requested external research; no web search, browser automation, or external fetching is introduced in Phase 2.3."
+    }
+  ],
+  "non_goals": [
+    "browser automation",
+    "web search execution",
+    "external source fetching",
+    "snapshot capture",
+    "snapshot replay",
+    "transcript dumps",
+    "runtime mode switching"
+  ]
+}
