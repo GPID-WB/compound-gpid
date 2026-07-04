@@ -1,0 +1,6 @@
+{
+  "platform": "opencode",
+  "commands": ".opencode/commands",
+  "skills": ".opencode/skills",
+  "agents": ".opencode/agents"
+}

@@ -1,0 +1,7 @@
+{
+  "platform": "opencode",
+  "modelMappingMode": "role-only",
+  "mapping": {},
+  "source": ".github/shared/model-catalog.json",
+  "note": "Generated from canonical role assignments. Exact model names are validated where possible; unvalidated names are marked not-tested."
+}
