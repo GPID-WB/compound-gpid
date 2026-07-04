@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "description": "Maps canonical .github/ assets to native platform trees. Read by scripts/cg_generate_targets.py to emit platform-specific command, skill, and agent files.",
+  "targets": [
+    {
+      "id": "copilot",
+      "name": "GitHub Copilot",
+      "generatedTreePath": null,
+      "modelMappingMode": "role-only",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": true,
+        "requiresRootAdapter": false
+      },
+      "formats": {
+        "commandFormat": "github-prompt",
+        "skillFormat": "github-skill",
+        "agentFormat": "github-agent"
+      },
+      "outputPaths": {
+        "commands": ".github/prompts",
+        "skills": ".github/skills",
+        "agents": ".github/agents",
+        "instructions": ".github/instructions",
+        "shared": ".github/shared"
+      }
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "generatedTreePath": ".claude",
+      "modelMappingMode": "tier",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": false,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "claude-command",
+        "skillFormat": "claude-skill",
+        "agentFormat": "claude-agent"
+      },
+      "outputPaths": {
+        "commands": ".claude/commands",
+        "skills": ".claude/skills",
+        "agents": ".claude/agents",
+        "rootAdapter": ".claude/CLAUDE.md",
+        "modelMapping": ".claude/model-mapping.claude.json"
+      },
+      "modelMapping": {
+        "coding": "sonnet",
+        "review": "sonnet",
+        "reasoning": "opus",
+        "mechanical": "haiku",
+        "inherited": null
+      }
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "generatedTreePath": ".agents",
+      "modelMappingMode": "exact",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": false,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "codex-command",
+        "skillFormat": "codex-skill",
+        "agentFormat": "codex-subagent-toml",
+        "fallbackAgentFormat": "codex-skill"
+      },
+      "outputPaths": {
+        "commands": ".agents/commands",
+        "skills": ".agents/skills",
+        "agents": ".agents/subagents",
+        "rootAdapter": ".agents/AGENTS.md",
+        "modelMapping": ".agents/model-mapping.codex.json"
+      },
+      "modelMapping": {
+        "coding": "GPT-5.3-Codex",
+        "review": "GPT-5.4",
+        "reasoning": "GPT-5.4",
+        "mechanical": "GPT-5.4 mini",
+        "inherited": null
+      }
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "generatedTreePath": ".opencode",
+      "modelMappingMode": "role-only",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": true,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "opencode-command",
+        "skillFormat": "opencode-skill",
+        "agentFormat": "opencode-agent"
+      },
+      "outputPaths": {
+        "commands": ".opencode/commands",
+        "skills": ".opencode/skills",
+        "agents": ".opencode/agents",
+        "rootAdapter": ".opencode/AGENTS.md",
+        "config": ".opencode/opencode.json",
+        "modelMapping": ".opencode/model-mapping.opencode.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Compound GPID Target Mapping",
+  "description": "Schema for .github/shared/target-mapping.json — maps canonical .github/ assets to native platform trees.",
+  "type": "object",
+  "required": ["schemaVersion", "description", "targets"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "description": { "type": "string" },
+    "targets": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/target" },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "target": {
+      "type": "object",
+      "required": ["id", "name", "generatedTreePath", "modelMappingMode", "capabilities", "formats", "outputPaths"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "name": { "type": "string" },
+        "generatedTreePath": { "type": ["string", "null"] },
+        "modelMappingMode": { "type": "string", "enum": ["role-only", "tier", "exact"] },
+        "capabilities": {
+          "type": "object",
+          "required": ["supportsNativeCommands", "supportsNativeSkills", "supportsNativeSubagents", "supportsMultiVendorModels", "requiresRootAdapter"],
+          "properties": {
+            "supportsNativeCommands": { "type": "boolean" },
+            "supportsNativeSkills": { "type": "boolean" },
+            "supportsNativeSubagents": { "type": "boolean" },
+            "supportsMultiVendorModels": { "type": "boolean" },
+            "requiresRootAdapter": { "type": "boolean" }
+          }
+        },
+        "formats": {
+          "type": "object",
+          "required": ["commandFormat", "skillFormat", "agentFormat"],
+          "properties": {
+            "commandFormat": { "type": "string" },
+            "skillFormat": { "type": "string" },
+            "agentFormat": { "type": "string" },
+            "fallbackAgentFormat": { "type": "string" }
+          }
+        },
+        "outputPaths": {
+          "type": "object",
+          "required": ["commands", "skills", "agents"],
+          "properties": {
+            "commands": { "type": "string" },
+            "skills": { "type": "string" },
+            "agents": { "type": "string" },
+            "instructions": { "type": "string" },
+            "shared": { "type": "string" },
+            "rootAdapter": { "type": "string" },
+            "modelMapping": { "type": "string" },
+            "config": { "type": "string" }
+          }
+        },
+        "modelMapping": {
+          "type": "object",
+          "properties": {
+            "coding": { "type": ["string", "null"] },
+            "review": { "type": ["string", "null"] },
+            "reasoning": { "type": ["string", "null"] },
+            "mechanical": { "type": ["string", "null"] },
+            "inherited": { "type": ["string", "null"] },
+            "fallback": { "type": ["string", "null"] },
+            "cross-vendor-review": { "type": ["string", "null"] }
+          }
+        }
+      }
+    }
+  }
+}
