@@ -1,6 +1,5 @@
 ---
 description: Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering.
-role: mechanical
 ---
 
 # Roadmap View
@@ -85,3 +84,11 @@ Dispatch `@cg-roadmap-view` with:
 
 Present the agent's rendered output directly to the user. Do not add
 commentary or reformatting — the agent output is the final response.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

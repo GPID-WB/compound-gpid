@@ -1,6 +1,5 @@
 ---
 description: Capture a solved problem as reusable knowledge. Use after fixing a non-trivial issue.
-role: reasoning
 ---
 
 # Compound
@@ -221,4 +220,12 @@ If `enrich = false` (i.e., `--no-enrich` was passed): skip this step entirely.
 2. **Create a skill**: Extract into a reusable skill if pattern is broadly applicable
 3. **Link related**: Connect to existing solutions
 4. **Done**: No further action needed
+```
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
 ```

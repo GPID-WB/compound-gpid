@@ -1,6 +1,5 @@
 ---
 description: Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only.
-role: mechanical
 ---
 
 # Dev Tag
@@ -95,3 +94,11 @@ Note: this tag is invisible to regular users in cg-update --list.
 - Never modify existing tags. If the intended tag already exists locally or remotely, increment and suggest the next one.
 
 > **See also**: `docs/versioning.md` -- "Dev tags (maintainer-only)" section explains the invisibility guarantees, filtering behavior in `cg-update`, and cleanup steps.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

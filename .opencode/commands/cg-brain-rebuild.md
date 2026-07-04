@@ -1,6 +1,5 @@
 ---
 description: Rebuild the project knowledge brain (BRAIN.md + indexes).
-role: reasoning
 ---
 
 # Brain Rebuild
@@ -104,3 +103,11 @@ clearly and suggest the three most likely causes:
 
 Show the raw error output from `cg-index` verbatim so the user can diagnose
 unexpected failures beyond these two common causes.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

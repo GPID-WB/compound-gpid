@@ -1,6 +1,5 @@
 ---
 description: Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices.
-role: mechanical
 ---
 
 # Token Audit
@@ -75,3 +74,11 @@ generated it as the compact recommendations source. Summarize:
   review depth to risk, and avoiding broad context reads.
 
 Keep the answer concise and evidence-driven. Do not auto-fix anything.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

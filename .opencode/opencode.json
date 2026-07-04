@@ -1,6 +1,11 @@
 {
-  "platform": "opencode",
-  "commands": ".opencode/commands",
-  "skills": ".opencode/skills",
-  "agents": ".opencode/agents"
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".opencode/AGENTS.md"
+  ],
+  "skills": {
+    "paths": [
+      ".opencode/skills"
+    ]
+  }
 }

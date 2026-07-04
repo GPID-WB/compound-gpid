@@ -1,6 +1,6 @@
 ---
 description: Reviews implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. Dispatched by /cg-plan-review.
-role: review
+mode: subagent
 ---
 
 # Plan Critic

@@ -1,6 +1,5 @@
 ---
 description: Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis.
-role: coding
 ---
 
 # Verify PR
@@ -237,3 +236,11 @@ Before the prose summary, output a markdown table with exactly these columns:
   >
   > To apply fixes automatically: `/cg-verify-pr` (without `--propose`)
   > To apply manually: address the issues above, commit, and push."
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

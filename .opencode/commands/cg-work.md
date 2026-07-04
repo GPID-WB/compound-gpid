@@ -1,6 +1,5 @@
 ---
 description: Implement a /cg-plan plan. Supports phaseX, review, deviate controls.
-role: coding
 ---
 
 # Work
@@ -255,3 +254,11 @@ Wait for the user's response before proceeding.
 - Preserve diagnostics discipline: test failures are not `@cg-fix-problems`; Problems errors may dispatch it.
 - Keep commits focused.
 - Ask before proceeding when a step is unclear.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

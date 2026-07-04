@@ -1,6 +1,5 @@
 ---
 description: Load context and resume interrupted work. Use at the start of a session to pick up where you left off.
-role: mechanical
 ---
 
 # Resume
@@ -243,3 +242,11 @@ Based on what you found, suggest the most logical next step:
 
 
 Read `resume-templates.md` for the **Next Action Suggestions** format. Adapt the options to what's actually available.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

@@ -1,6 +1,5 @@
 ---
 description: Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings.
-role: review
 ---
 
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):
@@ -275,3 +274,11 @@ Report: > "Autofix complete: applied \<N\> safe fixes (files: <list of file:line
 > *If `mode:verify` was active and no findings were reported: move option 5 to position 1 — the cycle has converged.*
 
 Wait for the user's response before proceeding.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

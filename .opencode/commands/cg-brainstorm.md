@@ -1,6 +1,5 @@
 ---
 description: Brainstorm answers about what to build and how. Use when requirements are fuzzy.
-role: inherited
 ---
 
 # Brainstorm
@@ -279,3 +278,11 @@ Present the following options to the user:
 > 2. **`/cg-brainstorm` again** — Explore a related decision or follow-up topic
 
 Wait for the user's response before proceeding.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

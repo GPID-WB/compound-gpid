@@ -339,6 +339,18 @@ def _format_frontmatter(
     return f"---\ndescription: {desc}\n{field_lines}---\n\n{body_text}"
 
 
+def _with_opencode_arguments(body: str) -> str:
+    """Append OpenCode slash-command arguments to a command template body."""
+    return (
+        f"{body.rstrip()}\n\n"
+        "## OpenCode Invocation Arguments\n\n"
+        "User-provided slash-command arguments:\n\n"
+        "```text\n"
+        "$ARGUMENTS\n"
+        "```\n"
+    )
+
+
 def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, dict[str, Any]]]:
     """Build per-category lookup dicts keyed by relative_path for O(1) access."""
     lookups: dict[str, dict[str, dict[str, Any]]] = {}
@@ -431,7 +443,7 @@ def _emit_command(
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {"model": model})
     elif target["id"] == "opencode":
-        return _format_frontmatter(fm, body, {"role": role})
+        return _format_frontmatter(fm, _with_opencode_arguments(body), {})
     else:
         return body
 
@@ -461,7 +473,7 @@ def _emit_agent(
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {"model": model})
     elif target["id"] == "opencode":
-        return _format_frontmatter(fm, body, {"role": role})
+        return _format_frontmatter(fm, body, {"mode": "subagent"})
     else:
         return body
 
@@ -507,6 +519,16 @@ def _emit_config(target: dict[str, Any]) -> str:
     """Emit a platform config file (e.g. opencode.json)."""
     tid = target["id"]
     output_paths = target.get("outputPaths", {})
+    if tid == "opencode":
+        config = {
+            "$schema": "https://opencode.ai/config.json",
+            "instructions": [output_paths.get("rootAdapter", ".opencode/AGENTS.md")],
+            "skills": {
+                "paths": [output_paths.get("skills", ".opencode/skills")],
+            },
+        }
+        return json.dumps(config, indent=2, ensure_ascii=False) + "\n"
+
     config = {
         "platform": tid,
         "commands": output_paths.get("commands", ""),

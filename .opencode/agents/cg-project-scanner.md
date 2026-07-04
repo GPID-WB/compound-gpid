@@ -1,6 +1,6 @@
 ---
 description: Scans project file structure to detect languages, frameworks, project type, and charter-relevant content. Returns structured analysis for /cg-setup and other prompts. Developer-only — dispatched by prompts, not invoked directly.
-role: mechanical
+mode: subagent
 ---
 
 # Project Scanner

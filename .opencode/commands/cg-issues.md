@@ -1,6 +1,5 @@
 ---
 description: Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup.
-role: mechanical
 ---
 
 # GitHub Issues Manager
@@ -188,3 +187,11 @@ Configure GitHub Issues integration for this project (stores config in `roadmap.
 - **Never `gh issue close`**: issue closure happens through PRs only (`Refs #` / `Closes #` in PR body). Do NOT call `gh issue close` in any mode.
 - **No bidirectional sync in v1**: GitHub Issues state (open/closed, comments, assignees) is never mirrored back into `roadmap.json`. This is intentionally one-way linkage.
 - **`autoCreate` defaults to `false`**: unless the user explicitly requests `autoCreate: true`, always store `false`.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

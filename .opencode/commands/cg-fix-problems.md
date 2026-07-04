@@ -1,6 +1,5 @@
 ---
 description: Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent.
-role: coding
 ---
 
 # Fix Problems
@@ -100,3 +99,11 @@ If diagnostics remain, suggest:
 > 3. **`/cg-fix-problems`** — Re-run to fix remaining problems
 
 Wait for the user's response before proceeding.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

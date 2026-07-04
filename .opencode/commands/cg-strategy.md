@@ -1,6 +1,5 @@
 ---
 description: Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes.
-role: inherited
 ---
 
 # Strategy
@@ -242,3 +241,11 @@ Suggest the logical next action based on what was decided:
   approving, stop and present two concrete options:
   > "Option A: <X>. Option B: <Y>. Which would you like to proceed with,
   > or shall we end the session?"
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

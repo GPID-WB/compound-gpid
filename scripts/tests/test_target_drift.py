@@ -39,16 +39,13 @@ def _run_generator_dry_run(root: Path) -> set[str]:
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
     """Return the set of committed files in generated tree directories."""
-    committed: set[str] = set()
-    for tree_path in tree_paths:
-        tree = root / tree_path
-        if not tree.exists():
-            continue
-        for path in tree.rglob("*"):
-            if path.is_file():
-                rel = str(path.relative_to(root)).replace("\\", "/")
-                committed.add(rel)
-    return committed
+    result = subprocess.run(
+        ["git", "ls-files", "--", *tree_paths],
+        capture_output=True, text=True, cwd=str(root), timeout=30,
+    )
+    if result.returncode != 0:
+        pytest.skip(f"Could not list committed generated files: {result.stderr}")
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
 
 
 class TestNoDrift:

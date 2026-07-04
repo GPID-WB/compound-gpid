@@ -1,6 +1,5 @@
 ---
 description: Structured bug-fix workflow: reproduce, diagnose, fix, verify, document.
-role: coding
 ---
 
 # Fix Bug
@@ -262,3 +261,11 @@ If none were found, write "None.">
   - **P1**: Data corruption, security issue, incorrect results.
   - **P2**: Performance problem, missing test, poor error handling.
   - **P3**: Minor behavior deviation, cosmetic issue.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

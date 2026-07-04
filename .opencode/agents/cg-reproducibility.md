@@ -1,6 +1,6 @@
 ---
 description: Reviews reproducibility: environment lockfiles, relative paths, random seeds, deterministic outputs. Trilingual R/Python/Stata.
-role: mechanical
+mode: subagent
 ---
 
 You are a reproducibility reviewer for R, Python, and Stata data science projects.

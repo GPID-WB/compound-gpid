@@ -1,6 +1,5 @@
 ---
 description: Review external repos for features to integrate into compound-gpid. Developer-only.
-role: inherited
 ---
 
 # Review External Repos
@@ -400,3 +399,11 @@ Then ask:
 
 > "Want me to add any of these to the roadmap via `@cg-roadmap`? List the feature IDs
 > you'd like queued, or say 'none' to skip."
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

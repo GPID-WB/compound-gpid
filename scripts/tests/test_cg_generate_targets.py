@@ -187,7 +187,20 @@ class TestGeneratorWrites:
     def test_opencode_writes_config(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "opencode"])
-        assert (root / ".opencode/opencode.json").exists()
+        data = json.loads((root / ".opencode/opencode.json").read_text())
+        assert data == {
+            "$schema": "https://opencode.ai/config.json",
+            "instructions": [".opencode/AGENTS.md"],
+            "skills": {"paths": [".opencode/skills"]},
+        }
+
+    def test_opencode_commands_use_valid_frontmatter_and_arguments(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        gen.main(["--root", str(root), "--target", "opencode"])
+        content = (root / ".opencode/commands/cg-test.md").read_text()
+        assert "description: Test prompt" in content
+        assert "role:" not in content.split("---", 2)[1]
+        assert "$ARGUMENTS" in content
 
     def test_opencode_uses_role_only_no_exact_models(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -195,7 +208,8 @@ class TestGeneratorWrites:
         agent_files = list((root / ".opencode/agents").glob("*.md"))
         assert len(agent_files) == 1
         content = agent_files[0].read_text()
-        assert "role:" in content
+        assert "mode: subagent" in content
+        assert "role:" not in content.split("---", 2)[1]
         assert "GPT-5" not in content
 
     def test_generator_does_not_modify_github(self, tmp_path: Path) -> None:

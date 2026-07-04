@@ -1,6 +1,5 @@
 ---
 description: Configure Compound GPID for this project and load context for returning projects.
-role: mechanical
 ---
 
 # Setup
@@ -417,3 +416,11 @@ Read `compound-gpid.local.md`.
 - If absent: run the same auto-discovery as A5.9 Steps 1–2 — check for `{owner}/team-brain`, then follow Case 2a (auto-configure) or 2b (ask) accordingly.
 
 > "Ready to work. Use `/cg-brainstorm`, `/cg-plan`, `/cg-work`, or `/cg-review`."
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

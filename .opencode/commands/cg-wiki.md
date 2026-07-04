@@ -1,6 +1,5 @@
 ---
 description: Manage the project wiki: rebuild pages, restructure sections, check status, or convert to GitHub Wiki format.
-role: reasoning
 ---
 
 # Wiki
@@ -166,3 +165,11 @@ After any write operation, offer:
 > 1. **`/cg-wiki status`** — Review the current wiki state
 > 2. **`/cg-review`** — Run a code review on recent changes
 > 3. **`/cg-compound`** — Capture learnings from this session
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

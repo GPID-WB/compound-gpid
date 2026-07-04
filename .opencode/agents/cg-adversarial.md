@@ -1,6 +1,6 @@
 ---
 description: Adversarial code reviewer that actively tries to break the code. Finds race conditions, edge cases, missing validations, and security vulnerabilities.
-role: review
+mode: subagent
 ---
 
 # Adversarial Reviewer

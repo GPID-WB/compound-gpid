@@ -1,6 +1,6 @@
 ---
 description: Searches .cg-docs/solutions/ and .cg-docs/brainstorms/ for relevant past learnings before starting new work. Used in thorough reviews.
-role: mechanical
+mode: subagent
 ---
 
 You are a learnings researcher that mines the project's knowledge base to surface relevant past solutions and decisions.

@@ -1,6 +1,5 @@
 ---
 description: Create a structured implementation plan with research. Use after brainstorming or when requirements are clear.
-role: inherited
 ---
 
 # Plan
@@ -254,3 +253,11 @@ After approval:
 > 3. **`/cg-brainstorm`** -- Revisit open questions or explore a related topic first
 
 Wait for the user's response.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

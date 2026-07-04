@@ -1,6 +1,5 @@
 ---
 description: Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority.
-role: coding
 ---
 
 # Fix Triage
@@ -130,3 +129,11 @@ After processing all in-scope findings:
 ## Special Mode: `--migrate`
 
 When invoked as `/cg-fix-triage --migrate`, first verify `.github/skills/cg-skill-fix-triage-migrate/SKILL.md` can be read. If not found, stop: "Migration skill not found — re-run `cg-link` to restore it." Otherwise, load `cg-skill-fix-triage-migrate` and follow its instructions to add `findings:` tracking frontmatter using the companion-plan heuristic. Does NOT apply fixes.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

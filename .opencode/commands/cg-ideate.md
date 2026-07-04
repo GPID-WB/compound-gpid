@@ -1,6 +1,5 @@
 ---
 description: Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next.
-role: inherited
 ---
 
 # Ideate
@@ -119,3 +118,11 @@ For each selected idea, use `ask_user` to offer next steps:
 - Be honest about effort estimates — don't undersell complexity.
 - Respect project constraints from `compound-gpid.md`.
 - This is a discovery tool, not an implementation tool. Don't write code.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

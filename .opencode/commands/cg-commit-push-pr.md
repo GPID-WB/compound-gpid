@@ -1,6 +1,5 @@
 ---
 description: Stage changes into logical commits, push, and open a PR with plan-driven description.
-role: coding
 ---
 
 # Commit, Push, and Open PR
@@ -249,3 +248,11 @@ For each confirmed commit group, in order:
   >   - Windows: `winget install GitHub.cli`, then `gh auth login`
   >   - macOS: `brew install gh`, then `gh auth login`
   >   - Linux: see https://cli.github.com/, then `gh auth login`"
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```

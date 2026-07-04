@@ -1,6 +1,5 @@
 ---
 description: Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan.
-role: inherited
 ---
 
 <!-- Agents dispatched: cg-plan-critic (plan review), cg-roadmap (side-idea capture). Note: 'agents:' frontmatter is non-functional in .prompt.md files. -->
@@ -112,3 +111,11 @@ Present the outcome and options:
 > 2. **`/cg-plan`** — Make minor optional adjustments before starting
 
 Wait for the user's response before proceeding.
+
+## OpenCode Invocation Arguments
+
+User-provided slash-command arguments:
+
+```text
+$ARGUMENTS
+```
