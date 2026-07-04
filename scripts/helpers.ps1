@@ -25,7 +25,7 @@ function Resolve-PythonCommand {
         the where/for/f/findstr pattern in bin/*.cmd launchers so Python
         resolution is consistent across the plugin.
     .OUTPUTS
-        System.String or $null — the first working Python command name.
+        System.String or $null -- the first working Python command name.
     .EXAMPLE
         $py = Resolve-PythonCommand
         if ($py) { & $py scripts/cg_generate_targets.py --all }

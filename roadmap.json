@@ -231,7 +231,7 @@
       "id": "architecture-research",
       "title": "Architecture Research",
       "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones — stage control knobs and autonomous pipeline execution.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "model-split-pattern-reuse",

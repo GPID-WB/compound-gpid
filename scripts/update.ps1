@@ -295,7 +295,7 @@ try {
         if ((Test-Path $targetMapping) -and (Test-Path $generatorScript)) {
             $pyCmd = Resolve-PythonCommand
             if (-not $pyCmd) {
-                Write-Warning "Python not found (checked: python3, python, py) — platform trees not regenerated. Existing trees remain linked."
+                Write-Warning "Python not found (checked: python3, python, py) -- platform trees not regenerated. Existing trees remain linked."
             } else {
                 Write-Host ""
                 Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
@@ -304,10 +304,10 @@ try {
                     if ($LASTEXITCODE -eq 0) {
                         Write-Host "  Platform trees regenerated." -ForegroundColor DarkGray
                     } else {
-                        Write-Warning "Platform tree generation exited with code $LASTEXITCODE — existing trees remain linked."
+                        Write-Warning "Platform tree generation exited with code $LASTEXITCODE -- existing trees remain linked."
                     }
                 } catch {
-                    Write-Warning "Platform tree generation failed: $_ — existing trees remain linked."
+                    Write-Warning "Platform tree generation failed: $_ -- existing trees remain linked."
                 }
             }
         }

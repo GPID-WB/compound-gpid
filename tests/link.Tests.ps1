@@ -519,17 +519,19 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match '\[switch\]\$Force'
     }
 
-    It "Relink prompt is guarded by -not `$Force (1 guard required) [regression guard]" {
+    It "Relink prompt is guarded by -not `$Force (2 guards required) [regression guard]" {
         # The junction-conflict branch Read-Host must be inside if (-not $Force).
-        # Counting guards prevents the guard from being removed while the param declaration remains.
+        # link.ps1 now has 2 guards: 1 for .github/ subdirectory relink + 1 for
+        # generated platform tree relink (--platforms flag).
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 2
     }
 
     It "does not call Read-Host unconditionally [regression guard]" {
-        # Exactly 1 Read-Host call (Relink prompt), must be inside the -Force guard.
+        # Exactly 2 Read-Host calls (Relink prompts: .github/ subdirectory + platform tree),
+        # both must be inside -Force guards.
         ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 2
     }
 }
 
