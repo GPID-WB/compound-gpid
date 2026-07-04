@@ -65,6 +65,15 @@ cg-link
 
 This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template, filling in your project name, languages, and review depth. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
 
+> **Multiple agent platforms**: To also link native platform trees for Claude
+> Code, Codex, or OpenCode, pass `--platforms`:
+> ```powershell
+> cg-link --platforms copilot,claude-code,codex,opencode
+> ```
+> Default (`cg-link` with no flag) links only `.github/` for GitHub Copilot,
+> preserving existing behavior. See [Context Files](context-files.md) for
+> details on the generated native platform trees.
+
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
 > Without a restart, `/cg-setup` and other prompts will not be available.
@@ -93,14 +102,12 @@ and creates three config files:
 
 > **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
 
-> **Codex / Claude Code maintainers**: `AGENTS.md` is a repository-level
-> compatibility adapter that lets Codex or Claude Code read and execute the
-> Copilot-oriented `.github/prompts`, `.github/skills`, and `.github/agents`
-> files. It is not required for normal GitHub Copilot installation and does not
-> change how Copilot discovers `/cg-*` prompts.
-> Reusable opt-in adapters are packaged under `adapters/`: copy
-> `adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into the consumer
-> repository root only when that repository is maintained with that agent.
+> **Claude Code / Codex / OpenCode support**: Compound GPID generates native
+> platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical
+> `.github/` source. Use `cg-link --platforms copilot,claude-code,codex,opencode`
+> to link them into your project. The legacy `adapters/` directory contains
+> opt-in source adapters that are superseded by the generated trees but remain
+> for backward compatibility.
 
 ---
 
@@ -142,12 +149,18 @@ cg-link
 
 This creates **per-subdirectory symlinks** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template. Any existing `.github/` content (GitHub Actions workflows, issue templates, etc.) is preserved untouched.
 
+> **Multiple agent platforms**: To also link native platform trees for Claude
+> Code, Codex, or OpenCode:
+> ```bash
+> cg-link --platforms copilot,claude-code,codex,opencode
+> ```
+> Default (`cg-link` with no flag) links only `.github/` for GitHub Copilot.
+
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
 
-Optional cross-agent adapters are not installed by `cg-link`. If a macOS-linked
-project is also maintained with Codex or Claude Code, copy the matching file
-from `adapters/` into the project root and commit it intentionally.
+The legacy `adapters/` directory contains opt-in source adapters that are
+superseded by the generated native trees but remain for backward compatibility.
 
 ### Step 4 — Configure your project (once per project)
 

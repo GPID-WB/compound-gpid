@@ -1,5 +1,14 @@
 # Compound GPID Cross-Agent Adapters
 
+> **Note**: As of the cross-agent native platform targets implementation,
+> these adapters are superseded by generated native trees (`.claude/`,
+> `.agents/`, `.opencode/`). The new mechanism uses
+> `cg_generate_targets.py` and `.github/shared/target-mapping.json` to
+> generate committed, release-validated platform trees distributed via
+> the same junction/symlink mechanism. These source adapter files remain
+> for backward compatibility but new users should use
+> `cg-link --platforms copilot,claude-code,codex,opencode` instead.
+
 These files are optional compatibility adapters for teams that use Compound
 GPID from coding agents that do not natively load GitHub Copilot prompt,
 skill, and agent assets.

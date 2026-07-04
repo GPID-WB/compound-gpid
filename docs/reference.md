@@ -2,13 +2,14 @@
 
 Quick reference for all Compound GPID commands, agents, skills, configuration, and file structure.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the Codex / Claude Code `AGENTS.md` adapter. See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
-Optional cross-agent adapter source files live under `adapters/`. Copy
-`adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into a consumer repo
-root only when that repo is intentionally maintained with that agent family.
-These files are not installed by `cg-link` and do not change GitHub Copilot
-behavior.
+Compound GPID generates native platform trees for Claude Code, Codex, and
+OpenCode from the canonical `.github/` source. The trees are committed,
+release-validated, and distributed via the same junction/symlink mechanism.
+Use `cg-link --platforms copilot,claude-code,codex,opencode` to link multiple
+platform trees into a consumer project. The `adapters/` directory contains
+legacy source adapters that are superseded by the generated trees.
 
 Optional retrieval backend candidates are documented in
 [Retrieval Backend Evaluation](retrieval-backends.md) and tracked in
@@ -29,8 +30,8 @@ evaluation-only: `local-workflow` remains the only active mode.
 <!-- cg:auto:shell-commands -->
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
-| `cg-link` | Project root | Create per-subdirectory junctions in `.github/` and generate `copilot-instructions.md` from the template. |
-| `cg-unlink` | Project root | Remove Compound GPID-managed junctions while preserving existing `.github/` content. |
+| `cg-link [--platforms <list>]` | Project root | Create per-subdirectory junctions in `.github/` and generate `copilot-instructions.md` from the template. Optional `--platforms copilot,claude-code,codex,opencode` also links generated native platform trees. |
+| `cg-unlink` | Project root | Remove Compound GPID-managed junctions (including platform tree symlinks) while preserving existing `.github/` content. |
 | `cg-update [<version>\|latest\|--list\|--fix]` | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
 | `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |

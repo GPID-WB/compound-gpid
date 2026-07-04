@@ -59,6 +59,38 @@ You are a senior developer helping the user package their work into well-structu
    - If neither is available: set `$prTool = "none"`.
    - Do **not** halt — continue to commit and push. Step 7 will give the user actionable next-time instructions.
 
+### Step 1.5: Regenerate Platform Trees (Compound GPID source repo only)
+
+> **Self-check**: This step only applies when this repository IS the compound-gpid
+> source repo. Check if `.github/shared/target-mapping.json` exists AND
+> `scripts/cg_generate_targets.py` exists. If either is missing, skip this step
+> silently — this is a consumer project, not the plugin source.
+
+If both files exist:
+
+1. Run `git diff HEAD --name-only -- .github/` to check whether any `.github/`
+   canonical asset has changed (prompts, agents, skills, instructions, shared).
+2. If no `.github/` files are in the diff, skip to Step 2.
+3. If `.github/` files changed, regenerate platform trees before committing:
+
+   > **execution_subagent query**: "In the repo root, run
+   > `python3 scripts/cg_generate_targets.py --all`. Report the output and exit
+   > code. If the exit code is non-zero, report the full stderr."
+
+4. If generation succeeds:
+   - The generated `.claude/`, `.agents/`, and `.opencode/` trees are now
+     updated. They will be classified and staged in Step 2 alongside the
+     `.github/` source changes.
+   - Inform the user: "Platform trees regenerated from `.github/` changes.
+     Generated files will be included in the commit."
+5. If generation fails:
+   - **Do not halt** — warn the user:
+     > "⚠️ Platform tree generation failed. The generated `.claude/`, `.agents/`,
+     > and `.opencode/` trees may be stale. Run
+     > `python3 scripts/cg_generate_targets.py --all` manually before releasing,
+     > or the drift test will fail in CI."
+   - Continue to Step 2 with the existing generated trees.
+
 ### Step 2: Analyze Changes and Propose Commits
 
 1. Run `git diff HEAD --stat` for the combined staged+unstaged view relative to HEAD. Use the `git status --short` output from Step 1 to identify untracked (`??`) files.
@@ -73,6 +105,7 @@ You are a senior developer helping the user package their work into well-structu
    | **Plans/Knowledge** | Path starts with `.cg-docs/plans/` |
    | **Docs** | Path starts with `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, or `.cg-docs/reviews/` |
    | **Code** | Extension is `.R`, `.r`, `.py`, `.do`, `.ado`, `.ps1`, `.sh`, `.bash`, `.zsh`, `.ts`, `.js`, `.mjs`, `.cs`, `.java`, `.go`, `.rs` |
+   | **Generated Targets** | Path starts with `.claude/`, `.agents/`, or `.opencode/` |
    | **Other** | Everything else |
 
 3. Group files and present proposed commit structure:
