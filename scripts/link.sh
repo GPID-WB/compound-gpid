@@ -264,12 +264,16 @@ done
 # ---------------------------------------------------------------------------
 # Step 3b: Link generated platform trees (if --platforms includes non-copilot)
 # ---------------------------------------------------------------------------
-# Map platform IDs to their generated tree directories in the global clone.
-declare -A PLATFORM_TREES=(
-    ["claude-code"]=".claude"
-    ["codex"]=".agents"
-    ["opencode"]=".opencode"
-)
+# Resolve platform ID to generated tree directory (bash 3.2-compatible — no
+# associative arrays, which macOS default bash 3.2 does not support).
+_platform_to_tree() {
+    case "$1" in
+        claude-code) echo ".claude" ;;
+        codex)       echo ".agents" ;;
+        opencode)    echo ".opencode" ;;
+        *)           echo "" ;;
+    esac
+}
 
 if [[ "$PLATFORMS" != "copilot" ]]; then
     print_gray "Linking platform trees (platforms: $PLATFORMS)..."
@@ -277,10 +281,10 @@ if [[ "$PLATFORMS" != "copilot" ]]; then
     IFS=',' read -ra PLATFORM_LIST <<< "$PLATFORMS"
     for platform in "${PLATFORM_LIST[@]}"; do
         platform=$(echo "$platform" | xargs) # trim whitespace
-        tree_dir="${PLATFORM_TREES[$platform]:-}"
+        tree_dir=$(_platform_to_tree "$platform")
 
         if [[ -z "$tree_dir" ]]; then
-            print_warn "Unknown platform '$platform' — skipping"
+            print_warn "Unknown platform '$platform' -- skipping"
             continue
         fi
 
@@ -288,7 +292,7 @@ if [[ "$PLATFORMS" != "copilot" ]]; then
         target_tree="$PROJECT_ROOT/$tree_dir"
 
         if [[ ! -d "$source_tree" ]]; then
-            print_warn "Source tree not found for $platform: $source_tree — skipping"
+            print_warn "Source tree not found for $platform: $source_tree -- skipping"
             continue
         fi
 
