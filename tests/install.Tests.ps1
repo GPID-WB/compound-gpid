@@ -341,6 +341,30 @@ Describe "install.ps1 - cg-index.cmd copy" {
             ($installScript -match 'cgIndexCmdSrc.*cg-index\.cmd') | Should -Be $true
             ($installScript -match 'Copy-Item.*cgIndexCmdSrc')       | Should -Be $true
         }
+
+        It "does not throw when cg-index.cmd source and destination are the same path" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir      = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+
+            $cgIndexCmdSrc = Join-Path $compoundDir "bin\cg-index.cmd"
+            $cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
+            Set-Content -Path $cgIndexCmdSrc -Value "@echo off" -NoNewline
+
+            # Regression contract: install must be idempotent and should not fail
+            # when source and destination resolve to the same file path.
+            {
+                if (Test-Path $cgIndexCmdSrc) {
+                    $cgIndexSrcFull = [System.IO.Path]::GetFullPath($cgIndexCmdSrc)
+                    $cgIndexDstFull = [System.IO.Path]::GetFullPath($cgIndexCmdDst)
+                    if ($cgIndexSrcFull -ieq $cgIndexDstFull) {
+                        $null = $true
+                    } else {
+                        Copy-Item -Path $cgIndexCmdSrc -Destination $cgIndexCmdDst -Force -ErrorAction Stop
+                    }
+                }
+            } | Should -Not -Throw
+        }
     }
 }
 
@@ -377,6 +401,28 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
             $cmdFile  = Join-Path $repoRoot "bin\cg-brain-init.cmd"
             $content  = Get-Content $cmdFile -Raw
             ($content -match 'team_brain.init\.py') | Should -Be $true
+        }
+
+        It "does not throw when cg-brain-init.cmd source and destination are the same path" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir      = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+
+            $src = Join-Path $compoundDir "bin\cg-brain-init.cmd"
+            $dst = Join-Path $binDir "cg-brain-init.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+
+            {
+                if (Test-Path $src) {
+                    $srcFull = [System.IO.Path]::GetFullPath($src)
+                    $dstFull = [System.IO.Path]::GetFullPath($dst)
+                    if ($srcFull -ieq $dstFull) {
+                        $null = $true
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                    }
+                }
+            } | Should -Not -Throw
         }
     }
 }
@@ -417,6 +463,28 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
             $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
             ($installScript -match 'cgTokenAuditCmdSrc.*cg-token-audit\.cmd') | Should -Be $true
             ($installScript -match 'Copy-Item.*cgTokenAuditCmdSrc')           | Should -Be $true
+        }
+
+        It "does not throw when cg-token-audit.cmd source and destination are the same path" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir      = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+
+            $src = Join-Path $compoundDir "bin\cg-token-audit.cmd"
+            $dst = Join-Path $binDir "cg-token-audit.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+
+            {
+                if (Test-Path $src) {
+                    $srcFull = [System.IO.Path]::GetFullPath($src)
+                    $dstFull = [System.IO.Path]::GetFullPath($dst)
+                    if ($srcFull -ieq $dstFull) {
+                        $null = $true
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                    }
+                }
+            } | Should -Not -Throw
         }
     }
 }

@@ -175,8 +175,14 @@ Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColo
 $cgIndexCmdSrc = Join-Path $CompoundGpidDir "bin\cg-index.cmd"
 $cgIndexCmdDst = Join-Path $binDir "cg-index.cmd"
 if (Test-Path $cgIndexCmdSrc) {
-    Copy-Item -Path $cgIndexCmdSrc -Destination $cgIndexCmdDst -Force
-    Write-Host "  Copied:  cg-index in $binDir" -ForegroundColor DarkGray
+    $cgIndexSrcFull = [System.IO.Path]::GetFullPath($cgIndexCmdSrc)
+    $cgIndexDstFull = [System.IO.Path]::GetFullPath($cgIndexCmdDst)
+    if ($cgIndexSrcFull -ieq $cgIndexDstFull) {
+        Write-Host "  Already present: cg-index in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgIndexCmdSrc -Destination $cgIndexCmdDst -Force
+        Write-Host "  Copied:  cg-index in $binDir" -ForegroundColor DarkGray
+    }
 } else {
     Write-Warning "  bin\cg-index.cmd not found in installation -- skipping cg-index wrapper."
 }
@@ -185,8 +191,14 @@ if (Test-Path $cgIndexCmdSrc) {
 $cgBrainInitCmdSrc = Join-Path $CompoundGpidDir "bin\cg-brain-init.cmd"
 $cgBrainInitCmdDst = Join-Path $binDir "cg-brain-init.cmd"
 if (Test-Path $cgBrainInitCmdSrc) {
-    Copy-Item -Path $cgBrainInitCmdSrc -Destination $cgBrainInitCmdDst -Force
-    Write-Host "  Copied:  cg-brain-init in $binDir" -ForegroundColor DarkGray
+    $cgBrainInitSrcFull = [System.IO.Path]::GetFullPath($cgBrainInitCmdSrc)
+    $cgBrainInitDstFull = [System.IO.Path]::GetFullPath($cgBrainInitCmdDst)
+    if ($cgBrainInitSrcFull -ieq $cgBrainInitDstFull) {
+        Write-Host "  Already present: cg-brain-init in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgBrainInitCmdSrc -Destination $cgBrainInitCmdDst -Force
+        Write-Host "  Copied:  cg-brain-init in $binDir" -ForegroundColor DarkGray
+    }
 } else {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
 }
@@ -196,8 +208,14 @@ if (Test-Path $cgBrainInitCmdSrc) {
 $cgTokenAuditCmdSrc = Join-Path $CompoundGpidDir "bin\cg-token-audit.cmd"
 $cgTokenAuditCmdDst = Join-Path $binDir "cg-token-audit.cmd"
 if (Test-Path $cgTokenAuditCmdSrc) {
-    Copy-Item -Path $cgTokenAuditCmdSrc -Destination $cgTokenAuditCmdDst -Force
-    Write-Host "  Copied:  cg-token-audit in $binDir" -ForegroundColor DarkGray
+    $cgTokenAuditSrcFull = [System.IO.Path]::GetFullPath($cgTokenAuditCmdSrc)
+    $cgTokenAuditDstFull = [System.IO.Path]::GetFullPath($cgTokenAuditCmdDst)
+    if ($cgTokenAuditSrcFull -ieq $cgTokenAuditDstFull) {
+        Write-Host "  Already present: cg-token-audit in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgTokenAuditCmdSrc -Destination $cgTokenAuditCmdDst -Force
+        Write-Host "  Copied:  cg-token-audit in $binDir" -ForegroundColor DarkGray
+    }
 } else {
     Write-Warning "  bin\cg-token-audit.cmd not found in installation -- skipping cg-token-audit wrapper."
 }
