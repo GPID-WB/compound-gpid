@@ -24,7 +24,10 @@
 param(
     # Skip the interactive re-link confirmation when a non-CG junction is found.
     # Used by CI and any automation that cannot supply keyboard input.
-    [switch]$Force
+    [switch]$Force,
+    # Comma-separated list of platforms to link (default: copilot only).
+    # Examples: "copilot", "copilot,claude-code,codex,opencode"
+    [string]$Platforms = "copilot"
 )
 
 Set-StrictMode -Version Latest
@@ -183,6 +186,63 @@ If you see an access error, enable Developer Mode:
 Then re-run: cg-link
 "@
         exit 1
+    }
+}
+
+# --- Step 3b: Link generated platform trees (if --platforms includes non-copilot) ---
+$PlatformTreeMap = @{
+    "claude-code" = ".claude"
+    "codex" = ".agents"
+    "opencode" = ".opencode"
+}
+
+if ($Platforms -ne "copilot") {
+    Write-Host "Linking platform trees (platforms: $Platforms)..." -ForegroundColor DarkGray
+    $platformList = $Platforms -split "," | ForEach-Object { $_.Trim() }
+    foreach ($platform in $platformList) {
+        $treeDir = $PlatformTreeMap[$platform]
+        if (-not $treeDir) {
+            Write-Warning "  Unknown platform '$platform' - skipping"
+            continue
+        }
+        $sourceTree = Join-Path $CompoundGpidDir $treeDir
+        $targetTree = Join-Path $ProjectRoot $treeDir
+
+        if (-not (Test-Path $sourceTree)) {
+            Write-Warning "  Source tree not found for $platform: $sourceTree - skipping"
+            continue
+        }
+
+        $existing = Get-Item -Path $targetTree -ErrorAction SilentlyContinue
+        if ($existing) {
+            if ($existing.LinkType -eq "Junction") {
+                if (($existing.Target -join '') -like "*compound-gpid*") {
+                    Write-Host "  $treeDir/ - already linked" -ForegroundColor DarkGray
+                    continue
+                } else {
+                    Write-Warning "  $treeDir/ is a junction pointing to: $($existing.Target)"
+                    if (-not $Force) {
+                        $answer = Read-Host "  Relink $treeDir/ to Compound GPID instead? [y/N]"
+                        if ($answer -notmatch "^[Yy]$") {
+                            Write-Host "  Skipping $treeDir/" -ForegroundColor Yellow
+                            continue
+                        }
+                    }
+                    Remove-Item -Path $targetTree -Force
+                }
+            } else {
+                Write-Error "A real directory $treeDir/ already exists in this project."
+                exit 1
+            }
+        }
+
+        try {
+            New-Item -ItemType Junction -Path $targetTree -Value $sourceTree | Out-Null
+            Write-Host "  $treeDir/ - linked ($platform)" -ForegroundColor DarkGray
+        } catch {
+            Write-Error "Failed to create junction for $treeDir/: $_"
+            exit 1
+        }
     }
 }
 

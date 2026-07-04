@@ -39,6 +39,9 @@ $gitignorePath   = Join-Path $ProjectRoot ".gitignore"
 # Subdirectories managed by Compound GPID
 $ManagedDirs = @("prompts", "skills", "agents", "instructions", "shared")
 
+# Generated platform trees managed by Compound GPID
+$PlatformTrees = @(".claude", ".agents", ".opencode")
+
 # The management marker used in copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopilotInstructionsDest   = Join-Path $TargetGithubDir "copilot-instructions.md"
@@ -115,6 +118,22 @@ foreach ($dir in $ManagedDirs) {
         }
     } else {
         Write-Host "  $dir/ - real directory (not a junction), skipping" -ForegroundColor Yellow
+    }
+}
+
+# Remove generated platform tree junctions
+foreach ($treeDir in $PlatformTrees) {
+    $treePath = Join-Path $ProjectRoot $treeDir
+    $item = Get-Item -Path $treePath -ErrorAction SilentlyContinue
+    if (-not $item) { continue }
+    if ($item.LinkType -eq "Junction") {
+        if (($item.Target -join '') -like "*compound-gpid*") {
+            Remove-Item -Path $treePath -Force
+            Write-Host "  $treeDir/ - junction removed" -ForegroundColor DarkGray
+            $removedAny = $true
+        } else {
+            Write-Host "  $treeDir/ - junction not from compound-gpid, skipping" -ForegroundColor Yellow
+        }
     }
 }
 

@@ -236,12 +236,14 @@ Describe "link.sh - script structure" {
         $content | Should -Match 'FORCE'
     }
 
-    It "Relink prompt is guarded by FORCE check (1 guard required) [regression guard]" {
-        # Exactly 1 if [[ ... FORCE guard exists (the Relink symlink-conflict branch).
-        # unlink.sh has 2 guards; link.sh has 1. Asserting the count catches
-        # the guard being silently removed while --yes/-y declarations remain.
+    It "Relink prompt is guarded by FORCE check (2 guards required) [regression guard]" {
+        # Exactly 2 if [[ ... FORCE guards exist (the Relink symlink-conflict branch
+        # for .github/ subdirectories and the platform tree relink branch).
+        # unlink.sh has 2 guards; link.sh now has 2 (1 original + 1 platform tree).
+        # Asserting the count catches the guard being silently removed while --yes/-y
+        # declarations remain.
         ([regex]::Matches($content, 'if\s+\[\[.*FORCE') | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 2
     }
 }
 

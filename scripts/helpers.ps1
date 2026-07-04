@@ -12,6 +12,39 @@ See docs/installation.md for setup instructions and path guidance.
   # Then run: & "<your-path>\install.ps1"
 "@
 
+function Resolve-PythonCommand {
+    <#
+    .SYNOPSIS
+        Finds the first working Python executable on PATH.
+    .DESCRIPTION
+        Probes python3 -> python -> py in order, rejecting Windows Store stubs
+        by verifying that `--version` output starts with "Python". Returns the
+        command name (string) that can be invoked, or $null if none found.
+
+        Mirrors the detection logic in install.ps1 (Test-PythonCandidate) and
+        the where/for/f/findstr pattern in bin/*.cmd launchers so Python
+        resolution is consistent across the plugin.
+    .OUTPUTS
+        System.String or $null — the first working Python command name.
+    .EXAMPLE
+        $py = Resolve-PythonCommand
+        if ($py) { & $py scripts/cg_generate_targets.py --all }
+    #>
+    foreach ($candidate in @("python3", "python", "py")) {
+        if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
+        try {
+            $ver = & $candidate --version 2>&1
+            $verStr = "$ver".Trim()
+            if ($verStr -match '^Python\s+\d') {
+                return $candidate
+            }
+        } catch {
+            continue
+        }
+    }
+    return $null
+}
+
 function New-CopilotInstructions {
     <#
     .SYNOPSIS

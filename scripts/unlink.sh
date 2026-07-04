@@ -37,6 +37,9 @@ GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
 # Subdirectories managed by Compound GPID
 MANAGED_DIRS=("prompts" "skills" "agents" "instructions" "shared")
 
+# Generated platform trees managed by Compound GPID
+PLATFORM_TREES=(".claude" ".agents" ".opencode")
+
 # Management marker used in copilot-instructions.md
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 COPILOT_INSTRUCTIONS_DEST="$TARGET_GITHUB_DIR/copilot-instructions.md"
@@ -138,6 +141,26 @@ for dir in "${MANAGED_DIRS[@]}"; do
         fi
     else
         print_yellow "  $dir/ - real directory (not a symlink), skipping"
+    fi
+done
+
+# Remove generated platform tree symlinks
+for tree_dir in "${PLATFORM_TREES[@]}"; do
+    TREE_PATH="$PROJECT_ROOT/$tree_dir"
+
+    if [[ ! -e "$TREE_PATH" && ! -L "$TREE_PATH" ]]; then
+        continue
+    fi
+
+    if [[ -L "$TREE_PATH" ]]; then
+        LINK_TARGET="$(readlink "$TREE_PATH")"
+        if [[ "$LINK_TARGET" == *"compound-gpid"* ]]; then
+            rm -f "$TREE_PATH"
+            print_gray "$tree_dir/ - symlink removed"
+            REMOVED_ANY=true
+        else
+            print_yellow "  $tree_dir/ - symlink not from compound-gpid, skipping"
+        fi
     fi
 done
 

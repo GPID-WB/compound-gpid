@@ -24,11 +24,19 @@ set -euo pipefail
 # Parse arguments
 # ---------------------------------------------------------------------------
 FORCE=0
+PLATFORMS=""
 for arg in "$@"; do
     case "$arg" in
         --yes|-y) FORCE=1 ;;
+        --platforms=*) PLATFORMS="${arg#--platforms=}" ;;
+        --platforms) shift; PLATFORMS="$1" ;;
     esac
 done
+
+# Default: copilot only (preserves existing behavior)
+if [[ -z "$PLATFORMS" ]]; then
+    PLATFORMS="copilot"
+fi
 
 # ---------------------------------------------------------------------------
 # Resolve paths
@@ -252,6 +260,71 @@ for dir in "${MANAGED_DIRS[@]}"; do
         exit 1
     fi
 done
+
+# ---------------------------------------------------------------------------
+# Step 3b: Link generated platform trees (if --platforms includes non-copilot)
+# ---------------------------------------------------------------------------
+# Map platform IDs to their generated tree directories in the global clone.
+declare -A PLATFORM_TREES=(
+    ["claude-code"]=".claude"
+    ["codex"]=".agents"
+    ["opencode"]=".opencode"
+)
+
+if [[ "$PLATFORMS" != "copilot" ]]; then
+    print_gray "Linking platform trees (platforms: $PLATFORMS)..."
+
+    IFS=',' read -ra PLATFORM_LIST <<< "$PLATFORMS"
+    for platform in "${PLATFORM_LIST[@]}"; do
+        platform=$(echo "$platform" | xargs) # trim whitespace
+        tree_dir="${PLATFORM_TREES[$platform]:-}"
+
+        if [[ -z "$tree_dir" ]]; then
+            print_warn "Unknown platform '$platform' — skipping"
+            continue
+        fi
+
+        source_tree="$COMPOUND_GPID_DIR/$tree_dir"
+        target_tree="$PROJECT_ROOT/$tree_dir"
+
+        if [[ ! -d "$source_tree" ]]; then
+            print_warn "Source tree not found for $platform: $source_tree — skipping"
+            continue
+        fi
+
+        # Handle existing target directory
+        if [[ -L "$target_tree" ]]; then
+            EXISTING_TARGET="$(readlink "$target_tree")"
+            if [[ "$EXISTING_TARGET" == *"compound-gpid"* ]]; then
+                print_gray "$tree_dir/ - already linked"
+                continue
+            else
+                print_warn "$tree_dir/ is a symlink pointing to: $EXISTING_TARGET"
+                if [[ "$FORCE" -eq 0 ]]; then
+                    printf '  Relink %s/ to Compound GPID instead? [y/N] ' "$tree_dir"
+                    read -r answer </dev/tty
+                    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+                        print_gray "Skipping $tree_dir/"
+                        continue
+                    fi
+                fi
+                rm -f "$target_tree"
+            fi
+        elif [[ -d "$target_tree" ]]; then
+            print_error "A real directory $tree_dir/ already exists in this project."
+            printf 'Compound GPID cannot create a symlink here without risking data loss.\n\n' >&2
+            printf 'To resolve: rename or remove %s/ manually, then re-run cg-link.\n' "$tree_dir" >&2
+            exit 1
+        fi
+
+        if ln -s "$source_tree" "$target_tree"; then
+            print_gray "$tree_dir/ - linked ($platform)"
+        else
+            print_error "Failed to create symlink for $tree_dir/"
+            exit 1
+        fi
+    done
+fi
 
 # ---------------------------------------------------------------------------
 # Step 4: Generate copilot-instructions.md from template

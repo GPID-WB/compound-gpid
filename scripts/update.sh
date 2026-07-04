@@ -333,6 +333,22 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         else
             print_green "Already up to date."
         fi
+
+        # --- Regenerate platform trees after pull (source repo only) ---
+        # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
+        # and .opencode/ from the updated .github/ canonical assets so linked
+        # consumer projects see fresh platform trees via their symlinks/junctions.
+        TARGET_MAPPING="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
+        GENERATOR_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py"
+        if [[ -f "$TARGET_MAPPING" ]] && [[ -f "$GENERATOR_SCRIPT" ]]; then
+            printf '\n'
+            print_gray "Regenerating platform trees..."
+            if python3 "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
+                print_gray "Platform trees regenerated."
+            else
+                print_warn "Platform tree generation failed — existing trees remain linked."
+            fi
+        fi
     )
 
 # ---------------------------------------------------------------------------
