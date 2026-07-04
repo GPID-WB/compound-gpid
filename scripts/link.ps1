@@ -209,7 +209,7 @@ if ($Platforms -ne "copilot") {
         $targetTree = Join-Path $ProjectRoot $treeDir
 
         if (-not (Test-Path $sourceTree)) {
-            Write-Warning "  Source tree not found for $platform: $sourceTree - skipping"
+            Write-Warning "  Source tree not found for ${platform}: $sourceTree - skipping"
             continue
         }
 
