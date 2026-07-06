@@ -12,8 +12,9 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 > **Runtime scope**: Compound GPID supports GitHub Copilot, Claude Code, Codex,
 > and OpenCode. `.github/` is the canonical source; native platform trees
 > (`.claude/`, `.agents/`, `.opencode/`) are generated from it and distributed
-> via the same junction/symlink mechanism. Use `cg-link --platforms copilot,claude-code`
-> to link additional platform trees.
+> through per-platform install units. `cg-link` links all supported platforms by
+> default; use `cg-link --platforms copilot` or another comma-separated list to
+> narrow the install.
 
 > Each unit of work should make subsequent units easier — not harder.
 
@@ -28,7 +29,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **R dialect selection** — set `r-syntax: "tidyverse"` in your local config to have all R assistance use tidyverse/dplyr patterns instead of data.table/collapse. Ideal for projects with external coauthors who only know the tidyverse. See [docs/reference.md](docs/reference.md) for details.
 - **Knowledge brain** — `cg-index --brain` and `/cg-brain-rebuild` build a structured knowledge brain (`BRAIN.md`, `BRAIN-NN.md`, `BRAIN-log.md`, `brain-index.json`) by clustering `.cg-docs/` artifacts into topics and mapping typed relationships between artifacts — so every session can surface relevant past work automatically.
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
-- **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, and OpenCode from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed via junctions/symlinks. Use `cg-link --platforms copilot,claude-code,codex,opencode` to link multiple platforms.
+- **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, and OpenCode from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
 - **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
 - **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
 - **Team-wide** — update once, every linked project gets the new version instantly.
