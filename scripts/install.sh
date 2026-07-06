@@ -6,7 +6,7 @@
 #
 # What this does:
 #   1. Verifies Git is available.
-#   1b. Verifies python3 is available (required for cg-index and cg-token-audit).
+#   1b. Verifies Python is available (required for cg-index and cg-token-audit).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
 #      so cg-link, cg-unlink, cg-update are available from any terminal.
@@ -35,6 +35,20 @@ print_green()   { printf '\033[0;32m%s\033[0m\n' "$1"; }
 print_yellow()  { printf '\033[0;33m%s\033[0m\n' "$1"; }
 print_gray()    { printf '\033[0;90m  %s\033[0m\n' "$1"; }
 print_error()   { printf '\033[0;31mERROR: %s\033[0m\n' "$1" >&2; }
+
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in
+            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+        esac
+    done
+    return 1
+}
+
+PYTHON_CMD="$(resolve_python || true)"
 
 # ---------------------------------------------------------------------------
 # Determine shell profile file
@@ -75,17 +89,23 @@ if [[ "${1:-}" == "--uninstall" ]]; then
 
     # Remove bin/ wrappers
     BIN_DIR="$COMPOUND_GPID_DIR/bin"
-    for cmd in cg-link cg-unlink cg-update; do
-        if [[ -f "$BIN_DIR/$cmd" ]]; then
-            rm -f "$BIN_DIR/$cmd"
-            print_gray "Removed: $BIN_DIR/$cmd"
+    for wrapper in "$BIN_DIR"/cg-*; do
+        [[ -e "$wrapper" ]] || continue
+        case "$wrapper" in *.cmd) continue ;; esac
+        if [[ -f "$wrapper" ]]; then
+            rm -f "$wrapper"
+            print_gray "Removed: $wrapper"
         fi
     done
 
     # Remove PATH block from shell profile
     if [[ -f "$PROFILE_FILE" ]]; then
-        # Use python3 to safely remove the block (avoids sed multiline issues)
-        python3 - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
+        if [[ -z "$PYTHON_CMD" ]]; then
+            print_error "Python is required to update $PROFILE_FILE (checked: python3, python, py)."
+            exit 1
+        fi
+        # Use Python to safely remove the block (avoids sed multiline issues)
+        "$PYTHON_CMD" - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
 import sys, re, tempfile, os
 path, start_marker, end_marker = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(path, 'r') as f:
@@ -138,18 +158,18 @@ GIT_VERSION="$(git --version)"
 print_gray "Found: $GIT_VERSION"
 
 # ---------------------------------------------------------------------------
-# Step 1b: Verify python3 is available
+# Step 1b: Verify Python is available
 # ---------------------------------------------------------------------------
-print_gray "Checking for python3..."
-if ! command -v python3 &>/dev/null; then
-    print_error "python3 is required but not found."
+print_gray "Checking for Python..."
+if [[ -z "$PYTHON_CMD" ]]; then
+    print_error "Python is required but not found (checked: python3, python, py)."
     printf '\n'
     printf 'Install Xcode Command Line Tools:\n' >&2
     printf '  xcode-select --install\n' >&2
     printf 'Or install Python from https://www.python.org/downloads/\n' >&2
     exit 1
 fi
-print_gray "Found: $(python3 --version 2>&1)"
+print_gray "Found: $($PYTHON_CMD --version 2>&1)"
 
 # ---------------------------------------------------------------------------
 # Step 2: Test symlink capability
@@ -198,7 +218,7 @@ EOF
     print_gray "Created: $WRAPPER"
 done
 
-# cg-index calls python3 directly (not a .sh script), so it's generated
+# cg-index calls Python directly (not a .sh script), so it's generated
 # separately rather than inside the loop above.
 WRAPPER="$BIN_DIR/cg-index"
 cat > "$WRAPPER" <<'EOF'
@@ -207,12 +227,26 @@ cat > "$WRAPPER" <<'EOF'
 # This file is committed to the repo; install.sh regenerates it on install/upgrade.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec python3 "$SCRIPT_DIR/../scripts/cg_index.py" "$@"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+    done
+    return 1
+}
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2
+    exit 1
+fi
+exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_index.py" "$@"
 EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
 
-# cg-brain-init also calls python3 directly (same pattern as cg-index).
+# cg-brain-init also calls Python directly (same pattern as cg-index).
 WRAPPER="$BIN_DIR/cg-brain-init"
 cat > "$WRAPPER" <<'EOF'
 #!/usr/bin/env bash
@@ -220,7 +254,21 @@ cat > "$WRAPPER" <<'EOF'
 # This file is committed to the repo; install.sh regenerates it on install/upgrade.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec python3 "$SCRIPT_DIR/../scripts/team_brain/init.py" "$@"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+    done
+    return 1
+}
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2
+    exit 1
+fi
+exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/team_brain/init.py" "$@"
 EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
@@ -233,10 +281,47 @@ cat > "$WRAPPER" <<'EOF'
 # This file is committed to the repo; install.sh regenerates it on install/upgrade.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec python3 "$SCRIPT_DIR/../scripts/cg_audit_context.py" "$@"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+    done
+    return 1
+}
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2
+    exit 1
+fi
+exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_audit_context.py" "$@"
 EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
+
+for spec in \
+    "diff-summary|diff|summarize current git diff and store full patch artifact" \
+    "log-summary|log|summarize recent branch commits" \
+    "problems-summary|problems|summarize VS Code or diagnostics problem output" \
+    "test-summary|test|summarize existing test runner output without running tests" \
+    "tree-summary|tree|summarize project tree structure"; do
+    IFS='|' read -r name kind description <<< "$spec"
+    WRAPPER="$BIN_DIR/cg-$name"
+    cat > "$WRAPPER" <<EOF
+#!/bin/bash
+# bin/cg-$name -- $description.
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+set -euo pipefail
+SCRIPT_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+resolve_python() { for candidate in python3 python py; do command -v "\$candidate" >/dev/null 2>&1 || continue; version="\$("\$candidate" --version 2>&1 || true)"; case "\$version" in Python\ [0-9]*) printf '%s\n' "\$candidate"; return 0 ;; esac; done; return 1; }
+PYTHON_CMD="\$(resolve_python || true)"
+if [[ -z "\$PYTHON_CMD" ]]; then printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2; exit 1; fi
+exec "\$PYTHON_CMD" "\$SCRIPT_DIR/../scripts/cg_summary.py" $kind "\$@"
+EOF
+    chmod +x "$WRAPPER"
+    print_gray "Created: $WRAPPER"
+done
 
 # ---------------------------------------------------------------------------
 # Step 4: Add bin/ to PATH via shell profile (idempotent)
@@ -244,9 +329,9 @@ print_gray "Created: $WRAPPER"
 print_gray "Registering cg-* commands via PATH ($PROFILE_FILE)..."
 
 # Idempotent: remove any existing CG block before rewriting.
-# Uses python3 (zero-dependency on macOS) to safely handle multiline removal.
+# Uses Python to safely handle multiline removal.
 if [[ -f "$PROFILE_FILE" ]] && grep -qF "$CG_PROFILE_START" "$PROFILE_FILE" 2>/dev/null; then
-    python3 - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
+    "$PYTHON_CMD" - "$PROFILE_FILE" "$CG_PROFILE_START" "$CG_PROFILE_END" <<'PYEOF'
 import sys, re, tempfile, os
 path, start_marker, end_marker = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(path, 'r') as f:

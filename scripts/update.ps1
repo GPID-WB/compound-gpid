@@ -394,6 +394,16 @@ if (-not $env:CG_INTERNAL_CALL -and
     }
 }
 
+# --- Refresh manifest-managed copied platform files in the current project ---
+# Directory install units update through junctions. Copied strict config files
+# use a sidecar manifest so JSON remains valid and user edits are preserved.
+$cwdManifestPath = Join-Path (Get-Location) ".compound-gpid/managed-files.json"
+if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
+    [void](Update-CgManagedPlatformFiles -ManifestPath $cwdManifestPath `
+        -ProjectRoot (Get-Location).Path `
+        -CompoundGpidDir $CompoundGpidDir)
+}
+
 Write-Host ""
 # --- Structural migration: docs/ -> .cg-docs/ ---
 # Applies only when run from a linked project. Migrates docs/brainstorms/,

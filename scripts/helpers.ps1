@@ -45,6 +45,175 @@ function Resolve-PythonCommand {
     return $null
 }
 
+function Get-CgFileSha256 {
+    param([Parameter(Mandatory)][string]$Path)
+    if (-not (Test-Path $Path)) { return $null }
+    return (Get-FileHash -Path $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+
+function Read-CgManagedFilesManifest {
+    param([Parameter(Mandatory)][string]$ManifestPath)
+
+    $manifest = @{
+        schemaVersion = "compound-gpid-managed-files-v1"
+        files = @{}
+    }
+
+    if (-not (Test-Path $ManifestPath)) { return $manifest }
+
+    try {
+        $raw = Get-Content $ManifestPath -Raw -Encoding UTF8 -ErrorAction Stop
+        if ([string]::IsNullOrWhiteSpace($raw)) { return $manifest }
+        $parsed = $raw | ConvertFrom-Json
+        if ($parsed.schemaVersion) { $manifest.schemaVersion = [string]$parsed.schemaVersion }
+        if ($parsed.files) {
+            foreach ($prop in $parsed.files.PSObject.Properties) {
+                $manifest.files[$prop.Name] = @{
+                    source = [string]$prop.Value.source
+                    checksum = [string]$prop.Value.checksum
+                }
+            }
+        }
+    } catch {
+        Write-Warning "Could not read Compound GPID managed file manifest: $_"
+    }
+
+    return $manifest
+}
+
+function Write-CgManagedFilesManifest {
+    param(
+        [Parameter(Mandatory)][string]$ManifestPath,
+        [Parameter(Mandatory)][hashtable]$Manifest
+    )
+
+    $parent = Split-Path $ManifestPath -Parent
+    if (-not (Test-Path $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    $json = $Manifest | ConvertTo-Json -Depth 6
+    Set-Content -Path $ManifestPath -Value ($json + "`n") -Encoding UTF8
+}
+
+function Resolve-CgContainedPath {
+    param(
+        [Parameter(Mandatory)][string]$Root,
+        [Parameter(Mandatory)][string]$RelativePath,
+        [Parameter(Mandatory)][string]$Label
+    )
+
+    if ([System.IO.Path]::IsPathRooted($RelativePath)) {
+        throw "$Label path must be relative: $RelativePath"
+    }
+
+    $rootFull = [System.IO.Path]::GetFullPath($Root)
+    $full = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($rootFull, $RelativePath))
+    $rootPrefix = $rootFull
+    if (-not $rootPrefix.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+        $rootPrefix += [System.IO.Path]::DirectorySeparatorChar
+    }
+
+    if ($full -ne $rootFull -and -not $full.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "$Label path escapes its root: $RelativePath"
+    }
+
+    return $full
+}
+
+function Test-CgReparsePath {
+    param([Parameter(Mandatory)][string]$Path)
+
+    $item = Get-Item -Path $Path -Force -ErrorAction SilentlyContinue
+    if (-not $item) { return $false }
+    return [bool]($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
+}
+
+function Update-CgManagedPlatformFiles {
+    param(
+        [Parameter(Mandatory)][string]$ManifestPath,
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][string]$CompoundGpidDir
+    )
+
+    $result = [pscustomobject]@{
+        Refreshed = @()
+        SkippedUserModified = @()
+        RemovedMissing = @()
+        MissingSources = @()
+        Invalid = @()
+    }
+
+    if (-not (Test-Path $ManifestPath)) { return $result }
+
+    $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
+    $manifestChanged = $false
+    foreach ($targetRel in @($manifest.files.Keys)) {
+        $record = $manifest.files[$targetRel]
+        try {
+            $targetPath = Resolve-CgContainedPath -Root $ProjectRoot -RelativePath $targetRel -Label "Managed target"
+            $sourcePath = Resolve-CgContainedPath -Root $CompoundGpidDir -RelativePath ([string]$record.source) -Label "Managed source"
+        } catch {
+            Write-Warning "Invalid managed file manifest entry, skipping refresh: $targetRel ($_)"
+            $result.Invalid += $targetRel
+            continue
+        }
+
+        if (-not (Test-Path $sourcePath)) {
+            Write-Warning "Managed source missing, leaving current project file unchanged: $($record.source)"
+            $result.MissingSources += $targetRel
+            continue
+        }
+        if (Test-CgReparsePath -Path $sourcePath) {
+            Write-Warning "Managed source is a symlink or reparse point, skipping refresh: $($record.source)"
+            $result.Invalid += $targetRel
+            continue
+        }
+        if (-not (Test-Path $targetPath)) {
+            Write-Warning "Managed file missing in current project, dropping manifest entry: $targetRel"
+            [void]$manifest.files.Remove($targetRel)
+            $manifestChanged = $true
+            $result.RemovedMissing += $targetRel
+            continue
+        }
+        if (Test-CgReparsePath -Path $targetPath) {
+            Write-Warning "Managed target is a symlink or reparse point, skipping refresh: $targetRel"
+            $result.Invalid += $targetRel
+            continue
+        }
+
+        $currentChecksum = Get-CgFileSha256 -Path $targetPath
+        if ($currentChecksum -ne $record.checksum) {
+            Write-Warning "Managed file modified by user, skipping refresh: $targetRel"
+            $result.SkippedUserModified += $targetRel
+            continue
+        }
+
+        Copy-Item -Path $sourcePath -Destination $targetPath -Force
+        $manifest.files[$targetRel] = @{
+            source = $record.source
+            checksum = (Get-CgFileSha256 -Path $targetPath)
+        }
+        $manifestChanged = $true
+        $result.Refreshed += $targetRel
+        Write-Host "Refreshed managed platform file: $targetRel" -ForegroundColor DarkGray
+    }
+
+    if ($manifestChanged) {
+        if ($manifest.files.Count -gt 0) {
+            Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
+        } else {
+            Remove-Item -Path $ManifestPath -Force
+        }
+    }
+
+    return $result
+}
+
+function ConvertTo-CgSlashPath {
+    param([Parameter(Mandatory)][string]$Path)
+    return ($Path -replace '\\', '/')
+}
+
 function New-CopilotInstructions {
     <#
     .SYNOPSIS

@@ -68,7 +68,22 @@
             "fallback": { "type": ["string", "null"] },
             "cross-vendor-review": { "type": ["string", "null"] }
           }
+        },
+        "installUnits": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/installUnit" }
         }
+      }
+    },
+    "installUnit": {
+      "type": "object",
+      "required": ["type", "source", "target", "strategy"],
+      "properties": {
+        "type": { "type": "string", "enum": ["directory", "file"] },
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "strategy": { "type": "string", "enum": ["link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"] },
+        "manualSnippet": { "type": "string" }
       }
     }
   }

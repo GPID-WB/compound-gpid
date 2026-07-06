@@ -38,6 +38,18 @@ print_gray()   { printf '\033[0;90m  %s\033[0m\n' "$1"; }
 print_warn()   { printf '\033[0;33mWARNING: %s\033[0m\n' "$1" >&2; }
 print_error()  { printf '\033[0;31mERROR: %s\033[0m\n' "$1" >&2; }
 
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in
+            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+        esac
+    done
+    return 1
+}
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -61,7 +73,7 @@ generate_copilot_instructions() {
     local project_root="$2"
     local marker="$3"
 
-    python3 - "$template_path" "$project_root" "$marker" <<'PYEOF'
+    "$PYTHON_CMD" - "$template_path" "$project_root" "$marker" <<'PYEOF'
 import sys, re, os
 
 template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -132,10 +144,11 @@ if ! command -v git &>/dev/null; then
     exit 1
 fi
 
-# Verify python3 is available
-if ! command -v python3 &>/dev/null; then
-    print_error "python3 is required but not found."
-    printf 'Install Xcode Command Line Tools: xcode-select --install\n' >&2
+# Verify Python is available
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    print_error "Python is required but not found (checked: python3, python, py)."
+    printf 'Install Xcode Command Line Tools or Python from https://www.python.org/downloads/\n' >&2
     exit 1
 fi
 
@@ -343,7 +356,7 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         if [[ -f "$TARGET_MAPPING" ]] && [[ -f "$GENERATOR_SCRIPT" ]]; then
             printf '\n'
             print_gray "Regenerating platform trees..."
-            if python3 "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
+            if "$PYTHON_CMD" "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
                 print_gray "Platform trees regenerated."
             else
                 print_warn "Platform tree generation failed — existing trees remain linked."
@@ -402,6 +415,80 @@ else
             print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
         fi
     )
+fi
+
+# ---------------------------------------------------------------------------
+# Refresh manifest-managed copied platform files in the current project
+# ---------------------------------------------------------------------------
+CWD_MANIFEST_PATH="$(pwd)/.compound-gpid/managed-files.json"
+if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && [[ -f "$CWD_MANIFEST_PATH" ]]; then
+    "$PYTHON_CMD" - "$CWD_MANIFEST_PATH" "$COMPOUND_GPID_DIR" <<'PYEOF'
+import hashlib
+import json
+import os
+import shutil
+import sys
+
+manifest_path, compound_dir = sys.argv[1:]
+project_root = os.getcwd()
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def contained_path(root, relative, label):
+    if not relative or os.path.isabs(relative):
+        raise ValueError(f"{label} path must be relative: {relative}")
+    root_abs = os.path.abspath(root)
+    full = os.path.abspath(os.path.join(root_abs, relative))
+    if os.path.commonpath([root_abs, full]) != root_abs:
+        raise ValueError(f"{label} path escapes its root: {relative}")
+    return full
+
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    manifest = json.load(handle)
+files = manifest.setdefault("files", {})
+changed = False
+for target_rel in list(files.keys()):
+    record = files[target_rel]
+    try:
+        target_path = contained_path(project_root, target_rel, "Managed target")
+        source_path = contained_path(compound_dir, record.get("source", ""), "Managed source")
+    except ValueError as exc:
+        print(f"WARNING: Invalid managed file manifest entry, skipping refresh: {target_rel} ({exc})")
+        continue
+    if not os.path.exists(source_path):
+        print(f"WARNING: Managed source missing, leaving current project file unchanged: {record.get('source', '')}")
+        continue
+    if os.path.islink(source_path):
+        print(f"WARNING: Managed source is a symlink, skipping refresh: {record.get('source', '')}")
+        continue
+    if not os.path.exists(target_path):
+        print(f"WARNING: Managed file missing in current project, dropping manifest entry: {target_rel}")
+        files.pop(target_rel, None)
+        changed = True
+        continue
+    if os.path.islink(target_path):
+        print(f"WARNING: Managed target is a symlink, skipping refresh: {target_rel}")
+        continue
+    if sha256(target_path) != record.get("checksum"):
+        print(f"WARNING: Managed file modified by user, skipping refresh: {target_rel}")
+        continue
+    shutil.copy2(source_path, target_path)
+    files[target_rel] = {"source": record.get("source", ""), "checksum": sha256(target_path)}
+    changed = True
+    print(f"  Refreshed managed platform file: {target_rel}")
+if changed:
+    if files:
+        with open(manifest_path, "w", encoding="utf-8") as handle:
+            json.dump(manifest, handle, indent=2)
+            handle.write("\n")
+    else:
+        os.unlink(manifest_path)
+PYEOF
 fi
 
 # ---------------------------------------------------------------------------

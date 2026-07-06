@@ -57,6 +57,8 @@ REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
 REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents"}
 VALID_MODEL_MAPPING_MODES = {"role-only", "tier", "exact"}
 VALID_ROLES = {"coding", "review", "reasoning", "mechanical", "inherited", "fallback", "cross-vendor-review"}
+VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
+VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
 
 
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
@@ -101,6 +103,35 @@ def _validate_output_paths(prefix: str, output_paths: Any) -> list[str]:
     return errors
 
 
+def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
+    """Validate optional project-local install-unit metadata for a target."""
+    errors: list[str] = []
+    if install_units is None:
+        return errors
+    if not isinstance(install_units, list):
+        return [f"{prefix}.installUnits: must be an array"]
+    for i, unit in enumerate(install_units):
+        unit_prefix = f"{prefix}.installUnits[{i}]"
+        if not isinstance(unit, dict):
+            errors.append(f"{unit_prefix}: must be an object")
+            continue
+        for field in ("type", "source", "target", "strategy"):
+            if field not in unit:
+                errors.append(f"{unit_prefix}: missing required field '{field}'")
+        unit_type = unit.get("type")
+        if unit_type not in VALID_INSTALL_UNIT_TYPES:
+            errors.append(f"{unit_prefix}.type: must be one of {VALID_INSTALL_UNIT_TYPES}, got '{unit_type}'")
+        strategy = unit.get("strategy")
+        if strategy not in VALID_INSTALL_UNIT_STRATEGIES:
+            errors.append(f"{unit_prefix}.strategy: must be one of {VALID_INSTALL_UNIT_STRATEGIES}, got '{strategy}'")
+        for field in ("source", "target"):
+            if field in unit and not isinstance(unit[field], str):
+                errors.append(f"{unit_prefix}.{field}: must be a string")
+        if "manualSnippet" in unit and not isinstance(unit["manualSnippet"], str):
+            errors.append(f"{unit_prefix}.manualSnippet: must be a string")
+    return errors
+
+
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
@@ -141,6 +172,7 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
+        errors.extend(_validate_install_units(prefix, target.get("installUnits")))
 
         gtp = target.get("generatedTreePath")
         if gtp is not None and not isinstance(gtp, str):
