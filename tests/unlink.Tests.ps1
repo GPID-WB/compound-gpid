@@ -279,7 +279,16 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
     }
 
     It "removes OpenCode install units without requiring .github" {
-        $content | Should -Match '\.opencode/opencode\.json'
+        $mapping = Get-Content (Join-Path $PSScriptRoot "..\.github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $opencodeTargets = @($mapping.targets |
+            Where-Object { $_.id -eq "opencode" } |
+            ForEach-Object { $_.installUnits } |
+            ForEach-Object { $_.target })
+
+        $opencodeTargets | Should -Contain ".opencode/opencode.json"
+        $content | Should -Match 'TargetMappingPath'
+        $content | Should -Match 'target\.installUnits'
+        $content | Should -Match 'ConvertTo-CgSlashPath'
         $content | Should -Match 'managed-files\.json'
     }
 }
