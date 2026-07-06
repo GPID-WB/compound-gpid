@@ -206,20 +206,21 @@ Describe "link.sh - script structure" {
         $content | Should -Match '\.gitignore'
     }
 
-    It "uses generate_copilot_instructions function with python3" {
+    It "uses generate_copilot_instructions function with resolved Python command" {
         $content | Should -Match 'generate_copilot_instructions'
-        $content | Should -Match 'python3'
+        $content | Should -Match 'PYTHON_CMD'
+        $content | Should -Match 'resolve_python'
     }
 
     It "defines generate_copilot_instructions before the main body calls it" {
         # Function definition must appear before first call in bash
         $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
-        $funcCallLine = [regex]::Match($content, '(?m)GENERATED="\$\(generate_copilot_instructions').Index
+        $funcCallLine = [regex]::Match($content, '(?m)generate_copilot_instructions "\$source_path"').Index
         $funcDefLine | Should -BeLessThan $funcCallLine
     }
 
-    It "includes 'shared' in MANAGED_DIRS" {
-        $content | Should -Match '"shared"'
+    It "includes shared as a Copilot install unit" {
+        $content | Should -Match '\.github/shared'
     }
 
     It "Step 6 verification checks file accessibility not just directory existence" {
@@ -232,18 +233,90 @@ Describe "link.sh - script structure" {
 
     It "supports --yes / -y flag for non-interactive Relink prompt [regression guard]" {
         $content | Should -Match '\-\-yes'
-        $content | Should -Match '(?<![\w])-y[)\s]'
+        $content | Should -Match '\|\-y\|'
         $content | Should -Match 'FORCE'
     }
 
     It "Relink prompt is guarded by FORCE check (2 guards required) [regression guard]" {
-        # Exactly 2 if [[ ... FORCE guards exist (the Relink symlink-conflict branch
-        # for .github/ subdirectories and the platform tree relink branch).
-        # unlink.sh has 2 guards; link.sh now has 2 (1 original + 1 platform tree).
-        # Asserting the count catches the guard being silently removed while --yes/-y
-        # declarations remain.
-        ([regex]::Matches($content, 'if\s+\[\[.*FORCE') | Measure-Object).Count |
-            Should -Be 2
+        # The Relink symlink-conflict branch must be guarded by FORCE.
+        ([regex]::Matches($content, 'if\s+\[ "\$FORCE" -eq 0 \]') | Measure-Object).Count |
+            Should -Be 1
+    }
+
+    It "uses while-loop argument parsing for order-independent --platforms and --yes" {
+        $content | Should -Match 'while \[ "\$#" -gt 0 \]'
+        $content | Should -Match '--platforms=\*'
+        $content | Should -Match '--platforms\|-Platforms'
+    }
+
+    It "defaults to all platforms through normalize_platforms" {
+        $content | Should -Match 'input="all"'
+        $content | Should -Match 'copilot claude-code codex opencode'
+    }
+
+    It "fails loudly for missing selected source units" {
+        $content | Should -Match 'Selected Compound GPID source units are missing'
+        $content | Should -Match 'exit 1'
+    }
+
+    It "migrates legacy .github whole-root symlinks [regression guard]" {
+        $content | Should -Match 'migrating legacy whole-root symlink'
+        $content | Should -Not -Match 'root_name" != "\.github"'
+    }
+
+    It "preserves existing managed entries during partial relinks [regression guard]" {
+        $content | Should -Match 'collect_existing_managed_entries'
+        $content | Should -Match 'collect_existing_managed_entries >> "\$entries_file"'
+    }
+}
+
+Describe "install.sh - uninstall removes generated wrappers" {
+    It "removes all wrappers created by install.sh" {
+        $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-uninstall-$([System.Guid]::NewGuid().ToString('N'))"
+        $tmpZshrc  = Join-Path $tmpHome ".zshrc"
+        $fakeShell = "/bin/zsh"
+
+        New-Item -ItemType Directory -Path $tmpHome -Force | Out-Null
+
+        $originalHome  = $env:HOME
+        $originalShell = $env:SHELL
+
+        $env:HOME  = $tmpHome
+        $env:SHELL = $fakeShell
+
+        $tmpInstall = Join-Path $tmpHome ".compound-gpid"
+        $tmpInstallBin = Join-Path $tmpInstall "bin"
+        $tmpInstallScripts = Join-Path $tmpInstall "scripts"
+        New-Item -ItemType Directory -Path $tmpInstallBin -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+
+        $wrappers = Get-ChildItem -Path (Join-Path $repoRoot "bin") -Filter "cg-*" -File |
+            Where-Object { $_.Extension -eq "" } |
+            ForEach-Object { $_.Name }
+        try {
+            $wrappers.Count | Should -BeGreaterThan 0
+            foreach ($wrapper in $wrappers) {
+                Set-Content -Path (Join-Path $tmpInstallBin $wrapper) -Value "placeholder" -Encoding UTF8
+            }
+            Set-Content -Path $tmpZshrc -Value "# --- Compound GPID ---`nexport PATH=`"${tmpInstallBin}:`$PATH`"`n# --- End Compound GPID ---`n" -Encoding UTF8
+
+            & bash (Join-Path $tmpInstallScripts "install.sh") --uninstall 2>/dev/null | Out-Null
+
+            foreach ($wrapper in $wrappers) {
+                Test-Path (Join-Path $tmpInstallBin $wrapper) | Should -Be $false
+            }
+            $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw -Encoding UTF8 } else { "" }
+            $profileContent | Should -Not -Match 'Compound GPID'
+
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            foreach ($wrapper in $wrappers) {
+                Test-Path (Join-Path $tmpInstallBin $wrapper) | Should -Be $true
+            }
+        } finally {
+            Remove-Item -Path $tmpHome -Recurse -Force -ErrorAction SilentlyContinue
+            if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
+            if ($originalShell) { $env:SHELL = $originalShell } else { Remove-Item Env:\SHELL -ErrorAction SilentlyContinue }
+        }
     }
 }
 
@@ -290,16 +363,19 @@ Describe "unlink.sh - script structure" {
         # /dev/tty available. Without this flag, `read -r answer </dev/tty` hangs
         # or receives empty input, silently aborting the unlink.
         $content | Should -Match '\-\-yes'
-        $content | Should -Match '(?<![\w])-y[)\s]'  # -y) short form in case block
+        $content | Should -Match '\|\-y\|'  # -y short form in case block
         $content | Should -Match 'FORCE'
     }
 
     It "guards read confirmation calls with FORCE check [regression guard]" {
-        # Both confirmation read calls (legacy symlink path + per-subdirectory path)
-        # must be inside a FORCE guard. Should -Match passes on the first occurrence;
-        # counting confirms both guards are present.
-        ([regex]::Matches($content, 'if\s+\[\[.*FORCE') | Measure-Object).Count |
-            Should -Be 2
+        # The single confirmation read must be inside a FORCE guard.
+        ([regex]::Matches($content, 'if\s+\[ "\$FORCE" -eq 0 \]') | Measure-Object).Count |
+            Should -Be 1
+    }
+
+    It "does not require .github to exist before unlinking platform units" {
+        $content | Should -Not -Match '\.github/ does not exist.*Nothing to unlink'
+        $content | Should -Match '\.opencode/opencode\.json'
     }
 }
 
@@ -350,6 +426,17 @@ Describe "update.sh - script structure" {
         $content | Should -Match 'generate_copilot_instructions'
     }
 
+    It "uses resolved Python command instead of direct python3 calls" {
+        $content | Should -Match 'resolve_python'
+        $content | Should -Match 'PYTHON_CMD'
+        $content | Should -Not -Match '\bpython3\s+"\$GENERATOR_SCRIPT"'
+    }
+
+    It "refreshes manifest-managed copied platform files" {
+        $content | Should -Match 'managed-files\.json'
+        $content | Should -Match 'Refreshed managed platform file'
+    }
+
     It "handles structural migration docs/ -> .cg-docs/" {
         $content | Should -Match '\.cg-docs'
     }
@@ -382,8 +469,9 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
         $wrapperContent | Should -Match 'cg_index\.py'
     }
 
-    It "bin/cg-index invokes python3" {
-        $wrapperContent | Should -Match '\bpython3\b'
+    It "bin/cg-index resolves Python candidates" {
+        $wrapperContent | Should -Match 'resolve_python'
+        $wrapperContent | Should -Match 'python3 python py'
     }
 
     It "bin/cg-index passes arguments via `"`$@`"" {
@@ -408,8 +496,9 @@ Describe "bash-scripts - bin/cg-token-audit wrapper content" {
         $wrapperContent | Should -Match 'cg_audit_context\.py'
     }
 
-    It "bin/cg-token-audit invokes python3" {
-        $wrapperContent | Should -Match '\bpython3\b'
+    It "bin/cg-token-audit resolves Python candidates" {
+        $wrapperContent | Should -Match 'resolve_python'
+        $wrapperContent | Should -Match 'python3 python py'
     }
 
     It "bin/cg-token-audit passes arguments via `"`$@`"" {

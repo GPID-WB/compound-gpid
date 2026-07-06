@@ -9,11 +9,13 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+DIRECT_PYTHON3_COMMAND = re.compile(r"(?m)^\s*(?:exec\s+|command\s+)?python3\s")
 
 
 class TestUpdatePs1RegeneratesTargets:
@@ -58,6 +60,15 @@ class TestUpdateShRegeneratesTargets:
     def test_warns_on_generation_failure(self, content: str) -> None:
         assert "Platform tree generation failed" in content
 
+    def test_uses_resolved_python_command_for_generator(self, content: str) -> None:
+        assert "resolve_python" in content
+        assert "PYTHON_CMD" in content
+        assert 'python3 "$GENERATOR_SCRIPT"' not in content
+
+    def test_refreshes_manifest_managed_files(self, content: str) -> None:
+        assert "managed-files.json" in content
+        assert "Refreshed managed platform file" in content
+
 
 class TestResolvePythonCommandConsistency:
     """Verify Resolve-PythonCommand is present in helpers.ps1 and matches
@@ -85,6 +96,40 @@ class TestResolvePythonCommandConsistency:
     def test_no_bare_python3_in_update_ps1_generator_call(self) -> None:
         content = (REPO_ROOT / "scripts/update.ps1").read_text(encoding="utf-8")
         assert "python3 $generatorScript" not in content
+
+    def test_bash_wrappers_resolve_python_candidates(self) -> None:
+        for path in [
+            REPO_ROOT / "bin/cg-index",
+            REPO_ROOT / "bin/cg-token-audit",
+            REPO_ROOT / "bin/cg-brain-init",
+            REPO_ROOT / "bin/cg-diff-summary",
+            REPO_ROOT / "bin/cg-log-summary",
+            REPO_ROOT / "bin/cg-problems-summary",
+            REPO_ROOT / "bin/cg-test-summary",
+            REPO_ROOT / "bin/cg-tree-summary",
+        ]:
+            content = path.read_text(encoding="utf-8")
+            assert "resolve_python" in content, path
+            assert "python3 python py" in content, path
+
+    def test_bash_wrappers_do_not_call_python3_directly(self) -> None:
+        for path in [
+            REPO_ROOT / "bin/cg-index",
+            REPO_ROOT / "bin/cg-token-audit",
+            REPO_ROOT / "bin/cg-brain-init",
+            REPO_ROOT / "bin/cg-diff-summary",
+            REPO_ROOT / "bin/cg-log-summary",
+            REPO_ROOT / "bin/cg-problems-summary",
+            REPO_ROOT / "bin/cg-test-summary",
+            REPO_ROOT / "bin/cg-tree-summary",
+        ]:
+            content = path.read_text(encoding="utf-8")
+            assert not DIRECT_PYTHON3_COMMAND.search(content), path
+
+    def test_install_sh_generated_python_wrappers_do_not_call_python3_directly(self) -> None:
+        content = (REPO_ROOT / "scripts/install.sh").read_text(encoding="utf-8")
+        assert "resolve_python" in content
+        assert not DIRECT_PYTHON3_COMMAND.search(content)
 
 
 class TestCommitPushPrRegeneratesTargets:

@@ -42,6 +42,12 @@ Describe "link.ps1 - .github directory setup" {
     }
 
     Context "when .github is a legacy whole-directory junction" {
+        It "link.ps1 migrates Compound-owned .github whole-root junctions [regression guard]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'migrating legacy whole-root junction'
+            $content | Should -Not -Match 'RootName\s+-ne\s+"\.github"'
+        }
+
         It "is identified as a junction" {
             $target   = Join-Path $TestDrive "legacy-target"
             $junction = Join-Path $TestDrive "legacy-github"
@@ -150,7 +156,8 @@ Describe "link.ps1 - per-subdirectory junction creation" {
             New-Item -ItemType Directory -Path $conflicting -Force | Out-Null
             $item = Get-Item $conflicting
             $item.LinkType | Should -BeNullOrEmpty
-            # A real directory (no LinkType) signals a conflict - cg-link should error
+            # A real directory (no LinkType) signals a conflict - cg-link should skip
+            # that install unit and continue other selected units.
         }
     }
 
@@ -219,6 +226,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
                 ".github/skills/",
                 ".github/agents/",
                 ".github/instructions/",
+                ".github/shared/",
                 ".github/copilot-instructions.md"
             )
             Set-Content -Path $gi -Value ($entries -join "`n")
@@ -227,6 +235,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             $content -match "\.github/skills/"        | Should -Be $true
             $content -match "\.github/agents/"        | Should -Be $true
             $content -match "\.github/instructions/"  | Should -Be $true
+            $content -match "\.github/shared/"        | Should -Be $true
             $content -match "copilot-instructions\.md" | Should -Be $true
         }
     }
@@ -256,7 +265,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
         It "does not add duplicate entries when run twice (remove-then-rewrite)" {
             $gi      = Join-Path $TestDrive "dup-gi.gitignore"
             $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/copilot-instructions.md")
+            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/shared/", ".github/copilot-instructions.md")
             $block   = $marker + "`n" + ($entries -join "`n") + "`n"
 
             # First run
@@ -274,6 +283,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($after | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should -Be 1
             ($after | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should -Be 1
             ($after | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should -Be 1
+            ($after | Where-Object { $_ -eq ".github/shared/"             } | Measure-Object).Count | Should -Be 1
             ($after | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should -Be 1
             ($after | Where-Object { $_ -match "Compound GPID managed items" } | Measure-Object).Count | Should -Be 1
         }
@@ -309,7 +319,7 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             # entry set (no .cg-docs/), starting from a clean pre-existing file.
             $gi      = Join-Path $TestDrive "no-cg-docs-gitignore.gitignore"
             $marker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/copilot-instructions.md")
+            $entries = @(".github/prompts/", ".github/skills/", ".github/agents/", ".github/instructions/", ".github/shared/", ".github/copilot-instructions.md")
             Set-Content -Path $gi -Value "*.log"
 
             $newBlock = $marker + "`n" + ($entries -join "`n") + "`n"
@@ -327,7 +337,14 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($lines | Where-Object { $_ -eq ".github/skills/"             } | Measure-Object).Count | Should -Be 1
             ($lines | Where-Object { $_ -eq ".github/agents/"             } | Measure-Object).Count | Should -Be 1
             ($lines | Where-Object { $_ -eq ".github/instructions/"       } | Measure-Object).Count | Should -Be 1
+            ($lines | Where-Object { $_ -eq ".github/shared/"             } | Measure-Object).Count | Should -Be 1
             ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should -Be 1
+        }
+
+        It "preserves existing managed entries during partial relinks [regression guard]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Get-CgInstalledGitignoreEntries'
+            $content | Should -Match 'Update-CgGitignoreBlock -Entries \(@\(\$installedEntries\) \+ \(Get-CgInstalledGitignoreEntries'
         }
 
         It "preserves user content preceding the CG block (regex safety)" {
@@ -438,6 +455,18 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($lines | Where-Object { $_ -eq "*.log"                                                        } | Measure-Object).Count | Should -Be 1
         }
 
+        It "link.ps1 contains production cleanup for stale .cg-docs/ entries" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Compound GPID knowledge base'
+            $content | Should -Match '\\.cg-docs/'
+        }
+
+        It "link.sh contains production cleanup for stale .cg-docs/ entries" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+            $content | Should -Match 'Compound GPID knowledge base'
+            $content | Should -Match '\\.cg-docs/'
+        }
+
         It "deletes the .gitignore file when it becomes empty after cleanup" {
             $gi = Join-Path $TestDrive "only-stale-entry.gitignore"
             Set-Content -Path $gi -Value "# Compound GPID knowledge base (local thinking artifacts, typically not committed)`n.cg-docs/"
@@ -515,23 +544,32 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
     $linkPs1 = Join-Path $PSScriptRoot "..\scripts\link.ps1"
     $content = Get-Content $linkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
-    It "declares a [switch]`$Force parameter [regression guard]" {
-        $content | Should -Match '\[switch\]\$Force'
+    It "parses Force through Resolve-CgLinkArguments [regression guard]" {
+        $content | Should -Match 'Resolve-CgLinkArguments'
+        $content | Should -Match '--yes'
+        $content | Should -Match '-Force'
     }
 
-    It "Relink prompt is guarded by -not `$Force (2 guards required) [regression guard]" {
+    It "Relink prompt is guarded by -not `$Force [regression guard]" {
         # The junction-conflict branch Read-Host must be inside if (-not $Force).
-        # link.ps1 now has 2 guards: 1 for .github/ subdirectory relink + 1 for
-        # generated platform tree relink (--platforms flag).
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
-            Should -Be 2
+            Should -Be 1
     }
 
     It "does not call Read-Host unconditionally [regression guard]" {
-        # Exactly 2 Read-Host calls (Relink prompts: .github/ subdirectory + platform tree),
-        # both must be inside -Force guards.
+        # Exactly 1 Read-Host call exists for non-Compound junction relink.
         ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
-            Should -Be 2
+            Should -Be 1
+    }
+
+    It "accepts GNU-style platform flags through raw argument parsing" {
+        $content | Should -Match 'ValueFromRemainingArguments'
+        $content | Should -Match '--platforms=\*'
+        $content | Should -Match '--platforms", "-Platforms'
+    }
+
+    It "defaults to all supported platforms" {
+        $content | Should -Match 'copilot", "claude-code", "codex", "opencode'
     }
 }
 
@@ -601,16 +639,11 @@ Describe "link.ps1 - junction accessibility verification (Step 6)" {
 
 Describe "link.ps1 - compound-gpid.context.md is not gitignored" {
     Context "CG-managed .gitignore entries do not include context.md" {
-        # Extract $ManagedDirs from link.ps1 and reconstruct expected gitignore entries.
-        # This mirrors the derivation logic in link.ps1 so both stay in sync automatically.
+        # Reconstruct expected gitignore entries from target-mapping install units.
         $linkPs1Path = Join-Path $PSScriptRoot "..\scripts\link.ps1"
         $linkContent = Get-Content $linkPs1Path -Raw
-        $block = [regex]::Match($linkContent, '(?s)\$ManagedDirs\s*=\s*@\((.+?)\)').Groups[1].Value
-        $managedDirs = $block -split '\r?\n' |
-                       ForEach-Object { $_.Trim().Trim('"').Trim("'") } |
-                       Where-Object { $_ -ne '' }
-        $entries = @($managedDirs | ForEach-Object { ".github/$_/" }) +
-                   @(".github/copilot-instructions.md")
+        $mapping = Get-Content (Join-Path $PSScriptRoot "..\.github\shared\target-mapping.json") -Raw | ConvertFrom-Json
+        $entries = @($mapping.targets[0].installUnits | ForEach-Object { $_.target })
 
         It "extracted at least one entry from link.ps1 (guard against empty extraction)" {
             ($entries | Measure-Object).Count | Should -BeGreaterThan 0

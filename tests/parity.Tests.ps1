@@ -3,8 +3,8 @@
 # equivalents of link/unlink stay in sync on critical configuration values.
 #
 # These tests catch the class of bug where a developer updates one script
-# (e.g. adds a new managed directory to link.ps1) but forgets to update
-# the other (link.sh). They run on both Windows and macOS CI because
+# (e.g. adds a new install unit to target-mapping.json) but forgets to update
+# the bash fallback lists. They run on both Windows and macOS CI because
 # the test itself is pure text-matching with no platform-specific code.
 #
 # Run with: Invoke-Pester tests/parity.Tests.ps1
@@ -12,23 +12,56 @@
 $repoRoot = Split-Path $PSScriptRoot -Parent
 
 # ---------------------------------------------------------------------------
-# Helper: extract the managed-dirs array from a script's source text.
-# Works for both PowerShell and bash formats:
-#   $ManagedDirs = @("prompts", "skills", ...)   # link.ps1 / unlink.ps1
-#   MANAGED_DIRS=("prompts" "skills" ...)          # link.sh / unlink.sh
-# Returns a sorted string[] for order-independent comparison.
+# Helpers: extract install-unit keys from target-mapping.json and bash fallback
+# lists. PowerShell scripts read target-mapping.json directly, while bash keeps
+# literal fallback lists to avoid requiring jq.
 # ---------------------------------------------------------------------------
-function Get-ManagedDirsFromSource {
+function Get-InstallUnitKeysFromMapping {
+    param([string]$MappingPath)
+
+    $mapping = Get-Content $MappingPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $keys = @()
+    foreach ($target in @($mapping.targets)) {
+        foreach ($unit in @($target.installUnits)) {
+            $keys += "$($target.id)|$($unit.type)|$($unit.source)|$($unit.target)|$($unit.strategy)"
+        }
+    }
+    return ($keys | Sort-Object)
+}
+
+function Get-UnlinkUnitKeysFromMapping {
+    param([string]$MappingPath)
+
+    $mapping = Get-Content $MappingPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $keys = @()
+    foreach ($target in @($mapping.targets)) {
+        foreach ($unit in @($target.installUnits)) {
+            $keys += "$($unit.target)|$($unit.type)"
+        }
+    }
+    return ($keys | Sort-Object -Unique)
+}
+
+function Get-LinkShInstallUnitKeysFromSource {
     param([string]$Content)
-    # Match either PS or bash array declaration:
-    #   $ManagedDirs = @("prompts", "skills", ...)   # PowerShell (note the @)
-    #   MANAGED_DIRS=("prompts" "skills" ...)          # bash
-    $m = [regex]::Match($Content, '(?:MANAGED_DIRS|\$ManagedDirs)\s*=\s*@?\(([^)]+)\)')
-    if (-not $m.Success) { return @() }
-    $inner = $m.Groups[1].Value
-    # Extract each "quoted" token
-    $items = [regex]::Matches($inner, '"([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
-    return ($items | Sort-Object)
+
+    $keys = @()
+    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)\|([^|'`r`n]+)\|([^|'`r`n]+)\|([^|'`r`n]+)\|[^']*'")
+    foreach ($match in $matches) {
+        $keys += "$($match.Groups[1].Value)|$($match.Groups[2].Value)|$($match.Groups[3].Value)|$($match.Groups[4].Value)|$($match.Groups[5].Value)"
+    }
+    return ($keys | Sort-Object)
+}
+
+function Get-UnlinkShUnitKeysFromSource {
+    param([string]$Content)
+
+    $keys = @()
+    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)'")
+    foreach ($match in $matches) {
+        $keys += "$($match.Groups[1].Value)|$($match.Groups[2].Value)"
+    }
+    return ($keys | Sort-Object -Unique)
 }
 
 # ---------------------------------------------------------------------------
@@ -37,18 +70,27 @@ function Get-ManagedDirsFromSource {
 Describe "link.ps1 <-> link.sh parity" {
     $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
+    $mappingPath = Join-Path $repoRoot ".github/shared/target-mapping.json"
 
-    It "both scripts define the same managed directories" {
-        $ps1Dirs = Get-ManagedDirsFromSource $linkPs1
-        $shDirs  = Get-ManagedDirsFromSource $linkSh
+    It "link.ps1 reads install units from target-mapping.json" {
+        $linkPs1 | Should -Match 'TargetMappingPath'
+        $linkPs1 | Should -Match 'ConvertFrom-Json'
+        $linkPs1 | Should -Match 'target\.installUnits'
+        $linkPs1 | Should -Match 'unit\.source'
+        $linkPs1 | Should -Match 'unit\.target'
+        $linkPs1 | Should -Match 'unit\.type'
+    }
 
-        # Parse guards: if either returns @() the comparison is vacuously true.
-        $ps1Dirs.Count | Should -BeGreaterThan 0
-        $shDirs.Count  | Should -BeGreaterThan 0
-        $missing  = $ps1Dirs | Where-Object { $_ -notin $shDirs }
-        $extra    = $shDirs  | Where-Object { $_ -notin $ps1Dirs }
-        $missing  | Should -BeNullOrEmpty  # dirs in link.ps1 but not link.sh
-        $extra    | Should -BeNullOrEmpty  # dirs in link.sh but not link.ps1
+    It "link.sh hardcoded install units match target-mapping.json" {
+        $expected = Get-InstallUnitKeysFromMapping -MappingPath $mappingPath
+        $actual = Get-LinkShInstallUnitKeysFromSource -Content $linkSh
+
+        $expected.Count | Should -BeGreaterThan 0
+        $actual.Count | Should -BeGreaterThan 0
+        $missing = $expected | Where-Object { $_ -notin $actual }
+        $extra = $actual | Where-Object { $_ -notin $expected }
+        $missing | Should -BeNullOrEmpty
+        $extra | Should -BeNullOrEmpty
     }
 
     It "both scripts reference the same verification file (cg-setup.prompt.md)" {
@@ -62,23 +104,18 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkSh  | Should -Match ([regex]::Escape($marker))
     }
 
-    It "link.ps1 ManagedDirs extraction regex finds the array [sanity check]" {
-        $dirs = Get-ManagedDirsFromSource $linkPs1
-        $dirs | Should -Not -BeNullOrEmpty
-        $dirs | Should -Contain 'prompts'
-    }
-
-    It "link.sh MANAGED_DIRS extraction regex finds the array [sanity check]" {
-        $dirs = Get-ManagedDirsFromSource $linkSh
-        $dirs | Should -Not -BeNullOrEmpty
-        $dirs | Should -Contain 'prompts'
+    It "link.sh install-unit extraction finds representative units [sanity check]" {
+        $units = Get-LinkShInstallUnitKeysFromSource -Content $linkSh
+        $units | Should -Not -BeNullOrEmpty
+        $units | Should -Contain 'copilot|directory|.github/prompts|.github/prompts|link-directory'
+        $units | Should -Contain 'opencode|file|.opencode/opencode.json|.opencode/opencode.json|config-copy-or-snippet'
     }
 
     It "both scripts support a non-interactive bypass flag [regression guard]" {
-        # link.ps1 uses -Force, link.sh uses --yes / -y
-        $linkPs1 | Should -Match '\[switch\]\$Force'
+        # link.ps1 parses raw args; link.sh uses --yes / -y.
+        $linkPs1 | Should -Match ([regex]::Escape('"--yes", "-y", "-Force", "--force"'))
         $linkSh  | Should -Match '\-\-yes'
-        $linkSh  | Should -Match '(?<![\w])-y[)\s]'
+        $linkSh  | Should -Match ([regex]::Escape('|-y|'))
     }
 }
 
@@ -88,38 +125,33 @@ Describe "link.ps1 <-> link.sh parity" {
 Describe "unlink.ps1 <-> unlink.sh parity" {
     $unlinkPs1 = Get-Content (Join-Path $repoRoot "scripts/unlink.ps1") -Raw -Encoding UTF8
     $unlinkSh  = Get-Content (Join-Path $repoRoot "scripts/unlink.sh")  -Raw -Encoding UTF8
+    $mappingPath = Join-Path $repoRoot ".github/shared/target-mapping.json"
 
-    It "both scripts define the same managed directories" {
-        $ps1Dirs = Get-ManagedDirsFromSource $unlinkPs1
-        $shDirs  = Get-ManagedDirsFromSource $unlinkSh
+    It "unlink.ps1 reads install units from target-mapping.json" {
+        $unlinkPs1 | Should -Match 'TargetMappingPath'
+        $unlinkPs1 | Should -Match 'ConvertFrom-Json'
+        $unlinkPs1 | Should -Match 'target\.installUnits'
+        $unlinkPs1 | Should -Match 'unit\.target'
+        $unlinkPs1 | Should -Match 'unit\.type'
+    }
 
-        # Parse guards: if either returns @() the comparison is vacuously true.
-        $ps1Dirs.Count | Should -BeGreaterThan 0
-        $shDirs.Count  | Should -BeGreaterThan 0
+    It "unlink.sh hardcoded install-unit targets match target-mapping.json" {
+        $expected = Get-UnlinkUnitKeysFromMapping -MappingPath $mappingPath
+        $actual = Get-UnlinkShUnitKeysFromSource -Content $unlinkSh
 
-        $missing = $ps1Dirs | Where-Object { $_ -notin $shDirs }
-        $extra   = $shDirs  | Where-Object { $_ -notin $ps1Dirs }
+        $expected.Count | Should -BeGreaterThan 0
+        $actual.Count | Should -BeGreaterThan 0
+        $missing = $expected | Where-Object { $_ -notin $actual }
+        $extra = $actual | Where-Object { $_ -notin $expected }
         $missing | Should -BeNullOrEmpty
-        $extra   | Should -BeNullOrEmpty
-    }
-
-    It "unlink.ps1 ManagedDirs extraction regex finds the array [sanity check]" {
-        $dirs = Get-ManagedDirsFromSource $unlinkPs1
-        $dirs | Should -Not -BeNullOrEmpty
-        $dirs | Should -Contain 'prompts'
-    }
-
-    It "unlink.sh MANAGED_DIRS extraction regex finds the array [sanity check]" {
-        $dirs = Get-ManagedDirsFromSource $unlinkSh
-        $dirs | Should -Not -BeNullOrEmpty
-        $dirs | Should -Contain 'prompts'
+        $extra | Should -BeNullOrEmpty
     }
 
     It "both scripts support a non-interactive bypass flag [regression guard]" {
-        # unlink.ps1 uses -Force, unlink.sh uses --yes / -y
-        $unlinkPs1 | Should -Match '\[switch\]\$Force'
+        # unlink.ps1 parses raw args; unlink.sh uses --yes / -y.
+        $unlinkPs1 | Should -Match ([regex]::Escape('"--yes", "-y", "-Force", "--force"'))
         $unlinkSh  | Should -Match '\-\-yes'
-        $unlinkSh  | Should -Match '(?<![\w])-y[)\s]'
+        $unlinkSh  | Should -Match ([regex]::Escape('|-y|'))
     }
 
     It "both scripts check for the compound-gpid management marker before removing" {
@@ -136,18 +168,9 @@ Describe "link.ps1 <-> unlink.ps1 parity (PowerShell pair)" {
     $linkPs1   = Get-Content (Join-Path $repoRoot "scripts/link.ps1")   -Raw -Encoding UTF8
     $unlinkPs1 = Get-Content (Join-Path $repoRoot "scripts/unlink.ps1") -Raw -Encoding UTF8
 
-    It "both PowerShell scripts define the same managed directories" {
-        $linkDirs   = Get-ManagedDirsFromSource $linkPs1
-        $unlinkDirs = Get-ManagedDirsFromSource $unlinkPs1
-
-        # Parse guards: if either returns @() the comparison is vacuously true.
-        $linkDirs.Count   | Should -BeGreaterThan 0
-        $unlinkDirs.Count | Should -BeGreaterThan 0
-
-        $missing = $linkDirs   | Where-Object { $_ -notin $unlinkDirs }
-        $extra   = $unlinkDirs | Where-Object { $_ -notin $linkDirs }
-        $missing | Should -BeNullOrEmpty
-        $extra   | Should -BeNullOrEmpty
+    It "both PowerShell scripts use target-mapping install units" {
+        $linkPs1 | Should -Match 'target\.installUnits'
+        $unlinkPs1 | Should -Match 'target\.installUnits'
     }
 }
 
@@ -157,35 +180,41 @@ Describe "link.ps1 <-> unlink.ps1 parity (PowerShell pair)" {
 Describe "link.sh <-> unlink.sh parity (bash pair)" {
     $linkSh   = Get-Content (Join-Path $repoRoot "scripts/link.sh")   -Raw -Encoding UTF8
     $unlinkSh = Get-Content (Join-Path $repoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+    $mappingPath = Join-Path $repoRoot ".github/shared/target-mapping.json"
 
-    It "both bash scripts define the same managed directories" {
-        $linkDirs   = Get-ManagedDirsFromSource $linkSh
-        $unlinkDirs = Get-ManagedDirsFromSource $unlinkSh
+    It "both bash scripts cover every mapped install-unit target" {
+        $linkTargets = Get-LinkShInstallUnitKeysFromSource -Content $linkSh |
+            ForEach-Object { ($_ -split '\|')[3] } |
+            Sort-Object -Unique
+        $unlinkTargets = Get-UnlinkShUnitKeysFromSource -Content $unlinkSh |
+            ForEach-Object { ($_ -split '\|')[0] } |
+            Sort-Object -Unique
+        $mappingTargets = Get-UnlinkUnitKeysFromMapping -MappingPath $mappingPath |
+            ForEach-Object { ($_ -split '\|')[0] } |
+            Sort-Object -Unique
 
-        # Parse guards: if either returns @() the comparison is vacuously true.
-        $linkDirs.Count   | Should -BeGreaterThan 0
-        $unlinkDirs.Count | Should -BeGreaterThan 0
-
-        $missing = $linkDirs   | Where-Object { $_ -notin $unlinkDirs }
-        $extra   = $unlinkDirs | Where-Object { $_ -notin $linkDirs }
-        $missing | Should -BeNullOrEmpty
-        $extra   | Should -BeNullOrEmpty
+        $linkTargets.Count | Should -BeGreaterThan 0
+        $unlinkTargets.Count | Should -BeGreaterThan 0
+        $missingFromLink = $mappingTargets | Where-Object { $_ -notin $linkTargets }
+        $missingFromUnlink = $mappingTargets | Where-Object { $_ -notin $unlinkTargets }
+        $missingFromLink | Should -BeNullOrEmpty
+        $missingFromUnlink | Should -BeNullOrEmpty
     }
 }
 
 # ---------------------------------------------------------------------------
-# cg-brain-init parity: link.ps1 <-> link.sh both reference cg-brain-init
+# cg-brain-init and cg-token-audit registration parity
 # ---------------------------------------------------------------------------
 Describe "cg-brain-init registration parity" {
     $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
-    It "link.ps1 references cg-brain-init (success output)" {
-        $linkPs1 | Should -Match 'cg-brain-init'
+    It "link.ps1 points users to generic AI tool reload guidance" {
+        $linkPs1 | Should -Match 'Restart your AI coding tool'
     }
 
-    It "link.sh references cg-brain-init (success output)" {
-        $linkSh | Should -Match 'cg-brain-init'
+    It "link.sh points users to generic AI tool reload guidance" {
+        $linkSh | Should -Match 'Restart your AI coding tool'
     }
 
     It "bin/cg-brain-init exists in the repo" {

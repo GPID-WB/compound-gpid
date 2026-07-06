@@ -18,9 +18,11 @@ if (-not $script:OnWindows) {
 
 Describe "unlink.ps1 - pre-condition checks" {
     Context "when .github does not exist" {
-        It "detects that there is nothing to unlink" {
+        It "does not use .github absence as the global unlink gate" {
             $githubDir = Join-Path $TestDrive "no-github"
             Test-Path $githubDir | Should -Be $false
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw
+            $content | Should -Not -Match '\.github/ does not exist.*Nothing to unlink'
         }
     }
 }
@@ -184,7 +186,7 @@ Describe "unlink.ps1 - .gitignore cleanup" {
             $content = Get-Content $gi -Raw
 
             # Simulate the regex removal used in unlink.ps1
-            $updated = $content -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", ""
+            $updated = $content -replace "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*", ""
 
             $updated -match "\.github/prompts/" | Should -Be $false
             $updated -match "\.log"             | Should -Be $true
@@ -195,7 +197,7 @@ Describe "unlink.ps1 - .gitignore cleanup" {
             Set-Content -Path $gi -Value "*.tmp`n# Compound GPID managed items`n.github/prompts/`n*.pyc"
             $content = Get-Content $gi -Raw
 
-            $updated = $content -replace "(?m)^# Compound GPID managed items.*\r?\n(\.github/.*\r?\n)*", ""
+            $updated = $content -replace "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*", ""
 
             $updated -match "\.tmp"  | Should -Be $true
             $updated -match "\.pyc"  | Should -Be $true
@@ -253,24 +255,20 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
     $unlinkPs1 = Join-Path $PSScriptRoot "..\scripts\unlink.ps1"
     $content   = Get-Content $unlinkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
 
-    It "declares a [switch]`$Force parameter [regression guard]" {
-        $content | Should -Match '\[switch\]\$Force'
+    It "parses Force through Resolve-CgUnlinkArguments [regression guard]" {
+        $content | Should -Match 'Resolve-CgUnlinkArguments'
+        $content | Should -Match '--yes'
+        $content | Should -Match '-Force'
     }
 
-    It "both confirmation paths are guarded by -not `$Force (2 guards required) [regression guard]" {
-        # Both the legacy-junction path and the per-subdirectory path need an
-        # independent if (-not $Force) guard. Should -Match passes on the first
-        # occurrence; counting ensures both guards are present.
+    It "confirmation path is guarded by -not `$Force [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
-            Should -Be 2
+            Should -Be 1
     }
 
-    It "does not call Read-Host unconditionally for either confirmation [regression guard]" {
-        # Exactly 2 Read-Host calls exist, both inside (-not $Force) guards.
-        # Should -BeLessThan 3 passes vacuously with 0 calls — use -Be 2 to
-        # assert both the minimum and the maximum.
+    It "does not call Read-Host unconditionally for confirmation [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
-            Should -Be 2    # exactly 2: one per confirmation path (legacy + per-subdir)
+            Should -Be 1
     }
 
     It "does not use Read-Host with an empty string argument [regression guard]" {
@@ -278,5 +276,10 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         # See .cg-docs/solutions/bugs/2026-05-12-link-read-host-empty-string-throws-psargumentexception.md
         $content | Should -Not -Match 'Read-Host\s+""'
         $content | Should -Not -Match "Read-Host\s+''"
+    }
+
+    It "removes OpenCode install units without requiring .github" {
+        $content | Should -Match '\.opencode/opencode\.json'
+        $content | Should -Match 'managed-files\.json'
     }
 }

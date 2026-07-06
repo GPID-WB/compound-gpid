@@ -85,6 +85,21 @@ class TestTargetMappingSchema:
         opencode = next(t for t in data["targets"] if t["id"] == "opencode")
         assert opencode["modelMappingMode"] == "role-only"
 
+    def test_all_targets_define_install_units(self) -> None:
+        data = _load_repo_mapping()
+        for target in data["targets"]:
+            units = target.get("installUnits")
+            assert isinstance(units, list), f"{target['id']}: missing installUnits"
+            assert units, f"{target['id']}: empty installUnits"
+
+    def test_opencode_config_install_unit_has_manual_snippet(self) -> None:
+        data = _load_repo_mapping()
+        opencode = next(t for t in data["targets"] if t["id"] == "opencode")
+        config_units = [u for u in opencode["installUnits"] if u["target"] == ".opencode/opencode.json"]
+        assert len(config_units) == 1
+        assert config_units[0]["strategy"] == "config-copy-or-snippet"
+        assert "manualSnippet" in config_units[0]
+
 
 class TestTargetMappingValidation:
     def test_missing_schema_version_fails(self) -> None:
@@ -141,3 +156,31 @@ class TestTargetMappingValidation:
         }
         errors = gen.validate_target_mapping(data)
         assert any("capabilities" in e for e in errors)
+
+    def test_install_unit_missing_source_fails(self) -> None:
+        data = _load_repo_mapping()
+        broken = json.loads(json.dumps(data))
+        del broken["targets"][0]["installUnits"][0]["source"]
+        errors = gen.validate_target_mapping(broken)
+        assert any("installUnits" in e and "source" in e for e in errors)
+
+    def test_install_unit_missing_target_fails(self) -> None:
+        data = _load_repo_mapping()
+        broken = json.loads(json.dumps(data))
+        del broken["targets"][0]["installUnits"][0]["target"]
+        errors = gen.validate_target_mapping(broken)
+        assert any("installUnits" in e and "target" in e for e in errors)
+
+    def test_install_unit_unknown_type_fails(self) -> None:
+        data = _load_repo_mapping()
+        broken = json.loads(json.dumps(data))
+        broken["targets"][0]["installUnits"][0]["type"] = "unknown"
+        errors = gen.validate_target_mapping(broken)
+        assert any("installUnits" in e and "type" in e for e in errors)
+
+    def test_install_unit_unknown_strategy_fails(self) -> None:
+        data = _load_repo_mapping()
+        broken = json.loads(json.dumps(data))
+        broken["targets"][0]["installUnits"][0]["strategy"] = "unknown"
+        errors = gen.validate_target_mapping(broken)
+        assert any("installUnits" in e and "strategy" in e for e in errors)
