@@ -286,6 +286,32 @@ try {
             Write-Host "Already up to date." -ForegroundColor Green
         }
 
+        # --- Regenerate platform trees after pull (source repo only) ---
+        # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
+        # and .opencode/ from the updated .github/ canonical assets so linked
+        # consumer projects see fresh platform trees via their junctions/symlinks.
+        $targetMapping = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
+        $generatorScript = Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py"
+        if ((Test-Path $targetMapping) -and (Test-Path $generatorScript)) {
+            $pyCmd = Resolve-PythonCommand
+            if (-not $pyCmd) {
+                Write-Warning "Python not found (checked: python3, python, py) -- platform trees not regenerated. Existing trees remain linked."
+            } else {
+                Write-Host ""
+                Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
+                try {
+                    & $pyCmd $generatorScript --root $CompoundGpidDir --all 2>&1 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  Platform trees regenerated." -ForegroundColor DarkGray
+                    } else {
+                        Write-Warning "Platform tree generation exited with code $LASTEXITCODE -- existing trees remain linked."
+                    }
+                } catch {
+                    Write-Warning "Platform tree generation failed: $_ -- existing trees remain linked."
+                }
+            }
+        }
+
     } else {
         # ---- Pinned mode: checkout a specific tag (detached HEAD) ----
 
@@ -366,6 +392,16 @@ if (-not $env:CG_INTERNAL_CALL -and
         "up-to-date" { Write-Host "copilot-instructions.md up to date." -ForegroundColor DarkGray }
         "skipped"    { } # user-managed, no message needed
     }
+}
+
+# --- Refresh manifest-managed copied platform files in the current project ---
+# Directory install units update through junctions. Copied strict config files
+# use a sidecar manifest so JSON remains valid and user edits are preserved.
+$cwdManifestPath = Join-Path (Get-Location) ".compound-gpid/managed-files.json"
+if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
+    [void](Update-CgManagedPlatformFiles -ManifestPath $cwdManifestPath `
+        -ProjectRoot (Get-Location).Path `
+        -CompoundGpidDir $CompoundGpidDir)
 }
 
 Write-Host ""

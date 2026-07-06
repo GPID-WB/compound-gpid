@@ -63,7 +63,16 @@ From your project root:
 cg-link
 ```
 
-This creates **per-subdirectory junctions** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template, filling in your project name, languages, and review depth. Any existing `.github/` content (GitHub Actions workflows, issue templates, CODEOWNERS, etc.) is preserved untouched.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), and OpenCode (`.opencode/`). Directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+
+> **Platform selection**: To install only specific platforms, pass `--platforms`:
+> ```powershell
+> cg-link --platforms copilot
+> cg-link --platforms opencode
+> cg-link --platforms copilot,claude-code,codex,opencode
+> ```
+> Default (`cg-link` with no flag) links all supported platforms. See [Context
+> Files](context-files.md) for details on generated native platform trees.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -72,7 +81,7 @@ This creates **per-subdirectory junctions** inside `.github/` for the Compound G
 > **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
 > Settings → System → For developers → Developer Mode → On
 
-> **Managed vs. user-owned files**: files inside the junction directories (`prompts/`, `skills/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` is regenerated from a template on every `cg-link` and `cg-update` run. To take ownership of the file, remove the `<!-- compound-gpid:managed -->` marker at the top; `cg-update` will then leave your version untouched.
+> **Managed vs. user-owned files**: files inside linked directories (`prompts/`, `skills/`, `commands/`, `agents/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` is regenerated from a template on every `cg-link` and `cg-update` run while the `<!-- compound-gpid:managed -->` marker is present. Strict JSON config files such as `.opencode/opencode.json` use `.compound-gpid/managed-files.json` checksums instead of inline markers; `cg-update` refreshes them only if they are unmodified. If a user-owned config exists, `cg-link` skips it and prints a manual snippet.
 
 ## Step 4 - Configure your project (once per project)
 
@@ -93,21 +102,19 @@ and creates three config files:
 
 > **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
 
-> **Codex / Claude Code maintainers**: `AGENTS.md` is a repository-level
-> compatibility adapter that lets Codex or Claude Code read and execute the
-> Copilot-oriented `.github/prompts`, `.github/skills`, and `.github/agents`
-> files. It is not required for normal GitHub Copilot installation and does not
-> change how Copilot discovers `/cg-*` prompts.
-> Reusable opt-in adapters are packaged under `adapters/`: copy
-> `adapters/codex/AGENTS.md` or `adapters/claude/CLAUDE.md` into the consumer
-> repository root only when that repository is maintained with that agent.
+> **Claude Code / Codex / OpenCode support**: Compound GPID generates native
+> platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical
+> `.github/` source. `cg-link` links them by default; pass `--platforms` to narrow
+> the target set. The legacy `adapters/` directory contains
+> opt-in source adapters that are superseded by the generated trees but remain
+> for backward compatibility.
 
 ---
 
 ## macOS installation
 
 > **Requirements**: macOS 12 (Monterey) or later, bash (pre-installed), git, **Python 3.8+**.
-> `python3` ships with Xcode Command Line Tools (installed automatically on most Macs). If you have never installed Xcode tools, run `xcode-select --install` first. Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the `cg-*-summary` wrappers. If `python3` is not on your PATH, `install.sh` will fail and print install instructions.
+> macOS often provides `python3` through Xcode Command Line Tools. Compound GPID probes `python3`, then `python`, then `py` and accepts the first command whose `--version` output starts with `Python`. If none is on your PATH, run `xcode-select --install` or install Python from python.org/Homebrew.
 
 ### Step 1 — Clone (once per machine)
 
@@ -140,14 +147,21 @@ From your project root:
 cg-link
 ```
 
-This creates **per-subdirectory symlinks** inside `.github/` for the Compound GPID managed directories (`prompts/`, `skills/`, `agents/`, `instructions/`) and **generates** `copilot-instructions.md` from a template. Any existing `.github/` content (GitHub Actions workflows, issue templates, etc.) is preserved untouched.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), and OpenCode (`.opencode/`). Directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+
+> **Platform selection**: To install only specific platforms:
+> ```bash
+> cg-link --platforms copilot
+> cg-link --platforms opencode
+> cg-link --platforms copilot,claude-code,codex,opencode
+> ```
+> Default (`cg-link` with no flag) links all supported platforms.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
 
-Optional cross-agent adapters are not installed by `cg-link`. If a macOS-linked
-project is also maintained with Codex or Claude Code, copy the matching file
-from `adapters/` into the project root and commit it intentionally.
+The legacy `adapters/` directory contains opt-in source adapters that are
+superseded by the generated native trees but remain for backward compatibility.
 
 ### Step 4 — Configure your project (once per project)
 
@@ -164,7 +178,7 @@ Open your project in VS Code and run in Copilot Chat:
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
+This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
 
 **Version pinning**: the same pinning commands work on macOS:
 
@@ -199,7 +213,7 @@ cg-update
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Because the managed subdirectories use symlinks (junctions on Windows, symlinks on macOS) to the global clone, updates are instantly visible in every linked project — no per-project update step is needed.
+This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
 
 ---
 

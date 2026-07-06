@@ -1,41 +1,15 @@
 # scripts/link.ps1
-# Links the current project to the global Compound GPID installation by creating
-# per-subdirectory junctions inside .github/ for the managed Compound GPID
-# directories (prompts/, skills/, agents/, instructions/) and copying
-# copilot-instructions.md with a management marker.
-#
-# Run this from your project root:
-#   cg-link
-#
-# Key behaviours:
-#   - Creates .github/ as a real directory if it does not exist.
-#   - Adds junctions only for CG-managed subdirectories, leaving all existing
-#     .github/ content (workflows, templates, CODEOWNERS, etc.) untouched.
-#   - Copies copilot-instructions.md with a <!-- compound-gpid:managed --> marker.
-#     Removes the marker to take ownership of the file and prevent cg-update
-#     from overwriting it.
-#   - Runs cg-update first to ensure the global clone is up to date.
-#   - Gitignores only the CG-managed items, not the entire .github/ folder.
-#
-# Requirements:
-#   - Compound GPID must be installed (default: C:\WBG\.compound-gpid)
-#   - Developer Mode enabled OR directory junctions available (default on Win10/11)
+# Links the current project to Compound GPID using per-install-unit junctions and
+# managed copied files. Existing project-owned platform roots are preserved.
 
 param(
-    # Skip the interactive re-link confirmation when a non-CG junction is found.
-    # Used by CI and any automation that cannot supply keyboard input.
-    [switch]$Force
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [object[]]$RawArgs
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# --- Platform guard: Windows only ---
-# link.ps1 uses directory junctions (New-Item -ItemType Junction) which are a
-# Windows-only filesystem feature. On macOS and Linux, use link.sh instead.
-# Without this guard, running link.ps1 via pwsh on macOS fails Step 6's
-# path verification because backslash path separators are not valid on macOS.
-# Note: $IsWindows is PS6+ only; Test-Path guard is required for PS 5.1 strict mode.
 $onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 if (-not $onWindows) {
     Write-Error @"
@@ -47,41 +21,269 @@ On macOS/Linux, use link.sh instead:
     exit 1
 }
 
-# --- Configuration ---
-# Resolve the install location relative to this script's own directory
-# (scripts/ -> parent = compound-gpid root). Works with any install path.
-$CompoundGpidDir  = Split-Path $PSScriptRoot -Parent
-$SourceGithub     = Join-Path $CompoundGpidDir ".github"
-$ProjectRoot      = Get-Location
-$TargetGithubDir  = Join-Path $ProjectRoot ".github"
+$CompoundGpidDir = Split-Path $PSScriptRoot -Parent
+$ProjectRoot = (Get-Location).Path
+$TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
+$ManifestPath = Join-Path $ProjectRoot ".compound-gpid/managed-files.json"
+$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
-# Subdirectories managed by Compound GPID (each gets its own junction)
-$ManagedDirs = @("prompts", "skills", "agents", "instructions", "shared")
+function Resolve-CgLinkArguments {
+    param([object[]]$Args)
+    $result = @{ Force = $false; Platforms = $null }
+    for ($i = 0; $i -lt $Args.Count; $i++) {
+        $arg = [string]$Args[$i]
+        if ($arg -in @("--yes", "-y", "-Force", "--force")) {
+            $result.Force = $true
+        } elseif ($arg -like "--platforms=*") {
+            $result.Platforms = $arg.Substring("--platforms=".Length)
+        } elseif ($arg -like "-Platforms=*") {
+            $result.Platforms = $arg.Substring("-Platforms=".Length)
+        } elseif ($arg -in @("--platforms", "-Platforms")) {
+            if ($i + 1 -ge $Args.Count) { throw "Missing value after $arg" }
+            $i++
+            $result.Platforms = [string]$Args[$i]
+        } elseif ($arg -eq "") {
+            continue
+        } else {
+            Write-Warning "Unrecognized argument '$arg' - ignoring."
+        }
+    }
+    return $result
+}
 
-# The management marker that marks copilot-instructions.md as CG-owned
-$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
-$CopilotInstructionsDest   = Join-Path $TargetGithubDir "copilot-instructions.md"
+function Resolve-CgPlatforms {
+    param([string]$PlatformsValue)
+    $supported = @("copilot", "claude-code", "codex", "opencode")
+    if ([string]::IsNullOrWhiteSpace($PlatformsValue)) { return $supported }
 
-# --- Validate global install exists ---
+    $selected = New-Object System.Collections.ArrayList
+    $unknown = @()
+    foreach ($raw in ($PlatformsValue -split ",")) {
+        $platform = $raw.Trim().ToLowerInvariant()
+        if ([string]::IsNullOrWhiteSpace($platform)) { continue }
+        if ($platform -eq "all") {
+            foreach ($item in $supported) {
+                if (-not $selected.Contains($item)) { [void]$selected.Add($item) }
+            }
+            continue
+        }
+        if ($platform -in $supported) {
+            if (-not $selected.Contains($platform)) { [void]$selected.Add($platform) }
+        } else {
+            $unknown += $platform
+        }
+    }
+
+    foreach ($item in $unknown) { Write-Warning "Unknown platform '$item' - skipping." }
+    if ($selected.Count -eq 0) {
+        throw "No valid platforms selected. Supported platforms: $($supported -join ', ')"
+    }
+    return @($selected)
+}
+
+function Get-CgTargetRoot {
+    param([string]$RelativePath)
+    return (ConvertTo-CgSlashPath $RelativePath).Split("/")[0]
+}
+
+function Test-CgOwnedJunction {
+    param($Item)
+    if (-not $Item) { return $false }
+    return ($Item.LinkType -eq "Junction" -and (($Item.Target -join '') -like "*compound-gpid*"))
+}
+
+function Ensure-CgRootDirectory {
+    param([string]$RootName)
+    $rootPath = Join-Path $ProjectRoot $RootName
+    $existing = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
+    if ($existing -and (Test-CgOwnedJunction $existing)) {
+        Write-Host "  $RootName/ - migrating legacy whole-root junction" -ForegroundColor Yellow
+        Remove-Item -Path $rootPath -Force
+        New-Item -ItemType Directory -Path $rootPath -Force | Out-Null
+        return $true
+    }
+    if ($existing -and $existing.LinkType -eq "Junction" -and -not (Test-CgOwnedJunction $existing)) {
+        Write-Warning "  $RootName/ is a non-Compound junction; skipping units under it."
+        return $false
+    }
+    if ($existing -and -not $existing.PSIsContainer) {
+        Write-Warning "  $RootName exists as a file; skipping units under it."
+        return $false
+    }
+    if (-not $existing) {
+        New-Item -ItemType Directory -Path $rootPath -Force | Out-Null
+        Write-Host "  $RootName/ - created" -ForegroundColor DarkGray
+    }
+    return $true
+}
+
+function Install-CgDirectoryUnit {
+    param(
+        [string]$SourceRel,
+        [string]$TargetRel,
+        [bool]$Force
+    )
+    $source = Join-Path $CompoundGpidDir $SourceRel
+    $target = Join-Path $ProjectRoot $TargetRel
+    $existing = Get-Item -Path $target -ErrorAction SilentlyContinue
+
+    if ($existing) {
+        if ($existing.LinkType -eq "Junction") {
+            if (Test-CgOwnedJunction $existing) {
+                Write-Host "  $TargetRel - already linked" -ForegroundColor DarkGray
+                return $true
+            }
+            Write-Warning "  $TargetRel is a junction pointing to: $($existing.Target)"
+            if (-not $Force) {
+                $answer = Read-Host "  Relink $TargetRel to Compound GPID instead? [y/N]"
+                if ($answer -notmatch "^[Yy]$") {
+                    Write-Host "  $TargetRel - skipped" -ForegroundColor Yellow
+                    return $false
+                }
+            }
+            Remove-Item -Path $target -Force
+        } elseif ($existing.PSIsContainer) {
+            Write-Warning "  $TargetRel is a real directory; skipping this unit."
+            return $false
+        } else {
+            Write-Warning "  $TargetRel exists as a file; skipping this unit."
+            return $false
+        }
+    }
+
+    $parent = Split-Path $target -Parent
+    if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+    New-Item -ItemType Junction -Path $target -Value $source | Out-Null
+    Write-Host "  $TargetRel - linked" -ForegroundColor DarkGray
+    return $true
+}
+
+function Install-CgFileUnit {
+    param(
+        $Unit,
+        [hashtable]$Manifest
+    )
+    $targetRel = ConvertTo-CgSlashPath ([string]$Unit.target)
+    $sourceRel = ConvertTo-CgSlashPath ([string]$Unit.source)
+    $target = Join-Path $ProjectRoot $targetRel
+
+    if ([string]$Unit.strategy -eq "generated-copy") {
+        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
+        $existing = $null
+        if (Test-Path $target) {
+            $existing = Get-Content $target -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        }
+        $userManaged = $existing -and ($existing -notmatch [regex]::Escape($CopilotInstructionsMarker))
+        if ($userManaged) {
+            Write-Host "  $targetRel - user-managed (marker absent), skipping" -ForegroundColor Yellow
+            return $false
+        }
+        $parent = Split-Path $target -Parent
+        if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+        if ($generated -ne $existing) { Set-Content -Path $target -Value $generated -Encoding UTF8 }
+        Write-Host "  $targetRel - generated" -ForegroundColor DarkGray
+        return $true
+    }
+
+    $source = Join-Path $CompoundGpidDir $sourceRel
+    $currentChecksum = Get-CgFileSha256 -Path $target
+    $record = $Manifest.files[$targetRel]
+    $canWrite = -not (Test-Path $target)
+    if (-not $canWrite -and $record -and $currentChecksum -eq $record.checksum) {
+        $canWrite = $true
+    }
+
+    if (-not $canWrite) {
+        Write-Warning "  $targetRel exists and is not manifest-managed; skipping."
+        if ($Unit.PSObject.Properties.Name -contains "manualSnippet") {
+            Write-Host "  Manual config snippet: $($Unit.manualSnippet)" -ForegroundColor Yellow
+        }
+        return $false
+    }
+
+    $parent = Split-Path $target -Parent
+    if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+    Copy-Item -Path $source -Destination $target -Force
+    $Manifest.files[$targetRel] = @{
+        source = $sourceRel
+        checksum = (Get-CgFileSha256 -Path $target)
+    }
+    Write-Host "  $targetRel - copied" -ForegroundColor DarkGray
+    return $true
+}
+
+function Update-CgGitignoreBlock {
+    param([string[]]$Entries)
+    $gitignorePath = Join-Path $ProjectRoot ".gitignore"
+    $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+
+    $uniqueEntries = @($Entries | Where-Object { $_ } | Sort-Object -Unique)
+    if ($uniqueEntries.Count -eq 0) { return }
+    $block = $marker + "`n" + ($uniqueEntries -join "`n") + "`n"
+
+    $content = ""
+    if (Test-Path $gitignorePath) {
+        $content = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
+    }
+    if ($content -and $content -notmatch '\r?\n$') { $content += "`n" }
+    $cleaned = $content -replace $pattern, ""
+    $cleaned = $cleaned -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
+    $cleaned = ($cleaned -replace '(?m)^\.cg-docs/\r?\n?', '').TrimEnd()
+    $separator = ""
+    if ($cleaned.Length -gt 0) { $separator = "`n`n" }
+    Set-Content -Path $gitignorePath -Value ($cleaned + $separator + $block) -Encoding UTF8
+    Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
+}
+
+function Get-CgInstalledGitignoreEntries {
+    param(
+        $Mapping,
+        [hashtable]$Manifest
+    )
+
+    $entries = New-Object System.Collections.ArrayList
+    foreach ($target in @($Mapping.targets)) {
+        foreach ($unit in @($target.installUnits)) {
+            $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
+            $targetPath = Join-Path $ProjectRoot $targetRel
+            if ([string]$unit.type -eq "directory") {
+                $item = Get-Item -Path $targetPath -ErrorAction SilentlyContinue
+                if (Test-CgOwnedJunction $item) { [void]$entries.Add($targetRel) }
+            } elseif ($targetRel -eq ".github/copilot-instructions.md") {
+                if (Test-Path $targetPath) {
+                    $content = Get-Content $targetPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+                    if ($content -and $content -match [regex]::Escape($CopilotInstructionsMarker)) {
+                        [void]$entries.Add($targetRel)
+                    }
+                }
+            } elseif ($Manifest.files[$targetRel] -and (Test-Path $targetPath)) {
+                [void]$entries.Add($targetRel)
+            }
+        }
+    }
+
+    if ($Manifest.files.Count -gt 0) { [void]$entries.Add(".compound-gpid/managed-files.json") }
+    return @($entries | Sort-Object -Unique)
+}
+
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error "Compound GPID installation directory not found at: $CompoundGpidDir$CG_INSTALL_GUIDANCE"
     exit 1
 }
-
-if (-not (Test-Path $SourceGithub)) {
-    Write-Error "Expected .github/ not found inside $CompoundGpidDir. The installation may be corrupted."
+if (-not (Test-Path $TargetMappingPath)) {
+    Write-Error "Target mapping not found at: $TargetMappingPath"
     exit 1
 }
 
-# --- Step 1: Update the global clone before linking ---
-# This ensures the user always links against the latest version.
-# If offline or the pull fails, we warn and continue with the current version.
+$argsParsed = Resolve-CgLinkArguments -Args $RawArgs
+$Force = [bool]$argsParsed.Force
+$selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
+
 Write-Host ""
 Write-Host "Updating Compound GPID..." -ForegroundColor Cyan
-# Set flag so update.ps1 skips the copilot-instructions.md refresh -
-# link.ps1 handles that refresh itself in Step 4 to avoid doing it twice.
 $env:CG_INTERNAL_CALL = "1"
 try {
     & "$CompoundGpidDir\scripts\update.ps1"
@@ -92,208 +294,91 @@ try {
     Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
 }
 
-# Show which version is active after the update so the user knows what they're linking.
 $versionFile = Join-Path $CompoundGpidDir ".cg-version"
-if (Test-Path $versionFile) { $activeVersion = (Get-Content $versionFile -Raw).Trim() } else { $activeVersion = "latest" }
+$activeVersion = "latest"
+if (Test-Path $versionFile) { $activeVersion = (Get-Content $versionFile -Raw).Trim() }
 if ([string]::IsNullOrWhiteSpace($activeVersion)) { $activeVersion = "latest" }
-if ($activeVersion -eq "latest") { $versionLabel = "tracking main (latest)" } else { $versionLabel = "$activeVersion (pinned)" }
-Write-Host "  Version: $versionLabel" -ForegroundColor DarkGray
+$versionLabel = "tracking main (latest)"
+if ($activeVersion -ne "latest") { $versionLabel = "$activeVersion (pinned)" }
 
+Write-Host "  Version: $versionLabel" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "Compound GPID - Link" -ForegroundColor Cyan
 Write-Host "====================" -ForegroundColor Cyan
+Write-Host "Platforms: $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
 Write-Host ""
 
-# --- Step 2: Handle .github/ directory in this project ---
-$githubItem = Get-Item -Path $TargetGithubDir -ErrorAction SilentlyContinue
+$mapping = Get-Content $TargetMappingPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$targets = @($mapping.targets | Where-Object { $_.id -in $selectedPlatforms })
+$missingSources = @()
 
-if ($githubItem -and $githubItem.LinkType -eq "Junction") {
-    # Legacy: .github/ itself is a whole-directory junction (old cg-link behaviour).
-    # Remove the junction and replace it with a real directory so we can insert
-    # per-subdirectory junctions alongside any existing user content.
-    Write-Host ".github/ is a legacy Compound GPID junction - migrating to per-subdirectory junctions..." -ForegroundColor Yellow
-    # Remove-Item on a junction removes only the link, not the target contents
-    Remove-Item -Path $TargetGithubDir -Force
-    New-Item -ItemType Directory -Path $TargetGithubDir -Force | Out-Null
-    Write-Host "  Migrated: .github/ is now a real directory." -ForegroundColor DarkGray
-} elseif (-not $githubItem) {
-    # .github/ does not exist - create it as a real directory
-    New-Item -ItemType Directory -Path $TargetGithubDir -Force | Out-Null
-    Write-Host "Created .github/ directory." -ForegroundColor DarkGray
-}
-# If .github/ already exists as a real directory, leave it untouched.
-
-# --- Step 3: Create per-subdirectory junctions ---
-Write-Host "Linking managed directories..." -ForegroundColor DarkGray
-
-foreach ($dir in $ManagedDirs) {
-    $junctionPath = Join-Path $TargetGithubDir $dir
-    $junctionTarget = Join-Path $SourceGithub $dir
-
-    # Verify the source exists
-    if (-not (Test-Path $junctionTarget)) {
-        Write-Warning "  Source not found, skipping: $junctionTarget"
-        continue
+foreach ($target in $targets) {
+    foreach ($unit in @($target.installUnits)) {
+        $sourceRel = [string]$unit.source
+        $source = Join-Path $CompoundGpidDir $sourceRel
+        if (-not (Test-Path $source)) { $missingSources += "$($target.id): $sourceRel" }
     }
+}
 
-    $existing = Get-Item -Path $junctionPath -ErrorAction SilentlyContinue
+if ($missingSources.Count -gt 0) {
+    Write-Error "Selected Compound GPID source units are missing:`n  $($missingSources -join "`n  ")"
+    exit 1
+}
 
-    if ($existing) {
-        if ($existing.LinkType -eq "Junction") {
-            # Already a junction - check if it points to this compound-gpid install
-            # .Target is string[] in PS 5.1 - join before comparing
-            if (($existing.Target -join '') -like "*compound-gpid*") {
-                Write-Host "  $dir/ - already linked" -ForegroundColor DarkGray
-                continue
-            } else {
-                # Junction points somewhere unexpected - ask to relink
-                Write-Warning "  $dir/ is a junction pointing to: $($existing.Target)"
-                if (-not $Force) {
-                    $answer = Read-Host "  Relink $dir/ to Compound GPID instead? [y/N]"
-                    if ($answer -notmatch "^[Yy]$") {
-                        Write-Host "  Skipping $dir/" -ForegroundColor Yellow
-                        continue
-                    }
-                }
-                Remove-Item -Path $junctionPath -Force
-            }
+$manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
+$installedEntries = New-Object System.Collections.ArrayList
+
+foreach ($target in $targets) {
+    Write-Host "Linking $($target.name)..." -ForegroundColor DarkGray
+    foreach ($unit in @($target.installUnits)) {
+        $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
+        $rootName = Get-CgTargetRoot -RelativePath $targetRel
+        if (-not (Ensure-CgRootDirectory -RootName $rootName)) { continue }
+
+        $installed = $false
+        if ([string]$unit.type -eq "directory") {
+            $installed = Install-CgDirectoryUnit -SourceRel ([string]$unit.source) -TargetRel $targetRel -Force $Force
         } else {
-            # Real directory exists with the same name - cannot create junction
-            Write-Error @"
-A real directory .github/$dir/ already exists in this project.
-Compound GPID cannot create a junction here without risking data loss.
-
-To resolve: rename or remove .github/$dir/ manually, then re-run cg-link.
-"@
-            exit 1
+            $installed = Install-CgFileUnit -Unit $unit -Manifest $manifest
         }
-    }
 
-    # Create the junction
-    try {
-        New-Item -ItemType Junction -Path $junctionPath -Value $junctionTarget | Out-Null
-        Write-Host "  $dir/ - linked" -ForegroundColor DarkGray
-    } catch {
-        Write-Error @"
-Failed to create junction for $dir/: $_
-
-If you see an access error, enable Developer Mode:
-  Settings > System > For developers > Developer Mode (On)
-
-Then re-run: cg-link
-"@
-        exit 1
+        if ($installed) { [void]$installedEntries.Add($targetRel) }
     }
 }
 
-# --- Step 4: Generate copilot-instructions.md from template ---
-Write-Host "Linking copilot-instructions.md..." -ForegroundColor DarkGray
-
-# Read existing content once; determine if the file is user-managed (marker absent).
-# Skip generation only when file exists AND marker is absent (user took ownership).
-$existingContent = $null
-if (Test-Path $CopilotInstructionsDest) {
-    $existingContent = Get-Content $CopilotInstructionsDest -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+if ($manifest.files.Count -gt 0) {
+    Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
+    [void]$installedEntries.Add(".compound-gpid/managed-files.json")
 }
 
-$userManaged = $existingContent -and
-               ($existingContent -notmatch [regex]::Escape($CopilotInstructionsMarker))
+Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))
 
-if ($userManaged) {
-    Write-Host "  copilot-instructions.md - user-managed (marker absent), skipping" -ForegroundColor Yellow
-    Write-Host "  To restore CG management, delete the file and re-run cg-link." -ForegroundColor DarkGray
-} else {
-    $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
-    if ($generated -ne $existingContent) {
-        Set-Content -Path $CopilotInstructionsDest -Value $generated -Encoding UTF8
-        Write-Host "  copilot-instructions.md - generated" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "Platform availability checks:" -ForegroundColor DarkGray
+$checks = @{
+    "copilot" = ".github/prompts/cg-setup.prompt.md"
+    "claude-code" = ".claude/commands/cg-plan.md"
+    "codex" = ".agents/commands/cg-plan.md"
+    "opencode" = ".opencode/commands/cg-plan.md"
+}
+foreach ($platform in $selectedPlatforms) {
+    $rel = $checks[$platform]
+    if ($rel -and (Test-Path (Join-Path $ProjectRoot $rel))) {
+        Write-Host "  $platform - available" -ForegroundColor DarkGray
     } else {
-        Write-Host "  copilot-instructions.md - up to date" -ForegroundColor DarkGray
+        Write-Warning "  $platform - not fully available; review skipped units above."
     }
 }
 
-# --- Step 5: Update .gitignore with CG-specific entries only ---
-# We gitignore only the CG-managed items so the user's own .github/ content
-# (workflows, templates, CODEOWNERS, etc.) remains tracked by git.
-#
-# Strategy: idempotent remove-then-rewrite of the CG block (same pattern as
-# install.ps1 profile block) so repeated cg-link runs and version upgrades
-# never produce duplicate section headers.
-$gitignorePath = Join-Path $ProjectRoot ".gitignore"
-
-$cgGitignoreMarker  = "# Compound GPID managed items (junctions + copied file - do not commit)"
-$cgGitignoreEntries = @($ManagedDirs | ForEach-Object { ".github/$_/" }) +
-                      @(".github/copilot-instructions.md")
-$cgGitignoreBlock = $cgGitignoreMarker + "`n" + ($cgGitignoreEntries -join "`n") + "`n"
-
-if (Test-Path $gitignorePath) {
-    $giContent = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
-    if (-not $giContent) { $giContent = "" }
-
-    # Normalize: ensure content ends with a newline so the remove-then-rewrite regex
-    # correctly consumes the last block entry even if the file was manually edited to
-    # remove the trailing newline (e.g. by a text editor that strips trailing newlines).
-    if ($giContent -and $giContent -notmatch '\r?\n$') { $giContent = $giContent + "`n" }
-
-    # Remove any existing CG block before rewriting - handles version upgrades cleanly.
-    # Pattern matches .github/ and .cg-docs/ prefixed body lines (covers current entries
-    # and legacy .cg-docs/ from older versions) so user content that immediately follows
-    # the CG block without a blank-line separator is not consumed.
-    $giUpdated = ($giContent -replace "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*", "").TrimEnd()
-    if ($giUpdated.Length -gt 0) { $separator = "`n`n" } else { $separator = "" }
-    Set-Content -Path $gitignorePath -Value ($giUpdated + $separator + $cgGitignoreBlock)
-    Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
-} else {
-    Set-Content -Path $gitignorePath -Value $cgGitignoreBlock
-    Write-Host "Created .gitignore with CG entries" -ForegroundColor DarkGray
-}
-
-# --- Step 5b: Remove stale .cg-docs/ gitignore entry from older setups ---
-# Older versions of cg-link added .cg-docs/ to .gitignore under a "knowledge base"
-# comment. Since 2026-03-23 .cg-docs/ must be committed (institutional memory).
-# Remove both the comment line and the entry if they exist.
-if (Test-Path $gitignorePath) {
-    $giAfterCg = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
-    if ($giAfterCg -and ($giAfterCg -match '(?i)# Compound GPID knowledge base')) {
-        $giCleaned = $giAfterCg -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
-        $giCleaned = $giCleaned.TrimEnd()
-        if ([string]::IsNullOrWhiteSpace($giCleaned)) {
-            Remove-Item $gitignorePath -Force
-            Write-Host "  Removed stale .cg-docs/ entry from .gitignore (file now empty, deleted)" -ForegroundColor DarkGray
-        } else {
-            Set-Content -Path $gitignorePath -Value ($giCleaned + "`n")
-            Write-Host "  Removed stale .cg-docs/ entry from .gitignore" -ForegroundColor DarkGray
-        }
-    }
-}
-
-# --- Step 6: Verify a known file is accessible ---
-$checkPath = Join-Path (Join-Path $TargetGithubDir "prompts") "cg-setup.prompt.md"
-if (-not (Test-Path $checkPath)) {
-    Write-Warning "Verification failed - prompts not visible at expected path: $checkPath"
-} else {
-    Write-Host "Junctions verified." -ForegroundColor DarkGray
-}
-
-# --- Success ---
 Write-Host ""
 Write-Host "Linked!" -ForegroundColor Green
 Write-Host ""
-Write-Host "Compound GPID prompts are now available in this project."
-Write-Host "  Next step: run /cg-setup in Copilot Chat to configure."
+Write-Host "Compound GPID assets are now available for: $($selectedPlatforms -join ', ')."
+Write-Host "Use --platforms copilot to install only Copilot assets, or --platforms opencode for OpenCode-only assets."
 Write-Host ""
 Write-Host "IMPORTANT:" -ForegroundColor Yellow
-Write-Host "  The following directories are managed by Compound GPID." -ForegroundColor Yellow
-Write-Host "  Do not edit files inside them - changes will be lost on cg-update." -ForegroundColor Yellow
-Write-Host "  Managed: .github/prompts/  .github/skills/  .github/agents/  .github/instructions/" -ForegroundColor Yellow
+Write-Host "  Managed linked directories and copied files should not be edited directly." -ForegroundColor Yellow
+Write-Host "  If a config file was skipped, apply the printed manual snippet if needed." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "IMPORTANT: Restart VS Code / Positron now." -ForegroundColor Yellow
-Write-Host "  Copilot must re-index the workspace to see the linked prompts and agents." -ForegroundColor Yellow
-Write-Host "  Without a restart, /cg-setup and other prompts will not be available." -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Run in VS Code / Positron Copilot Chat:"
-Write-Host "  /cg-setup" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Optional: set up cross-project knowledge sharing (team brain manager only):"
-Write-Host "  cg-brain-init --repo <owner/name> --manager <github-username>" -ForegroundColor DarkGray
+Write-Host "Restart your AI coding tool so it reloads commands, skills, agents, and config." -ForegroundColor Yellow
 Write-Host ""

@@ -1,49 +1,24 @@
 #!/usr/bin/env bash
 # scripts/unlink.sh
-# Removes the Compound GPID symlinks from the current project's .github/.
-# Does NOT delete any files in the global compound-gpid installation.
-#
-# Handles both the legacy whole-directory symlink (old cg-link behaviour)
-# and the current per-subdirectory symlink approach.
-#
-# Requirements:
-#   - python3 (used to safely remove the Compound GPID block from .gitignore)
-#
-# Run this from your project root:
-#   cg-unlink
+# Removes Compound GPID-managed install units from the current project.
 
 set -euo pipefail
 
-# ---------------------------------------------------------------------------
-# Parse arguments
-# ---------------------------------------------------------------------------
-# --yes / -y  Skip all interactive confirmation prompts.
-#             Used by CI (cg-unlink in E2E smoke tests) and any automation
-#             that cannot supply keyboard input.
 FORCE=0
-for arg in "$@"; do
-    case "$arg" in
-        --yes|-y) FORCE=1 ;;
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --yes|-y|--force|-Force) FORCE=1; shift ;;
+        *) printf 'WARNING: Unrecognized argument %s -- ignoring\n' "$1" >&2; shift ;;
     esac
 done
 
-# ---------------------------------------------------------------------------
-# Resolve paths
-# ---------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COMPOUND_GPID_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(pwd)"
-TARGET_GITHUB_DIR="$PROJECT_ROOT/.github"
+MANIFEST_PATH="$PROJECT_ROOT/.compound-gpid/managed-files.json"
 GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
-
-# Subdirectories managed by Compound GPID
-MANAGED_DIRS=("prompts" "skills" "agents" "instructions" "shared")
-
-# Management marker used in copilot-instructions.md
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
-COPILOT_INSTRUCTIONS_DEST="$TARGET_GITHUB_DIR/copilot-instructions.md"
 
-# ---------------------------------------------------------------------------
-# Colour helpers
-# ---------------------------------------------------------------------------
 print_cyan()   { printf '\033[0;36m%s\033[0m\n' "$1"; }
 print_green()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
 print_yellow() { printf '\033[0;33m%s\033[0m\n' "$1"; }
@@ -51,166 +26,185 @@ print_gray()   { printf '\033[0;90m  %s\033[0m\n' "$1"; }
 print_warn()   { printf '\033[0;33mWARNING: %s\033[0m\n' "$1" >&2; }
 print_error()  { printf '\033[0;31mERROR: %s\033[0m\n' "$1" >&2; }
 
-# ---------------------------------------------------------------------------
-# Verify python3 is available
-# ---------------------------------------------------------------------------
-if ! command -v python3 &>/dev/null; then
-    print_error "python3 is required but not found."
-    printf 'Install Xcode Command Line Tools: xcode-select --install\n' >&2
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+    done
+    return 1
+}
+
+PYTHON_CMD="$(resolve_python || true)"
+if [ -z "$PYTHON_CMD" ]; then
+    print_error "Python is required but not found (checked: python3, python, py)."
     exit 1
 fi
 
-# ---------------------------------------------------------------------------
-# Check if .github exists
-# ---------------------------------------------------------------------------
-if [[ ! -e "$TARGET_GITHUB_DIR" && ! -L "$TARGET_GITHUB_DIR" ]]; then
-    print_yellow ".github/ does not exist in this project. Nothing to unlink."
-    exit 0
-fi
+all_unit_targets() {
+    printf '%s\n' \
+        '.github/prompts|directory' '.github/skills|directory' '.github/agents|directory' '.github/instructions|directory' '.github/shared|directory' '.github/copilot-instructions.md|file' \
+        '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/CLAUDE.md|file' '.claude/model-mapping.claude.json|file' \
+        '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/AGENTS.md|file' '.agents/model-mapping.codex.json|file' \
+        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file' '.opencode/model-mapping.opencode.json|file'
+}
 
-# ---------------------------------------------------------------------------
-# Handle legacy: .github/ itself is a whole-directory symlink
-# ---------------------------------------------------------------------------
-if [[ -L "$TARGET_GITHUB_DIR" ]]; then
-    LINK_TARGET="$(readlink "$TARGET_GITHUB_DIR")"
-    if [[ "$LINK_TARGET" != *"compound-gpid"* ]]; then
-        print_warn ".github/ is a symlink but does not point to compound-gpid: $LINK_TARGET"
-        print_warn "Only symlinks created by cg-link are managed by cg-unlink."
-        exit 1
-    fi
-
-    printf '\n'
-    print_cyan "Found legacy whole-directory symlink. Removing..."
-    if [[ "$FORCE" -eq 0 ]]; then
-        printf 'Remove the .github symlink from this project? [y/N] '
-        read -r answer </dev/tty
-        if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-            print_yellow "Aborted."
-            exit 0
+remove_directory_unit() {
+    local target_rel="$1" target_path link_target
+    target_path="$PROJECT_ROOT/$target_rel"
+    if [ ! -e "$target_path" ] && [ ! -L "$target_path" ]; then return 1; fi
+    if [ -L "$target_path" ]; then
+        link_target="$(readlink "$target_path")"
+        if [[ "$link_target" == *compound-gpid* ]]; then
+            rm -f "$target_path"
+            print_gray "$target_rel - symlink removed"
+            return 0
         fi
+        print_yellow "  $target_rel - non-Compound symlink, skipping"
+        return 1
     fi
-    rm -f "$TARGET_GITHUB_DIR"
-    print_green "Legacy symlink removed."
-    printf '\n'
-    print_green "Unlinked."
-    printf 'Run cg-link to re-link using the current per-subdirectory approach.\n'
-    exit 0
-fi
+    print_yellow "  $target_rel - user-owned path, skipping"
+    return 1
+}
 
-# ---------------------------------------------------------------------------
-# Per-subdirectory unlink
-# ---------------------------------------------------------------------------
+remove_file_unit() {
+    local target_rel="$1" target_path
+    target_path="$PROJECT_ROOT/$target_rel"
+    if [ "$target_rel" = ".github/copilot-instructions.md" ]; then
+        if [ -f "$target_path" ] && grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
+            rm -f "$target_path"
+            print_gray "$target_rel - removed"
+            return 0
+        fi
+        return 1
+    fi
+    "$PYTHON_CMD" - "$MANIFEST_PATH" "$target_rel" "$target_path" <<'PYEOF'
+import hashlib
+import json
+import os
+import sys
+
+manifest_path, target_rel, target_path = sys.argv[1:]
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+if not os.path.exists(manifest_path):
+    sys.exit(1)
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    manifest = json.load(handle)
+files = manifest.setdefault("files", {})
+record = files.get(target_rel)
+if not record:
+    sys.exit(1)
+if not os.path.exists(target_path):
+    files.pop(target_rel, None)
+    status = "MISSING"
+elif sha256(target_path) == record.get("checksum"):
+    os.unlink(target_path)
+    files.pop(target_rel, None)
+    status = "REMOVED"
+else:
+    files.pop(target_rel, None)
+    status = "USER_MODIFIED"
+if files:
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        json.dump(manifest, handle, indent=2)
+        handle.write("\n")
+else:
+    os.unlink(manifest_path)
+print(status)
+PYEOF
+}
+
+remove_gitignore_block() {
+    [ -f "$GITIGNORE_PATH" ] || return 0
+    "$PYTHON_CMD" - "$GITIGNORE_PATH" <<'PYEOF'
+import os
+import re
+import sys
+import tempfile
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8", errors="replace") as handle:
+    content = handle.read()
+pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+updated = re.sub(pattern, "", content).rstrip("\n")
+if updated == content.rstrip("\n"):
+    sys.exit(0)
+if not updated.strip():
+    os.unlink(path)
+    print("  .gitignore - removed (empty after CG cleanup)")
+    sys.exit(0)
+fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path) or ".")
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        handle.write(updated + "\n")
+    os.replace(tmp, path)
+finally:
+    if os.path.exists(tmp):
+        os.unlink(tmp)
+print("  .gitignore - CG entries removed")
+PYEOF
+}
+
+remove_empty_root() {
+    local root="$1" path="$PROJECT_ROOT/$1"
+    if [ -d "$path" ] && [ -z "$(ls -A "$path" 2>/dev/null)" ]; then
+        rmdir "$path"
+        print_gray "$root/ - empty, removed"
+    fi
+}
+
 printf '\n'
 print_cyan "Compound GPID - Unlink"
 print_cyan "======================"
 printf '\n'
-printf 'This will remove Compound GPID symlinks from .github/ in this project.\n'
-printf 'The global Compound GPID installation is NOT affected.\n'
-if [[ "$FORCE" -eq 0 ]]; then
+printf 'This will remove only Compound GPID-managed install units from this project.\n'
+if [ "$FORCE" -eq 0 ]; then
     printf 'Proceed? [y/N] '
     read -r answer </dev/tty
-    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-        print_yellow "Aborted."
-        exit 0
-    fi
+    case "$answer" in [Yy]*) ;; *) print_yellow "Aborted."; exit 0 ;; esac
 fi
 
 REMOVED_ANY=false
 
-# Remove per-subdirectory symlinks
-for dir in "${MANAGED_DIRS[@]}"; do
-    SYMLINK_PATH="$TARGET_GITHUB_DIR/$dir"
-
-    if [[ ! -e "$SYMLINK_PATH" && ! -L "$SYMLINK_PATH" ]]; then
-        print_gray "$dir/ - not found, skipping"
-        continue
-    fi
-
-    if [[ -L "$SYMLINK_PATH" ]]; then
-        # readlink without -f is BSD-safe (macOS ships BSD readlink)
-        LINK_TARGET="$(readlink "$SYMLINK_PATH")"
-        if [[ "$LINK_TARGET" == *"compound-gpid"* ]]; then
-            rm -f "$SYMLINK_PATH"
-            print_gray "$dir/ - symlink removed"
+for root in .github .claude .agents .opencode; do
+    path="$PROJECT_ROOT/$root"
+    if [ -L "$path" ]; then
+        link_target="$(readlink "$path")"
+        if [[ "$link_target" == *compound-gpid* ]]; then
+            rm -f "$path"
+            print_gray "$root/ - legacy whole-root symlink removed"
             REMOVED_ANY=true
-        else
-            print_yellow "  $dir/ - symlink not from compound-gpid (target: $LINK_TARGET), skipping"
         fi
-    else
-        print_yellow "  $dir/ - real directory (not a symlink), skipping"
     fi
 done
 
-# Remove copilot-instructions.md only if it carries the management marker
-if [[ -f "$COPILOT_INSTRUCTIONS_DEST" ]]; then
-    if grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$COPILOT_INSTRUCTIONS_DEST" 2>/dev/null; then
-        rm -f "$COPILOT_INSTRUCTIONS_DEST"
-        print_gray "copilot-instructions.md - removed (was CG-managed)"
-        REMOVED_ANY=true
+while IFS='|' read -r target_rel unit_type; do
+    if [ "$unit_type" = "directory" ]; then
+        if remove_directory_unit "$target_rel"; then REMOVED_ANY=true; fi
     else
-        print_yellow "  copilot-instructions.md - user-managed (no marker), leaving in place"
+        status="$(remove_file_unit "$target_rel" || true)"
+        case "$status" in
+            REMOVED) print_gray "$target_rel - managed file removed"; REMOVED_ANY=true ;;
+            USER_MODIFIED) print_warn "$target_rel was modified by the user; leaving it in place and dropping CG ownership." ;;
+        esac
     fi
-else
-    print_gray "copilot-instructions.md - not found, skipping"
-fi
+done < <(all_unit_targets)
 
-# If .github/ is now empty, remove the directory
-if [[ -d "$TARGET_GITHUB_DIR" ]]; then
-    if [[ -z "$(ls -A "$TARGET_GITHUB_DIR" 2>/dev/null)" ]]; then
-        rmdir "$TARGET_GITHUB_DIR"
-        print_gray ".github/ - empty after unlinking, directory removed"
-    fi
-fi
+for root in .github .claude .agents .opencode .compound-gpid; do remove_empty_root "$root"; done
+remove_gitignore_block
 
-# ---------------------------------------------------------------------------
-# Remove CG-specific .gitignore entries
-# ---------------------------------------------------------------------------
-if [[ -f "$GITIGNORE_PATH" ]]; then
-    python3 - "$GITIGNORE_PATH" <<'PYEOF'
-import sys, re, tempfile, os
-
-path = sys.argv[1]
-with open(path, 'r', encoding='utf-8', errors='replace') as f:
-    content = f.read()
-
-if not re.search(r'(?m)^# Compound GPID managed items', content):
-    sys.exit(0)
-
-# Remove the CG block
-cleaned = re.sub(
-    r'(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*',
-    '',
-    content
-).rstrip('\n')
-
-out = cleaned + '\n' if cleaned else ''
-tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
-try:
-    with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
-        f.write(out)
-    os.replace(tmp_path, path)
-except:
-    try: os.unlink(tmp_path)
-    except: pass
-    raise
-
-if cleaned:
-    print('  Removed Compound GPID entries from .gitignore')
-else:
-    print('  Cleared .gitignore (was empty after CG block removal)')
-PYEOF
-fi
-
-# ---------------------------------------------------------------------------
-# Success
-# ---------------------------------------------------------------------------
 printf '\n'
-if [[ "$REMOVED_ANY" == "true" ]]; then
+if [ "$REMOVED_ANY" = true ]; then
     print_green "Unlinked."
-    printf '\n'
-    printf '\033[0;33mIMPORTANT: Restart VS Code / Positron.\033[0m\n'
-    printf '  Copilot needs to re-index the workspace to reflect the unlinked state.\n'
 else
-    printf 'No Compound GPID symlinks were found in this project.\n'
+    print_yellow "Nothing to unlink - no Compound GPID-managed units found."
 fi
-printf '\n'
+printf 'To re-link at any time, run: cg-link\n\n'

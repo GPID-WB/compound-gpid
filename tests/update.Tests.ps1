@@ -210,6 +210,170 @@ Describe "update.ps1 - copilot-instructions.md refresh" {
     }
 }
 
+Describe "update.ps1 - manifest-managed platform file refresh" {
+    It "contains the managed-files refresh path" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'managed-files\.json'
+        $content | Should -Match 'Update-CgManagedPlatformFiles'
+    }
+
+    It "refreshes only when the current checksum matches the manifest checksum" {
+        $projectRoot = Join-Path $TestDrive "managed-refresh-project"
+        $installRoot = Join-Path $TestDrive "managed-refresh-install"
+        $manifestPath = Join-Path $projectRoot ".compound-gpid\managed-files.json"
+        $sourceRel = ".opencode/opencode.json"
+        $targetRel = ".opencode/opencode.json"
+        $sourcePath = Join-Path $installRoot $sourceRel
+        $targetPath = Join-Path $projectRoot $targetRel
+
+        New-Item -ItemType Directory -Path (Split-Path $sourcePath -Parent) -Force | Out-Null
+        New-Item -ItemType Directory -Path (Split-Path $targetPath -Parent) -Force | Out-Null
+        Set-Content -Path $sourcePath -Value '{"updated":true}' -Encoding UTF8
+        Set-Content -Path $targetPath -Value '{"updated":false}' -Encoding UTF8
+
+        $files = @{}
+        $files[$targetRel] = @{ source = $sourceRel; checksum = (Get-CgFileSha256 -Path $targetPath) }
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = $files
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+
+        $result = Update-CgManagedPlatformFiles -ManifestPath $manifestPath -ProjectRoot $projectRoot -CompoundGpidDir $installRoot
+
+        $result.Refreshed | Should -Contain $targetRel
+        (Get-Content $targetPath -Raw -Encoding UTF8) | Should -Match '"updated":true'
+        $roundTrip = Read-CgManagedFilesManifest -ManifestPath $manifestPath
+        $roundTrip.files[$targetRel].checksum | Should -Be (Get-CgFileSha256 -Path $targetPath)
+    }
+
+    It "skips refresh when the user modified the copied file" {
+        $projectRoot = Join-Path $TestDrive "managed-skip-project"
+        $installRoot = Join-Path $TestDrive "managed-skip-install"
+        $manifestPath = Join-Path $projectRoot ".compound-gpid\managed-files.json"
+        $sourceRel = ".opencode/opencode.json"
+        $targetRel = ".opencode/opencode.json"
+        $sourcePath = Join-Path $installRoot $sourceRel
+        $targetPath = Join-Path $projectRoot $targetRel
+
+        New-Item -ItemType Directory -Path (Split-Path $sourcePath -Parent) -Force | Out-Null
+        New-Item -ItemType Directory -Path (Split-Path $targetPath -Parent) -Force | Out-Null
+        Set-Content -Path $sourcePath -Value '{"updated":true}' -Encoding UTF8
+        Set-Content -Path $targetPath -Value '{"user":true}' -Encoding UTF8
+
+        $files = @{}
+        $files[$targetRel] = @{ source = $sourceRel; checksum = "old-managed-checksum" }
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = $files
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+
+        $result = Update-CgManagedPlatformFiles -ManifestPath $manifestPath -ProjectRoot $projectRoot -CompoundGpidDir $installRoot
+
+        $result.SkippedUserModified | Should -Contain $targetRel
+        (Get-Content $targetPath -Raw -Encoding UTF8) | Should -Match '"user":true'
+        $roundTrip = Read-CgManagedFilesManifest -ManifestPath $manifestPath
+        $roundTrip.files[$targetRel].checksum | Should -Be "old-managed-checksum"
+    }
+
+    It "drops manifest entries for missing managed target files" {
+        $projectRoot = Join-Path $TestDrive "managed-missing-project"
+        $installRoot = Join-Path $TestDrive "managed-missing-install"
+        $manifestPath = Join-Path $projectRoot ".compound-gpid\managed-files.json"
+        $sourceRel = ".opencode/opencode.json"
+        $targetRel = ".opencode/opencode.json"
+        $sourcePath = Join-Path $installRoot $sourceRel
+
+        New-Item -ItemType Directory -Path (Split-Path $sourcePath -Parent) -Force | Out-Null
+        Set-Content -Path $sourcePath -Value '{"updated":true}' -Encoding UTF8
+
+        $files = @{}
+        $files[$targetRel] = @{ source = $sourceRel; checksum = "missing-target-checksum" }
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = $files
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+
+        $result = Update-CgManagedPlatformFiles -ManifestPath $manifestPath -ProjectRoot $projectRoot -CompoundGpidDir $installRoot
+
+        $result.RemovedMissing | Should -Contain $targetRel
+        Test-Path $manifestPath | Should -Be $false
+    }
+
+    It "rejects manifest entries that escape project or install roots" {
+        $projectRoot = Join-Path $TestDrive "managed-invalid-project"
+        $installRoot = Join-Path $TestDrive "managed-invalid-install"
+        $manifestPath = Join-Path $projectRoot ".compound-gpid\managed-files.json"
+        $outsidePath = Join-Path $TestDrive "outside.json"
+        New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+        New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
+        Set-Content -Path $outsidePath -Value '{"outside":true}' -Encoding UTF8
+
+        $targetRel = "../outside.json"
+        $files = @{}
+        $files[$targetRel] = @{ source = "../source.json"; checksum = (Get-CgFileSha256 -Path $outsidePath) }
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = $files
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+
+        $result = Update-CgManagedPlatformFiles -ManifestPath $manifestPath -ProjectRoot $projectRoot -CompoundGpidDir $installRoot
+
+        $result.Invalid | Should -Contain $targetRel
+        (Get-Content $outsidePath -Raw -Encoding UTF8) | Should -Match '"outside":true'
+    }
+
+    It "skips manifest-managed targets that are symlinks or reparse points" {
+        $projectRoot = Join-Path $TestDrive "managed-symlink-project"
+        $installRoot = Join-Path $TestDrive "managed-symlink-install"
+        $manifestPath = Join-Path $projectRoot ".compound-gpid\managed-files.json"
+        $sourceRel = ".opencode/opencode.json"
+        $targetRel = ".opencode/opencode.json"
+        $sourcePath = Join-Path $installRoot $sourceRel
+        $targetPath = Join-Path $projectRoot $targetRel
+        $outsidePath = Join-Path $TestDrive "outside-managed-target.json"
+
+        New-Item -ItemType Directory -Path (Split-Path $sourcePath -Parent) -Force | Out-Null
+        New-Item -ItemType Directory -Path (Split-Path $targetPath -Parent) -Force | Out-Null
+        Set-Content -Path $sourcePath -Value '{"updated":true}' -Encoding UTF8
+        Set-Content -Path $outsidePath -Value '{"outside":true}' -Encoding UTF8
+        Remove-Item -Path $targetPath -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType SymbolicLink -Path $targetPath -Target $outsidePath | Out-Null
+
+        $files = @{}
+        $files[$targetRel] = @{ source = $sourceRel; checksum = (Get-CgFileSha256 -Path $targetPath) }
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = $files
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+
+        $result = Update-CgManagedPlatformFiles -ManifestPath $manifestPath -ProjectRoot $projectRoot -CompoundGpidDir $installRoot
+
+        $result.Invalid | Should -Contain $targetRel
+        (Get-Content $outsidePath -Raw -Encoding UTF8) | Should -Match '"outside":true'
+    }
+}
+
+Describe "helpers.ps1 - managed file manifest helpers" {
+    It "can write and read a managed files manifest" {
+        $manifestPath = Join-Path $TestDrive "managed-files.json"
+        $manifest = @{
+            schemaVersion = "compound-gpid-managed-files-v1"
+            files = @{
+                ".opencode/opencode.json" = @{ source = ".opencode/opencode.json"; checksum = "abc" }
+            }
+        }
+        Write-CgManagedFilesManifest -ManifestPath $manifestPath -Manifest $manifest
+        $roundTrip = Read-CgManagedFilesManifest -ManifestPath $manifestPath
+        $roundTrip.files[".opencode/opencode.json"].source | Should -Be ".opencode/opencode.json"
+        $roundTrip.files[".opencode/opencode.json"].checksum | Should -Be "abc"
+    }
+}
+
 Describe "update.ps1 - docs to .cg-docs migration" {
     Context "migrating docs/brainstorms to .cg-docs/brainstorms" {
         It "moves docs/brainstorms to .cg-docs/brainstorms when source exists" {

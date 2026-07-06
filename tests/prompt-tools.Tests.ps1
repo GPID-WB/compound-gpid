@@ -2869,19 +2869,28 @@ Describe "cg-setup.prompt.md - Mode B quality gate" {
 }
 
 # ---------------------------------------------------------------------------
-# link.ps1 - setup guidance in success message (Phase 2)
+# link.ps1 - success message guidance
 # ---------------------------------------------------------------------------
 
-Describe "link.ps1 - setup guidance in success message" {
+Describe "link.ps1 - success message guidance" {
     $linkScript = Join-Path $repoRoot "scripts\link.ps1"
     $content = Get-Content $linkScript -Raw -Encoding UTF8
 
-    It "contains specific /cg-setup guidance text" {
-        ($content -match 'run /cg-setup in Copilot Chat to configure') | Should -Be $true
+    It "describes default multi-platform asset availability" {
+        ($content -match 'Compound GPID assets are now available for') | Should -Be $true
     }
 
-    It "still contains the managed-by warning (not removed)" {
-        ($content -match 'managed by Compound GPID') | Should -Be $true
+    It "warns not to edit managed linked directories and copied files directly" {
+        ($content -match 'Managed linked directories and copied files should not be edited directly') | Should -Be $true
+    }
+
+    It "tells users how to limit platforms on future links" {
+        ($content -match '--platforms copilot') | Should -Be $true
+        ($content -match '--platforms opencode') | Should -Be $true
+    }
+
+    It "instructs users to restart their AI coding tool" {
+        ($content -match 'Restart your AI coding tool') | Should -Be $true
     }
 }
 

@@ -1,54 +1,34 @@
 #!/usr/bin/env bash
 # scripts/link.sh
-# Links the current project to the global Compound GPID installation by creating
-# per-subdirectory symlinks inside .github/ for the managed Compound GPID
-# directories (prompts/, skills/, agents/, instructions/) and generating
-# copilot-instructions.md with a management marker.
-#
-# Run this from your project root:
-#   cg-link
-#
-# Key behaviours:
-#   - Creates .github/ as a real directory if it does not exist.
-#   - Adds symlinks only for CG-managed subdirectories, leaving all existing
-#     .github/ content (workflows, templates, CODEOWNERS, etc.) untouched.
-#   - Generates copilot-instructions.md with a <!-- compound-gpid:managed --> marker.
-#     Remove the marker to take ownership of the file and prevent cg-update
-#     from overwriting it.
-#   - Runs cg-update first to ensure the global clone is up to date.
-#   - Gitignores only the CG-managed items, not the entire .github/ folder.
+# Links the current project to Compound GPID using per-install-unit symlinks and
+# managed copied files. Existing platform roots are preserved.
 
 set -euo pipefail
 
-# ---------------------------------------------------------------------------
-# Parse arguments
-# ---------------------------------------------------------------------------
 FORCE=0
-for arg in "$@"; do
-    case "$arg" in
-        --yes|-y) FORCE=1 ;;
+PLATFORMS=""
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --yes|-y|--force|-Force) FORCE=1; shift ;;
+        --platforms=*) PLATFORMS="${1#--platforms=}"; shift ;;
+        -Platforms=*) PLATFORMS="${1#-Platforms=}"; shift ;;
+        --platforms|-Platforms)
+            shift
+            if [ "$#" -eq 0 ]; then printf 'ERROR: Missing value after --platforms\n' >&2; exit 1; fi
+            PLATFORMS="$1"
+            shift
+            ;;
+        *) printf 'WARNING: Unrecognized argument %s -- ignoring\n' "$1" >&2; shift ;;
     esac
 done
 
-# ---------------------------------------------------------------------------
-# Resolve paths
-# ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPOUND_GPID_DIR="$(dirname "$SCRIPT_DIR")"
-SOURCE_GITHUB="$COMPOUND_GPID_DIR/.github"
 PROJECT_ROOT="$(pwd)"
-TARGET_GITHUB_DIR="$PROJECT_ROOT/.github"
-
-# Subdirectories managed by Compound GPID (each gets its own symlink)
-MANAGED_DIRS=("prompts" "skills" "agents" "instructions" "shared")
-
-# Management marker and destination for copilot-instructions.md
+TARGET_MAPPING_PATH="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
+MANIFEST_PATH="$PROJECT_ROOT/.compound-gpid/managed-files.json"
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
-COPILOT_INSTRUCTIONS_DEST="$TARGET_GITHUB_DIR/copilot-instructions.md"
 
-# ---------------------------------------------------------------------------
-# Colour helpers
-# ---------------------------------------------------------------------------
 print_cyan()   { printf '\033[0;36m%s\033[0m\n' "$1"; }
 print_green()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
 print_yellow() { printf '\033[0;33m%s\033[0m\n' "$1"; }
@@ -56,354 +36,415 @@ print_gray()   { printf '\033[0;90m  %s\033[0m\n' "$1"; }
 print_warn()   { printf '\033[0;33mWARNING: %s\033[0m\n' "$1" >&2; }
 print_error()  { printf '\033[0;31mERROR: %s\033[0m\n' "$1" >&2; }
 
-# ---------------------------------------------------------------------------
-# generate_copilot_instructions <template_path> <project_root> <marker>
-# Reads the template, parses frontmatter from compound-gpid.md and
-# compound-gpid.local.md, substitutes placeholders, and writes the result
-# (with management marker prepended) to stdout.
-# Must be defined before the main body calls it in Step 4.
-# ---------------------------------------------------------------------------
-generate_copilot_instructions() {
-    local template_path="$1"
-    local project_root="$2"
-    local marker="$3"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in
+            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+        esac
+    done
+    return 1
+}
 
-    python3 - "$template_path" "$project_root" "$marker" <<'PYEOF'
-import sys, re, os
+PYTHON_CMD="$(resolve_python || true)"
+if [ -z "$PYTHON_CMD" ]; then
+    print_error "Python is required but not found (checked: python3, python, py)."
+    printf 'Install Xcode Command Line Tools or Python from https://www.python.org/downloads/\n' >&2
+    exit 1
+fi
+
+normalize_platforms() {
+    local input selected item platform exists unknown
+    input="$1"
+    selected=""
+    [ -z "$input" ] && input="all"
+    IFS=',' read -ra parts <<< "$input"
+    for item in "${parts[@]}"; do
+        platform="$(printf '%s' "$item" | tr '[:upper:]' '[:lower:]' | xargs)"
+        [ -z "$platform" ] && continue
+        if [ "$platform" = "all" ]; then
+            for platform in copilot claude-code codex opencode; do
+                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
+            done
+            continue
+        fi
+        case "$platform" in
+            copilot|claude-code|codex|opencode)
+                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
+                ;;
+            *) print_warn "Unknown platform '$platform' -- skipping" ;;
+        esac
+    done
+    if [ -z "$selected" ]; then
+        print_error "No valid platforms selected. Supported platforms: copilot, claude-code, codex, opencode"
+        exit 1
+    fi
+    printf '%s\n' "$selected"
+}
+
+PLATFORMS="$(normalize_platforms "$PLATFORMS")"
+
+generate_copilot_instructions() {
+    local template_path="$1" project_root="$2" marker="$3"
+    "$PYTHON_CMD" - "$template_path" "$project_root" "$marker" <<'PYEOF'
+import os
+import re
+import sys
 
 template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
 
-charter_path = os.path.join(project_root, 'compound-gpid.md')
-local_path   = os.path.join(project_root, 'compound-gpid.local.md')
-
 def extract_fm_value(path, key):
-    """Extract a YAML frontmatter value by key. Returns '' if not found."""
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        m = re.match(r'^---[ \t]*\n(.*?)\n---', content, re.DOTALL)
-        if not m:
-            return ''
-        fm = m.group(1)
-        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\']?([^"\'\\r\\n]+)["\']?\s*$'
-        vm = re.search(pattern, fm)
-        return vm.group(1).strip() if vm else ''
-    except Exception:
-        return ''
+        with open(path, "r", encoding="utf-8") as handle:
+            content = handle.read()
+        match = re.match(r"^---[ \t]*\n(.*?)\n---", content, re.DOTALL)
+        if not match:
+            return ""
+        value_match = re.search(r"(?m)^\s*" + re.escape(key) + r":\s*[\"']?([^\"'\r\n]+)[\"']?\s*$", match.group(1))
+        return value_match.group(1).strip() if value_match else ""
+    except OSError:
+        return ""
 
-# Read project-name from charter
-project_name = extract_fm_value(charter_path, 'project-name') or '<project-name>'
-
-# Read per-user config from compound-gpid.local.md
-language     = extract_fm_value(local_path, 'language')     or '<not configured>'
-project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
-review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
-r_syntax     = extract_fm_value(local_path, 'r-syntax')
-
-# Build languages string — append R dialect when configured
-languages = language
-if r_syntax and re.search(r'\bR\b', language, re.IGNORECASE):
-    languages = f'{language} (R dialect: {r_syntax})'
-
-# Guard: reject config values that contain placeholder tokens
-for val in (project_name, project_type, languages, review_depth):
-    if '{{' in val:
-        print('ERROR: A config value contains a placeholder token which would corrupt the output.'
-              ' Check compound-gpid.md and compound-gpid.local.md.', file=sys.stderr)
+project_name = extract_fm_value(os.path.join(project_root, "compound-gpid.md"), "project-name") or "<project-name>"
+local_path = os.path.join(project_root, "compound-gpid.local.md")
+language = extract_fm_value(local_path, "language") or "<not configured>"
+project_type = extract_fm_value(local_path, "project-type") or "<not configured>"
+review_depth = extract_fm_value(local_path, "review-depth") or "<not configured>"
+r_syntax = extract_fm_value(local_path, "r-syntax")
+languages = f"{language} (R dialect: {r_syntax})" if r_syntax and re.search(r"\bR\b", language, re.I) else language
+for value in (project_name, project_type, languages, review_depth):
+    if "{{" in value:
+        print("ERROR: Config value contains a placeholder token.", file=sys.stderr)
         sys.exit(1)
-
-# Read template
-with open(template_path, 'r', encoding='utf-8') as f:
-    template = f.read()
-
+with open(template_path, "r", encoding="utf-8") as handle:
+    template = handle.read()
 if not template.strip():
-    print(f'ERROR: Template file is empty: {template_path}. Run cg-update --fix.', file=sys.stderr)
+    print(f"ERROR: Template file is empty: {template_path}", file=sys.stderr)
     sys.exit(1)
-
-# Substitute placeholders (literal, not regex — mirrors PS .Replace() behaviour)
-output = template
-output = output.replace('{{project-name}}', project_name)
-output = output.replace('{{project-type}}', project_type)
-output = output.replace('{{languages}}',    languages)
-output = output.replace('{{review-depth}}', review_depth)
-
-# Prepend the management marker, matching the template's line-ending style
-sep = '\r\n' if '\r\n' in output else '\n'
+output = template.replace("{{project-name}}", project_name).replace("{{project-type}}", project_type).replace("{{languages}}", languages).replace("{{review-depth}}", review_depth)
+sep = "\r\n" if "\r\n" in output else "\n"
 sys.stdout.write(marker + sep + output)
 PYEOF
 }
 
-# ---------------------------------------------------------------------------
-# Validate the global install exists
-# ---------------------------------------------------------------------------
-if ! command -v python3 &>/dev/null; then
-    print_error "python3 is required but not found."
-    printf 'Install Xcode Command Line Tools: xcode-select --install\n' >&2
-    exit 1
-fi
+add_units_for_platform() {
+    case "$1" in
+        copilot)
+            printf '%s\n' \
+                'copilot|directory|.github/prompts|.github/prompts|link-directory|' \
+                'copilot|directory|.github/skills|.github/skills|link-directory|' \
+                'copilot|directory|.github/agents|.github/agents|link-directory|' \
+                'copilot|directory|.github/instructions|.github/instructions|link-directory|' \
+                'copilot|directory|.github/shared|.github/shared|link-directory|' \
+                'copilot|file|.github/copilot-instructions.template.md|.github/copilot-instructions.md|generated-copy|'
+            ;;
+        claude-code)
+            printf '%s\n' \
+                'claude-code|directory|.claude/commands|.claude/commands|link-directory|' \
+                'claude-code|directory|.claude/skills|.claude/skills|link-directory|' \
+                'claude-code|directory|.claude/agents|.claude/agents|link-directory|' \
+                'claude-code|file|.claude/CLAUDE.md|.claude/CLAUDE.md|managed-copy|' \
+                'claude-code|file|.claude/model-mapping.claude.json|.claude/model-mapping.claude.json|managed-copy|'
+            ;;
+        codex)
+            printf '%s\n' \
+                'codex|directory|.agents/commands|.agents/commands|link-directory|' \
+                'codex|directory|.agents/skills|.agents/skills|link-directory|' \
+                'codex|directory|.agents/subagents|.agents/subagents|link-directory|' \
+                'codex|file|.agents/AGENTS.md|.agents/AGENTS.md|managed-copy|' \
+                'codex|file|.agents/model-mapping.codex.json|.agents/model-mapping.codex.json|managed-copy|'
+            ;;
+        opencode)
+            printf '%s\n' \
+                'opencode|directory|.opencode/commands|.opencode/commands|link-directory|' \
+                'opencode|directory|.opencode/skills|.opencode/skills|link-directory|' \
+                'opencode|directory|.opencode/agents|.opencode/agents|link-directory|' \
+                'opencode|file|.opencode/AGENTS.md|.opencode/AGENTS.md|managed-copy|' \
+                'opencode|file|.opencode/opencode.json|.opencode/opencode.json|config-copy-or-snippet|Add instructions .opencode/AGENTS.md and skills.paths .opencode/skills to your existing opencode.json.' \
+                'opencode|file|.opencode/model-mapping.opencode.json|.opencode/model-mapping.opencode.json|managed-copy|'
+            ;;
+    esac
+}
 
-if [[ ! -d "$COMPOUND_GPID_DIR" ]]; then
-    print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"
-    printf '\nSee docs/installation.md for setup instructions.\n' >&2
-    exit 1
-fi
+all_install_units() {
+    local platform
+    for platform in copilot claude-code codex opencode; do
+        add_units_for_platform "$platform"
+    done
+}
 
-if [[ ! -d "$SOURCE_GITHUB" ]]; then
-    print_error "Expected .github/ not found inside $COMPOUND_GPID_DIR. The installation may be corrupted."
-    exit 1
-fi
+ensure_root_directory() {
+    local root_name="$1" root_path existing_target
+    root_path="$PROJECT_ROOT/$root_name"
+    if [ -L "$root_path" ]; then
+        existing_target="$(readlink "$root_path")"
+        if [[ "$existing_target" == *compound-gpid* ]]; then
+            print_yellow "  $root_name/ - migrating legacy whole-root symlink"
+            rm -f "$root_path"
+            mkdir -p "$root_path"
+            return 0
+        fi
+        print_warn "$root_name/ is a non-Compound symlink; skipping units under it."
+        return 1
+    fi
+    if [ -e "$root_path" ] && [ ! -d "$root_path" ]; then
+        print_warn "$root_name exists as a file; skipping units under it."
+        return 1
+    fi
+    if [ ! -d "$root_path" ]; then
+        mkdir -p "$root_path"
+        print_gray "$root_name/ - created"
+    fi
+    return 0
+}
 
-# ---------------------------------------------------------------------------
-# Step 1: Update the global clone before linking
-# ---------------------------------------------------------------------------
-# Ensures the user always links against the latest version.
-# CG_INTERNAL_CALL suppresses the copilot-instructions.md refresh in update.sh
-# because link.sh handles that refresh itself in Step 4 to avoid doing it twice.
+install_directory_unit() {
+    local source_rel="$1" target_rel="$2" source_path target_path existing_target parent
+    source_path="$COMPOUND_GPID_DIR/$source_rel"
+    target_path="$PROJECT_ROOT/$target_rel"
+    if [ -L "$target_path" ]; then
+        existing_target="$(readlink "$target_path")"
+        if [[ "$existing_target" == *compound-gpid* ]]; then
+            print_gray "$target_rel - already linked"
+            return 0
+        fi
+        print_warn "$target_rel is a symlink pointing to: $existing_target"
+        if [ "$FORCE" -eq 0 ]; then
+            printf '  Relink %s to Compound GPID instead? [y/N] ' "$target_rel"
+            read -r answer </dev/tty
+            case "$answer" in [Yy]*) ;; *) print_yellow "  $target_rel - skipped"; return 1 ;; esac
+        fi
+        rm -f "$target_path"
+    elif [ -d "$target_path" ]; then
+        print_warn "$target_rel is a real directory; skipping this unit."
+        return 1
+    elif [ -e "$target_path" ]; then
+        print_warn "$target_rel exists as a file; skipping this unit."
+        return 1
+    fi
+    parent="$(dirname "$target_path")"
+    mkdir -p "$parent"
+    ln -s "$source_path" "$target_path"
+    print_gray "$target_rel - linked"
+    return 0
+}
+
+install_file_unit() {
+    local source_rel="$1" target_rel="$2" strategy="$3" snippet="$4" source_path target_path parent generated existing
+    source_path="$COMPOUND_GPID_DIR/$source_rel"
+    target_path="$PROJECT_ROOT/$target_rel"
+    if [ "$strategy" = "generated-copy" ]; then
+        existing=""
+        [ -f "$target_path" ] && existing="$(< "$target_path")"
+        if [ -n "$existing" ] && ! grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
+            print_yellow "  $target_rel - user-managed (marker absent), skipping"
+            return 1
+        fi
+        generated="$(generate_copilot_instructions "$source_path" "$PROJECT_ROOT" "$COPILOT_INSTRUCTIONS_MARKER")"
+        parent="$(dirname "$target_path")"
+        mkdir -p "$parent"
+        if [ "$generated" != "$existing" ]; then printf '%s' "$generated" > "$target_path.tmp" && mv "$target_path.tmp" "$target_path"; fi
+        print_gray "$target_rel - generated"
+        return 0
+    fi
+
+    "$PYTHON_CMD" - "$MANIFEST_PATH" "$source_rel" "$target_rel" "$source_path" "$target_path" "$snippet" <<'PYEOF'
+import hashlib
+import json
+import os
+import shutil
+import sys
+
+manifest_path, source_rel, target_rel, source_path, target_path, snippet = sys.argv[1:]
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+manifest = {"schemaVersion": "compound-gpid-managed-files-v1", "files": {}}
+if os.path.exists(manifest_path):
+    with open(manifest_path, "r", encoding="utf-8") as handle:
+        try:
+            manifest.update(json.load(handle))
+        except json.JSONDecodeError:
+            pass
+manifest.setdefault("files", {})
+record = manifest["files"].get(target_rel)
+can_write = not os.path.exists(target_path)
+if not can_write and record and sha256(target_path) == record.get("checksum"):
+    can_write = True
+if not can_write:
+    print(f"SKIP\t{snippet}")
+    sys.exit(0)
+os.makedirs(os.path.dirname(target_path), exist_ok=True)
+shutil.copy2(source_path, target_path)
+manifest["files"][target_rel] = {"source": source_rel, "checksum": sha256(target_path)}
+os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+with open(manifest_path, "w", encoding="utf-8") as handle:
+    json.dump(manifest, handle, indent=2)
+    handle.write("\n")
+print("COPIED")
+PYEOF
+}
+
+update_gitignore_block() {
+    local entries_file="$1" gitignore_path="$PROJECT_ROOT/.gitignore" marker pattern
+    marker="# Compound GPID managed items (junctions + copied file - do not commit)"
+    "$PYTHON_CMD" - "$gitignore_path" "$entries_file" "$marker" <<'PYEOF'
+import os
+import re
+import sys
+import tempfile
+
+path, entries_file, marker = sys.argv[1:]
+with open(entries_file, "r", encoding="utf-8") as handle:
+    entries = sorted({line.strip() for line in handle if line.strip()})
+if not entries:
+    sys.exit(0)
+content = ""
+if os.path.exists(path):
+    with open(path, "r", encoding="utf-8", errors="replace") as handle:
+        content = handle.read()
+if content and not content.endswith("\n"):
+    content += "\n"
+pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+cleaned = re.sub(pattern, "", content).rstrip("\n")
+cleaned = re.sub(r"(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?", "", cleaned)
+cleaned = re.sub(r"(?m)^\.cg-docs/\r?\n?", "", cleaned).rstrip("\n")
+block = marker + "\n" + "\n".join(entries) + "\n"
+out = cleaned + ("\n\n" if cleaned else "") + block
+directory = os.path.dirname(path) or "."
+fd, tmp = tempfile.mkstemp(dir=directory)
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        handle.write(out)
+    os.replace(tmp, path)
+finally:
+    if os.path.exists(tmp):
+        os.unlink(tmp)
+PYEOF
+    print_gray "Updated CG entries in .gitignore"
+}
+
+collect_existing_managed_entries() {
+    local platform unit_type source_rel target_rel strategy snippet target_path existing_target
+    all_install_units | while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
+        [ -z "$platform" ] && continue
+        target_path="$PROJECT_ROOT/$target_rel"
+        if [ "$unit_type" = "directory" ]; then
+            if [ -L "$target_path" ]; then
+                existing_target="$(readlink "$target_path")"
+                [[ "$existing_target" == *compound-gpid* ]] && printf '%s\n' "$target_rel"
+            fi
+        elif [ "$target_rel" = ".github/copilot-instructions.md" ]; then
+            if [ -f "$target_path" ] && grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
+                printf '%s\n' "$target_rel"
+            fi
+        fi
+    done
+
+    if [ -f "$MANIFEST_PATH" ]; then
+        "$PYTHON_CMD" - "$MANIFEST_PATH" "$PROJECT_ROOT" <<'PYEOF'
+import json
+import os
+import sys
+
+manifest_path, project_root = sys.argv[1:]
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    manifest = json.load(handle)
+files = manifest.get("files", {})
+for target_rel in sorted(files):
+    if os.path.exists(os.path.join(project_root, target_rel)):
+        print(target_rel)
+if files:
+    print(".compound-gpid/managed-files.json")
+PYEOF
+    fi
+}
+
+if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
+if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
+
 printf '\n'
 print_cyan "Updating Compound GPID..."
-
 if ! CG_INTERNAL_CALL=1 "$COMPOUND_GPID_DIR/scripts/update.sh"; then
     print_warn "Could not update Compound GPID (offline?). Continuing with current version."
 fi
 
-# Show which version is active after the update
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
-if [[ -f "$VERSION_FILE" ]]; then
-    ACTIVE_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
-else
-    ACTIVE_VERSION="latest"
-fi
-[[ -z "$ACTIVE_VERSION" ]] && ACTIVE_VERSION="latest"
-
-if [[ "$ACTIVE_VERSION" == "latest" ]]; then
-    print_gray "Version: tracking main (latest)"
-else
-    print_gray "Version: $ACTIVE_VERSION (pinned)"
-fi
+ACTIVE_VERSION="latest"
+[ -f "$VERSION_FILE" ] && ACTIVE_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+[ -z "$ACTIVE_VERSION" ] && ACTIVE_VERSION="latest"
 
 printf '\n'
 print_cyan "Compound GPID - Link"
 print_cyan "===================="
+print_gray "Version: $([ "$ACTIVE_VERSION" = latest ] && printf 'tracking main (latest)' || printf '%s (pinned)' "$ACTIVE_VERSION")"
+print_gray "Platforms: $PLATFORMS"
 printf '\n'
 
-# ---------------------------------------------------------------------------
-# Step 2: Handle .github/ directory in this project
-# ---------------------------------------------------------------------------
-if [[ -L "$TARGET_GITHUB_DIR" ]]; then
-    # Legacy: .github/ itself is a whole-directory symlink (old cg-link behaviour).
-    LINK_TARGET="$(readlink "$TARGET_GITHUB_DIR")"
-    if [[ "$LINK_TARGET" == *"compound-gpid"* ]]; then
-        printf '.github/ is a legacy Compound GPID symlink - migrating to per-subdirectory symlinks...\n'
-        rm -f "$TARGET_GITHUB_DIR"
-        mkdir -p "$TARGET_GITHUB_DIR"
-        print_gray "Migrated: .github/ is now a real directory."
-    fi
-elif [[ ! -d "$TARGET_GITHUB_DIR" ]]; then
-    mkdir -p "$TARGET_GITHUB_DIR"
-    print_gray "Created .github/ directory."
+units_file="$(mktemp "${TMPDIR:-/tmp}/cg-link-units-XXXXXX")"
+entries_file="$(mktemp "${TMPDIR:-/tmp}/cg-link-entries-XXXXXX")"
+trap 'rm -f "$units_file" "$entries_file"' EXIT
+IFS=',' read -ra selected_parts <<< "$PLATFORMS"
+for platform in "${selected_parts[@]}"; do add_units_for_platform "$platform" >> "$units_file"; done
+
+missing=""
+while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
+    [ -z "$platform" ] && continue
+    if [ ! -e "$COMPOUND_GPID_DIR/$source_rel" ]; then missing="${missing}${platform}: ${source_rel}\n"; fi
+done < "$units_file"
+if [ -n "$missing" ]; then
+    print_error "Selected Compound GPID source units are missing:"
+    printf '%b' "$missing" >&2
+    exit 1
 fi
-# If .github/ already exists as a real directory, leave it untouched.
 
-# ---------------------------------------------------------------------------
-# Step 3: Create per-subdirectory symlinks
-# ---------------------------------------------------------------------------
-print_gray "Linking managed directories..."
-
-for dir in "${MANAGED_DIRS[@]}"; do
-    SYMLINK_PATH="$TARGET_GITHUB_DIR/$dir"
-    SYMLINK_TARGET="$SOURCE_GITHUB/$dir"
-
-    # Verify the source exists
-    if [[ ! -d "$SYMLINK_TARGET" ]]; then
-        print_warn "Source not found, skipping: $SYMLINK_TARGET"
-        continue
-    fi
-
-    if [[ -L "$SYMLINK_PATH" ]]; then
-        # Already a symlink — check if it points to this compound-gpid install
-        EXISTING_TARGET="$(readlink "$SYMLINK_PATH")"
-        if [[ "$EXISTING_TARGET" == *"compound-gpid"* ]]; then
-            print_gray "$dir/ - already linked"
-            continue
-        else
-            print_warn "$dir/ is a symlink pointing to: $EXISTING_TARGET"
-            if [[ "$FORCE" -eq 0 ]]; then
-                printf '  Relink %s/ to Compound GPID instead? [y/N] ' "$dir"
-                read -r answer </dev/tty
-                if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-                    print_gray "Skipping $dir/"
-                    continue
-                fi
-            fi
-            rm -f "$SYMLINK_PATH"
-        fi
-    elif [[ -d "$SYMLINK_PATH" ]]; then
-        # Real directory exists — cannot create symlink without risking data loss
-        print_error "A real directory .github/$dir/ already exists in this project."
-        printf 'Compound GPID cannot create a symlink here without risking data loss.\n\n' >&2
-        printf 'To resolve: rename or remove .github/%s/ manually, then re-run cg-link.\n' "$dir" >&2
-        exit 1
-    fi
-
-    if ln -s "$SYMLINK_TARGET" "$SYMLINK_PATH"; then
-        print_gray "$dir/ - linked"
+while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
+    [ -z "$platform" ] && continue
+    root_name="${target_rel%%/*}"
+    ensure_root_directory "$root_name" || continue
+    if [ "$unit_type" = "directory" ]; then
+        if install_directory_unit "$source_rel" "$target_rel"; then printf '%s\n' "$target_rel" >> "$entries_file"; fi
     else
-        print_error "Failed to create symlink for $dir/"
-        exit 1
+        output="$(install_file_unit "$source_rel" "$target_rel" "$strategy" "$snippet")"
+        case "$output" in
+            COPIED*) print_gray "$target_rel - copied"; printf '%s\n' "$target_rel" >> "$entries_file"; [ -f "$MANIFEST_PATH" ] && printf '%s\n' ".compound-gpid/managed-files.json" >> "$entries_file" ;;
+            SKIP*) print_warn "$target_rel exists and is not manifest-managed; skipping."; [ -n "${output#SKIP$'\t'}" ] && print_yellow "  Manual config snippet: ${output#SKIP$'\t'}" ;;
+            *) [ -n "$output" ] && printf '%s\n' "$output" ;;
+        esac
+    fi
+done < "$units_file"
+
+collect_existing_managed_entries >> "$entries_file"
+update_gitignore_block "$entries_file"
+
+printf '\n'
+print_gray "Platform availability checks:"
+IFS=',' read -ra check_platforms <<< "$PLATFORMS"
+for platform in "${check_platforms[@]}"; do
+    case "$platform" in
+        copilot) check_rel=".github/prompts/cg-setup.prompt.md" ;;
+        claude-code) check_rel=".claude/commands/cg-plan.md" ;;
+        codex) check_rel=".agents/commands/cg-plan.md" ;;
+        opencode) check_rel=".opencode/commands/cg-plan.md" ;;
+        *) check_rel="" ;;
+    esac
+    if [ -n "$check_rel" ] && [ -e "$PROJECT_ROOT/$check_rel" ]; then
+        print_gray "$platform - available"
+    else
+        print_warn "$platform - not fully available; review skipped units above."
     fi
 done
 
-# ---------------------------------------------------------------------------
-# Step 4: Generate copilot-instructions.md from template
-# ---------------------------------------------------------------------------
-print_gray "Linking copilot-instructions.md..."
-
-EXISTING_CONTENT=""
-if [[ -f "$COPILOT_INSTRUCTIONS_DEST" ]]; then
-    EXISTING_CONTENT="$(< "$COPILOT_INSTRUCTIONS_DEST")"
-fi
-
-USER_MANAGED=false
-if [[ -n "$EXISTING_CONTENT" ]] && ! grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$COPILOT_INSTRUCTIONS_DEST" 2>/dev/null; then
-    USER_MANAGED=true
-fi
-
-if [[ "$USER_MANAGED" == "true" ]]; then
-    print_yellow "  copilot-instructions.md - user-managed (marker absent), skipping"
-    print_gray "To restore CG management, delete the file and re-run cg-link."
-else
-    TEMPLATE_PATH="$COMPOUND_GPID_DIR/.github/copilot-instructions.template.md"
-    if [[ ! -f "$TEMPLATE_PATH" ]]; then
-        print_error "Template not found at: $TEMPLATE_PATH. Run cg-update --fix to repair."
-        exit 1
-    fi
-
-    GENERATED="$(generate_copilot_instructions "$TEMPLATE_PATH" "$PROJECT_ROOT" "$COPILOT_INSTRUCTIONS_MARKER")"
-    if [[ "$GENERATED" != "$EXISTING_CONTENT" ]]; then
-        printf '%s' "$GENERATED" > "${COPILOT_INSTRUCTIONS_DEST}.tmp" && mv "${COPILOT_INSTRUCTIONS_DEST}.tmp" "$COPILOT_INSTRUCTIONS_DEST"
-        print_gray "copilot-instructions.md - generated"
-    else
-        print_gray "copilot-instructions.md - up to date"
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# Step 5: Update .gitignore with CG-specific entries only
-# ---------------------------------------------------------------------------
-# Gitignore only the CG-managed items so the user's own .github/ content
-# (workflows, templates, CODEOWNERS, etc.) remains tracked by git.
-# Strategy: idempotent remove-then-rewrite of the CG block.
-GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
-CG_GITIGNORE_MARKER="# Compound GPID managed items (junctions + copied file - do not commit)"
-
-# Build the CG gitignore block
-CG_GITIGNORE_BLOCK="$CG_GITIGNORE_MARKER"
-for dir in "${MANAGED_DIRS[@]}"; do
-    CG_GITIGNORE_BLOCK="$CG_GITIGNORE_BLOCK
-.github/$dir/"
-done
-CG_GITIGNORE_BLOCK="$CG_GITIGNORE_BLOCK
-.github/copilot-instructions.md"
-
-if [[ -f "$GITIGNORE_PATH" ]]; then
-    # Remove any existing CG block before rewriting (handles version upgrades cleanly)
-    python3 - "$GITIGNORE_PATH" "$CG_GITIGNORE_BLOCK" <<'PYEOF'
-import sys, re, tempfile, os
-
-path      = sys.argv[1]
-new_block = sys.argv[2]
-
-with open(path, 'r', encoding='utf-8', errors='replace') as f:
-    content = f.read()
-
-# Ensure trailing newline for consistent processing
-if content and not content.endswith('\n'):
-    content += '\n'
-
-# Remove any existing CG block
-cleaned = re.sub(
-    r'(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.cg-docs/)[^\r\n]*\r?\n)*',
-    '',
-    content
-).rstrip('\n')
-
-separator = '\n\n' if cleaned else ''
-out = cleaned + separator + new_block + '\n'
-tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
-try:
-    with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
-        f.write(out)
-    os.replace(tmp_path, path)
-except:
-    try: os.unlink(tmp_path)
-    except: pass
-    raise
-PYEOF
-    print_gray "Updated CG entries in .gitignore"
-else
-    printf '%s\n' "$CG_GITIGNORE_BLOCK" > "$GITIGNORE_PATH"
-    print_gray "Created .gitignore with CG entries"
-fi
-
-# Remove stale .cg-docs/ gitignore entry from older setups
-if [[ -f "$GITIGNORE_PATH" ]]; then
-    python3 - "$GITIGNORE_PATH" <<'PYEOF'
-import sys, re, tempfile, os
-path = sys.argv[1]
-with open(path, 'r', encoding='utf-8', errors='replace') as f:
-    content = f.read()
-if re.search(r'(?i)# Compound GPID knowledge base', content):
-    cleaned = re.sub(r'(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', '', content).rstrip('\n')
-    out = cleaned + '\n' if cleaned else ''
-    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(path))
-    try:
-        with os.fdopen(tmp_fd, 'w', encoding='utf-8') as f:
-            f.write(out)
-        os.replace(tmp_path, path)
-    except:
-        try: os.unlink(tmp_path)
-        except: pass
-        raise
-    print("  Removed stale .cg-docs/ entry from .gitignore")
-PYEOF
-fi
-
-# ---------------------------------------------------------------------------
-# Step 6: Verify managed directories are accessible via a known file
-# ---------------------------------------------------------------------------
-# Check a specific file through the prompts symlink, not just directory
-# existence. A directory check passes even when the symlink target is on
-# cloud storage with inaccessible contents (matches link.ps1 Step 6 behaviour).
-VERIFY_CHECK="$TARGET_GITHUB_DIR/prompts/cg-setup.prompt.md"
-if [[ ! -f "$VERIFY_CHECK" ]]; then
-    print_warn "Verification failed - prompts not visible at expected path: $VERIFY_CHECK"
-else
-    print_gray "Symlinks verified."
-fi
-
-# ---------------------------------------------------------------------------
-# Success
-# ---------------------------------------------------------------------------
 printf '\n'
 print_green "Linked!"
+printf '\nCompound GPID assets are now available for: %s.\n' "$PLATFORMS"
+printf 'Use --platforms copilot for Copilot-only or --platforms opencode for OpenCode-only assets.\n\n'
+print_yellow "IMPORTANT: Restart your AI coding tool so commands, skills, agents, and config reload."
 printf '\n'
-printf 'Compound GPID prompts are now available in this project.\n'
-printf '  Next step: run /cg-setup in Copilot Chat to configure.\n'
-printf '\n'
-printf '\033[0;33mIMPORTANT:\033[0m\n'
-printf '  The following directories are managed by Compound GPID.\n'
-printf '  Do not edit files inside them - changes will be lost on cg-update.\n'
-printf '  Managed: .github/prompts/  .github/skills/  .github/agents/  .github/instructions/\n'
-printf '\n'
-printf '\033[0;33mIMPORTANT: Restart VS Code / Positron now.\033[0m\n'
-printf '  Copilot must re-index the workspace to see the linked prompts and agents.\n'
-printf '  Without a restart, /cg-setup and other prompts will not be available.\n'
-printf '\n'
-printf 'Run in VS Code / Positron Copilot Chat:\n'
-printf '  \033[0;36m/cg-setup\033[0m\n'
-printf '\n'
-printf 'Optional: set up cross-project knowledge sharing (team brain manager only):\n'
-printf '  \033[0;90mcg-brain-init --repo <owner/name> --manager <github-username>\033[0m\n'
-printf '\n'
-
-exit 0

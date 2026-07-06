@@ -192,7 +192,7 @@
     {
       "id": "context-layer",
       "title": "Context Layer",
-      "objective": "Restructure how consumer projects provide context to Copilot \u2014 slim down copilot-instructions.md to a project-specific generated file, introduce compound-gpid.context.md for freeform project knowledge that grows over time, and support multi-folder workspaces.",
+      "objective": "Restructure how consumer projects provide context to Copilot — slim down copilot-instructions.md to a project-specific generated file, introduce compound-gpid.context.md for freeform project knowledge that grows over time, and support multi-folder workspaces.",
       "status": "done",
       "features": [
         {
@@ -230,8 +230,8 @@
     {
       "id": "architecture-research",
       "title": "Architecture Research",
-      "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones \u2014 stage control knobs and autonomous pipeline execution.",
-      "status": "planned",
+      "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones — stage control knobs and autonomous pipeline execution.",
+      "status": "in-progress",
       "features": [
         {
           "id": "model-split-pattern-reuse",
@@ -247,8 +247,8 @@
         {
           "id": "study-codex-plugin",
           "title": "Study OpenAI Codex plugin for Claude Code",
-          "status": "idea",
-          "plan": null,
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
           "github": {
             "issueNumber": 52,
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/52",
@@ -269,8 +269,8 @@
         {
           "id": "copilot-instructions-restructuring",
           "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
-          "status": "idea",
-          "plan": null,
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
           "github": {
             "issueNumber": 54,
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/54",
@@ -345,7 +345,7 @@
         },
         {
           "id": "verification-commands-post-task",
-          "title": "Verification commands \u2014 configurable post-task checks",
+          "title": "Verification commands — configurable post-task checks",
           "status": "idea",
           "plan": null,
           "github": {
@@ -379,7 +379,7 @@
         },
         {
           "id": "cross-model-adversarial-review",
-          "title": "Cross-model review \u2014 adversarial model diversity",
+          "title": "Cross-model review — adversarial model diversity",
           "description": "When work is done by Anthropic models, dispatch review agents on OpenAI models (and vice versa). Different model families have different blind spots; cross-pollination catches errors that same-family review misses. Requires model routing logic in /cg-review dispatch.",
           "status": "idea",
           "plan": null,
@@ -391,7 +391,7 @@
         },
         {
           "id": "tiered-model-escalation",
-          "title": "Tiered model escalation \u2014 super-advanced model dispatch",
+          "title": "Tiered model escalation — super-advanced model dispatch",
           "description": "Define criteria for escalating to frontier models (Opus 4.7, GPT 5.5) and build the dispatch mechanism. Three triggers: (1) task inherently requires that power level, (2) agent gets stuck or fails after initial attempt, (3) task needs efficiency that justifies higher cost. Requires: task difficulty classification, failure-detection + retry-with-escalation logic, and cost/benefit heuristics.",
           "status": "idea",
           "plan": null,
@@ -406,7 +406,7 @@
     {
       "id": "competitive-prompt-enhancements",
       "title": "Competitive Prompt Enhancements",
-      "objective": "Adopt the highest-value patterns identified in the April 2026 competitive review of compound-engineering, superpowers, and GSD-2 \u2014 focusing on traceability, inline quality gates, structured debugging, and knowledge capture improvements across workflow prompts.",
+      "objective": "Adopt the highest-value patterns identified in the April 2026 competitive review of compound-engineering, superpowers, and GSD-2 — focusing on traceability, inline quality gates, structured debugging, and knowledge capture improvements across workflow prompts.",
       "status": "planned",
       "features": [
         {
@@ -466,7 +466,7 @@
         },
         {
           "id": "systematic-debugging-4-phase",
-          "title": "Systematic 4-phase debugging methodology in /cg-fixbug (reproduce \u2192 isolate \u2192 root-cause \u2192 fix) [from SP]",
+          "title": "Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]",
           "status": "idea",
           "plan": null,
           "github": {
@@ -488,7 +488,7 @@
         },
         {
           "id": "brainstorm-depth-grill-mode",
-          "title": "Brainstorm depth overhaul \u2014 grill-me mode + grill-with-docs skill",
+          "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
           "description": "Relentlessly inquisitive questioning in /cg-brainstorm until user and agent reach deep shared understanding. Inspired by mattpocock's grill-with-docs: challenge against domain glossary, sharpen fuzzy language, discuss concrete scenarios, cross-reference with code. Two modes: 'grill me' (agent questions user's idea) and 'grill with docs' (agent challenges plan against existing project knowledge/BRAIN.md). Captures resolved terminology and decisions inline.",
           "status": "idea",
           "plan": null,
@@ -500,7 +500,7 @@
         },
         {
           "id": "cg-confidence-prompt",
-          "title": "/cg-confidence \u2014 honest confidence/assumptions/unknowns assessment",
+          "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
           "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
           "status": "idea",
           "plan": null,
@@ -567,7 +567,7 @@
     {
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
-      "objective": "Make the first interaction with compound-gpid intelligent \u2014 scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
+      "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
       "status": "in-progress",
       "features": [
         {
@@ -578,7 +578,7 @@
         },
         {
           "id": "smart-setup-existing-projects",
-          "title": "Smart /cg-setup for existing projects (scan \u2192 draft \u2192 targeted questions \u2192 approve)",
+          "title": "Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-01-smart-setup-phase2-revised.md"
         },
@@ -646,8 +646,8 @@
         },
         {
           "id": "cg-help-interactive",
-          "title": "/cg-help \u2014 comprehensive interactive help system",
-          "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive \u2014 covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
+          "title": "/cg-help — comprehensive interactive help system",
+          "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
           "status": "idea",
           "plan": null,
           "github": {
@@ -661,7 +661,7 @@
     {
       "id": "workflow-maturity",
       "title": "Workflow Maturity",
-      "objective": "Improve the plan-to-execute cycle with branch-aware planning, phased execution, GitHub Issues integration, and a goal-driven completion contract \u2014 giving teams clearer scope, better continuity across sessions, and stronger integration with GitHub workflows.",
+      "objective": "Improve the plan-to-execute cycle with branch-aware planning, phased execution, GitHub Issues integration, and a goal-driven completion contract — giving teams clearer scope, better continuity across sessions, and stronger integration with GitHub workflows.",
       "status": "done",
       "features": [
         {
@@ -694,40 +694,40 @@
         {
           "id": "fixbug-test-correctness-assessment",
           "title": "/cg-fixbug test-correctness assessment",
-          "description": "Before fixing a bug, /cg-fixbug evaluates whether existing tests assert the intended behavior or merely codify the bug. Decides whether to fix the test, replace it, or write a new one \u2014 never blindly runs new code against old (possibly wrong) assertions.",
+          "description": "Before fixing a bug, /cg-fixbug evaluates whether existing tests assert the intended behavior or merely codify the bug. Decides whether to fix the test, replace it, or write a new one — never blindly runs new code against old (possibly wrong) assertions.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-01-test-correctness-assessment.md"
         },
         {
           "id": "github-issues-integration",
           "title": "GitHub Issues integration (optional, via gh CLI)",
-          "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive \u2014 not a replacement for the existing roadmap feature.",
+          "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive — not a replacement for the existing roadmap feature.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-11-github-issues-integration.md"
         },
         {
           "id": "pr-verification-pipeline",
           "title": "PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)",
-          "description": "Cross-platform E2E smoke tests in CI (cg-link/cg-unlink on fresh project dirs), automated cross-script parity checks (link.ps1 \u2194 link.sh), conventional-commits lint, docs-staleness warning, CONTRIBUTING.md for contributors, and PR template with seven-dimension review checklist. Motivated by first external PR passing CI but failing on real macOS machine.",
+          "description": "Cross-platform E2E smoke tests in CI (cg-link/cg-unlink on fresh project dirs), automated cross-script parity checks (link.ps1 ↔ link.sh), conventional-commits lint, docs-staleness warning, CONTRIBUTING.md for contributors, and PR template with seven-dimension review checklist. Motivated by first external PR passing CI but failing on real macOS machine.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-13-pr-verification-pipeline.md"
         },
         {
           "id": "cg-commit-push-pr",
-          "title": "/cg-commit-push-pr \u2014 logical commit splitting, push, and PR creation",
+          "title": "/cg-commit-push-pr — logical commit splitting, push, and PR creation",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md"
         },
         {
           "id": "cg-verify-pr",
-          "title": "/cg-verify-pr \u2014 CI check verification and auto-fix dispatch",
+          "title": "/cg-verify-pr — CI check verification and auto-fix dispatch",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md"
         },
         {
           "id": "goal-driven-execution",
-          "title": "Goal-driven execution \u2014 plan-as-completion-contract with integrated validation",
-          "description": "Transform the /cg-plan \u2192 /cg-work \u2192 /cg-review pipeline into a goal-driven execution loop inspired by Codex Goals. The plan becomes a completion contract defining six properties: outcome (what should be true when done), verification surface (tests/benchmarks/artifacts that prove it), constraints (what must not regress), boundaries (allowed scope), iteration policy (how to choose next action), and blocked-stop condition (when to pause and report). /cg-work executes against this contract \u2014 validating inline, self-reviewing against criteria, and continuing until evidence confirms the outcome or a blocker is hit. Deviation policy is declared in the plan: 'ask' (pause for permission), 'autonomous' (deviate and report), or 'strict' (never deviate). A full implementation report is produced at completion showing: what was achieved vs. planned, any deviations with justification, evidence gathered, and remaining uncertainty. The separate /cg-review command remains available for adversarial/cross-model review but is no longer required as a default post-work step.",
+          "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
+          "description": "Transform the /cg-plan → /cg-work → /cg-review pipeline into a goal-driven execution loop inspired by Codex Goals. The plan becomes a completion contract defining six properties: outcome (what should be true when done), verification surface (tests/benchmarks/artifacts that prove it), constraints (what must not regress), boundaries (allowed scope), iteration policy (how to choose next action), and blocked-stop condition (when to pause and report). /cg-work executes against this contract — validating inline, self-reviewing against criteria, and continuing until evidence confirms the outcome or a blocker is hit. Deviation policy is declared in the plan: 'ask' (pause for permission), 'autonomous' (deviate and report), or 'strict' (never deviate). A full implementation report is produced at completion showing: what was achieved vs. planned, any deviations with justification, evidence gathered, and remaining uncertainty. The separate /cg-review command remains available for adversarial/cross-model review but is no longer required as a default post-work step.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
           "github": {
@@ -747,91 +747,91 @@
         {
           "id": "brain-full-scope-indexer",
           "title": "Full-scope indexer (all .cg-docs/ + roadmap features)",
-          "description": "Extend cg_index.py to scan all .cg-docs/ subdirectories (solutions, plans, brainstorms, reviews, strategies) plus roadmap.json features as entities. Currently the indexer only covers .cg-docs/solutions/. The extended indexer must parse frontmatter from all artifact types and extract entity metadata (id, title, date, category, tags, status, related references). Roadmap features are ingested from the structured JSON directly. Output: a unified entity registry used by downstream features (topic extraction, relationship detection, BRAIN.md generation). Design inspired by Karpathy's LLM Wiki (https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and OmegaWiki (https://github.com/skyllwt/OmegaWiki). Batch A \u2014 develop together with brain-topic-extraction, brain-relationship-detection, brain-md-generation.",
+          "description": "Extend cg_index.py to scan all .cg-docs/ subdirectories (solutions, plans, brainstorms, reviews, strategies) plus roadmap.json features as entities. Currently the indexer only covers .cg-docs/solutions/. The extended indexer must parse frontmatter from all artifact types and extract entity metadata (id, title, date, category, tags, status, related references). Roadmap features are ingested from the structured JSON directly. Output: a unified entity registry used by downstream features (topic extraction, relationship detection, BRAIN.md generation). Design inspired by Karpathy's LLM Wiki (https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and OmegaWiki (https://github.com/skyllwt/OmegaWiki). Batch A — develop together with brain-topic-extraction, brain-relationship-detection, brain-md-generation.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md"
         },
         {
           "id": "brain-topic-extraction",
           "title": "Topic/theme extraction (auto-cluster artifacts into concepts)",
-          "description": "Auto-cluster indexed artifacts into topics/themes by analyzing tags, categories, and content overlap. Each topic gets a slug, one-line summary, and list of constituent artifacts across all entity types. Topics are the PRIMARY navigation layer in BRAIN.md \u2014 when an agent searches for knowledge, it finds topics first, then drills into specific artifacts. Example topics: 'PowerShell 5.1 compatibility', 'Pester safety', 'prompt design patterns'. Topics emerge from the data (tag frequency, category groupings, explicit references) rather than being manually defined. Batch A \u2014 develop together with brain-full-scope-indexer, brain-relationship-detection, brain-md-generation.",
+          "description": "Auto-cluster indexed artifacts into topics/themes by analyzing tags, categories, and content overlap. Each topic gets a slug, one-line summary, and list of constituent artifacts across all entity types. Topics are the PRIMARY navigation layer in BRAIN.md — when an agent searches for knowledge, it finds topics first, then drills into specific artifacts. Example topics: 'PowerShell 5.1 compatibility', 'Pester safety', 'prompt design patterns'. Topics emerge from the data (tag frequency, category groupings, explicit references) rather than being manually defined. Batch A — develop together with brain-full-scope-indexer, brain-relationship-detection, brain-md-generation.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md"
         },
         {
           "id": "brain-relationship-detection",
           "title": "Relationship/edge detection (full typed edge set)",
-          "description": "Parse explicit frontmatter links (related:, implements:, resolves:) and infer edges from content references between artifacts. Full edge type set from day one: implements (plan \u2192 feature), resolves (solution \u2192 plan finding), supersedes (newer \u2192 older artifact), decided_from (plan \u2192 brainstorm), reviews (review \u2192 plan), references (any \u2192 any general citation). Edges stored as structured data (source, target, edge_type) for use in BRAIN.md generation and future team brain push. Batch A \u2014 develop together with brain-full-scope-indexer, brain-topic-extraction, brain-md-generation.",
+          "description": "Parse explicit frontmatter links (related:, implements:, resolves:) and infer edges from content references between artifacts. Full edge type set from day one: implements (plan → feature), resolves (solution → plan finding), supersedes (newer → older artifact), decided_from (plan → brainstorm), reviews (review → plan), references (any → any general citation). Edges stored as structured data (source, target, edge_type) for use in BRAIN.md generation and future team brain push. Batch A — develop together with brain-full-scope-indexer, brain-topic-extraction, brain-md-generation.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md"
         },
         {
           "id": "brain-md-generation",
           "title": "BRAIN.md generation (topic index + entity catalog + edges)",
-          "description": "Generate a single BRAIN.md file that serves as the agent's panoramic entry point to project knowledge. Structure: (1) Topic/theme index \u2014 primary navigation, each topic with constituent artifacts and key takeaways; (2) Entity catalog \u2014 secondary, organized by entity type (solutions, plans, brainstorms, reviews, strategies, features); (3) Edge list \u2014 relationship tracking showing how artifacts connect. Replaces current DIGEST.md as the canonical knowledge overview. Designed to fit in one context window (~100-300 entries) without requiring vector DB. Inspired by OmegaWiki's context_brief.md concept. Batch A \u2014 develop together with brain-full-scope-indexer, brain-topic-extraction, brain-relationship-detection.",
+          "description": "Generate a single BRAIN.md file that serves as the agent's panoramic entry point to project knowledge. Structure: (1) Topic/theme index — primary navigation, each topic with constituent artifacts and key takeaways; (2) Entity catalog — secondary, organized by entity type (solutions, plans, brainstorms, reviews, strategies, features); (3) Edge list — relationship tracking showing how artifacts connect. Replaces current DIGEST.md as the canonical knowledge overview. Designed to fit in one context window (~100-300 entries) without requiring vector DB. Inspired by OmegaWiki's context_brief.md concept. Batch A — develop together with brain-full-scope-indexer, brain-topic-extraction, brain-relationship-detection.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md"
         },
         {
           "id": "brain-rebuild-command",
           "title": "/cg-brain-rebuild explicit rebuild command",
-          "description": "Create a /cg-brain-rebuild command that explicitly triggers a full brain rebuild (re-runs the indexer, topic extraction, relationship detection, and BRAIN.md generation). This is the escape hatch for when the user wants an up-to-date brain without running /cg-compound. Batch B \u2014 develop together with brain-auto-rebuild-on-compound.",
+          "description": "Create a /cg-brain-rebuild command that explicitly triggers a full brain rebuild (re-runs the indexer, topic extraction, relationship detection, and BRAIN.md generation). This is the escape hatch for when the user wants an up-to-date brain without running /cg-compound. Batch B — develop together with brain-auto-rebuild-on-compound.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md"
         },
         {
           "id": "brain-auto-rebuild-on-compound",
           "title": "Auto-trigger brain rebuild on /cg-compound",
-          "description": "Wire brain rebuild into the /cg-compound workflow so the brain stays current automatically. After a solution is captured and saved, the compound command triggers a full brain rebuild before completing. This ensures BRAIN.md always reflects the latest knowledge state. Batch B \u2014 develop together with brain-rebuild-command.",
+          "description": "Wire brain rebuild into the /cg-compound workflow so the brain stays current automatically. After a solution is captured and saved, the compound command triggers a full brain rebuild before completing. This ensures BRAIN.md always reflects the latest knowledge state. Batch B — develop together with brain-rebuild-command.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md"
         },
         {
           "id": "brain-prompt-integration",
-          "title": "Prompt integration \u2014 Consult Brain in Step 0",
-          "description": "Add a 'Consult Brain' sub-step to Step 0 of all major prompts: /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound. The agent reads BRAIN.md, identifies topics/entities relevant to the current task (by matching tags, categories, or feature references), then drills into specific artifact files for detailed context. This is the READ PATH that makes the brain useful \u2014 without it, the index exists but nothing consumes it. Each prompt uses the brain differently: /cg-brainstorm checks for prior explorations; /cg-plan checks for existing solutions to sub-tasks; /cg-work checks for gotchas; /cg-review checks for known mistakes; /cg-compound checks for superseded solutions. Batch C \u2014 develop together with brain-query-skill.",
+          "title": "Prompt integration — Consult Brain in Step 0",
+          "description": "Add a 'Consult Brain' sub-step to Step 0 of all major prompts: /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound. The agent reads BRAIN.md, identifies topics/entities relevant to the current task (by matching tags, categories, or feature references), then drills into specific artifact files for detailed context. This is the READ PATH that makes the brain useful — without it, the index exists but nothing consumes it. Each prompt uses the brain differently: /cg-brainstorm checks for prior explorations; /cg-plan checks for existing solutions to sub-tasks; /cg-work checks for gotchas; /cg-review checks for known mistakes; /cg-compound checks for superseded solutions. Batch C — develop together with brain-query-skill.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md"
         },
         {
           "id": "brain-query-skill",
           "title": "cg-skill-brain-query (agent brain search patterns)",
-          "description": "Create a skill that teaches agents how to efficiently search and consume the project brain. Covers: how to scan BRAIN.md topic index for relevant clusters, when to drill into specific artifacts vs. trusting the summary, how to handle contradicting information (prefer newer, check supersedes edges), how to cite brain findings in outputs, and how to flag stale or potentially outdated knowledge. This skill is loaded by any prompt that has the 'Consult Brain' step. Batch C \u2014 develop together with brain-prompt-integration.",
+          "description": "Create a skill that teaches agents how to efficiently search and consume the project brain. Covers: how to scan BRAIN.md topic index for relevant clusters, when to drill into specific artifacts vs. trusting the summary, how to handle contradicting information (prefer newer, check supersedes edges), how to cite brain findings in outputs, and how to flag stale or potentially outdated knowledge. This skill is loaded by any prompt that has the 'Consult Brain' step. Batch C — develop together with brain-prompt-integration.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md"
         },
         {
           "id": "team-brain-repo-schema",
-          "title": "Team brain \u2014 central repo schema design",
-          "description": "Design the GitHub repository structure for the cross-project team brain. This repo aggregates knowledge from all projects using the compound-gpid plugin. Key design decisions: how multiple projects' knowledge coexists (namespaced by project? flat merged?), what the team-level BRAIN.md looks like, how topic deduplication works across projects, and what metadata is needed for provenance tracking. Batch D (Phase 2) \u2014 develop first in team brain phase.",
+          "title": "Team brain — central repo schema design",
+          "description": "Design the GitHub repository structure for the cross-project team brain. This repo aggregates knowledge from all projects using the compound-gpid plugin. Key design decisions: how multiple projects' knowledge coexists (namespaced by project? flat merged?), what the team-level BRAIN.md looks like, how topic deduplication works across projects, and what metadata is needed for provenance tracking. Batch D (Phase 2) — develop first in team brain phase.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-push",
-          "title": "Team brain \u2014 push solutions + distilled patterns",
-          "description": "On /cg-compound, after local brain rebuild, extract the solution plus auto-distill reusable patterns (project-agnostic lessons learned) and push to the central team brain repo. Only solutions and distilled patterns cross the project boundary \u2014 plans, brainstorms, and reviews stay project-local. The push mechanism must handle: authentication to the central repo, formatting entries for the team brain schema, and updating the team-level index. Batch D (Phase 2) \u2014 develop together with team-brain-pull.",
+          "title": "Team brain — push solutions + distilled patterns",
+          "description": "On /cg-compound, after local brain rebuild, extract the solution plus auto-distill reusable patterns (project-agnostic lessons learned) and push to the central team brain repo. Only solutions and distilled patterns cross the project boundary — plans, brainstorms, and reviews stay project-local. The push mechanism must handle: authentication to the central repo, formatting entries for the team brain schema, and updating the team-level index. Batch D (Phase 2) — develop together with team-brain-pull.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-pull",
-          "title": "Team brain \u2014 pull relevant entries during Step 0",
-          "description": "During the 'Consult Brain' step in Step 0, after checking the local project brain, also fetch relevant entries from the team brain by matching topics/tags to the current task. This enables cross-project knowledge transfer \u2014 a solution found in project A becomes available to project B without anyone explicitly sharing it. The pull mechanism must handle: fetching from GitHub, caching locally for offline use, and relevance filtering (don't load the entire team brain into context). Batch D (Phase 2) \u2014 develop together with team-brain-push.",
+          "title": "Team brain — pull relevant entries during Step 0",
+          "description": "During the 'Consult Brain' step in Step 0, after checking the local project brain, also fetch relevant entries from the team brain by matching topics/tags to the current task. This enables cross-project knowledge transfer — a solution found in project A becomes available to project B without anyone explicitly sharing it. The pull mechanism must handle: fetching from GitHub, caching locally for offline use, and relevance filtering (don't load the entire team brain into context). Batch D (Phase 2) — develop together with team-brain-push.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-dedup",
-          "title": "Team brain \u2014 conflict/dedup resolution",
-          "description": "Handle contradicting solutions across projects. When two projects push solutions for the same topic that conflict, the system must resolve or flag the contradiction. Approaches: timestamp-based precedence (newer wins), confidence scoring based on how many projects validated the solution, or explicit 'contradicts' edges that surface both options with context. Batch D (Phase 2) \u2014 develop after push/pull are working.",
+          "title": "Team brain — conflict/dedup resolution",
+          "description": "Handle contradicting solutions across projects. When two projects push solutions for the same topic that conflict, the system must resolve or flag the contradiction. Approaches: timestamp-based precedence (newer wins), confidence scoring based on how many projects validated the solution, or explicit 'contradicts' edges that surface both options with context. Batch D (Phase 2) — develop after push/pull are working.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         },
         {
           "id": "team-brain-privacy-filter",
-          "title": "Team brain \u2014 privacy filter before push",
-          "description": "Ensure project-specific details (file paths, credentials, internal variable names, proprietary data references) are stripped or anonymized before pushing to the central team brain. The filter runs automatically during the push step. It should detect and redact: absolute paths, environment-specific configuration, internal API endpoints, team member names (unless opted in), and any content marked as sensitive in frontmatter. Batch D (Phase 2) \u2014 develop together with team-brain-dedup.",
+          "title": "Team brain — privacy filter before push",
+          "description": "Ensure project-specific details (file paths, credentials, internal variable names, proprietary data references) are stripped or anonymized before pushing to the central team brain. The filter runs automatically during the push step. It should detect and redact: absolute paths, environment-specific configuration, internal API endpoints, team member names (unless opted in), and any content marked as sensitive in frontmatter. Batch D (Phase 2) — develop together with team-brain-dedup.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md"
         }
@@ -846,14 +846,14 @@
         {
           "id": "command-default-behaviors",
           "title": "Command default behaviors (auto-branch, phases, autofix, context enrichment)",
-          "description": "Establish opinionated defaults for the five main workflow commands so users get the most common behavior without flags. /cg-brainstorm: if the user is on the main or default branch, automatically create a new feature branch before starting (no prompt); if on any other branch, prompt the user whether to stay or create a new branch \u2014 branching is still the default unless overridden with a --no-branch flag. /cg-plan: default output is a phased plan (numbered phases with self-contained task lists) unless the user explicitly requests a flat plan via --no-phases. /cg-work: default is to run all plan phases sequentially (equivalent to current behavior without a phaseN argument); single-phase execution remains available via '/cg-work phase1'. /cg-review: default to autofix mode (automatically apply safe fixes from findings) rather than report-only; a --report-only flag disables autofix. /cg-compound: after capturing the solution, automatically add all key findings from the compound iteration to compound-gpid.context.md and any other relevant project files (skills, instructions), as long as they fit the project's structure and objectives \u2014 no manual prompting required.",
+          "description": "Establish opinionated defaults for the five main workflow commands so users get the most common behavior without flags. /cg-brainstorm: if the user is on the main or default branch, automatically create a new feature branch before starting (no prompt); if on any other branch, prompt the user whether to stay or create a new branch — branching is still the default unless overridden with a --no-branch flag. /cg-plan: default output is a phased plan (numbered phases with self-contained task lists) unless the user explicitly requests a flat plan via --no-phases. /cg-work: default is to run all plan phases sequentially (equivalent to current behavior without a phaseN argument); single-phase execution remains available via '/cg-work phase1'. /cg-review: default to autofix mode (automatically apply safe fixes from findings) rather than report-only; a --report-only flag disables autofix. /cg-compound: after capturing the solution, automatically add all key findings from the compound iteration to compound-gpid.context.md and any other relevant project files (skills, instructions), as long as they fit the project's structure and objectives — no manual prompting required.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-18-command-default-behaviors.md"
         },
         {
           "id": "outcome-criteria-in-plans",
           "title": "Outcome criteria in plans (verifiable acceptance criteria)",
-          "description": "When a user runs /cg-plan or /cg-brainstorm, the output must specify not only what to build (objectives, tasks) but also how the finished result should appear \u2014 concrete acceptance criteria that are verifiable during /cg-work and /cg-review. This includes: specific requirements the implementation must satisfy (e.g., 'function returns X when given Y'), observable behaviors or outputs (e.g., 'API responds with 200 and JSON schema Z'), structural constraints (e.g., 'no new dependencies added'), and measurable thresholds where applicable (e.g., 'test coverage above N%'). During /cg-work, the agent checks criteria as it completes each phase. During /cg-review, the agent explicitly verifies each criterion and reports pass/fail status. This closes the gap between 'plan says build X' and 'review can confirm X was built correctly'.",
+          "description": "When a user runs /cg-plan or /cg-brainstorm, the output must specify not only what to build (objectives, tasks) but also how the finished result should appear — concrete acceptance criteria that are verifiable during /cg-work and /cg-review. This includes: specific requirements the implementation must satisfy (e.g., 'function returns X when given Y'), observable behaviors or outputs (e.g., 'API responds with 200 and JSON schema Z'), structural constraints (e.g., 'no new dependencies added'), and measurable thresholds where applicable (e.g., 'test coverage above N%'). During /cg-work, the agent checks criteria as it completes each phase. During /cg-review, the agent explicitly verifies each criterion and reports pass/fail status. This closes the gap between 'plan says build X' and 'review can confirm X was built correctly'.",
           "status": "idea",
           "plan": null,
           "github": {
@@ -865,7 +865,7 @@
         {
           "id": "conversation-audit-trail",
           "title": "Conversation audit trail across workflow stages",
-          "description": "Persist the main ideas from conversations between the user and compound-gpid throughout the entire workflow lifecycle: brainstorm, plan, work, review, and compound stages. The audit trail captures: the user's original request and how it was interpreted, clarifying questions asked by the agent and the user's answers, how the plan was adjusted based on those answers, decisions made during implementation (why approach A was chosen over B), review findings and how they were resolved, and any scope changes that occurred mid-session. This record is stored alongside the plan/brainstorm artifacts (not in a separate system) so that any future session can understand not just what was decided but why. Serves two purposes: (1) traceability \u2014 if a decision is questioned later, the reasoning is recoverable; (2) continuity \u2014 if a session is interrupted and resumed days later, the context is preserved without relying on the user's memory.",
+          "description": "Persist the main ideas from conversations between the user and compound-gpid throughout the entire workflow lifecycle: brainstorm, plan, work, review, and compound stages. The audit trail captures: the user's original request and how it was interpreted, clarifying questions asked by the agent and the user's answers, how the plan was adjusted based on those answers, decisions made during implementation (why approach A was chosen over B), review findings and how they were resolved, and any scope changes that occurred mid-session. This record is stored alongside the plan/brainstorm artifacts (not in a separate system) so that any future session can understand not just what was decided but why. Serves two purposes: (1) traceability — if a decision is questioned later, the reasoning is recoverable; (2) continuity — if a session is interrupted and resumed days later, the context is preserved without relying on the user's memory.",
           "status": "idea",
           "plan": null,
           "github": {
@@ -889,7 +889,7 @@
         {
           "id": "strategy-add-shortcut",
           "title": "/cg-strategy --add <idea> quick-add mode for roadmap ideas",
-          "description": "Add a --add flag to /cg-strategy that provides a streamlined path for capturing a single idea into the roadmap without running a full strategy session. When the user runs '/cg-strategy --add <idea text>', the flow is: (1) Parse the idea from the inline argument. (2) If the idea is vague or underspecified, ask targeted clarifying questions to develop it \u2014 what problem does it solve, who benefits, what does the finished result look like. (3) Once the agent has a clear understanding, explain the idea back to the user in its own words and ask for confirmation that it captured the intent correctly. (4) Suggest an existing milestone where the idea fits best, explaining why, or propose creating a new milestone if none fits. (5) On user approval, dispatch @cg-roadmap to add the feature with a detailed description (matching the level of detail in other Ongoing Ideas features). This bypasses the full strategy conversation (trigger selection, structured Q&A, proposal iteration) when the user already knows what they want \u2014 it's a fast lane for 'I have one idea, put it on the roadmap'. The full /cg-strategy flow remains available for sessions that need broader thinking.",
+          "description": "Add a --add flag to /cg-strategy that provides a streamlined path for capturing a single idea into the roadmap without running a full strategy session. When the user runs '/cg-strategy --add <idea text>', the flow is: (1) Parse the idea from the inline argument. (2) If the idea is vague or underspecified, ask targeted clarifying questions to develop it — what problem does it solve, who benefits, what does the finished result look like. (3) Once the agent has a clear understanding, explain the idea back to the user in its own words and ask for confirmation that it captured the intent correctly. (4) Suggest an existing milestone where the idea fits best, explaining why, or propose creating a new milestone if none fits. (5) On user approval, dispatch @cg-roadmap to add the feature with a detailed description (matching the level of detail in other Ongoing Ideas features). This bypasses the full strategy conversation (trigger selection, structured Q&A, proposal iteration) when the user already knows what they want — it's a fast lane for 'I have one idea, put it on the roadmap'. The full /cg-strategy flow remains available for sessions that need broader thinking.",
           "status": "idea",
           "plan": null,
           "github": {
@@ -901,7 +901,7 @@
         {
           "id": "project-wiki-auto-documentation",
           "title": "Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)",
-          "description": "Create and continuously maintain a user-readable documentation wiki (similar to compound-gpid's own docs/ folder) that serves as the canonical reference for any project using the plugin \u2014 whether it's a research paper, R package, data pipeline, or tool. The wiki is initialized during /cg-setup based on the project charter, scanner results, and project type: for an R package it might include installation, API reference, and vignettes sections; for a research paper it might cover methodology, data sources, and replication instructions; for a tool it might cover setup, usage, and configuration. After initialization, /cg-compound automatically updates the wiki whenever a completed task produces knowledge that belongs in user-facing documentation \u2014 new features get documented, changed behaviors get updated, resolved bugs that affect usage get noted. The wiki is distinct from .cg-docs/ (which is internal compound-gpid knowledge) \u2014 this is external-facing documentation that end users and collaborators read. Flexibility mechanisms: the user can customize the wiki structure via a configuration section in compound-gpid.context.md (e.g., preferred sections, tone, audience), can run a dedicated command to restructure or regenerate specific sections, and can manually edit wiki pages without the plugin overwriting their changes (the plugin appends or proposes diffs, never force-overwrites). The wiki should also support a table of contents and cross-linking between pages.",
+          "description": "Create and continuously maintain a user-readable documentation wiki (similar to compound-gpid's own docs/ folder) that serves as the canonical reference for any project using the plugin — whether it's a research paper, R package, data pipeline, or tool. The wiki is initialized during /cg-setup based on the project charter, scanner results, and project type: for an R package it might include installation, API reference, and vignettes sections; for a research paper it might cover methodology, data sources, and replication instructions; for a tool it might cover setup, usage, and configuration. After initialization, /cg-compound automatically updates the wiki whenever a completed task produces knowledge that belongs in user-facing documentation — new features get documented, changed behaviors get updated, resolved bugs that affect usage get noted. The wiki is distinct from .cg-docs/ (which is internal compound-gpid knowledge) — this is external-facing documentation that end users and collaborators read. Flexibility mechanisms: the user can customize the wiki structure via a configuration section in compound-gpid.context.md (e.g., preferred sections, tone, audience), can run a dedicated command to restructure or regenerate specific sections, and can manually edit wiki pages without the plugin overwriting their changes (the plugin appends or proposes diffs, never force-overwrites). The wiki should also support a table of contents and cross-linking between pages.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md"
         },
@@ -920,7 +920,7 @@
         {
           "id": "agent-verified-outcome-evals",
           "title": "Agent-verified outcome definitions with acceptance evals",
-          "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met \u2014 not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
+          "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
           "status": "idea",
           "plan": null,
           "github": {
@@ -1074,37 +1074,37 @@
       "features": [
         {
           "id": "phase-1-1-workflow-token-baseline",
-          "title": "Phase 1.1 \u2014 Workflow-level token baseline and test integration",
+          "title": "Phase 1.1 — Workflow-level token baseline and test integration",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md"
         },
         {
           "id": "phase-1-2-knowledge-brain-query",
-          "title": "Phase 1.2 \u2014 Knowledge Brain query and budgeted retrieval",
+          "title": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md"
         },
         {
           "id": "phase-1-3-command-output-summaries",
-          "title": "Phase 1.3 \u2014 Command-output summarization wrappers",
+          "title": "Phase 1.3 — Command-output summarization wrappers",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md"
         },
         {
           "id": "phase-1-4-progressive-disclosure-cleanup",
-          "title": "Phase 1.4 \u2014 Progressive-disclosure skills and scoped instructions",
+          "title": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md"
         },
         {
           "id": "phase-1-5-handoff-resume-compaction",
-          "title": "Phase 1.5 \u2014 Handoff, resume, and active-state compaction",
+          "title": "Phase 1.5 — Handoff, resume, and active-state compaction",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md"
         },
         {
           "id": "phase-1-6-token-dashboard-regression",
-          "title": "Phase 1.6 \u2014 Token dashboard and regression checks",
+          "title": "Phase 1.6 — Token dashboard and regression checks",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md"
         }
@@ -1118,19 +1118,19 @@
       "features": [
         {
           "id": "phase-2-1-cross-agent-packaging-adapters",
-          "title": "Phase 2.1 \u2014 Cross-agent packaging adapters",
+          "title": "Phase 2.1 — Cross-agent packaging adapters",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md"
         },
         {
           "id": "phase-2-2-optional-retrieval-backends",
-          "title": "Phase 2.2 \u2014 Optional retrieval backend evaluation",
+          "title": "Phase 2.2 — Optional retrieval backend evaluation",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md"
         },
         {
           "id": "phase-2-3-snapshot-external-research-modes",
-          "title": "Phase 2.3 \u2014 Snapshot and external-research modes",
+          "title": "Phase 2.3 — Snapshot and external-research modes",
           "status": "done",
           "plan": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md"
         }

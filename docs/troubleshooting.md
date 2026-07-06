@@ -20,7 +20,7 @@ Python is required but not found (checked: python3, python, py).
 ERROR: Python is not available (checked: python3, python, py).
 ```
 
-**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. `cg-token-audit` runs the Python context/model audit that powers `/cg-token-audit`. Both require Python 3.8+. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python.
+**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. `cg-token-audit` runs the Python context/model audit that powers `/cg-token-audit`. Both require Python 3.8+. Compound GPID probes `python3`, then `python`, then `py` and accepts the first real Python executable whose `--version` output starts with `Python`. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python; the wrappers reject that stub.
 
 **Fix (Windows)**:
 ```powershell
@@ -31,7 +31,7 @@ winget install Python.Python.3.11
 # https://www.python.org/downloads/
 # Check "Add python.exe to PATH" during install
 ```
-After installing, open a new terminal and verify: `python --version`. Then re-run `install.ps1`.
+After installing, open a new terminal and verify one of `python3 --version`, `python --version`, or `py --version` prints `Python 3.x`. Then re-run `install.ps1`.
 
 **Fix (macOS)**:
 ```bash
@@ -42,7 +42,7 @@ xcode-select --install
 brew install python@3.11
 ```
 
-**Note**: if Python is absent, the core Compound GPID workflow (prompts, agents, skills) continues to work. `cg-index`, `/cg-brain-rebuild`, and `/cg-token-audit` are unavailable until Python is installed. `cg-learnings-researcher` falls back to direct directory scanning automatically.
+**Note**: if Python is absent, install/update/link operations that need Python will stop or skip Python-backed refreshes with a warning. The prompt files themselves remain usable once linked. `cg-index`, `/cg-brain-rebuild`, and `/cg-token-audit` are unavailable until Python is installed.
 
 ---
 
@@ -291,6 +291,36 @@ cg-link
 ```
 
 Then retry `cg-link` from your project root.
+
+---
+
+## `cg-link` skips a platform directory or config file
+
+**Symptom**: `cg-link` completes but prints warnings such as:
+```
+.opencode/opencode.json exists and is not manifest-managed; skipping.
+.github/prompts is a real directory; skipping this unit.
+```
+
+**Cause**: Compound GPID installs merge-safe platform units instead of replacing whole roots. If a selected unit already exists as a real directory or user-owned file, `cg-link` skips that unit and continues with the rest of the selected platforms.
+
+**Fix**:
+1. If the existing file/directory is intentional, leave it in place. For OpenCode config, apply the manual snippet printed by `cg-link` if needed.
+2. If you want Compound GPID to manage that unit, move or remove the existing path, then re-run `cg-link`.
+3. To install only one platform, run `cg-link --platforms opencode` or `cg-link --platforms copilot`.
+
+---
+
+## `cg-update` skips a managed platform config file
+
+**Symptom**: `cg-update` prints:
+```
+Managed file modified by user, skipping refresh: .opencode/opencode.json
+```
+
+**Cause**: Strict config files cannot carry inline management comments. Compound GPID records checksums in `.compound-gpid/managed-files.json`. If your local copy no longer matches the recorded checksum, `cg-update` treats it as user-managed and preserves it.
+
+**Fix**: Keep your version and manually merge any needed changes from the corresponding file in the Compound GPID install, or delete the file and manifest entry then re-run `cg-link` to restore CG management.
 
 ---
 
