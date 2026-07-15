@@ -76,10 +76,4 @@ RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
 .agents/*
-# Exception: .agents/ generated platform tree is committed (Codex native target)
-!.agents/commands/
-!.agents/subagents/
-!.agents/skills/
-!.agents/AGENTS.md
-!.agents/model-mapping.codex.json
-!.agents/README.md
+
