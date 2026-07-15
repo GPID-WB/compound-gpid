@@ -251,8 +251,24 @@ try {
 if (Test-Path $PROFILE -ErrorAction SilentlyContinue) {
     try {
         $profileContent = Get-Content -Path $PROFILE -Raw -ErrorAction SilentlyContinue
-        if ($profileContent -and $profileContent -match "Compound GPID") {
-            $cleaned = ($profileContent -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "").TrimEnd()
+        $hasManagedBlock = $profileContent -and ($profileContent -match "Compound GPID")
+        $hasLegacyCgFunctions = $profileContent -and ($profileContent -match '(?im)^\s*function\s+cg-(link|unlink|update)\b')
+        if ($hasManagedBlock -or $hasLegacyCgFunctions) {
+            # Remove the old managed profile block.
+            $cleaned = ($profileContent -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "")
+
+            # Remove legacy unmarked cg-* profile functions from early installs.
+            # These functions can shadow PATH wrappers and reintroduce CLM dot-source failures.
+            $legacyPatterns = @(
+                '(?is)^\s*function\s+cg-link\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]link\.ps1[^\}]*\}\s*\r?\n?',
+                '(?is)^\s*function\s+cg-unlink\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]unlink\.ps1[^\}]*\}\s*\r?\n?',
+                '(?is)^\s*function\s+cg-update\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]update\.ps1[^\}]*\}\s*\r?\n?'
+            )
+            foreach ($pattern in $legacyPatterns) {
+                $cleaned = [regex]::Replace($cleaned, $pattern, "")
+            }
+
+            $cleaned = $cleaned.TrimEnd()
             Set-Content -Path $PROFILE -Value $cleaned -ErrorAction Stop
             Write-Host "  Removed old Compound GPID block from PowerShell profile." -ForegroundColor DarkGray
         }
