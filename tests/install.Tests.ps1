@@ -132,6 +132,20 @@ Describe "install.ps1 - old profile cleanup" {
             $content = "# My personal profile`nWrite-Host 'Hello'"
             ($content -match "Compound GPID") | Should -Be $false
         }
+
+        It "contains cleanup for legacy unmarked cg-link profile functions [regression guard]" {
+            # Reproduces CLM regression: old installs defined cg-link/cg-unlink/cg-update
+            # functions in $PROFILE that dot-sourced scripts without the managed marker block.
+            # install.ps1 must clean these legacy lines so command resolution falls back to
+            # the PATH .cmd wrappers (which are CLM-safe).
+            $installContent = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw -Encoding UTF8
+            $installContent | Should -Match 'hasLegacyCgFunctions'
+            $installContent | Should -Match 'cg-\(link\|unlink\|update\)'
+            $installContent | Should -Match '\$legacyPatterns'
+            $installContent | Should -Match 'cg-link'
+            $installContent | Should -Match 'cg-unlink'
+            $installContent | Should -Match 'cg-update'
+        }
     }
 }
 
