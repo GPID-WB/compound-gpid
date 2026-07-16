@@ -218,7 +218,7 @@ Microsoft.PowerShell_profile.ps1 : Cannot dot-source this command because it was
 
 **Cause**: Your organization enforces Constrained Language Mode (CLM) via AppLocker or Windows Defender Application Control. OneDrive has redirected your Documents folder to a path CLM treats as untrusted, blocking profile dot-sourcing.
 
-**Fix**: Re-install using the current approach (batch wrappers on PATH - no profile manipulation):
+**Fix**: Re-install using the current approach (batch wrappers on PATH; no new profile registration):
 ```powershell
 # Clone to your chosen path (see Installation > Choose your install path)
 git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
@@ -229,7 +229,41 @@ git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
 # Restart VS Code / Positron and your terminal
 ```
 
-The installer automatically removes any old `$PROFILE` block from previous installs.
+The installer automatically removes the exact managed `$PROFILE` block and
+exact legacy wrappers from previous installs.
+
+The byte-preserving profile cleanup intentionally uses .NET file and encoding
+APIs and must run in FullLanguage mode. Those APIs are unavailable to the
+helper in a CLM-restricted process, so it stops before changing the profile,
+reports a warning, and leaves the file untouched rather than performing a
+potentially lossy rewrite. Run the no-profile PATH wrapper directly, for
+example `& "C:\WBG\.compound-gpid\bin\cg-update.cmd"`, or remove the exact
+legacy function manually after backing up `$PROFILE`.
+
+If you already have the current PATH-wrapper installation and do not want to
+run the installer again, `cg-update` also removes exact legacy `cg-link`,
+`cg-unlink`, and `cg-update` wrappers from `$PROFILE` before pulling updates.
+The cleanup only removes the one-statement wrappers emitted by old Compound
+GPID versions. It preserves customized functions, personal profile content,
+and the profile's existing encoding and BOM. If a customized function has the
+same name, remove or rename it manually after reviewing the warning; otherwise
+it can continue to shadow the PATH wrapper in the current shell.
+
+Cleanup preserves the profile's existing CRLF or LF line-ending style and
+refuses to replace a symlinked or other reparse-point profile. In either case,
+review the warning and remove the exact legacy wrapper from the real target
+profile manually if needed.
+
+### Updating from an already-running old updater
+
+The updater must start with the old script that is already loaded in the
+current PowerShell process. Therefore, a `cg-update` process that was started
+from a pre-remediation installation cannot execute cleanup code that was added
+by the update it pulls during that same process. If the first run reports that
+the installation was updated but the old function still resolves in the
+current shell, start a new terminal or run `cg-update` once more. The second
+run starts the newly pulled updater and performs the profile cleanup. This
+limitation does not apply to a fresh shell that starts the current updater.
 
 ---
 
@@ -241,13 +275,22 @@ If you are on a **local OneDrive machine** and previously installed to `$env:USE
 
 ### Step A - Remove the old `$PROFILE` block
 
-Run `install.ps1` from the new location -- it will remove the old profile block automatically. If you want to clean it up manually first:
+Run the current installer from the new location -- it removes old managed
+blocks and exact legacy wrappers without changing the profile's encoding. If
+an old `cg-update` function shadows the PATH wrapper, invoke the wrapper
+directly so the profile is not loaded:
 
 ```powershell
-$p = Get-Content $PROFILE -Raw
-$p = $p -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", ""
-Set-Content $PROFILE $p.TrimEnd()
+$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
+# $cg = "$env:USERPROFILE\.compound-gpid"   # remote server
+Copy-Item -LiteralPath $PROFILE -Destination "$PROFILE.compound-gpid-backup" -Force
+& "$cg\bin\cg-update.cmd" latest
 ```
+
+If the `bin\cg-update.cmd` wrapper does not exist, run `install.ps1` from the
+current clone instead. When the first direct run starts an older updater, run
+the same wrapper once more after the pull so the newly installed updater can
+perform the profile cleanup.
 
 ### Step B - Remove the old `bin\` directory from PATH
 

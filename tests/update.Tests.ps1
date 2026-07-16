@@ -2,8 +2,9 @@
 # Pester tests for scripts/update.ps1 logic
 #
 # Run with: Invoke-Pester tests/update.Tests.ps1
-# Compatible with Pester 3.4+ (ships built-in on Windows)
+# Compatible with Pester 4.10.1+ (project standard).
 
+$script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . (Join-Path $repoRoot "scripts\helpers.ps1")
 
@@ -341,7 +342,15 @@ Describe "update.ps1 - manifest-managed platform file refresh" {
         Set-Content -Path $sourcePath -Value '{"updated":true}' -Encoding UTF8
         Set-Content -Path $outsidePath -Value '{"outside":true}' -Encoding UTF8
         Remove-Item -Path $targetPath -Force -ErrorAction SilentlyContinue
-        New-Item -ItemType SymbolicLink -Path $targetPath -Target $outsidePath | Out-Null
+        try {
+            New-Item -ItemType SymbolicLink -Path $targetPath -Target $outsidePath -ErrorAction Stop | Out-Null
+        } catch {
+            # Windows requires Developer Mode or the SeCreateSymbolicLinkPrivilege
+            # for this fixture. Mark it skipped when the test host lacks that
+            # capability instead of reporting a false failure.
+            Set-ItResult -Skipped -Because "Symbolic links are unavailable: $($_.Exception.Message)"
+            return
+        }
 
         $files = @{}
         $files[$targetRel] = @{ source = $sourceRel; checksum = (Get-CgFileSha256 -Path $targetPath) }
@@ -1586,6 +1595,285 @@ Describe "update.ps1 - CG_INTERNAL_CALL guard" {
             [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $false
             Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
             [string]::IsNullOrEmpty($env:CG_INTERNAL_CALL) | Should -Be $true
+        }
+    }
+}
+
+Describe "update.ps1 - legacy CLM profile remediation" {
+    Context "when a user updates from legacy profile-function based installs" {
+        It "contains cleanup for unmarked cg-link profile functions [regression guard]" {
+            $updateContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+            $helpersContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+            $updateContent | Should -Match 'Remove-LegacyProfileCommands'
+            $helpersContent | Should -Match 'hasLegacyCgFunctions'
+            $updateContent | Should -Match '\$PROFILE'
+            $updateContent | Should -Match 'Remove-CgLegacyLiveFunctions'
+        }
+
+        It "fails closed in Constrained Language Mode without changing the profile" {
+            if (-not $script:OnWindows -or -not (Get-Command powershell.exe -ErrorAction SilentlyContinue)) {
+                Set-ItResult -Skipped -Because "This acceptance test requires Windows PowerShell"
+                return
+            }
+
+            $profilePath = Join-Path $TestDrive "clm-profile.ps1"
+            $profileContent = 'function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }'
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+
+            $probePath = Join-Path $TestDrive "clm-profile-probe.ps1"
+            $helperPath = (Join-Path $PSScriptRoot "..\scripts\helpers.ps1").Replace("'", "''")
+            $profileLiteral = $profilePath.Replace("'", "''")
+            $probeContent = @"
+`$ExecutionContext.SessionState.LanguageMode = 'ConstrainedLanguage'
+. '$helperPath'
+try {
+    [void](Remove-LegacyProfileCommands -ProfilePath '$profileLiteral')
+    Write-Output 'unexpected-success'
+    exit 2
+} catch {
+    Write-Output `$_.Exception.Message
+    exit 0
+}
+"@
+            Set-Content -Path $probePath -Value $probeContent -Encoding UTF8
+
+            $probeOutput = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $probePath)
+            $probeExitCode = $LASTEXITCODE
+
+            $probeExitCode | Should -Be 0
+            ($probeOutput -join "`n") | Should -Match 'FullLanguage'
+            (Get-Content -Path $profilePath -Raw -Encoding UTF8) | Should -Be ($profileContent + "`r`n")
+        }
+
+        It "removes exact legacy wrappers after unrelated profile content" {
+            $profilePath = Join-Path $TestDrive "legacy-profile.ps1"
+            $profileContent = @'
+# personal profile content before the legacy wrappers
+function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }
+function cg-unlink { & "C:/WBG/.compound-gpid/scripts/unlink.ps1" @args }
+function cg-update { & "$env:USERPROFILE\.compound-gpid\scripts\update.ps1" @args }
+function My-PersonalCommand { Write-Output "preserve me" }
+# personal profile content after the legacy wrappers
+'@
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            $cleaned = Get-Content -Path $profilePath -Raw -Encoding UTF8
+            $cleaned | Should -Not -Match '(?m)^\s*function\s+cg-(link|unlink|update)\b'
+            $cleaned | Should -Match 'function\s+My-PersonalCommand'
+            $cleaned | Should -Match 'personal profile content before'
+            $cleaned | Should -Match 'personal profile content after'
+        }
+
+        It "removes dot-sourced wrappers while preserving customized functions" {
+            $profilePath = Join-Path $TestDrive "dot-source-profile.ps1"
+            $profileContent = @'
+function cg-update { . "$env:USERPROFILE\.compound-gpid\scripts\update.ps1" @args }
+function cg-link { Write-Host "custom pre-hook"; . "C:\WBG\.compound-gpid\scripts\link.ps1" @args }
+'@
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            $cleaned = Get-Content -Path $profilePath -Raw -Encoding UTF8
+            $cleaned | Should -Not -Match '(?m)^\s*function\s+cg-update\b'
+            $cleaned | Should -Match 'function\s+cg-link\b'
+            $cleaned | Should -Match 'custom pre-hook'
+        }
+
+        It "removes legacy functions from the live session after cleanup" {
+            $profilePath = Join-Path $TestDrive "live-profile.ps1"
+            $profileContent = 'function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }'
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+            function global:cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }
+
+            try {
+                $removed = @(Remove-LegacyProfileCommands -ProfilePath $profilePath)
+                if ($removed.Count -gt 0) {
+                    [void](Remove-CgLegacyLiveFunctions -CommandNames $removed)
+                }
+            } finally {
+                Remove-Item -Path Function:\cg-link -Force -ErrorAction SilentlyContinue
+            }
+
+            Get-Command cg-link -CommandType Function -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+        }
+
+        It "preserves a customized live function when the profile wrapper is legacy" {
+            $profilePath = Join-Path $TestDrive "custom-live-profile.ps1"
+            $profileContent = 'function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }'
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+            function global:cg-link { Write-Output "custom" }
+
+            try {
+                $removed = @(Remove-LegacyProfileCommands -ProfilePath $profilePath)
+                $removed | Should -Contain "cg-link"
+                (Test-CgLegacyFunctionDefinition -CommandName "cg-link") | Should -Be $false
+                (Get-Command cg-link -CommandType Function).Definition | Should -Match "custom"
+            } finally {
+                Remove-Item -Path Function:\cg-link -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It "preserves non-ASCII profile content and the original encoding for all supported formats" {
+            $fixtures = @(
+                [pscustomobject]@{ Name = "utf8-bom"; Encoding = [System.Text.UTF8Encoding]::new($true); Prefix = @(0xEF, 0xBB, 0xBF); ExpectedEncodingName = "utf-8" },
+                [pscustomobject]@{ Name = "utf8-no-bom"; Encoding = [System.Text.UTF8Encoding]::new($false); Prefix = @(); ExpectedEncodingName = "utf-8" },
+                [pscustomobject]@{ Name = "utf16-le"; Encoding = [System.Text.UnicodeEncoding]::new($false, $true); Prefix = @(0xFF, 0xFE); ExpectedEncodingName = "utf-16-le" },
+                [pscustomobject]@{ Name = "utf16-be"; Encoding = [System.Text.UnicodeEncoding]::new($true, $true); Prefix = @(0xFE, 0xFF); ExpectedEncodingName = "utf-16-be" },
+                [pscustomobject]@{ Name = "utf32-le"; Encoding = [System.Text.UTF32Encoding]::new($false, $true); Prefix = @(0xFF, 0xFE, 0x00, 0x00); ExpectedEncodingName = "utf-32-le" },
+                [pscustomobject]@{ Name = "utf32-be"; Encoding = [System.Text.UTF32Encoding]::new($true, $true); Prefix = @(0x00, 0x00, 0xFE, 0xFF); ExpectedEncodingName = "utf-32-be" }
+            )
+            if ($script:OnWindows) {
+                $ansiCodePage = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ANSICodePage
+                if ($PSVersionTable.PSEdition -ne "Desktop") {
+                    [System.Text.Encoding]::RegisterProvider([System.Text.CodePagesEncodingProvider]::Instance)
+                }
+                $ansiEncoding = [System.Text.Encoding]::GetEncoding($ansiCodePage)
+                $fixtures += [pscustomobject]@{ Name = "ansi"; Encoding = $ansiEncoding; Prefix = @(); ExpectedEncodingName = "ansi" }
+            }
+
+            foreach ($fixture in $fixtures) {
+                $profilePath = Join-Path $TestDrive ("encoding-" + $fixture.Name + ".ps1")
+                $nonAscii = "caf" + [char]0x00E9
+                $profileContent = "# $nonAscii`r`nfunction cg-link { & `"C:\WBG\.compound-gpid\scripts\link.ps1`" @args }`r`n"
+                [System.IO.File]::WriteAllText($profilePath, $profileContent, $fixture.Encoding)
+
+                [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+                $roundTrip = Read-CgProfileText -Path $profilePath
+                $nonAsciiPattern = [regex]::Escape($nonAscii)
+                $roundTrip.Content | Should -Match $nonAsciiPattern
+                $roundTrip.Content | Should -Not -Match '(?m)^\s*function\s+cg-link\b'
+                $bytes = [System.IO.File]::ReadAllBytes($profilePath)
+                if ($fixture.Prefix.Count -gt 0) {
+                    for ($i = 0; $i -lt $fixture.Prefix.Count; $i++) {
+                        $bytes[$i] | Should -Be $fixture.Prefix[$i]
+                    }
+                } else {
+                    $roundTrip.HasBom | Should -Be $false
+                }
+                $roundTrip.EncodingName | Should -Be $fixture.ExpectedEncodingName
+            }
+        }
+
+        It "preserves invalid UTF-8 bytes in a BOM-less ANSI profile" {
+            if (-not $script:OnWindows) {
+                Set-ItResult -Skipped -Because "The active Windows ANSI code page is unavailable on macOS/Linux"
+                return
+            }
+
+            $profilePath = Join-Path $TestDrive "ansi-invalid-utf8-profile.ps1"
+            $prefix = [System.Text.Encoding]::ASCII.GetBytes("# ")
+            $ansiCodePage = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ANSICodePage
+            if ($PSVersionTable.PSEdition -ne "Desktop") {
+                [System.Text.Encoding]::RegisterProvider([System.Text.CodePagesEncodingProvider]::Instance)
+            }
+            $ansiEncoding = [System.Text.Encoding]::GetEncoding($ansiCodePage)
+            $ansiByte = $null
+            for ($candidate = 0x80; $candidate -le 0xFF; $candidate++) {
+                $candidateBytes = [byte[]]@([byte]$candidate)
+                $candidateText = $ansiEncoding.GetString($candidateBytes)
+                $roundTripCandidate = $ansiEncoding.GetBytes($candidateText)
+                if ($candidate -ne 0xC2 -and $candidate -ne 0xC3 -and
+                    $roundTripCandidate.Length -eq 1 -and $roundTripCandidate[0] -eq [byte]$candidate) {
+                    $ansiByte = [byte]$candidate
+                    break
+                }
+            }
+            $ansiByte | Should -Not -BeNullOrEmpty
+            $suffix = [System.Text.Encoding]::ASCII.GetBytes("`r`nfunction cg-link { & `"C:\WBG\.compound-gpid\scripts\link.ps1`" @args }`r`n")
+            $bytes = New-Object -TypeName byte[] -ArgumentList ($prefix.Length + 1 + $suffix.Length)
+            [System.Array]::Copy($prefix, 0, $bytes, 0, $prefix.Length)
+            $bytes[$prefix.Length] = $ansiByte
+            [System.Array]::Copy($suffix, 0, $bytes, $prefix.Length + 1, $suffix.Length)
+            [System.IO.File]::WriteAllBytes($profilePath, $bytes)
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            $roundTripBytes = [System.IO.File]::ReadAllBytes($profilePath)
+            $roundTripBytes | Should -Contain $ansiByte
+            $roundTripBytes | Should -Not -Contain ([byte]0xC3)
+            (Read-CgProfileText -Path $profilePath).EncodingName | Should -Be "ansi"
+            (Read-CgProfileText -Path $profilePath).Content | Should -Not -Match '(?m)^\s*function\s+cg-link\b'
+        }
+
+        It "preserves the profile line-ending style around removed wrappers" {
+            $fixtures = @(
+                [pscustomobject]@{ Name = "lf"; NewLine = "`n" },
+                [pscustomobject]@{ Name = "crlf"; NewLine = "`r`n" }
+            )
+            $encoding = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+
+            foreach ($fixture in $fixtures) {
+                $profilePath = Join-Path $TestDrive ("line-endings-" + $fixture.Name + ".ps1")
+                $profileContent = "# before$($fixture.NewLine)$($fixture.NewLine)function cg-link { & `"C:\WBG\.compound-gpid\scripts\link.ps1`" @args }$($fixture.NewLine)$($fixture.NewLine)# after$($fixture.NewLine)"
+                [System.IO.File]::WriteAllText($profilePath, $profileContent, $encoding)
+
+                [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+                $cleaned = [System.IO.File]::ReadAllText($profilePath, $encoding)
+                $cleaned | Should -Be ("# before$($fixture.NewLine)$($fixture.NewLine)$($fixture.NewLine)# after$($fixture.NewLine)")
+                if ($fixture.Name -eq "lf") {
+                    [System.IO.File]::ReadAllBytes($profilePath) | Should -Not -Contain ([byte]0x0D)
+                } else {
+                    $cleaned | Should -Match "`r`n"
+                }
+            }
+        }
+
+        It "fails closed instead of replacing a symlinked profile" {
+            $targetPath = Join-Path $TestDrive "profile-target.ps1"
+            $profilePath = Join-Path $TestDrive "profile-link.ps1"
+            $profileContent = 'function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }'
+            Set-Content -Path $targetPath -Value $profileContent -Encoding UTF8
+            $targetBytesBefore = [System.IO.File]::ReadAllBytes($targetPath)
+
+            try {
+                New-Item -ItemType SymbolicLink -Path $profilePath -Target $targetPath -ErrorAction Stop | Out-Null
+            } catch {
+                Set-ItResult -Skipped -Because "Symbolic links are unavailable: $($_.Exception.Message)"
+                return
+            }
+
+            try {
+                { Remove-LegacyProfileCommands -ProfilePath $profilePath } | Should -Throw
+                $targetBytesAfter = [System.IO.File]::ReadAllBytes($targetPath)
+                [Convert]::ToBase64String($targetBytesAfter) | Should -Be ([Convert]::ToBase64String($targetBytesBefore))
+                $linkItem = Get-Item -LiteralPath $profilePath -Force
+                $isReparsePoint = (($linkItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+                $hasLinkType = ($linkItem.PSObject.Properties.Name -contains "LinkType") -and (-not [string]::IsNullOrWhiteSpace([string]$linkItem.LinkType))
+                ($isReparsePoint -or $hasLinkType) | Should -Be $true
+            } finally {
+                Remove-Item -LiteralPath $profilePath -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        It "preserves near-miss functions instead of deleting customized code" {
+            $profilePath = Join-Path $TestDrive "near-miss-profile.ps1"
+            $profileContent = @'
+function cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args; Write-Output "custom" }
+function cg-unlink { & "C:\WBG\.compound-gpid\scripts\other.ps1" @args }
+function cg-update { & "C:\WBG\.compound-gpid\scripts\update.ps1" @other }
+'@
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+            $expected = (Read-CgProfileText -Path $profilePath).Content
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            (Read-CgProfileText -Path $profilePath).Content | Should -Be $expected
+        }
+
+        It "does not treat an unrelated Compound GPID comment as a managed block" {
+            $profilePath = Join-Path $TestDrive "unrelated-profile.ps1"
+            $profileContent = "# Compound GPID is mentioned in a personal note`nWrite-Output 'preserve me'"
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+            $expectedProfileContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            (Get-Content -Path $profilePath -Raw -Encoding UTF8) | Should -Be $expectedProfileContent
         }
     }
 }

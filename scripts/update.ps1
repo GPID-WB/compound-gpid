@@ -46,6 +46,21 @@ $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
+# Clean up profile functions from early installs. Those functions invoke or
+# dot-source the scripts directly and can shadow the CLM-safe .cmd wrappers on PATH.
+# This runs before the git update so a normal cg-update repairs existing
+# installations without requiring users to run install.ps1 again.
+# Attempt cleanup but never fail an update if $PROFILE is inaccessible (e.g. CLM).
+try {
+    $removedLegacyCommands = Remove-LegacyProfileCommands
+    if ($null -ne $removedLegacyCommands -and @($removedLegacyCommands).Count -gt 0) {
+        [void](Remove-CgLegacyLiveFunctions -CommandNames @($removedLegacyCommands))
+    }
+} catch {
+    Write-Warning "  Could not clean up old profile commands: $_"
+    Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
+}
+
 # The management marker that identifies a CG-managed copilot-instructions.md
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 

@@ -2,7 +2,7 @@
 # Pester tests for install.ps1 (Windows-specific: .cmd wrappers, PATH via registry)
 #
 # Run with: Invoke-Pester tests/install.Tests.ps1
-# Compatible with Pester 3.4+ (ships built-in on Windows)
+# Compatible with Pester 4.10.1+ (project standard).
 
 # Platform detection (PS 5.1 compatible: no Set-StrictMode here, so $IsWindows returns $null rather than throwing)
 $script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
@@ -15,6 +15,8 @@ if (-not $script:OnWindows) {
     }
     return
 }
+
+. (Join-Path $PSScriptRoot "..\scripts\helpers.ps1")
 
 function Get-PythonForCgIndexSmoke {
     foreach ($cmd in @("python3", "python", "py")) {
@@ -116,14 +118,37 @@ Describe "install.ps1 - old profile cleanup" {
         It "removes the block but preserves surrounding content" {
             $testProfile = Join-Path $TestDrive "profile_with_old_block.ps1"
             $content = "# existing content`n# --- Compound GPID (managed by install.ps1 - do not edit manually) ---`nfunction cg-link { }`n# --- End Compound GPID ---`n# more content"
-            Set-Content -Path $testProfile -Value $content
+            Set-Content -Path $testProfile -Value $content -Encoding UTF8
 
-            $raw     = Get-Content $testProfile -Raw
-            $cleaned = ($raw -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "").TrimEnd()
+            $removed = @(Remove-LegacyProfileCommands -ProfilePath $testProfile)
+            $cleaned = (Read-CgProfileText -Path $testProfile).Content
 
+            $removed | Should -Contain "cg-link"
             ($cleaned -match "# --- Compound GPID") | Should -Be $false
             ($cleaned -match "# existing content")   | Should -Be $true
             ($cleaned -match "# more content")        | Should -Be $true
+        }
+
+        It "preserves a lookalike Compound GPID block" {
+            $testProfile = Join-Path $TestDrive "profile_with_lookalike_block.ps1"
+            $content = "# --- Compound GPID personal note ---`nWrite-Output 'preserve me'`n# --- End Compound GPID ---"
+            Set-Content -Path $testProfile -Value $content -Encoding UTF8
+            $expected = (Read-CgProfileText -Path $testProfile).Content
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $testProfile)
+
+            (Read-CgProfileText -Path $testProfile).Content | Should -Be $expected
+        }
+
+        It "removes the historical added-by-install marker" {
+            $testProfile = Join-Path $TestDrive "profile_with_historical_block.ps1"
+            $content = "# --- Compound GPID (added by install.ps1) ---`nfunction cg-link { }`n# --- End Compound GPID ---"
+            Set-Content -Path $testProfile -Value $content -Encoding UTF8
+
+            $removed = @(Remove-LegacyProfileCommands -ProfilePath $testProfile)
+
+            $removed | Should -Contain "cg-link"
+            (Read-CgProfileText -Path $testProfile).Content | Should -Not -Match '(?m)^\s*# --- Compound GPID \(added by install\.ps1\) ---'
         }
     }
 
@@ -139,12 +164,40 @@ Describe "install.ps1 - old profile cleanup" {
             # install.ps1 must clean these legacy lines so command resolution falls back to
             # the PATH .cmd wrappers (which are CLM-safe).
             $installContent = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw -Encoding UTF8
-            $installContent | Should -Match 'hasLegacyCgFunctions'
-            $installContent | Should -Match 'cg-\(link\|unlink\|update\)'
-            $installContent | Should -Match '\$legacyPatterns'
-            $installContent | Should -Match 'cg-link'
-            $installContent | Should -Match 'cg-unlink'
-            $installContent | Should -Match 'cg-update'
+            $installContent | Should -Match 'helpers\.ps1'
+            $installContent | Should -Match 'Remove-LegacyProfileCommands'
+            $installContent | Should -Match 'Remove-CgLegacyLiveFunctions'
+        }
+
+        It "uses an exact managed block marker instead of unrelated comments" {
+            $installContent = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw -Encoding UTF8
+            $helpersContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+            $helpersContent | Should -Match 'managedBlockPattern'
+            $helpersContent | Should -Match 'Remove-Item\s+-Path\s+"Function:\\\$commandName"'
+        }
+
+        It "removes an exact legacy wrapper from a global-scoped profile definition" {
+            $profilePath = Join-Path $TestDrive "global-profile.ps1"
+            $profileContent = 'function global:cg-link { & "C:\WBG\.compound-gpid\scripts\link.ps1" @args }'
+            Set-Content -Path $profilePath -Value $profileContent -Encoding UTF8
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            (Get-Content -Path $profilePath -Raw -Encoding UTF8) | Should -Not -Match '^\s*function\s+(?:global:)?cg-link\b'
+        }
+
+        It "preserves the original profile encoding while removing a legacy wrapper" {
+            $profilePath = Join-Path $TestDrive "utf16-profile.ps1"
+            $content = "# " + "caf" + [char]0x00E9 + "`r`nfunction cg-link { & `"C:\WBG\.compound-gpid\scripts\link.ps1`" @args }`r`n"
+            $encoding = [System.Text.UnicodeEncoding]::new($false, $true)
+            [System.IO.File]::WriteAllText($profilePath, $content, $encoding)
+
+            [void](Remove-LegacyProfileCommands -ProfilePath $profilePath)
+
+            $bytes = [System.IO.File]::ReadAllBytes($profilePath)
+            ($bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) | Should -Be $true
+            (Read-CgProfileText -Path $profilePath).Content | Should -Match "caf$([char]0x00E9)"
+            (Read-CgProfileText -Path $profilePath).Content | Should -Not -Match '^\s*function\s+cg-link\b'
         }
     }
 }

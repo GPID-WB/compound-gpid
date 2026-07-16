@@ -28,6 +28,8 @@ $ErrorActionPreference = "Stop"
 # regardless of where the user runs it from.
 $CompoundGpidDir = $PSScriptRoot
 
+. (Join-Path $CompoundGpidDir "scripts\helpers.ps1")
+
 Write-Host ""
 Write-Host "Compound GPID - Install" -ForegroundColor Cyan
 Write-Host "========================" -ForegroundColor Cyan
@@ -136,9 +138,9 @@ To enable them, turn on Developer Mode:
 
 Then re-run this script.
 "@
-    # Don't exit - profile functions can still be registered so the user
-    # is ready to go as soon as they enable Developer Mode.
-    Write-Host "  Continuing install (profile functions will be registered)..." -ForegroundColor Yellow
+    # Don't exit - PATH wrappers do not depend on junction support, so the
+    # user can still use the commands after enabling Developer Mode later.
+    Write-Host "  Continuing install (PATH wrappers remain available)..." -ForegroundColor Yellow
 } else {
     Write-Host "  Junctions supported." -ForegroundColor DarkGray
 }
@@ -246,36 +248,16 @@ try {
     Write-Warning ('  Add manually: reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "<your-current-path>;' + $binDir + '" /f')
 }
 
-# Clean up old $PROFILE block from previous installs (upgrade path).
+# Clean up old profile wrappers from previous installs (upgrade path).
 # Attempt cleanup but never fail install if $PROFILE is inaccessible (e.g. CLM).
-if (Test-Path $PROFILE -ErrorAction SilentlyContinue) {
-    try {
-        $profileContent = Get-Content -Path $PROFILE -Raw -ErrorAction SilentlyContinue
-        $hasManagedBlock = $profileContent -and ($profileContent -match "Compound GPID")
-        $hasLegacyCgFunctions = $profileContent -and ($profileContent -match '(?im)^\s*function\s+cg-(link|unlink|update)\b')
-        if ($hasManagedBlock -or $hasLegacyCgFunctions) {
-            # Remove the old managed profile block.
-            $cleaned = ($profileContent -replace "(?s)# --- Compound GPID.*?# --- End Compound GPID ---\r?\n?", "")
-
-            # Remove legacy unmarked cg-* profile functions from early installs.
-            # These functions can shadow PATH wrappers and reintroduce CLM dot-source failures.
-            $legacyPatterns = @(
-                '(?is)^\s*function\s+cg-link\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]link\.ps1[^\}]*\}\s*\r?\n?',
-                '(?is)^\s*function\s+cg-unlink\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]unlink\.ps1[^\}]*\}\s*\r?\n?',
-                '(?is)^\s*function\s+cg-update\s*\{[^\}]*\.compound-gpid[\\/]scripts[\\/]update\.ps1[^\}]*\}\s*\r?\n?'
-            )
-            foreach ($pattern in $legacyPatterns) {
-                $cleaned = [regex]::Replace($cleaned, $pattern, "")
-            }
-
-            $cleaned = $cleaned.TrimEnd()
-            Set-Content -Path $PROFILE -Value $cleaned -ErrorAction Stop
-            Write-Host "  Removed old Compound GPID block from PowerShell profile." -ForegroundColor DarkGray
-        }
-    } catch {
-        Write-Warning "  Could not clean up old profile block: $_"
-        Write-Warning "  You may manually remove the '# --- Compound GPID' block from: $PROFILE"
+try {
+    $removedLegacyCommands = Remove-LegacyProfileCommands
+    if ($null -ne $removedLegacyCommands -and @($removedLegacyCommands).Count -gt 0) {
+        [void](Remove-CgLegacyLiveFunctions -CommandNames @($removedLegacyCommands))
     }
+} catch {
+    Write-Warning "  Could not clean up old profile commands: $_"
+    Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
 Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-token-audit" -ForegroundColor DarkGray
