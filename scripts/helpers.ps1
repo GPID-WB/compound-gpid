@@ -12,6 +12,314 @@ See docs/installation.md for setup instructions and path guidance.
   # Then run: & "<your-path>\install.ps1"
 "@
 
+function Read-CgProfileText {
+    <#
+    .SYNOPSIS
+        Reads a PowerShell profile while preserving its original encoding.
+    .DESCRIPTION
+        Detects UTF-8, UTF-16, UTF-32, and ANSI profile files from their byte
+        order marks and, for files without a mark, validates UTF-8 before
+        falling back to the active Windows ANSI code page. The returned
+        encoding metadata can be passed to Write-CgProfileText so a cleanup
+        does not change a user's encoding or BOM state.
+    .PARAMETER Path
+        Profile file to read.
+    .OUTPUTS
+        PSCustomObject with Content, Encoding, EncodingName, HasBom, and Preamble.
+    .EXAMPLE
+        $profile = Read-CgProfileText -Path $PROFILE
+    #>
+    param([Parameter(Mandatory)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
+
+    if ($ExecutionContext.SessionState.LanguageMode -eq "ConstrainedLanguage") {
+        throw "Automatic profile cleanup requires FullLanguage mode to preserve the existing encoding. Run the direct bin\cg-update.cmd wrapper or remove the exact legacy wrapper manually."
+    }
+
+    $bytes = [System.IO.File]::ReadAllBytes($Path)
+    $offset = 0
+    $encoding = $null
+    $encodingName = $null
+    $hasBom = $false
+
+    # Check four-byte BOMs before the two-byte UTF-16 BOMs because the latter
+    # are prefixes of UTF-32 little-endian files.
+    if ($bytes.Length -ge 4 -and
+        $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE -and
+        $bytes[2] -eq 0x00 -and $bytes[3] -eq 0x00) {
+        $encoding = New-Object -TypeName System.Text.UTF32Encoding -ArgumentList $false, $false
+        $encodingName = "utf-32-le"
+        $offset = 4
+        $hasBom = $true
+    } elseif ($bytes.Length -ge 4 -and
+        $bytes[0] -eq 0x00 -and $bytes[1] -eq 0x00 -and
+        $bytes[2] -eq 0xFE -and $bytes[3] -eq 0xFF) {
+        $encoding = New-Object -TypeName System.Text.UTF32Encoding -ArgumentList $true, $false
+        $encodingName = "utf-32-be"
+        $offset = 4
+        $hasBom = $true
+    } elseif ($bytes.Length -ge 3 -and
+        $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $encoding = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false, $true
+        $encodingName = "utf-8"
+        $offset = 3
+        $hasBom = $true
+    } elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
+        $encoding = New-Object -TypeName System.Text.UnicodeEncoding -ArgumentList $false, $false, $true
+        $encodingName = "utf-16-le"
+        $offset = 2
+        $hasBom = $true
+    } elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) {
+        $encoding = New-Object -TypeName System.Text.UnicodeEncoding -ArgumentList $true, $false, $true
+        $encodingName = "utf-16-be"
+        $offset = 2
+        $hasBom = $true
+    } else {
+        # A no-BOM file is ambiguous when it contains only ASCII. Prefer UTF-8
+        # when the bytes are valid UTF-8; otherwise use the active Windows ANSI
+        # code page, which is the only lossless interpretation for legacy profiles.
+        $utf8Strict = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false, $true
+        try {
+            [void]$utf8Strict.GetString($bytes)
+            $encoding = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false, $false
+            $encodingName = "utf-8"
+        } catch {
+            # Resolve the active Windows ANSI code page explicitly. Do not use
+            # Encoding.Default because it is UTF-8 on common PowerShell 7/.NET
+            # runtimes. Hardcoding 1252 would corrupt profiles on other locales.
+            $ansiCodePage = [System.Globalization.CultureInfo]::CurrentCulture.TextInfo.ANSICodePage
+            if ($ansiCodePage -le 0) {
+                throw "Could not determine the active Windows ANSI code page for the profile."
+            }
+            if ($PSVersionTable.PSEdition -ne "Desktop") {
+                [System.Text.Encoding]::RegisterProvider([System.Text.CodePagesEncodingProvider]::Instance)
+            }
+            $encoding = [System.Text.Encoding]::GetEncoding($ansiCodePage)
+            $encodingName = "ansi"
+        }
+    }
+
+    $content = $encoding.GetString($bytes, $offset, $bytes.Length - $offset)
+    $preamble = New-Object -TypeName byte[] -ArgumentList $offset
+    if ($offset -gt 0) {
+        [System.Array]::Copy($bytes, 0, $preamble, 0, $offset)
+    }
+
+    return [pscustomobject]@{
+        Content      = $content
+        Encoding     = $encoding
+        EncodingName = $encodingName
+        HasBom       = $hasBom
+        Preamble     = $preamble
+    }
+}
+
+function Write-CgProfileText {
+    <#
+    .SYNOPSIS
+        Writes profile text using encoding metadata returned by Read-CgProfileText.
+    .PARAMETER Path
+        Profile file to write.
+    .PARAMETER Content
+        Updated profile content.
+    .PARAMETER EncodingInfo
+        Encoding metadata returned by Read-CgProfileText.
+    .EXAMPLE
+        $profile = Read-CgProfileText -Path $PROFILE
+        Write-CgProfileText -Path $PROFILE -Content $cleaned -EncodingInfo $profile
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Content,
+        [Parameter(Mandatory)][psobject]$EncodingInfo
+    )
+
+    $payload = $EncodingInfo.Encoding.GetBytes($Content)
+    $preamble = $EncodingInfo.Preamble
+    $output = New-Object -TypeName byte[] -ArgumentList ($preamble.Length + $payload.Length)
+    if ($preamble.Length -gt 0) {
+        [System.Array]::Copy($preamble, 0, $output, 0, $preamble.Length)
+    }
+    if ($payload.Length -gt 0) {
+        [System.Array]::Copy($payload, 0, $output, $preamble.Length, $payload.Length)
+    }
+    $directory = [System.IO.Path]::GetDirectoryName($Path)
+    if ([string]::IsNullOrWhiteSpace($directory)) { $directory = (Get-Location).Path }
+    $temporaryPath = Join-Path $directory ("." + [System.IO.Path]::GetFileName($Path) + "." + [guid]::NewGuid().ToString("N") + ".tmp")
+    try {
+        $profileItem = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+        $isReparsePoint = (($profileItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+        $hasLinkType = ($profileItem.PSObject.Properties.Name -contains "LinkType") -and (-not [string]::IsNullOrWhiteSpace([string]$profileItem.LinkType))
+        if ($isReparsePoint -or $hasLinkType) {
+            throw "Automatic profile cleanup will not replace a reparse-point profile. Edit the target profile manually or remove the exact legacy wrapper through its target path."
+        }
+        [System.IO.File]::WriteAllBytes($temporaryPath, $output)
+        Move-Item -LiteralPath $temporaryPath -Destination $Path -Force
+    } finally {
+        if (Test-Path -LiteralPath $temporaryPath) {
+            Remove-Item -LiteralPath $temporaryPath -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+function Get-CgLegacyProfilePatterns {
+    <#
+    .SYNOPSIS
+        Returns exact legacy Compound GPID wrapper patterns.
+    .OUTPUTS
+        PSCustomObject[] with Name, ProfilePattern, and DefinitionPattern.
+    #>
+    $legacyPatterns = @(
+        @{ Name = "cg-link";   Script = "link" },
+        @{ Name = "cg-unlink"; Script = "unlink" },
+        @{ Name = "cg-update"; Script = "update" }
+    )
+
+    foreach ($legacyPattern in $legacyPatterns) {
+        $pathExpression = '(?:"[^"\r\n]*\.compound-gpid(?:\\|/)scripts(?:\\|/)' + $legacyPattern.Script + '\.ps1"|''[^''\r\n]*\.compound-gpid(?:\\|/)scripts(?:\\|/)' + $legacyPattern.Script + '\.ps1'')'
+        $bodyPattern = '(?:&[ \t]*|\.[ \t]*)' + $pathExpression + '[ \t]+@args'
+        $definitionPattern = '(?im)^[ \t]*' + $bodyPattern + '[ \t]*$'
+        $profilePattern = '(?im)^[ \t]*function[ \t]+(?:global:)?' + [regex]::Escape($legacyPattern.Name) + '[ \t]*\{[ \t]*' + $bodyPattern + '[ \t]*\}[ \t]*\r?\n?'
+        [pscustomobject]@{
+            Name              = $legacyPattern.Name
+            ProfilePattern    = $profilePattern
+            DefinitionPattern = $definitionPattern
+        }
+    }
+}
+
+function Test-CgLegacyFunctionDefinition {
+    <#
+    .SYNOPSIS
+        Tests whether a live function is an exact legacy wrapper.
+    .DESCRIPTION
+        The profile cleanup deliberately preserves customized functions. This
+        companion check lets callers remove a live function only when its
+        loaded definition is the same exact one-statement wrapper, avoiding a
+        name-only deletion of a user's custom function.
+    .PARAMETER CommandName
+        Function command name to inspect.
+    .EXAMPLE
+        if (Test-CgLegacyFunctionDefinition -CommandName "cg-link") {
+            Remove-Item -Path "Function:\cg-link" -Force
+        }
+    #>
+    param([Parameter(Mandatory)][string]$CommandName)
+
+    $command = Get-Command $CommandName -CommandType Function -ErrorAction SilentlyContinue
+    if (-not $command) { return $false }
+
+    foreach ($legacyPattern in @(Get-CgLegacyProfilePatterns)) {
+        if ($legacyPattern.Name -eq $CommandName) {
+            return ([string]$command.Definition -match $legacyPattern.DefinitionPattern)
+        }
+    }
+    return $false
+}
+
+function Remove-LegacyProfileCommands {
+    <#
+    .SYNOPSIS
+        Removes exact Compound GPID profile wrappers from a PowerShell profile.
+    .DESCRIPTION
+        Deletes managed blocks and exact one-statement wrappers emitted by
+        pre-wrapper installs. Customized functions are retained and reported.
+        Returns the names of commands removed from the profile. The caller is
+        responsible for removing matching live functions in its own scope.
+    .PARAMETER ProfilePath
+        Profile file to clean. Defaults to the current session's $PROFILE.
+    .OUTPUTS
+        System.String[]
+    .EXAMPLE
+        $removed = Remove-LegacyProfileCommands -ProfilePath $PROFILE
+    #>
+    param([string]$ProfilePath)
+
+    if ([string]::IsNullOrWhiteSpace($ProfilePath)) { $ProfilePath = $PROFILE }
+    $removedLegacyCommands = @()
+    if (-not (Test-Path -LiteralPath $ProfilePath -PathType Leaf -ErrorAction SilentlyContinue)) {
+        return $removedLegacyCommands
+    }
+
+    $profileFile = Read-CgProfileText -Path $ProfilePath
+    if ($null -eq $profileFile) { return $removedLegacyCommands }
+
+    $profileContent = $profileFile.Content
+    $managedBlockPattern = '(?ims)^[\t ]*# --- Compound GPID \((?:managed by install\.ps1 (?:-|\u2014) do not edit manually|added by install\.ps1)\) ---[\t ]*\r?\n.*?^[\t ]*# --- End Compound GPID ---[\t ]*\r?\n?'
+    $hasManagedBlock = $profileContent -and ($profileContent -match $managedBlockPattern)
+    $legacyPatterns = @(Get-CgLegacyProfilePatterns)
+    $hasLegacyCgFunctions = $false
+    foreach ($legacyPattern in $legacyPatterns) {
+        if ($profileContent -match $legacyPattern.ProfilePattern) {
+            $hasLegacyCgFunctions = $true
+            break
+        }
+    }
+    if (-not ($hasManagedBlock -or $hasLegacyCgFunctions)) { return $removedLegacyCommands }
+
+    $cleaned = $profileContent
+    $profileChanged = $false
+    if ($hasManagedBlock) {
+        $cleaned = [regex]::Replace($cleaned, $managedBlockPattern, "")
+        $profileChanged = $true
+        $removedLegacyCommands += @("cg-link", "cg-unlink", "cg-update")
+    }
+
+    foreach ($legacyPattern in $legacyPatterns) {
+        if ($cleaned -match $legacyPattern.ProfilePattern) {
+            $removedLegacyCommands += $legacyPattern.Name
+            $cleaned = [regex]::Replace($cleaned, $legacyPattern.ProfilePattern, "")
+            $profileChanged = $true
+        }
+    }
+
+    if ($profileChanged) {
+        Write-CgProfileText -Path $ProfilePath -Content $cleaned -EncodingInfo $profileFile
+        Write-Host "  Removed old Compound GPID commands from PowerShell profile." -ForegroundColor DarkGray
+    }
+
+    $remainingLegacy = [regex]::Match($cleaned, '(?im)^\s*function\s+(?:global:)?cg-(link|unlink|update)\b')
+    if ($remainingLegacy.Success) {
+        Write-Warning "  A customized legacy $($remainingLegacy.Groups[1].Value) function remains in the PowerShell profile and may shadow the PATH wrapper. Remove it manually from: $ProfilePath"
+    }
+
+    return @($removedLegacyCommands | Select-Object -Unique)
+}
+
+function Remove-CgLegacyLiveFunctions {
+    <#
+    .SYNOPSIS
+        Removes loaded exact legacy wrappers without deleting customized functions.
+    .PARAMETER CommandNames
+        Names returned by Remove-LegacyProfileCommands.
+    .OUTPUTS
+        System.String[] with command names removed from the live session.
+    #>
+    param([Parameter(Mandatory)][string[]]$CommandNames)
+
+    $removed = @()
+    foreach ($commandName in $CommandNames) {
+        $liveFunction = Get-Command $commandName -CommandType Function -ErrorAction SilentlyContinue
+        if (-not $liveFunction) { continue }
+
+        if (Test-CgLegacyFunctionDefinition -CommandName $commandName) {
+            try {
+                Remove-Item -Path "Function:\$commandName" -Force -ErrorAction Stop
+            } catch {
+                Write-Warning "  Could not remove live $commandName after profile cleanup: $_"
+                continue
+            }
+            if (-not (Get-Command $commandName -CommandType Function -ErrorAction SilentlyContinue)) {
+                $removed += $commandName
+            }
+        } else {
+            Write-Warning "  Preserved live $commandName because its current definition is customized. Restart the shell after removing the profile wrapper."
+        }
+    }
+    return @($removed | Select-Object -Unique)
+}
+
 function Resolve-PythonCommand {
     <#
     .SYNOPSIS
