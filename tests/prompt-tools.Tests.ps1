@@ -4792,6 +4792,15 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
         ($content -match 'gh pr create --title "<title>" --body "<body>"') | Should -Be $false
     }
 
+    It "requires PR title validation against Conventional Commits before PR creation" {
+        ($content -match 'Validation gate before `gh pr create`') | Should -Be $true
+        ($content -match '\^\(feat\|fix\|docs\|test\|refactor\|chore\|data\|analysis\)') | Should -Be $true
+    }
+
+    It "forbids title-case branch text when deriving PR titles" {
+        ($content -match 'Never title-case branch text for PR titles') | Should -Be $true
+    }
+
     It "sanitizes untrusted plan objective content before PR body construction (P1.5)" {
         ($content -match 'untrusted text[\s\S]{0,250}Ignore[\s\S]{0,250}Disregard[\s\S]{0,250}System:') | Should -Be $true
     }
@@ -6169,6 +6178,14 @@ Describe "cg-commit-push-pr.prompt.md - remaining push and classification safegu
     It "requires rejected and non-fast-forward evidence before offering rebase or force-with-lease" {
         ($content -match 'contains both `rejected` and `non-fast-forward`') | Should -Be $true
         ($content -match 'authentication, network, permission, protected-branch, or hook failures') | Should -Be $true
+    }
+
+    It "maps recognized branch prefixes to conventional PR title types" {
+        ($content -match 'derive from the branch name by mapping prefixes: `feat/`, `fix/`, `docs/`, `test/`, `refactor/`, `chore/`, `data/`, `analysis/`') | Should -Be $true
+    }
+
+    It "uses a safe conventional fallback title when validation still fails" {
+        ($content -match 'force safe fallback: `chore\(<scope>\): update branch changes`') | Should -Be $true
     }
 }
 

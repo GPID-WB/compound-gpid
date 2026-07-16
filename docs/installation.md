@@ -190,6 +190,21 @@ cg-update latest      # return to tracking main
 
 Version preference is stored in `~/.compound-gpid/.cg-version` (or your chosen install path). See [Version Management](versioning.md) for full details.
 
+### Windows — Uninstalling
+
+```powershell
+& "C:\WBG\.compound-gpid\install.ps1" -Uninstall
+# remote-server install: & "$env:USERPROFILE\.compound-gpid\install.ps1" -Uninstall
+```
+
+This removes the `bin\cg-*` wrappers, the PATH registry entry, and any legacy profile functions. The install directory itself is not deleted — remove it manually if desired:
+
+```powershell
+Remove-Item -LiteralPath "C:\WBG\.compound-gpid" -Recurse -Force
+```
+
+Restart VS Code / Positron and your terminal after uninstalling.
+
 ### macOS — Uninstalling
 
 ```bash

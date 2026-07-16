@@ -12,6 +12,10 @@
 #      so cg-link, cg-unlink, cg-update, cg-index, and cg-token-audit are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
+# To uninstall (removes bin\ wrappers, PATH entry, and legacy profile functions):
+#   & "C:\WBG\.compound-gpid\install.ps1" -Uninstall
+# The install directory itself is NOT deleted -- remove it manually if desired.
+#
 # Python requirement: Python 3.8+ is required (used by cg-index for knowledge indexing).
 # The Windows Store installs Python stub launchers that are not real Python -- this
 # script detects and skips them. Install from https://www.python.org/downloads/ or
@@ -21,6 +25,10 @@
 # and PATH entry without creating duplicates. An existing .cg-version
 # preference is preserved on upgrade.
 
+param(
+    [switch]$Uninstall
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
@@ -29,6 +37,68 @@ $ErrorActionPreference = "Stop"
 $CompoundGpidDir = $PSScriptRoot
 
 . (Join-Path $CompoundGpidDir "scripts\helpers.ps1")
+
+# -----------------------------------------------------------------------
+# Uninstall mode
+# -----------------------------------------------------------------------
+if ($Uninstall) {
+    Write-Host ""
+    Write-Host "Compound GPID - Uninstall" -ForegroundColor Cyan
+    Write-Host "=========================" -ForegroundColor Cyan
+    Write-Host ""
+
+    $binDir = Join-Path $CompoundGpidDir "bin"
+
+    # Remove cg-* wrappers from bin\
+    $wrappers = @(Get-ChildItem -Path $binDir -Filter 'cg-*' -ErrorAction SilentlyContinue)
+    foreach ($wrapper in $wrappers) {
+        Remove-Item -LiteralPath $wrapper.FullName -Force
+        Write-Host "  Removed: $($wrapper.Name)" -ForegroundColor DarkGray
+    }
+    if ($wrappers.Count -eq 0) {
+        Write-Host "  No cg-* wrappers found in $binDir" -ForegroundColor DarkGray
+    }
+
+    # Remove bin\ from user PATH in registry
+    try {
+        $currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
+            Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
+        if ($currentPath) { $currentPath = $currentPath.Trim() } else { $currentPath = "" }
+        if ($currentPath -like "*$binDir*") {
+            $newPath = (($currentPath -split ";") | Where-Object { $_ -ne $binDir }) -join ";"
+            reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f | Out-Null
+            Write-Host "  Removed from PATH: $binDir" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  PATH entry not found (already removed or never added)" -ForegroundColor DarkGray
+        }
+    } catch {
+        Write-Warning "  Could not update PATH via reg.exe: $_"
+        Write-Warning "  Remove manually: reg delete HKCU\Environment /v PATH (then re-add remaining entries)"
+    }
+
+    # Remove legacy profile functions (managed markers and one-liner wrappers)
+    try {
+        $removedLegacyCommands = Remove-LegacyProfileCommands
+        if ($null -ne $removedLegacyCommands -and @($removedLegacyCommands).Count -gt 0) {
+            [void](Remove-CgLegacyLiveFunctions -CommandNames @($removedLegacyCommands))
+        } else {
+            Write-Host "  No legacy profile functions found" -ForegroundColor DarkGray
+        }
+    } catch {
+        Write-Warning "  Could not clean up profile functions: $_"
+        Write-Warning "  Check `$PROFILE manually if any cg-* functions remain."
+    }
+
+    Write-Host ""
+    Write-Host "Uninstalled." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "The install directory was NOT deleted. Remove it manually if desired:" -ForegroundColor DarkGray
+    Write-Host "  Remove-Item -LiteralPath '$CompoundGpidDir' -Recurse -Force" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "Restart VS Code / Positron and your terminal to complete removal." -ForegroundColor Yellow
+    Write-Host ""
+    exit 0
+}
 
 Write-Host ""
 Write-Host "Compound GPID - Install" -ForegroundColor Cyan
@@ -307,4 +377,7 @@ Write-Host "  2. cd to your project folder"
 Write-Host "  3. Run: cg-link"
 Write-Host "  4. Restart VS Code / Positron again so Copilot picks up the linked prompts"
 Write-Host "  5. Open VS Code / Positron and run in Copilot Chat: /cg-setup"
+Write-Host ""
+Write-Host "To uninstall later:"
+Write-Host "  & '$CompoundGpidDir\install.ps1' -Uninstall"
 Write-Host ""
