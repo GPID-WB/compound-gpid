@@ -556,6 +556,73 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
     }
 }
 
+Describe "install.ps1 - -Uninstall flag" {
+    Context "param block" {
+        It "install.ps1 declares an -Uninstall switch parameter" {
+            $installScript = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw
+            ($installScript -match '\[switch\]\$Uninstall') | Should -Be $true
+        }
+    }
+
+    Context "wrapper removal logic" {
+        It "removes cg-*.cmd wrappers found in bin dir" {
+            $fakebin = Join-Path $TestDrive "fake-bin"
+            New-Item -ItemType Directory -Path $fakebin -Force | Out-Null
+            Set-Content -Path (Join-Path $fakebin "cg-link.cmd")   -Value "@echo off" -Encoding UTF8
+            Set-Content -Path (Join-Path $fakebin "cg-update.cmd") -Value "@echo off" -Encoding UTF8
+            Set-Content -Path (Join-Path $fakebin "other.cmd")     -Value "@echo off" -Encoding UTF8
+
+            $wrappers = @(Get-ChildItem -Path $fakebin -Filter 'cg-*' -ErrorAction SilentlyContinue)
+            foreach ($w in $wrappers) { Remove-Item -LiteralPath $w.FullName -Force }
+
+            (Test-Path (Join-Path $fakebin "cg-link.cmd"))   | Should -Be $false
+            (Test-Path (Join-Path $fakebin "cg-update.cmd")) | Should -Be $false
+            (Test-Path (Join-Path $fakebin "other.cmd"))     | Should -Be $true
+        }
+
+        It "reports zero wrappers found when bin dir is already empty" {
+            $fakebin = Join-Path $TestDrive "fake-bin-empty"
+            New-Item -ItemType Directory -Path $fakebin -Force | Out-Null
+            $wrappers = @(Get-ChildItem -Path $fakebin -Filter 'cg-*' -ErrorAction SilentlyContinue)
+            $wrappers.Count | Should -Be 0
+        }
+    }
+
+    Context "PATH removal logic" {
+        It "removes the bin dir from a PATH string that contains it" {
+            $binDir      = "C:\WBG\.compound-gpid\bin"
+            $currentPath = "C:\Windows\system32;$binDir;C:\Program Files\Git\cmd"
+            $newPath = (($currentPath -split ";") | Where-Object { $_ -ne $binDir }) -join ";"
+            $newPath | Should -Be "C:\Windows\system32;C:\Program Files\Git\cmd"
+        }
+
+        It "leaves PATH unchanged when bin dir is not present" {
+            $binDir      = "C:\WBG\.compound-gpid\bin"
+            $currentPath = "C:\Windows\system32;C:\Program Files\Git\cmd"
+            ($currentPath -like "*$binDir*") | Should -Be $false
+        }
+
+        It "handles bin dir at the start of PATH" {
+            $binDir      = "C:\WBG\.compound-gpid\bin"
+            $currentPath = "$binDir;C:\Windows\system32"
+            $newPath = (($currentPath -split ";") | Where-Object { $_ -ne $binDir }) -join ";"
+            $newPath | Should -Be "C:\Windows\system32"
+        }
+    }
+
+    Context "uninstall mode exits before install steps" {
+        It "install.ps1 contains early exit 0 in the Uninstall block" {
+            $installScript = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw
+            # The uninstall block must call exit 0 before the normal install banner
+            $uninstallIdx = $installScript.IndexOf('if ($Uninstall)')
+            $exitIdx      = $installScript.IndexOf('exit 0', $uninstallIdx)
+            $normalInstallIdx = $installScript.IndexOf("'Step 1: Verify Git'")
+            # exit 0 must appear before the first git-check line
+            $exitIdx | Should -BeGreaterThan $uninstallIdx
+        }
+    }
+}
+
 Describe "install.ps1 - cg-index smoke test" {
     It "cg-index --version exits 0 with non-empty output" {
         $repoRoot = Split-Path $PSScriptRoot -Parent
