@@ -219,7 +219,7 @@ This is **informational only** — no action is required unless you want to upgr
 
 - Your laptop can be pinned to `v0.2.0` for a stable analysis run.
 - A colleague's laptop can track `main` and get the latest features.
-- A remote compute server can be pinned to the production-certified release.
+- A remote compute server can be pinned to the team's selected stable release.
 
 There is no synchronisation between machines — this is intentional.
 

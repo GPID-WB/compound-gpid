@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "compound-gpid-docs-navigation-v1",
+  "groups": [
+    {
+      "title": "Start",
+      "pages": [
+        { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, configure, and complete a first useful workflow." },
+        { "id": "why-compound-gpid", "title": "Why Compound GPID?", "file": "why-compound-gpid.md", "description": "Purpose, institutional fit, tradeoffs, and inspiration." }
+      ]
+    },
+    {
+      "title": "Workflows",
+      "pages": [
+        { "id": "workflows", "title": "Workflow Overview", "file": "workflows/index.md", "description": "Choose the shortest workflow that fits the task." },
+        { "id": "design-work", "title": "Design the Work", "file": "workflows/design.md", "description": "Set direction, explore options, and create a reviewed plan." },
+        { "id": "deliver-work", "title": "Deliver and Resume", "file": "workflows/deliver.md", "description": "Implement plans, fix bugs, and resume interrupted work." },
+        { "id": "assure-work", "title": "Review and Assure", "file": "workflows/assure.md", "description": "Match review depth to risk and resolve findings." },
+        { "id": "knowledge-work", "title": "Knowledge and Coordination", "file": "workflows/knowledge.md", "description": "Capture lessons, manage the Brain, roadmap, issues, and wiki." }
+      ]
+    },
+    {
+      "title": "Skills",
+      "pages": [
+        { "id": "skills", "title": "Skills Catalog", "file": "skills/index.md", "description": "All canonical skills, availability, and maintenance rules." },
+        { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance." },
+        { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills." },
+        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." }
+      ]
+    },
+    {
+      "title": "Operate",
+      "pages": [
+        { "id": "configuration", "title": "Configuration", "file": "configuration/index.md", "description": "Project settings, context files, platforms, and managed content." },
+        { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
+        { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
+        { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },
+        { "id": "versioning", "title": "Updates and Versions", "file": "versioning.md", "description": "Update, pin, unpin, and repair an installation." },
+        { "id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues." }
+      ]
+    },
+    {
+      "title": "Reference",
+      "pages": [
+        { "id": "commands", "title": "Commands", "file": "reference/commands.md", "description": "Task-oriented prompt and shell-command index." },
+        { "id": "agents", "title": "Agents", "file": "reference/agents.md", "description": "Review and infrastructure agents and how they are dispatched." },
+        { "id": "files", "title": "Files and Artifacts", "file": "reference/files.md", "description": "Project files, generated targets, and knowledge artifacts." },
+        { "id": "reference", "title": "Complete Reference", "file": "reference.md", "description": "Detailed command, schema, agent, and configuration contracts." },
+        { "id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture." },
+        { "id": "model-guide", "title": "Model Guide", "file": "model-guide.md", "description": "Model selection, escalation, and token-governance policy." },
+        { "id": "team-brain-schema", "title": "Team Brain Schema", "file": "team-brain-schema.md", "description": "Team Brain configuration, repository schema, and privacy fields." },
+        { "id": "experimental", "title": "Experimental Capabilities", "file": "reference/experimental.md", "description": "Evaluation-only retrieval and research-mode registries." },
+        { "id": "retrieval-backends", "title": "Retrieval Backends", "file": "retrieval-backends.md", "description": "Evaluation registry; native Brain query remains the active backend." },
+        { "id": "snapshot-external-research", "title": "Research Modes", "file": "snapshot-external-research.md", "description": "Evaluation registry; local workflow remains the active mode." },
+        { "id": "workflow", "title": "Detailed Workflow Manual", "file": "workflow.md", "description": "Complete prompt behavior, scenarios, and workflow contracts." },
+        { "id": "manual", "title": "Compatibility Manual Index", "file": "manual.md", "description": "Legacy Markdown table of contents retained for inbound links." }
+      ]
+    },
+    {
+      "title": "Develop",
+      "pages": [
+        { "id": "development", "title": "Contribute and Develop", "file": "development/index.md", "description": "Repository development, tests, documentation, and releases." },
+        { "id": "competitive-reviews", "title": "Competitive Reviews", "file": "competitive-reviews.md", "description": "Maintainer-only external repository review workflow." },
+        { "id": "documentation-audit", "title": "Documentation Migration", "file": "about/documentation-audit.md", "description": "Source inventory, preservation decisions, and future review items." }
+      ]
+    }
+  ]
+}

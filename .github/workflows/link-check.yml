@@ -5,9 +5,21 @@ on:
     branches: [main]
     paths:
       - '**/*.md'
+      - 'docs/**/*.html'
+      - 'docs/**/*.js'
+      - 'docs/**/*.json'
+      - 'scripts/check-docs-site.js'
+      - '.github/skills/**'
+      - '.github/workflows/link-check.yml'
   pull_request:
     paths:
       - '**/*.md'
+      - 'docs/**/*.html'
+      - 'docs/**/*.js'
+      - 'docs/**/*.json'
+      - 'scripts/check-docs-site.js'
+      - '.github/skills/**'
+      - '.github/workflows/link-check.yml'
   schedule:
     # Run weekly on Mondays at 09:00 UTC to catch link rot
     - cron: '0 9 * * 1'
@@ -19,6 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
+      - name: Validate documentation site
+        run: |
+          node --check docs/assets/site.js
+          node --check scripts/check-docs-site.js
+          node scripts/check-docs-site.js
+
       - name: Check links
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411  # v2.8.0
         with:
@@ -29,6 +47,7 @@ jobs:
             --exclude 'https://repec.org'
             --exclude 'localhost'
             **/*.md
+            docs/**/*.html
           fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

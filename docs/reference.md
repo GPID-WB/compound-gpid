@@ -1,6 +1,9 @@
 # Reference
 
-Quick reference for all Compound GPID commands, agents, skills, configuration, and file structure.
+Detailed contracts for Compound GPID commands, agents, schemas, configuration,
+and file structure. Use the focused [Commands](reference/commands.md),
+[Agents](reference/agents.md), [Skills](skills/index.md), and
+[Files and Artifacts](reference/files.md) pages for quicker navigation.
 
 > See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
@@ -404,6 +407,10 @@ After an initial backfill, normal maintenance is delta-based: `/cg-strategy`, `/
 
 ## Skills
 
+The [Skills Catalog](skills/index.md) is the public, goal-oriented inventory and
+documents availability labels and source-of-truth maintenance. The table below
+is retained as a compact technical summary.
+
 | Skill | Contents |
 |-------|---------|
 | `cg-skill-setup` | Project configuration wizard |
@@ -424,6 +431,10 @@ After an initial backfill, normal maintenance is delta-based: `/cg-strategy`, `/
 | `cg-skill-wb-report-writing` | Progressive-disclosure World Bank institutional report-writing router with source-pack preflight, marker safety, and operation/type routing across PRWP, policy briefs, executive summaries, flagship sections, country narratives, technical methodology, internal memos, and data blogs. |
 | `cg-skill-fix-triage-migrate` | Migration mode for `/cg-fix-triage --migrate`: backfills `findings:` tracking frontmatter on legacy review files. Does NOT apply fixes. |
 | `cg-skill-project-scanner` | Project scanner signal catalog for `/cg-setup`: language/framework detection (Tier 1), project type signals (Tier 2), charter-draft content extraction (Tier 3). Dispatched by `@cg-project-scanner`. |
+| `cg-skill-brain-query` | Selective Knowledge Brain query protocol for relevance, stale/conflicting evidence, and source citation. Loaded by Consult Brain steps. |
+| `cg-skill-pester-safety` | Compound GPID workspace safety rules for Pester execution and the canonical test runner. Internal and environment-specific. |
+| `cg-skill-wiki` | Wiki manifest, ownership, managed-section, conflict, template, and conversion rules. Loaded before `@cg-wiki` operations. |
+| `cg-skill-windows-cmd-python-detection` | Safe Python candidate detection and Windows Store stub rejection for `bin/*.cmd` launchers. Internal and Windows-specific. |
 
 ---
 

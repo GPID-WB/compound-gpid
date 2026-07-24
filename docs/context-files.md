@@ -253,14 +253,14 @@ Bad entries are **transient or task-specific**:
 ### Getting started
 
 1. Run `cg-link` in your project root — this links all supported platform install units and creates `.github/copilot-instructions.md` from the template.
-2. Run `/cg-setup` in Copilot Chat — this creates `compound-gpid.md`, `compound-gpid.local.md`, and `compound-gpid.context.md`.
-3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately.
-4. Commit all three files.
+2. Run `/cg-setup` in agent chat. It creates `compound-gpid.local.md` and can create the optional shared `compound-gpid.md` and `compound-gpid.context.md` files.
+3. If you created `compound-gpid.context.md`, add durable data-source paths, workspace layout, and domain vocabulary.
+4. Commit the shared charter and context files. Never commit `compound-gpid.local.md`; it is personal and gitignored.
 
-If you are maintaining the plugin itself from Codex or Claude Code, keep
-`AGENTS.md` committed as the local adapter. Consumer projects using only GitHub
-Copilot do not need it. Consumer projects that also use Codex or Claude Code
-can copy the matching adapter from `adapters/`.
+Current installations receive generated native Claude Code, Codex, and OpenCode
+targets through `cg-link`. The root `AGENTS.md` in this repository remains a
+source-repository adapter. The `adapters/` directory is a superseded
+compatibility path and is not the normal installation method.
 
 ### Keeping them up to date
 
@@ -273,7 +273,7 @@ can copy the matching adapter from `adapters/`.
 | A data source moved or a variable caveat changed | Edit `compound-gpid.context.md` directly |
 | `/cg-resume` reports `last-reviewed` is stale | Run `/cg-strategy` to review and update the charter |
 | New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |
-| You need Codex / Claude Code to run `/cg-*` prompts from this repo | Copy or update the matching root adapter from `adapters/`; do not change `.github/` assets just for Codex / Claude compatibility |
+| You need another supported agent host | Run `cg-link --platforms <name>` or `cg-update`; only plugin maintainers regenerate targets from `.github/` |
 
 ### Common mistakes
 
@@ -304,7 +304,7 @@ GitHub Copilot. Put Codex / Claude dispatch rules and tool mappings in
 | | `.github/copilot-instructions.md` | `compound-gpid.md` | `compound-gpid.context.md` | `AGENTS.md` / `CLAUDE.md` |
 |--|---|---|---|---|
 | **When read** | Every Copilot session (VS Code auto-injects) | Step 0 of every `/cg-*` prompt | Selectively by heading/snippet when a workflow needs tactical facts | Codex / Claude Code sessions only |
-| **Created by** | `cg-link` | `/cg-setup` | `/cg-setup` | Maintainer copies from `adapters/` |
+| **Created by** | `cg-link` | Optional in `/cg-setup` | Optional in `/cg-setup` | Generated target or repository adapter |
 | **Updated by** | `cg-update` (automatic) | You + `/cg-strategy` | You + `/cg-compound` | Maintainer |
 | **Structure** | Fixed (from template) | Fixed (4 sections) | Free-form (by topic) | Agent instructions |
 | **Committed to git** | Yes | Yes | Yes | Optional |

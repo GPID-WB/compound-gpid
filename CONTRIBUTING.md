@@ -188,7 +188,7 @@ Update the relevant documentation files when your change:
 | File | When |
 |---|---|
 | `docs/installation.md` | Setup steps, system requirements change |
-| `docs/manual.md` | Command flags, behavior, output format change |
+| `docs/reference.md` or `docs/reference/commands.md` | Command flags, behavior, or output format change |
 | `README.md` | High-level feature or usage change |
 | `RELEASE_NOTES.md` | Updated automatically at release time |
 
@@ -209,8 +209,8 @@ Before requesting review, verify each dimension:
   `.sh` equivalents and vice versa. Managed dirs, verification file, and
   gitignore entries match.
 
-- [ ] **Docs updated** — `docs/installation.md`, `docs/manual.md`, or
-  `README.md` reflect behavioral changes — or explicitly N/A if no
+- [ ] **Docs updated** — `docs/installation.md`, `docs/reference.md`, or
+  another navigable page reflects behavioral changes — or explicitly N/A if no
   user-facing behavior changed.
 
 - [ ] **Backward compatible** — Users with existing installs can run

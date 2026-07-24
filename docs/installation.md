@@ -1,6 +1,8 @@
 ﻿# Installation
 
-This page covers installing Compound GPID on a new machine, linking it to a project, and upgrading from an older version.
+This detailed page covers platform-specific installation, linking, repair, and
+uninstall procedures. New users should follow the shorter
+[Getting Started](getting-started/index.md) path first.
 
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
@@ -13,7 +15,7 @@ This page covers installing Compound GPID on a new machine, linking it to a proj
 ## Windows installation
 
 > **Requirements**: Windows 10/11, PowerShell 5.1+, git, **Python 3.8+**.
-> Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](#python-not-found) in Troubleshooting if you run into issues.
+> Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](troubleshooting.md#python-not-found) in Troubleshooting if you run into issues.
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -190,7 +192,9 @@ cg-update latest      # return to tracking main
 
 Version preference is stored in `~/.compound-gpid/.cg-version` (or your chosen install path). See [Version Management](versioning.md) for full details.
 
-### Windows — Uninstalling
+## Uninstalling
+
+### Windows - Uninstalling
 
 ```powershell
 & "C:\WBG\.compound-gpid\install.ps1" -Uninstall
@@ -205,7 +209,7 @@ Remove-Item -LiteralPath "C:\WBG\.compound-gpid" -Recurse -Force
 
 Restart VS Code / Positron and your terminal after uninstalling.
 
-### macOS — Uninstalling
+### macOS - Uninstalling
 
 ```bash
 bash <your-install-path>/scripts/install.sh --uninstall
@@ -315,7 +319,7 @@ Then run `cg-update` from each linked project to apply any structural migrations
 > New-Item -ItemType File -Force .cg-docs\strategy\.gitkeep | Out-Null
 > ```
 
-> **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-envuserprofilecompound-gpid-old-default-path--local-onedrive-machines-only) in the Troubleshooting page.
+> **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-env-userprofile-compound-gpid-old-default-path-local-onedrive-machines-only) in the Troubleshooting page.
 
 ---
 

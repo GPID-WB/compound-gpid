@@ -121,7 +121,25 @@ jobs:
         if: runner.os == 'macOS'
         shell: pwsh
         run: |
-          Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser
+          # Ensure PSGallery is available on ephemeral runners before install.
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+            Register-PSRepository -Default
+          }
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+
+          $maxAttempts = 3
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              Install-Module Pester -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -Scope CurrentUser -ErrorAction Stop
+              break
+            }
+            catch {
+              if ($attempt -eq $maxAttempts) {
+                throw
+              }
+              Write-Host "Install-Module failed on attempt $attempt/${maxAttempts}: $($_.Exception.Message)"
+            }
+          }
 
       - name: Make bash scripts executable (macOS)
         if: runner.os == 'macOS'
@@ -242,4 +260,3 @@ jobs:
           else
               echo "Docs staleness check passed."
           fi
-
