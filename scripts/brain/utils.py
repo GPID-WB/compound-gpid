@@ -349,26 +349,18 @@ def write_atomic(path: Path, content: str) -> None:
             fh.write(content)
 
         # OneDrive/AV/indexers can transiently lock destination files on Windows.
-        # Retry replace a few times, then fall back to in-place overwrite.
+        # Retry replace a few times, then fail loudly to preserve atomic semantics.
         retries = 6
-        replaced = False
         for attempt in range(retries):
             try:
                 os.replace(tmp_path, path)
-                replaced = True
-                break
+                return
             except PermissionError:
-                if os.name != "nt" or attempt == retries - 1:
-                    break
+                if os.name != "nt":
+                    raise
+                if attempt == retries - 1:
+                    raise
                 time.sleep(0.05 * (attempt + 1))
-
-        if not replaced:
-            if os.name == "nt":
-                with path.open("w", encoding="utf-8", newline="\n") as fh:
-                    fh.write(content)
-                os.unlink(tmp_path)
-            else:
-                os.replace(tmp_path, path)
     except Exception:
         try:
             os.unlink(tmp_path)
