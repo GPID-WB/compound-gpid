@@ -165,7 +165,7 @@
           "id": "world-bank-institutional-report-writing-skill",
           "title": "World Bank institutional report-writing skill",
           "description": "Future skill for drafting institutional World Bank reports, policy notes, executive summaries, and analytical documents. Detailed examples and requirements will be supplied during future brainstorming and skill development.",
-          "status": "active",
+          "status": "done",
           "plan": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md"
         },
         {
@@ -416,7 +416,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "project-scanner-agent",
@@ -744,7 +744,7 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "token-audit-context-model",

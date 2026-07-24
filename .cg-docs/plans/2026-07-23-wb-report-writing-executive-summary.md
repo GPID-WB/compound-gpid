@@ -1,7 +1,7 @@
 ---
 date: 2026-07-23
 title: "WB report writing: Executive summaries"
-status: active
+status: completed
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md"
 language: "both"
@@ -9,6 +9,7 @@ estimated-effort: "medium"
 deviation-policy: "ask"
 phases: 2
 parent-plan: ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md"
+completed-date: 2026-07-24
 tags: [skill, writing, world-bank, executive-summary]
 ---
 

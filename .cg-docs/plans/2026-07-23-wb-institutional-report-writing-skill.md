@@ -1,14 +1,15 @@
 ---
 date: 2026-07-23
 title: "World Bank institutional report-writing skill"
-status: active
+status: completed
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md"
 language: "both"
 estimated-effort: "large"
 deviation-policy: "ask"
 phases: 2
-current-phase: 1
+completed-phases: [1, 2]
+completed-date: 2026-07-24
 execution-report: ".cg-docs/work-reports/2026-07-23-wb-institutional-report-writing-skill.md"
 tags: [skill, writing, institutional, world-bank, report-writing, quarto]
 ---
