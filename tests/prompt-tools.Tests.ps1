@@ -1,8 +1,8 @@
 ﻿# tests/prompt-tools.Tests.ps1
 # Pester tests to guard prompt file structure and tool configuration
 #
-# Run with: Invoke-Pester tests/prompt-tools.Tests.ps1
-# Compatible with Pester 3.4+ (ships built-in on Windows)
+# Run with: . tests\Run-Tests.ps1 -File prompt-tools
+# Project requirement: Pester 4.10.1. Do not rely on the Windows built-in 3.4 runner.
 #
 # Background: VS Code Copilot prompt files support a 'tools:' YAML key that
 # RESTRICTS which tools are available to the agent running that prompt.
@@ -6745,5 +6745,130 @@ Describe "active-state handoff contract - compact resume records" {
     It "docs explain active-state as a compact restart aid, not durable transcript storage" {
         (($referenceContent + $workflowContent) -match 'compact restart aid') | Should -Be $true
         (($referenceContent + $workflowContent) -match 'must not copy transcripts|must not contain transcript dumps') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# World Bank report-writing skill - Phase 1 shared contracts
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-wb-report-writing - shared assets and routing" {
+    $skillRoot = Join-Path $repoRoot ".github\skills\cg-skill-wb-report-writing"
+    $skillFile = Join-Path $skillRoot "SKILL.md"
+    $workflowsFile = Join-Path $skillRoot "references\workflows.md"
+    $safetyFile = Join-Path $skillRoot "references\safety-and-markers.md"
+    $styleFile = Join-Path $skillRoot "references\style-conventions.md"
+    $terminologyFile = Join-Path $skillRoot "references\terminology.md"
+    $qualityFile = Join-Path $skillRoot "references\quality-review-checklist.md"
+
+    $skillContent = if (Test-Path $skillFile) { Get-Content $skillFile -Raw -Encoding UTF8 } else { "" }
+    $workflowsContent = if (Test-Path $workflowsFile) { Get-Content $workflowsFile -Raw -Encoding UTF8 } else { "" }
+
+    It "includes the canonical skill root and shared reference files" {
+        (Test-Path $skillRoot) | Should -Be $true
+        (Test-Path $skillFile) | Should -Be $true
+        (Test-Path $workflowsFile) | Should -Be $true
+        (Test-Path $safetyFile) | Should -Be $true
+        (Test-Path $styleFile) | Should -Be $true
+        (Test-Path $terminologyFile) | Should -Be $true
+        (Test-Path $qualityFile) | Should -Be $true
+    }
+
+    It "keeps SKILL.md as a thin router (<=120 lines when practical)" {
+        if (Test-Path $skillFile) {
+            (Get-Content $skillFile -Encoding UTF8).Count | Should -BeLessOrEqual 120
+        } else {
+            $false | Should -Be $true
+        }
+    }
+
+    It "covers all seven operations in trigger/routing language" {
+        ($skillContent -match '(?i)draft') | Should -Be $true
+        ($skillContent -match '(?i)expand') | Should -Be $true
+        ($skillContent -match '(?i)revise') | Should -Be $true
+        ($skillContent -match '(?i)summar') | Should -Be $true
+        ($skillContent -match '(?i)adapt') | Should -Be $true
+        ($skillContent -match '(?i)quality review') | Should -Be $true
+        ($skillContent -match '(?i)end-to-end|end to end') | Should -Be $true
+    }
+
+    It "includes all eight document types" {
+        ($skillContent -match '(?i)policy-research-working-paper') | Should -Be $true
+        ($skillContent -match '(?i)\(PRWP\)') | Should -Be $true
+        ($skillContent -match '(?i)policy brief') | Should -Be $true
+        ($skillContent -match '(?i)executive summary') | Should -Be $true
+        ($skillContent -match '(?i)flagship report section') | Should -Be $true
+        ($skillContent -match '(?i)country or regional narrative') | Should -Be $true
+        ($skillContent -match '(?i)technical methodology') | Should -Be $true
+        ($skillContent -match '(?i)internal memo') | Should -Be $true
+        ($skillContent -match '(?i)data blog') | Should -Be $true
+    }
+
+    It "requires source-pack preflight and missing-input blocking for unready types" {
+        ($skillContent -match '(?i)source pack') | Should -Be $true
+        ($skillContent -match '(?i)2-3 approved exemplars') | Should -Be $true
+        ($skillContent -match '(?i)missing-input list') | Should -Be $true
+        ($workflowsContent -match '(?i)intended audience') | Should -Be $true
+        ($workflowsContent -match '(?i)required terminology') | Should -Be $true
+        ($workflowsContent -match '(?i)required disclaimers') | Should -Be $true
+    }
+
+    It "makes phase-appropriate routing explicit when type-specific references are not yet present" {
+        ($skillContent -match '(?i)continue using shared references in this phase') | Should -Be $true
+        ($skillContent -match '(?i)type-specific.*child plans') | Should -Be $true
+        ($workflowsContent -match '(?i)Validator-enforced checks in this phase') | Should -Be $true
+        ($workflowsContent -match '(?i)Manual or child-plan checks') | Should -Be $true
+    }
+
+    It "states English/basic qmd scope and explicit near-miss boundaries" {
+        ($skillContent -match '(?i)English') | Should -Be $true
+        ($skillContent -match '(?i)basic \.qmd structure or prose only') | Should -Be $true
+        ($skillContent -match '(?i)non-English output requests') | Should -Be $true
+        ($skillContent -match '(?i)unsupported full Quarto code execution or data binding workflows') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-wb-report-writing - guardrails and marker grammar" {
+    $safetyFile = Join-Path $repoRoot ".github\skills\cg-skill-wb-report-writing\references\safety-and-markers.md"
+    $styleFile = Join-Path $repoRoot ".github\skills\cg-skill-wb-report-writing\references\style-conventions.md"
+    $terminologyFile = Join-Path $repoRoot ".github\skills\cg-skill-wb-report-writing\references\terminology.md"
+
+    $safetyContent = if (Test-Path $safetyFile) { Get-Content $safetyFile -Raw -Encoding UTF8 } else { "" }
+    $styleContent = if (Test-Path $styleFile) { Get-Content $styleFile -Raw -Encoding UTF8 } else { "" }
+    $terminologyContent = if (Test-Path $terminologyFile) { Get-Content $terminologyFile -Raw -Encoding UTF8 } else { "" }
+
+    It "defines exact visible and hidden marker forms" {
+        ($safetyContent -match '\[VERIFY:') | Should -Be $true
+        ($safetyContent -match '\[SOURCE NEEDED:') | Should -Be $true
+        ($safetyContent -match '\[INSTITUTIONAL POSITION:') | Should -Be $true
+        ($safetyContent -match '\[PRELIMINARY:') | Should -Be $true
+        ($safetyContent -match '\[UNPUBLISHED: DO NOT CIRCULATE\]') | Should -Be $true
+        ($safetyContent -match '<!-- AUTHOR NOTE:') | Should -Be $true
+    }
+
+    It "covers institutional-position, unpublished-data, country-sensitivity, and fabrication guardrails" {
+        ($safetyContent -match '(?i)institutional position') | Should -Be $true
+        ($safetyContent -match '(?i)unpublished') | Should -Be $true
+        ($safetyContent -match '(?i)country-sensitive guardrail') | Should -Be $true
+        ($safetyContent -match '(?i)fabrication guardrail') | Should -Be $true
+        ($safetyContent -match '(?i)never invent') | Should -Be $true
+    }
+
+    It "requires marker carry-forward behavior for summarization and conversion" {
+        ($safetyContent -match '(?i)summar') | Should -Be $true
+        ($safetyContent -match '(?i)document conversion') | Should -Be $true
+        ($safetyContent -match '(?i)carry forward') | Should -Be $true
+    }
+
+    It "documents style authority source and retrieval/version note" {
+        ($styleContent -match '(?i)WBG Publications Editorial Style Guide') | Should -Be $true
+        ($styleContent -match '(?i)worldbank\.org') | Should -Be $true
+        ($styleContent -match '(?i)retrieved|version') | Should -Be $true
+    }
+
+    It "keeps terminology explicitly approved or unresolved (no inferred approvals)" {
+        ($terminologyContent -match '(?i)approved') | Should -Be $true
+        ($terminologyContent -match '(?i)unresolved') | Should -Be $true
+        ($terminologyContent -match '(?i)do not infer|do not guess') | Should -Be $true
     }
 }
