@@ -1,5 +1,10 @@
 # Ensure bash scripts always use LF line endings in the repo
 # (prevents CRLF corruption when checked out on Windows)
+*.md            text eol=lf
+*.json          text eol=lf
+*.toml          text eol=lf
+*.py            text eol=lf
+*.ps1           text eol=lf
 scripts/*.sh    text eol=lf
 bin/cg-*        text eol=lf
 *.yml           text eol=lf
