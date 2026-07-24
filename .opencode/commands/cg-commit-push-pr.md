@@ -201,7 +201,16 @@ For each confirmed commit group, in order:
      - No bidirectional sync: do not mirror PR state, review status, or comments into `roadmap.json`. This is intentionally one-way.
    - **If no plan files found**: generate PR body from commit subjects as a bullet list.
 
-4. Derive PR title from the branch name (replace `feat/`, `fix/`, etc. prefix, convert hyphens to spaces, title-case) or from the primary commit subject.
+4. Derive and validate the PR title in Conventional Commits format:
+    - Preferred source: use the primary commit subject from Step 3 as the PR title when it already matches `type(scope): description`.
+    - If no valid primary subject is available, derive from the branch name by mapping prefixes: `feat/`, `fix/`, `docs/`, `test/`, `refactor/`, `chore/`, `data/`, `analysis/`.
+    - Build fallback parts from branch text:
+       - `type`: mapped prefix (or `chore` when unknown)
+       - `scope`: first token after prefix (lowercase, alphanumeric plus `-` or `_`)
+       - `description`: remaining branch tokens converted to lowercase words (hyphen/underscore to spaces)
+    - Never title-case branch text for PR titles.
+    - Validation gate before `gh pr create` or `github-pull-request_create_pull_request`: title must match `^(feat|fix|docs|test|refactor|chore|data|analysis)(\([a-z0-9._/-]+\))?: .+$`.
+    - If validation fails after derivation, force safe fallback: `chore(<scope>): update branch changes`.
 
 5. Create the PR using the detected tool:
    - If `$prTool = "gh"`: write the composed body to a temporary file and run `gh pr create --title "<title>" --body-file <tempfile>`. Delete the temp file after the command succeeds or fails.
