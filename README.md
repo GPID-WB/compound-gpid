@@ -37,19 +37,19 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 
 ## Documentation
 
-**→ [Read the full documentation in `docs/`](docs/manual.md)**
+**→ [Open the documentation site](https://gpid-wb.github.io/compound-gpid/)** or start with
+[Getting Started](docs/getting-started/index.md).
 
 | Page | Contents |
 |------|----------|
-| [Installation](docs/installation.md) | Install, link, configure, and upgrade from an old version |
-| [Workflow](docs/workflow.md) | The Brainstorm → Plan → Work → Review → Compound loop |
-| [Reference](docs/reference.md) | Commands, agents, skills, configuration, file structure |
-| [Context Files](docs/context-files.md) | Copilot context files plus the Codex / Claude Code adapter note |
-| [Model Guide](docs/model-guide.md) | Model-picker policy, token/context guidance, escalation guidance, and audit guardrails |
-| [Team Brain Schema](docs/team-brain-schema.md) | Team Brain repository schema and local configuration |
-| [Versioning](docs/versioning.md) | Version management — pin to a release, browse tags, return to main |
-| [Troubleshooting](docs/troubleshooting.md) | Known issues and step-by-step fixes |
-| [Competitive Reviews](docs/competitive-reviews.md) | Maintainer guide for `/cg-review-repos` workflows |
+| [Getting Started](docs/getting-started/index.md) | Understand the project, install/configure it, and complete a first workflow |
+| [Why Compound GPID?](docs/why-compound-gpid.md) | Institutional focus, upstream inspiration, differences, and tradeoffs |
+| [Workflows](docs/workflows/index.md) | Task-oriented paths from strategy through verified knowledge capture |
+| [Skills](docs/skills/index.md) | Canonical analytical, technical, testing, and institutional skill catalog |
+| [Configuration](docs/configuration/index.md) | Context files, platform targets, settings, and managed content |
+| [Governance](docs/governance/index.md) | Data safeguards, review gates, operating constraints, and limitations |
+| [Reference](docs/reference.md) | Complete commands, agents, schemas, configuration, and file structure |
+| [Help](docs/help/index.md) | Recovery routes and complete troubleshooting links |
 
 ## Contributing
 
