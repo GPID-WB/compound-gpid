@@ -1,0 +1,4659 @@
+{
+  "benchmark": {
+    "comparison": null,
+    "context_loading": {
+      "justified": 17,
+      "risk": 3,
+      "targeted": 102
+    },
+    "model_governance": {
+      "haiku_role_violations": 0,
+      "missing_model_count": 0,
+      "model_drift_count": 0,
+      "openai_first_violations": 0,
+      "ordinary_model_picker_violations": 0,
+      "premium_usage_count": 0,
+      "sonnet_role_violations": 0
+    },
+    "review_agent_counts": {
+      "available": true,
+      "counts": {
+        "architecture": 8,
+        "data-risk": 8,
+        "full": 10,
+        "light": 2,
+        "standard": 8
+      },
+      "path": ".github/shared/review-routing.contract.md"
+    },
+    "workflows": [
+      {
+        "agent_refs": 7,
+        "available": true,
+        "characters": 15192,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 3,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 2,
+        "estimated_tokens": 3798,
+        "file_refs": 17,
+        "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
+        "path": ".github/prompts/cg-brainstorm.prompt.md",
+        "skill_refs": 1,
+        "summary_output_status": "not_observed",
+        "tool_refs": 1,
+        "total_refs": 34,
+        "workflow": "/cg-brainstorm",
+        "workflow_id": "cg-brainstorm"
+      },
+      {
+        "agent_refs": 5,
+        "available": true,
+        "characters": 12874,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 5,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 3218,
+        "file_refs": 10,
+        "load_verbs": 7,
+        "model": null,
+        "model_tier": "model-picker",
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "skill_refs": 1,
+        "summary_output_status": "not_observed",
+        "tool_refs": 0,
+        "total_refs": 23,
+        "workflow": "/cg-plan",
+        "workflow_id": "cg-plan"
+      },
+      {
+        "agent_refs": 12,
+        "available": true,
+        "characters": 20003,
+        "command_output_status": "not_observed",
+        "conditional_routing": true,
+        "context_justified_count": 2,
+        "context_risk_count": 0,
+        "context_targeted_count": 5,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 3,
+        "estimated_tokens": 5000,
+        "file_refs": 17,
+        "load_verbs": 22,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-work.prompt.md",
+        "skill_refs": 2,
+        "summary_output_status": "not_observed",
+        "tool_refs": 1,
+        "total_refs": 54,
+        "workflow": "/cg-work",
+        "workflow_id": "cg-work"
+      },
+      {
+        "agent_refs": 22,
+        "available": true,
+        "characters": 18956,
+        "command_output_status": "not_observed",
+        "conditional_routing": true,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 10,
+        "estimated_tokens": 4739,
+        "file_refs": 11,
+        "load_verbs": 18,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-review.prompt.md",
+        "skill_refs": 5,
+        "summary_output_status": "not_observed",
+        "tool_refs": 0,
+        "total_refs": 56,
+        "workflow": "/cg-review",
+        "workflow_id": "cg-review"
+      },
+      {
+        "agent_refs": 0,
+        "available": true,
+        "characters": 8400,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2100,
+        "file_refs": 8,
+        "load_verbs": 3,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-fix-triage.prompt.md",
+        "skill_refs": 8,
+        "summary_output_status": "not_observed",
+        "tool_refs": 1,
+        "total_refs": 20,
+        "workflow": "/cg-fix-triage",
+        "workflow_id": "cg-fix-triage"
+      },
+      {
+        "agent_refs": 5,
+        "available": true,
+        "characters": 9616,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 2404,
+        "file_refs": 15,
+        "load_verbs": 6,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "skill_refs": 2,
+        "summary_output_status": "not_observed",
+        "tool_refs": 0,
+        "total_refs": 28,
+        "workflow": "/cg-compound",
+        "workflow_id": "cg-compound"
+      },
+      {
+        "agent_refs": 3,
+        "available": true,
+        "characters": 12637,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 6,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 2,
+        "estimated_tokens": 3159,
+        "file_refs": 15,
+        "load_verbs": 1,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "skill_refs": 0,
+        "summary_output_status": "not_observed",
+        "tool_refs": 0,
+        "total_refs": 19,
+        "workflow": "/cg-resume",
+        "workflow_id": "cg-resume"
+      },
+      {
+        "agent_refs": 0,
+        "available": true,
+        "characters": 10590,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 0,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2647,
+        "file_refs": 13,
+        "load_verbs": 1,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "skill_refs": 1,
+        "summary_output_status": "not_observed",
+        "tool_refs": 1,
+        "total_refs": 16,
+        "workflow": "/cg-diagnose",
+        "workflow_id": "cg-diagnose"
+      },
+      {
+        "agent_refs": 0,
+        "available": true,
+        "characters": 3162,
+        "command_output_status": "not_observed",
+        "conditional_routing": false,
+        "context_justified_count": 3,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 790,
+        "file_refs": 14,
+        "load_verbs": 0,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "path": ".github/prompts/cg-token-audit.prompt.md",
+        "skill_refs": 0,
+        "summary_output_status": "not_observed",
+        "tool_refs": 0,
+        "total_refs": 14,
+        "workflow": "/cg-token-audit",
+        "workflow_id": "cg-token-audit"
+      },
+      {
+        "agent_refs": 0,
+        "available": true,
+        "characters": 11024,
+        "conditional_routing": false,
+        "context_justified_count": 7,
+        "context_risk_count": 2,
+        "context_targeted_count": 57,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2756,
+        "file_refs": 0,
+        "load_verbs": 0,
+        "model": null,
+        "model_tier": null,
+        "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+        "query_first": true,
+        "skill_refs": 0,
+        "total_refs": 0,
+        "workflow": "Knowledge Brain/context lookup"
+      }
+    ]
+  },
+  "context_loading_risks": [
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "risk",
+      "line": 257,
+      "path": "docs/context-files.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 156,
+      "path": "docs/reference.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 739,
+      "path": "docs/workflow.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 24,
+      "path": ".github/agents/cg-learnings-researcher.agent.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "Context expansion: reading `.cg-docs/DIGEST.md` because this researcher needs"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 24,
+      "path": ".github/agents/cg-roadmap.agent.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "Context expansion: reading full `roadmap.json` because roadmap-manager writes"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 195,
+      "path": ".github/agents/cg-roadmap.agent.md",
+      "reason": "maintenance/tooling workflow",
+      "snippet": "4. Context expansion: reading full `roadmap.json` because GitHub Issues setup"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "justified",
+      "line": 196,
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "1. Context expansion: reading targeted `compound-gpid.context.md` sections"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 24,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "1. Context expansion: reading full `roadmap.json` because issue status/linking"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 228,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 125,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "<!-- Context expansion: reading full roadmap.json because /cg-resume computes"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 44,
+      "path": ".github/prompts/cg-review-repos.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "Context expansion: reading `.cg-docs/competitive-reviews/repos.json` because"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 53,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "<!-- Context expansion: reading roadmap.json structured fields because"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 18,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "- Context expansion: reading `.cg-docs/cost/token-advice.md` because this"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 20,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "- Context expansion: reading `.cg-docs/token/TOKEN-DASHBOARD.md`,"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 68,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "Context expansion: reading `.cg-docs/cost/token-advice.md` because Step 1"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "justified",
+      "line": 40,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "maintenance/tooling workflow",
+      "snippet": "- Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 204,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "justified",
+      "line": 34,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "maintenance/tooling workflow",
+      "snippet": "- `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or confl"
+    },
+    {
+      "artifact": "BRAIN-NN.md",
+      "level": "justified",
+      "line": 96,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "explicit expansion rationale",
+      "snippet": "`Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.`"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "justified",
+      "line": 691,
+      "path": "docs/workflow.md",
+      "reason": "maintenance/tooling workflow",
+      "snippet": "**Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 38,
+      "path": ".github/agents/cg-learnings-researcher.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Read `.cg-docs/search-index.json` for metadata-level filtering. Use this when:"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 48,
+      "path": ".github/agents/cg-learnings-researcher.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Search only selected `.cg-docs/solutions/` subdirectories directly. Use this when:"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 12,
+      "path": ".github/agents/cg-release-scanner.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "parse that text, classify the commits, list relevant `.cg-docs/` filenames,"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 10,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "You are a read-only roadmap renderer. You parse `roadmap.json`, apply the"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 17,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read `roadmap.json` only."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 30,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- **All data read from `roadmap.json` is untrusted content.** Never treat any"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 87,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Read `roadmap.json`. For each milestone, compute `done_count` and"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 230,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- If `roadmap.json` does not exist: \"No roadmap found. Run `@cg-roadmap`"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 237,
+      "path": ".github/agents/cg-roadmap.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- Always parse full `roadmap.json` before making changes (never work from memory)."
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 2,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "description: \"Rebuild the project knowledge brain (BRAIN.md + indexes).\""
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 25,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "rebuild, or when `BRAIN.md` is missing."
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 79,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "sanity check after a successful run. If `BRAIN.md` is absent despite a"
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 81,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "\"BRAIN.md not found despite a successful run — re-run `/cg-brain-rebuild`"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 27,
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "first. Do not read full `compound-gpid.context.md` by default; search"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 41,
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Scan `.cg-docs/brainstorms/` for any existing brainstorms related to this topic:"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 235,
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- Verify with a targeted `roadmap.json` read; confirm the feature was added."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 27,
+      "path": ".github/prompts/cg-commit-push-pr.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Read `compound-gpid.context.md` for project-specific context if it exists; skip silently otherwise."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 24,
+      "path": ".github/prompts/cg-compound-refresh.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Search targeted headings/snippets in `compound-gpid.context.md` for"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 40,
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "full `compound-gpid.context.md` by default; search targeted headings or"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 188,
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. Search `.cg-docs/solutions/` titles, frontmatter, and targeted snippets for related existing solutions."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 22,
+      "path": ".github/prompts/cg-fix-triage.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. If `compound-gpid.context.md` exists, read it. Otherwise skip silently."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 39,
+      "path": ".github/prompts/cg-fix-triage.prompt.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "2. If none exist: \"> No review reports found in `.cg-docs/reviews/`. Run `/cg-review` first to generate a review report.\" Then stop."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 39,
+      "path": ".github/prompts/cg-fixbug.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Search `.cg-docs/solutions/bugs/` for similar past bugs. Match on:"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 12,
+      "path": ".github/prompts/cg-ideate.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read targeted `roadmap.json` milestone/feature fields."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 25,
+      "path": ".github/prompts/cg-ideate.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "4. If `roadmap.json` exists, read targeted milestone/feature fields to"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 33,
+      "path": ".github/prompts/cg-ideate.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "5. Targeted scan of `.cg-docs/plans/` and `.cg-docs/brainstorms/` filenames,"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 26,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. If `roadmap.json` is missing, report: \"`roadmap.json` not found. Run `@cg-roadmap` to initialize it.\" and stop."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 56,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. Parse only `roadmap.json` milestone, feature, and `github` fields. For each"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 181,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- **Status mode is read-only**: never write to `roadmap.json` or call `gh issue create` in `status` mode."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 185,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- **Plan path validation before reading**: reject paths that are absolute, contain `..`, or do not start with `.cg-docs/plans/`."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 189,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- **No bidirectional sync in v1**: GitHub Issues state (open/closed, comments, assignees) is never mirrored back into `roadmap.json`. This is intentionally one-way linkage."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 13,
+      "path": ".github/prompts/cg-plan-review.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read targeted `roadmap.json` milestone/feature fields."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 33,
+      "path": ".github/prompts/cg-plan-review.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. If not: scan `.cg-docs/plans/` for the most recent file with `status: active` or `status: in-progress` in its frontmatter (sort by YYYY-MM-DD filename prefix; for ties use the frontmatter `date:` field; for remaining "
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 12,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read targeted `roadmap.json` fields for structural operations and inline milestone rendering."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 24,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and st"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 32,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Scan `.cg-docs/plans/` for existing plans matching this feature by filename/title keywords."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 63,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. If a relevant brainstorm exists in `.cg-docs/brainstorms/`, read the most relevant/recent one as context only. If its `scope:` is `Focused`, `Extended`, or `Strategic`, warn that it is a strategic decision artifact an"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 229,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: \"Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned.\" Verify with a targeted "
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 13,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read `roadmap.json` in the project root only for the justified structured milestone health and drift checks in Step 2d."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 49,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "If `compound-gpid.context.md` exists, read only headings or snippets relevant"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 100,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Scan `.cg-docs/plans/` for all `.md` files. Read the YAML frontmatter of each and collect those with:"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 115,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Scan `.cg-docs/brainstorms/` for all `.md` files with `status: decided`. For each, check if a corresponding plan file exists in `.cg-docs/plans/` (match by date and title similarity, or a `brainstorm:` frontmatter field "
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 130,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "If `roadmap.json` exists at the project root, use the justified full read above to compute:"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 149,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "Scan `.cg-docs/reviews/` metadata for `.md` files (skip `.gitkeep`). For each file:"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 23,
+      "path": ".github/prompts/cg-review.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 82,
+      "path": ".github/prompts/cg-review.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the "
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 93,
+      "path": ".github/prompts/cg-setup.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "If `compound-gpid.context.md` does not exist: > \"Folder descriptions cannot be saved — no `compound-gpid.context.md` exists. Re-run `/cg-setup` and choose to create it.\""
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 46,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Search targeted headings/snippets in `compound-gpid.context.md` for"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 50,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "4. If `roadmap.json` exists, parse only milestone/feature IDs, titles,"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 94,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**Context scan (triggers 2 and 3 only)**: scan `.cg-docs/brainstorms/`"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 174,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. **Verify once**: read `roadmap.json` after the dispatch and confirm"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 17,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "- You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 36,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`,"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 27,
+      "path": ".github/prompts/cg-verify-pr.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Read `compound-gpid.context.md` for project-specific context if it exists; skip silently otherwise."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 45,
+      "path": ".github/prompts/cg-wiki.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. If `compound-gpid.context.md` exists, read only its `## Wiki Configuration`"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 13,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- You may read targeted `roadmap.json` fields for plan/roadmap status."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 25,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and sta"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 91,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 207,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 211,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 34,
+      "path": ".github/shared/active-state.contract.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "{\"kind\": \"review\", \"path\": \".cg-docs/reviews/example-review.md\", \"status\": \"open\"}"
+    },
+    {
+      "artifact": ".cg-docs",
+      "level": "targeted",
+      "line": 23,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| 1 | Targeted metadata | File lists, YAML frontmatter, titles, status fields, matching snippets from `.cg-docs`; `roadmap.json` only through workflow-relevant fields | State why the metadata is needed. Do not read whole"
+    },
+    {
+      "artifact": ".cg-docs/BRAIN.md",
+      "level": "targeted",
+      "line": 24,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "| 2 | Query-first knowledge | `cg-skill-brain-query`, `.cg-docs/BRAIN.md`, matched `BRAIN-NN.md` topic sections only | State the search directive and matched topic before opening topic files. |"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 25,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| 3 | Targeted tactical context | Relevant headings/snippets from `compound-gpid.context.md`; roadmap feature/milestone records relevant to the current plan, feature, or status update | State why the specific section or "
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 26,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| 4 | Justified full expansion | Full `compound-gpid.context.md`, full `roadmap.json`, full `.cg-docs/BRAIN-log.md`, full `BRAIN-NN.md`, or full `brain-index.json` | Only when the workflow explicitly requires whole-file "
+    },
+    {
+      "artifact": ".cg-docs/BRAIN.md",
+      "level": "targeted",
+      "line": 30,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "- `.cg-docs/BRAIN.md` is the small agent-facing meta-index and may be read by Brain query flows."
+    },
+    {
+      "artifact": "BRAIN-NN.md",
+      "level": "targeted",
+      "line": 31,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- `BRAIN-NN.md` partitions are retrieval artifacts. Open only matched topic sections unless section extraction is impractical."
+    },
+    {
+      "artifact": ".cg-docs/brain-index.json",
+      "level": "targeted",
+      "line": 33,
+      "path": ".github/shared/context-loading.contract.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- `.cg-docs/brain-index.json` is a tooling retrieval index. Prompt agents must not read it wholesale; scripts may query it or produce targeted summaries."
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 3,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "description: \"Protocol for searching and consuming the project brain (BRAIN.md). Load when executing a 'Consult Brain' step in any major prompt. Covers: how to navigate the BRAIN.md topic index, drill into sub-files, ext"
+    },
+    {
+      "artifact": ".cg-docs/BRAIN.md",
+      "level": "targeted",
+      "line": 47,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "Read `.cg-docs/BRAIN.md`. Focus on the **Topic Index** table, which maps topic"
+    },
+    {
+      "artifact": "BRAIN-NN.md",
+      "level": "targeted",
+      "line": 53,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "agents must not read it wholesale. Do NOT read all BRAIN-NN.md sub-files at"
+    },
+    {
+      "artifact": "BRAIN-NN.md",
+      "level": "targeted",
+      "line": 238,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- ❌ Read all BRAIN-NN.md sub-files blindly — only open files for matched topics."
+    },
+    {
+      "artifact": "brain-index.json",
+      "level": "targeted",
+      "line": 241,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- ❌ Read `brain-index.json` wholesale as prompt context. It is for the"
+    },
+    {
+      "artifact": "BRAIN-log.md",
+      "level": "targeted",
+      "line": 244,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- ❌ Read `BRAIN-log.md` during ordinary Brain queries unless chronology or"
+    },
+    {
+      "artifact": "BRAIN-log.md",
+      "level": "targeted",
+      "line": 248,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "BRAIN-log.md, brain-index.json) — this skill is read-only."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 12,
+      "path": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. Scan `.cg-docs/reviews/` for `.md` files without a `findings:` key (skip `.gitkeep`)."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 15,
+      "path": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "b. Apply the companion-plan heuristic: strip `-review` suffix → find matching plan in `.cg-docs/plans/`. **This relies on review files being named `<plan-stem>-review.md` per `cg-review.prompt.md` Step 3.5.** Set all fin"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 172,
+      "path": ".github/skills/cg-skill-pester-safety/SKILL.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**Prevention**: Before writing an arm, read the actual prompt line and copy the exact wording. Then verify each arm in isolation. See `.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-pas"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 78,
+      "path": "docs/context-files.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "`compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts "
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 93,
+      "path": "docs/context-files.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 220,
+      "path": "docs/context-files.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "1. **`/cg-compound`** — after you solve a non-trivial problem, run `/cg-compound`. It saves a solution doc to `.cg-docs/solutions/` and optionally extracts project-specific facts (recurring gotchas, data caveats) directl"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 256,
+      "path": "docs/context-files.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "2. Run `/cg-setup` in Copilot Chat — this creates `compound-gpid.md`, `compound-gpid.local.md`, and `compound-gpid.context.md`."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 272,
+      "path": "docs/context-files.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "| You just solved a non-trivial problem | Run `/cg-compound` — it updates `compound-gpid.context.md` and `.cg-docs/solutions/` |"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 275,
+      "path": "docs/context-files.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "| New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 101,
+      "path": "docs/installation.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot can consult when needed (data sources, variable caveats, workspace folder descriptions, domain vocabulary). "
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 38,
+      "path": "docs/reference.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "| `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 39,
+      "path": "docs/reference.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. |"
+    },
+    {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 87,
+      "path": "docs/reference.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (BRAIN.md + indexes). |"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 201,
+      "path": "docs/reference.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 347,
+      "path": "docs/reference.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 528,
+      "path": "docs/reference.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 531,
+      "path": "docs/reference.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 47,
+      "path": "docs/workflow.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your personal config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 214,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**Execution report** (`.cg-docs/work-reports/`): Created early in the run and updated incrementally. Contains the active deviation policy, completed steps/phases, all deviations with decisions, accepted exceptions with r"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 225,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- The prompt does a keyword search across `.cg-docs/plans/` first — an existing relevant plan may not have been the most recent."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 242,
+      "path": "docs/workflow.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 269,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "1. **Intake**: Describe the bug; search only relevant `.cg-docs/solutions/bugs/` filenames, tags, and matched solution snippets for any prior occurrence of the same pattern."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 502,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-do"
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "targeted",
+      "line": 587,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**What happens**: Parses `roadmap.json` and renders a formatted Markdown table or detail view directly in chat. Read-only — never modifies any file. Feature and milestone names are **fuzzy-matched**: you do not need to r"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 736,
+      "path": "docs/workflow.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 838,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 879,
+      "path": "docs/workflow.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "- Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute)."
+    }
+  ],
+  "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
+  "dispatch_burden": [
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 2,
+      "path": ".github/prompts/cg-brainstorm.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-commit-push-pr.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-compound-refresh.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-compound.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-devtag.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-diagnose.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-fix-problems.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-fix-triage.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-fixbug.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 2,
+      "path": ".github/prompts/cg-ideate.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-issues.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 3,
+      "path": ".github/prompts/cg-plan-review.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-plan.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 2,
+      "path": ".github/prompts/cg-resume.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-review-repos.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "conditional",
+      "conditional_routing": true,
+      "dispatch_refs": 10,
+      "path": ".github/prompts/cg-review.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 2,
+      "path": ".github/prompts/cg-roadmap-view.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 3,
+      "path": ".github/prompts/cg-setup.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 2,
+      "path": ".github/prompts/cg-strategy.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "none",
+      "conditional_routing": false,
+      "dispatch_refs": 0,
+      "path": ".github/prompts/cg-token-audit.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 3,
+      "path": ".github/prompts/cg-verify-pr.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cg-wiki.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "conditional",
+      "conditional_routing": true,
+      "dispatch_refs": 3,
+      "path": ".github/prompts/cg-work.prompt.md"
+    }
+  ],
+  "duplicates": [],
+  "files": [
+    {
+      "category": "brain",
+      "characters": 115943,
+      "estimated_tokens": 28985,
+      "path": ".cg-docs/BRAIN-01.md"
+    },
+    {
+      "category": "brain",
+      "characters": 21392,
+      "estimated_tokens": 5348,
+      "path": ".cg-docs/BRAIN-02.md"
+    },
+    {
+      "category": "brain",
+      "characters": 151276,
+      "estimated_tokens": 37819,
+      "path": ".cg-docs/BRAIN-log.md"
+    },
+    {
+      "category": "brain",
+      "characters": 1140,
+      "estimated_tokens": 285,
+      "path": ".cg-docs/BRAIN.md"
+    },
+    {
+      "category": "brain_index",
+      "characters": 639726,
+      "estimated_tokens": 159931,
+      "path": ".cg-docs/brain-index.json"
+    },
+    {
+      "category": "agents",
+      "characters": 3120,
+      "estimated_tokens": 780,
+      "path": ".github/agents/cg-adversarial.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 4105,
+      "estimated_tokens": 1026,
+      "path": ".github/agents/cg-architecture.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 3738,
+      "estimated_tokens": 934,
+      "path": ".github/agents/cg-code-quality.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 4293,
+      "estimated_tokens": 1073,
+      "path": ".github/agents/cg-data-quality.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 2566,
+      "estimated_tokens": 641,
+      "path": ".github/agents/cg-documentation.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 9470,
+      "estimated_tokens": 2367,
+      "path": ".github/agents/cg-fix-problems.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 4457,
+      "estimated_tokens": 1114,
+      "path": ".github/agents/cg-learnings-researcher.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 5026,
+      "estimated_tokens": 1256,
+      "path": ".github/agents/cg-performance.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 4160,
+      "estimated_tokens": 1040,
+      "path": ".github/agents/cg-plan-critic.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 5713,
+      "estimated_tokens": 1428,
+      "path": ".github/agents/cg-project-scanner.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 5584,
+      "estimated_tokens": 1396,
+      "path": ".github/agents/cg-release-scanner.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 3272,
+      "estimated_tokens": 818,
+      "path": ".github/agents/cg-reproducibility.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 7668,
+      "estimated_tokens": 1917,
+      "path": ".github/agents/cg-roadmap-view.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 11966,
+      "estimated_tokens": 2991,
+      "path": ".github/agents/cg-roadmap.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 3531,
+      "estimated_tokens": 882,
+      "path": ".github/agents/cg-testing.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 2862,
+      "estimated_tokens": 715,
+      "path": ".github/agents/cg-version-control.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 10989,
+      "estimated_tokens": 2747,
+      "path": ".github/agents/cg-wiki.agent.md"
+    },
+    {
+      "category": "template",
+      "characters": 1633,
+      "estimated_tokens": 408,
+      "path": ".github/copilot-instructions.template.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 3682,
+      "estimated_tokens": 920,
+      "path": ".github/instructions/powershell.instructions.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 5304,
+      "estimated_tokens": 1326,
+      "path": ".github/instructions/python.instructions.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 1014,
+      "estimated_tokens": 253,
+      "path": ".github/instructions/r.instructions.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 7340,
+      "estimated_tokens": 1835,
+      "path": ".github/instructions/stata.instructions.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 4741,
+      "estimated_tokens": 1185,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 15192,
+      "estimated_tokens": 3798,
+      "path": ".github/prompts/cg-brainstorm.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 15775,
+      "estimated_tokens": 3943,
+      "path": ".github/prompts/cg-commit-push-pr.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 6499,
+      "estimated_tokens": 1624,
+      "path": ".github/prompts/cg-compound-refresh.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 9616,
+      "estimated_tokens": 2404,
+      "path": ".github/prompts/cg-compound.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 3086,
+      "estimated_tokens": 771,
+      "path": ".github/prompts/cg-devtag.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 10590,
+      "estimated_tokens": 2647,
+      "path": ".github/prompts/cg-diagnose.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 3988,
+      "estimated_tokens": 997,
+      "path": ".github/prompts/cg-fix-problems.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 8400,
+      "estimated_tokens": 2100,
+      "path": ".github/prompts/cg-fix-triage.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 13330,
+      "estimated_tokens": 3332,
+      "path": ".github/prompts/cg-fixbug.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 4856,
+      "estimated_tokens": 1214,
+      "path": ".github/prompts/cg-ideate.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 11969,
+      "estimated_tokens": 2992,
+      "path": ".github/prompts/cg-issues.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 5395,
+      "estimated_tokens": 1348,
+      "path": ".github/prompts/cg-plan-review.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 12874,
+      "estimated_tokens": 3218,
+      "path": ".github/prompts/cg-plan.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 12637,
+      "estimated_tokens": 3159,
+      "path": ".github/prompts/cg-resume.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 18358,
+      "estimated_tokens": 4589,
+      "path": ".github/prompts/cg-review-repos.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 18956,
+      "estimated_tokens": 4739,
+      "path": ".github/prompts/cg-review.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 3904,
+      "estimated_tokens": 976,
+      "path": ".github/prompts/cg-roadmap-view.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 21795,
+      "estimated_tokens": 5448,
+      "path": ".github/prompts/cg-setup.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 9765,
+      "estimated_tokens": 2441,
+      "path": ".github/prompts/cg-strategy.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 3162,
+      "estimated_tokens": 790,
+      "path": ".github/prompts/cg-token-audit.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 11539,
+      "estimated_tokens": 2884,
+      "path": ".github/prompts/cg-verify-pr.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 6015,
+      "estimated_tokens": 1503,
+      "path": ".github/prompts/cg-wiki.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 20003,
+      "estimated_tokens": 5000,
+      "path": ".github/prompts/cg-work.prompt.md"
+    },
+    {
+      "category": "shared",
+      "characters": 0,
+      "estimated_tokens": 0,
+      "path": ".github/shared/.gitkeep"
+    },
+    {
+      "category": "shared",
+      "characters": 3256,
+      "estimated_tokens": 814,
+      "path": ".github/shared/active-state.contract.md"
+    },
+    {
+      "category": "shared",
+      "characters": 3149,
+      "estimated_tokens": 787,
+      "path": ".github/shared/context-loading.contract.md"
+    },
+    {
+      "category": "shared",
+      "characters": 10234,
+      "estimated_tokens": 2558,
+      "path": ".github/shared/goal-execution.contract.md"
+    },
+    {
+      "category": "shared",
+      "characters": 13811,
+      "estimated_tokens": 3452,
+      "path": ".github/shared/model-catalog.json"
+    },
+    {
+      "category": "shared",
+      "characters": 3002,
+      "estimated_tokens": 750,
+      "path": ".github/shared/retrieval-backends.json"
+    },
+    {
+      "category": "shared",
+      "characters": 3006,
+      "estimated_tokens": 751,
+      "path": ".github/shared/review-routing.contract.md"
+    },
+    {
+      "category": "shared",
+      "characters": 2274,
+      "estimated_tokens": 568,
+      "path": ".github/shared/snapshot-research-modes.json"
+    },
+    {
+      "category": "shared",
+      "characters": 6949,
+      "estimated_tokens": 1737,
+      "path": ".github/shared/target-mapping.json"
+    },
+    {
+      "category": "skills",
+      "characters": 11024,
+      "estimated_tokens": 2756,
+      "path": ".github/skills/cg-skill-brain-query/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 715,
+      "estimated_tokens": 178,
+      "path": ".github/skills/cg-skill-brainstorming/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 1595,
+      "estimated_tokens": 398,
+      "path": ".github/skills/cg-skill-compound-docs/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 1869,
+      "estimated_tokens": 467,
+      "path": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 845,
+      "estimated_tokens": 211,
+      "path": ".github/skills/cg-skill-git-workflow/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 12026,
+      "estimated_tokens": 3006,
+      "path": ".github/skills/cg-skill-pester-safety/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 8522,
+      "estimated_tokens": 2130,
+      "path": ".github/skills/cg-skill-project-scanner/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 4109,
+      "estimated_tokens": 1027,
+      "path": ".github/skills/cg-skill-python-best-practices/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 2301,
+      "estimated_tokens": 575,
+      "path": ".github/skills/cg-skill-r-analytical/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 3292,
+      "estimated_tokens": 823,
+      "path": ".github/skills/cg-skill-r-collapse/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 2913,
+      "estimated_tokens": 728,
+      "path": ".github/skills/cg-skill-r-datatable/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 1738,
+      "estimated_tokens": 434,
+      "path": ".github/skills/cg-skill-r-shared/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 2607,
+      "estimated_tokens": 651,
+      "path": ".github/skills/cg-skill-r-technical/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 12708,
+      "estimated_tokens": 3177,
+      "path": ".github/skills/cg-skill-r-testing/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 3112,
+      "estimated_tokens": 778,
+      "path": ".github/skills/cg-skill-r-tidyverse/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 1420,
+      "estimated_tokens": 355,
+      "path": ".github/skills/cg-skill-r-visualization/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 6412,
+      "estimated_tokens": 1603,
+      "path": ".github/skills/cg-skill-setup/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 7990,
+      "estimated_tokens": 1997,
+      "path": ".github/skills/cg-skill-stata-best-practices/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 2653,
+      "estimated_tokens": 663,
+      "path": ".github/skills/cg-skill-stata-testing/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 14272,
+      "estimated_tokens": 3568,
+      "path": ".github/skills/cg-skill-wiki/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 5463,
+      "estimated_tokens": 1365,
+      "path": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md"
+    },
+    {
+      "category": "context",
+      "characters": 67555,
+      "estimated_tokens": 16888,
+      "path": "compound-gpid.context.md"
+    },
+    {
+      "category": "docs",
+      "characters": 5461,
+      "estimated_tokens": 1365,
+      "path": "docs/competitive-reviews.md"
+    },
+    {
+      "category": "docs",
+      "characters": 17968,
+      "estimated_tokens": 4492,
+      "path": "docs/context-files.md"
+    },
+    {
+      "category": "docs",
+      "characters": 15271,
+      "estimated_tokens": 3817,
+      "path": "docs/installation.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2363,
+      "estimated_tokens": 590,
+      "path": "docs/manual.md"
+    },
+    {
+      "category": "docs",
+      "characters": 10606,
+      "estimated_tokens": 2651,
+      "path": "docs/model-guide.md"
+    },
+    {
+      "category": "docs",
+      "characters": 40323,
+      "estimated_tokens": 10080,
+      "path": "docs/reference.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1423,
+      "estimated_tokens": 355,
+      "path": "docs/retrieval-backends.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1449,
+      "estimated_tokens": 362,
+      "path": "docs/snapshot-external-research.md"
+    },
+    {
+      "category": "docs",
+      "characters": 7601,
+      "estimated_tokens": 1900,
+      "path": "docs/team-brain-schema.md"
+    },
+    {
+      "category": "docs",
+      "characters": 33517,
+      "estimated_tokens": 8379,
+      "path": "docs/troubleshooting.md"
+    },
+    {
+      "category": "docs",
+      "characters": 9846,
+      "estimated_tokens": 2461,
+      "path": "docs/versioning.md"
+    },
+    {
+      "category": "docs",
+      "characters": 67893,
+      "estimated_tokens": 16973,
+      "path": "docs/workflow.md"
+    },
+    {
+      "category": "roadmap",
+      "characters": 54961,
+      "estimated_tokens": 13740,
+      "path": "roadmap.json"
+    }
+  ],
+  "generated": "2026-07-23T18:00:10",
+  "guardrails": {
+    "failures": [],
+    "warnings": [
+      {
+        "path": "docs/context-files.md",
+        "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": "docs/reference.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/workflow.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      }
+    ]
+  },
+  "model_inventory": {
+    "catalog": {
+      "assignment_count": 41,
+      "load_error": null,
+      "path": ".github/shared/model-catalog.json"
+    },
+    "declarations": [
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Brain rebuild needs structured reasoning and should move to OpenAI-first.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+        "preferred_model": "GPT-5.4",
+        "role": "reasoning",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Creative exploration inherits the user's chosen model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-brainstorm.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Commit and PR generation follows implementation context.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Refresh work needs synthesis over prior learning artifacts.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cg-compound-refresh.prompt.md",
+        "preferred_model": "GPT-5.4",
+        "role": "reasoning",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Knowledge capture benefits from high-quality synthesis.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "preferred_model": "GPT-5.4",
+        "role": "reasoning",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Simple tag/status maintenance is mechanical and cost-sensitive.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-devtag.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Diagnostics often lead to code repair.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Problem fixing is coding work.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-fix-problems.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Fix triage needs code-aware judgment.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-fix-triage.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Bug fixing is coding work.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-fixbug.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Ideation inherits the user's chosen model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Issue status queries are mechanical.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-issues.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Plan review inherits the user's selected review model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Planning inherits the user's chosen model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Resume/status reconstruction is primarily mechanical.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Repository review exploration inherits the user's model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-review-repos.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Default review should be OpenAI-first, with manual cross-vendor rerun when generator vendor requires contrast.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "manual-cross-vendor",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cg-review.prompt.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Read-only roadmap rendering is mechanical.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-roadmap-view.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Setup checks are mechanical unless escalated by failures.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-setup.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": null,
+        "catalog_rationale": "Strategy exploration inherits the user's chosen model.",
+        "category": "prompts",
+        "family": "Auto",
+        "frontmatter_mode": "inherited",
+        "frontmatter_support": null,
+        "has_escalation_condition": false,
+        "model": null,
+        "model_tier": "model-picker",
+        "normalized_model": "",
+        "path": ".github/prompts/cg-strategy.prompt.md",
+        "preferred_model": null,
+        "role": "inherited",
+        "tools": null,
+        "vendor": "inherited"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Token advice delegates analysis to deterministic tooling and only summarizes generated recommendations.",
+        "category": "prompts",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/prompts/cg-token-audit.prompt.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": null,
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "PR verification is code-aware.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-verify-pr.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Wiki maintenance benefits from synthesis.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cg-wiki.prompt.md",
+        "preferred_model": "GPT-5.4",
+        "role": "reasoning",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Implementation workflow should prefer GPT-5.3-Codex.",
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cg-work.prompt.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "manual-cross-vendor",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-adversarial.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Architecture review needs strong reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-architecture.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Code-quality review benefits from Codex specialization.",
+        "category": "agents",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/agents/cg-code-quality.agent.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Data-quality review needs strong analytical reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-data-quality.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Documentation checks are usually mechanical and cheap.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-documentation.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Fix application is coding work.",
+        "category": "agents",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/agents/cg-fix-problems.agent.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "coding",
+        "tools": [
+          "read",
+          "search",
+          "editFiles",
+          "terminalLastCommand",
+          "get_errors"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Learning artifact lookup is mostly retrieval and classification.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-learnings-researcher.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Performance review needs analytical reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-performance.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Plan criticism should use a strong OpenAI reasoning model.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-plan-critic.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Project scanning is structured and mechanical.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-project-scanner.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Release scanning is bounded and mechanical.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-release-scanner.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Reproducibility checklist work is structured and cheap.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-reproducibility.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Roadmap viewing is read-only mechanical work.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-roadmap-view.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Roadmap field updates are mechanical when plan evidence is supplied.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-roadmap.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "write"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Test review is code-aware and should be OpenAI-first.",
+        "category": "agents",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/agents/cg-testing.agent.md",
+        "preferred_model": "GPT-5.3-Codex",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "mechanical-only",
+        "catalog_rationale": "Version-control checks are structured and cheap.",
+        "category": "agents",
+        "family": "Claude",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "normalized_model": "Claude Haiku 4.5",
+        "path": ".github/agents/cg-version-control.agent.md",
+        "preferred_model": "Claude Haiku 4.5",
+        "role": "mechanical",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "anthropic"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "Wiki curation benefits from synthesis.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cg-wiki.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "reasoning",
+        "tools": [
+          "read",
+          "write",
+          "search"
+        ],
+        "vendor": "openai"
+      }
+    ],
+    "drift": [],
+    "frontmatter_support_gaps": [],
+    "haiku_role_violations": [],
+    "invalid_catalog_roles": [],
+    "missing": [],
+    "missing_catalog_assignments": [],
+    "openai_first_violations": [],
+    "ordinary_model_picker_violations": [],
+    "premium_usage": [],
+    "sonnet_role_violations": [],
+    "stale_model_names": [],
+    "unused_catalog_assignments": []
+  },
+  "optimization_candidates": {
+    "acceptable_count": 52,
+    "immediate": [
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-brainstorm.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-fixbug.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-review-repos.prompt.md",
+        "reason": "prompt estimated tokens >= 3000"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-review.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-setup.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-pester-safety/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-project-scanner/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-r-testing/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-wiki/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "instructions",
+        "path": ".github/instructions/stata.instructions.md",
+        "reason": "instruction estimated tokens >= 1500"
+      }
+    ],
+    "needs_review": [
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-compound-refresh.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-fix-problems.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-fix-triage.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-issues.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-roadmap-view.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-strategy.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-token-audit.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-verify-pr.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cg-wiki.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-architecture.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-code-quality.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-data-quality.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-documentation.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-fix-problems.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-performance.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-project-scanner.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-roadmap-view.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-roadmap.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-testing.agent.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-wiki.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-setup/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-stata-best-practices/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "advice": "Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default.",
+      "category": "project-context",
+      "evidence": "context=16888, brain=72437, brain_index=159931 estimated tokens.",
+      "priority": "medium",
+      "title": "Use query-first project context."
+    },
+    {
+      "advice": "Do not optimize docs for runtime unless prompts or skills load them automatically.",
+      "category": "documentation",
+      "evidence": "docs category is estimated at 53425 tokens.",
+      "priority": "low",
+      "title": "Treat docs size as opt-in cost."
+    },
+    {
+      "advice": "Use light or standard reviews for low-risk changes; reserve full review for broad, risky, or explicitly requested checks.",
+      "category": "review-routing",
+      "evidence": "/cg-review dispatch burden is conditional with 10 referenced agents.",
+      "priority": "medium",
+      "title": "Match review depth to risk."
+    },
+    {
+      "advice": "Use stronger models for implementation, high-risk review, and architecture; use lighter models for simple planning or documentation passes.",
+      "category": "model-selection",
+      "evidence": "Model governance keeps ordinary planning prompts on the model picker.",
+      "priority": "low",
+      "title": "Use cheaper models for planning and advisory work when quality allows."
+    }
+  ],
+  "reference_matrix": [
+    {
+      "agent_refs": 7,
+      "file_refs": 59,
+      "load_verbs": 5,
+      "path": ".github/prompts/cg-setup.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 71
+    },
+    {
+      "agent_refs": 22,
+      "file_refs": 8,
+      "load_verbs": 18,
+      "path": ".github/prompts/cg-review.prompt.md",
+      "skill_refs": 5,
+      "tool_refs": 0,
+      "total_refs": 53
+    },
+    {
+      "agent_refs": 12,
+      "file_refs": 14,
+      "load_verbs": 22,
+      "path": ".github/prompts/cg-work.prompt.md",
+      "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 50
+    },
+    {
+      "agent_refs": 7,
+      "file_refs": 17,
+      "load_verbs": 8,
+      "path": ".github/prompts/cg-brainstorm.prompt.md",
+      "skill_refs": 1,
+      "tool_refs": 0,
+      "total_refs": 33
+    },
+    {
+      "agent_refs": 9,
+      "file_refs": 9,
+      "load_verbs": 11,
+      "path": ".github/prompts/cg-wiki.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 29
+    },
+    {
+      "agent_refs": 5,
+      "file_refs": 15,
+      "load_verbs": 6,
+      "path": ".github/prompts/cg-compound.prompt.md",
+      "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 28
+    },
+    {
+      "agent_refs": 11,
+      "file_refs": 12,
+      "load_verbs": 5,
+      "path": ".github/prompts/cg-issues.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 28
+    },
+    {
+      "agent_refs": 6,
+      "file_refs": 15,
+      "load_verbs": 4,
+      "path": ".github/prompts/cg-strategy.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 25
+    },
+    {
+      "agent_refs": 11,
+      "file_refs": 6,
+      "load_verbs": 6,
+      "path": ".github/prompts/cg-plan-review.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 23
+    },
+    {
+      "agent_refs": 5,
+      "file_refs": 10,
+      "load_verbs": 7,
+      "path": ".github/prompts/cg-plan.prompt.md",
+      "skill_refs": 1,
+      "tool_refs": 0,
+      "total_refs": 23
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 11,
+      "load_verbs": 1,
+      "path": ".github/agents/cg-wiki.agent.md",
+      "skill_refs": 8,
+      "tool_refs": 0,
+      "total_refs": 20
+    },
+    {
+      "agent_refs": 3,
+      "file_refs": 15,
+      "load_verbs": 1,
+      "path": ".github/prompts/cg-resume.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 19
+    },
+    {
+      "agent_refs": 4,
+      "file_refs": 11,
+      "load_verbs": 3,
+      "path": ".github/prompts/cg-ideate.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 18
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 4,
+      "load_verbs": 3,
+      "path": ".github/prompts/cg-fix-triage.prompt.md",
+      "skill_refs": 8,
+      "tool_refs": 0,
+      "total_refs": 15
+    },
+    {
+      "agent_refs": 3,
+      "file_refs": 11,
+      "load_verbs": 0,
+      "path": ".github/agents/cg-roadmap-view.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 14
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 14,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 14
+    },
+    {
+      "agent_refs": 4,
+      "file_refs": 4,
+      "load_verbs": 6,
+      "path": ".github/prompts/cg-fix-problems.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 14
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 8,
+      "path": ".github/agents/cg-fix-problems.agent.md",
+      "skill_refs": 5,
+      "tool_refs": 0,
+      "total_refs": 13
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 11,
+      "load_verbs": 1,
+      "path": ".github/agents/cg-roadmap.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 12
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 4,
+      "load_verbs": 2,
+      "path": ".github/prompts/cg-fixbug.prompt.md",
+      "skill_refs": 5,
+      "tool_refs": 0,
+      "total_refs": 11
+    },
+    {
+      "agent_refs": 3,
+      "file_refs": 4,
+      "load_verbs": 4,
+      "path": ".github/prompts/cg-verify-pr.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 11
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 1,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-data-quality.agent.md",
+      "skill_refs": 6,
+      "tool_refs": 0,
+      "total_refs": 9
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 7,
+      "load_verbs": 1,
+      "path": ".github/prompts/cg-diagnose.prompt.md",
+      "skill_refs": 1,
+      "tool_refs": 0,
+      "total_refs": 9
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 2,
+      "load_verbs": 3,
+      "path": ".github/agents/cg-code-quality.agent.md",
+      "skill_refs": 3,
+      "tool_refs": 0,
+      "total_refs": 8
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-testing.agent.md",
+      "skill_refs": 5,
+      "tool_refs": 0,
+      "total_refs": 7
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 7,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-compound-refresh.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 7
+    },
+    {
+      "agent_refs": 3,
+      "file_refs": 2,
+      "load_verbs": 2,
+      "path": ".github/prompts/cg-roadmap-view.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 7
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 7,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-token-audit.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 7
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-architecture.agent.md",
+      "skill_refs": 4,
+      "tool_refs": 0,
+      "total_refs": 6
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 1,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-performance.agent.md",
+      "skill_refs": 3,
+      "tool_refs": 0,
+      "total_refs": 6
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 6,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-commit-push-pr.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 6
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-documentation.agent.md",
+      "skill_refs": 3,
+      "tool_refs": 0,
+      "total_refs": 5
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-project-scanner.agent.md",
+      "skill_refs": 3,
+      "tool_refs": 0,
+      "total_refs": 5
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cg-reproducibility.agent.md",
+      "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 4
+    },
+    {
+      "agent_refs": 1,
+      "file_refs": 3,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-review-repos.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 4
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 1,
+      "path": ".github/agents/cg-version-control.agent.md",
+      "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 3
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 1,
+      "load_verbs": 0,
+      "path": ".github/agents/cg-release-scanner.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 1
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 1,
+      "load_verbs": 0,
+      "path": ".github/prompts/cg-devtag.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 1
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 0,
+      "path": ".github/agents/cg-adversarial.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 0
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 0,
+      "path": ".github/agents/cg-learnings-researcher.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 0
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 0,
+      "path": ".github/agents/cg-plan-critic.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 0
+    }
+  ],
+  "reviewed_warnings": {
+    "counts": {
+      "accept": 0,
+      "docs-only": 3,
+      "fix": 0
+    },
+    "items": [
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": "compound-gpid.context.md",
+        "classification": "docs-only",
+        "line": 257,
+        "path": "docs/context-files.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: compound-gpid.context.md",
+        "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 156,
+        "path": "docs/reference.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |"
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 739,
+        "path": "docs/workflow.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and"
+      }
+    ]
+  },
+  "summary": {
+    "by_category": {
+      "agents": {
+        "characters": 92520,
+        "estimated_tokens": 23125,
+        "files": 17
+      },
+      "brain": {
+        "characters": 289751,
+        "estimated_tokens": 72437,
+        "files": 4
+      },
+      "brain_index": {
+        "characters": 639726,
+        "estimated_tokens": 159931,
+        "files": 1
+      },
+      "context": {
+        "characters": 67555,
+        "estimated_tokens": 16888,
+        "files": 1
+      },
+      "docs": {
+        "characters": 213721,
+        "estimated_tokens": 53425,
+        "files": 12
+      },
+      "instructions": {
+        "characters": 17340,
+        "estimated_tokens": 4334,
+        "files": 4
+      },
+      "prompts": {
+        "characters": 252445,
+        "estimated_tokens": 63102,
+        "files": 24
+      },
+      "roadmap": {
+        "characters": 54961,
+        "estimated_tokens": 13740,
+        "files": 1
+      },
+      "shared": {
+        "characters": 45681,
+        "estimated_tokens": 11417,
+        "files": 9
+      },
+      "skills": {
+        "characters": 107586,
+        "estimated_tokens": 26890,
+        "files": 21
+      },
+      "template": {
+        "characters": 1633,
+        "estimated_tokens": 408,
+        "files": 1
+      }
+    },
+    "total_characters": 1782919,
+    "total_estimated_tokens": 445697,
+    "total_files": 95
+  },
+  "workflow_telemetry": {
+    "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
+    "observability_matrix": {
+      "cg-brainstorm": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-compound": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-diagnose": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-fix-triage": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-plan": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-resume": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-review": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-token-audit": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      },
+      "cg-work": {
+        "agents_dispatched": {
+          "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "command_output_size": {
+          "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+          "status": "not_observed"
+        },
+        "estimated_token_pressure": {
+          "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+          "status": "observed"
+        },
+        "files_read": {
+          "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+          "status": "partially_observed"
+        },
+        "mcp_tool_usage": {
+          "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+          "status": "partially_observed"
+        },
+        "prompt_source": {
+          "measurement_note": "Derived from the workflow prompt file when it exists.",
+          "status": "observed"
+        },
+        "skills_loaded": {
+          "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+          "status": "partially_observed"
+        },
+        "summary_size": {
+          "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+          "status": "not_observed"
+        }
+      }
+    },
+    "schema_version": 1,
+    "workflows": [
+      {
+        "agent_references": [
+          "@cg-roadmap",
+          "@cg-roadmap-view"
+        ],
+        "agent_refs": 7,
+        "available": true,
+        "characters": 15192,
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 3,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 2,
+        "estimated_tokens": 3798,
+        "file_references": [
+          ".cg-docs/brainstorms/",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "file_refs": 17,
+        "large_context_warning_status": "immediate",
+        "likely_file_reads": [
+          ".cg-docs/brainstorms/",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query"
+        ],
+        "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-brainstorm.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query"
+        ],
+        "skill_refs": 1,
+        "tool_references": [
+          "Task"
+        ],
+        "tool_refs": 1,
+        "total_refs": 34,
+        "workflow": "/cg-brainstorm",
+        "workflow_id": "cg-brainstorm"
+      },
+      {
+        "agent_references": [
+          "@cg-roadmap"
+        ],
+        "agent_refs": 5,
+        "available": true,
+        "characters": 12874,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 5,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 3218,
+        "file_references": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/plans/",
+          ".cg-docs/plans/YYYY-MM-DD-",
+          ".cg-docs/solutions/",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/goal-execution.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "file_refs": 10,
+        "large_context_warning_status": "immediate",
+        "likely_file_reads": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/plans/",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/goal-execution.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query"
+        ],
+        "load_verbs": 7,
+        "model": null,
+        "model_tier": "model-picker",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query"
+        ],
+        "skill_refs": 1,
+        "tool_references": [],
+        "tool_refs": 0,
+        "total_refs": 23,
+        "workflow": "/cg-plan",
+        "workflow_id": "cg-plan"
+      },
+      {
+        "agent_references": [
+          "@cg-fix-problems",
+          "@cg-roadmap",
+          "@cg-testing"
+        ],
+        "agent_refs": 12,
+        "available": true,
+        "characters": 20003,
+        "conditional_routing": true,
+        "context_justified_count": 2,
+        "context_risk_count": 0,
+        "context_targeted_count": 5,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 3,
+        "estimated_tokens": 5000,
+        "file_references": [
+          ".cg-docs/plans/",
+          ".cg-docs/plans/YYYY-MM-DD-",
+          ".cg-docs/work-reports/YYYY-MM-DD-",
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/goal-execution.contract.md",
+          ".github/shared/review-routing.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "docs/style",
+          "roadmap.json",
+          "tests/Run-Tests.ps1",
+          "tests/docs",
+          "tests/last-run.json",
+          "tests/test-",
+          "tests/test_"
+        ],
+        "file_refs": 17,
+        "large_context_warning_status": "immediate",
+        "likely_file_reads": [
+          ".cg-docs/plans/YYYY-MM-DD-",
+          ".cg-docs/work-reports/YYYY-MM-DD-",
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/goal-execution.contract.md",
+          ".github/shared/review-routing.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json",
+          "tests/Run-Tests.ps1",
+          "tests/last-run.json",
+          "tests/test-",
+          "tests/test_"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query"
+        ],
+        "load_verbs": 22,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-work.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query",
+          "cg-skill-pester-safety"
+        ],
+        "skill_refs": 2,
+        "tool_references": [
+          "execution_subagent"
+        ],
+        "tool_refs": 1,
+        "total_refs": 54,
+        "workflow": "/cg-work",
+        "workflow_id": "cg-work"
+      },
+      {
+        "agent_references": [
+          "@cg-adversarial",
+          "@cg-architecture",
+          "@cg-code-quality",
+          "@cg-data-quality",
+          "@cg-documentation",
+          "@cg-learnings-researcher",
+          "@cg-performance",
+          "@cg-reproducibility",
+          "@cg-testing",
+          "@cg-version-control"
+        ],
+        "agent_refs": 22,
+        "available": true,
+        "characters": 18956,
+        "conditional_routing": true,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "conditional",
+        "dispatch_refs": 10,
+        "estimated_tokens": 4739,
+        "file_references": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/plans/",
+          ".cg-docs/reviews/",
+          ".cg-docs/reviews/2026-04-21-foo-review.md",
+          ".cg-docs/solutions/",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/review-routing.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "file_refs": 11,
+        "large_context_warning_status": "immediate",
+        "likely_file_reads": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/reviews/",
+          ".cg-docs/solutions/",
+          ".github/shared/context-loading.contract.md",
+          ".github/shared/review-routing.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query",
+          "cg-skill-python-best-practices",
+          "cg-skill-stata-best-practices"
+        ],
+        "load_verbs": 18,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-review.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query",
+          "cg-skill-python-best-practices",
+          "cg-skill-r-analytical",
+          "cg-skill-r-technical",
+          "cg-skill-stata-best-practices"
+        ],
+        "skill_refs": 5,
+        "tool_references": [],
+        "tool_refs": 0,
+        "total_refs": 56,
+        "workflow": "/cg-review",
+        "workflow_id": "cg-review"
+      },
+      {
+        "agent_references": [],
+        "agent_refs": 0,
+        "available": true,
+        "characters": 8400,
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2100,
+        "file_references": [
+          ".cg-docs/reviews/",
+          ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "tests/Run-Tests.ps1",
+          "tests/last-run.json",
+          "tests/prompt-tools.Tests.ps1"
+        ],
+        "file_refs": 8,
+        "large_context_warning_status": "needs_review",
+        "likely_file_reads": [
+          ".cg-docs/reviews/",
+          ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "tests/Run-Tests.ps1",
+          "tests/last-run.json"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query",
+          "cg-skill-fix-triage-migrate",
+          "cg-skill-r-analytical",
+          "cg-skill-r-technical"
+        ],
+        "load_verbs": 3,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-fix-triage.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query",
+          "cg-skill-fix-triage-migrate",
+          "cg-skill-python-best-practices",
+          "cg-skill-r-analytical",
+          "cg-skill-r-technical",
+          "cg-skill-stata-best-practices"
+        ],
+        "skill_refs": 8,
+        "tool_references": [
+          "execution_subagent"
+        ],
+        "tool_refs": 1,
+        "total_refs": 20,
+        "workflow": "/cg-fix-triage",
+        "workflow_id": "cg-fix-triage"
+      },
+      {
+        "agent_references": [
+          "@cg-wiki"
+        ],
+        "agent_refs": 5,
+        "available": true,
+        "characters": 9616,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 1,
+        "estimated_tokens": 2404,
+        "file_references": [
+          ".cg-docs/solutions/",
+          ".github/shared/context-loading.contract.md",
+          "BRAIN.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "copilot-instructions.md"
+        ],
+        "file_refs": 15,
+        "large_context_warning_status": "needs_review",
+        "likely_file_reads": [
+          ".cg-docs/solutions/",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-brain-query"
+        ],
+        "load_verbs": 6,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-brain-query",
+          "cg-skill-wiki"
+        ],
+        "skill_refs": 2,
+        "tool_references": [],
+        "tool_refs": 0,
+        "total_refs": 28,
+        "workflow": "/cg-compound",
+        "workflow_id": "cg-compound"
+      },
+      {
+        "agent_references": [
+          "@cg-roadmap",
+          "@cg-roadmap-view"
+        ],
+        "agent_refs": 3,
+        "available": true,
+        "characters": 12637,
+        "conditional_routing": false,
+        "context_justified_count": 1,
+        "context_risk_count": 0,
+        "context_targeted_count": 6,
+        "dispatch_burden": "limited",
+        "dispatch_refs": 2,
+        "estimated_tokens": 3159,
+        "file_references": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/plans/",
+          ".cg-docs/reviews/",
+          ".cg-docs/strategy/",
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "docs/brainstorms/",
+          "docs/plans/",
+          "docs/solutions/",
+          "roadmap.json"
+        ],
+        "file_refs": 15,
+        "large_context_warning_status": "immediate",
+        "likely_file_reads": [
+          ".cg-docs/brainstorms/",
+          ".cg-docs/plans/",
+          ".cg-docs/reviews/",
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json"
+        ],
+        "likely_skill_loads": [],
+        "load_verbs": 1,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [],
+        "skill_refs": 0,
+        "tool_references": [],
+        "tool_refs": 0,
+        "total_refs": 19,
+        "workflow": "/cg-resume",
+        "workflow_id": "cg-resume"
+      },
+      {
+        "agent_references": [],
+        "agent_refs": 0,
+        "available": true,
+        "characters": 10590,
+        "conditional_routing": false,
+        "context_justified_count": 0,
+        "context_risk_count": 0,
+        "context_targeted_count": 0,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 2647,
+        "file_references": [
+          ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
+          ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
+          ".cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md",
+          ".cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md",
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "copilot-instructions.md",
+          "tests/Run-Tests.ps1",
+          "tests/last-run.json",
+          "tests/roadmap.Tests.ps1"
+        ],
+        "file_refs": 13,
+        "large_context_warning_status": "needs_review",
+        "likely_file_reads": [
+          ".github/shared/active-state.contract.md",
+          ".github/shared/context-loading.contract.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "tests/Run-Tests.ps1",
+          "tests/last-run.json"
+        ],
+        "likely_skill_loads": [
+          "cg-skill-pester-safety"
+        ],
+        "load_verbs": 1,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [
+          "cg-skill-pester-safety"
+        ],
+        "skill_refs": 1,
+        "tool_references": [
+          "execution_subagent"
+        ],
+        "tool_refs": 1,
+        "total_refs": 16,
+        "workflow": "/cg-diagnose",
+        "workflow_id": "cg-diagnose"
+      },
+      {
+        "agent_references": [],
+        "agent_refs": 0,
+        "available": true,
+        "characters": 3162,
+        "conditional_routing": false,
+        "context_justified_count": 3,
+        "context_risk_count": 0,
+        "context_targeted_count": 2,
+        "dispatch_burden": "none",
+        "dispatch_refs": 0,
+        "estimated_tokens": 790,
+        "file_references": [
+          ".cg-docs/cost/",
+          ".cg-docs/cost/token-advice.md",
+          ".cg-docs/token/",
+          ".cg-docs/token/TOKEN-BUDGET.md",
+          ".cg-docs/token/TOKEN-DASHBOARD.md",
+          ".cg-docs/token/regression-check.json",
+          ".cg-docs/token/workflow-costs.csv",
+          ".github/shared/context-loading.contract.md",
+          "brain-index.json",
+          "compound-gpid.context.md",
+          "compound-gpid.local.md",
+          "compound-gpid.md",
+          "roadmap.json",
+          "scripts/cg_audit_context.py"
+        ],
+        "file_refs": 14,
+        "large_context_warning_status": "needs_review",
+        "likely_file_reads": [
+          ".cg-docs/cost/token-advice.md",
+          ".cg-docs/token/TOKEN-DASHBOARD.md",
+          ".github/shared/context-loading.contract.md",
+          "brain-index.json",
+          "compound-gpid.local.md",
+          "compound-gpid.md"
+        ],
+        "likely_skill_loads": [],
+        "load_verbs": 0,
+        "model": "Claude Haiku 4.5",
+        "model_tier": "economy",
+        "observability": {
+          "agents_dispatched": {
+            "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "command_output_size": {
+            "measurement_note": "Phase 1.1 excludes command-output summary wrappers, so output bytes are not instrumented.",
+            "status": "not_observed"
+          },
+          "estimated_token_pressure": {
+            "measurement_note": "Estimated with the repository chars/4 heuristic; this is not a provider token count.",
+            "status": "observed"
+          },
+          "files_read": {
+            "measurement_note": "Static prompt text references files, but actual runtime reads require transcript or wrapper instrumentation.",
+            "status": "partially_observed"
+          },
+          "mcp_tool_usage": {
+            "measurement_note": "Static prompt text references known tools; actual MCP/tool calls are runtime-dependent.",
+            "status": "partially_observed"
+          },
+          "prompt_source": {
+            "measurement_note": "Derived from the workflow prompt file when it exists.",
+            "status": "observed"
+          },
+          "skills_loaded": {
+            "measurement_note": "Static prompt text references skills, but actual runtime skill loading depends on execution path.",
+            "status": "partially_observed"
+          },
+          "summary_size": {
+            "measurement_note": "Phase 1.1 has no transcript summary instrumentation; track this in the command-output phase.",
+            "status": "not_observed"
+          }
+        },
+        "path": ".github/prompts/cg-token-audit.prompt.md",
+        "repeated_context_tokens": 0,
+        "skill_references": [],
+        "skill_refs": 0,
+        "tool_references": [],
+        "tool_refs": 0,
+        "total_refs": 14,
+        "workflow": "/cg-token-audit",
+        "workflow_id": "cg-token-audit"
+      }
+    ]
+  }
+}

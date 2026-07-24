@@ -2,7 +2,7 @@
   "benchmark": {
     "comparison": null,
     "context_loading": {
-      "justified": 20,
+      "justified": 17,
       "risk": 3,
       "targeted": 102
     },
@@ -248,7 +248,7 @@
         "available": true,
         "characters": 11024,
         "conditional_routing": false,
-        "context_justified_count": 9,
+        "context_justified_count": 7,
         "context_risk_count": 2,
         "context_targeted_count": 57,
         "dispatch_burden": "none",
@@ -267,7 +267,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-06-23T14:26:40",
+  "generated": "2026-07-23T18:00:10",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -291,7 +291,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 51,
+    "acceptable_count": 52,
     "immediate": [
       {
         "category": "prompts",
@@ -523,7 +523,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": "compound-gpid.context.md",
         "classification": "docs-only",
-        "line": 233,
+        "line": 257,
         "path": "docs/context-files.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: compound-gpid.context.md",
@@ -533,11 +533,11 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 168,
+        "line": 156,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
+        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |"
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
@@ -560,23 +560,23 @@
         "files": 17
       },
       "brain": {
-        "characters": 287585,
-        "estimated_tokens": 71896,
+        "characters": 289751,
+        "estimated_tokens": 72437,
         "files": 4
       },
       "brain_index": {
-        "characters": 635388,
-        "estimated_tokens": 158847,
+        "characters": 639726,
+        "estimated_tokens": 159931,
         "files": 1
       },
       "context": {
-        "characters": 64564,
-        "estimated_tokens": 16141,
+        "characters": 67555,
+        "estimated_tokens": 16888,
         "files": 1
       },
       "docs": {
-        "characters": 214637,
-        "estimated_tokens": 53654,
+        "characters": 213721,
+        "estimated_tokens": 53425,
         "files": 12
       },
       "instructions": {
@@ -585,19 +585,19 @@
         "files": 4
       },
       "prompts": {
-        "characters": 249887,
-        "estimated_tokens": 62463,
+        "characters": 252445,
+        "estimated_tokens": 63102,
         "files": 24
       },
       "roadmap": {
-        "characters": 67198,
-        "estimated_tokens": 16799,
+        "characters": 54961,
+        "estimated_tokens": 13740,
         "files": 1
       },
       "shared": {
-        "characters": 38732,
-        "estimated_tokens": 9680,
-        "files": 8
+        "characters": 45681,
+        "estimated_tokens": 11417,
+        "files": 9
       },
       "skills": {
         "characters": 107586,
@@ -610,9 +610,9 @@
         "files": 1
       }
     },
-    "total_characters": 1777070,
-    "total_estimated_tokens": 444237,
-    "total_files": 94
+    "total_characters": 1782919,
+    "total_estimated_tokens": 445697,
+    "total_files": 95
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",

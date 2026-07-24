@@ -1,6 +1,6 @@
 # Token Dashboard
 
-_Generated: 2026-06-23T14:26:40_
+_Generated: 2026-07-23T18:00:10_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -18,8 +18,8 @@ comparable repository probes.
 
 ## Source Scope
 
-- Source files counted: 94
-- Source estimated tokens: 444237
+- Source files counted: 95
+- Source estimated tokens: 445697
 - Workflow rows: 9
 
 ## Highest Workflow Budgets
@@ -34,7 +34,7 @@ comparable repository probes.
 
 ## Context and Warning Summary
 
-- Context loading signals: risk=3, justified=20, targeted=102
+- Context loading signals: risk=3, justified=17, targeted=102
 - Reviewed warnings: fix=0, accept=0, docs-only=3
 
 ## Observability Boundaries

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
+_Generated 2026-07-24 · 447 artifacts (newest first) + 113 roadmap features_
 
 ## undated
 
@@ -123,6 +123,78 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-07-24
+
+- **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
+  > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
+
+## 2026-07-23
+
+- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-23`
+  > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
+  > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
+- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
+- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, ne…
+- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior…
+- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking othe…
+- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsem…
+- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.
+- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.
+- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _active_ · `2026-07-23`
+  > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
+- **[World Bank institutional report-writing skill](.cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md)** · `brainstorm` · _decided_ · `2026-07-23`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _active_ · `2026-07-23`
+  > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
+
+## 2026-07-22
+
+- **[Skills Enhancement Idea Additions](.cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md)** · `strategy` · _—_ · `2026-07-22`
+  > Compound GPID is in a mid-project phase with the existing `Skills Enhancement` milestone available for additional ski…
+
+## 2026-07-16
+
+- **[Updater remediation for legacy CLM-prone PowerShell profile wrappers](.cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md)** · `solution` · _—_ · `2026-07-16`
+  > On enterprise Windows machines using Constrained Language Mode (CLM), an old Compound GPID profile function such as `…
+
+## 2026-07-05
+
+- **[2026-06-12-goal-driven-execution-verify-review-6](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-06-12-goal-driven-execution-verify-review-7](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[Default-All Platform Linking With Safe Install Units](.cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md)** · `plan` · _active_ · `2026-07-05`
+  > Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-own…
+
+## 2026-07-04
+
+- **[Default-All Platform Linking With Safe Install Units](.cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md)** · `brainstorm` · _decided_ · `2026-07-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+
+## 2026-07-03
+
+- **[Cross-Agent Native Platform Targets](.cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md)** · `brainstorm` · _decided_ · `2026-07-03`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Cross-Agent Native Platform Targets](.cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md)** · `plan` · _completed_ · `2026-07-03`
+  > Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.g…
+- **[Cross-Agent Native Platform Targets — Verify Review](.cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md)** · `review` · _fixed_ · `2026-07-03`
+  > - **Mode**: verify (light depth, per `mode:verify`) - **Parent review**: `.cg-docs/reviews/2026-05-21-knowledge-brain…
+- **[Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution](.cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md)** · `solution` · _—_ · `2026-07-03`
+  > Compound GPID's `.github/` assets were designed for GitHub Copilot. Supporting Claude Code, Codex, and OpenCode requi…
+
+## 2026-06-25
+
+- **[install.ps1 self-copy wrapper crash when source equals destination](.cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md)** · `solution` · _—_ · `2026-06-25`
+  > Running install.ps1 on a canonical install layout failed during wrapper registration with:
+
 ## 2026-06-23
 
 - **[2026-06-12-goal-driven-execution-verify-review-5](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-5.md)** · `review` · _—_ · `2026-06-23`
@@ -157,8 +229,6 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Complete Phase 2.1 by packaging the existing Codex / Claude Code compatibility adapter behavior into reusable, versio…
 - **[Handoff Resume and Active-State Compaction](.cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.5 by adding compact durable active-state handoff records so long workflows can resume from artifact…
-- **[ICM and OKF Integration Concept for Compound GPID](.cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md)** · `strategy` · _—_ · `2026-06-23`
-  > Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, …
 - **[Knowledge Brain Query and Budgeted Retrieval](.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md)** · `plan` · _completed_ · `2026-06-23`
   > Implement Phase 1.2 by turning Knowledge Brain consumption into a bounded `cg-index query` interface that returns tar…
 - **[Optional Retrieval Backend Evaluation](.cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md)** · `plan` · _completed_ · `2026-06-23`
@@ -169,8 +239,6 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Implement Phase 1.4 by tightening progressive-disclosure boundaries in prompts, agents, skills, and docs so ordinary …
 - **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
   > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
-- **[Prompt for /cg-strategy: ICM and OKF Roadmap Integration](.cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md)** · `strategy` · _—_ · `2026-06-23`
-  > Copy the prompt below into a `/cg-strategy` session.
 - **[Snapshot and External-Research Modes](.cg-docs/plans/2026-06-23-snapshot-external-research-modes.md)** · `plan` · _completed_ · `2026-06-23`
   > Complete Phase 2.3 by defining tested opt-in governance for future snapshot and external-research modes without imple…
 - **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
@@ -1063,7 +1131,7 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
 
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
-- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _done_ · `—`
+- **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
   > Update custom agents for model and tool governance
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
@@ -1121,6 +1189,8 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > /cg-setup --refresh mode for non-destructive re-configuration
 - **[/cg-verify-pr — CI check verification and auto-fix dispatch](roadmap.json#cg-verify-pr)** · `feature` · _done_ · `—`
   > /cg-verify-pr — CI check verification and auto-fix dispatch
+- **[Explicit plan-path selection for /cg-work](roadmap.json#cg-work-explicit-plan-path)** · `feature` · _idea_ · `—`
+  > Explicit plan-path selection for /cg-work
 - **[Charter quality gate \(validate no placeholders, all fields populated\)](roadmap.json#charter-quality-gate)** · `feature` · _done_ · `—`
   > Charter quality gate (validate no placeholders, all fields populated)
 - **[Command default behaviors \(auto-branch, phases, autofix, context enrichment\)](roadmap.json#command-default-behaviors)** · `feature` · _done_ · `—`
@@ -1139,6 +1209,8 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`
   > Evaluate GitHub Copilot hooks for compound-gpid
+- **[Reusable exemplar source-pack schema](roadmap.json#exemplar-source-pack-schema)** · `feature` · _idea_ · `—`
+  > Reusable exemplar source-pack schema
 - **[First-run welcome and health check after cg-link](roadmap.json#first-run-welcome-health-check)** · `feature` · _done_ · `—`
   > First-run welcome and health check after cg-link
 - **[/cg-fix-triage --migrate mode \(backfills findings: frontmatter on legacy review files\)](roadmap.json#fix-triage-migrate-mode)** · `feature` · _done_ · `—`
@@ -1147,9 +1219,9 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > /cg-fixbug test-correctness assessment
 - **[Full model audit across prompts and agents](roadmap.json#full-model-audit)** · `feature` · _done_ · `—`
   > Full model audit across prompts and agents
-- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _done_ · `—`
+- **[GitHub Issues integration \(optional, via gh CLI\)](roadmap.json#github-issues-integration)** · `feature` · _idea_ · `—`
   > GitHub Issues integration (optional, via gh CLI)
-- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _done_ · `—`
+- **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
   > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan \[from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
   > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
@@ -1161,11 +1233,11 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
-- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _done_ · `—`
+- **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
   > Add model-policy tests
 - **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
-- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _done_ · `—`
+- **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
   > Define model tiers and escalation rules
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
   > Multi-folder workspace awareness in copilot-instructions.md and prompts
@@ -1175,24 +1247,6 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Per-step test enforcement in /cg-work](roadmap.json#per-step-test-enforcement-in-cg-work)** · `feature` · _done_ · `—`
   > Per-step test enforcement in /cg-work
-- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _done_ · `—`
-  > Phase 1.1 — Workflow-level token baseline and test integration
-- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
-  > Phase 1.2 — Knowledge Brain query and budgeted retrieval
-- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
-  > Phase 1.3 — Command-output summarization wrappers
-- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _done_ · `—`
-  > Phase 1.4 — Progressive-disclosure skills and scoped instructions
-- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
-  > Phase 1.5 — Handoff, resume, and active-state compaction
-- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
-  > Phase 1.6 — Token dashboard and regression checks
-- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
-  > Phase 2.1 — Cross-agent packaging adapters
-- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _done_ · `—`
-  > Phase 2.2 — Optional retrieval backend evaluation
-- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _done_ · `—`
-  > Phase 2.3 — Snapshot and external-research modes
 - **[Phased execution in /cg-work](roadmap.json#phased-execution-cg-work)** · `feature` · _done_ · `—`
   > Phased execution in /cg-work
 - **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
@@ -1211,15 +1265,15 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Project scanner agent for deep project analysis
 - **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
   > Auto-generated project wiki (created at /cg-setup, updated at /cg-compound)
-- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _done_ · `—`
+- **[Update prompt frontmatter model and agent choices](roadmap.json#prompt-frontmatter-model-update)** · `feature` · _idea_ · `—`
   > Update prompt frontmatter model and agent choices
-- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _done_ · `—`
+- **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
-- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _done_ · `—`
+- **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`
   > Per-finding status tracking in review files
@@ -1233,7 +1287,9 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
-- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _done_ · `—`
+- **[Shared institutional writing guardrails contract](roadmap.json#shared-writing-guardrails-contract)** · `feature` · _idea_ · `—`
+  > Shared institutional writing guardrails contract
+- **[Shrink always-on context](roadmap.json#shrink-always-on-context)** · `feature` · _idea_ · `—`
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
@@ -1241,13 +1297,15 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Skill description consistency audit and optimization
 - **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
   > Skill description length cap with test enforcement [from CE]
+- **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
+  > SkillOpt-based improvement of existing skills
 - **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`
   > Skip high-confidence setup questions based on scanner results
 - **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
 - **[Smart /cg-setup for existing projects \(scan → draft → targeted questions → approve\)](roadmap.json#smart-setup-existing-projects)** · `feature` · _done_ · `—`
   > Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)
-- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _done_ · `—`
+- **[Add stage-specific context contracts](roadmap.json#stage-context-contracts)** · `feature` · _idea_ · `—`
   > Add stage-specific context contracts
 - **[Stage control knobs for workflow prompts \(blocked on external workflow research\)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
   > Stage control knobs for workflow prompts (blocked on external workflow research)
@@ -1281,11 +1339,11 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > tidymodels addition to cg-skill-r-analytical
 - **[Tiered model escalation — super-advanced model dispatch](roadmap.json#tiered-model-escalation)** · `feature` · _idea_ · `—`
   > Tiered model escalation — super-advanced model dispatch
-- **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _done_ · `—`
+- **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage
-- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _done_ · `—`
+- **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
   > Benchmark before and after
-- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _done_ · `—`
+- **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
 - **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`
   > Migration path from vanilla Copilot (detect and merge existing instructions)
@@ -1295,3 +1353,5 @@ _Generated 2026-06-23 · 425 artifacts (newest first) + 117 roadmap features_
   > Verification commands — configurable post-task checks
 - **[status:completed verification from /cg-work output](roadmap.json#work-completion-verification)** · `feature` · _idea_ · `—`
   > status:completed verification from /cg-work output
+- **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _active_ · `—`
+  > World Bank institutional report-writing skill
