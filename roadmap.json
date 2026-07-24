@@ -1,11 +1,5 @@
 {
   "schemaVersion": "compound-gpid-roadmap-v1",
-  "githubIssues": {
-    "enabled": true,
-    "repo": "GPID-WB/compound-gpid",
-    "labelPrefix": "cg:",
-    "autoCreate": false
-  },
   "milestones": [
     {
       "id": "quality-loop",
@@ -141,34 +135,19 @@
           "id": "tidymodels-addition",
           "title": "tidymodels addition to cg-skill-r-analytical",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 47,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/47",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "skill-description-consistency-audit",
           "title": "Skill description consistency audit and optimization",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 48,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/48",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "testing-skill-python",
           "title": "Testing skill for Python (pytest/parametrize/monkeypatch)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 49,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/49",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "testing-skill-stata",
@@ -180,12 +159,21 @@
           "id": "skill-description-length-cap",
           "title": "Skill description length cap with test enforcement [from CE]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 50,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/50",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
+        },
+        {
+          "id": "world-bank-institutional-report-writing-skill",
+          "title": "World Bank institutional report-writing skill",
+          "description": "Future skill for drafting institutional World Bank reports, policy notes, executive summaries, and analytical documents. Detailed examples and requirements will be supplied during future brainstorming and skill development.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md"
+        },
+        {
+          "id": "skillopt-existing-skills-improvement",
+          "title": "SkillOpt-based improvement of existing skills",
+          "description": "Future pilot to investigate Microsoft's SkillOpt project and use it to evaluate and improve existing Compound GPID skills. It may eventually involve local SkillOpt guidance under .agents/skills/, but no separate-milestone or architecture decision is made yet.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -231,175 +219,100 @@
       "id": "architecture-research",
       "title": "Architecture Research",
       "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones — stage control knobs and autonomous pipeline execution.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "model-split-pattern-reuse",
           "title": "Model-split pattern for other prompts (Haiku scan + Sonnet draft)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 51,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/51",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "study-codex-plugin",
           "title": "Study OpenAI Codex plugin for Claude Code",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
-          "github": {
-            "issueNumber": 52,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/52",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "evaluate-copilot-hooks",
           "title": "Evaluate GitHub Copilot hooks for compound-gpid",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 53,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/53",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "copilot-instructions-restructuring",
           "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
-          "github": {
-            "issueNumber": 54,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/54",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "adding-hooks-to-streamline-process",
           "title": "Adding hooks to streamline process",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 55,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/55",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "ideate-prompt-from-compound-engineering",
           "title": "Include /ce:ideate-style prompt from compound-engineering-plugin",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 56,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/56",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "study-gsd2-superpowers-patterns",
           "title": "Study GSD-2 and Superpowers workflow patterns",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 57,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/57",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "stage-control-knobs",
           "title": "Stage control knobs for workflow prompts (blocked on external workflow research)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 58,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/58",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "autonomous-pipeline-autopilot",
           "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 59,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/59",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "copilot-cli-model-c-execution",
           "title": "Copilot CLI execution with worktrees (Model C)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 60,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/60",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "verification-commands-post-task",
           "title": "Verification commands — configurable post-task checks",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 61,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/61",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "auto-triggered-skills-via-hooks",
           "title": "Auto-triggered skills via expanded applyTo hook patterns [from SP]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 62,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/62",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "mattpocock-skills-review-source",
           "title": "Add mattpocock/skills to competitive review sources",
           "description": "Include the mattpocock/skills repository in the set of external references consulted during competitive reviews and skill design. Source of patterns: grill-with-docs, plan-with-docs, and general skill architecture.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 63,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/63",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "cross-model-adversarial-review",
           "title": "Cross-model review — adversarial model diversity",
           "description": "When work is done by Anthropic models, dispatch review agents on OpenAI models (and vice versa). Different model families have different blind spots; cross-pollination catches errors that same-family review misses. Requires model routing logic in /cg-review dispatch.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 64,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/64",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "tiered-model-escalation",
           "title": "Tiered model escalation — super-advanced model dispatch",
           "description": "Define criteria for escalating to frontier models (Opus 4.7, GPT 5.5) and build the dispatch mechanism. Three triggers: (1) task inherently requires that power level, (2) agent gets stuck or fails after initial attempt, (3) task needs efficiency that justifies higher cost. Requires: task difficulty classification, failure-detection + retry-with-escalation logic, and cost/benefit heuristics.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 65,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/65",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         }
       ]
     },
@@ -413,102 +326,57 @@
           "id": "brainstorm-plan-id-traceability",
           "title": "End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 66,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/66",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "inline-self-review-brainstorm-plan",
           "title": "Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 67,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/67",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "verification-before-completion-cg-work",
           "title": "Verification-before-completion enforcement in /cg-work tasks [from SP]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 68,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/68",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "decisions-register",
           "title": "Append-only DECISIONS.md register for methodology and architecture choices [from GSD]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 69,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/69",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "hitl-review-loop-mode",
           "title": "HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 70,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/70",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "systematic-debugging-4-phase",
           "title": "Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 71,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/71",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "auto-knowledge-extraction-after-work",
           "title": "Automatic knowledge extraction prompt at end of /cg-work (enhances /cg-compound capture rate) [from GSD]",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 72,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/72",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "brainstorm-depth-grill-mode",
           "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
           "description": "Relentlessly inquisitive questioning in /cg-brainstorm until user and agent reach deep shared understanding. Inspired by mattpocock's grill-with-docs: challenge against domain glossary, sharpen fuzzy language, discuss concrete scenarios, cross-reference with code. Two modes: 'grill me' (agent questions user's idea) and 'grill with docs' (agent challenges plan against existing project knowledge/BRAIN.md). Captures resolved terminology and decisions inline.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 73,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/73",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "cg-confidence-prompt",
           "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
           "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 74,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/74",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         }
       ]
     },
@@ -522,45 +390,25 @@
           "id": "roadmap-schema-validation",
           "title": "roadmap.json schema validation after @cg-roadmap writes",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 75,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/75",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "plan-frontmatter-checks",
           "title": "Required frontmatter field checks from /cg-plan output",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 76,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/76",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "work-completion-verification",
           "title": "status:completed verification from /cg-work output",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 98,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/98",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "evals-scaffold",
           "title": ".cg-docs/evals/ scaffold with probe-and-check pairs",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 77,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/77",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         }
       ]
     },
@@ -568,7 +416,7 @@
       "id": "onboarding-setup",
       "title": "Onboarding & Setup",
       "objective": "Make the first interaction with compound-gpid intelligent — scan existing projects deeply, draft a charter, and only ask about what the scanner couldn't determine.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "project-scanner-agent",
@@ -598,12 +446,7 @@
           "id": "vanilla-copilot-migration",
           "title": "Migration path from vanilla Copilot (detect and merge existing instructions)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 78,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/78",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "charter-quality-gate",
@@ -615,54 +458,34 @@
           "id": "roadmap-bootstrap-from-charter",
           "title": "Roadmap bootstrap from charter (seed initial milestone from Current Focus)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 79,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/79",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "cg-setup-refresh-mode",
           "title": "/cg-setup --refresh mode for non-destructive re-configuration",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 80,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/80",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "onboarding-tour-prompt",
           "title": "Onboarding tour prompt /cg-tour (guided workflow walkthrough)",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 81,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/81",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "cg-help-interactive",
           "title": "/cg-help — comprehensive interactive help system",
           "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 82,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/82",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         }
       ]
     },
     {
       "id": "workflow-maturity",
       "title": "Workflow Maturity",
-      "objective": "Improve the plan-to-execute cycle with branch-aware planning, phased execution, GitHub Issues integration, and a goal-driven completion contract — giving teams clearer scope, better continuity across sessions, and stronger integration with GitHub workflows.",
-      "status": "done",
+      "objective": "Improve the plan→execute cycle with branch management, phased execution, smarter debugging, and optional team coordination.",
+      "status": "in-progress",
       "features": [
         {
           "id": "branch-creation-from-plan",
@@ -702,8 +525,8 @@
           "id": "github-issues-integration",
           "title": "GitHub Issues integration (optional, via gh CLI)",
           "description": "Opt-in feature for team coordination. If gh CLI is installed and user enables it: create GitHub issues from roadmap features, assign to team members, and link back to roadmap.json. Falls back gracefully to current roadmap-only workflow if gh is unavailable or user declines. Additive — not a replacement for the existing roadmap feature.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-11-github-issues-integration.md"
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "pr-verification-pipeline",
@@ -728,13 +551,15 @@
           "id": "goal-driven-execution",
           "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
           "description": "Transform the /cg-plan → /cg-work → /cg-review pipeline into a goal-driven execution loop inspired by Codex Goals. The plan becomes a completion contract defining six properties: outcome (what should be true when done), verification surface (tests/benchmarks/artifacts that prove it), constraints (what must not regress), boundaries (allowed scope), iteration policy (how to choose next action), and blocked-stop condition (when to pause and report). /cg-work executes against this contract — validating inline, self-reviewing against criteria, and continuing until evidence confirms the outcome or a blocker is hit. Deviation policy is declared in the plan: 'ask' (pause for permission), 'autonomous' (deviate and report), or 'strict' (never deviate). A full implementation report is produced at completion showing: what was achieved vs. planned, any deviations with justification, evidence gathered, and remaining uncertainty. The separate /cg-review command remains available for adversarial/cross-model review but is no longer required as a default post-work step.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-12-goal-driven-execution.md",
-          "github": {
-            "issueNumber": 83,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/83",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-work-explicit-plan-path",
+          "title": "Explicit plan-path selection for /cg-work",
+          "description": "Allow users to select a specific plan file for /cg-work instead of relying on most-recent-plan resolution, enabling independently executable child plans and concurrent plan families.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -855,48 +680,28 @@
           "title": "Outcome criteria in plans (verifiable acceptance criteria)",
           "description": "When a user runs /cg-plan or /cg-brainstorm, the output must specify not only what to build (objectives, tasks) but also how the finished result should appear — concrete acceptance criteria that are verifiable during /cg-work and /cg-review. This includes: specific requirements the implementation must satisfy (e.g., 'function returns X when given Y'), observable behaviors or outputs (e.g., 'API responds with 200 and JSON schema Z'), structural constraints (e.g., 'no new dependencies added'), and measurable thresholds where applicable (e.g., 'test coverage above N%'). During /cg-work, the agent checks criteria as it completes each phase. During /cg-review, the agent explicitly verifies each criterion and reports pass/fail status. This closes the gap between 'plan says build X' and 'review can confirm X was built correctly'.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 84,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/84",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "conversation-audit-trail",
           "title": "Conversation audit trail across workflow stages",
           "description": "Persist the main ideas from conversations between the user and compound-gpid throughout the entire workflow lifecycle: brainstorm, plan, work, review, and compound stages. The audit trail captures: the user's original request and how it was interpreted, clarifying questions asked by the agent and the user's answers, how the plan was adjusted based on those answers, decisions made during implementation (why approach A was chosen over B), review findings and how they were resolved, and any scope changes that occurred mid-session. This record is stored alongside the plan/brainstorm artifacts (not in a separate system) so that any future session can understand not just what was decided but why. Serves two purposes: (1) traceability — if a decision is questioned later, the reasoning is recoverable; (2) continuity — if a session is interrupted and resumed days later, the context is preserved without relying on the user's memory.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 85,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/85",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "attribution-documentation",
           "title": "Attribution documentation (source repos and websites)",
           "description": "Create a dedicated documentation space (e.g., docs/attribution.md or CREDITS.md) that credits all repositories, websites, blog posts, and other resources used for researching and informing compound-gpid's design. This includes: the three competitive review repos (compound-engineering-plugin, superpowers, GSD-2), any additional repos the user provides, blog posts or articles that influenced prompt design patterns, documentation sources for tools and frameworks (Pester, PowerShell, GitHub Actions), and any community discussions or forum threads that contributed ideas. Each entry should include: the resource name/URL, what it contributed (specific pattern, idea, or validation), and when it was referenced. This serves both as professional attribution and as a reference index for future research sessions.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 86,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/86",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "strategy-add-shortcut",
           "title": "/cg-strategy --add <idea> quick-add mode for roadmap ideas",
           "description": "Add a --add flag to /cg-strategy that provides a streamlined path for capturing a single idea into the roadmap without running a full strategy session. When the user runs '/cg-strategy --add <idea text>', the flow is: (1) Parse the idea from the inline argument. (2) If the idea is vague or underspecified, ask targeted clarifying questions to develop it — what problem does it solve, who benefits, what does the finished result look like. (3) Once the agent has a clear understanding, explain the idea back to the user in its own words and ask for confirmation that it captured the intent correctly. (4) Suggest an existing milestone where the idea fits best, explaining why, or propose creating a new milestone if none fits. (5) On user approval, dispatch @cg-roadmap to add the feature with a detailed description (matching the level of detail in other Ongoing Ideas features). This bypasses the full strategy conversation (trigger selection, structured Q&A, proposal iteration) when the user already knows what they want — it's a fast lane for 'I have one idea, put it on the roadmap'. The full /cg-strategy flow remains available for sessions that need broader thinking.",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 87,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/87",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "project-wiki-auto-documentation",
@@ -910,24 +715,28 @@
           "title": "Planning-stage test strategy + human review facilitation",
           "description": "During /cg-plan, explicitly define: (1) how the agent will test and validate the work (test commands, assertions, verification steps), and (2) how the human will independently review the result without needing /cg-review. The plan output includes a 'Verification' section that the human can follow post-implementation. Separates machine validation (automated, agent-run) from human validation (visual, logical, domain-specific).",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 88,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/88",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
         },
         {
           "id": "agent-verified-outcome-evals",
           "title": "Agent-verified outcome definitions with acceptance evals",
           "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
           "status": "idea",
-          "plan": null,
-          "github": {
-            "issueNumber": 89,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/89",
-            "createdAt": "2026-06-12"
-          }
+          "plan": null
+        },
+        {
+          "id": "exemplar-source-pack-schema",
+          "title": "Reusable exemplar source-pack schema",
+          "description": "Define a durable source-pack schema and validation convention for exemplar-gated skills, including source identity, approval status, terminology dependencies, and exact evidence paths that /cg-work can verify.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "shared-writing-guardrails-contract",
+          "title": "Shared institutional writing guardrails contract",
+          "description": "Define reusable marker grammar, source-integrity rules, citation placeholder behavior, data-status propagation, and institutional-position safeguards for future writing skills.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -935,204 +744,84 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "done",
+      "status": "in-progress",
       "features": [
         {
           "id": "token-audit-context-model",
           "title": "Audit current context and model usage",
           "description": "Measure the current token and AI-credit burden of Compound GPID. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md"
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "model-tier-definitions",
           "title": "Define model tiers and escalation rules",
           "description": "Create a model-governance policy defining when Compound GPID should use economy, standard, reasoning, or premium models. Premium models used only through explicit escalation conditions, not as ordinary defaults. Produces: model tier definitions, escalation rules, workflow-to-model guidance, updated model guidance documentation.",
-          "status": "done",
-          "plan": ".cg-docs/plans/phase2-model-governance-cleanup.md",
-          "github": {
-            "issueNumber": 90,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/90",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "model-policy-tests",
           "title": "Add model-policy tests",
           "description": "Add automated checks preventing accidental expensive model usage, missing model declarations, or inconsistent prompt/agent model assignments. Produces: tests for model assignments, tests for premium model restrictions, warnings/failures when prompts or agents violate the model policy.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
-          "github": {
-            "issueNumber": 99,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/99",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "prompt-frontmatter-model-update",
           "title": "Update prompt frontmatter model and agent choices",
           "description": "Review all slash-command prompt files and assign appropriate model and agent defaults. Lightweight commands use economy or auto defaults. Planning, review, and debugging commands use stronger models only when justified. Produces: updated .github/prompts/*.prompt.md frontmatter, reduced expensive model usage in ordinary commands, clearer routing from prompts to agents.",
-          "status": "done",
-          "plan": ".cg-docs/plans/phase2-model-governance-cleanup.md",
-          "github": {
-            "issueNumber": 91,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/91",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "agent-model-tool-governance",
           "title": "Update custom agents for model and tool governance",
           "description": "Move model/tool governance into custom agents where appropriate. Agents define their intended role, tool access, model posture, and escalation behavior. Produces: updated .github/agents/*.agent.md, clear separation between lightweight/standard/deep-review/adversarial agents, restricted tool access for agents that don't need broad capabilities, premium agents gated behind explicit escalation.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md",
-          "github": {
-            "issueNumber": 92,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/92",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "shrink-always-on-context",
           "title": "Shrink always-on context",
           "description": "Reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts/skills/context files.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
-          "github": {
-            "issueNumber": 93,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/93",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "prompt-skill-split",
           "title": "Split large prompts into thin entrypoints and on-demand skills",
           "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts/agents/instructions.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
-          "github": {
-            "issueNumber": 94,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/94",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "stage-context-contracts",
           "title": "Add stage-specific context contracts",
           "description": "Define exactly what each workflow stage should read, avoid, and produce. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, context expansion rules requiring stated reason before loading broader context.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-07-token-optimization-phase5-brain-context-selectivity.md",
-          "github": {
-            "issueNumber": 95,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/95",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "review-deterministic-first",
           "title": "Make review cheaper with deterministic checks first",
           "description": "Revise the review workflow so deterministic checks run before expensive LLM review. Use tests, linting, static checks, schema validation, and file-change classification before dispatching review agents. Produces: revised review workflow, cheaper first-pass review path, conditional escalation to specialist/premium review agents, reduced unnecessary multi-agent fan-out.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
-          "github": {
-            "issueNumber": 96,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/96",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "token-benchmark-before-after",
           "title": "Benchmark before and after",
           "description": "Run comparable tasks before and after optimization to measure whether changes actually reduce context burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, list of remaining optimization candidates.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-08-token-optimization-phase6-benchmarks-guardrails.md",
-          "github": {
-            "issueNumber": 97,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/97",
-            "createdAt": "2026-06-12"
-          }
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "token-optimization-compound",
           "title": "Capture the learning",
           "description": "After the optimization cycle is validated, capture the reusable lesson through the Compound GPID knowledge workflow. Produces: .cg-docs/solutions/ entry documenting the optimization pattern, updated Knowledge Brain artifacts, guidance for future prompt/agent/skill/model-governance changes.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-09-token-optimization-phase7-release-validation.md",
-          "github": {
-            "issueNumber": 100,
-            "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/100",
-            "createdAt": "2026-06-12"
-          }
-        }
-      ]
-    },
-    {
-      "id": "token-efficiency-core-system",
-      "title": "Token Efficiency Core System",
-      "objective": "Make Compound GPID measurably more token-efficient across its core workflow using native audits, budgeted Brain retrieval, compact command summaries, progressive-disclosure skills, handoff compaction, and regression checks.",
-      "status": "done",
-      "features": [
-        {
-          "id": "phase-1-1-workflow-token-baseline",
-          "title": "Phase 1.1 — Workflow-level token baseline and test integration",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-22-workflow-token-baseline.md"
-        },
-        {
-          "id": "phase-1-2-knowledge-brain-query",
-          "title": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md"
-        },
-        {
-          "id": "phase-1-3-command-output-summaries",
-          "title": "Phase 1.3 — Command-output summarization wrappers",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-command-output-summarization-wrappers.md"
-        },
-        {
-          "id": "phase-1-4-progressive-disclosure-cleanup",
-          "title": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md"
-        },
-        {
-          "id": "phase-1-5-handoff-resume-compaction",
-          "title": "Phase 1.5 — Handoff, resume, and active-state compaction",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-handoff-resume-active-state-compaction.md"
-        },
-        {
-          "id": "phase-1-6-token-dashboard-regression",
-          "title": "Phase 1.6 — Token dashboard and regression checks",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md"
-        }
-      ]
-    },
-    {
-      "id": "token-efficiency-portability-expansion",
-      "title": "Token Efficiency Portability & Optional Retrieval Expansion",
-      "objective": "After the native token-efficiency core is measurable, generate cross-agent packaging adapters and evaluate optional retrieval or snapshot tooling behind explicit opt-in gates.",
-      "status": "done",
-      "features": [
-        {
-          "id": "phase-2-1-cross-agent-packaging-adapters",
-          "title": "Phase 2.1 — Cross-agent packaging adapters",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md"
-        },
-        {
-          "id": "phase-2-2-optional-retrieval-backends",
-          "title": "Phase 2.2 — Optional retrieval backend evaluation",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-optional-retrieval-backend-evaluation.md"
-        },
-        {
-          "id": "phase-2-3-snapshot-external-research-modes",
-          "title": "Phase 2.3 — Snapshot and external-research modes",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md"
+          "status": "idea",
+          "plan": null
         }
       ]
     }
