@@ -161,3 +161,4 @@ with this step for **new skill files**:
 - [`2026-04-08-new-prompt-agent-addition-checklist.md`](2026-04-08-new-prompt-agent-addition-checklist.md) — parallel checklist for prompts and agents
 - [`2026-04-07-pester-test-quality-patterns.md`](2026-04-07-pester-test-quality-patterns.md) — shared helpers, anchored regex, non-empty value checks
 - [`2026-04-15-new-validation-branch-requires-dedicated-test.md`](2026-04-15-new-validation-branch-requires-dedicated-test.md) — every new behavioral branch needs a test
+- [`2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md`](./2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md) — behavioral SKILL tests are one layer of the larger docs/validator/test contract and must stay aligned with deterministic enforcement
