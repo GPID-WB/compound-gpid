@@ -1,6 +1,8 @@
 ﻿# Workflow
 
-This page explains the Compound GPID workflow loop and how to use each step — including when to use each command, the different scenarios each supports, and when **not** to use them.
+This detailed reference preserves complete prompt behavior, scenarios, and edge
+cases. Start with the shorter [Workflow Overview](workflows/index.md), then use
+this page when you need the full contract.
 
 > **Not installed yet?** See [Installation](installation.md) first. For all commands and shortcuts, see [Reference](reference.md).
 
@@ -321,15 +323,18 @@ The prompt scans its own output for:
 | ≥ 50 non-test lines changed with otherwise low risk | raises `light` → `standard` |
 | ≥ 200 non-test lines changed without higher-risk trigger | recommends `full` (does not auto-apply unless explicitly requested) |
 
-When any risk route fires, the prompt tells you the reason, resolved mode, and mandatory emphasis. Explicit review modes can raise review depth but cannot lower below a mandatory risk route. Duplicate agents are dispatched once.
+When no mode is supplied, risk signals select the route and mandatory emphasis.
+An explicit mode wins when present, even if it is lighter than the automatic
+route; detected high-risk signals should still be reported in the review focus.
+Duplicate agents are dispatched once.
 
 **Invocation**:
 
 | Command | Effect |
 |---------|--------|
 | `/cg-review` | Resolve mode from changed-file risk signals and local config |
-| `/cg-review light` | Prefer light review for low-risk changes; mandatory risk routes still escalate |
-| `/cg-review standard` | Prefer standard review; mandatory risk routes still escalate |
+| `/cg-review light` | Force light review; high-risk signals are still reported |
+| `/cg-review standard` | Force standard review; high-risk signals are still reported |
 | `/cg-review data-risk` | Force data-risk routing |
 | `/cg-review architecture` | Force architecture routing |
 | `/cg-review full` | Force full routing (10 agents, adversarial + learnings) |
