@@ -113,6 +113,7 @@ automation infer status from the prose. Use frontmatter for machine decisions.
 
 ## Related
 
+- `.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md`
 - `.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md`
 - `.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md`
 - `.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md`

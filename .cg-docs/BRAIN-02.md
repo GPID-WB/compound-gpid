@@ -4,8 +4,14 @@ _Generated 2026-07-24_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 10 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 13 entities
 
+- **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
+  > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
+- **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
+  > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
+- **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
+  > - Quality Loop: 2 done, 1 active, 7 ideas (3 features actually done but roadmap not updated) - Performance: 1 done, 3…
 - **[Move Python and Stata testing skills to Skills Enhancement](.cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md)** · `strategy` · _—_ · `2026-04-15`
   > Quality Loop had 10 features (4 done, 1 planned, 5 ideas). Two of the idea-status features — `testing-skill-python` a…
 - **[Context layer restructuring — slim instructions, project context file, multi-folder workspaces](.cg-docs/strategy/2026-04-16-context-layer-restructuring.md)** · `strategy` · _—_ · `2026-04-16`
@@ -80,7 +86,7 @@ objective`_ · 113 entities
   > Testing skill for Stata (assert-based/reprun)
 - **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
   > Skill description length cap with test enforcement [from CE]
-- **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _active_ · `—`
+- **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _done_ · `—`
   > World Bank institutional report-writing skill
 - **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
   > SkillOpt-based improvement of existing skills

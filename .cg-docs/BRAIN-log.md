@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-07-24 · 447 artifacts (newest first) + 113 roadmap features_
+_Generated 2026-07-24 · 450 artifacts (newest first) + 113 roadmap features_
 
 ## undated
 
@@ -125,8 +125,14 @@ _Generated 2026-07-24 · 447 artifacts (newest first) + 113 roadmap features_
 
 ## 2026-07-24
 
+- **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)
 - **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
+- **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
+  > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
 
 ## 2026-07-23
 
@@ -134,25 +140,25 @@ _Generated 2026-07-24 · 447 artifacts (newest first) + 113 roadmap features_
   > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
 - **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
   > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
-- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
-- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, ne…
-- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior…
-- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking othe…
-- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsem…
-- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.
-- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.
-- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
 - **[World Bank institutional report-writing skill](.cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md)** · `brainstorm` · _decided_ · `2026-07-23`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _active_ · `2026-07-23`
+- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _completed_ · `2026-07-23`
   > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
 
 ## 2026-07-22
@@ -1353,5 +1359,5 @@ _Generated 2026-07-24 · 447 artifacts (newest first) + 113 roadmap features_
   > Verification commands — configurable post-task checks
 - **[status:completed verification from /cg-work output](roadmap.json#work-completion-verification)** · `feature` · _idea_ · `—`
   > status:completed verification from /cg-work output
-- **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _active_ · `—`
+- **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _done_ · `—`
   > World Bank institutional report-writing skill

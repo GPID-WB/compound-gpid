@@ -1,5 +1,5 @@
 {
-  "edge_count": 238,
+  "edge_count": 240,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -983,6 +983,18 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
       "target": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
+      "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
       "target_missing": false
     },
     {
@@ -4992,7 +5004,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
       "slug": "2026-07-23-wb-institutional-report-writing-skill",
-      "status": "active",
+      "status": "completed",
       "summary": "Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, adapting across document types, reviewing, and producing eight types of World Bank institutional documents. The skill must preserve source integrity, visibly distinguish verification needs from final prose, and never invent numeric facts or institutional positions.",
       "tags": [
         "skill",
@@ -5021,7 +5033,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
       "slug": "2026-07-23-wb-report-writing-country-regional",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from other document types.",
       "tags": [
         "skill",
@@ -5049,7 +5061,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
       "slug": "2026-07-23-wb-report-writing-data-blog",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, never invented hooks or facts.",
       "tags": [
         "skill",
@@ -5076,7 +5088,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
       "slug": "2026-07-23-wb-report-writing-executive-summary",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior readers.",
       "tags": [
         "skill",
@@ -5103,7 +5115,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md",
       "slug": "2026-07-23-wb-report-writing-flagship-section",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking other document types.",
       "tags": [
         "skill",
@@ -5130,7 +5142,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md",
       "slug": "2026-07-23-wb-report-writing-internal-memo",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsements, or recommendations.",
       "tags": [
         "skill",
@@ -5158,7 +5170,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md",
       "slug": "2026-07-23-wb-report-writing-policy-brief",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.",
       "tags": [
         "skill",
@@ -5185,7 +5197,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
       "slug": "2026-07-23-wb-report-writing-prwp",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.",
       "tags": [
         "skill",
@@ -5212,7 +5224,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
       "slug": "2026-07-23-wb-report-writing-technical-methodology",
-      "status": "active",
+      "status": "completed",
       "summary": "Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological details.",
       "tags": [
         "skill",
@@ -8048,6 +8060,50 @@
         "cg-testing",
         "report",
         "merge"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-review",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-review",
+      "top_keywords": [
+        "not-required",
+        "approved",
+        "current.json",
+        "cg-fix-triage",
+        "test_validate_wb_writing_skill.py",
+        "roadmap.json",
+        "review",
+        "fix",
+        "unresolved",
+        "terminology_status"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-verify-review",
+      "top_keywords": [
+        "_valid_source_pack()",
+        ".venv\\scripts\\python.exe -m pytest scripts/tests/test_validate_wb_writing_skill.py -q",
+        "test_validate_wb_writing_skill.py",
+        "source",
+        "review",
+        "fix",
+        "terminology_status",
+        "cg-code-quality",
+        "report",
+        "passed"
       ]
     },
     {
@@ -13307,6 +13363,36 @@
       ]
     },
     {
+      "date": "2026-07-24",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+      "slug": "2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence",
+      "status": "",
+      "summary": "The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved source-pack evidence. The production source-pack JSON files were updated, but the shared pytest helper `_valid_source_pack()` still returned placeholder terminology and exemplar URLs. That created a false \"valid fixture\" contract inside the test suite. When the verify pass reran `scripts/tests/test_validate_wb_writing_skill.py`, three tests failed even though the validator itself was behaving correctly: - `test_validate_source_pack_passes_for_valid_payload` - `test_validate_source_pack_accepts_unresolved_terminology_status` - `test_run_validation_all_combines_requested_checks` The failure was not in the validator branch. It was in the supposedly-valid test data.",
+      "tags": [
+        "pytest",
+        "fixtures",
+        "validator",
+        "placeholder-host",
+        "source-pack",
+        "wb-report-writing",
+        "verify-pass"
+      ],
+      "title": "Positive validator fixtures must avoid placeholder evidence once validation tightens",
+      "top_keywords": [
+        "validator",
+        "fixtures",
+        "scripts/tests/test_validate_wb_writing_skill.py",
+        "test_validate_wb_writing_skill.py",
+        "positive",
+        "placeholder",
+        "evidence",
+        "once",
+        "validation",
+        "tightens"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -14081,7 +14167,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#world-bank-institutional-report-writing-skill",
       "slug": "world-bank-institutional-report-writing-skill",
-      "status": "active",
+      "status": "done",
       "summary": "World Bank institutional report-writing skill",
       "tags": [],
       "title": "World Bank institutional report-writing skill",
@@ -16057,13 +16143,13 @@
       ]
     }
   ],
-  "entity_count": 560,
+  "entity_count": 563,
   "generated": "2026-07-24",
   "schema_version": "0.2.0",
   "topic_count": 2,
   "topics": [
     {
-      "entity_count": 409,
+      "entity_count": 412,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -16320,6 +16406,8 @@
         ".cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md",
         ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
         ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -16462,6 +16550,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

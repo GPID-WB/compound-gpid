@@ -250,23 +250,23 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.g…
 - **[Default-All Platform Linking With Safe Install Units](.cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md)** · `plan` · _active_ · `2026-07-05`
   > Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-own…
-- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _active_ · `2026-07-23`
+- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _completed_ · `2026-07-23`
   > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
-- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
-- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, ne…
-- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior…
-- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking othe…
-- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsem…
-- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.
-- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.
-- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _active_ · `2026-07-23`
+- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
@@ -516,6 +516,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
 - **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
   > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -800,9 +804,5 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
 - **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
-- **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
-  > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
-- **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
-  > - Quality Loop: 2 done, 1 active, 7 ideas (3 features actually done but roadmap not updated) - Performance: 1 done, 3…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_
