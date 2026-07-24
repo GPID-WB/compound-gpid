@@ -14,6 +14,7 @@ import io
 import os
 import re
 import tempfile
+import time
 import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -346,7 +347,28 @@ def write_atomic(path: Path, content: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(content)
-        os.replace(tmp_path, path)
+
+        # OneDrive/AV/indexers can transiently lock destination files on Windows.
+        # Retry replace a few times, then fall back to in-place overwrite.
+        retries = 6
+        replaced = False
+        for attempt in range(retries):
+            try:
+                os.replace(tmp_path, path)
+                replaced = True
+                break
+            except PermissionError:
+                if os.name != "nt" or attempt == retries - 1:
+                    break
+                time.sleep(0.05 * (attempt + 1))
+
+        if not replaced:
+            if os.name == "nt":
+                with path.open("w", encoding="utf-8", newline="\n") as fh:
+                    fh.write(content)
+                os.unlink(tmp_path)
+            else:
+                os.replace(tmp_path, path)
     except Exception:
         try:
             os.unlink(tmp_path)

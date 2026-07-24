@@ -1,7 +1,8 @@
 """Drift tests — detect stale or orphaned generated platform trees.
 
 Runs cg_generate_targets.py --all --dry-run against the current .github/ source
-and compares the dry-run output manifest against the committed generated trees.
+and compares the output manifest against the committed generated tree index.
+Paths ignored by git are excluded from the committed parity gate.
 
 Run from repo root:
     python3 -m pytest scripts/tests/test_target_drift.py -v
@@ -48,13 +49,33 @@ def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
     return {line.strip() for line in result.stdout.splitlines() if line.strip()}
 
 
+def _is_git_ignored(root: Path, rel_path: str) -> bool:
+    """Return True when a repository-relative path is ignored by git."""
+    result = subprocess.run(
+        ["git", "check-ignore", "--quiet", "--", rel_path],
+        cwd=str(root),
+        timeout=30,
+    )
+    if result.returncode == 0:
+        return True
+    if result.returncode == 1:
+        return False
+    pytest.skip(f"Could not evaluate git ignore state for {rel_path}")
+    return False
+
+
 class TestNoDrift:
     def test_generated_trees_are_not_stale(self) -> None:
-        """Every file the generator would produce must exist in the committed trees."""
+        """Every non-ignored expected file should exist in committed outputs."""
         expected = _run_generator_dry_run(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
+        expected_committed = {
+            path
+            for path in expected
+            if not _is_git_ignored(REPO_ROOT, path)
+        }
 
-        missing = expected - committed
+        missing = expected_committed - committed
         if missing:
             pytest.fail(
                 f"Generated trees are stale — {len(missing)} file(s) missing.\n"
@@ -63,7 +84,7 @@ class TestNoDrift:
             )
 
     def test_no_orphaned_generated_files(self) -> None:
-        """No committed file should exist that the generator would not produce."""
+        """No committed generated file should exist outside generator output."""
         expected = _run_generator_dry_run(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
 

@@ -54,39 +54,39 @@ class TestCodexTOMLFormat:
     def test_toml_has_subagent_header(self) -> None:
         toml_files = list((REPO_ROOT / ".agents/subagents").glob("*.toml"))
         assert len(toml_files) > 0
-        content = toml_files[0].read_text()
+        content = toml_files[0].read_text(encoding="utf-8")
         assert "[[subagent]]" in content
 
     def test_toml_has_name_field(self) -> None:
         toml_files = list((REPO_ROOT / ".agents/subagents").glob("*.toml"))
-        content = toml_files[0].read_text()
+        content = toml_files[0].read_text(encoding="utf-8")
         assert "name =" in content
 
     def test_toml_has_description_field(self) -> None:
         toml_files = list((REPO_ROOT / ".agents/subagents").glob("*.toml"))
-        content = toml_files[0].read_text()
+        content = toml_files[0].read_text(encoding="utf-8")
         assert "description =" in content
 
     def test_fallback_skill_has_agent_header(self) -> None:
         fallback_files = list((REPO_ROOT / ".agents/skills").glob("*.md"))
         assert len(fallback_files) > 0
-        content = fallback_files[0].read_text()
+        content = fallback_files[0].read_text(encoding="utf-8")
         assert "# Agent:" in content
 
 
 class TestCodexModelMapping:
     def test_model_mapping_uses_exact_mode(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text())
+        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
         assert data["modelMappingMode"] == "exact"
 
     def test_model_mapping_has_coding_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text())
+        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
         assert data["mapping"]["coding"] == "GPT-5.3-Codex"
 
     def test_model_mapping_has_review_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text())
+        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
         assert data["mapping"]["review"] == "GPT-5.4"
 
     def test_root_adapter_references_agents_paths(self) -> None:
-        content = (REPO_ROOT / ".agents/AGENTS.md").read_text()
+        content = (REPO_ROOT / ".agents/AGENTS.md").read_text(encoding="utf-8")
         assert ".agents/" in content

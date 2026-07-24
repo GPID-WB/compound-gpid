@@ -56,28 +56,28 @@ class TestClaudeCodeTreeStructure:
 
 class TestClaudeCodeModelMapping:
     def test_model_mapping_uses_tier_mode(self) -> None:
-        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text())
+        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text(encoding="utf-8"))
         assert data["modelMappingMode"] == "tier"
 
     def test_model_mapping_has_coding_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text())
+        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text(encoding="utf-8"))
         assert "coding" in data["mapping"]
         assert data["mapping"]["coding"] == "sonnet"
 
     def test_model_mapping_has_reasoning_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text())
+        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text(encoding="utf-8"))
         assert data["mapping"]["reasoning"] == "opus"
 
     def test_model_mapping_has_mechanical_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text())
+        data = json.loads((REPO_ROOT / ".claude/model-mapping.claude.json").read_text(encoding="utf-8"))
         assert data["mapping"]["mechanical"] == "haiku"
 
     def test_command_has_model_frontmatter_for_coding_role(self) -> None:
         cmd = (REPO_ROOT / ".claude/commands/cg-work.md")
         if cmd.exists():
-            content = cmd.read_text()
+            content = cmd.read_text(encoding="utf-8")
             assert "model:" in content
 
     def test_root_adapter_references_claude_paths(self) -> None:
-        content = (REPO_ROOT / ".claude/CLAUDE.md").read_text()
+        content = (REPO_ROOT / ".claude/CLAUDE.md").read_text(encoding="utf-8")
         assert ".claude/" in content
