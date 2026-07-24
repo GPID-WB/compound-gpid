@@ -18,8 +18,8 @@ the box **or** add a brief note explaining why it is N/A.
   the pair. The `parity` CI check passes. If the change is documentation-only
   or touches only one platform script intentionally, explain here.
 
-- [ ] **Docs updated** — `docs/installation.md`, `docs/manual.md`, or
-  `README.md` reflect any behavioral changes. N/A if no user-facing behavior
+- [ ] **Docs updated** — `docs/installation.md`, `docs/reference.md`, another
+  navigable page, or `README.md` reflects any behavioral changes. N/A if no user-facing behavior
   changed (e.g., internal refactor, test-only change, CI change).
 
 - [ ] **Backward compatible** — Users with existing installs (junctions or
