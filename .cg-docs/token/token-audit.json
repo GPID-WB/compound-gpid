@@ -1,6 +1,125 @@
 {
   "benchmark": {
-    "comparison": null,
+    "comparison": {
+      "model_governance": {
+        "missing_model_count_delta": 0,
+        "model_drift_count_delta": 0,
+        "ordinary_model_picker_violations_delta": 0,
+        "premium_usage_count_delta": 0
+      },
+      "workflows": [
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "limited",
+          "dispatch_burden_before": "limited",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-brainstorm.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-brainstorm"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "limited",
+          "dispatch_burden_before": "limited",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-plan.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-plan"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "conditional",
+          "dispatch_burden_before": "conditional",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-work.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-work"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "conditional",
+          "dispatch_burden_before": "conditional",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-review.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-review"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "none",
+          "dispatch_burden_before": "none",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-fix-triage.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-fix-triage"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "limited",
+          "dispatch_burden_before": "limited",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-compound.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-compound"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "limited",
+          "dispatch_burden_before": "limited",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-resume.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-resume"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "none",
+          "dispatch_burden_before": "none",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-diagnose.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-diagnose"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "none",
+          "dispatch_burden_before": "none",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/prompts/cg-token-audit.prompt.md",
+          "total_refs_delta": 0,
+          "workflow": "/cg-token-audit"
+        },
+        {
+          "baseline_available": true,
+          "context_risk_count_delta": 0,
+          "dispatch_burden_after": "none",
+          "dispatch_burden_before": "none",
+          "dispatch_refs_delta": 0,
+          "estimated_tokens_delta": 0,
+          "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+          "total_refs_delta": 0,
+          "workflow": "Knowledge Brain/context lookup"
+        }
+      ]
+    },
     "context_loading": {
       "justified": 17,
       "risk": 3,
@@ -267,7 +386,7 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-07-23T18:00:10",
+  "generated": "2026-07-24T11:16:57",
   "guardrails": {
     "failures": [],
     "warnings": [
@@ -291,7 +410,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 52,
+    "acceptable_count": 53,
     "immediate": [
       {
         "category": "prompts",
@@ -560,18 +679,18 @@
         "files": 17
       },
       "brain": {
-        "characters": 289751,
-        "estimated_tokens": 72437,
+        "characters": 301409,
+        "estimated_tokens": 75351,
         "files": 4
       },
       "brain_index": {
-        "characters": 639726,
-        "estimated_tokens": 159931,
+        "characters": 666619,
+        "estimated_tokens": 166654,
         "files": 1
       },
       "context": {
-        "characters": 67555,
-        "estimated_tokens": 16888,
+        "characters": 68243,
+        "estimated_tokens": 17060,
         "files": 1
       },
       "docs": {
@@ -600,9 +719,9 @@
         "files": 9
       },
       "skills": {
-        "characters": 107586,
-        "estimated_tokens": 26890,
-        "files": 21
+        "characters": 110978,
+        "estimated_tokens": 27738,
+        "files": 22
       },
       "template": {
         "characters": 1633,
@@ -610,9 +729,9 @@
         "files": 1
       }
     },
-    "total_characters": 1782919,
-    "total_estimated_tokens": 445697,
-    "total_files": 95
+    "total_characters": 1825550,
+    "total_estimated_tokens": 456354,
+    "total_files": 96
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",

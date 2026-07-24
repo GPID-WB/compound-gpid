@@ -1,6 +1,6 @@
 # Token Dashboard
 
-_Generated: 2026-07-23T18:00:10_
+_Generated: 2026-07-24T11:16:57_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -10,16 +10,16 @@ comparable repository probes.
 
 ## Regression Status
 
-- Status: `baseline`
-- Reason: No baseline comparison was supplied; current audit is the baseline.
+- Status: `pass`
+- Reason: No deterministic guardrail failures were found for a comparable baseline run.
 - Guardrail failures: 0
 - Guardrail warnings: 3
-- Baseline comparison: not_supplied
+- Baseline comparison: available
 
 ## Source Scope
 
-- Source files counted: 95
-- Source estimated tokens: 445697
+- Source files counted: 96
+- Source estimated tokens: 456354
 - Workflow rows: 9
 
 ## Highest Workflow Budgets
