@@ -12,6 +12,9 @@ Run from repo root:
 from __future__ import annotations
 
 from pathlib import Path
+from unittest import mock
+
+import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -353,6 +356,18 @@ class TestWriteAtomic:
         content = "# Héllo wörld — résumé"
         write_atomic(p, content)
         assert p.read_text(encoding="utf-8") == content
+
+    def test_raises_after_windows_retry_exhausted(self, tmp_path: Path) -> None:
+        from brain.utils import write_atomic
+
+        p = tmp_path / "out.md"
+        with (
+            mock.patch("brain.utils.os.name", "nt"),
+            mock.patch("brain.utils.time.sleep", return_value=None),
+            mock.patch("brain.utils.os.replace", side_effect=PermissionError("locked")),
+        ):
+            with pytest.raises(PermissionError):
+                write_atomic(p, "content")
 
 
 # ---------------------------------------------------------------------------

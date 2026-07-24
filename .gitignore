@@ -75,5 +75,10 @@ tests/*.txt
 RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
-.agents/*
+
+# Generated artifact indexes are runtime-only; generated command/skill/agent trees stay tracked.
+.agents/model-mapping.codex.json
+
+# Local skill prototyping area should not be committed.
+.agents/skills/skill-creator/
 

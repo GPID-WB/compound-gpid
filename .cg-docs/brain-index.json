@@ -1,5 +1,5 @@
 {
-  "edge_count": 218,
+  "edge_count": 240,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -251,6 +251,72 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-06-16-token-context-optimization-closure.md",
       "target": ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+      "target": ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
+      "target": ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
+      "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
       "target_missing": false
     },
     {
@@ -849,6 +915,18 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
+      "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
       "target": ".cg-docs/reviews/2026-06-12-goal-driven-execution-review.md",
       "target_missing": false
@@ -884,9 +962,51 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md",
+      "target": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md",
+      "target": ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
+      "target": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
+      "target": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
+      "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
+      "target": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
       "target_missing": false
     },
     {
@@ -983,6 +1103,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
       "target": ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
+      "target": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
       "target_missing": false
     },
     {
@@ -1178,6 +1304,18 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
+      "target": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1299,14 +1437,8 @@
     },
     {
       "edge_type": "implements",
-      "source": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
-      "target": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
-      "target_missing": false
-    },
-    {
-      "edge_type": "implements",
-      "source": ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
-      "target": "roadmap.json#phase-2-3-snapshot-external-research-modes",
+      "source": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target": "roadmap.json#world-bank-institutional-report-writing-skill",
       "target_missing": false
     }
   ],
@@ -2492,6 +2624,96 @@
       ]
     },
     {
+      "date": "2026-07-03",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
+      "slug": "2026-07-03-cross-agent-native-platform-targets",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "cross-agent",
+        "adapters",
+        "claude-code",
+        "codex",
+        "opencode",
+        "model-governance",
+        "distribution"
+      ],
+      "title": "Cross-Agent Native Platform Targets",
+      "top_keywords": [
+        ".github/",
+        "claude code",
+        "target-mapping.json",
+        "approach",
+        "native",
+        "targets",
+        "cross-agent",
+        "agent native platform targets",
+        "hybrid canonical",
+        "platform"
+      ]
+    },
+    {
+      "date": "2026-07-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
+      "slug": "2026-07-04-default-all-platform-linking-safe-install-units",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "cross-agent",
+        "opencode",
+        "codex",
+        "claude-code",
+        "copilot",
+        "installation",
+        "junctions",
+        "platform-targets"
+      ],
+      "title": "Default-All Platform Linking With Safe Install Units",
+      "top_keywords": [
+        "cg-link",
+        "world bank",
+        ".github/",
+        "claude code",
+        "compound engineering",
+        "approach",
+        "cg-update",
+        ".claude/",
+        ".agents/",
+        ".opencode/"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "slug": "2026-07-23-wb-institutional-report-writing-skill",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "skill",
+        "writing",
+        "institutional",
+        "world-bank",
+        "report-writing",
+        "quarto"
+      ],
+      "title": "World Bank institutional report-writing skill",
+      "top_keywords": [
+        "skill",
+        "skill.md",
+        "world bank",
+        "institutional",
+        "references/",
+        "publications editorial style guide",
+        "report-writing",
+        "document",
+        "style",
+        "reference"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3380,9 +3602,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
+        "prompt-tools.tests.ps1",
         "test",
         "failure",
-        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3546,14 +3768,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "should not",
         "repos.json",
+        "should not",
         "should be",
         "cg-review-repos",
         "--full",
+        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
-        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3581,9 +3803,9 @@
         "light",
         "/cg-review",
         "test scenarios",
+        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md",
-        "/cg-review light"
+        "verify-review.md"
       ]
     },
     {
@@ -3818,8 +4040,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "update.sh",
         "run-tests.ps1",
+        "update.sh",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -3907,8 +4129,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "scripts/cg-index.py",
-        "python3"
+        "cg-index.cmd",
+        "scripts/cg-index.py"
       ]
     },
     {
@@ -4715,6 +4937,316 @@
       ]
     },
     {
+      "date": "2026-07-03",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+      "slug": "2026-07-03-cross-agent-native-platform-targets",
+      "status": "completed",
+      "summary": "Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.github/` source via a `target-mapping.json` schema, distributes them through the existing junction/symlink mechanism, and blocks release if generated trees are stale — so users on Claude Code, Codex, and OpenCode get native commands, skills, and agents without knowing about `.github/`.",
+      "tags": [
+        "cross-agent",
+        "adapters",
+        "claude-code",
+        "codex",
+        "opencode",
+        "model-governance",
+        "distribution",
+        "generator",
+        "target-mapping"
+      ],
+      "title": "Cross-Agent Native Platform Targets",
+      "top_keywords": [
+        ".github/",
+        "target-mapping.json",
+        ".claude/",
+        ".agents/",
+        "cg-link",
+        ".opencode/",
+        "test scenarios",
+        "run-tests.ps1",
+        "claude code",
+        "phase"
+      ]
+    },
+    {
+      "date": "2026-07-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
+      "slug": "2026-07-05-default-all-platform-linking-safe-install-units",
+      "status": "active",
+      "summary": "Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-owned platform folders. The implementation must move platform linking from whole-root `.claude/`, `.agents/`, and `.opencode/` junctions/symlinks to per-platform install units that can coexist with project-local config and user-authored files.",
+      "tags": [
+        "cross-agent",
+        "opencode",
+        "codex",
+        "claude-code",
+        "copilot",
+        "installation",
+        "junctions",
+        "platform-targets"
+      ],
+      "title": "Default-All Platform Linking With Safe Install Units",
+      "top_keywords": [
+        ".github/",
+        "run-tests.ps1",
+        "cg-update",
+        ".opencode/",
+        "cg-link",
+        ".agents/",
+        "test scenarios",
+        ".claude/",
+        "pwsh -noprofile -command \". ./tests/run-tests.ps1 -file bash-scripts\"",
+        "opencode.json"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "slug": "2026-07-23-wb-institutional-report-writing-skill",
+      "status": "completed",
+      "summary": "Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, adapting across document types, reviewing, and producing eight types of World Bank institutional documents. The skill must preserve source integrity, visibly distinguish verification needs from final prose, and never invent numeric facts or institutional positions.",
+      "tags": [
+        "skill",
+        "writing",
+        "institutional",
+        "world-bank",
+        "report-writing",
+        "quarto"
+      ],
+      "title": "World Bank institutional report-writing skill",
+      "top_keywords": [
+        "cg-skill-wb-report-writing",
+        "skill.md",
+        ".qmd",
+        "context-audit.json",
+        "validate_wb_writing_skill.py",
+        "run-tests.ps1",
+        "tests/last-run.json",
+        "prompt-tools.tests.ps1",
+        "skill",
+        "cg-token-audit.cmd"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
+      "slug": "2026-07-23-wb-report-writing-country-regional",
+      "status": "completed",
+      "summary": "Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from other document types.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "country",
+        "regional"
+      ],
+      "title": "WB report writing: Country and regional narratives",
+      "top_keywords": [
+        "country",
+        "regional",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type country-analytical-narrative --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_country_analytical_narrative.py -q"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
+      "slug": "2026-07-23-wb-report-writing-data-blog",
+      "status": "completed",
+      "summary": "Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, never invented hooks or facts.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "data-blog"
+      ],
+      "title": "WB report writing: Data blog posts",
+      "top_keywords": [
+        "data blog",
+        "data-blog",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type data-blog-post --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_data_blog_post.py -q"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
+      "slug": "2026-07-23-wb-report-writing-executive-summary",
+      "status": "completed",
+      "summary": "Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior readers.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "executive-summary"
+      ],
+      "title": "WB report writing: Executive summaries",
+      "top_keywords": [
+        "executive-summary",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type executive-summary --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_executive_summary.py -q",
+        "python scripts/validate_wb_writing_skill.py --type executive-summary --require-eval-pass"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md",
+      "slug": "2026-07-23-wb-report-writing-flagship-section",
+      "status": "completed",
+      "summary": "Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking other document types.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "flagship-report"
+      ],
+      "title": "WB report writing: Flagship report sections",
+      "top_keywords": [
+        "flagship",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "report",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type flagship-report-section --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_flagship_report_section.py -q"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md",
+      "slug": "2026-07-23-wb-report-writing-internal-memo",
+      "status": "completed",
+      "summary": "Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsements, or recommendations.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "memo",
+        "decision-note"
+      ],
+      "title": "WB report writing: Internal memos and decision notes",
+      "top_keywords": [
+        "memo",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type internal-memo --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_internal_memo.py -q",
+        "python scripts/validate_wb_writing_skill.py --type internal-memo --require-eval-pass"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md",
+      "slug": "2026-07-23-wb-report-writing-policy-brief",
+      "status": "completed",
+      "summary": "Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "policy-brief"
+      ],
+      "title": "WB report writing: Policy briefs",
+      "top_keywords": [
+        "policy-brief",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "policy",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type policy-brief --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_policy_brief.py -q"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
+      "slug": "2026-07-23-wb-report-writing-prwp",
+      "status": "completed",
+      "summary": "Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "prwp"
+      ],
+      "title": "WB report writing: Policy Research Working Papers",
+      "top_keywords": [
+        "prwp",
+        "cg-skill-wb-report-writing",
+        "validate_wb_writing_skill.py",
+        ".qmd",
+        ".bib",
+        "test scenarios",
+        "policy",
+        "phase",
+        "pattern",
+        "python scripts/validate_wb_writing_skill.py --type policy-research-working-paper --require-approved"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology",
+      "status": "completed",
+      "summary": "Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological details.",
+      "tags": [
+        "skill",
+        "writing",
+        "world-bank",
+        "methodology"
+      ],
+      "title": "WB report writing: Technical methodology",
+      "top_keywords": [
+        "methodology",
+        "validate_wb_writing_skill.py",
+        "test scenarios",
+        "cg-skill-wb-report-writing",
+        "phase",
+        "pattern",
+        ".qmd",
+        "python scripts/validate_wb_writing_skill.py --type technical-methodology --require-approved",
+        "python -m pytest scripts/tests/test_wb_writing_technical_methodology.py -q",
+        "python scripts/validate_wb_writing_skill.py --type technical-methodology --require-eval-pass"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -4753,8 +5285,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "/cg-fix-triage",
         "cg-resume.prompt.md",
+        "/cg-fix-triage",
         "fix"
       ]
     },
@@ -4970,12 +5502,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
+        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills",
-        "docs/reference.md"
+        "feat/r-dialect-skills"
       ]
     },
     {
@@ -5428,8 +5960,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "tests/run-tests.ps1",
         "run-tests.ps1",
+        "tests/run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -5475,12 +6007,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
+        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
-        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -5848,12 +6380,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
+        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
-        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -6141,7 +6673,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "unlink\\.sh"
+        "2026-05-13-pr-verification-pipeline-review.md"
       ]
     },
     {
@@ -7047,6 +7579,50 @@
       ]
     },
     {
+      "date": "2026-07-05",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-6",
+      "status": "",
+      "summary": "- **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` - **Branch**: `feat/cross-agent-native-trees` - **Scope**: Current default-all multi-platform linking/update changes, including install units, link/unlink/update scripts, generated wrappers, and tests.",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-6",
+      "top_keywords": [
+        ".github",
+        "link.sh",
+        "verification",
+        ".gitignore",
+        "install.sh",
+        "review",
+        "python3",
+        "context",
+        "tests/run-tests.ps1",
+        "cg-work.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-07-05",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
+      "slug": "2026-06-12-goal-driven-execution-verify-review-7",
+      "status": "",
+      "summary": "- **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-execution-review.md` - **Branch**: `feat/cross-agent-native-trees` - **Scope**: Convergence pass after fixing default-all multi-platform linking/update findings.",
+      "tags": [],
+      "title": "2026-06-12-goal-driven-execution-verify-review-7",
+      "top_keywords": [
+        "update.sh",
+        "install.sh",
+        "review",
+        "python3",
+        "verification",
+        "scripts/helpers.ps1",
+        "scripts/update.sh",
+        ".cg-docs/",
+        "tests/run-tests.ps1",
+        "link.ps1"
+      ]
+    },
+    {
       "date": "2026-06-12",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review.md",
@@ -7421,6 +7997,116 @@
       ]
     },
     {
+      "date": "2026-07-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md",
+      "slug": "2026-07-03-cross-agent-native-platform-targets-verify-review",
+      "status": "fixed",
+      "summary": "- **Mode**: verify (light depth, per `mode:verify`) - **Parent review**: `.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md` (50 fixed findings — unrelated to current work; suppression context applied but no overlap) - **Plan**: `.cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md` - **Branch**: `feat/cross-agent-native-trees` - **Files reviewed**: 18 key files (scripts, tests, linker changes, docs)",
+      "tags": [],
+      "title": "Cross-Agent Native Platform Targets — Verify Review",
+      "top_keywords": [
+        "cg_generate_targets.py",
+        "2026-05-21-knowledge-brain-engine-review.md",
+        "review",
+        "stopiteration",
+        "context",
+        "scripts/tests/test_cg_generate_targets.py",
+        ".github/",
+        "--target copilot",
+        "agent native platform targets",
+        "verify review"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
+      "slug": "2026-07-23-wb-institutional-report-writing-skill-review",
+      "status": "",
+      "summary": "**Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-institutional-report-writing-skill-review",
+      "top_keywords": [
+        "cg-skill-wb-report-writing",
+        "validate_wb_writing_skill.py",
+        "cg-fix-triage",
+        "fix",
+        "review",
+        "feedback",
+        "benchmark",
+        "grading",
+        "unresolved",
+        "scripts/tests/test_validate_wb_writing_skill.py"
+      ]
+    },
+    {
+      "date": "2026-07-23",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
+      "slug": "2026-07-23-wb-institutional-report-writing-skill-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-institutional-report-writing-skill-verify-review",
+      "top_keywords": [
+        "cg-fix-triage",
+        "review",
+        "unresolved",
+        "/cg-fix-triage",
+        "/cg-fix-triage p1.1",
+        "fix",
+        "cg-code-quality",
+        "cg-testing",
+        "report",
+        "merge"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-review",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-review",
+      "top_keywords": [
+        "not-required",
+        "approved",
+        "current.json",
+        "cg-fix-triage",
+        "test_validate_wb_writing_skill.py",
+        "roadmap.json",
+        "review",
+        "fix",
+        "unresolved",
+        "terminology_status"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-verify-review",
+      "top_keywords": [
+        "_valid_source_pack()",
+        ".venv\\scripts\\python.exe -m pytest scripts/tests/test_validate_wb_writing_skill.py -q",
+        "test_validate_wb_writing_skill.py",
+        "source",
+        "review",
+        "fix",
+        "terminology_status",
+        "cg-code-quality",
+        "report",
+        "passed"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -7684,14 +8370,14 @@
       "top_keywords": [
         "else",
         "ast",
+        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->",
-        "utf-8"
+        "->"
       ]
     },
     {
@@ -7711,10 +8397,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
+        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
-        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -8169,13 +8855,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
+        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1",
-        "result-verification.md"
+        ".ps1"
       ]
     },
     {
@@ -8287,12 +8973,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
+        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
-        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -8317,9 +9003,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
-        "/cg-setup",
         "link.ps1",
         "link.sh",
+        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -8350,13 +9036,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
+        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
-        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -9057,7 +9743,64 @@
         "schema",
         "json",
         "validation",
-        "title"
+        "run-tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-06-25",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
+      "slug": "2026-06-25-install-self-copy-wrapper-crash",
+      "status": "",
+      "summary": "Running install.ps1 on a canonical install layout failed during wrapper registration with:",
+      "tags": [
+        "install",
+        "powershell",
+        "wrappers",
+        "copy-item",
+        "idempotency",
+        "windows"
+      ],
+      "title": "install.ps1 self-copy wrapper crash when source equals destination",
+      "top_keywords": [
+        "install.ps1",
+        "source",
+        "install",
+        "test",
+        "cg-index.cmd",
+        "destination",
+        "wrapper",
+        "ps1",
+        "self-copy",
+        "equals"
+      ]
+    },
+    {
+      "date": "2026-07-16",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
+      "slug": "2026-07-16-update-legacy-profile-wrapper-remediation",
+      "status": "",
+      "summary": "On enterprise Windows machines using Constrained Language Mode (CLM), an old Compound GPID profile function such as `cg-link` could fail with: The current installer removed the old functions, but updater-only users did not necessarily run the installer again. A cleanup that used `Get-Content` and `Set-Content` defaults could also change a profile's encoding, BOM, or non-ASCII content.",
+      "tags": [
+        "powershell",
+        "clm",
+        "profiles",
+        "encoding",
+        "updater"
+      ],
+      "title": "Updater remediation for legacy CLM-prone PowerShell profile wrappers",
+      "top_keywords": [
+        "updater",
+        "powershell",
+        "cg-link",
+        "get-content",
+        "set-content",
+        ".cmd",
+        "tests/last-run.json",
+        "profile",
+        "legacy",
+        "wrappers"
       ]
     },
     {
@@ -9534,15 +10277,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "subdir\\file.txt",
+        "file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "file.txt",
-        "backslash"
+        "backslash",
+        "separator"
       ]
     },
     {
@@ -9601,6 +10344,37 @@
         "packages",
         "claude.md",
         "root"
+      ]
+    },
+    {
+      "date": "2026-07-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
+      "slug": "2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python",
+      "status": "",
+      "summary": "Compound GPID's `.github/` assets were designed for GitHub Copilot. Supporting Claude Code, Codex, and OpenCode required generating native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical source, committing them, and distributing via the existing junction/symlink mechanism — without requiring maintainers to run Python commands manually. Three sub-problems emerged: 1. **Distribution maintainability**: How to keep generated trees in sync with `.github/` edits without manual regeneration. 2. **Cross-platform Python resolution**: PowerShell scripts calling Python directly (`python3`) fail on Windows when only `python` or `py` is available. 3. **Release safety**: How to prevent shipping stale generated trees.",
+      "tags": [
+        "cross-agent",
+        "generator",
+        "target-mapping",
+        "drift-tests",
+        "python-detection",
+        "claude-code",
+        "codex",
+        "opencode"
+      ],
+      "title": "Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution",
+      "top_keywords": [
+        ".github/",
+        "install.ps1",
+        "python",
+        "python3",
+        "resolve-pythoncommand",
+        "update.ps1",
+        "generator",
+        "bin/*.cmd",
+        "/cg-commit-push-pr",
+        "helpers.ps1"
       ]
     },
     {
@@ -9807,11 +10581,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
+        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
-        "structure"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
       ]
     },
     {
@@ -10286,9 +11060,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
+        "cg-review.prompt.md",
         "delegate",
         "file-writing",
-        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -10325,8 +11099,8 @@
         "must",
         "contract",
         "pipeline",
-        "downstream",
-        "location"
+        "cg-fix-triage.prompt.md",
+        "downstream"
       ]
     },
     {
@@ -10543,8 +11317,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "copilot-instructions.md",
         "prompt-tools.tests.ps1",
+        "copilot-instructions.md",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -10574,16 +11348,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
+        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
-        "prompt-tools.tests.ps1",
         "select-string",
         "test",
-        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging"
+        "debugging",
+        "crashes"
       ]
     },
     {
@@ -10670,9 +11444,9 @@
         "failure",
         "guard",
         "fragile",
+        "cg-work.prompt.md",
         "tests",
         "step-ordering",
-        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -10760,8 +11534,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "-quiet",
         "prompt-tools.tests.ps1",
+        "-quiet",
         "pester",
         "execution_subagent",
         "quiet",
@@ -10857,14 +11631,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
+        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "last-run.json",
-        "tests\\last-run.json"
+        "context"
       ]
     },
     {
@@ -11081,8 +11855,8 @@
         "2026-04-21-prompt-step-forward-dependency-deferred-marker.md",
         "2026-04-15-pester-dotall-flag-required-for-multiline-regex.md",
         "2026-04-24-anti-loop-exclusion-in-iterative-review-modes.md",
-        "scope",
-        "must"
+        "2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
+        "scope"
       ]
     },
     {
@@ -11103,6 +11877,7 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
+        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -11110,7 +11885,6 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
-        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -11571,8 +12345,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "source-scanning",
         "link.ps1",
+        "source-scanning",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -11603,14 +12377,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
+        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern",
-        "unlink.ps1"
+        "pattern"
       ]
     },
     {
@@ -11873,13 +12647,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
+        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->",
-        "$dirs.count | should -begreaterthan 0"
+        "<!-- folder: docs -->"
       ]
     },
     {
@@ -12559,6 +13333,66 @@
       ]
     },
     {
+      "date": "2026-07-24",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
+      "slug": "2026-07-24-cross-file-contract-state-must-align-docs-validator-tests",
+      "status": "",
+      "summary": "The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python validator, and behavioral Pester tests. Standard review fixed several gaps, but the follow-up verify pass still found a real P1 regression: the shared terminology contract no longer agreed across the files that enforced it. The concrete mismatch was: - shared docs described terminology as `approved` or `unresolved` - `prompt-tools` assertions looked for `approved` and `unresolved` - the Python validator still accepted `approved` or `not-required` That meant a source pack that followed the documented contract could still fail deterministic preflight. The break only surfaced...",
+      "tags": [
+        "cross-file-contract",
+        "validator",
+        "prompt-tools",
+        "verify-pass",
+        "frontmatter",
+        "state-model",
+        "wb-report-writing"
+      ],
+      "title": "Cross-file state contracts must align across docs, validators, and behavioral tests",
+      "top_keywords": [
+        "approved",
+        "unresolved",
+        "/cg-review mode:verify",
+        "scripts/validate_wb_writing_skill.py",
+        "tests/prompt-tools.tests.ps1",
+        "tests",
+        "behavioral",
+        "state",
+        "cross-file",
+        "across"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+      "slug": "2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence",
+      "status": "",
+      "summary": "The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved source-pack evidence. The production source-pack JSON files were updated, but the shared pytest helper `_valid_source_pack()` still returned placeholder terminology and exemplar URLs. That created a false \"valid fixture\" contract inside the test suite. When the verify pass reran `scripts/tests/test_validate_wb_writing_skill.py`, three tests failed even though the validator itself was behaving correctly: - `test_validate_source_pack_passes_for_valid_payload` - `test_validate_source_pack_accepts_unresolved_terminology_status` - `test_run_validation_all_combines_requested_checks` The failure was not in the validator branch. It was in the supposedly-valid test data.",
+      "tags": [
+        "pytest",
+        "fixtures",
+        "validator",
+        "placeholder-host",
+        "source-pack",
+        "wb-report-writing",
+        "verify-pass"
+      ],
+      "title": "Positive validator fixtures must avoid placeholder evidence once validation tightens",
+      "top_keywords": [
+        "validator",
+        "fixtures",
+        "scripts/tests/test_validate_wb_writing_skill.py",
+        "test_validate_wb_writing_skill.py",
+        "positive",
+        "placeholder",
+        "evidence",
+        "once",
+        "validation",
+        "tightens"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -12801,47 +13635,25 @@
       ]
     },
     {
-      "date": "2026-06-23",
+      "date": "2026-07-22",
       "entity_type": "strategy",
-      "path": ".cg-docs/strategy/2026-06-23-cg-strategy-icm-okf-roadmap-prompt.md",
-      "slug": "2026-06-23-cg-strategy-icm-okf-roadmap-prompt",
+      "path": ".cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md",
+      "slug": "2026-07-22-skills-enhancement-idea-additions",
       "status": "",
-      "summary": "Copy the prompt below into a `/cg-strategy` session.",
+      "summary": "Compound GPID is in a mid-project phase with the existing `Skills Enhancement` milestone available for additional skill-related ideas. The milestone's objective and existing features were already defined and were not reconsidered in this session.",
       "tags": [],
-      "title": "Prompt for /cg-strategy: ICM and OKF Roadmap Integration",
+      "title": "Skills Enhancement Idea Additions",
       "top_keywords": [
-        "cg-strategy",
-        "/cg-strategy",
-        "compound engineering",
-        "compound-gpid.context.md",
-        "knowledge/",
-        ".cg-docs/solutions/",
-        ".cg-docs",
-        "icm",
-        "okf",
-        "roadmap"
-      ]
-    },
-    {
-      "date": "2026-06-23",
-      "entity_type": "strategy",
-      "path": ".cg-docs/strategy/2026-06-23-icm-okf-integration-concept.md",
-      "slug": "2026-06-23-icm-okf-integration-concept",
-      "status": "",
-      "summary": "Compound GPID has grown into a large context system. It now contains prompts, agents, skills, project context files, Brain artifacts, generated indexes, roadmaps, plans, reviews, solution documents, work reports, and docs. This has improved reliability, but it creates three scaling risks: 1. Agents may over-read historical or generated artifacts when they only need a small current-stage context. 2. Durable knowledge, workflow history, generated retrieval indexes, and current work state are close enough that their boundaries are easy to blur. 3. More compounding can paradoxically make future work slower unless the project distinguishes what is source truth, what is archive, and...",
-      "tags": [],
-      "title": "ICM and OKF Integration Concept for Compound GPID",
-      "top_keywords": [
-        "knowledge/",
-        "compound-gpid.context.md",
-        ".cg-docs/solutions/",
-        ".cg-docs",
-        "compound engineering",
-        "icm",
-        "okf",
-        "compound-gpid.md",
-        "implementation",
-        "cg-index"
+        "skills enhancement",
+        "idea",
+        "session",
+        "skills enhancement idea additions",
+        "world bank",
+        "skills",
+        "enhancement",
+        "additions",
+        "roadmap.json",
+        "decision"
       ]
     },
     {
@@ -13348,6 +14160,50 @@
         "skills",
         "feature",
         "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#world-bank-institutional-report-writing-skill",
+      "slug": "world-bank-institutional-report-writing-skill",
+      "status": "done",
+      "summary": "World Bank institutional report-writing skill",
+      "tags": [],
+      "title": "World Bank institutional report-writing skill",
+      "top_keywords": [
+        "world bank",
+        "skills enhancement\nobjective",
+        "world",
+        "bank",
+        "institutional",
+        "report-writing",
+        "skill",
+        "skills",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#skillopt-existing-skills-improvement",
+      "slug": "skillopt-existing-skills-improvement",
+      "status": "idea",
+      "summary": "SkillOpt-based improvement of existing skills",
+      "tags": [],
+      "title": "SkillOpt-based improvement of existing skills",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "skills",
+        "skillopt-based",
+        "improvement",
+        "existing",
+        "feature",
+        "milestone",
+        "enhancement",
+        "objective",
+        "deepen"
       ]
     },
     {
@@ -14310,12 +15166,12 @@
         "workflow maturity\nobjective",
         "branch",
         "creation",
-        "github",
-        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity"
+        "maturity",
+        "objective",
+        "improve"
       ]
     },
     {
@@ -14332,12 +15188,12 @@
         "workflow maturity\nobjective",
         "phased",
         "structure",
-        "github",
-        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity"
+        "maturity",
+        "objective",
+        "improve"
       ]
     },
     {
@@ -14354,12 +15210,12 @@
         "workflow maturity\nobjective",
         "phased",
         "execution",
-        "github",
-        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity"
+        "maturity",
+        "objective",
+        "improve"
       ]
     },
     {
@@ -14378,10 +15234,10 @@
         "visualization",
         "agent",
         "prompt",
-        "github",
-        "integration",
         "feature",
-        "milestone"
+        "milestone",
+        "workflow",
+        "maturity"
       ]
     },
     {
@@ -14398,12 +15254,12 @@
         "workflow maturity\nobjective",
         "test-correctness",
         "assessment",
-        "github",
-        "integration",
         "feature",
         "milestone",
         "workflow",
-        "maturity"
+        "maturity",
+        "objective",
+        "improve"
       ]
     },
     {
@@ -14411,16 +15267,16 @@
       "entity_type": "feature",
       "path": "roadmap.json#github-issues-integration",
       "slug": "github-issues-integration",
-      "status": "done",
+      "status": "idea",
       "summary": "GitHub Issues integration (optional, via gh CLI)",
       "tags": [],
       "title": "GitHub Issues integration (optional, via gh CLI)",
       "top_keywords": [
         "workflow maturity\nobjective",
-        "github",
-        "integration",
-        "issues",
         "optional",
+        "github",
+        "issues",
+        "integration",
         "via",
         "cli",
         "feature",
@@ -14447,7 +15303,7 @@
         "parity",
         "contributing",
         "contributing.md",
-        "github"
+        "feature"
       ]
     },
     {
@@ -14467,9 +15323,9 @@
         "splitting",
         "push",
         "creation",
-        "github",
-        "integration",
-        "feature"
+        "feature",
+        "milestone",
+        "workflow"
       ]
     },
     {
@@ -14487,11 +15343,11 @@
         "verification",
         "auto-fix",
         "dispatch",
-        "github",
-        "integration",
         "feature",
         "milestone",
-        "workflow"
+        "workflow",
+        "maturity",
+        "objective"
       ]
     },
     {
@@ -14499,21 +15355,43 @@
       "entity_type": "feature",
       "path": "roadmap.json#goal-driven-execution",
       "slug": "goal-driven-execution",
-      "status": "done",
+      "status": "idea",
       "summary": "Goal-driven execution — plan-as-completion-contract with integrated validation",
       "tags": [],
       "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
       "top_keywords": [
         "workflow maturity\nobjective",
-        "goal-driven",
         "execution",
+        "goal-driven",
         "plan-as-completion-contract",
         "integrated",
         "validation",
-        "github",
-        "integration",
         "feature",
-        "milestone"
+        "milestone",
+        "workflow",
+        "maturity"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cg-work-explicit-plan-path",
+      "slug": "cg-work-explicit-plan-path",
+      "status": "idea",
+      "summary": "Explicit plan-path selection for /cg-work",
+      "tags": [],
+      "title": "Explicit plan-path selection for /cg-work",
+      "top_keywords": [
+        "cg-work",
+        "workflow maturity\nobjective",
+        "explicit",
+        "plan-path",
+        "selection",
+        "feature",
+        "milestone",
+        "workflow",
+        "maturity",
+        "objective"
       ]
     },
     {
@@ -14981,9 +15859,53 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#exemplar-source-pack-schema",
+      "slug": "exemplar-source-pack-schema",
+      "status": "idea",
+      "summary": "Reusable exemplar source-pack schema",
+      "tags": [],
+      "title": "Reusable exemplar source-pack schema",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "reusable",
+        "exemplar",
+        "source-pack",
+        "schema",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#shared-writing-guardrails-contract",
+      "slug": "shared-writing-guardrails-contract",
+      "status": "idea",
+      "summary": "Shared institutional writing guardrails contract",
+      "tags": [],
+      "title": "Shared institutional writing guardrails contract",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "shared",
+        "institutional",
+        "writing",
+        "guardrails",
+        "contract",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#token-audit-context-model",
       "slug": "token-audit-context-model",
-      "status": "done",
+      "status": "idea",
       "summary": "Audit current context and model usage",
       "tags": [],
       "title": "Audit current context and model usage",
@@ -15005,7 +15927,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#model-tier-definitions",
       "slug": "model-tier-definitions",
-      "status": "done",
+      "status": "idea",
       "summary": "Define model tiers and escalation rules",
       "tags": [],
       "title": "Define model tiers and escalation rules",
@@ -15027,7 +15949,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#model-policy-tests",
       "slug": "model-policy-tests",
-      "status": "done",
+      "status": "idea",
       "summary": "Add model-policy tests",
       "tags": [],
       "title": "Add model-policy tests",
@@ -15049,7 +15971,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#prompt-frontmatter-model-update",
       "slug": "prompt-frontmatter-model-update",
-      "status": "done",
+      "status": "idea",
       "summary": "Update prompt frontmatter model and agent choices",
       "tags": [],
       "title": "Update prompt frontmatter model and agent choices",
@@ -15071,7 +15993,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#agent-model-tool-governance",
       "slug": "agent-model-tool-governance",
-      "status": "done",
+      "status": "idea",
       "summary": "Update custom agents for model and tool governance",
       "tags": [],
       "title": "Update custom agents for model and tool governance",
@@ -15093,7 +16015,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#shrink-always-on-context",
       "slug": "shrink-always-on-context",
-      "status": "done",
+      "status": "idea",
       "summary": "Shrink always-on context",
       "tags": [],
       "title": "Shrink always-on context",
@@ -15115,7 +16037,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#prompt-skill-split",
       "slug": "prompt-skill-split",
-      "status": "done",
+      "status": "idea",
       "summary": "Split large prompts into thin entrypoints and on-demand skills",
       "tags": [],
       "title": "Split large prompts into thin entrypoints and on-demand skills",
@@ -15137,7 +16059,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#stage-context-contracts",
       "slug": "stage-context-contracts",
-      "status": "done",
+      "status": "idea",
       "summary": "Add stage-specific context contracts",
       "tags": [],
       "title": "Add stage-specific context contracts",
@@ -15159,7 +16081,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#review-deterministic-first",
       "slug": "review-deterministic-first",
-      "status": "done",
+      "status": "idea",
       "summary": "Make review cheaper with deterministic checks first",
       "tags": [],
       "title": "Make review cheaper with deterministic checks first",
@@ -15181,7 +16103,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#token-benchmark-before-after",
       "slug": "token-benchmark-before-after",
-      "status": "done",
+      "status": "idea",
       "summary": "Benchmark before and after",
       "tags": [],
       "title": "Benchmark before and after",
@@ -15203,7 +16125,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#token-optimization-compound",
       "slug": "token-optimization-compound",
-      "status": "done",
+      "status": "idea",
       "summary": "Capture the learning",
       "tags": [],
       "title": "Capture the learning",
@@ -15219,213 +16141,15 @@
         "milestone",
         "optimization"
       ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-1-workflow-token-baseline",
-      "slug": "phase-1-1-workflow-token-baseline",
-      "status": "done",
-      "summary": "Phase 1.1 — Workflow-level token baseline and test integration",
-      "tags": [],
-      "title": "Phase 1.1 — Workflow-level token baseline and test integration",
-      "top_keywords": [
-        "token efficiency core system\nobjective",
-        "make compound",
-        "token",
-        "phase",
-        "workflow-level",
-        "baseline",
-        "test",
-        "integration",
-        "core",
-        "feature"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-2-knowledge-brain-query",
-      "slug": "phase-1-2-knowledge-brain-query",
-      "status": "done",
-      "summary": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
-      "tags": [],
-      "title": "Phase 1.2 — Knowledge Brain query and budgeted retrieval",
-      "top_keywords": [
-        "knowledge brain",
-        "token efficiency core system\nobjective",
-        "make compound",
-        "brain",
-        "budgeted",
-        "retrieval",
-        "phase",
-        "knowledge",
-        "query",
-        "core"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-3-command-output-summaries",
-      "slug": "phase-1-3-command-output-summaries",
-      "status": "done",
-      "summary": "Phase 1.3 — Command-output summarization wrappers",
-      "tags": [],
-      "title": "Phase 1.3 — Command-output summarization wrappers",
-      "top_keywords": [
-        "token efficiency core system\nobjective",
-        "make compound",
-        "phase",
-        "command-output",
-        "summarization",
-        "wrappers",
-        "core",
-        "feature",
-        "milestone",
-        "token"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
-      "slug": "phase-1-4-progressive-disclosure-cleanup",
-      "status": "done",
-      "summary": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
-      "tags": [],
-      "title": "Phase 1.4 — Progressive-disclosure skills and scoped instructions",
-      "top_keywords": [
-        "token efficiency core system\nobjective",
-        "make compound",
-        "progressive-disclosure",
-        "skills",
-        "phase",
-        "scoped",
-        "instructions",
-        "core",
-        "feature",
-        "milestone"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-5-handoff-resume-compaction",
-      "slug": "phase-1-5-handoff-resume-compaction",
-      "status": "done",
-      "summary": "Phase 1.5 — Handoff, resume, and active-state compaction",
-      "tags": [],
-      "title": "Phase 1.5 — Handoff, resume, and active-state compaction",
-      "top_keywords": [
-        "token efficiency core system\nobjective",
-        "make compound",
-        "handoff",
-        "compaction",
-        "phase",
-        "resume",
-        "active-state",
-        "core",
-        "feature",
-        "milestone"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-1-6-token-dashboard-regression",
-      "slug": "phase-1-6-token-dashboard-regression",
-      "status": "done",
-      "summary": "Phase 1.6 — Token dashboard and regression checks",
-      "tags": [],
-      "title": "Phase 1.6 — Token dashboard and regression checks",
-      "top_keywords": [
-        "token efficiency core system\nobjective",
-        "make compound",
-        "token",
-        "regression",
-        "phase",
-        "dashboard",
-        "core",
-        "feature",
-        "milestone",
-        "efficiency"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
-      "slug": "phase-2-1-cross-agent-packaging-adapters",
-      "status": "done",
-      "summary": "Phase 2.1 — Cross-agent packaging adapters",
-      "tags": [],
-      "title": "Phase 2.1 — Cross-agent packaging adapters",
-      "top_keywords": [
-        "token efficiency portability",
-        "optional retrieval expansion\nobjective",
-        "cross-agent",
-        "packaging",
-        "adapters",
-        "phase",
-        "optional",
-        "retrieval",
-        "feature",
-        "milestone"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-2-2-optional-retrieval-backends",
-      "slug": "phase-2-2-optional-retrieval-backends",
-      "status": "done",
-      "summary": "Phase 2.2 — Optional retrieval backend evaluation",
-      "tags": [],
-      "title": "Phase 2.2 — Optional retrieval backend evaluation",
-      "top_keywords": [
-        "token efficiency portability",
-        "optional retrieval expansion\nobjective",
-        "optional",
-        "retrieval",
-        "phase",
-        "backend",
-        "evaluation",
-        "feature",
-        "milestone",
-        "token"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
-      "path": "roadmap.json#phase-2-3-snapshot-external-research-modes",
-      "slug": "phase-2-3-snapshot-external-research-modes",
-      "status": "done",
-      "summary": "Phase 2.3 — Snapshot and external-research modes",
-      "tags": [],
-      "title": "Phase 2.3 — Snapshot and external-research modes",
-      "top_keywords": [
-        "token efficiency portability",
-        "optional retrieval expansion\nobjective",
-        "snapshot",
-        "phase",
-        "external-research",
-        "modes",
-        "optional",
-        "retrieval",
-        "feature",
-        "milestone"
-      ]
     }
   ],
-  "entity_count": 542,
-  "generated": "2026-06-23",
+  "entity_count": 563,
+  "generated": "2026-07-24",
   "schema_version": "0.2.0",
   "topic_count": 2,
   "topics": [
     {
-      "entity_count": 394,
+      "entity_count": 412,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -15467,6 +16191,9 @@
         ".cg-docs/brainstorms/2026-06-04-context-model-audit-infrastructure.md",
         ".cg-docs/brainstorms/2026-06-12-goal-driven-execution.md",
         ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
+        ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
+        ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
+        ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -15544,6 +16271,17 @@
         ".cg-docs/plans/2026-06-23-progressive-disclosure-scoped-instructions.md",
         ".cg-docs/plans/2026-06-23-snapshot-external-research-modes.md",
         ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
+        ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+        ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
+        ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
+        ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -15665,6 +16403,11 @@
         ".cg-docs/reviews/2026-06-23-snapshot-external-research-modes-verify-review.md",
         ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-review.md",
         ".cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md",
+        ".cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -15697,12 +16440,16 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
         ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
+        ".cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md",
         ".cg-docs/solutions/bugs/2026-06-11-ambiguous-warn-before-proceeding-toctou-guard.md",
         ".cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md",
         ".cg-docs/solutions/bugs/2026-06-11-invalid-regex-character-range-hyphen-placement.md",
         ".cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md",
         ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
+        ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
+        ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -15717,6 +16464,7 @@
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
+        ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -15801,6 +16549,8 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md",
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -15812,15 +16562,7 @@
         ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
         ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
         ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md",
-        "roadmap.json#phase-1-1-workflow-token-baseline",
-        "roadmap.json#phase-1-2-knowledge-brain-query",
-        "roadmap.json#phase-1-3-command-output-summaries",
-        "roadmap.json#phase-1-4-progressive-disclosure-cleanup",
-        "roadmap.json#phase-1-5-handoff-resume-compaction",
-        "roadmap.json#phase-1-6-token-dashboard-regression",
-        "roadmap.json#phase-2-1-cross-agent-packaging-adapters",
-        "roadmap.json#phase-2-2-optional-retrieval-backends",
-        "roadmap.json#phase-2-3-snapshot-external-research-modes"
+        ".cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md"
       ],
       "keywords": [
         "roadmap.json",
@@ -15831,7 +16573,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 108,
+      "entity_count": 113,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -15856,6 +16598,8 @@
         "roadmap.json#testing-skill-python",
         "roadmap.json#testing-skill-stata",
         "roadmap.json#skill-description-length-cap",
+        "roadmap.json#world-bank-institutional-report-writing-skill",
+        "roadmap.json#skillopt-existing-skills-improvement",
         "roadmap.json#slim-copilot-instructions",
         "roadmap.json#project-context-file",
         "roadmap.json#cg-compound-context-enrichment",
@@ -15909,6 +16653,7 @@
         "roadmap.json#cg-commit-push-pr",
         "roadmap.json#cg-verify-pr",
         "roadmap.json#goal-driven-execution",
+        "roadmap.json#cg-work-explicit-plan-path",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -15930,6 +16675,8 @@
         "roadmap.json#project-wiki-auto-documentation",
         "roadmap.json#planning-stage-test-strategy",
         "roadmap.json#agent-verified-outcome-evals",
+        "roadmap.json#exemplar-source-pack-schema",
+        "roadmap.json#shared-writing-guardrails-contract",
         "roadmap.json#token-audit-context-model",
         "roadmap.json#model-tier-definitions",
         "roadmap.json#model-policy-tests",

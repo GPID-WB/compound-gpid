@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-06-23_
+_Generated 2026-07-24_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -85,6 +85,12 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
 - **[Goal-driven execution for /cg-plan and /cg-work](.cg-docs/brainstorms/2026-06-12-goal-driven-execution.md)** · `brainstorm` · _decided_ · `2026-06-12`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Token Context Optimization Closure](.cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md)** · `brainstorm` · _decided_ · `2026-06-16`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Cross-Agent Native Platform Targets](.cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md)** · `brainstorm` · _decided_ · `2026-07-03`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Default-All Platform Linking With Safe Install Units](.cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md)** · `brainstorm` · _decided_ · `2026-07-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[World Bank institutional report-writing skill](.cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md)** · `brainstorm` · _decided_ · `2026-07-23`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
@@ -240,6 +246,28 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > Complete Phase 2.3 by defining tested opt-in governance for future snapshot and external-research modes without imple…
 - **[Token Dashboard and Regression Checks](.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md)** · `plan` · _completed_ · `2026-06-23`
   > Complete Phase 1.6 by turning the existing workflow token baseline into a maintainer-facing dashboard and determinist…
+- **[Cross-Agent Native Platform Targets](.cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md)** · `plan` · _completed_ · `2026-07-03`
+  > Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.g…
+- **[Default-All Platform Linking With Safe Install Units](.cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md)** · `plan` · _active_ · `2026-07-05`
+  > Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-own…
+- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _completed_ · `2026-07-23`
+  > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
+- **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
+- **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate an accessible World Bank Data Blog pattern whose engagement comes from explanation and structure, ne…
+- **[WB report writing: Executive summaries](.cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate an executive-summary pattern that creates concise, standalone, source-traceable synthesis for senior…
+- **[WB report writing: Flagship report sections](.cg-docs/plans/2026-07-23-wb-report-writing-flagship-section.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate a source-grounded flagship-section pattern for premium World Bank publications without blocking othe…
+- **[WB report writing: Internal memos and decision notes](.cg-docs/plans/2026-07-23-wb-report-writing-internal-memo.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate an operational internal memo/decision-note pattern that never invents management decisions, endorsem…
+- **[WB report writing: Policy briefs](.cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate the policy-note/brief reference independently from the other World Bank document patterns.
+- **[WB report writing: Policy Research Working Papers](.cg-docs/plans/2026-07-23-wb-report-writing-prwp.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.
+- **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _completed_ · `2026-07-23`
+  > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -482,6 +510,16 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[2026-06-23-token-dashboard-regression-checks-verify-review](.cg-docs/reviews/2026-06-23-token-dashboard-regression-checks-verify-review.md)** · `review` · _—_ · `—`
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
+- **[Cross-Agent Native Platform Targets — Verify Review](.cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md)** · `review` · _fixed_ · `2026-07-03`
+  > - **Mode**: verify (light depth, per `mode:verify`) - **Parent review**: `.cg-docs/reviews/2026-05-21-knowledge-brain…
+- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-23`
+  > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
+  > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -546,8 +584,12 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > Running `cg-index --brain` on Windows with legacy `DIGEST.md` or `search-index.json` present sometimes returned exit …
 - **[Security fix helpers written but never called from the protected call site](.cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md)** · `solution` · _—_ · `2026-05-20`
   > A `/cg-review` thorough pass on `scripts/brain/renderer.py` identified two security findings: - **P1.2** — Paths in m…
+- **[cg-index.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH](.cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md)** · `solution` · _—_ · `2026-06-05`
+  > On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-index --brain` raise…
 - **[Brain renderer inserts multi-line topic labels into pipe table cells, breaking Markdown](.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md)** · `solution` · _—_ · `2026-06-10`
   > After a `cg-index --brain` rebuild, the `BRAIN.md` Topic Index table contained broken rows for topics whose cluster l…
+- **[cg-brain-init.cmd leaks 'python3 not recognized' error to stderr when python3 absent from PATH](.cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md)** · `solution` · _—_ · `2026-06-10`
+  > On Windows machines where Python is available as `python` or `py` but not `python3`, running `cg-brain-init` leaked a…
 - **[Ambiguous 'warn before proceeding' in TOCTOU guard allows duplicate creation without user choice](.cg-docs/solutions/bugs/2026-06-11-ambiguous-warn-before-proceeding-toctou-guard.md)** · `solution` · _—_ · `2026-06-11`
   > A `cg-issues.prompt.md` step included this TOCTOU guard: > "If a second match is found, warn the user before proceedi…
 - **[CLI injection, symlink traversal, and mode-gating bugs in LLM prompts that invoke gh CLI](.cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md)** · `solution` · _—_ · `2026-06-11`
@@ -558,6 +600,10 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > A prompt included this path-validation step as a defense against symlink traversal: > "Resolve the path to its canoni…
 - **[roadmap.json milestone missing required 'objective' field passes silently until schema validation](.cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md)** · `solution` · _—_ · `2026-06-12`
   > During a full-suite regression gate after an unrelated fix-triage session, the roadmap schema test failed: The `workf…
+- **[install.ps1 self-copy wrapper crash when source equals destination](.cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md)** · `solution` · _—_ · `2026-06-25`
+  > Running install.ps1 on a canonical install layout failed during wrapper registration with:
+- **[Updater remediation for legacy CLM-prone PowerShell profile wrappers](.cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md)** · `solution` · _—_ · `2026-07-16`
+  > On enterprise Windows machines using Constrained Language Mode (CLM), an old Compound GPID profile function such as `…
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -586,6 +632,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
 - **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
   > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
+- **[Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution](.cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md)** · `solution` · _—_ · `2026-07-03`
+  > Compound GPID's `.github/` assets were designed for GitHub Copilot. Supporting Claude Code, Codex, and OpenCode requi…
 - **[git stderr swallowed by 2>&1 redirect into an unused variable](.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md)** · `solution` · _—_ · `2026-03-04`
   > A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>…
 - **[PS5.1 ErrorActionPreference=Stop promotes git informational stderr into terminating errors](.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md)** · `solution` · _—_ · `2026-03-05`
@@ -754,43 +802,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 394 entit
   > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
 - **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
   > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
-- **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
-  > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
-- **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
-  > - Quality Loop: 2 done, 1 active, 7 ideas (3 features actually done but roadmap not updated) - Performance: 1 done, 3…
-- **[Move Python and Stata testing skills to Skills Enhancement](.cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md)** · `strategy` · _—_ · `2026-04-15`
-  > Quality Loop had 10 features (4 done, 1 planned, 5 ideas). Two of the idea-status features — `testing-skill-python` a…
-- **[Context layer restructuring — slim instructions, project context file, multi-folder workspaces](.cg-docs/strategy/2026-04-16-context-layer-restructuring.md)** · `strategy` · _—_ · `2026-04-16`
-  > - Quality Loop milestone fully completed (10/10 features done). - Performance and Skills Enhancement milestones in pr…
-- **[Post-Context Layer refocus: Onboarding & Setup as primary, Performance to close out](.cg-docs/strategy/2026-04-28-post-context-layer-refocus.md)** · `strategy` · _—_ · `2026-04-28`
-  > Context Layer milestone completed (5/5 features done). Quality Loop also fully complete (12/12). Two milestones remai…
-- **[Onboarding & Setup milestone expansion](.cg-docs/strategy/2026-04-29-onboarding-milestone-expansion.md)** · `strategy` · _—_ · `2026-04-29`
-  > Performance milestone completed (6/6 done). Quality Loop (12/12) and Context Layer (5/5) also done. Skills Enhancemen…
-- **[Workflow Maturity milestone — branch management, phased execution, smart debugging, team coordination](.cg-docs/strategy/2026-05-05-workflow-maturity.md)** · `strategy` · _—_ · `2026-05-05`
-  > - 8 milestones, 58 features (28 done, 0 active, 30 unstarted) - Two milestones in-progress: Skills Enhancement, Onboa…
-- **[Ongoing Ideas milestone for standalone improvements](.cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md)** · `strategy` · _—_ · `2026-05-14`
-  > Workflow Maturity milestone nearly complete (5/7 done). v0.10.3 just released with CI bypass flags and E2E smoke test…
-- **[2026-05-19-knowledge-brain](.cg-docs/strategy/2026-05-19-knowledge-brain.md)** · `strategy` · _approved_ · `2026-05-19`
-  > The `.cg-docs/` folder is growing dramatically (127+ solutions, 51+ plans, 35+ brainstorms, reviews, strategies). The…
-- **[Mid-project idea capture — brainstorm depth, confidence, model strategy, help, outcome verification, goal-driven execution](.cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md)** · `strategy` · _—_ · `2026-05-28`
-  > - Knowledge Brain milestone at 62% (Batch D team brain active on `feat/knowledge-brain-engine` branch) - Workflow Mat…
-- **[Token-Efficiency Workflow Strategy](.cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md)** · `strategy` · _—_ · `2026-06-18`
-  > Compound GPID already has a substantial token/model-governance foundation:
-- **[Phase 1.1 — Workflow-level token baseline and test integration](roadmap.json#phase-1-1-workflow-token-baseline)** · `feature` · _done_ · `—`
-  > Phase 1.1 — Workflow-level token baseline and test integration
-- **[Phase 1.2 — Knowledge Brain query and budgeted retrieval](roadmap.json#phase-1-2-knowledge-brain-query)** · `feature` · _done_ · `—`
-  > Phase 1.2 — Knowledge Brain query and budgeted retrieval
-- **[Phase 1.3 — Command-output summarization wrappers](roadmap.json#phase-1-3-command-output-summaries)** · `feature` · _done_ · `—`
-  > Phase 1.3 — Command-output summarization wrappers
-- **[Phase 1.4 — Progressive-disclosure skills and scoped instructions](roadmap.json#phase-1-4-progressive-disclosure-cleanup)** · `feature` · _done_ · `—`
-  > Phase 1.4 — Progressive-disclosure skills and scoped instructions
-- **[Phase 1.5 — Handoff, resume, and active-state compaction](roadmap.json#phase-1-5-handoff-resume-compaction)** · `feature` · _done_ · `—`
-  > Phase 1.5 — Handoff, resume, and active-state compaction
-- **[Phase 1.6 — Token dashboard and regression checks](roadmap.json#phase-1-6-token-dashboard-regression)** · `feature` · _done_ · `—`
-  > Phase 1.6 — Token dashboard and regression checks
-- **[Phase 2.1 — Cross-agent packaging adapters](roadmap.json#phase-2-1-cross-agent-packaging-adapters)** · `feature` · _done_ · `—`
-  > Phase 2.1 — Cross-agent packaging adapters
-- **[Phase 2.2 — Optional retrieval backend evaluation](roadmap.json#phase-2-2-optional-retrieval-backends)** · `feature` · _done_ · `—`
-  > Phase 2.2 — Optional retrieval backend evaluation
-- **[Phase 2.3 — Snapshot and external-research modes](roadmap.json#phase-2-3-snapshot-external-research-modes)** · `feature` · _done_ · `—`
-  > Phase 2.3 — Snapshot and external-research modes
+- **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
+  > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
+
+_…continues in [BRAIN-02.md](BRAIN-02.md)_

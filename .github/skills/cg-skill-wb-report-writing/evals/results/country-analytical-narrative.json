@@ -1,0 +1,25 @@
+{
+    "schema_version":  1,
+    "document_type":  "country-analytical-narrative",
+    "status":  "accepted",
+    "eval_definition":  ".github/skills/cg-skill-wb-report-writing/evals/types/country-analytical-narrative.json",
+    "benchmark":  ".github/skills/cg-skill-wb-report-writing/evals/benchmarks/country-analytical-narrative.benchmark.json",
+    "grading":  ".github/skills/cg-skill-wb-report-writing/evals/grades/country-analytical-narrative.grading.json",
+    "feedback":  ".github/skills/cg-skill-wb-report-writing/evals/feedback/country-analytical-narrative.feedback.json",
+    "assertions":  {
+                       "total":  6,
+                       "passed":  6,
+                       "failed":  0
+                   },
+    "guardrails":  {
+                       "numeric_fidelity":  true,
+                       "citation_integrity":  true,
+                       "institutional_position":  true,
+                       "data_status_propagation":  true,
+                       "country_sensitivity":  true,
+                       "type_specific_checks":  true
+                   },
+    "human_accepted":  true,
+    "human_reviewer":  "wb-gpid-review@worldbank.org",
+    "human_reviewed_on":  "2026-07-24"
+}

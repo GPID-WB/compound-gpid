@@ -1,0 +1,11 @@
+{
+    "schema_version":  1,
+    "document_type":  "policy-brief",
+    "baseline":  "no-skill",
+    "comparison":  "with-skill",
+    "required_checks":  [
+                            "factual-fidelity",
+                            "marker-usage",
+                            "guardrail-compliance"
+                        ]
+}

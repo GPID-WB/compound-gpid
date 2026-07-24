@@ -1,0 +1,88 @@
+{
+    "schemaVersion":  "compound-gpid-active-state-v1",
+    "updatedAt":  "2026-07-24T15:19:17Z",
+    "workflow":  "/cg-work",
+    "status":  "completed",
+    "branch":  "main",
+    "plan":  ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+    "executionReport":  ".cg-docs/work-reports/2026-07-23-wb-institutional-report-writing-skill.md",
+    "currentPhase":  null,
+    "evidenceStatus":  [
+                           {
+                               "status":  "passed",
+                               "id":  "V1",
+                               "artifact":  ".cg-docs/cost/wb-writing-baseline/context-audit.json"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V2",
+                               "artifact":  "tests/last-run.json"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V3",
+                               "artifact":  "scripts/tests/test_validate_wb_writing_skill.py"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V4",
+                               "artifact":  ".github/skills/cg-skill-wb-report-writing/evals/results/*.json"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V5",
+                               "artifact":  ".cg-docs/cost/wb-writing-final/context-audit.json"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V6",
+                               "artifact":  "scripts/tests/test_target_drift.py"
+                           },
+                           {
+                               "status":  "passed",
+                               "id":  "V7",
+                               "artifact":  "tests/last-run.json"
+                           }
+                       ],
+    "unresolvedDecisions":  [
+
+                            ],
+    "artifactRefs":  [
+                         {
+                             "path":  ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+                             "status":  "completed",
+                             "kind":  "plan"
+                         },
+                         {
+                             "path":  ".cg-docs/work-reports/2026-07-23-wb-institutional-report-writing-skill.md",
+                             "status":  "completed",
+                             "kind":  "work-report"
+                         },
+                         {
+                             "path":  "roadmap.json",
+                             "status":  "done",
+                             "kind":  "roadmap-feature"
+                         },
+                         {
+                             "path":  ".cg-docs/cost/wb-writing-final/context-audit.json",
+                             "status":  "passed",
+                             "kind":  "context-audit"
+                         },
+                         {
+                             "path":  ".cg-docs/token/regression-check.json",
+                             "status":  "passed",
+                             "kind":  "regression-check"
+                         },
+                         {
+                             "path":  "scripts/cg_generate_targets.py",
+                             "status":  "passed",
+                             "kind":  "target-generation"
+                         },
+                         {
+                             "path":  "tests/last-run.json",
+                             "status":  "passed",
+                             "kind":  "test-result"
+                         }
+                     ],
+    "nextCommand":  "/cg-review standard"
+}

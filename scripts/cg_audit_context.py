@@ -32,9 +32,10 @@ import hashlib
 import io
 import json
 import re
+import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Optional, Sequence
+from typing import Any, Iterable, Sequence
 
 _scripts_dir = str(Path(__file__).parent)
 if _scripts_dir not in sys.path:
@@ -784,11 +785,10 @@ def build_dispatch_burden(root: Path, files: Sequence[dict[str, Any]]) -> list[d
     return sorted(rows, key=lambda row: (row["burden_level"] != "broad", row["path"]))
 
 
-def classify_context_loading_line(path: str, line: str) -> dict[str, Any] | None:
+def classify_context_loading_line(_path: str, line: str) -> dict[str, Any] | None:
     """Classify one line as a context-loading signal, if applicable.
 
     Args:
-        path: Relative path of the file containing the line.
         line: Single line of text.
 
     Returns:
@@ -977,7 +977,6 @@ def classify_optimization_candidates(
     for file_record in files:
         path = file_record["path"]
         category = file_record["category"]
-        chars = int(file_record["characters"])
         tokens = int(file_record["estimated_tokens"])
         refs = refs_by_path.get(path, {"total_refs": 0})
         model = models_by_path.get(path)
@@ -1805,6 +1804,41 @@ def build_token_efficiency_recommendations(report: dict[str, Any]) -> list[dict[
     return recommendations
 
 
+def _deterministic_generated_stamp(root: Path) -> str:
+    """Return a deterministic generated stamp when git metadata is available."""
+    git_dir = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--git-dir"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
+    )
+    if git_dir.returncode != 0:
+        return datetime.now().isoformat(timespec="seconds")
+
+    head_sha = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
+    )
+    head_time = subprocess.run(
+        ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
+    )
+    if head_sha.returncode == 0 and head_time.returncode == 0:
+        sha = head_sha.stdout.strip()
+        commit_time = head_time.stdout.strip()
+        if sha and commit_time:
+            return f"{commit_time}@{sha[:12]}"
+
+    return datetime.now().isoformat(timespec="seconds")
+
+
 def build_report(root: Path) -> dict[str, Any]:
     """Build the complete audit report for a Compound GPID project root.
 
@@ -1828,8 +1862,10 @@ def build_report(root: Path) -> dict[str, Any]:
     for file_record in files:
         total_characters += int(file_record["characters"])
         total_estimated_tokens += int(file_record["estimated_tokens"])
+    generated_timestamp = _deterministic_generated_stamp(root)
     report: dict[str, Any] = {
-        "generated": datetime.now().isoformat(timespec="seconds"),
+        "generated": generated_timestamp,
+        "generated_kind": "volatile",
         "disclaimer": DISCLAIMER,
         "summary": {
             "total_files": len(files),
@@ -2192,6 +2228,7 @@ def build_token_audit_artifact(report: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "generated": report.get("generated"),
+        "generated_kind": report.get("generated_kind", "volatile"),
         "disclaimer": report.get("disclaimer", DISCLAIMER),
         "summary": report.get("summary", {}),
         "workflow_telemetry": report.get("workflow_telemetry", {}),
@@ -2240,6 +2277,7 @@ def build_context_map_artifact(report: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "generated": report.get("generated"),
+        "generated_kind": report.get("generated_kind", "volatile"),
         "measurement_note": report.get("workflow_telemetry", {}).get("measurement_note"),
         "workflows": workflows,
     }
@@ -2291,6 +2329,7 @@ def build_token_regression_check(report: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "generated": report.get("generated"),
+        "generated_kind": report.get("generated_kind", "volatile"),
         "status": status,
         "status_reason": {
             "fail": "Deterministic guardrail failures are present.",

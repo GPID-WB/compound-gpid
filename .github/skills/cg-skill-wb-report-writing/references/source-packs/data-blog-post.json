@@ -1,0 +1,40 @@
+﻿{
+    "schema_version":  1,
+    "document_type":  "data-blog-post",
+    "status":  "approved",
+    "approved_by":  "wb-gpid-review@worldbank.org",
+    "approved_on":  "2026-07-24",
+    "intended_audience":  "Public data readers and communications teams",
+    "disclaimer_requirement":  "required",
+    "required_disclaimers":  [
+                                 "[PRELIMINARY: subject to revision]",
+                                 "[UNPUBLISHED: DO NOT CIRCULATE]"
+                             ],
+    "terminology_status":  "approved",
+    "terminology_sources":  [
+                                "https://www.worldbank.org/en/about/unit/decdg",
+                                "https://www.worldbank.org/en/publication/wdr"
+                            ],
+    "exemplars":  [
+                      {
+                          "title":  "Data Blog Post exemplar A",
+                          "source":  ".github/skills/cg-skill-wb-report-writing/references/style-conventions.md",
+                          "retrieved_on":  "2026-07-24",
+                          "relevant_sections":  [
+                                                    "Structure",
+                                                    "Evidence presentation"
+                                                ],
+                          "authority_rationale":  "Matches World Bank institutional format and audience."
+                      },
+                      {
+                          "title":  "Data Blog Post exemplar B",
+                          "source":  ".github/skills/cg-skill-wb-report-writing/references/style-conventions.md",
+                          "retrieved_on":  "2026-07-24",
+                          "relevant_sections":  [
+                                                    "Tone",
+                                                    "Caveats and limits"
+                                                ],
+                          "authority_rationale":  "Provides complementary example for messaging and guardrails."
+                      }
+                  ]
+}

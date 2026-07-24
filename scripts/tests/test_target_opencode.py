@@ -57,7 +57,7 @@ class TestOpenCodeTreeStructure:
         command_files = list((REPO_ROOT / ".opencode/commands").glob("*.md"))
         assert command_files
         for command_file in command_files:
-            content = command_file.read_text()
+            content = command_file.read_text(encoding="utf-8")
             fm = _frontmatter(content)
             assert fm.get("description"), f"Missing description: {command_file}"
             assert "role" not in fm, f"OpenCode command has invalid role field: {command_file}"
@@ -74,7 +74,7 @@ class TestOpenCodeTreeStructure:
         agent_files = list((REPO_ROOT / ".opencode/agents").glob("*.md"))
         assert agent_files
         for agent_file in agent_files:
-            content = agent_file.read_text()
+            content = agent_file.read_text(encoding="utf-8")
             fm = _frontmatter(content)
             assert fm.get("description"), f"Missing description: {agent_file}"
             assert fm.get("mode") == "subagent", f"Missing subagent mode: {agent_file}"
@@ -91,7 +91,7 @@ class TestOpenCodeTreeStructure:
         skill_files = list((REPO_ROOT / ".opencode/skills").glob("*/SKILL.md"))
         assert skill_files
         for skill_file in skill_files:
-            content = skill_file.read_text()
+            content = skill_file.read_text(encoding="utf-8")
             fm = _frontmatter(content)
             assert fm.get("name") == skill_file.parent.name, f"Skill name mismatch: {skill_file}"
             assert fm.get("description"), f"Missing skill description: {skill_file}"
@@ -99,19 +99,19 @@ class TestOpenCodeTreeStructure:
 
 class TestOpenCodeModelMapping:
     def test_model_mapping_uses_role_only_mode(self) -> None:
-        data = json.loads((REPO_ROOT / ".opencode/model-mapping.opencode.json").read_text())
+        data = json.loads((REPO_ROOT / ".opencode/model-mapping.opencode.json").read_text(encoding="utf-8"))
         assert data["modelMappingMode"] == "role-only"
 
     def test_agent_files_use_role_not_exact_models(self) -> None:
         agent_files = list((REPO_ROOT / ".opencode/agents").glob("*.md"))
         assert len(agent_files) > 0
         for agent_file in agent_files:
-            content = agent_file.read_text()
+            content = agent_file.read_text(encoding="utf-8")
             assert "GPT-5" not in content
             assert "Claude" not in content
 
     def test_config_file_uses_valid_opencode_schema_shape(self) -> None:
-        data = json.loads((REPO_ROOT / ".opencode/opencode.json").read_text())
+        data = json.loads((REPO_ROOT / ".opencode/opencode.json").read_text(encoding="utf-8"))
         assert data["$schema"] == "https://opencode.ai/config.json"
         assert data["instructions"] == [".opencode/AGENTS.md"]
         assert data["skills"] == {"paths": [".opencode/skills"]}
@@ -120,5 +120,5 @@ class TestOpenCodeModelMapping:
         assert "agents" not in data
 
     def test_root_adapter_references_opencode_paths(self) -> None:
-        content = (REPO_ROOT / ".opencode/AGENTS.md").read_text()
+        content = (REPO_ROOT / ".opencode/AGENTS.md").read_text(encoding="utf-8")
         assert ".opencode/" in content
