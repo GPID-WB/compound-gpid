@@ -6870,5 +6870,6 @@ Describe "cg-skill-wb-report-writing - guardrails and marker grammar" {
         ($terminologyContent -match '(?i)approved') | Should -Be $true
         ($terminologyContent -match '(?i)unresolved') | Should -Be $true
         ($terminologyContent -match '(?i)do not infer|do not guess') | Should -Be $true
+        ($terminologyContent -match '(?i)not-required') | Should -Be $false
     }
 }

@@ -89,6 +89,13 @@ def _is_http_url(value: str) -> bool:
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
+def _is_placeholder_host(value: str) -> bool:
+    """Return True when URL host is a known placeholder domain."""
+    parsed = urlparse(value)
+    host = (parsed.netloc or "").lower()
+    return host == "example.org" or host.endswith(".example.org")
+
+
 def _load_json(path: Path, label: str) -> tuple[dict[str, Any] | None, list[str]]:
     """Load JSON and return either parsed dict or validation errors."""
     if not path.exists():
@@ -160,6 +167,10 @@ def _validate_url_or_repo_path(
 
     value = str(raw_value).strip()
     if _is_http_url(value):
+        if _is_placeholder_host(value):
+            return [
+                f"{field_name}: placeholder host 'example.org' is not allowed"
+            ]
         return []
 
     _, errors = _resolve_repo_path(
@@ -383,14 +394,131 @@ def validate_eval_result(repo_root: Path, slug: str) -> list[str]:
             f"{expected_feedback}"
         )
 
+    resolved_paths: dict[str, Path] = {}
     for field_name in ("eval_definition", "benchmark", "grading", "feedback"):
-        _, path_errors = _resolve_repo_path(
+        resolved_path, path_errors = _resolve_repo_path(
             repo_root,
             payload.get(field_name),
             f"eval-result {field_name}",
             require_exists=True,
         )
         errors.extend(path_errors)
+        if resolved_path is not None and not path_errors:
+            resolved_paths[field_name] = resolved_path
+
+    for field_name, resolved_path in resolved_paths.items():
+        companion_payload, companion_errors = _load_json(
+            resolved_path,
+            f"eval-result {field_name}",
+        )
+        if companion_errors:
+            errors.extend(companion_errors)
+            continue
+        assert companion_payload is not None
+
+        if companion_payload.get("schema_version") != 1:
+            errors.append(
+                f"eval-result {field_name} schema_version must be 1"
+            )
+
+        if companion_payload.get("document_type") != slug:
+            errors.append(
+                f"eval-result {field_name} document_type must be '{slug}'"
+            )
+
+        if field_name == "eval_definition":
+            operation_coverage = companion_payload.get("operation_coverage")
+            if not isinstance(operation_coverage, list) or len(operation_coverage) == 0:
+                errors.append(
+                    "eval-result eval_definition operation_coverage must be a non-empty list"
+                )
+            else:
+                for index, operation in enumerate(operation_coverage):
+                    if not _is_non_empty_string(operation):
+                        errors.append(
+                            "eval-result eval_definition operation_coverage"
+                            f"[{index}] must be a non-empty string"
+                        )
+
+        if field_name == "benchmark":
+            if not _is_non_empty_string(companion_payload.get("baseline")):
+                errors.append(
+                    "eval-result benchmark baseline must be a non-empty string"
+                )
+            if not _is_non_empty_string(companion_payload.get("comparison")):
+                errors.append(
+                    "eval-result benchmark comparison must be a non-empty string"
+                )
+
+            required_checks = companion_payload.get("required_checks")
+            if not isinstance(required_checks, list) or len(required_checks) == 0:
+                errors.append(
+                    "eval-result benchmark required_checks must be a non-empty list"
+                )
+            else:
+                for index, check_name in enumerate(required_checks):
+                    if not _is_non_empty_string(check_name):
+                        errors.append(
+                            "eval-result benchmark required_checks"
+                            f"[{index}] must be a non-empty string"
+                        )
+
+        if field_name == "grading":
+            pass_threshold = companion_payload.get("pass_threshold")
+            if not isinstance(pass_threshold, int) or pass_threshold <= 0:
+                errors.append(
+                    "eval-result grading pass_threshold must be a positive integer"
+                )
+
+            criteria = companion_payload.get("criteria")
+            if not isinstance(criteria, list) or len(criteria) == 0:
+                errors.append(
+                    "eval-result grading criteria must be a non-empty list"
+                )
+            else:
+                criteria_ids: set[str] = set()
+                for index, criterion in enumerate(criteria):
+                    prefix = f"eval-result grading criteria[{index}]"
+                    if not isinstance(criterion, dict):
+                        errors.append(f"{prefix} must be an object")
+                        continue
+
+                    criterion_id = criterion.get("id")
+                    if not _is_non_empty_string(criterion_id):
+                        errors.append(f"{prefix}.id must be a non-empty string")
+                    else:
+                        criteria_ids.add(str(criterion_id).strip())
+
+                    if not isinstance(criterion.get("required"), bool):
+                        errors.append(f"{prefix}.required must be a boolean")
+
+                missing_guardrails = [
+                    key for key in REQUIRED_GUARDRAILS if key not in criteria_ids
+                ]
+                if missing_guardrails:
+                    errors.append(
+                        "eval-result grading criteria must include required guardrails: "
+                        + ", ".join(missing_guardrails)
+                    )
+
+        if field_name == "feedback":
+            if not _is_non_empty_string(companion_payload.get("summary")):
+                errors.append(
+                    "eval-result feedback summary must be a non-empty string"
+                )
+
+            reviewer_notes = companion_payload.get("reviewer_notes")
+            if not isinstance(reviewer_notes, list) or len(reviewer_notes) == 0:
+                errors.append(
+                    "eval-result feedback reviewer_notes must be a non-empty list"
+                )
+            else:
+                for index, note in enumerate(reviewer_notes):
+                    if not _is_non_empty_string(note):
+                        errors.append(
+                            "eval-result feedback reviewer_notes"
+                            f"[{index}] must be a non-empty string"
+                        )
 
     assertions = payload.get("assertions")
     if not isinstance(assertions, dict):
