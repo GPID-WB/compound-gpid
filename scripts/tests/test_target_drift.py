@@ -9,8 +9,6 @@ Run from repo root:
 """
 from __future__ import annotations
 
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -24,7 +22,7 @@ def _run_generator_dry_run(root: Path) -> set[str]:
     """Run the generator in dry-run mode and return the set of expected output paths."""
     result = subprocess.run(
         [sys.executable, str(root / "scripts/cg_generate_targets.py"), "--root", str(root), "--all", "--dry-run"],
-        capture_output=True, text=True, cwd=str(root), timeout=60,
+        capture_output=True, text=True, cwd=str(root), timeout=60, check=False,
     )
     if result.returncode != 0:
         pytest.skip(f"Generator failed in dry-run: {result.stderr}")
@@ -42,11 +40,33 @@ def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
     """Return the set of committed files in generated tree directories."""
     result = subprocess.run(
         ["git", "ls-files", "--", *tree_paths],
-        capture_output=True, text=True, cwd=str(root), timeout=30,
+        capture_output=True, text=True, cwd=str(root), timeout=30, check=False,
     )
     if result.returncode != 0:
         pytest.skip(f"Could not list committed generated files: {result.stderr}")
     return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+def _read_git_blob_bytes(root: Path, rel_path: str) -> bytes:
+    """Read committed file bytes from HEAD."""
+    result = subprocess.run(
+        ["git", "show", f"HEAD:{rel_path}"],
+        capture_output=True,
+        text=False,
+        cwd=str(root),
+        timeout=30,
+        check=False,
+    )
+    if result.returncode != 0:
+        stderr = (result.stderr or b"").decode("utf-8", errors="replace")
+        pytest.skip(f"Could not read committed blob for {rel_path}: {stderr}")
+    return result.stdout
+
+
+def _sha256_bytes(data: bytes) -> str:
+    import hashlib
+
+    return hashlib.sha256(data).hexdigest()
 
 
 def _is_git_ignored(root: Path, rel_path: str) -> bool:
@@ -55,6 +75,7 @@ def _is_git_ignored(root: Path, rel_path: str) -> bool:
         ["git", "check-ignore", "--quiet", "--", rel_path],
         cwd=str(root),
         timeout=30,
+        check=False,
     )
     if result.returncode == 0:
         return True
@@ -96,6 +117,62 @@ class TestNoDrift:
                 f"Orphaned files (first 10): {sorted(orphaned)[:10]}"
             )
 
+    def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
+        """Committed generated files should match dry-run regenerated content."""
+        import tempfile
+
+        expected = _run_generator_dry_run(REPO_ROOT)
+        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
+        expected_committed = {
+            path
+            for path in expected
+            if not _is_git_ignored(REPO_ROOT, path)
+        }
+
+        # Compare only files that are both expected and committed to avoid
+        # duplicate reporting with stale/orphaned path tests above.
+        overlap = sorted(expected_committed & committed)
+        if not overlap:
+            pytest.skip("No overlapping generated files to compare")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            fixture = Path(tmp_dir) / "fixture"
+            import shutil
+
+            for item in [".github", "scripts"]:
+                src = REPO_ROOT / item
+                dst = fixture / item
+                if src.exists():
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+
+            import cg_generate_targets as gen
+
+            assets = gen.scan_canonical_assets(fixture)
+            mapping = gen.load_target_mapping(fixture)
+            catalog = gen.load_model_catalog(fixture)
+            for target in mapping["targets"]:
+                if target.get("generatedTreePath") is None:
+                    continue
+                gen.emit_for_target(fixture, target, assets, catalog, dry_run=False)
+
+            mismatches: list[str] = []
+            for rel_path in overlap:
+                generated_path = fixture / rel_path
+                if not generated_path.exists():
+                    mismatches.append(f"missing generated output: {rel_path}")
+                    continue
+                generated_bytes = generated_path.read_bytes()
+                committed_bytes = _read_git_blob_bytes(REPO_ROOT, rel_path)
+                if _sha256_bytes(generated_bytes) != _sha256_bytes(committed_bytes):
+                    mismatches.append(rel_path)
+
+            if mismatches:
+                pytest.fail(
+                    "Generated tree content drift detected.\n"
+                    "Run: python3 scripts/cg_generate_targets.py --all\n"
+                    f"Mismatched files (first 10): {mismatches[:10]}"
+                )
+
     def test_github_not_modified_by_generator(self, tmp_path: Path) -> None:
         """Generator must not modify .github/ canonical assets."""
         import shutil
@@ -109,7 +186,7 @@ class TestNoDrift:
             if src.exists():
                 shutil.copytree(src, dst, dirs_exist_ok=True)
 
-        prompt_before = (fixture / ".github/prompts/cg-work.prompt.md").read_text()
+        prompt_before = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         import cg_generate_targets as gen
         assets = gen.scan_canonical_assets(fixture)
         mapping = gen.load_target_mapping(fixture)
@@ -120,5 +197,5 @@ class TestNoDrift:
                 continue
             gen.emit_for_target(fixture, target, assets, catalog, dry_run=False)
 
-        prompt_after = (fixture / ".github/prompts/cg-work.prompt.md").read_text()
+        prompt_after = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assert prompt_before == prompt_after, "Generator modified .github/ canonical assets"
