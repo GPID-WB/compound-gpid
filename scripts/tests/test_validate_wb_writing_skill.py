@@ -38,18 +38,21 @@ def _valid_source_pack(slug: str) -> dict:
         "disclaimer_requirement": "required",
         "required_disclaimers": ["[UNPUBLISHED: DO NOT CIRCULATE]"],
         "terminology_status": "approved",
-        "terminology_sources": ["https://example.org/terms"],
+        "terminology_sources": [
+            "https://www.worldbank.org/en/about/unit/decdg",
+            "https://www.worldbank.org/en/publication/wdr",
+        ],
         "exemplars": [
             {
                 "title": "Exemplar A",
-                "source": "https://example.org/a",
+                "source": "https://www.worldbank.org/en/research/dime",
                 "retrieved_on": "2026-07-20",
                 "relevant_sections": ["Overview", "Findings"],
                 "authority_rationale": "Authoritative publication.",
             },
             {
                 "title": "Exemplar B",
-                "source": "https://example.org/b",
+                "source": "https://www.worldbank.org/en/research",
                 "retrieved_on": "2026-07-20",
                 "relevant_sections": ["Structure"],
                 "authority_rationale": "Comparable audience and format.",
@@ -81,6 +84,51 @@ def _valid_eval_result(slug: str) -> dict:
         "human_reviewer": "reviewer@example.org",
         "human_reviewed_on": "2026-07-23",
     }
+
+
+def _write_valid_eval_support_files(repo_root: Path, slug: str) -> None:
+    """Create valid companion artifacts referenced by eval-result payloads."""
+    base = _skill_root(repo_root) / "evals"
+
+    _write_json(
+        base / "types" / f"{slug}.json",
+        {
+            "schema_version": 1,
+            "document_type": slug,
+            "operation_coverage": ["draft", "revise"],
+        },
+    )
+    _write_json(
+        base / "benchmarks" / f"{slug}.benchmark.json",
+        {
+            "schema_version": 1,
+            "document_type": slug,
+            "baseline": "no-skill",
+            "comparison": "with-skill",
+            "required_checks": ["factual-fidelity"],
+        },
+    )
+    _write_json(
+        base / "grades" / f"{slug}.grading.json",
+        {
+            "schema_version": 1,
+            "document_type": slug,
+            "pass_threshold": 1,
+            "criteria": [
+                {"id": key, "required": True}
+                for key in validator.REQUIRED_GUARDRAILS
+            ],
+        },
+    )
+    _write_json(
+        base / "feedback" / f"{slug}.feedback.json",
+        {
+            "schema_version": 1,
+            "document_type": slug,
+            "summary": "Accepted",
+            "reviewer_notes": ["All checks passed."],
+        },
+    )
 
 
 def _write_child_plan(path: Path, status: str, completed_date: str | None) -> None:
@@ -119,6 +167,19 @@ def test_validate_source_pack_rejects_invalid_status(tmp_path: Path) -> None:
     errors = validator.validate_source_pack(repo_root, slug)
 
     assert any("status" in err for err in errors)
+
+
+def test_validate_source_pack_rejects_placeholder_exemplar_host(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    slug = "policy-brief"
+    payload = _valid_source_pack(slug)
+    payload["exemplars"][0]["source"] = "https://example.org/placeholder"
+    source_pack_path = _skill_root(repo_root) / "references" / "source-packs" / f"{slug}.json"
+    _write_json(source_pack_path, payload)
+
+    errors = validator.validate_source_pack(repo_root, slug)
+
+    assert any("placeholder host" in err for err in errors)
 
 
 def test_validate_source_pack_rejects_path_escape(tmp_path: Path) -> None:
@@ -187,18 +248,25 @@ def test_validate_source_pack_accepts_unresolved_terminology_status(tmp_path: Pa
     assert errors == []
 
 
+def test_validate_source_pack_rejects_legacy_not_required_terminology_status(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    slug = "policy-brief"
+    payload = _valid_source_pack(slug)
+    payload["terminology_status"] = "not-required"
+    source_pack_path = _skill_root(repo_root) / "references" / "source-packs" / f"{slug}.json"
+    _write_json(source_pack_path, payload)
+
+    errors = validator.validate_source_pack(repo_root, slug)
+
+    assert any("terminology_status" in err for err in errors)
+
+
 def test_validate_eval_result_passes_for_valid_payload(tmp_path: Path) -> None:
     repo_root = tmp_path
     slug = "flagship-report-section"
     payload = _valid_eval_result(slug)
 
-    for rel_path in [
-        payload["eval_definition"],
-        payload["benchmark"],
-        payload["grading"],
-        payload["feedback"],
-    ]:
-        _create_repo_file(repo_root, rel_path, "{}")
+    _write_valid_eval_support_files(repo_root, slug)
 
     result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
     _write_json(result_path, payload)
@@ -214,13 +282,7 @@ def test_validate_eval_result_requires_guardrails_true(tmp_path: Path) -> None:
     payload = _valid_eval_result(slug)
     payload["guardrails"]["country_sensitivity"] = False
 
-    for rel_path in [
-        payload["eval_definition"],
-        payload["benchmark"],
-        payload["grading"],
-        payload["feedback"],
-    ]:
-        _create_repo_file(repo_root, rel_path, "{}")
+    _write_valid_eval_support_files(repo_root, slug)
 
     result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
     _write_json(result_path, payload)
@@ -236,12 +298,7 @@ def test_validate_eval_result_rejects_escaping_artifact_path(tmp_path: Path) -> 
     payload = _valid_eval_result(slug)
     payload["benchmark"] = "../../secrets.txt"
 
-    for rel_path in [
-        payload["eval_definition"],
-        payload["grading"],
-        payload["feedback"],
-    ]:
-        _create_repo_file(repo_root, rel_path, "{}")
+    _write_valid_eval_support_files(repo_root, slug)
 
     result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
     _write_json(result_path, payload)
@@ -284,13 +341,7 @@ def test_validate_eval_result_rejects_invalid_contract_fields(tmp_path: Path) ->
         payload = _valid_eval_result(slug)
         payload[field_name] = field_value
 
-        for rel_path in [
-            payload["eval_definition"],
-            payload["benchmark"],
-            payload["grading"],
-            payload["feedback"],
-        ]:
-            _create_repo_file(repo_root, rel_path, "{}")
+        _write_valid_eval_support_files(repo_root, slug)
 
         result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
         _write_json(result_path, payload)
@@ -312,13 +363,7 @@ def test_validate_eval_result_rejects_invalid_assertion_counts(tmp_path: Path) -
         payload = _valid_eval_result(slug)
         payload["assertions"].update(assertions_patch)
 
-        for rel_path in [
-            payload["eval_definition"],
-            payload["benchmark"],
-            payload["grading"],
-            payload["feedback"],
-        ]:
-            _create_repo_file(repo_root, rel_path, "{}")
+        _write_valid_eval_support_files(repo_root, slug)
 
         result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
         _write_json(result_path, payload)
@@ -387,13 +432,7 @@ def test_run_validation_all_combines_requested_checks(tmp_path: Path) -> None:
         _write_json(source_pack_path, _valid_source_pack(slug))
 
         eval_payload = _valid_eval_result(slug)
-        for rel_path in [
-            eval_payload["eval_definition"],
-            eval_payload["benchmark"],
-            eval_payload["grading"],
-            eval_payload["feedback"],
-        ]:
-            _create_repo_file(repo_root, rel_path, "{}")
+        _write_valid_eval_support_files(repo_root, slug)
         result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
         _write_json(result_path, eval_payload)
 
@@ -444,3 +483,28 @@ def test_main_rejects_invalid_root(capsys, tmp_path: Path) -> None:
     captured = capsys.readouterr()
     assert exit_code == 2
     assert "Repository root does not exist" in captured.err
+
+
+def test_validate_eval_result_rejects_malformed_companion_payloads(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    slug = "policy-brief"
+    payload = _valid_eval_result(slug)
+    _write_valid_eval_support_files(repo_root, slug)
+
+    grading_path = _skill_root(repo_root) / "evals" / "grades" / f"{slug}.grading.json"
+    malformed_grading = {
+        "schema_version": 1,
+        "document_type": slug,
+        "pass_threshold": 1,
+        "criteria": [
+            {"id": "numeric_fidelity", "required": True},
+        ],
+    }
+    _write_json(grading_path, malformed_grading)
+
+    result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
+    _write_json(result_path, payload)
+
+    errors = validator.validate_eval_result(repo_root, slug)
+
+    assert any("grading criteria must include required guardrails" in err for err in errors)
