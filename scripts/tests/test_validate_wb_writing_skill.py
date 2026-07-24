@@ -145,6 +145,43 @@ def _write_child_plan(path: Path, status: str, completed_date: str | None) -> No
     path.write_text("\n".join(frontmatter), encoding="utf-8")
 
 
+def _write_parent_plan_with_execution_report(repo_root: Path, report_rel_path: str) -> None:
+    plan_path = repo_root / validator.PARENT_PLAN_PATH
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    plan_path.write_text(
+        "\n".join(
+            [
+                "---",
+                'title: "Parent plan"',
+                f'execution-report: "{report_rel_path}"',
+                "---",
+                "",
+                "# Parent Plan",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_execution_report(path: Path, plan_path: str, status: str = "completed") -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                "---",
+                f'plan: "{plan_path}"',
+                f"status: {status}",
+                "---",
+                "",
+                "# Execution Report",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_validate_source_pack_passes_for_valid_payload(tmp_path: Path) -> None:
     repo_root = tmp_path
     slug = "policy-research-working-paper"
@@ -193,6 +230,21 @@ def test_validate_source_pack_rejects_path_escape(tmp_path: Path) -> None:
     errors = validator.validate_source_pack(repo_root, slug)
 
     assert any("outside repository root" in err for err in errors)
+
+
+def test_validate_source_pack_rejects_directory_repo_path(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    slug = "executive-summary"
+    payload = _valid_source_pack(slug)
+    directory_rel = "docs/references"
+    (repo_root / directory_rel).mkdir(parents=True, exist_ok=True)
+    payload["terminology_sources"] = [directory_rel]
+    source_pack_path = _skill_root(repo_root) / "references" / "source-packs" / f"{slug}.json"
+    _write_json(source_pack_path, payload)
+
+    errors = validator.validate_source_pack(repo_root, slug)
+
+    assert any("must be a file" in err for err in errors)
 
 
 def test_validate_source_pack_rejects_impossible_iso_date(tmp_path: Path) -> None:
@@ -446,6 +498,7 @@ def test_run_validation_all_combines_requested_checks(tmp_path: Path) -> None:
         require_approved=True,
         require_eval_pass=True,
         require_child_plans_complete=True,
+        require_parent_execution_report_link=False,
     )
 
     assert errors == []
@@ -472,6 +525,7 @@ def test_main_defaults_repo_root_from_script_location(tmp_path: Path, monkeypatc
         "require_approved": True,
         "require_eval_pass": False,
         "require_child_plans_complete": False,
+        "require_parent_execution_report_link": False,
     }
 
 
@@ -508,3 +562,89 @@ def test_validate_eval_result_rejects_malformed_companion_payloads(tmp_path: Pat
     errors = validator.validate_eval_result(repo_root, slug)
 
     assert any("grading criteria must include required guardrails" in err for err in errors)
+
+
+def test_validate_eval_result_rejects_optional_required_guardrail(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    slug = "policy-brief"
+    payload = _valid_eval_result(slug)
+    _write_valid_eval_support_files(repo_root, slug)
+
+    grading_path = _skill_root(repo_root) / "evals" / "grades" / f"{slug}.grading.json"
+    grading_payload = json.loads(grading_path.read_text(encoding="utf-8"))
+    grading_payload["criteria"][0]["required"] = False
+    _write_json(grading_path, grading_payload)
+
+    result_path = _skill_root(repo_root) / "evals" / "results" / f"{slug}.json"
+    _write_json(result_path, payload)
+
+    errors = validator.validate_eval_result(repo_root, slug)
+
+    assert any("required must be true for required guardrail" in err for err in errors)
+
+
+def test_validate_parent_execution_report_link_passes_for_consistent_metadata(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    report_rel = ".cg-docs/work-reports/wb-report.md"
+    _write_parent_plan_with_execution_report(repo_root, report_rel)
+    _write_execution_report(
+        repo_root / report_rel,
+        validator.PARENT_PLAN_PATH,
+        status="completed",
+    )
+
+    errors = validator.validate_parent_execution_report_link(repo_root)
+
+    assert errors == []
+
+
+def test_validate_parent_execution_report_link_rejects_mismatched_plan(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    report_rel = ".cg-docs/work-reports/wb-report.md"
+    _write_parent_plan_with_execution_report(repo_root, report_rel)
+    _write_execution_report(
+        repo_root / report_rel,
+        ".cg-docs/plans/other-parent.md",
+        status="completed",
+    )
+
+    errors = validator.validate_parent_execution_report_link(repo_root)
+
+    assert any("execution-report frontmatter plan must be" in err for err in errors)
+
+
+def test_validate_parent_execution_report_link_rejects_non_completed_status(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    report_rel = ".cg-docs/work-reports/wb-report.md"
+    _write_parent_plan_with_execution_report(repo_root, report_rel)
+    _write_execution_report(
+        repo_root / report_rel,
+        validator.PARENT_PLAN_PATH,
+        status="active",
+    )
+
+    errors = validator.validate_parent_execution_report_link(repo_root)
+
+    assert any("execution-report status must be 'completed'" in err for err in errors)
+
+
+def test_run_validation_includes_parent_execution_report_link_gate(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    report_rel = ".cg-docs/work-reports/wb-report.md"
+    _write_parent_plan_with_execution_report(repo_root, report_rel)
+    _write_execution_report(
+        repo_root / report_rel,
+        validator.PARENT_PLAN_PATH,
+        status="completed",
+    )
+
+    errors = validator.run_validation(
+        repo_root=repo_root,
+        slugs=["policy-brief"],
+        require_approved=False,
+        require_eval_pass=False,
+        require_child_plans_complete=False,
+        require_parent_execution_report_link=True,
+    )
+
+    assert errors == []

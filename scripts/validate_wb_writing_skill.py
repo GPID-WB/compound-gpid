@@ -150,8 +150,11 @@ def _resolve_repo_path(
         errors.append(f"{field_name}: path resolves outside repository root ({value})")
         return None, errors
 
-    if require_exists and not resolved.exists():
-        errors.append(f"{field_name}: referenced path does not exist ({value})")
+    if require_exists:
+        if not resolved.exists():
+            errors.append(f"{field_name}: referenced path does not exist ({value})")
+        elif not resolved.is_file():
+            errors.append(f"{field_name}: referenced path must be a file ({value})")
 
     return resolved, errors
 
@@ -489,8 +492,17 @@ def validate_eval_result(repo_root: Path, slug: str) -> list[str]:
                     else:
                         criteria_ids.add(str(criterion_id).strip())
 
-                    if not isinstance(criterion.get("required"), bool):
+                    required_value = criterion.get("required")
+                    if not isinstance(required_value, bool):
                         errors.append(f"{prefix}.required must be a boolean")
+                    elif (
+                        _is_non_empty_string(criterion_id)
+                        and str(criterion_id).strip() in REQUIRED_GUARDRAILS
+                        and required_value is not True
+                    ):
+                        errors.append(
+                            f"{prefix}.required must be true for required guardrail"
+                        )
 
                 missing_guardrails = [
                     key for key in REQUIRED_GUARDRAILS if key not in criteria_ids
@@ -591,6 +603,49 @@ def validate_child_plans_complete(repo_root: Path) -> list[str]:
     return errors
 
 
+def validate_parent_execution_report_link(repo_root: Path) -> list[str]:
+    """Validate parent-plan execution-report linkage and reciprocal metadata."""
+    errors: list[str] = []
+    parent_plan_path = repo_root / PARENT_PLAN_PATH
+    if not parent_plan_path.exists():
+        return [f"parent-plan file not found at {PARENT_PLAN_PATH}"]
+
+    parent_frontmatter = _parse_frontmatter(parent_plan_path)
+    execution_report_value = parent_frontmatter.get("execution-report", "")
+    resolved_report_path, path_errors = _resolve_repo_path(
+        repo_root,
+        execution_report_value,
+        "parent-plan execution-report",
+        require_exists=True,
+    )
+    if path_errors:
+        errors.extend(path_errors)
+        return errors
+    assert resolved_report_path is not None
+
+    report_frontmatter = _parse_frontmatter(resolved_report_path)
+    expected_report_plan = PARENT_PLAN_PATH
+    observed_report_plan = report_frontmatter.get("plan", "")
+    if observed_report_plan != expected_report_plan:
+        errors.append(
+            "execution-report frontmatter plan must be "
+            f"'{expected_report_plan}'"
+        )
+
+    status = report_frontmatter.get("status", "")
+    if status != "completed":
+        errors.append("execution-report status must be 'completed'")
+
+    report_rel = resolved_report_path.relative_to(repo_root).as_posix()
+    if execution_report_value.strip() != report_rel:
+        errors.append(
+            "parent-plan execution-report path must be normalized repo-relative "
+            f"'{report_rel}'"
+        )
+
+    return errors
+
+
 def run_validation(
     repo_root: Path,
     slugs: list[str] | tuple[str, ...],
@@ -598,6 +653,7 @@ def run_validation(
     require_approved: bool,
     require_eval_pass: bool,
     require_child_plans_complete: bool,
+    require_parent_execution_report_link: bool,
 ) -> list[str]:
     """Run selected validations and return collected errors."""
     errors: list[str] = []
@@ -615,6 +671,9 @@ def run_validation(
 
     if require_child_plans_complete:
         errors.extend(validate_child_plans_complete(repo_root))
+
+    if require_parent_execution_report_link:
+        errors.extend(validate_parent_execution_report_link(repo_root))
 
     return errors
 
@@ -653,6 +712,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Require all child plans completed with parent linkage.",
     )
     parser.add_argument(
+        "--require-parent-report-link",
+        action="store_true",
+        help="Require parent plan execution-report linkage and reciprocal report metadata.",
+    )
+    parser.add_argument(
         "--root",
         default=str(Path(__file__).resolve().parent.parent),
         help="Repository root path (default: repository root derived from this script).",
@@ -679,8 +743,14 @@ def main(argv: list[str] | None = None) -> int:
     require_approved = args.require_approved
     require_eval_pass = args.require_eval_pass
     require_child_plans_complete = args.require_child_plans_complete
+    require_parent_execution_report_link = args.require_parent_report_link
 
-    if not (require_approved or require_eval_pass or require_child_plans_complete):
+    if not (
+        require_approved
+        or require_eval_pass
+        or require_child_plans_complete
+        or require_parent_execution_report_link
+    ):
         require_approved = True
 
     errors = run_validation(
@@ -689,6 +759,7 @@ def main(argv: list[str] | None = None) -> int:
         require_approved=require_approved,
         require_eval_pass=require_eval_pass,
         require_child_plans_complete=require_child_plans_complete,
+        require_parent_execution_report_link=require_parent_execution_report_link,
     )
 
     if errors:
