@@ -137,7 +137,7 @@ jobs:
               if ($attempt -eq $maxAttempts) {
                 throw
               }
-              Write-Host "Install-Module failed on attempt $attempt/$maxAttempts: $($_.Exception.Message)"
+              Write-Host "Install-Module failed on attempt $attempt/${maxAttempts}: $($_.Exception.Message)"
             }
           }
 
@@ -260,4 +260,3 @@ jobs:
           else
               echo "Docs staleness check passed."
           fi
-
