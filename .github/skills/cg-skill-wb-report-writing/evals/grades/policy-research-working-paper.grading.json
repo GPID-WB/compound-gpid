@@ -1,0 +1,31 @@
+{
+    "schema_version":  1,
+    "document_type":  "policy-research-working-paper",
+    "pass_threshold":  1,
+    "criteria":  [
+                     {
+                         "id":  "numeric_fidelity",
+                         "required":  true
+                     },
+                     {
+                         "id":  "citation_integrity",
+                         "required":  true
+                     },
+                     {
+                         "id":  "institutional_position",
+                         "required":  true
+                     },
+                     {
+                         "id":  "data_status_propagation",
+                         "required":  true
+                     },
+                     {
+                         "id":  "country_sensitivity",
+                         "required":  true
+                     },
+                     {
+                         "id":  "type_specific_checks",
+                         "required":  true
+                     }
+                 ]
+}
