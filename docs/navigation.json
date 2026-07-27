@@ -4,6 +4,7 @@
     {
       "title": "Start",
       "pages": [
+        { "id": "philosophy", "title": "Working with AI Responsibly", "file": "philosophy.md", "description": "The epistemic risks, principles, and human responsibilities behind the plugin." },
         { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, configure, and complete a first useful workflow." },
         { "id": "why-compound-gpid", "title": "Why Compound GPID?", "file": "why-compound-gpid.md", "description": "Purpose, institutional fit, tradeoffs, and inspiration." }
       ]

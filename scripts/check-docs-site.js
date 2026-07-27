@@ -98,7 +98,7 @@ async function validateSkillsCatalog() {
   if (new Set(ids).size !== ids.length) throw new Error("Documentation page IDs must be unique.");
   if (new Set(pageFiles).size !== pageFiles.length) throw new Error("Documentation files must appear only once in navigation.");
   const requiredRoutes = new Map([
-    ["getting-started", "getting-started/index.md"], ["why-compound-gpid", "why-compound-gpid.md"],
+    ["philosophy", "philosophy.md"], ["getting-started", "getting-started/index.md"], ["why-compound-gpid", "why-compound-gpid.md"],
     ["workflows", "workflows/index.md"], ["skills", "skills/index.md"],
     ["configuration", "configuration/index.md"], ["governance", "governance/index.md"],
     ["help", "help/index.md"], ["reference", "reference.md"]
