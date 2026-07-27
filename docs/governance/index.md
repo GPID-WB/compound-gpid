@@ -64,6 +64,7 @@ tradeoff for controlled operation. It does not claim a comparative benchmark.
 
 ## Related pages
 
+- [Working with AI Responsibly](../philosophy.md)
 - [Why Compound GPID?](../why-compound-gpid.md)
 - [Skills Catalog](../skills/index.md)
 - [Model Guide](../model-guide.md)

@@ -18,9 +18,10 @@ planning, risk-based review, reproducible evidence, and durable project
 knowledge. It includes dedicated guidance for R, Python, Stata, analytical and
 statistical work, testing, visualization, and institutional writing.
 
-Read [Why Compound GPID?](../why-compound-gpid.md) for its relationship to the
-Compound Engineering plugin and the tradeoffs introduced by institutional
-operating constraints.
+Read [Working with AI Responsibly](../philosophy.md) for the philosophy behind
+responsible use, then read [Why Compound GPID?](../why-compound-gpid.md) for its
+relationship to the Compound Engineering plugin and the tradeoffs introduced by
+institutional operating constraints.
 
 ## 2. Install once per machine
 

@@ -5,6 +5,11 @@ science, economics, research, and supporting software. It is intended for work
 where analytical correctness, reproducibility, review evidence, and retained
 project knowledge matter more than minimizing every process step.
 
+That engineering workflow is only one foundation. Read [Working with AI
+Responsibly](philosophy.md) for the separate philosophy that explains the
+epistemic risks of AI-assisted work, the principles for preserving human
+judgment, and the responsibilities no plugin can take over for the user.
+
 ## Institutional focus
 
 The repository charter describes a mixed team of economists and developers
@@ -84,6 +89,7 @@ Upstream facts were checked on 2026-07-24 against commit
 
 ## Next pages
 
+- [Working with AI Responsibly](philosophy.md)
 - [Getting Started](getting-started/index.md)
 - [Skills Catalog](skills/index.md)
 - [Governance and Security](governance/index.md)
