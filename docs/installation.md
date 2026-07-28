@@ -84,6 +84,11 @@ This links Compound GPID install units for all supported platforms by default: G
 > Settings → System → For developers → Developer Mode → On
 
 > **Managed vs. user-owned files**: files inside linked directories (`prompts/`, `skills/`, `commands/`, `agents/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` is regenerated from a template on every `cg-link` and `cg-update` run while the `<!-- compound-gpid:managed -->` marker is present. Strict JSON config files such as `.opencode/opencode.json` use `.compound-gpid/managed-files.json` checksums instead of inline markers; `cg-update` refreshes them only if they are unmodified. If a user-owned config exists, `cg-link` skips it and prints a manual snippet.
+>
+> The consumer `.compound-gpid/managed-files.json` is separate from the
+> `.compound-gpid-generated.json` manifests committed inside the upstream
+> `.claude/`, `.agents/`, and `.opencode/` trees. Consumers should not copy,
+> edit, or use generated-tree manifests to resolve installation ownership.
 
 ## Step 4 - Configure your project (once per project)
 
@@ -110,6 +115,11 @@ and creates three config files:
 > the target set. The legacy `adapters/` directory contains
 > opt-in source adapters that are superseded by the generated trees but remain
 > for backward compatibility.
+>
+> Each linked skill is an atomic bundle: `SKILL.md` and all nested regular
+> support files are included by default. Executable resources are opaque files;
+> packaging preserves their mode but never executes them. See
+> [Generated Native Platform Trees](context-files.md#generated-native-platform-trees).
 
 ---
 
@@ -319,7 +329,7 @@ Then run `cg-update` from each linked project to apply any structural migrations
 > New-Item -ItemType File -Force .cg-docs\strategy\.gitkeep | Out-Null
 > ```
 
-> **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-env-userprofile-compound-gpid-old-default-path-local-onedrive-machines-only) in the Troubleshooting page.
+> **Migrating from an old install path?** If you previously installed to `$env:USERPROFILE\.compound-gpid` on a local OneDrive machine, see [Upgrading from an old installation](troubleshooting.md#upgrading-from-envuserprofilecompound-gpid-old-default-path-local-onedrive-machines-only) in the Troubleshooting page.
 
 ---
 

@@ -267,7 +267,7 @@ limitation does not apply to a fresh shell that starts the current updater.
 
 ---
 
-## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path -- local OneDrive machines only)
+## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path, local OneDrive machines only)
 
 > **Remote server users**: `$env:USERPROFILE\.compound-gpid` is the correct path on a remote server -- no migration needed. Just re-run `install.ps1`.
 
@@ -364,6 +364,34 @@ Managed file modified by user, skipping refresh: .opencode/opencode.json
 **Cause**: Strict config files cannot carry inline management comments. Compound GPID records checksums in `.compound-gpid/managed-files.json`. If your local copy no longer matches the recorded checksum, `cg-update` treats it as user-managed and preserves it.
 
 **Fix**: Keep your version and manually merge any needed changes from the corresponding file in the Compound GPID install, or delete the file and manifest entry then re-run `cg-link` to restore CG management.
+
+---
+
+## Native target generation reports an ownership conflict
+
+This section is for maintainers running `python scripts/cg_generate_targets.py
+--all` in the Compound GPID source repository. It does not apply to consumer
+`.compound-gpid/managed-files.json` warnings.
+
+Generation fails before destructive cleanup for these states:
+
+| Diagnostic/state | Meaning | Resolution |
+|------------------|---------|------------|
+| **modified stale** owned file | A path is stale, but its checksum differs from the prior `.compound-gpid-generated.json` entry. | Inspect the diff. Move an intentional canonical change into `.github/`; otherwise restore the generated file to its recorded bytes. Never delete it automatically. |
+| **malformed manifest** or wrong schema/target/hash | Ownership cannot be proven. | Recover the manifest from version control after reviewing local changes, then rerun generation. Do not hand-author ownership for unknown files. |
+| **unsafe path** or non-regular/symlink entry | A source, destination, or manifest path could escape/collide or cannot be safely hashed. | Correct the canonical path or mapping. Do not weaken validation or manually relocate generated output. |
+| conflicting **unowned destination** | Existing user/maintainer content occupies an expected generated path with different bytes. | Compare it with the canonical source, then move, rename, or deliberately remove it before rerunning. Byte-identical unowned expected files may be safely adopted. |
+
+An interrupted write may leave some new output bytes while the old manifest
+remains because the manifest is written last. This is intentional recovery
+behavior: leave the old manifest in place and rerun the generator. Preflight
+accepts safely attributable prior or newly planned checksums and writes the new
+manifest only after all files and checksum-guarded stale cleanup succeed.
+
+If the conflict's ownership is uncertain, stop and have a maintainer resolve it;
+do not delete the target tree, edit checksums, or substitute the consumer
+managed-files manifest. After resolution, run the documentation/target tests and
+the drift gate described in [Native Target Packaging](reference.md#verification-and-release-gates).
 
 ---
 

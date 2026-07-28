@@ -14,6 +14,81 @@ release-validated, and distributed through merge-safe per-platform install units
 the install to a comma-separated list. The `adapters/` directory contains
 legacy source adapters that are superseded by the generated trees.
 
+## Native Target Packaging
+
+`.github/` is the canonical input. The generator treats every regular skill
+directory as an **atomic skill bundle**: it **includes by default** `SKILL.md`
+and all recursively nested regular files. It copies executable files as opaque
+bytes, records and preserves executable mode, and guarantees they are **never
+executed** during inventory, generation, validation, or cleanup.
+
+In short, the regular-file policy is **include by default**, not an allowlist of
+known support filenames.
+
+The mapping defines these target-local runtime and support roots:
+
+| Target | Commands | Skills | Agents | Instructions | Shared/support |
+|--------|----------|--------|--------|--------------|----------------|
+| Claude Code | `.claude/commands` | `.claude/skills` | `.claude/agents` | `.claude/instructions` | `.claude/shared` |
+| Codex | `.agents/commands` | `.agents/skills` | `.agents/subagents` | `.agents/instructions` | `.agents/shared` |
+| OpenCode | `.opencode/commands` | `.opencode/skills` | `.opencode/agents` | `.opencode/instructions` | `.opencode/shared` |
+
+Generation computes a deterministic isolated dependency closure across command
+support files, complete skill bundles, agents, instructions, and shared
+contracts. A generated target must resolve without the canonical `.github/`
+tree; unresolved or unsafe canonical runtime references fail generation.
+
+### Ownership manifest schema
+
+The fixed manifests are `.claude/.compound-gpid-generated.json`,
+`.agents/.compound-gpid-generated.json`, and
+`.opencode/.compound-gpid-generated.json`. Their schema is:
+
+```json
+{
+  "schemaVersion": 1,
+  "target": "claude-code",
+  "policyVersion": 1,
+  "files": [
+    {
+      "path": ".claude/commands/cg-setup.md",
+      "source": ".github/prompts/cg-setup.prompt.md",
+      "kind": "command",
+      "sha256": "<64 lowercase hexadecimal characters>",
+      "executable": false
+    }
+  ]
+}
+```
+
+Top-level and file-entry fields are fixed; `files` is sorted by `path`, and the
+manifest is deterministic and excludes itself. Before mutation, the generator
+validates ownership, destinations, and checksums. Stale cleanup is
+checksum-guarded: only a prior-manifest-owned stale regular file whose current
+hash equals its recorded `sha256` is deleted. Untracked files are preserved.
+Files are atomically replaced before stale cleanup, and the manifest is
+**written last**, so a later rerun provides safe recovery from interruption.
+
+These source-repository ownership manifests are **distinct from** consumer
+`.compound-gpid/managed-files.json`, which controls merge-safe copied install
+files used by `cg-link`, `cg-update`, and `cg-unlink`.
+
+### Verification and release gates
+
+Required evidence is deterministic and does not depend on installed vendor
+tools: isolated fixtures verify dependency closure without `.github/`, the
+generator determinism suite proves repeated byte-identical plans/manifests, and
+drift tests compare committed trees with canonical inputs. CI runs the native
+target Python gate on Windows and macOS. Release publication has a separate
+release gate: `create-release.ps1` runs mapping, path-safety, packaging,
+ownership, closure, determinism, drift, and platform suites before reading
+credentials or calling GitHub.
+
+A real CLI smoke run with `claude`, `codex`, or `opencode` is optional,
+additional runtime evidence only. CLI availability is reported separately;
+missing real CLI evidence never skips or weakens deterministic isolated
+closure, and documentation must not imply runtime proof that was not run.
+
 Optional retrieval backend candidates are documented in
 [Retrieval Backend Evaluation](retrieval-backends.md) and tracked in
 `.github/shared/retrieval-backends.json`. The registry is evaluation-only:

@@ -16,6 +16,13 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 > default; use `cg-link --platforms copilot` or another comma-separated list to
 > narrow the install.
 
+Native targets package each canonical skill as an **atomic skill bundle**. A
+bundle contains `SKILL.md` plus all nested regular files and **includes them by default**;
+it is not a `SKILL.md`-only copy. Executable resources are copied as opaque
+bytes with their executable bit recorded and are never executed during
+generation. See [Generated Native Platform Trees](docs/context-files.md#generated-native-platform-trees)
+for ownership, recovery, and verification guarantees.
+
 > Each unit of work should make subsequent units easier — not harder.
 
 ## Why Compound GPID?
