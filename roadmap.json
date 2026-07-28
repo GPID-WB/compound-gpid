@@ -313,6 +313,12 @@
           "description": "Define criteria for escalating to frontier models (Opus 4.7, GPT 5.5) and build the dispatch mechanism. Three triggers: (1) task inherently requires that power level, (2) agent gets stuck or fails after initial attempt, (3) task needs efficiency that justifies higher cost. Requires: task difficulty classification, failure-detection + retry-with-escalation logic, and cost/benefit heuristics.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "canonical-to-native-packaging-foundation",
+          "title": "Canonical-to-Native Packaging Foundation",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
