@@ -1,11 +1,13 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-07-24_
+_Generated 2026-07-28_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 13 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 14 entities
 
+- **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
+  > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 - **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
@@ -38,7 +40,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 13 entiti
 _Keywords: `architecture research
 objective` · `knowledge brain
 objective` · `quality loop
-objective`_ · 113 entities
+objective`_ · 114 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -130,6 +132,8 @@ objective`_ · 113 entities
   > Cross-model review — adversarial model diversity
 - **[Tiered model escalation — super-advanced model dispatch](roadmap.json#tiered-model-escalation)** · `feature` · _idea_ · `—`
   > Tiered model escalation — super-advanced model dispatch
+- **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
+  > Canonical-to-Native Packaging Foundation
 - **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) \[from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
@@ -266,3 +270,14 @@ objective`_ · 113 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+
+## Tests / Python / Httpx
+
+_Keywords: `tests` · `python` · `httpx`_ · 3 entities
+
+- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
+  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
+- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
+  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…

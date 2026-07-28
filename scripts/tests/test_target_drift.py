@@ -1,7 +1,7 @@
 """Drift tests — detect stale or orphaned generated platform trees.
 
-Runs cg_generate_targets.py --all --dry-run against the current .github/ source
-and compares the output manifest against the committed generated tree index.
+Builds the generator's structured plan against the current .github/ source and
+compares its entries and ownership manifests against committed HEAD bytes.
 Paths ignored by git are excluded from the committed parity gate.
 
 Run from repo root:
@@ -10,9 +10,9 @@ Run from repo root:
 from __future__ import annotations
 
 import hashlib
+import json
 import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -29,22 +29,20 @@ OWNERSHIP_MANIFESTS = {
 }
 
 
-def _run_generator_dry_run(root: Path) -> set[str]:
-    """Run the generator in dry-run mode and return the set of expected output paths."""
-    result = subprocess.run(
-        [sys.executable, str(root / "scripts/cg_generate_targets.py"), "--root", str(root), "--all", "--dry-run"],
-        capture_output=True, text=True, cwd=str(root), timeout=60, check=False,
-    )
-    if result.returncode != 0:
-        pytest.skip(f"Generator failed in dry-run: {result.stderr}")
+def _build_structured_plan(root: Path) -> gen.GenerationPlan:
+    """Build and return the validated in-memory generation plan."""
+    try:
+        mapping = gen.load_target_mapping(root)
+        assets = gen.scan_canonical_assets(root)
+        catalog = gen.load_model_catalog(root)
+        return gen.build_generation_plan(root, mapping, assets, catalog)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        pytest.fail(f"Generator failed while building structured plan: {exc}")
 
-    expected: set[str] = set()
-    for line in result.stdout.splitlines():
-        stripped = line.strip()
-        if stripped.startswith(".") and "/" in stripped and not stripped.startswith("["):
-            path = stripped.split(" ")[0]
-            expected.add(path)
-    return expected | OWNERSHIP_MANIFESTS
+
+def _expected_paths(root: Path) -> set[str]:
+    plan = _build_structured_plan(root)
+    return {entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS
 
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
@@ -54,7 +52,7 @@ def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
         capture_output=True, text=True, cwd=str(root), timeout=30, check=False,
     )
     if result.returncode != 0:
-        pytest.skip(f"Could not list committed generated files: {result.stderr}")
+        pytest.fail(f"Could not list committed generated files: {result.stderr}")
     return {line.strip() for line in result.stdout.splitlines() if line.strip()}
 
 
@@ -70,7 +68,7 @@ def _read_git_blob_bytes(root: Path, rel_path: str) -> bytes:
     )
     if result.returncode != 0:
         stderr = (result.stderr or b"").decode("utf-8", errors="replace")
-        pytest.skip(f"Could not read committed blob for {rel_path}: {stderr}")
+        pytest.fail(f"Could not read committed blob for {rel_path}: {stderr}")
     return result.stdout
 
 
@@ -90,11 +88,77 @@ def _is_git_ignored(root: Path, rel_path: str) -> bool:
         return True
     if result.returncode == 1:
         return False
-    pytest.skip(f"Could not evaluate git ignore state for {rel_path}")
-    return False
+    pytest.fail(f"Could not evaluate git ignore state for {rel_path}")
+
+
+@pytest.mark.parametrize(
+    ("helper", "returncode"),
+    [(_committed_generated_files, 128)],
+)
+def test_required_command_failures_fail_instead_of_skip(
+    monkeypatch: pytest.MonkeyPatch, helper: object, returncode: int
+) -> None:
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], returncode, "", "forced failure"),
+    )
+    with pytest.raises(pytest.fail.Exception, match="failed|Could not list"):
+        _committed_generated_files(REPO_ROOT, [".claude"])
+
+
+def test_generator_plan_failure_fails_instead_of_skip(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_mapping(root: Path) -> dict[str, object]:
+        raise ValueError("forced failure")
+
+    monkeypatch.setattr(gen, "load_target_mapping", fail_mapping)
+    with pytest.raises(pytest.fail.Exception, match="structured plan"):
+        _build_structured_plan(REPO_ROOT)
+
+
+def test_git_blob_failure_fails_instead_of_skip(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 128, b"", b"forced failure"),
+    )
+    with pytest.raises(pytest.fail.Exception, match="Could not read committed blob"):
+        _read_git_blob_bytes(REPO_ROOT, ".claude/missing")
+
+
+def test_git_ignore_failure_fails_instead_of_skip(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 128),
+    )
+    with pytest.raises(pytest.fail.Exception, match="ignore state"):
+        _is_git_ignored(REPO_ROOT, ".claude/missing")
 
 
 class TestNoDrift:
+    def test_ownership_manifests_are_well_formed_and_match_head(self) -> None:
+        for rel_path in sorted(OWNERSHIP_MANIFESTS):
+            committed = _read_git_blob_bytes(REPO_ROOT, rel_path)
+            try:
+                manifest = json.loads(committed)
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                pytest.fail(f"Malformed ownership manifest {rel_path}: {exc}")
+            assert isinstance(manifest.get("files"), list), rel_path
+            for entry in manifest["files"]:
+                assert set(entry) >= {"path", "sha256"}, (rel_path, entry)
+                blob = _read_git_blob_bytes(REPO_ROOT, entry["path"])
+                assert _sha256_bytes(blob) == entry["sha256"], entry["path"]
+
+    def test_dirty_generated_files_fail_drift_gate(self) -> None:
+        result = subprocess.run(
+            ["git", "diff", "--quiet", "HEAD", "--", ".claude", ".agents", ".opencode"],
+            cwd=str(REPO_ROOT), timeout=30, check=False,
+        )
+        assert result.returncode == 0, "Dirty generated target tree must fail drift"
+
     def test_generated_skill_bundles_recursively_match_canonical_files(self) -> None:
         """Every generated skill bundle must have the complete canonical file set."""
         canonical_root = REPO_ROOT / ".github/skills"
@@ -121,7 +185,7 @@ class TestNoDrift:
 
     def test_generated_trees_are_not_stale(self) -> None:
         """Every non-ignored expected file should exist in committed outputs."""
-        expected = _run_generator_dry_run(REPO_ROOT)
+        expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
         expected_committed = {
             path
@@ -139,7 +203,7 @@ class TestNoDrift:
 
     def test_no_orphaned_generated_files(self) -> None:
         """No committed generated file should exist outside generator output."""
-        expected = _run_generator_dry_run(REPO_ROOT)
+        expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
 
         orphaned = committed - expected
@@ -152,7 +216,7 @@ class TestNoDrift:
 
     def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
         """Committed generated files should match dry-run regenerated content."""
-        expected = _run_generator_dry_run(REPO_ROOT)
+        expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
         expected_committed = {
             path
@@ -163,8 +227,7 @@ class TestNoDrift:
         # Compare only files that are both expected and committed to avoid
         # duplicate reporting with stale/orphaned path tests above.
         overlap = sorted(expected_committed & committed)
-        if not overlap:
-            pytest.skip("No overlapping generated files to compare")
+        assert overlap, "No overlapping generated files to compare"
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             fixture = Path(tmp_dir) / "fixture"

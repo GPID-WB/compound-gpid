@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-07-24_
+_Generated 2026-07-28_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 400 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -90,8 +90,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Default-All Platform Linking With Safe Install Units](.cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md)** · `brainstorm` · _decided_ · `2026-07-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[World Bank institutional report-writing skill](.cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md)** · `brainstorm` · _decided_ · `2026-07-23`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Canonical-to-Native Packaging Foundation](.cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md)** · `brainstorm` · _decided_ · `2026-07-27`
+  > Compound GPID treats `.github/` as canonical and generates committed native trees for Claude Code, Codex, and OpenCod…
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -250,8 +250,6 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.g…
 - **[Default-All Platform Linking With Safe Install Units](.cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md)** · `plan` · _active_ · `2026-07-05`
   > Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-own…
-- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _completed_ · `2026-07-23`
-  > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
 - **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
 - **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _completed_ · `2026-07-23`
@@ -268,6 +266,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Add and evaluate the PRWP reference for `cg-skill-wb-report-writing` without blocking any other document type.
 - **[WB report writing: Technical methodology](.cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
+- **[Canonical-to-Native Packaging Foundation](.cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md)** · `plan` · _completed_ · `2026-07-27`
+  > Make native target generation complete, deterministic, confined, owned, and independently usable before any external …
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -512,14 +512,18 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[Cross-Agent Native Platform Targets — Verify Review](.cg-docs/reviews/2026-07-03-cross-agent-native-platform-targets-verify-review.md)** · `review` · _fixed_ · `2026-07-03`
   > - **Mode**: verify (light depth, per `mode:verify`) - **Parent review**: `.cg-docs/reviews/2026-05-21-knowledge-brain…
-- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-23`
-  > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: standard **Files reviewed**: 112 **Findings**: 10 (P0: 0, P1: 4, P2: 6, P3: 0)
 - **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
   > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
 - **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
   > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
 - **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
   > **Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)
+- **[Canonical-to-Native Packaging Foundation Review](.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md)** · `review` · _fixed_ · `2026-07-28`
+  > - **Resolved mode**: full (`review:auto`, security-risk route) - **Review focus**: generated-tree writes/deletes, pat…
+- **[2026-07-28-canonical-native-packaging-foundation-verify-review](.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md)** · `review` · _—_ · `2026-07-28`
+  > **Review mode**: light verification **Files reviewed**: 8 **Findings**: 9 (P0: 4, P1: 5, P2: 0, P3: 0)
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
   > In `welfare-patterns.md`, a ` ```r ` fence opened at the start of the Verification Tests section was never closed. An…
 - **[Explicit-unpin command does not persist when the target branch does not write back to state file](.cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md)** · `solution` · _—_ · `2026-03-19`
@@ -802,7 +806,5 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 399 entit
   > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
 - **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
   > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
-- **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
-  > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

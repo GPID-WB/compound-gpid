@@ -7,7 +7,7 @@ const docsRoot = path.join(root, "docs");
 
 function slugify(value) {
   return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
-    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    .replace(/[^a-z0-9\s-]/g, "").replace(/[\s-]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
 async function walkMarkdown(directory) {

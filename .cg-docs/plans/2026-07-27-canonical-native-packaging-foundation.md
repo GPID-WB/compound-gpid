@@ -1,7 +1,8 @@
 ---
 date: 2026-07-27
 title: "Canonical-to-Native Packaging Foundation"
-status: active
+status: completed
+completed-date: 2026-07-28
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md"
 language: "Python"
@@ -10,9 +11,7 @@ deviation-policy: "ask"
 tags: [packaging, generator, native-targets, skills, dependency-closure, manifests, path-safety, drift, ci]
 phases: 7
 execution-report: ".cg-docs/work-reports/2026-07-28-canonical-native-packaging-foundation.md"
-completed-phases: [1, 2, 3]
-current-phase: 4
-failing-steps: [8]
+completed-phases: [1, 2, 3, 4, 5, 6, 7]
 ---
 
 # Plan: Canonical-to-Native Packaging Foundation

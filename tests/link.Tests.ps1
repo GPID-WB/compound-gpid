@@ -498,23 +498,19 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
 # ---------------------------------------------------------------------------
 # P2.5 (review finding): update.ps1 call failure handling
 # ---------------------------------------------------------------------------
-# link.ps1 calls update.ps1 inside a try/catch so that a network error or
-# broken update does not prevent the link operation from completing.
-# These tests verify the try/catch pattern keeps execution flowing.
+# link.ps1 must not install or claim a new linked state after update validation
+# fails. Existing project content remains untouched because linking has not begun.
 
 Describe "link.ps1 - update.ps1 call failure handling" {
     Context "when cg-update throws an exception (e.g. offline)" {
-        It "linking continues after update.ps1 throws (try/catch pattern)" {
-            $linkContinued = $false
+        It "linking is blocked after update.ps1 throws" {
+            $linkBlocked = $false
             try {
                 throw "Simulated cg-update failure (offline)"
             } catch {
-                # Mirrors link.ps1: warn and continue
-                Write-Warning "Could not update Compound GPID (offline?): $_"
+                $linkBlocked = $true
             }
-            # Code after the try/catch must be reachable
-            $linkContinued = $true
-            $linkContinued | Should -Be $true
+            $linkBlocked | Should -Be $true
         }
 
         It "CG_INTERNAL_CALL env var is cleaned up even when update throws" {

@@ -20,14 +20,14 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
+3. Load `.agents/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
 
 1. Use review depth from `compound-gpid.local.md`. If no config, default to `standard`.
 2. Identify changed files (use git diff or ask the user).
-3. Read `.github/shared/review-routing.contract.md`; it is the canonical source for staged review modes, risk classes, precedence, and additive dedup.
+3. Read `.agents/shared/review-routing.contract.md`; it is the canonical source for staged review modes, risk classes, precedence, and additive dedup.
 4. Apply flags parsed at Step 0 (case-insensitive) — semantic reference:
    - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
@@ -54,7 +54,7 @@ If `mode:verify` was passed, first build verification context using Step 1.7. If
 
 If no changed files are detected or the changed-file scope is unclear, ask the user for the scope and do not silently broad default dispatch.
 
-Use deterministic preflight routing from `.github/shared/review-routing.contract.md`:
+Use deterministic preflight routing from `.agents/shared/review-routing.contract.md`:
 
 | Trigger | Internal risk class | Resolved mode |
 |---------|---------------------|---------------|
@@ -99,7 +99,7 @@ Skip this step unless `mode:verify` was passed.
 
 ### Step 2: Dispatch Agents
 
-Based on the resolved staged mode from Step 1.5 and `.github/shared/review-routing.contract.md`, invoke only the route-appropriate agents on the changed files:
+Based on the resolved staged mode from Step 1.5 and `.agents/shared/review-routing.contract.md`, invoke only the route-appropriate agents on the changed files:
 
 **Light** (quick fixes, small low-risk changes):
 - `@cg-code-quality` — Style, linting, DRY, naming

@@ -61,9 +61,10 @@ You are a senior developer helping the user package their work into well-structu
 ### Step 1.5: Regenerate Platform Trees (Compound GPID source repo only)
 
 > **Self-check**: This step only applies when this repository IS the compound-gpid
-> source repo. Check if `.github/shared/target-mapping.json` exists AND
-> `scripts/cg_generate_targets.py` exists. If either is missing, skip this step
-> silently — this is a consumer project, not the plugin source.
+> source repo. Check if `.opencode/shared/target-mapping.json` exists AND
+> `scripts/cg_generate_targets.py` exists. If only one exists, halt because the
+> source-repository generation contract is incomplete. If both are absent, skip
+> this step silently because this is a consumer project.
 
 If both files exist:
 
@@ -83,12 +84,10 @@ If both files exist:
    - Inform the user: "Platform trees regenerated from `.github/` changes.
      Generated files will be included in the commit."
 5. If generation fails:
-   - **Do not halt** — warn the user:
-     > "⚠️ Platform tree generation failed. The generated `.claude/`, `.agents/`,
-     > and `.opencode/` trees may be stale. Run
-     > `python3 scripts/cg_generate_targets.py --all` manually before releasing,
-     > or the drift test will fail in CI."
-   - Continue to Step 2 with the existing generated trees.
+   - **Halt before Step 2.** Report the command output and exit code. Do not
+     classify, stage, commit, push, or claim regenerated targets until generation
+     succeeds. Existing generated trees remain untouched and usable because the
+     generator validates and renders the complete plan before committing it.
 
 ### Step 2: Analyze Changes and Propose Commits
 

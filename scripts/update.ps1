@@ -307,25 +307,23 @@ try {
         # consumer projects see fresh platform trees via their junctions/symlinks.
         $targetMapping = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
         $generatorScript = Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py"
-        if ((Test-Path $targetMapping) -and (Test-Path $generatorScript)) {
-            $pyCmd = Resolve-PythonCommand
-            if (-not $pyCmd) {
-                Write-Warning "Python not found (checked: python3, python, py) -- platform trees not regenerated. Existing trees remain linked."
-            } else {
-                Write-Host ""
-                Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
-                try {
-                    & $pyCmd $generatorScript --root $CompoundGpidDir --all 2>&1 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Host "  Platform trees regenerated." -ForegroundColor DarkGray
-                    } else {
-                        Write-Warning "Platform tree generation exited with code $LASTEXITCODE -- existing trees remain linked."
-                    }
-                } catch {
-                    Write-Warning "Platform tree generation failed: $_ -- existing trees remain linked."
-                }
-            }
+        if (-not (Test-Path $targetMapping)) {
+            throw "Target mapping not found at: $targetMapping"
         }
+        if (-not (Test-Path $generatorScript)) {
+            throw "Platform tree generator not found at: $generatorScript"
+        }
+        $pyCmd = Resolve-PythonCommand
+        if (-not $pyCmd) {
+            throw "Python is required for platform tree generation but was not found (checked: python3, python, py)."
+        }
+        Write-Host ""
+        Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
+        & $pyCmd $generatorScript --root $CompoundGpidDir --all 2>&1 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
+        if ($LASTEXITCODE -ne 0) {
+            throw "Platform tree generation failed with exit code $LASTEXITCODE"
+        }
+        Write-Host "  Platform trees regenerated." -ForegroundColor DarkGray
 
     } else {
         # ---- Pinned mode: checkout a specific tag (detached HEAD) ----

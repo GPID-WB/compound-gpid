@@ -35,7 +35,7 @@ Use `/cg-compound` after:
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Load `.github/shared/context-loading.contract.md`. For bearings, do not read
+3. Load `.opencode/shared/context-loading.contract.md`. For bearings, do not read
    full `compound-gpid.context.md` by default; search targeted headings or
    snippets for wiki folder configuration and enrichment-relevant sections as
    needed, and state `Context expansion: reading <artifact/section> because

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-07-24 · 450 artifacts (newest first) + 113 roadmap features_
+_Generated 2026-07-28 · 456 artifacts (newest first) + 114 roadmap features_
 
 ## undated
 
@@ -123,8 +123,28 @@ _Generated 2026-07-24 · 450 artifacts (newest first) + 113 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-07-28
+
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-2](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-2.md)** · `review` · _—_ · `2026-07-28`
+  > **Review mode**: light (verify) **Files reviewed**: 107 **Findings**: 10 (P0: 0, P1: 0, P2: 6, P3: 4)
+- **[2026-07-28-canonical-native-packaging-foundation-verify-review](.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md)** · `review` · _—_ · `2026-07-28`
+  > **Review mode**: light verification **Files reviewed**: 8 **Findings**: 9 (P0: 4, P1: 5, P2: 0, P3: 0)
+- **[Canonical-to-Native Packaging Foundation Review](.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md)** · `review` · _fixed_ · `2026-07-28`
+  > - **Resolved mode**: full (`review:auto`, security-risk route) - **Review focus**: generated-tree writes/deletes, pat…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
+
+## 2026-07-27
+
+- **[Canonical-to-Native Packaging Foundation](.cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md)** · `brainstorm` · _decided_ · `2026-07-27`
+  > Compound GPID treats `.github/` as canonical and generates committed native trees for Claude Code, Codex, and OpenCod…
+- **[Canonical-to-Native Packaging Foundation](.cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md)** · `plan` · _completed_ · `2026-07-27`
+  > Make native target generation complete, deterministic, confined, owned, and independently usable before any external …
+
 ## 2026-07-24
 
+- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-24`
+  > **Review mode**: standard **Files reviewed**: 112 **Findings**: 10 (P0: 0, P1: 4, P2: 6, P3: 0)
 - **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
   > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
 - **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
@@ -136,8 +156,6 @@ _Generated 2026-07-24 · 450 artifacts (newest first) + 113 roadmap features_
 
 ## 2026-07-23
 
-- **[2026-07-23-wb-institutional-report-writing-skill-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md)** · `review` · _—_ · `2026-07-23`
-  > **Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
 - **[2026-07-23-wb-institutional-report-writing-skill-verify-review](.cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md)** · `review` · _—_ · `2026-07-23`
   > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
 - **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
@@ -1173,6 +1191,8 @@ _Generated 2026-07-24 · 450 artifacts (newest first) + 113 roadmap features_
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
+- **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
+  > Canonical-to-Native Packaging Foundation
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
   > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
 - **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`

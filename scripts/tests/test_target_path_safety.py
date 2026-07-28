@@ -49,6 +49,19 @@ def test_windows_nonportable_paths_fail(value: str) -> None:
     assert any("outputPaths.commands" in error for error in errors)
 
 
+@pytest.mark.parametrize(
+    "value",
+    [".claude/bad:name", ".claude/bad<name", ".claude/bad\x1fname", ".claude/file.txt:stream"],
+)
+def test_windows_forbidden_characters_and_ads_paths_fail(value: str) -> None:
+    data = _mapping()
+    _target(data)["outputPaths"]["commands"] = value
+
+    errors = gen.validate_target_mapping(data)
+
+    assert any("Windows-forbidden" in error for error in errors)
+
+
 def test_generated_destination_under_canonical_tree_fails() -> None:
     data = _mapping()
     _target(data)["generatedTreePath"] = ".github/generated"

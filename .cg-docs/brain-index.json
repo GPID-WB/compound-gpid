@@ -1,5 +1,5 @@
 {
-  "edge_count": 240,
+  "edge_count": 247,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -317,6 +317,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
       "target": ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "target": ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
       "target_missing": false
     },
     {
@@ -992,9 +998,33 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-2.md",
+      "target": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
       "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
+      "target": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
+      "target": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
       "target_missing": false
     },
     {
@@ -1316,6 +1346,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
+      "target": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1439,6 +1475,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
       "target": "roadmap.json#world-bank-institutional-report-writing-skill",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "target": "roadmap.json#canonical-to-native-packaging-foundation",
       "target_missing": false
     }
   ],
@@ -2714,6 +2756,38 @@
       ]
     },
     {
+      "date": "2026-07-27",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
+      "slug": "2026-07-27-canonical-native-packaging-foundation",
+      "status": "decided",
+      "summary": "Compound GPID treats `.github/` as canonical and generates committed native trees for Claude Code, Codex, and OpenCode through `scripts/cg_generate_targets.py` and `.github/shared/target-mapping.json`. The generator currently scans and emits only each skill's `SKILL.md`, so progressive-disclosure resources under `references/`, `workflows/`, `scripts/`, `packages/`, source packs, evaluation directories, and other supporting paths are absent from generated targets.",
+      "tags": [
+        "packaging",
+        "generator",
+        "native-targets",
+        "skills",
+        "dependency-closure",
+        "manifests",
+        "path-safety",
+        "drift",
+        "ci"
+      ],
+      "title": "Canonical-to-Native Packaging Foundation",
+      "top_keywords": [
+        "skill.md",
+        ".github/",
+        "phase",
+        "cg-skill-brainstorming",
+        "outputpaths",
+        "setup-templates.md",
+        "resume-templates.md",
+        "ownership",
+        "dependency",
+        "closure"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3602,9 +3676,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
-        "prompt-tools.tests.ps1",
         "test",
         "failure",
+        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3768,14 +3842,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "repos.json",
         "should not",
+        "repos.json",
         "should be",
         "cg-review-repos",
         "--full",
-        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
+        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3803,9 +3877,9 @@
         "light",
         "/cg-review",
         "test scenarios",
-        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md"
+        "verify-review.md",
+        "/cg-review light"
       ]
     },
     {
@@ -4040,8 +4114,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "run-tests.ps1",
         "update.sh",
+        "run-tests.ps1",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -4129,8 +4203,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "cg-index.cmd",
-        "scripts/cg-index.py"
+        "scripts/cg-index.py",
+        "python3"
       ]
     },
     {
@@ -5021,11 +5095,11 @@
         ".qmd",
         "context-audit.json",
         "validate_wb_writing_skill.py",
-        "run-tests.ps1",
         "tests/last-run.json",
         "prompt-tools.tests.ps1",
         "skill",
-        "cg-token-audit.cmd"
+        "bin\\cg-token-audit.cmd",
+        "/cg-work"
       ]
     },
     {
@@ -5247,6 +5321,38 @@
       ]
     },
     {
+      "date": "2026-07-27",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+      "slug": "2026-07-27-canonical-native-packaging-foundation",
+      "status": "completed",
+      "summary": "Make native target generation complete, deterministic, confined, owned, and independently usable before any external skill intake begins. Compound GPID will package canonical skills as atomic directory bundles, provide target-local runtime dependency closure for commands, agents, skills, instructions, prompt support, and shared contracts, and enforce safe generation through checksummed ownership manifests, fail-closed validation, CI, and release gates.",
+      "tags": [
+        "packaging",
+        "generator",
+        "native-targets",
+        "skills",
+        "dependency-closure",
+        "manifests",
+        "path-safety",
+        "drift",
+        "ci"
+      ],
+      "title": "Canonical-to-Native Packaging Foundation",
+      "top_keywords": [
+        "test scenarios",
+        "scripts/cg_generate_targets.py",
+        "outputpaths",
+        "skill.md",
+        "cg_generate_targets.py",
+        "test_target_packaging.py",
+        "phase",
+        ".github/",
+        "cg-skill-brainstorming",
+        "test_target_drift.py"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -5285,8 +5391,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "cg-resume.prompt.md",
         "/cg-fix-triage",
+        "cg-resume.prompt.md",
         "fix"
       ]
     },
@@ -5502,12 +5608,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
-        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills"
+        "feat/r-dialect-skills",
+        "docs/reference.md"
       ]
     },
     {
@@ -5960,8 +6066,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "run-tests.ps1",
         "tests/run-tests.ps1",
+        "run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -6007,12 +6113,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
-        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
+        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -6380,12 +6486,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
-        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
+        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -6673,7 +6779,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "2026-05-13-pr-verification-pipeline-review.md"
+        "unlink\\.sh"
       ]
     },
     {
@@ -8019,25 +8125,25 @@
       ]
     },
     {
-      "date": "2026-07-23",
+      "date": "2026-07-24",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
       "slug": "2026-07-23-wb-institutional-report-writing-skill-review",
       "status": "",
-      "summary": "**Review mode**: standard **Files reviewed**: 9 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "summary": "**Review mode**: standard **Files reviewed**: 112 **Findings**: 10 (P0: 0, P1: 4, P2: 6, P3: 0)",
       "tags": [],
       "title": "2026-07-23-wb-institutional-report-writing-skill-review",
       "top_keywords": [
-        "cg-skill-wb-report-writing",
-        "validate_wb_writing_skill.py",
         "cg-fix-triage",
+        "test_target_drift.py",
         "fix",
         "review",
-        "feedback",
-        "benchmark",
-        "grading",
-        "unresolved",
-        "scripts/tests/test_validate_wb_writing_skill.py"
+        "cg-skill-wb-report-writing",
+        "execution-report",
+        "required: true",
+        "/cg-fix-triage",
+        "2026-07-23-wb-institutional-report-writing-skill.md",
+        "validate_wb_writing_skill.py"
       ]
     },
     {
@@ -8085,6 +8191,28 @@
       ]
     },
     {
+      "date": "2026-07-28",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-2.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-verify-review-2",
+      "status": "",
+      "summary": "**Review mode**: light (verify) **Files reviewed**: 107 **Findings**: 10 (P0: 0, P1: 0, P2: 6, P3: 4)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-verify-review-2",
+      "top_keywords": [
+        "test_cg_generate_targets.py",
+        "cg-fix-triage",
+        "repopath",
+        "del root",
+        "sequence[str]",
+        "cg_generate_targets.py",
+        "test_target_mapping.py",
+        "2026-07-23-wb-report-writing-technical-methodology-review.md",
+        "test_target_drift.py",
+        "fixed"
+      ]
+    },
+    {
       "date": "2026-07-24",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
@@ -8103,6 +8231,50 @@
         "terminology_status",
         "cg-code-quality",
         "report",
+        "passed"
+      ]
+    },
+    {
+      "date": "2026-07-28",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
+      "slug": "2026-07-28-canonical-native-packaging-foundation-review",
+      "status": "fixed",
+      "summary": "- **Resolved mode**: full (`review:auto`, security-risk route) - **Review focus**: generated-tree writes/deletes, path portability, malformed canonical state, update/link handoffs, and release publication - **Protected artifacts**: reviewed without modification",
+      "tags": [],
+      "title": "Canonical-to-Native Packaging Foundation Review",
+      "top_keywords": [
+        "cg_generate_targets.py",
+        "review",
+        "native packaging foundation review",
+        "canonical-to-native",
+        "packaging",
+        "foundation",
+        "create-release.ps1",
+        "findings",
+        "follow-up",
+        "push-location"
+      ]
+    },
+    {
+      "date": "2026-07-28",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
+      "slug": "2026-07-28-canonical-native-packaging-foundation-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification **Files reviewed**: 8 **Findings**: 9 (P0: 4, P1: 5, P2: 0, P3: 0)",
+      "tags": [],
+      "title": "2026-07-28-canonical-native-packaging-foundation-verify-review",
+      "top_keywords": [
+        "cg-code-quality",
+        "cg-testing",
+        "review",
+        "scripts/tests/test_target_ownership.py:232",
+        "test_update_generates_targets.py",
+        "update.ps1",
+        "cg_generate_targets.py",
+        "test_target_ownership.py",
+        "verification",
         "passed"
       ]
     },
@@ -8370,14 +8542,14 @@
       "top_keywords": [
         "else",
         "ast",
-        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->"
+        "->",
+        "utf-8"
       ]
     },
     {
@@ -8397,10 +8569,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
-        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
+        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -8855,13 +9027,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
-        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1"
+        ".ps1",
+        "result-verification.md"
       ]
     },
     {
@@ -8973,12 +9145,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
+        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -9003,9 +9175,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
+        "/cg-setup",
         "link.ps1",
         "link.sh",
-        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -9036,13 +9208,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
-        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
+        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -9743,7 +9915,7 @@
         "schema",
         "json",
         "validation",
-        "run-tests.ps1"
+        "title"
       ]
     },
     {
@@ -9767,12 +9939,12 @@
         "source",
         "install",
         "test",
-        "cg-index.cmd",
         "destination",
         "wrapper",
         "ps1",
         "self-copy",
-        "equals"
+        "equals",
+        "crash"
       ]
     },
     {
@@ -10277,15 +10449,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "file.txt",
+        "subdir\\file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "backslash",
-        "separator"
+        "file.txt",
+        "backslash"
       ]
     },
     {
@@ -10581,11 +10753,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
-        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
+        "structure"
       ]
     },
     {
@@ -11060,9 +11232,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
-        "cg-review.prompt.md",
         "delegate",
         "file-writing",
+        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -11099,8 +11271,8 @@
         "must",
         "contract",
         "pipeline",
-        "cg-fix-triage.prompt.md",
-        "downstream"
+        "downstream",
+        "location"
       ]
     },
     {
@@ -11317,8 +11489,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "prompt-tools.tests.ps1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -11348,16 +11520,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "select-string",
         "test",
+        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging",
-        "crashes"
+        "debugging"
       ]
     },
     {
@@ -11444,9 +11616,9 @@
         "failure",
         "guard",
         "fragile",
-        "cg-work.prompt.md",
         "tests",
         "step-ordering",
+        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -11534,8 +11706,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "-quiet",
+        "prompt-tools.tests.ps1",
         "pester",
         "execution_subagent",
         "quiet",
@@ -11631,14 +11803,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
-        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "context"
+        "last-run.json",
+        "tests\\last-run.json"
       ]
     },
     {
@@ -11877,7 +12049,6 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
-        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -11885,6 +12056,7 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
+        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -12345,8 +12517,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "source-scanning",
+        "link.ps1",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -12377,14 +12549,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
-        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern"
+        "pattern",
+        "unlink.ps1"
       ]
     },
     {
@@ -12647,13 +12819,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
-        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->"
+        "<!-- folder: docs -->",
+        "$dirs.count | should -begreaterthan 0"
       ]
     },
     {
@@ -13390,6 +13562,39 @@
         "once",
         "validation",
         "tightens"
+      ]
+    },
+    {
+      "date": "2026-07-28",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md",
+      "slug": "2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests",
+      "status": "",
+      "summary": "The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generated files. A concurrent actor could replace an ancestor or stale file after validation but before the pathname-based mutation. Initial regression tests swapped paths before the final validation, so they passed without exercising the vulnerable window. Release and updater tests had a related weakness: some checked source ordering or an unrelated sentinel instead of executing the real script and observing credential, API, or managed-file boundaries.",
+      "tags": [
+        "filesystem",
+        "security",
+        "toctou",
+        "symlink",
+        "dir-fd",
+        "nofollow",
+        "pytest",
+        "pester",
+        "release",
+        "updater"
+      ],
+      "title": "Filesystem race fixes require handle-relative mutation and real boundary tests",
+      "top_keywords": [
+        "filesystem",
+        "tests",
+        "mutation",
+        "real",
+        "boundary",
+        "race",
+        "handle-relative",
+        "fixes",
+        "require",
+        "root"
       ]
     },
     {
@@ -14644,6 +14849,28 @@
         "milestone",
         "architecture",
         "research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#canonical-to-native-packaging-foundation",
+      "slug": "canonical-to-native-packaging-foundation",
+      "status": "done",
+      "summary": "Canonical-to-Native Packaging Foundation",
+      "tags": [],
+      "title": "Canonical-to-Native Packaging Foundation",
+      "top_keywords": [
+        "native packaging foundation\nmilestone",
+        "architecture research\nobjective",
+        "canonical-to-native",
+        "packaging",
+        "foundation",
+        "feature",
+        "milestone",
+        "architecture",
+        "research",
+        "objective"
       ]
     },
     {
@@ -16143,13 +16370,13 @@
       ]
     }
   ],
-  "entity_count": 563,
-  "generated": "2026-07-24",
+  "entity_count": 570,
+  "generated": "2026-07-28",
   "schema_version": "0.2.0",
-  "topic_count": 2,
+  "topic_count": 3,
   "topics": [
     {
-      "entity_count": 412,
+      "entity_count": 414,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -16193,7 +16420,7 @@
         ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
-        ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
+        ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -16273,7 +16500,6 @@
         ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
         ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
-        ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
@@ -16282,6 +16508,7 @@
         ".cg-docs/plans/2026-07-23-wb-report-writing-policy-brief.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
+        ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -16408,6 +16635,8 @@
         ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
+        ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
+        ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -16573,7 +16802,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 113,
+      "entity_count": 114,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -16620,6 +16849,7 @@
         "roadmap.json#mattpocock-skills-review-source",
         "roadmap.json#cross-model-adversarial-review",
         "roadmap.json#tiered-model-escalation",
+        "roadmap.json#canonical-to-native-packaging-foundation",
         "roadmap.json#brainstorm-plan-id-traceability",
         "roadmap.json#inline-self-review-brainstorm-plan",
         "roadmap.json#verification-before-completion-cg-work",
@@ -16696,6 +16926,21 @@
       ],
       "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Quality Loop\nObjective",
       "slug": "architecture-research-objective-knowledge-brain-objective-quality-loop-objective"
+    },
+    {
+      "entity_count": 3,
+      "entity_paths": [
+        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md"
+      ],
+      "keywords": [
+        "tests",
+        "python",
+        "httpx"
+      ],
+      "label": "Tests / Python / Httpx",
+      "slug": "tests-python-httpx"
     }
   ]
 }

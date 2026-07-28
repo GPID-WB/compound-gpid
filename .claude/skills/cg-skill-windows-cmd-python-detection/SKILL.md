@@ -158,4 +158,4 @@ Describe "install.ps1 - <launcher>.cmd copy" {
 
 - `.cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md` — original diagnosis and fix
 - `.cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md` — parity gap instance
-- `.github/instructions/powershell.instructions.md` — project-wide PowerShell and CMD coding standards
+- `.claude/instructions/powershell.instructions.md` — project-wide PowerShell and CMD coding standards

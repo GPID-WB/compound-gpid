@@ -42,6 +42,7 @@ param(
     [switch]$Prerelease
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # Enforce semver tag format (v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<dev>)
@@ -69,6 +70,60 @@ $notes = "$(Get-Content -Path $NotesFile -Encoding UTF8 -Raw)"
 if ([string]::IsNullOrWhiteSpace($notes)) {
     Write-Error "Notes file is empty: $NotesFile"
     exit 1
+}
+
+# Operational native-packaging preflight. This runs before credentials are read
+# or any GitHub API request can observe or publish release state.
+$tagCommit = (git -C $PSScriptRoot rev-parse --verify "$Tag`^{commit}" 2>$null | Select-Object -First 1)
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
+    throw "Release tag '$Tag' does not resolve to a commit."
+}
+$headCommit = (git -C $PSScriptRoot rev-parse --verify "HEAD^{commit}" 2>$null | Select-Object -First 1)
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($headCommit)) {
+    throw "Could not resolve the current HEAD commit."
+}
+if ($headCommit.Trim() -ne $tagCommit.Trim()) {
+    throw "Release checkout mismatch: tag '$Tag' resolves to $($tagCommit.Trim()) but HEAD is $($headCommit.Trim()). Check out the tag commit before releasing."
+}
+$worktreeChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=normal 2>$null)
+if ($LASTEXITCODE -ne 0) {
+    throw "Could not verify that the release checkout is clean."
+}
+if ($worktreeChanges.Count -gt 0) {
+    throw "Release checkout must be clean before testing tag '$Tag'."
+}
+
+$pythonCommand = $null
+foreach ($candidate in @("python3", "python", "py")) {
+    if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
+    try {
+        $version = & $candidate --version 2>&1
+        if ("$version".Trim() -match '^Python\s+\d') {
+            $pythonCommand = $candidate
+            break
+        }
+    } catch { continue }
+}
+if (-not $pythonCommand) {
+    throw "Native packaging preflight requires Python (checked: python3, python, py)."
+}
+$preflightTests = @(
+    "scripts/tests/test_target_mapping.py",
+    "scripts/tests/test_cg_generate_targets.py",
+    "scripts/tests/test_target_path_safety.py",
+    "scripts/tests/test_target_packaging.py",
+    "scripts/tests/test_target_ownership.py",
+    "scripts/tests/test_target_closure.py",
+    "scripts/tests/test_target_determinism.py",
+    "scripts/tests/test_target_drift.py",
+    "scripts/tests/test_target_claude.py",
+    "scripts/tests/test_target_codex.py",
+    "scripts/tests/test_target_opencode.py"
+) | ForEach-Object { Join-Path $PSScriptRoot $_ }
+Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
+& $pythonCommand -m pytest @preflightTests -q
+if ($LASTEXITCODE -ne 0) {
+    throw "Native packaging release preflight failed with exit code $LASTEXITCODE. Release publication is blocked."
 }
 
 # Get token from Git Credential Manager. Stderr captured for diagnostics.

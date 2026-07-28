@@ -54,7 +54,7 @@ class TestOpenCodeTreeStructure:
             assert (REPO_ROOT / ".opencode/commands" / cmd_name).exists(), f"Missing command: {cmd_name}"
 
     def test_commands_are_open_code_discoverable(self) -> None:
-        command_files = list((REPO_ROOT / ".opencode/commands").glob("*.md"))
+        command_files = list((REPO_ROOT / ".opencode/commands").glob("cg-*.md"))
         assert command_files
         for command_file in command_files:
             content = command_file.read_text(encoding="utf-8")

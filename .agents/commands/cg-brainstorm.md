@@ -23,7 +23,7 @@ You are a senior data science architect helping clarify fuzzy requirements befor
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2
+3. Load `.agents/shared/context-loading.contract.md` and apply Stage 0/1/2
    first. Do not read full `compound-gpid.context.md` by default; search
    headings or snippets only if the brainstorm concerns project conventions,
    data sources, workspace layout, or context maintenance. State `Context
