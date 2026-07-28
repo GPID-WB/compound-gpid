@@ -214,9 +214,9 @@ Users may add a `## Wiki Configuration` section to `compound-gpid.context.md` to
 
 ## Cross-Linking Conventions
 
-- Intra-wiki links: `[Page Title](page-file.md)` — filename only, no path prefix.
+- Intra-wiki links use the page title as link text and `page-file.md` as the destination — filename only, no path prefix.
 - `wiki/README.md` TOC: ordered list of all non-`manual` pages with their `title` values, in `order` sequence.
-- Back-links: Each non-README page should include a `← [Home](README.md)` link at the bottom.
+- Back-links: Each non-README page should include a Home link to `README.md` at the bottom.
 - External links: Standard markdown `[text](https://...)`.
 
 ---

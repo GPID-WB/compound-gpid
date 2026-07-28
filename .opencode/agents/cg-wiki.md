@@ -1,5 +1,5 @@
 ---
-description: Creates and maintains the project wiki (wiki/ folder). Dispatched by /cg-setup (init), /cg-compound (update), and /cg-wiki (rebuild, convert). Never invoked directly by users.
+description: "Creates and maintains the project wiki (wiki/ folder). Dispatched by /cg-setup (init), /cg-compound (update), and /cg-wiki (rebuild, convert). Never invoked directly by users."
 mode: subagent
 ---
 

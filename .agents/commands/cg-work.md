@@ -1,5 +1,5 @@
 ---
-description: Implement a /cg-plan plan. Supports phaseX, review, deviate controls.
+description: "Implement a /cg-plan plan. Supports phaseX, review, deviate controls."
 model: GPT-5.3-Codex
 ---
 

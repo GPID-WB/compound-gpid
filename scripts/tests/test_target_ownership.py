@@ -1,0 +1,313 @@
+"""Contract tests for generated-target ownership manifests and stale cleanup."""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+
+import pytest
+
+import cg_generate_targets as gen
+
+
+MANIFEST_NAME = ".compound-gpid-generated.json"
+
+
+def _write(path: Path, content: str | bytes, *, executable: bool = False) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(content, bytes):
+        path.write_bytes(content)
+    else:
+        path.write_text(content, encoding="utf-8")
+    if executable:
+        path.chmod(path.stat().st_mode | 0o111)
+    return path
+
+
+def _fixture_repo(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    _write(
+        root / ".github/prompts/cg-alpha.prompt.md",
+        "---\ndescription: Alpha\n---\n\n# Alpha\n",
+    )
+    _write(
+        root / ".github/prompts/cg-beta.prompt.md",
+        "---\ndescription: Beta\n---\n\n# Beta\n",
+    )
+    _write(
+        root / ".github/agents/cg-review.agent.md",
+        "---\ndescription: Review\ntools: [read]\n---\n\n# Review\n",
+    )
+    _write(
+        root / ".github/skills/cg-skill-brainstorming/SKILL.md",
+        "---\nname: cg-skill-brainstorming\ndescription: Test\n---\n\n# Skill\n",
+    )
+    _write(
+        root / ".github/skills/cg-skill-brainstorming/workflows/nested/run.sh",
+        b"#!/bin/sh\nexit 0\n",
+        executable=True,
+    )
+    target = {
+        "id": "claude-code",
+        "name": "Claude Code",
+        "generatedTreePath": ".claude",
+        "modelMappingMode": "tier",
+        "capabilities": {field: True for field in gen.REQUIRED_CAPABILITY_FIELDS},
+        "formats": {
+            "commandFormat": "claude-command",
+            "skillFormat": "claude-skill",
+            "agentFormat": "claude-agent",
+        },
+        "outputPaths": {
+            "commands": ".claude/commands",
+            "skills": ".claude/skills",
+            "agents": ".claude/agents",
+            "rootAdapter": ".claude/CLAUDE.md",
+            "modelMapping": ".claude/model-mapping.json",
+        },
+        "modelMapping": {"coding": "sonnet", "review": "sonnet"},
+    }
+    _write(
+        root / gen.TARGET_MAPPING_PATH,
+        json.dumps({"schemaVersion": 1, "description": "test", "targets": [target]}),
+    )
+    _write(root / gen.MODEL_CATALOG_PATH, json.dumps({"assignments": []}))
+    return root
+
+
+def _generate(root: Path) -> int:
+    return gen.main(["--root", str(root), "--target", "claude-code"])
+
+
+def _manifest_path(root: Path) -> Path:
+    return root / ".claude" / MANIFEST_NAME
+
+
+def _manifest(root: Path) -> dict:
+    return json.loads(_manifest_path(root).read_bytes())
+
+
+def _manifest_entry(root: Path, destination: str) -> dict:
+    return next(item for item in _manifest(root)["files"] if item["path"] == destination)
+
+
+def test_manifest_is_deterministic_sorted_schema_v1_and_identifies_policy(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    first = _manifest_path(root).read_bytes()
+    data = json.loads(first)
+
+    assert data.keys() == {"schemaVersion", "target", "policyVersion", "files"}
+    assert data["schemaVersion"] == 1
+    assert data["target"] == "claude-code"
+    assert data["policyVersion"] == 1
+    assert [item["path"] for item in data["files"]] == sorted(
+        item["path"] for item in data["files"]
+    )
+    assert first == (json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode()
+
+
+def test_manifest_completely_covers_generated_files_without_self_hash(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    target_root = root / ".claude"
+    actual = {
+        path.relative_to(root).as_posix()
+        for path in target_root.rglob("*")
+        if path.is_file() and path.name != MANIFEST_NAME
+    }
+    recorded = {item["path"] for item in _manifest(root)["files"]}
+
+    assert recorded == actual
+    assert not any(item["path"] == ".claude/" + MANIFEST_NAME for item in _manifest(root)["files"])
+
+
+def test_manifest_entries_record_destination_source_kind_hash_and_executable(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+
+    for item in _manifest(root)["files"]:
+        assert item.keys() == {"path", "source", "kind", "sha256", "executable"}
+        assert item["path"].startswith(".claude/")
+        assert isinstance(item["source"], str) and item["source"]
+        assert isinstance(item["kind"], str) and item["kind"]
+        assert item["sha256"] == hashlib.sha256((root / item["path"]).read_bytes()).hexdigest()
+        assert isinstance(item["executable"], bool)
+
+    script = _manifest_entry(
+        root, ".claude/skills/cg-skill-brainstorming/workflows/nested/run.sh"
+    )
+    assert script["source"].endswith("workflows/nested/run.sh")
+    assert script["kind"] == "skill-resource"
+    assert script["executable"] is True
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(lambda data: data.update(schemaVersion=2), id="schema"),
+        pytest.param(lambda data: data["files"].append(dict(data["files"][0])), id="duplicate"),
+        pytest.param(lambda data: data.update(target="foreign"), id="foreign-target"),
+        pytest.param(lambda data: data["files"][0].update(path="../unsafe"), id="unsafe-path"),
+        pytest.param(lambda data: data["files"][0].update(sha256="not-a-sha256"), id="invalid-hash"),
+    ],
+)
+def test_manifest_rejects_malformed_schema_duplicate_foreign_unsafe_and_hash(
+    tmp_path: Path, mutate
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    data = _manifest(root)
+    before = {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in (root / ".claude").rglob("*")
+        if path.is_file() and path.name != MANIFEST_NAME
+    }
+    mutate(data)
+    poisoned = (json.dumps(data) + "\n").encode()
+    _manifest_path(root).write_bytes(poisoned)
+
+    assert _generate(root) == 1
+    assert _manifest_path(root).read_bytes() == poisoned
+    assert all((root / path).read_bytes() == content for path, content in before.items())
+
+
+def test_manifest_second_generation_is_byte_identical(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    first = _manifest_path(root).read_bytes()
+    assert _generate(root) == 0
+    assert _manifest_path(root).read_bytes() == first
+
+
+def test_cleanup_deletes_unchanged_stale_file_after_source_delete_and_rename(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    old = root / ".claude/commands/cg-alpha.md"
+    source = root / ".github/prompts/cg-alpha.prompt.md"
+    source.rename(source.with_name("cg-renamed.prompt.md"))
+
+    assert _generate(root) == 0
+    assert not old.exists()
+    assert (root / ".claude/commands/cg-renamed.md").is_file()
+    assert ".claude/commands/cg-alpha.md" not in {item["path"] for item in _manifest(root)["files"]}
+
+
+def test_cleanup_modified_stale_is_preserved_and_fails_before_other_cleanup(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    modified = root / ".claude/commands/cg-alpha.md"
+    unchanged = root / ".claude/commands/cg-beta.md"
+    modified.write_text("user edit\n", encoding="utf-8")
+    (root / ".github/prompts/cg-alpha.prompt.md").unlink()
+    (root / ".github/prompts/cg-beta.prompt.md").unlink()
+    manifest_before = _manifest_path(root).read_bytes()
+
+    assert _generate(root) == 1
+    assert modified.read_text(encoding="utf-8") == "user edit\n"
+    assert unchanged.is_file()
+    assert _manifest_path(root).read_bytes() == manifest_before
+
+
+def test_cleanup_untracked_file_is_preserved(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    untracked = _write(root / ".claude/notes/private.txt", "mine\n")
+
+    assert _generate(root) == 0
+    assert untracked.read_text(encoding="utf-8") == "mine\n"
+    assert untracked.relative_to(root).as_posix() not in {
+        item["path"] for item in _manifest(root)["files"]
+    }
+
+
+def test_cleanup_adopts_equal_unowned_expected_destination(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    plan = gen.build_generation_plan(
+        root,
+        gen.load_target_mapping(root),
+        gen.scan_canonical_assets(root),
+        gen.load_model_catalog(root),
+    )
+    expected = next(
+        item for item in plan.by_target["claude-code"].entries
+        if item.destination == ".claude/commands/cg-alpha.md"
+    )
+    _write(root / expected.destination, expected.content)
+
+    assert _generate(root) == 0
+    assert _manifest_entry(root, expected.destination)["sha256"] == expected.sha256
+
+
+def test_cleanup_conflicting_unowned_destination_is_preserved_and_fails(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    conflict = _write(root / ".claude/commands/cg-alpha.md", "user-owned\n")
+
+    assert _generate(root) == 1
+    assert conflict.read_text(encoding="utf-8") == "user-owned\n"
+    assert not _manifest_path(root).exists()
+
+
+def test_cleanup_malformed_manifest_fails_without_tree_mutation(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    generated = root / ".claude/commands/cg-alpha.md"
+    before = generated.read_bytes()
+    _manifest_path(root).write_bytes(b"{ malformed")
+
+    assert _generate(root) == 1
+    assert generated.read_bytes() == before
+    assert _manifest_path(root).read_bytes() == b"{ malformed"
+
+
+def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    old_manifest = _manifest_path(root).read_bytes()
+    source = root / ".github/prompts/cg-alpha.prompt.md"
+    source.write_text(source.read_text(encoding="utf-8") + "changed\n", encoding="utf-8")
+    original = gen._write_atomic_bytes
+    calls: list[Path] = []
+
+    def interrupt(path: Path, content: bytes) -> None:
+        calls.append(path)
+        if len(calls) == 2:
+            raise OSError("simulated interruption")
+        original(path, content)
+
+    monkeypatch.setattr(gen, "_write_atomic_bytes", interrupt)
+    with pytest.raises(OSError, match="simulated interruption"):
+        gen.commit_generation_plan(
+            root,
+            gen.build_generation_plan(
+                root,
+                gen.load_target_mapping(root),
+                gen.scan_canonical_assets(root),
+                gen.load_model_catalog(root),
+            ),
+            ("claude-code",),
+        )
+    assert _manifest_path(root).read_bytes() == old_manifest
+    assert _manifest_path(root) not in calls
+
+    monkeypatch.setattr(gen, "_write_atomic_bytes", original)
+    assert _generate(root) == 0
+    assert _manifest_path(root).read_bytes() != old_manifest
+    assert _manifest_entry(root, ".claude/commands/cg-alpha.md")["sha256"] == hashlib.sha256(
+        (root / ".claude/commands/cg-alpha.md").read_bytes()
+    ).hexdigest()
+
+
+def test_cleanup_prunes_empty_directories_but_stops_at_target_root(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    source = root / ".github/skills/cg-skill-brainstorming/workflows/nested/run.sh"
+    generated_parent = root / ".claude/skills/cg-skill-brainstorming/workflows/nested"
+    source.unlink()
+
+    assert _generate(root) == 0
+    assert not generated_parent.exists()
+    assert (root / ".claude").is_dir()
+    assert _manifest_path(root).is_file()

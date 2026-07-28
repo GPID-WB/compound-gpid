@@ -56,6 +56,8 @@
         "commands": ".claude/commands",
         "skills": ".claude/skills",
         "agents": ".claude/agents",
+        "instructions": ".claude/instructions",
+        "shared": ".claude/shared",
         "rootAdapter": ".claude/CLAUDE.md",
         "modelMapping": ".claude/model-mapping.claude.json"
       },
@@ -96,6 +98,8 @@
         "commands": ".agents/commands",
         "skills": ".agents/skills",
         "agents": ".agents/subagents",
+        "instructions": ".agents/instructions",
+        "shared": ".agents/shared",
         "rootAdapter": ".agents/AGENTS.md",
         "modelMapping": ".agents/model-mapping.codex.json"
       },
@@ -135,6 +139,8 @@
         "commands": ".opencode/commands",
         "skills": ".opencode/skills",
         "agents": ".opencode/agents",
+        "instructions": ".opencode/instructions",
+        "shared": ".opencode/shared",
         "rootAdapter": ".opencode/AGENTS.md",
         "config": ".opencode/opencode.json",
         "modelMapping": ".opencode/model-mapping.opencode.json"

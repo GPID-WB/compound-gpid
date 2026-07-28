@@ -1,5 +1,5 @@
 ---
-description: Stage changes into logical commits, push, and open a PR with plan-driven description.
+description: "Stage changes into logical commits, push, and open a PR with plan-driven description."
 model: GPT-5.3-Codex
 ---
 

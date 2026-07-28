@@ -1,0 +1,15 @@
+{
+    "schema_version":  1,
+    "document_type":  "policy-brief",
+    "operation_coverage":  [
+                               "draft",
+                               "expand",
+                               "revise",
+                               "summarize",
+                               "adapt",
+                               "quality-review",
+                               "end-to-end-production"
+                           ],
+    "evaluation_scope":  "ordinary-and-adversarial",
+    "notes":  "Evaluation definition for Policy Brief."
+}

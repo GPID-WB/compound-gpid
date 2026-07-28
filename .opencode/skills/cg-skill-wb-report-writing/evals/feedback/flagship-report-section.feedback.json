@@ -1,0 +1,9 @@
+{
+    "schema_version":  1,
+    "document_type":  "flagship-report-section",
+    "summary":  "Accepted after guardrail and fidelity review for Flagship Report Section.",
+    "reviewer_notes":  [
+                           "All required checks passed.",
+                           "No unsupported claims were observed."
+                       ]
+}

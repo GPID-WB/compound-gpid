@@ -1,5 +1,5 @@
 ---
-description: Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup.
+description: "Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup."
 ---
 
 # GitHub Issues Manager
