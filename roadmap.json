@@ -219,7 +219,7 @@
       "id": "architecture-research",
       "title": "Architecture Research",
       "objective": "Evaluate external workflow patterns (GSD-2, Superpowers) and Copilot platform capabilities (hooks, Codex) to determine what architectural changes to adopt, then implement the justified ones — stage control knobs and autonomous pipeline execution.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "model-split-pattern-reuse",
@@ -317,8 +317,8 @@
         {
           "id": "canonical-to-native-packaging-foundation",
           "title": "Canonical-to-Native Packaging Foundation",
-          "status": "idea",
-          "plan": null
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md"
         }
       ]
     },
