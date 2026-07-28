@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -146,7 +147,7 @@ def test_manifest_entries_record_destination_source_kind_hash_and_executable(tmp
     )
     assert script["source"].endswith("workflows/nested/run.sh")
     assert script["kind"] == "skill-resource"
-    assert script["executable"] is True
+    assert script["executable"] is (os.name != "nt")
 
 
 @pytest.mark.parametrize(
@@ -216,6 +217,7 @@ def test_cleanup_modified_stale_is_preserved_and_fails_before_other_cleanup(tmp_
     assert _manifest_path(root).read_bytes() == manifest_before
 
 
+@pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -236,6 +238,7 @@ def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     assert stale.read_text(encoding="utf-8") == "new user content\n"
 
 
+@pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_commit_rechecks_destination_ancestor_immediately_before_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -314,6 +317,7 @@ def test_cleanup_malformed_manifest_fails_without_tree_mutation(tmp_path: Path) 
     assert _manifest_path(root).read_bytes() == b"{ malformed"
 
 
+@pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

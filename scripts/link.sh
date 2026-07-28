@@ -377,10 +377,14 @@ if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation d
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
 
 printf '\n'
-print_cyan "Updating Compound GPID..."
-if ! CG_INTERNAL_CALL=1 "$COMPOUND_GPID_DIR/scripts/update.sh"; then
-    print_error "Could not update and validate Compound GPID; linking is blocked. Existing installed content was left unchanged."
-    exit 1
+if [ "${CG_SKIP_UPDATE:-}" = "1" ]; then
+    print_gray "Skipping Compound GPID update (CG_SKIP_UPDATE=1)."
+else
+    print_cyan "Updating Compound GPID..."
+    if ! CG_INTERNAL_CALL=1 "$COMPOUND_GPID_DIR/scripts/update.sh"; then
+        print_error "Could not update and validate Compound GPID; linking is blocked. Existing installed content was left unchanged."
+        exit 1
+    fi
 fi
 
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"

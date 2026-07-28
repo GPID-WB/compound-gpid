@@ -206,7 +206,7 @@ def test_fixture_packages_nested_unknown_binary_and_executable_resources_in_all_
             relative = Path(entry.destination).relative_to(Path(skill_root) / PILOT).as_posix()
             assert entry.content == fixtures[relative]
             assert entry.sha256 == hashlib.sha256(fixtures[relative]).hexdigest()
-            assert entry.executable == (relative == "scripts/check.tool")
+            assert entry.executable == (relative == "scripts/check.tool" and os.name != "nt")
 
 
 def test_pilot_plan_has_exact_bytes_hashes_and_executable_flags_for_all_targets(

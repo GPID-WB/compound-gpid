@@ -93,6 +93,7 @@ jobs:
           if (Test-Path $e2eDir) { cmd /c rmdir /s /q "$e2eDir" 2>&1 | Out-Null }
           New-Item -ItemType Directory -Path $e2eDir | Out-Null
           Set-Location $e2eDir
+          $env:CG_SKIP_UPDATE = "1"
 
           # 1. Link
           & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
@@ -206,7 +207,7 @@ jobs:
           cd "$E2E_DIR"
 
           # 1. Link
-          bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
 
           # 2. Assert symlink and file accessibility
           if [[ ! -L ".github/prompts" ]]; then
@@ -217,7 +218,7 @@ jobs:
           fi
 
           # 3. Idempotency: link a second time - must not error
-          bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
 
           # 4. Unlink (--yes skips interactive confirmation in CI)
           bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
