@@ -2,7 +2,7 @@
 
 > **Universal coding anti-patterns** (compound quote traps, `*` mid-line comments,
 > global macro misuse, etc.) are covered in
-> [`cg-skill-stata-best-practices/references/coding-principles.md`](../../cg-skill-stata-best-practices/references/coding-principles.md).
+> the `references/coding-principles.md` resource in `cg-skill-stata-best-practices`.
 > This file covers **testing-specific** anti-patterns only.
 
 ---

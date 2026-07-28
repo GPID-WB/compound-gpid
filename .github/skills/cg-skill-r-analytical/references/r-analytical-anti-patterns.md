@@ -29,7 +29,7 @@ dt[, gap := fifelse(welf_pc_ppp_day < 2.15, (2.15 - welf_pc_ppp_day) / 2.15, 0)]
 fgt1 <- fmean(dt$gap, w = dt$weight)
 ```
 
-**Why it matters:** A survey with 5% missing welfare silently computes poverty over 95% of the population as if it were 100%. Negative welfare is physically impossible and produces FGT gap values above 1. Both are P1 data corruption risks. See the [collapse na.rm solution](../../../../.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md) for the full failure modes.
+**Why it matters:** A survey with 5% missing welfare silently computes poverty over 95% of the population as if it were 100%. Negative welfare is physically impossible and produces FGT gap values above 1. Both are P1 data corruption risks. See `.cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md` in the Compound GPID repository for the full failure modes.
 
 ---
 
@@ -71,7 +71,7 @@ dt[, poor := welfare_2017ppp < 2.15]
 
 ### Aggregate-then-merge instead of using TRA
 
-> See also the same pattern in [r-technical-anti-patterns.md](../../cg-skill-r-technical/references/r-technical-anti-patterns.md) for non-welfare contexts.
+> Load `cg-skill-r-technical` for the same pattern in non-welfare contexts.
 
 **Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
 
@@ -112,7 +112,7 @@ fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 ## collapse Anti-Patterns
 
 > **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in [`cg-skill-r-collapse/references/collapse-anti-patterns.md`](../../cg-skill-r-collapse/references/collapse-anti-patterns.md).
+> are in the `cg-skill-r-collapse` skill.
 > The patterns below are specific to analytical work.
 
 *No analytical-specific collapse anti-patterns at this time. General collapse anti-patterns are in the shared file above.*

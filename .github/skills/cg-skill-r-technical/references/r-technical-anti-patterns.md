@@ -7,7 +7,7 @@ Common mistakes in technical R development.
 ## data.table Anti-Patterns
 
 > **`ifelse()` vs `fifelse()/fcase()`**, **`$<-` vs `:=`**, and row-wise for loop patterns
-> are documented in [`cg-skill-r-datatable/references/datatable-anti-patterns.md`](../../cg-skill-r-datatable/references/datatable-anti-patterns.md)
+> are documented in the `cg-skill-r-datatable` skill
 > with full examples. The patterns below are specific to technical (package/infrastructure) work.
 
 ---
@@ -15,12 +15,12 @@ Common mistakes in technical R development.
 ## collapse Anti-Patterns
 
 > **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in [`cg-skill-r-collapse/references/collapse-anti-patterns.md`](../../cg-skill-r-collapse/references/collapse-anti-patterns.md).
+> are in the `cg-skill-r-collapse` skill.
 > The patterns below are specific to technical work.
 
 ### Aggregate-then-merge instead of using TRA
 
-> See also the same pattern in [r-analytical-anti-patterns.md](../../cg-skill-r-analytical/references/r-analytical-anti-patterns.md) for the welfare/survey-statistics framing (statistical accuracy, not just performance).
+> Load `cg-skill-r-analytical` for the welfare/survey-statistics framing (statistical accuracy, not just performance).
 
 **Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
 

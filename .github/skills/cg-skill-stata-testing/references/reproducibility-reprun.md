@@ -1,6 +1,6 @@
 # Reproducibility & reprun Patterns
 
-> **Full API reference**: See [`cg-skill-stata-best-practices/packages/repkit.md`](../../cg-skill-stata-best-practices/packages/repkit.md) for complete `reprun`, `reproot`, and `repscan` documentation. This file focuses on **testing patterns** — how to use repkit tools to verify your code is reproducible.
+> **Full API reference**: Load `cg-skill-stata-best-practices` and read its `packages/repkit.md` resource for complete `reprun`, `reproot`, and `repscan` documentation. This file focuses on **testing patterns** — how to use repkit tools to verify your code is reproducible.
 
 ## What is Reproducibility Testing?
 
