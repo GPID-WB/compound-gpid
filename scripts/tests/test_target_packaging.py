@@ -44,6 +44,20 @@ def _fixture_repo(tmp_path: Path) -> Path:
         root / ".github/shared/target-mapping.json",
         (json.dumps(mapping) + "\n").encode(),
     )
+    _write_bytes(
+        root / ".github/shared/model-catalog.json",
+        b'{"models": [], "assignments": [], "frontmatterSupport": []}\n',
+    )
+    _write_bytes(root / ".github/shared/runtime-contract.md", b"# Runtime contract\n")
+    _write_bytes(
+        root / ".github/prompts/cg-fixture.prompt.md",
+        b"---\ndescription: Fixture\n---\n\n# Fixture\n",
+    )
+    _write_bytes(
+        root / ".github/agents/cg-fixture.agent.md",
+        b"---\ndescription: Fixture\ntools: [read]\n---\n\n# Fixture\n",
+    )
+    _write_bytes(root / ".github/instructions/python.instructions.md", b"# Python\n")
     return root
 
 

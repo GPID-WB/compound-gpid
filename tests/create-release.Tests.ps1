@@ -298,4 +298,32 @@ Describe "create-release.ps1 - native packaging preflight" {
         $guard | Should -Match 'LASTEXITCODE'
         $guard | Should -Match '(throw|exit\s+1|Write-Error)'
     }
+
+    It "executes a failing preflight without reaching credentials or the API" {
+        $notesPath = Join-Path $TestDrive "release-preflight-notes.md"
+        Set-Content -Path $notesPath -Value "notes" -Encoding UTF8
+        $script:credentialCalled = $false
+        $script:apiCalled = $false
+        function global:git {
+            $global:LASTEXITCODE = 0
+            if ($args[0] -eq "-C" -and $args[2] -eq "rev-parse") { return "abc123" }
+            if ($args[0] -eq "-C" -and $args[2] -eq "status") { return }
+            if ($args[0] -eq "credential") { $script:credentialCalled = $true; return "password=fake" }
+        }
+        function global:python3 {
+            if ($args[0] -eq "--version") { $global:LASTEXITCODE = 0; return "Python 3.11.0" }
+            $global:LASTEXITCODE = 7
+        }
+        function global:Invoke-RestMethod { $script:apiCalled = $true }
+        try {
+            { & $scriptPath -Tag "v1.2.3" -Name "Test" -NotesFile $notesPath } | Should -Throw
+            $script:credentialCalled | Should -Be $false
+            $script:apiCalled | Should -Be $false
+        } finally {
+            Remove-Item Function:\git -Force -ErrorAction SilentlyContinue
+            Remove-Item Function:\python3 -Force -ErrorAction SilentlyContinue
+            Remove-Item Function:\Invoke-RestMethod -Force -ErrorAction SilentlyContinue
+            $global:LASTEXITCODE = 0
+        }
+    }
 }

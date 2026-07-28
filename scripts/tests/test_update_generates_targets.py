@@ -10,12 +10,76 @@ Run from repo root:
 from __future__ import annotations
 
 import re
+import os
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DIRECT_PYTHON3_COMMAND = re.compile(r"(?m)^\s*(?:exec\s+|command\s+)?python3\s")
+
+
+def _write_executable(path: Path, content: str) -> None:
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def _run_isolated_update(tmp_path: Path, failure: str) -> tuple[subprocess.CompletedProcess[str], Path]:
+    if os.name == "nt":
+        pytest.skip("POSIX update.sh execution is not available on Windows")
+    install = tmp_path / "install"
+    scripts = install / "scripts"
+    shared = install / ".github/shared"
+    scripts.mkdir(parents=True)
+    shared.mkdir(parents=True)
+    shutil.copy2(REPO_ROOT / "scripts/update.sh", scripts / "update.sh")
+    (install / ".cg-version").write_text("latest", encoding="utf-8")
+    (shared / "target-mapping.json").write_text("{}\n", encoding="utf-8")
+    (scripts / "cg_generate_targets.py").write_text("# fixture\n", encoding="utf-8")
+    if failure == "generator unavailable":
+        (scripts / "cg_generate_targets.py").unlink()
+    elif failure == "invalid mapping":
+        (shared / "target-mapping.json").unlink()
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    _write_executable(
+        fake_bin / "git",
+        "#!/bin/sh\n"
+        "case \"$1 $2\" in\n"
+        "  'rev-parse --abbrev-ref') printf '%s\\n' main ;;\n"
+        "  'rev-parse --short') printf '%s\\n' abc123 ;;\n"
+        "  'diff --quiet') exit 0 ;;\n"
+        "  *) exit 0 ;;\n"
+        "esac\n",
+    )
+    python_body = (
+        "#!/bin/sh\n"
+        "[ \"$1\" = '--version' ] && { printf '%s\\n' 'Python 3.11.0'; exit 0; }\n"
+        "exit 9\n"
+    )
+    if failure == "Python unavailable":
+        python_body = "#!/bin/sh\nprintf '%s\\n' 'not Python'\nexit 1\n"
+    for name in ("python3", "python", "py"):
+        _write_executable(fake_bin / name, python_body)
+
+    project = tmp_path / "consumer"
+    project.mkdir()
+    managed = project / ".opencode/opencode.json"
+    managed.parent.mkdir(parents=True)
+    managed.write_text('{"managed":"before"}\n', encoding="utf-8")
+    manifest = project / ".compound-gpid/managed-files.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text('{"schemaVersion":"compound-gpid-managed-files-v1","files":{}}\n', encoding="utf-8")
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}/usr/bin:/bin"
+    result = subprocess.run(
+        ["bash", str(scripts / "update.sh")], capture_output=True, text=True,
+        cwd=str(project), env=env, timeout=30,
+    )
+    return result, managed
 
 
 class TestUpdatePs1RegeneratesTargets:
@@ -31,15 +95,6 @@ class TestUpdatePs1RegeneratesTargets:
 
     def test_calls_generator_with_all_flag(self, content: str) -> None:
         assert "--all" in content
-
-    @pytest.mark.parametrize(
-        "failure",
-        ["generator unavailable", "invalid mapping", "generation validation failure", "Python unavailable"],
-    )
-    def test_generation_failure_is_blocking(self, content: str, failure: str) -> None:
-        assert "throw" in content.lower(), f"{failure} must terminate update.ps1"
-        assert "platform trees not regenerated" not in content.lower()
-        assert "existing trees remain linked" not in content.lower()
 
     def test_failure_stops_before_consumer_refresh(self, content: str) -> None:
         generation = content.index("cg_generate_targets.py")
@@ -72,9 +127,18 @@ class TestUpdateShRegeneratesTargets:
         "failure",
         ["generator unavailable", "invalid mapping", "generation validation failure", "Python unavailable"],
     )
-    def test_generation_failure_is_blocking(self, content: str, failure: str) -> None:
-        assert 'print_error "Platform tree generation' in content, failure
-        assert "existing trees remain linked" not in content.lower()
+    def test_generation_failure_is_blocking_without_downstream_mutation(
+        self, tmp_path: Path, failure: str
+    ) -> None:
+        result, managed = _run_isolated_update(tmp_path, failure)
+
+        assert result.returncode != 0, failure
+        assert managed.read_text(encoding="utf-8") == '{"managed":"before"}\n'
+        output = (result.stdout + result.stderr).lower()
+        if failure == "Python unavailable":
+            assert "python is required" in output
+        else:
+            assert "platform tree generation" in output
 
     def test_failure_stops_before_managed_file_refresh(self, content: str) -> None:
         generation = content.index("cg_generate_targets.py")

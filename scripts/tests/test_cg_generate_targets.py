@@ -34,6 +34,8 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
 
     _write(root / ".github/skills/cg-skill-test/SKILL.md",
            "---\nname: cg-skill-test\ndescription: Test skill\n---\n\n# Test Skill\n\nSkill body.\n")
+    _write(root / ".github/instructions/python.instructions.md", "# Python instructions\n")
+    _write(root / ".github/shared/runtime-contract.md", "# Runtime contract\n")
 
     _write(root / ".github/shared/target-mapping.json", json.dumps({
         "schemaVersion": 1,
@@ -134,13 +136,45 @@ class TestScanCanonicalAssets:
         assets = gen.scan_canonical_assets(root)
         assert len(assets["skills"]) == 1
 
-    def test_empty_repo_no_error(self, tmp_path: Path) -> None:
+    def test_missing_canonical_roots_fail(self, tmp_path: Path) -> None:
         root = tmp_path / "empty"
         root.mkdir()
         (root / ".github/shared/target-mapping.json").parent.mkdir(parents=True)
-        assets = gen.scan_canonical_assets(root)
-        assert assets["prompts"] == []
-        assert assets["agents"] == []
+        with pytest.raises(ValueError, match="Required canonical prompts root"):
+            gen.scan_canonical_assets(root)
+
+    @pytest.mark.parametrize("category", ["prompts", "agents", "skills", "instructions", "shared"])
+    def test_empty_required_canonical_inventory_fails(self, tmp_path: Path, category: str) -> None:
+        root = _make_fixture_repo(tmp_path)
+        path = root / ".github" / category
+        for item in sorted(path.rglob("*"), reverse=True):
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                item.rmdir()
+
+        with pytest.raises(ValueError, match=f"canonical {category} inventory is empty"):
+            gen.scan_canonical_assets(root)
+
+
+class TestModelCatalog:
+    def test_missing_catalog_fails(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        (root / ".github/shared/model-catalog.json").unlink()
+
+        with pytest.raises(FileNotFoundError, match="Model catalog not found"):
+            gen.load_model_catalog(root)
+
+    @pytest.mark.parametrize("field", ["models", "assignments", "frontmatterSupport"])
+    def test_missing_required_catalog_field_fails(self, tmp_path: Path, field: str) -> None:
+        root = _make_fixture_repo(tmp_path)
+        path = root / ".github/shared/model-catalog.json"
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        del catalog[field]
+        path.write_text(json.dumps(catalog), encoding="utf-8")
+
+        with pytest.raises(ValueError, match=field):
+            gen.load_model_catalog(root)
 
 
 class TestDryRun:
@@ -445,7 +479,7 @@ class TestEdgeCases:
         assert (root / ".claude/skills/cg-skill-nofm/SKILL.md").exists()
 
     def test_empty_github_directory(self, tmp_path: Path) -> None:
-        """An empty .github/ directory should produce only root-adapter + model-mapping artifacts."""
+        """An empty canonical tree must fail before generation."""
         root = tmp_path / "empty"
         (root / ".github/prompts").mkdir(parents=True)
         (root / ".github/agents").mkdir(parents=True)
@@ -464,9 +498,8 @@ class TestEdgeCases:
             }],
         }))
         exit_code = gen.main(["--root", str(root), "--target", "claude-code"])
-        assert exit_code == 0
-        assert (root / ".claude/CLAUDE.md").exists()
-        assert (root / ".claude/mm.json").exists()
+        assert exit_code == 1
+        assert not (root / ".claude").exists()
 
 
 class TestOwnershipManifest:

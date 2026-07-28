@@ -7,11 +7,77 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import os
+import shutil
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _write_executable(path: Path, content: str) -> None:
+    path.write_text(content, encoding="utf-8")
+    path.chmod(0o755)
+
+
+def _run_release_fixture(
+    tmp_path: Path, *, tag_commit: str = "abc123", head_commit: str = "abc123",
+    dirty: bool = False, python_exit: int = 1, cwd: Path | None = None,
+) -> tuple[subprocess.CompletedProcess[str], Path, Path, Path]:
+    if os.name == "nt":
+        pytest.skip("POSIX command shims are covered here; Windows release behavior is covered by Pester")
+    pwsh = shutil.which("pwsh")
+    if pwsh is None:
+        pytest.skip("pwsh is required for release-script integration tests")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    git_log = tmp_path / "git.log"
+    python_log = tmp_path / "python.log"
+    api_log = tmp_path / "api.log"
+    _write_executable(
+        bin_dir / "git",
+        "#!/bin/sh\n"
+        "printf '%s\\n' \"$*\" >> \"$CG_GIT_LOG\"\n"
+        "case \"$1 $3\" in\n"
+        "  '-C rev-parse') case \"$5\" in HEAD*) printf '%s\\n' \"$CG_HEAD_COMMIT\" ;; *) printf '%s\\n' \"$CG_TAG_COMMIT\" ;; esac ;;\n"
+        "  '-C status') [ \"$CG_DIRTY\" = 1 ] && printf '%s\\n' ' M changed.txt' ;;\n"
+        "  'credential fill') printf '%s\\n' 'password=fake-token' ;;\n"
+        "esac\nexit 0\n",
+    )
+    _write_executable(
+        bin_dir / "python3",
+        "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$CG_PYTHON_LOG\"\n"
+        "[ \"$1\" = '--version' ] && { printf '%s\\n' 'Python 3.11.0'; exit 0; }\n"
+        "exit \"$CG_PYTHON_EXIT\"\n",
+    )
+    notes = tmp_path / "notes.md"
+    notes.write_text("release notes\n", encoding="utf-8")
+    script = REPO_ROOT / "create-release.ps1"
+    escaped_script = str(script).replace("'", "''")
+    escaped_notes = str(notes).replace("'", "''")
+    escaped_api_log = str(api_log).replace("'", "''")
+    command = (
+        "$global:LASTEXITCODE = 0; "
+        f"function global:Invoke-RestMethod {{ Add-Content -Path '{escaped_api_log}' -Value 'called'; "
+        "return [pscustomobject]@{ id = 1; html_url = 'https://example.invalid' } }; "
+        f"& '{escaped_script}' -Tag v1.2.3 -Name Test -NotesFile '{escaped_notes}'"
+    )
+    env = os.environ.copy()
+    env.update({
+        "PATH": f"{bin_dir}{os.pathsep}{env.get('PATH', '')}",
+        "CG_GIT_LOG": str(git_log),
+        "CG_PYTHON_LOG": str(python_log),
+        "CG_TAG_COMMIT": tag_commit,
+        "CG_HEAD_COMMIT": head_commit,
+        "CG_DIRTY": "1" if dirty else "0",
+        "CG_PYTHON_EXIT": str(python_exit),
+    })
+    result = subprocess.run(
+        [pwsh, "-NoProfile", "-Command", command], capture_output=True, text=True,
+        cwd=str(cwd or tmp_path), env=env, timeout=30,
+    )
+    return result, git_log, python_log, api_log
 
 
 class TestReleaseGateTargets:
@@ -36,6 +102,40 @@ class TestReleaseGateTargets:
         assert preflight >= 0
         assert preflight < api
         assert "LASTEXITCODE" in content[preflight:api]
+
+    def test_release_rejects_checkout_not_matching_tag_before_preflight(self, tmp_path: Path) -> None:
+        result, git_log, python_log, api_log = _run_release_fixture(
+            tmp_path, tag_commit="tag-commit", head_commit="head-commit"
+        )
+
+        assert result.returncode != 0
+        assert "checkout mismatch" in (result.stdout + result.stderr).lower()
+        assert git_log.exists()
+        assert not python_log.exists()
+        assert not api_log.exists()
+
+    def test_release_rejects_dirty_checkout_before_preflight(self, tmp_path: Path) -> None:
+        result, _, python_log, api_log = _run_release_fixture(tmp_path, dirty=True)
+
+        assert result.returncode != 0
+        assert "must be clean" in (result.stdout + result.stderr).lower()
+        assert not python_log.exists()
+        assert not api_log.exists()
+
+    def test_failing_preflight_never_reads_credentials_or_calls_api(self, tmp_path: Path) -> None:
+        caller = tmp_path / "unrelated-cwd"
+        caller.mkdir()
+        result, git_log, python_log, api_log = _run_release_fixture(
+            tmp_path, python_exit=7, cwd=caller
+        )
+
+        assert result.returncode != 0
+        assert "preflight failed with exit code 7" in (result.stdout + result.stderr).lower()
+        assert "credential fill" not in git_log.read_text(encoding="utf-8")
+        assert f"-C {REPO_ROOT}" in git_log.read_text(encoding="utf-8")
+        assert not api_log.exists()
+        pytest_args = python_log.read_text(encoding="utf-8")
+        assert str(REPO_ROOT / "scripts/tests/test_target_mapping.py") in pytest_args
 
     def test_release_prompt_requires_gate_before_execute(self) -> None:
         content = (REPO_ROOT / "cg-release.prompt.md").read_text(encoding="utf-8")

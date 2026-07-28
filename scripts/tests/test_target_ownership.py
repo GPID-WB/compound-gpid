@@ -47,6 +47,8 @@ def _fixture_repo(tmp_path: Path) -> Path:
         b"#!/bin/sh\nexit 0\n",
         executable=True,
     )
+    _write(root / ".github/instructions/python.instructions.md", "# Python\n")
+    _write(root / ".github/shared/runtime-contract.md", "# Runtime contract\n")
     target = {
         "id": "claude-code",
         "name": "Claude Code",
@@ -73,7 +75,10 @@ def _fixture_repo(tmp_path: Path) -> Path:
         root / gen.TARGET_MAPPING_PATH,
         json.dumps({"schemaVersion": 1, "description": "test", "targets": [target]}),
     )
-    _write(root / gen.MODEL_CATALOG_PATH, json.dumps({"assignments": []}))
+    _write(
+        root / gen.MODEL_CATALOG_PATH,
+        json.dumps({"models": [], "assignments": [], "frontmatterSupport": []}),
+    )
     return root
 
 
@@ -211,6 +216,53 @@ def test_cleanup_modified_stale_is_preserved_and_fails_before_other_cleanup(tmp_
     assert _manifest_path(root).read_bytes() == manifest_before
 
 
+def test_cleanup_rechecks_stale_content_immediately_before_unlink(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    stale = root / ".claude/commands/cg-alpha.md"
+    (root / ".github/prompts/cg-alpha.prompt.md").unlink()
+    plan = gen.build_generation_plan(
+        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root), gen.load_model_catalog(root)
+    )
+    monkeypatch.setattr(
+        gen, "_before_secure_unlink",
+        lambda path: path.write_text("new user content\n", encoding="utf-8") if path == stale else None,
+    )
+
+    with pytest.raises(ValueError, match="changed before deletion"):
+        gen.commit_generation_plan(root, plan, ("claude-code",))
+    assert stale.read_text(encoding="utf-8") == "new user content\n"
+
+
+def test_commit_rechecks_destination_ancestor_immediately_before_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _fixture_repo(tmp_path)
+    plan = gen.build_generation_plan(
+        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root), gen.load_model_catalog(root)
+    )
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    commands = root / ".claude/commands"
+    displaced = root / ".claude/commands-displaced"
+    replaced = False
+
+    def replace_at_write_boundary(destination: Path) -> None:
+        nonlocal replaced
+        if destination.parent == commands and not replaced:
+            commands.rename(displaced)
+            commands.symlink_to(outside, target_is_directory=True)
+            replaced = True
+
+    monkeypatch.setattr(gen, "_before_secure_replace", replace_at_write_boundary)
+
+    with pytest.raises(OSError):
+        gen.commit_generation_plan(root, plan, ("claude-code",))
+    assert list(outside.iterdir()) == []
+
+
 def test_cleanup_untracked_file_is_preserved(tmp_path: Path) -> None:
     root = _fixture_repo(tmp_path)
     assert _generate(root) == 0
@@ -270,16 +322,14 @@ def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
     old_manifest = _manifest_path(root).read_bytes()
     source = root / ".github/prompts/cg-alpha.prompt.md"
     source.write_text(source.read_text(encoding="utf-8") + "changed\n", encoding="utf-8")
-    original = gen._write_atomic_bytes
     calls: list[Path] = []
 
-    def interrupt(path: Path, content: bytes) -> None:
+    def interrupt(path: Path) -> None:
         calls.append(path)
         if len(calls) == 2:
             raise OSError("simulated interruption")
-        original(path, content)
 
-    monkeypatch.setattr(gen, "_write_atomic_bytes", interrupt)
+    monkeypatch.setattr(gen, "_before_secure_replace", interrupt)
     with pytest.raises(OSError, match="simulated interruption"):
         gen.commit_generation_plan(
             root,
@@ -294,7 +344,7 @@ def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
     assert _manifest_path(root).read_bytes() == old_manifest
     assert _manifest_path(root) not in calls
 
-    monkeypatch.setattr(gen, "_write_atomic_bytes", original)
+    monkeypatch.setattr(gen, "_before_secure_replace", lambda _path: None)
     assert _generate(root) == 0
     assert _manifest_path(root).read_bytes() != old_manifest
     assert _manifest_entry(root, ".claude/commands/cg-alpha.md")["sha256"] == hashlib.sha256(

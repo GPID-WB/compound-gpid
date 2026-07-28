@@ -367,6 +367,42 @@ Describe "update.ps1 - manifest-managed platform file refresh" {
     }
 }
 
+Describe "update.ps1 - executable generation failure boundary" {
+    It "exits before managed-file refresh when target mapping is missing" {
+        $installRoot = Join-Path $TestDrive "isolated-update-install"
+        $scriptsRoot = Join-Path $installRoot "scripts"
+        $projectRoot = Join-Path $TestDrive "isolated-update-project"
+        New-Item -ItemType Directory -Path $scriptsRoot -Force | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $projectRoot ".opencode") -Force | Out-Null
+        Copy-Item (Join-Path $repoRoot "scripts/update.ps1") (Join-Path $scriptsRoot "update.ps1")
+        Copy-Item (Join-Path $repoRoot "scripts/helpers.ps1") (Join-Path $scriptsRoot "helpers.ps1")
+        Set-Content (Join-Path $installRoot ".cg-version") "latest" -NoNewline
+        $managedPath = Join-Path $projectRoot ".opencode/opencode.json"
+        Set-Content $managedPath '{"managed":"before"}' -Encoding UTF8
+        $childScript = Join-Path $TestDrive "invoke-isolated-update.ps1"
+        @'
+param($UpdateScript, $ProjectRoot)
+function global:git {
+    $global:LASTEXITCODE = 0
+    if ($args[0] -eq "rev-parse" -and $args[1] -eq "--abbrev-ref") { return "main" }
+    if ($args[0] -eq "rev-parse" -and $args[1] -eq "--short") { return "abc123" }
+}
+function global:python3 {
+    if ($args[0] -eq "--version") { $global:LASTEXITCODE = 0; return "Python 3.11.0" }
+}
+Set-Location $ProjectRoot
+& $UpdateScript
+'@ | Set-Content $childScript -Encoding UTF8
+
+        $pwsh = (Get-Process -Id $PID).Path
+        & $pwsh -NoProfile -File $childScript (Join-Path $scriptsRoot "update.ps1") $projectRoot
+        $childExit = $LASTEXITCODE
+
+        $childExit | Should -Not -Be 0
+        (Get-Content $managedPath -Raw -Encoding UTF8) | Should -Match '"managed":"before"'
+    }
+}
+
 Describe "helpers.ps1 - managed file manifest helpers" {
     It "can write and read a managed files manifest" {
         $manifestPath = Join-Path $TestDrive "managed-files.json"
