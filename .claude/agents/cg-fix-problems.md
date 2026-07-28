@@ -1,5 +1,5 @@
 ---
-description: Fixes VS Code diagnostics (errors, warnings, type errors, lint). Supports auto mode (dispatched by /cg-work after failures) and interactive mode (dispatched by /cg-fix-problems prompt). Auto mode: errors only, scoped to touched files, 2-round budget. Interactive mode: user-selected scope and severity.
+description: "Fixes VS Code diagnostics (errors, warnings, type errors, lint). Supports auto mode (dispatched by /cg-work after failures) and interactive mode (dispatched by /cg-fix-problems prompt). Auto mode: errors only, scoped to touched files, 2-round budget. Interactive mode: user-selected scope and severity."
 model: sonnet
 ---
 

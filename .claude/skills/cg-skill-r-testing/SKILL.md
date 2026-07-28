@@ -363,8 +363,8 @@ Read `references/fixtures.md` in this directory for helper files, setup files, d
 
 ## Cross-References
 
-- **[cg-skill-r-technical](../cg-skill-r-technical/SKILL.md)** — For plumber endpoint and httr2 mock testing, see [references/testing-apis.md](../cg-skill-r-technical/references/testing-apis.md)
-- **[cg-skill-r-analytical](../cg-skill-r-analytical/SKILL.md)** — For welfare/survey testing patterns (FGT indices, weighted stats, PPP units)
+- **`cg-skill-r-technical`** — Load for plumber endpoint and httr2 mock testing, including its `references/testing-apis.md` resource
+- **`cg-skill-r-analytical`** — Load for welfare/survey testing patterns (FGT indices, weighted stats, PPP units)
 - **[references/bdd.md](references/bdd.md)** — BDD-style testing: describe/it, nesting, test-first workflows
 - **[references/mocking.md](references/mocking.md)** — Mocking strategies, webfakes, httptest2
 - **[references/fixtures.md](references/fixtures.md)** — Fixture patterns, database fixtures, helper/setup files

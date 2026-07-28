@@ -1,5 +1,5 @@
 ---
-description: Reviews project structure, modularity, separation of concerns, and dependency management. Trilingual R/Python/Stata.
+description: "Reviews project structure, modularity, separation of concerns, and dependency management. Trilingual R/Python/Stata."
 mode: subagent
 ---
 

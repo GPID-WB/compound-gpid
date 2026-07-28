@@ -1,5 +1,5 @@
 ---
-description: Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only.
+description: "Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only."
 ---
 
 # Dev Tag

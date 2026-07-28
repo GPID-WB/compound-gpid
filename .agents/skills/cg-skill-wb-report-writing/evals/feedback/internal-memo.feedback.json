@@ -1,0 +1,9 @@
+{
+    "schema_version":  1,
+    "document_type":  "internal-memo",
+    "summary":  "Accepted after guardrail and fidelity review for Internal Memo.",
+    "reviewer_notes":  [
+                           "All required checks passed.",
+                           "No unsupported claims were observed."
+                       ]
+}

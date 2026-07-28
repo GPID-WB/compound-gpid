@@ -1,0 +1,9 @@
+{
+    "schema_version":  1,
+    "document_type":  "country-analytical-narrative",
+    "summary":  "Accepted after guardrail and fidelity review for Country Analytical Narrative.",
+    "reviewer_notes":  [
+                           "All required checks passed.",
+                           "No unsupported claims were observed."
+                       ]
+}

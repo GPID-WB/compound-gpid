@@ -23,9 +23,9 @@ table below.
 > as the default inline comment style per `stata.instructions.md` (`*` is reserved for section delimiters).
 
 **Cross-references**:
-- [`cg-skill-stata-best-practices`](../cg-skill-stata-best-practices/SKILL.md) —
+- `cg-skill-stata-best-practices` —
   coding principles, repkit API docs, all 21 community packages
-- [`cg-skill-r-testing`](../cg-skill-r-testing/SKILL.md) —
+- `cg-skill-r-testing` —
   R testing patterns for Stata→R migration context
 
 ---
