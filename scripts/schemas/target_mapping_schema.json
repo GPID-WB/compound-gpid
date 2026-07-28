@@ -20,7 +20,7 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
         "name": { "type": "string" },
-        "generatedTreePath": { "type": ["string", "null"] },
+        "generatedTreePath": { "type": ["string", "null"], "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
         "modelMappingMode": { "type": "string", "enum": ["role-only", "tier", "exact"] },
         "capabilities": {
           "type": "object",
@@ -47,14 +47,14 @@
           "type": "object",
           "required": ["commands", "skills", "agents"],
           "properties": {
-            "commands": { "type": "string" },
-            "skills": { "type": "string" },
-            "agents": { "type": "string" },
-            "instructions": { "type": "string" },
-            "shared": { "type": "string" },
-            "rootAdapter": { "type": "string" },
-            "modelMapping": { "type": "string" },
-            "config": { "type": "string" }
+            "commands": { "$ref": "#/definitions/repoPath" },
+            "skills": { "$ref": "#/definitions/repoPath" },
+            "agents": { "$ref": "#/definitions/repoPath" },
+            "instructions": { "$ref": "#/definitions/repoPath" },
+            "shared": { "$ref": "#/definitions/repoPath" },
+            "rootAdapter": { "$ref": "#/definitions/repoPath" },
+            "modelMapping": { "$ref": "#/definitions/repoPath" },
+            "config": { "$ref": "#/definitions/repoPath" }
           }
         },
         "modelMapping": {
@@ -80,11 +80,24 @@
       "required": ["type", "source", "target", "strategy"],
       "properties": {
         "type": { "type": "string", "enum": ["directory", "file"] },
-        "source": { "type": "string" },
-        "target": { "type": "string" },
+        "source": { "$ref": "#/definitions/repoPath" },
+        "target": { "$ref": "#/definitions/repoPath" },
         "strategy": { "type": "string", "enum": ["link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"] },
         "manualSnippet": { "type": "string" }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "strategy": { "const": "link-directory" } } },
+          "then": { "properties": { "type": { "const": "directory" } } },
+          "else": { "properties": { "type": { "const": "file" } } }
+        }
+      ]
+    },
+    "repoPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000\\\\]+$",
+      "description": "Basic structural guard only. The canonical Python validator (_validate_repo_relative_path) enforces full constraints: no empty components, no '.' parts, no trailing dots/spaces, no Windows reserved names. If this regex needs strengthening, match it against the Python validator — do not weaken the Python validator."
     }
   }
 }

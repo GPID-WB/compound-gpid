@@ -27,24 +27,42 @@ if sys.version_info < (3, 8):
     sys.exit(1)
 
 import argparse
+import hashlib
 import json
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
-
-_scripts_dir = str(Path(__file__).parent)
-if _scripts_dir not in sys.path:
-    sys.path.insert(0, _scripts_dir)
-
-from brain.utils import parse_frontmatter, write_atomic  # noqa: E402
+import re
+import stat
+import tempfile
+import unicodedata
+import urllib.parse
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
+
+
+def _get_parse_frontmatter():
+    """Lazy-load parse_frontmatter to defer sys.path mutation until first call."""
+    if not hasattr(_get_parse_frontmatter, "_cache"):
+        import sys as _sys
+        _scripts_dir = str(Path(__file__).parent)
+        if _scripts_dir not in _sys.path:
+            _sys.path.insert(0, _scripts_dir)
+        from brain.utils import parse_frontmatter as _fn
+        _get_parse_frontmatter._cache = _fn
+    return _get_parse_frontmatter._cache
 MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
+OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
+OWNERSHIP_POLICY_VERSION = 1
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
 CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
+MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
+MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
 
 
 # ---------------------------------------------------------------------------
@@ -59,6 +77,116 @@ VALID_MODEL_MAPPING_MODES = {"role-only", "tier", "exact"}
 VALID_ROLES = {"coding", "review", "reasoning", "mechanical", "inherited", "fallback", "cross-vendor-review"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
 VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
+TARGET_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
+WINDOWS_RESERVED_NAMES = {
+    "con", "prn", "aux", "nul",
+    *(f"com{i}" for i in range(1, 10)),
+    *(f"lpt{i}" for i in range(1, 10)),
+}
+
+
+class PathSafetyError(ValueError):
+    """Raised when a mapped path can escape or is not portable."""
+
+
+class MappingValidationError(ValueError):
+    """Raised when target mapping validation fails."""
+
+
+@dataclass(frozen=True)
+class OutputEntry:
+    """One fully rendered, deterministic generator output."""
+
+    target_id: str
+    destination: str
+    source: str
+    kind: str
+    content: bytes
+    sha256: str
+    executable: bool
+
+
+@dataclass(frozen=True)
+class TargetResult:
+    """Sorted rendered outputs for one target."""
+
+    target_id: str
+    target_root: str
+    entries: Tuple[OutputEntry, ...]
+
+
+@dataclass(frozen=True)
+class GenerationPlan:
+    """Complete rendered output plan, ready for a write-only commit."""
+
+    entries: Tuple[OutputEntry, ...]
+    by_target: Mapping[str, TargetResult]
+
+
+@dataclass(frozen=True)
+class CommitResult:
+    """Outputs committed for selected targets."""
+
+    target_ids: Tuple[str, ...]
+    entries: Tuple[OutputEntry, ...]
+
+
+@dataclass(frozen=True)
+class OwnedFile:
+    """Validated ownership metadata from a prior target manifest."""
+
+    path: str
+    sha256: str
+
+
+@dataclass(frozen=True)
+class TargetCommitPlan:
+    """A fully preflighted target mutation."""
+
+    result: TargetResult
+    stale_paths: Tuple[str, ...]
+    manifest_path: Path
+    manifest_content: bytes
+
+
+def _portable_path_key(value: str) -> tuple[str, ...]:
+    """Return a case-insensitive, Unicode-normalized Windows-portable key."""
+    return tuple(
+        unicodedata.normalize("NFC", part).casefold().rstrip(". ")
+        for part in PurePosixPath(value).parts
+    )
+
+
+def _validate_repo_relative_path(label: str, value: Any) -> list[str]:
+    """Validate a portable POSIX repository-relative path."""
+    if not isinstance(value, str):
+        return [f"{label}: must be a string"]
+    if not value:
+        return [f"{label}: must not be empty"]
+    errors: list[str] = []
+    if "\x00" in value:
+        errors.append(f"{label}: must not contain NUL")
+    if "\\" in value:
+        errors.append(f"{label}: must use POSIX '/' separators")
+    if value.startswith(("/", "//", "\\\\")) or re.match(r"^[A-Za-z]:", value):
+        errors.append(f"{label}: must be repository-relative, not absolute, drive-qualified, or UNC")
+    parts = value.replace("\\", "/").split("/")
+    if any(part in ("", ".", "..") for part in parts):
+        errors.append(f"{label}: must not contain empty, '.', or traversal components")
+    for part in parts:
+        portable = unicodedata.normalize("NFC", part).casefold().rstrip(". ")
+        if part.endswith((".", " ")):
+            errors.append(f"{label}: component '{part}' has a trailing dot or space")
+        if portable.split(".", 1)[0] in WINDOWS_RESERVED_NAMES:
+            errors.append(f"{label}: component '{part}' is a Windows reserved name")
+    return errors
+
+
+def _is_within(path: str, parent: str) -> bool:
+    """Return whether a normalized repository path is at or below parent."""
+    path_parts = PurePosixPath(path).parts
+    parent_parts = PurePosixPath(parent).parts
+    return path_parts[:len(parent_parts)] == parent_parts
 
 
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
@@ -86,6 +214,8 @@ def _validate_formats(prefix: str, formats: Any) -> list[str]:
             errors.append(f"{prefix}.formats: missing required field '{field}'")
         elif not isinstance(formats[field], str):
             errors.append(f"{prefix}.formats.{field}: must be a string")
+    if "fallbackAgentFormat" in formats and not isinstance(formats["fallbackAgentFormat"], str):
+        errors.append(f"{prefix}.formats.fallbackAgentFormat: must be a string")
     return errors
 
 
@@ -127,6 +257,11 @@ def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
         for field in ("source", "target"):
             if field in unit and not isinstance(unit[field], str):
                 errors.append(f"{unit_prefix}.{field}: must be a string")
+            elif field in unit:
+                errors.extend(_validate_repo_relative_path(f"{unit_prefix}.{field}", unit[field]))
+        expected_type = "directory" if strategy == "link-directory" else "file"
+        if strategy in VALID_INSTALL_UNIT_STRATEGIES and unit_type in VALID_INSTALL_UNIT_TYPES and unit_type != expected_type:
+            errors.append(f"{unit_prefix}: strategy '{strategy}' requires type '{expected_type}', not '{unit_type}'")
         if "manualSnippet" in unit and not isinstance(unit["manualSnippet"], str):
             errors.append(f"{unit_prefix}.manualSnippet: must be a string")
     return errors
@@ -135,10 +270,16 @@ def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
+    if not isinstance(data, dict):
+        return ["target mapping must be an object"]
     if "schemaVersion" not in data:
         errors.append("Missing required field: schemaVersion")
-    elif not isinstance(data["schemaVersion"], int):
-        errors.append("schemaVersion must be an integer")
+    elif type(data["schemaVersion"]) is not int or data["schemaVersion"] != 1:
+        errors.append("schemaVersion must be the integer 1")
+    if "description" not in data:
+        errors.append("Missing required field: description")
+    elif not isinstance(data["description"], str):
+        errors.append("description must be a string")
     if "targets" not in data:
         errors.append("Missing required field: targets")
         return errors
@@ -147,6 +288,7 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         return errors
 
     seen_ids: set[str] = set()
+    generated_roots: list[tuple[str, str]] = []
     for i, target in enumerate(data["targets"]):
         prefix = f"targets[{i}]"
         if not isinstance(target, dict):
@@ -157,9 +299,14 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             if field not in target:
                 errors.append(f"{prefix}: missing required field '{field}'")
 
+        if "name" in target and not isinstance(target["name"], str):
+            errors.append(f"{prefix}.name: must be a string")
+
         tid = target.get("id", "")
         if not isinstance(tid, str) or not tid:
             errors.append(f"{prefix}: id must be a non-empty string")
+        elif not TARGET_ID_PATTERN.fullmatch(tid):
+            errors.append(f"{prefix}: id must start with a lowercase letter and contain only lowercase letters, digits, and hyphens")
         elif tid in seen_ids:
             errors.append(f"{prefix}: duplicate target id '{tid}'")
         else:
@@ -177,8 +324,136 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         gtp = target.get("generatedTreePath")
         if gtp is not None and not isinstance(gtp, str):
             errors.append(f"{prefix}: generatedTreePath must be a string or null")
+        elif isinstance(gtp, str):
+            errors.extend(_validate_repo_relative_path(f"{prefix}.generatedTreePath", gtp))
+            if _is_within(gtp, ".github"):
+                errors.append(f"{prefix}.generatedTreePath: generated destination must be outside canonical .github")
+            generated_roots.append((prefix, gtp))
+
+        output_paths = target.get("outputPaths")
+        if isinstance(output_paths, dict):
+            output_items: list[tuple[str, str]] = []
+            for field, value in output_paths.items():
+                label = f"{prefix}.outputPaths.{field}"
+                errors.extend(_validate_repo_relative_path(label, value))
+                if isinstance(gtp, str) and isinstance(value, str) and not _is_within(value, gtp):
+                    errors.append(f"{label}: path is outside generatedTreePath '{gtp}'")
+                if isinstance(value, str):
+                    output_items.append((label, value))
+            for index, (first_label, first) in enumerate(output_items):
+                first_key = _portable_path_key(first)
+                for second_label, second in output_items[index + 1:]:
+                    second_key = _portable_path_key(second)
+                    if first_key == second_key:
+                        errors.append(f"{first_label} and {second_label}: portable path collision")
+                    elif first_key == second_key[:len(first_key)] or second_key == first_key[:len(second_key)]:
+                        errors.append(f"{first_label} and {second_label}: file/directory prefix conflict")
+
+        if isinstance(gtp, str) and isinstance(target.get("installUnits"), list):
+            for unit_index, unit in enumerate(target["installUnits"]):
+                if isinstance(unit, dict) and isinstance(unit.get("source"), str) and not _is_within(unit["source"], gtp):
+                    errors.append(f"{prefix}.installUnits[{unit_index}].source: path is outside generatedTreePath '{gtp}'")
+
+    for index, (first_prefix, first) in enumerate(generated_roots):
+        first_key = _portable_path_key(first)
+        for second_prefix, second in generated_roots[index + 1:]:
+            second_key = _portable_path_key(second)
+            if first_key == second_key[:len(first_key)] or second_key == first_key[:len(second_key)]:
+                errors.append(f"{first_prefix} and {second_prefix}: generated tree roots overlap")
 
     return errors
+
+
+def validate_mapping_paths(root: Path, data: dict[str, Any]) -> None:
+    """Reject mapped paths whose existing filesystem ancestors escape root."""
+    root = root.resolve()
+    values: list[tuple[str, str]] = []
+    for index, target in enumerate(data.get("targets", [])):
+        if not isinstance(target, dict):
+            continue
+        for label, value in [(f"targets[{index}].generatedTreePath", target.get("generatedTreePath"))]:
+            if isinstance(value, str):
+                values.append((label, value))
+        for field, value in target.get("outputPaths", {}).items():
+            if isinstance(value, str):
+                values.append((f"targets[{index}].outputPaths.{field}", value))
+        for unit_index, unit in enumerate(target.get("installUnits", [])):
+            if isinstance(unit, dict):
+                for field in ("source", "target"):
+                    if isinstance(unit.get(field), str):
+                        values.append((f"targets[{index}].installUnits[{unit_index}].{field}", unit[field]))
+    for label, value in values:
+        candidate = root / value
+        ancestor = candidate
+        while not ancestor.exists() and ancestor != root:
+            ancestor = ancestor.parent
+        resolved = ancestor.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError as exc:
+            raise PathSafetyError(f"{label}: existing ancestor escapes repository root") from exc
+
+
+def build_generation_plan(
+    root: Path,
+    mapping: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+    catalog: dict[str, Any],
+) -> GenerationPlan:
+    """Validate and fully render every generated target without writing files."""
+    errors = validate_target_mapping(mapping)
+    if errors:
+        raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
+    validate_mapping_paths(root, mapping)
+    by_target: dict[str, TargetResult] = {}
+    for target in mapping["targets"]:
+        if target.get("generatedTreePath") is None:
+            continue
+        rendered = tuple(sorted(
+            (_render_output_entry(target, entry, assets, catalog)
+             for entry in build_output_manifest(target, assets)),
+            key=lambda entry: entry.destination,
+        ))
+        _validate_output_namespace(target["id"], rendered)
+        by_target[target["id"]] = TargetResult(
+            target["id"], target["generatedTreePath"], rendered
+        )
+    entries = tuple(sorted(
+        (entry for result in by_target.values() for entry in result.entries),
+        key=lambda entry: entry.destination,
+    ))
+    return GenerationPlan(entries, by_target)
+
+
+def _validate_output_namespace(
+    target_id: str,
+    entries: Sequence[OutputEntry],
+) -> None:
+    """Reject unsafe, colliding, and file/directory-conflicting outputs."""
+    paths: list[tuple[tuple[str, ...], OutputEntry]] = []
+    for entry in entries:
+        errors = _validate_repo_relative_path(
+            f"{target_id} output '{entry.destination}'", entry.destination
+        )
+        if errors:
+            raise PathSafetyError("; ".join(errors))
+        paths.append((_portable_path_key(entry.destination), entry))
+
+    for index, (first_key, first) in enumerate(paths):
+        for second_key, second in paths[index + 1:]:
+            if first_key == second_key:
+                raise ValueError(
+                    f"{target_id} output namespace collision: "
+                    f"{first.destination} and {second.destination}"
+                )
+            if (
+                first_key == second_key[:len(first_key)]
+                or second_key == first_key[:len(second_key)]
+            ):
+                raise ValueError(
+                    f"{target_id} output file/directory namespace conflict: "
+                    f"{first.destination} and {second.destination}"
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -205,10 +480,25 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
     ]:
         for path in sorted(root.glob(pattern)):
-            if not path.is_file():
-                continue
+            if path.is_symlink():
+                raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
+            if not stat.S_ISREG(path.lstat().st_mode):
+                raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
             content = path.read_text(encoding="utf-8")
-            fm = parse_frontmatter(content)
+            fm = _get_parse_frontmatter()(content)
+            if content.lstrip("\ufeff\r\n").startswith("---"):
+                block = content.lstrip("\ufeff\r\n").split("---", 2)[1]
+                for line in block.splitlines():
+                    if line.startswith("description:"):
+                        raw_description = line.partition(":")[2].strip()
+                        if raw_description.startswith('"'):
+                            try:
+                                fm["description"] = json.loads(raw_description)
+                            except json.JSONDecodeError:
+                                pass
+                        elif raw_description.startswith("'") and raw_description.endswith("'"):
+                            fm["description"] = raw_description[1:-1].replace("''", "'")
+                        break
             rel = str(path.relative_to(root)).replace("\\", "/")
             assets[category].append({
                 "path": str(path),
@@ -218,7 +508,127 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 "filename": path.name,
             })
 
+    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+    scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
+    for skill_root in canonical_skill_roots:
+        if skill_root.is_symlink():
+            raise ValueError(f"Canonical skill directory is a symlink: {skill_root.name}")
+        if not skill_root.is_dir():
+            raise ValueError(f"Canonical skill entry is not a directory: {skill_root.name}")
+        if skill_root not in scanned_skill_roots:
+            raise ValueError(f"Canonical skill is missing regular SKILL.md: {skill_root.name}")
+
+    for skill in assets["skills"]:
+        skill_root = Path(skill["path"]).parent
+        skill["bundle_files"] = _inventory_skill_bundle(root, skill_root)
+        skill_file = next(
+            item for item in skill["bundle_files"]
+            if item["bundle_relative_path"] == "SKILL.md"
+        )
+        skill["executable"] = skill_file["executable"]
+        _validate_bundle_markdown_references(skill["bundle_files"])
+
     return assets
+
+
+def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]]:
+    """Inventory regular files below a skill without following filesystem links."""
+    files: list[dict[str, Any]] = []
+
+    def visit(directory: Path) -> None:
+        with os.scandir(str(directory)) as entries:
+            for entry in sorted(entries, key=lambda item: item.name):
+                path = Path(entry.path)
+                relative = path.relative_to(skill_root).as_posix()
+                if entry.is_symlink():
+                    raise ValueError(f"Skill bundle contains symlink entry: {relative}")
+                if entry.is_dir(follow_symlinks=False):
+                    visit(path)
+                elif entry.is_file(follow_symlinks=False):
+                    mode = entry.stat(follow_symlinks=False).st_mode
+                    files.append({
+                        "path": str(path),
+                        "relative_path": path.relative_to(root).as_posix(),
+                        "bundle_relative_path": relative,
+                        "content": path.read_bytes(),
+                        "executable": bool(mode & 0o111),
+                    })
+                else:
+                    raise ValueError(f"Skill bundle contains non-regular special entry: {relative}")
+
+    visit(skill_root)
+    return sorted(files, key=lambda item: item["bundle_relative_path"])
+
+
+def _validate_bundle_markdown_references(
+    bundle_files: list[dict[str, Any]],
+) -> None:
+    """Validate local Markdown references against files in one skill bundle."""
+    included = {item["bundle_relative_path"] for item in bundle_files}
+    for item in bundle_files:
+        if not item["bundle_relative_path"].casefold().endswith((".md", ".markdown")):
+            continue
+        try:
+            text = item["content"].decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ValueError(
+                f"Markdown file is not valid UTF-8: {item['relative_path']}"
+            ) from exc
+        text = _strip_fenced_code(text)
+        references = MARKDOWN_LINK_PATTERN.findall(text)
+        references.extend(MARKDOWN_REFERENCE_PATTERN.findall(text))
+        source_relative = PurePosixPath(item["bundle_relative_path"])
+        for raw_reference in references:
+            reference = urllib.parse.unquote(raw_reference).split("#", 1)[0].split("?", 1)[0]
+            if not reference or reference.startswith("#"):
+                continue
+            parsed = urllib.parse.urlsplit(reference)
+            if parsed.scheme or parsed.netloc:
+                continue
+            if reference.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", reference):
+                raise ValueError(
+                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
+                )
+            parts: list[str] = []
+            escaped = False
+            for part in source_relative.parent.joinpath(PurePosixPath(reference.replace("\\", "/"))).parts:
+                if part in ("", "."):
+                    continue
+                if part == "..":
+                    if not parts:
+                        escaped = True
+                        break
+                    parts.pop()
+                else:
+                    parts.append(part)
+            resolved = PurePosixPath(*parts).as_posix()
+            if escaped:
+                raise ValueError(
+                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
+                )
+            if resolved not in included:
+                raise ValueError(
+                    f"Markdown reference is missing from skill bundle: {item['relative_path']} -> {raw_reference}"
+                )
+
+
+def _strip_fenced_code(text: str) -> str:
+    """Remove closed or unterminated Markdown fenced code blocks."""
+    output: list[str] = []
+    fence_character: Optional[str] = None
+    fence_length = 0
+    for line in text.splitlines(keepends=True):
+        match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        if fence_character is None:
+            if match:
+                fence_character = match.group(1)[0]
+                fence_length = len(match.group(1))
+            else:
+                output.append(line)
+        elif match and match.group(1)[0] == fence_character and len(match.group(1)) >= fence_length:
+            fence_character = None
+            fence_length = 0
+    return "".join(output)
 
 
 def load_target_mapping(root: Path) -> dict[str, Any]:
@@ -289,7 +699,17 @@ def _manifest_skills(target: dict[str, Any], skills: list[dict[str, Any]]) -> li
     entries: list[dict[str, str]] = []
     for skill in skills:
         skill_name = Path(skill["relative_path"]).parent.name
-        entries.append({"path": f"{skill_dir}/{skill_name}/SKILL.md", "source": skill["relative_path"], "type": "skill"})
+        bundle_files = skill.get("bundle_files")
+        if bundle_files is None:
+            entries.append({"path": f"{skill_dir}/{skill_name}/SKILL.md", "source": skill["relative_path"], "type": "skill"})
+            continue
+        for bundle_file in bundle_files:
+            kind = "skill" if bundle_file["bundle_relative_path"] == "SKILL.md" else "skill-resource"
+            entries.append({
+                "path": f"{skill_dir}/{skill_name}/{bundle_file['bundle_relative_path']}",
+                "source": bundle_file["relative_path"],
+                "type": kind,
+            })
     return entries
 
 
@@ -362,13 +782,23 @@ def _format_frontmatter(
     Returns:
         Formatted file content with new frontmatter + stripped body.
     """
-    desc = fm.get("description", "")
+    desc = _yaml_scalar(fm.get("description", ""))
     field_lines = ""
     for key, value in extra_fields.items():
         if value is not None:
-            field_lines += f"{key}: {value}\n"
+            field_lines += f"{key}: {_yaml_scalar(value)}\n"
     body_text = body.split("---", 2)[-1].lstrip() if "---" in body else body
     return f"---\ndescription: {desc}\n{field_lines}---\n\n{body_text}"
+
+
+def _yaml_scalar(value: Any) -> str:
+    """Serialize a deterministic YAML-compatible scalar."""
+    text = str(value)
+    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._ /-]*", text) and text.casefold() not in {
+        "null", "true", "false", "yes", "no", "on", "off",
+    }:
+        return text
+    return json.dumps(text, ensure_ascii=False)
 
 
 def _with_opencode_arguments(body: str) -> str:
@@ -391,6 +821,253 @@ def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, di
     return lookups
 
 
+def _render_output_entry(
+    target: dict[str, Any],
+    manifest_entry: dict[str, str],
+    assets: dict[str, list[dict[str, Any]]],
+    catalog: dict[str, Any],
+) -> OutputEntry:
+    """Render one manifest entry into final bytes without filesystem writes."""
+    lookups = _build_asset_lookup(assets)
+    kind = manifest_entry["type"]
+    source_identity = manifest_entry["source"]
+    source = None
+    category = {
+        "command": "prompts", "skill": "skills", "agent": "agents",
+        "fallback-agent": "agents",
+    }.get(kind)
+    if kind == "skill-resource":
+        for skill in assets["skills"]:
+            source = next(
+                (item for item in skill.get("bundle_files", [])
+                 if item["relative_path"] == source_identity),
+                None,
+            )
+            if source is not None:
+                break
+        if source is None:
+            raise ValueError(f"Manifest references unknown skill resource: {source_identity}")
+    elif category is not None:
+        source = lookups[category].get(source_identity)
+        if source is None:
+            raise ValueError(f"Manifest references unknown {category[:-1]}: {source_identity}")
+
+    if kind == "command":
+        text = _emit_command(source, target, catalog)
+    elif kind == "skill":
+        text = source["body"]
+    elif kind == "skill-resource":
+        content = source["content"]
+    elif kind == "agent":
+        text = _emit_agent(source, target, catalog)
+    elif kind == "fallback-agent":
+        text = _emit_fallback_agent(source, target, catalog)
+    elif kind == "root-adapter":
+        text = _emit_root_adapter(target)
+    elif kind == "model-mapping":
+        text = _emit_model_mapping(target, catalog)
+    elif kind == "config":
+        text = _emit_config(target)
+    else:
+        raise ValueError(f"Unsupported output type: {kind}")
+
+    if kind != "skill-resource":
+        content = text.encode("utf-8")
+    executable = bool(source.get("executable", False)) if source is not None else False
+    return OutputEntry(
+        target["id"], str(PurePosixPath(manifest_entry["path"])),
+        str(PurePosixPath(source_identity)), kind, content,
+        hashlib.sha256(content).hexdigest(), executable,
+    )
+
+
+def _write_atomic_bytes(path: Path, content: bytes) -> None:
+    """Atomically replace path with exact bytes from a generation plan."""
+    fd, temporary = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _ownership_manifest_bytes(result: TargetResult) -> bytes:
+    """Serialize deterministic ownership metadata for one target."""
+    data = {
+        "schemaVersion": 1,
+        "target": result.target_id,
+        "policyVersion": OWNERSHIP_POLICY_VERSION,
+        "files": [
+            {
+                "path": entry.destination,
+                "source": entry.source,
+                "kind": entry.kind,
+                "sha256": entry.sha256,
+                "executable": entry.executable,
+            }
+            for entry in result.entries
+        ],
+    }
+    return (json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def _read_prior_ownership_manifest(
+    root: Path,
+    result: TargetResult,
+) -> Dict[str, OwnedFile]:
+    """Read and strictly validate a target's prior ownership manifest."""
+    manifest_path = root / result.target_root / OWNERSHIP_MANIFEST_NAME
+    if not manifest_path.exists():
+        return {}
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise ValueError(f"Ownership manifest is not a regular file: {manifest_path}")
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Ownership manifest is malformed: {manifest_path}") from exc
+    if not isinstance(data, dict) or set(data) != {
+        "schemaVersion", "target", "policyVersion", "files"
+    }:
+        raise ValueError(f"Ownership manifest has an invalid schema: {manifest_path}")
+    if type(data["schemaVersion"]) is not int or data["schemaVersion"] != 1:
+        raise ValueError(f"Ownership manifest has an unsupported schemaVersion: {manifest_path}")
+    if data["target"] != result.target_id:
+        raise ValueError(f"Ownership manifest target does not match {result.target_id}")
+    if type(data["policyVersion"]) is not int or data["policyVersion"] != OWNERSHIP_POLICY_VERSION:
+        raise ValueError(f"Ownership manifest has an unsupported policyVersion: {manifest_path}")
+    if not isinstance(data["files"], list):
+        raise ValueError(f"Ownership manifest files must be an array: {manifest_path}")
+
+    owned: Dict[str, OwnedFile] = {}
+    manifest_destination = f"{result.target_root}/{OWNERSHIP_MANIFEST_NAME}"
+    for index, item in enumerate(data["files"]):
+        label = f"ownership manifest files[{index}]"
+        if not isinstance(item, dict) or set(item) != {
+            "path", "source", "kind", "sha256", "executable"
+        }:
+            raise ValueError(f"{label} has an invalid schema")
+        path = item["path"]
+        path_errors = _validate_repo_relative_path(f"{label}.path", path)
+        if path_errors:
+            raise ValueError("; ".join(path_errors))
+        if not _is_within(path, result.target_root) or path == result.target_root:
+            raise ValueError(f"{label}.path is outside target root '{result.target_root}'")
+        if path == manifest_destination:
+            raise ValueError(f"{label}.path must not own the manifest itself")
+        if path in owned:
+            raise ValueError(f"Ownership manifest has duplicate destination: {path}")
+        if not isinstance(item["source"], str) or not item["source"]:
+            raise ValueError(f"{label}.source must be a non-empty string")
+        if not isinstance(item["kind"], str) or not item["kind"]:
+            raise ValueError(f"{label}.kind must be a non-empty string")
+        if not isinstance(item["sha256"], str) or not SHA256_PATTERN.fullmatch(item["sha256"]):
+            raise ValueError(f"{label}.sha256 is not a lowercase SHA-256 digest")
+        if type(item["executable"]) is not bool:
+            raise ValueError(f"{label}.executable must be a boolean")
+        owned[path] = OwnedFile(path, item["sha256"])
+    return owned
+
+
+def _regular_file_hash(path: Path, label: str) -> str:
+    """Hash a regular non-symlink file, rejecting replacement types."""
+    if path.is_symlink() or not path.is_file():
+        raise ValueError(f"{label} is not a regular file: {path}")
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPlan:
+    """Validate ownership, conflicts, and stale files before mutation."""
+    owned = _read_prior_ownership_manifest(root, result)
+    expected = {entry.destination: entry for entry in result.entries}
+    target_root = root / result.target_root
+    manifest_path = target_root / OWNERSHIP_MANIFEST_NAME
+
+    for entry in result.entries:
+        destination = root / entry.destination
+        ancestor = destination.parent
+        while ancestor != root and ancestor != target_root.parent:
+            if ancestor.exists() and (ancestor.is_symlink() or not ancestor.is_dir()):
+                raise ValueError(f"Expected destination has a non-directory ancestor: {entry.destination}")
+            if ancestor == target_root:
+                break
+            ancestor = ancestor.parent
+        if not destination.exists() and not destination.is_symlink():
+            continue
+        current_hash = _regular_file_hash(destination, "Expected destination")
+        prior = owned.get(entry.destination)
+        allowed_hashes = {entry.sha256}
+        if prior is not None:
+            allowed_hashes.add(prior.sha256)
+        if current_hash not in allowed_hashes:
+            ownership = "owned" if prior is not None else "unowned"
+            raise ValueError(f"Conflicting {ownership} expected destination: {entry.destination}")
+
+    stale_paths = tuple(sorted(set(owned) - set(expected)))
+    for stale in stale_paths:
+        path = root / stale
+        if not path.exists() and not path.is_symlink():
+            continue
+        current_hash = _regular_file_hash(path, "Stale owned path")
+        if current_hash != owned[stale].sha256:
+            raise ValueError(f"Modified stale owned file will not be deleted: {stale}")
+
+    if manifest_path.exists() and (manifest_path.is_symlink() or not manifest_path.is_file()):
+        raise ValueError(f"Ownership manifest is not a regular file: {manifest_path}")
+    return TargetCommitPlan(
+        result, stale_paths, manifest_path, _ownership_manifest_bytes(result)
+    )
+
+
+def _prune_empty_parents(path: Path, target_root: Path) -> None:
+    """Remove empty parents below, but never including, the target root."""
+    parent = path.parent
+    while parent != target_root:
+        try:
+            parent.rmdir()
+        except OSError:
+            break
+        parent = parent.parent
+
+
+def commit_generation_plan(
+    root: Path,
+    plan: GenerationPlan,
+    selected_target_ids: Sequence[str],
+) -> CommitResult:
+    """Atomically write exact planned bytes for selected targets."""
+    target_ids = tuple(sorted(set(selected_target_ids)))
+    unknown = [target_id for target_id in target_ids if target_id not in plan.by_target]
+    if unknown:
+        raise ValueError(f"Targets are not present in generation plan: {', '.join(unknown)}")
+    commit_plans = tuple(
+        _preflight_target_commit(root, plan.by_target[target_id])
+        for target_id in target_ids
+    )
+    entries = tuple(entry for commit_plan in commit_plans
+                    for entry in commit_plan.result.entries)
+    for entry in entries:
+        destination = root / entry.destination
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        _write_atomic_bytes(destination, entry.content)
+        mode = destination.stat().st_mode
+        destination.chmod((mode | 0o111) if entry.executable else (mode & ~0o111))
+    for commit_plan in commit_plans:
+        target_root = root / commit_plan.result.target_root
+        for stale in commit_plan.stale_paths:
+            path = root / stale
+            if path.exists():
+                path.unlink()
+                _prune_empty_parents(path, target_root)
+        commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        _write_atomic_bytes(commit_plan.manifest_path, commit_plan.manifest_content)
+    return CommitResult(target_ids, entries)
+
+
 def emit_for_target(
     root: Path,
     target: dict[str, Any],
@@ -403,62 +1080,14 @@ def emit_for_target(
     Phase 1: emits passthrough copies with frontmatter adaptation.
     Phase 2-4: platform-specific emitters will override this.
     """
-    written: list[str] = []
-    output_paths = target.get("outputPaths", {})
-    gtp = target.get("generatedTreePath")
-
-    if gtp is None:
-        return written
-
-    manifest = build_output_manifest(target, assets)
-
-    if dry_run:
-        for entry in manifest:
-            written.append(entry["path"])
-        return written
-
-    lookups = _build_asset_lookup(assets)
-
-    for entry in manifest:
-        out_path = root / entry["path"]
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-
-        if entry["type"] == "command":
-            source = lookups["prompts"].get(entry["source"])
-            if source is None:
-                raise ValueError(f"Manifest references unknown prompt: {entry['source']}")
-            content = _emit_command(source, target, catalog)
-            write_atomic(out_path, content)
-        elif entry["type"] == "skill":
-            source = lookups["skills"].get(entry["source"])
-            if source is None:
-                raise ValueError(f"Manifest references unknown skill: {entry['source']}")
-            write_atomic(out_path, source["body"])
-        elif entry["type"] == "agent":
-            source = lookups["agents"].get(entry["source"])
-            if source is None:
-                raise ValueError(f"Manifest references unknown agent: {entry['source']}")
-            content = _emit_agent(source, target, catalog)
-            write_atomic(out_path, content)
-        elif entry["type"] == "fallback-agent":
-            source = lookups["agents"].get(entry["source"])
-            if source is None:
-                raise ValueError(f"Manifest references unknown agent: {entry['source']}")
-            content = _emit_fallback_agent(source, target, catalog)
-            write_atomic(out_path, content)
-        elif entry["type"] == "root-adapter":
-            content = _emit_root_adapter(target)
-            write_atomic(out_path, content)
-        elif entry["type"] == "model-mapping":
-            content = _emit_model_mapping(target, catalog)
-            write_atomic(out_path, content)
-        elif entry["type"] == "config":
-            content = _emit_config(target)
-            write_atomic(out_path, content)
-
-        written.append(entry["path"])
-
-    return written
+    if target.get("generatedTreePath") is None:
+        return []
+    mapping = {"schemaVersion": 1, "description": "single target", "targets": [target]}
+    plan = build_generation_plan(root, mapping, assets, catalog)
+    result = plan.by_target[target["id"]]
+    if not dry_run:
+        commit_generation_plan(root, plan, (target["id"],))
+    return [entry.destination for entry in result.entries]
 
 
 def _emit_command(
@@ -493,15 +1122,17 @@ def _emit_agent(
     agent_format = target.get("formats", {}).get("agentFormat", "")
 
     if "toml" in agent_format:
-        desc = fm.get("description", "")
-        model_line = f'model = "{model}"' if model else '# model = "inherited"'
+        desc = json.dumps(str(fm.get("description", "")), ensure_ascii=False)
+        model_line = f"model = {json.dumps(model, ensure_ascii=False)}" if model else '# model = "inherited"'
         tools = fm.get("tools", [])
         if isinstance(tools, list):
-            tools_str = ", ".join(f'"{t}"' for t in tools)
+            tools_str = ", ".join(json.dumps(str(tool), ensure_ascii=False) for tool in tools)
         else:
             tools_str = ""
         body_text = body.split("---", 2)[-1].strip() if "---" in body else body
-        return f'[[subagent]]\nname = "{source["filename"].replace(".agent.md", "")}"\ndescription = "{desc}"\n{model_line}\ntools = [{tools_str}]\n\n# Instructions\n\n{body_text}\n'
+        name = json.dumps(source["filename"].replace(".agent.md", ""), ensure_ascii=False)
+        instructions = json.dumps(body_text, ensure_ascii=False)
+        return f'[[subagent]]\nname = {name}\ndescription = {desc}\n{model_line}\ntools = [{tools_str}]\ninstructions = {instructions}\n'
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {"model": model})
     elif target["id"] == "opencode":
@@ -609,8 +1240,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("Error: must specify --target <platform> or --all", file=sys.stderr)
         return 1
 
-    catalog = load_model_catalog(root)
-    assets = scan_canonical_assets(root)
+    try:
+        catalog = load_model_catalog(root)
+        assets = scan_canonical_assets(root)
+        generation_plan = build_generation_plan(root, target_mapping, assets, catalog)
+    except (ValueError, OSError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
     targets_to_run: list[dict[str, Any]] = []
     for target in target_mapping["targets"]:
@@ -635,18 +1271,35 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 1
 
     all_written: list[str] = []
+    if not args.dry_run:
+        try:
+            committed = commit_generation_plan(
+                root,
+                generation_plan,
+                tuple(target["id"] for target in targets_to_run),
+            )
+        except (ValueError, OSError) as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+        committed_by_target = {
+            target_id: tuple(
+                entry for entry in committed.entries if entry.target_id == target_id
+            )
+            for target_id in committed.target_ids
+        }
+
     for target in targets_to_run:
         tid = target["id"]
         if args.dry_run:
-            manifest = build_output_manifest(target, assets)
-            print(f"[dry-run] {tid}: {len(manifest)} files would be written")
-            for entry in manifest:
-                print(f"  {entry['path']} ({entry['type']})")
-            all_written.extend(entry["path"] for entry in manifest)
+            result = generation_plan.by_target[tid]
+            print(f"[dry-run] {tid}: {len(result.entries)} files would be written")
+            for entry in result.entries:
+                print(f"  {entry.destination} ({entry.kind})")
+            all_written.extend(entry.destination for entry in result.entries)
         else:
-            written = emit_for_target(root, target, assets, catalog, dry_run=False)
-            print(f"[generated] {tid}: {len(written)} files written")
-            all_written.extend(written)
+            entries = committed_by_target[tid]
+            print(f"[generated] {tid}: {len(entries)} files written")
+            all_written.extend(entry.destination for entry in entries)
 
     print(f"\nTotal: {len(all_written)} files {'would be written' if args.dry_run else 'written'}")
     return 0
