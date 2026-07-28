@@ -35,6 +35,7 @@ import stat
 import tempfile
 import unicodedata
 import urllib.parse
+import uuid
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
@@ -148,7 +149,7 @@ class TargetCommitPlan:
     """A fully preflighted target mutation."""
 
     result: TargetResult
-    stale_paths: Tuple[str, ...]
+    stale_files: Tuple[OwnedFile, ...]
     manifest_path: Path
     manifest_content: bytes
 
@@ -179,6 +180,10 @@ def _validate_repo_relative_path(label: str, value: Any) -> list[str]:
         errors.append(f"{label}: must not contain empty, '.', or traversal components")
     for part in parts:
         portable = unicodedata.normalize("NFC", part).casefold().rstrip(". ")
+        forbidden = sorted({character for character in part if ord(character) < 32 or character in '<>:"|?*'})
+        if forbidden:
+            rendered = ", ".join(repr(character) for character in forbidden)
+            errors.append(f"{label}: component '{part}' contains Windows-forbidden characters: {rendered}")
         if part.endswith((".", " ")):
             errors.append(f"{label}: component '{part}' has a trailing dot or space")
         if portable.split(".", 1)[0] in WINDOWS_RESERVED_NAMES:
@@ -479,6 +484,17 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         "shared": [],
     }
 
+    required_roots = {
+        "prompts": root / ".github/prompts",
+        "agents": root / ".github/agents",
+        "skills": root / ".github/skills",
+        "instructions": root / ".github/instructions",
+        "shared": root / ".github/shared",
+    }
+    for category, path in required_roots.items():
+        if path.is_symlink() or not path.is_dir():
+            raise ValueError(f"Required canonical {category} root is missing or invalid: {path.relative_to(root)}")
+
     for pattern, category in [
         (CANONICAL_PROMPTS_GLOB, "prompts"),
         (CANONICAL_AGENTS_GLOB, "agents"),
@@ -539,6 +555,10 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         )
         skill["executable"] = skill_file["executable"]
         _validate_bundle_markdown_references(skill["bundle_files"])
+
+    for category in required_roots:
+        if not assets[category]:
+            raise ValueError(f"Required canonical {category} inventory is empty")
 
     return assets
 
@@ -655,8 +675,14 @@ def load_model_catalog(root: Path) -> dict[str, Any]:
     """Load model-catalog.json from .github/shared/."""
     catalog_path = root / MODEL_CATALOG_PATH
     if not catalog_path.exists():
-        return {"models": [], "assignments": [], "frontmatterSupport": []}
-    return json.loads(catalog_path.read_text(encoding="utf-8"))
+        raise FileNotFoundError(f"Model catalog not found at: {catalog_path}")
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if not isinstance(catalog, dict):
+        raise ValueError("Model catalog must be an object")
+    for field in ("models", "assignments", "frontmatterSupport"):
+        if not isinstance(catalog.get(field), list):
+            raise ValueError(f"Model catalog field '{field}' must be an array")
+    return catalog
 
 
 def get_role_for_asset(rel_path: str, catalog: dict[str, Any]) -> Optional[str]:
@@ -1097,6 +1123,109 @@ def _regular_file_hash(path: Path, label: str) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _revalidate_destination_ancestors(root: Path, destination: Path) -> None:
+    """Reject a destination whose existing ancestor changed into a link or non-directory."""
+    try:
+        destination.relative_to(root)
+    except ValueError as exc:
+        raise PathSafetyError(f"Destination escapes repository root: {destination}") from exc
+    ancestor = destination.parent
+    while ancestor != root:
+        if ancestor.exists() or ancestor.is_symlink():
+            if ancestor.is_symlink() or not ancestor.is_dir():
+                raise PathSafetyError(f"Destination ancestor is unsafe at mutation time: {ancestor}")
+        ancestor = ancestor.parent
+
+
+def _supports_secure_dir_fd() -> bool:
+    """Return whether this host supports no-follow handle-relative mutation."""
+    return os.name != "nt" and os.open in os.supports_dir_fd
+
+
+def _open_relative_parent(root: Path, relative_path: str, *, create: bool) -> tuple[int, str]:
+    """Open a repository-relative parent without following symlink components."""
+    parts = PurePosixPath(relative_path).parts
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(root, flags)
+    try:
+        for part in parts[:-1]:
+            if create:
+                try:
+                    os.mkdir(part, dir_fd=descriptor)
+                except FileExistsError:
+                    pass
+            child = os.open(part, flags, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor, parts[-1]
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _secure_write_entry(root: Path, entry: OutputEntry) -> None:
+    """Atomically write an output through a root-anchored no-follow parent handle."""
+    parent_fd, name = _open_relative_parent(root, entry.destination, create=True)
+    temporary = f".{name}.{uuid.uuid4().hex}.tmp"
+    file_fd: Optional[int] = None
+    try:
+        file_fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600, dir_fd=parent_fd)
+        with os.fdopen(file_fd, "wb", closefd=False) as handle:
+            handle.write(entry.content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        mode = 0o666
+        try:
+            mode = stat.S_IMODE(os.stat(name, dir_fd=parent_fd, follow_symlinks=False).st_mode)
+        except FileNotFoundError:
+            pass
+        mode = (mode | 0o111) if entry.executable else (mode & ~0o111)
+        os.fchmod(file_fd, mode)
+        _before_secure_replace(root / entry.destination)
+        os.replace(temporary, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+    finally:
+        if file_fd is not None:
+            os.close(file_fd)
+        try:
+            os.unlink(temporary, dir_fd=parent_fd)
+        except FileNotFoundError:
+            pass
+        os.close(parent_fd)
+
+
+def _secure_delete_stale(root: Path, stale: OwnedFile) -> None:
+    """Quarantine, verify, and delete a stale file through one pinned parent handle."""
+    parent_fd, name = _open_relative_parent(root, stale.path, create=False)
+    quarantine = f".{name}.{uuid.uuid4().hex}.stale"
+    try:
+        _before_secure_unlink(root / stale.path)
+        try:
+            os.replace(name, quarantine, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        except FileNotFoundError:
+            return
+        with os.fdopen(os.open(quarantine, os.O_RDONLY, dir_fd=parent_fd), "rb") as handle:
+            current_hash = hashlib.sha256(handle.read()).hexdigest()
+        if current_hash != stale.sha256:
+            try:
+                os.replace(quarantine, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+            except OSError as exc:
+                raise ValueError(
+                    f"Stale owned file changed before deletion and could not be restored: {stale.path}"
+                ) from exc
+            raise ValueError(f"Stale owned file changed before deletion: {stale.path}")
+        os.unlink(quarantine, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+
+
+def _before_secure_replace(_path: Path) -> None:
+    """Test hook immediately before handle-relative replacement."""
+
+
+def _before_secure_unlink(_path: Path) -> None:
+    """Test hook immediately before handle-relative stale quarantine."""
+
+
 def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPlan:
     """Validate ownership, conflicts, and stale files before mutation."""
     owned = _read_prior_ownership_manifest(root, result)
@@ -1124,19 +1253,19 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
             ownership = "owned" if prior is not None else "unowned"
             raise ValueError(f"Conflicting {ownership} expected destination: {entry.destination}")
 
-    stale_paths = tuple(sorted(set(owned) - set(expected)))
-    for stale in stale_paths:
-        path = root / stale
+    stale_files = tuple(owned[path] for path in sorted(set(owned) - set(expected)))
+    for stale in stale_files:
+        path = root / stale.path
         if not path.exists() and not path.is_symlink():
             continue
         current_hash = _regular_file_hash(path, "Stale owned path")
-        if current_hash != owned[stale].sha256:
-            raise ValueError(f"Modified stale owned file will not be deleted: {stale}")
+        if current_hash != stale.sha256:
+            raise ValueError(f"Modified stale owned file will not be deleted: {stale.path}")
 
     if manifest_path.exists() and (manifest_path.is_symlink() or not manifest_path.is_file()):
         raise ValueError(f"Ownership manifest is not a regular file: {manifest_path}")
     return TargetCommitPlan(
-        result, stale_paths, manifest_path, _ownership_manifest_bytes(result)
+        result, stale_files, manifest_path, _ownership_manifest_bytes(result)
     )
 
 
@@ -1169,19 +1298,43 @@ def commit_generation_plan(
                     for entry in commit_plan.result.entries)
     for entry in entries:
         destination = root / entry.destination
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        _write_atomic_bytes(destination, entry.content)
-        mode = destination.stat().st_mode
-        destination.chmod((mode | 0o111) if entry.executable else (mode & ~0o111))
+        if _supports_secure_dir_fd():
+            _secure_write_entry(root, entry)
+        else:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            _revalidate_destination_ancestors(root, destination)
+            _write_atomic_bytes(destination, entry.content)
+            mode = destination.stat().st_mode
+            destination.chmod((mode | 0o111) if entry.executable else (mode & ~0o111))
     for commit_plan in commit_plans:
         target_root = root / commit_plan.result.target_root
-        for stale in commit_plan.stale_paths:
-            path = root / stale
-            if path.exists():
+        for stale in commit_plan.stale_files:
+            path = root / stale.path
+            if _supports_secure_dir_fd():
+                _secure_delete_stale(root, stale)
+                _prune_empty_parents(path, target_root)
+            elif path.exists() or path.is_symlink():
+                _revalidate_destination_ancestors(root, path)
+                current_hash = _regular_file_hash(path, "Stale owned path at mutation time")
+                if current_hash != stale.sha256:
+                    raise ValueError(f"Stale owned file changed before deletion: {stale.path}")
                 path.unlink()
                 _prune_empty_parents(path, target_root)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        _write_atomic_bytes(commit_plan.manifest_path, commit_plan.manifest_content)
+        manifest_entry = OutputEntry(
+            commit_plan.result.target_id,
+            commit_plan.manifest_path.relative_to(root).as_posix(),
+            "generated ownership manifest",
+            "manifest",
+            commit_plan.manifest_content,
+            hashlib.sha256(commit_plan.manifest_content).hexdigest(),
+            False,
+        )
+        if _supports_secure_dir_fd():
+            _secure_write_entry(root, manifest_entry)
+        else:
+            _revalidate_destination_ancestors(root, commit_plan.manifest_path)
+            _write_atomic_bytes(commit_plan.manifest_path, commit_plan.manifest_content)
     return CommitResult(target_ids, entries)
 
 
