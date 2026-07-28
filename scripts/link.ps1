@@ -287,9 +287,12 @@ Write-Host "Updating Compound GPID..." -ForegroundColor Cyan
 $env:CG_INTERNAL_CALL = "1"
 try {
     & "$CompoundGpidDir\scripts\update.ps1"
+    if ($LASTEXITCODE -ne 0) {
+        throw "cg-update failed with exit code $LASTEXITCODE"
+    }
 } catch {
-    Write-Warning "Could not update Compound GPID (offline?): $_"
-    Write-Warning "Continuing with the current version."
+    Write-Error "Could not update and validate Compound GPID; linking is blocked: $_"
+    exit 1
 } finally {
     Remove-Item Env:\CG_INTERNAL_CALL -ErrorAction SilentlyContinue
 }

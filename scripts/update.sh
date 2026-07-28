@@ -353,15 +353,21 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         # consumer projects see fresh platform trees via their symlinks/junctions.
         TARGET_MAPPING="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
         GENERATOR_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py"
-        if [[ -f "$TARGET_MAPPING" ]] && [[ -f "$GENERATOR_SCRIPT" ]]; then
-            printf '\n'
-            print_gray "Regenerating platform trees..."
-            if "$PYTHON_CMD" "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
-                print_gray "Platform trees regenerated."
-            else
-                print_warn "Platform tree generation failed — existing trees remain linked."
-            fi
+        if [[ ! -f "$TARGET_MAPPING" ]]; then
+            print_error "Platform tree generation blocked: target mapping not found at $TARGET_MAPPING"
+            exit 1
         fi
+        if [[ ! -f "$GENERATOR_SCRIPT" ]]; then
+            print_error "Platform tree generation blocked: generator not found at $GENERATOR_SCRIPT"
+            exit 1
+        fi
+        printf '\n'
+        print_gray "Regenerating platform trees..."
+        if ! "$PYTHON_CMD" "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
+            print_error "Platform tree generation failed; update and downstream refresh are blocked."
+            exit 1
+        fi
+        print_gray "Platform trees regenerated."
     )
 
 # ---------------------------------------------------------------------------

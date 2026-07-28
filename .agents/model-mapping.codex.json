@@ -8,6 +8,6 @@
     "mechanical": "GPT-5.4 mini",
     "inherited": null
   },
-  "source": ".github/shared/model-catalog.json",
+  "source": ".agents/shared/model-catalog.json",
   "note": "Generated from canonical role assignments. Exact model names are validated where possible; unvalidated names are marked not-tested."
 }

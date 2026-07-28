@@ -12,7 +12,7 @@ recommendations, but it does not modify project configuration or source files.
 
 - You may read `compound-gpid.md` and `compound-gpid.local.md` in the project
   root if present.
-- You may load `.github/shared/context-loading.contract.md`.
+- You may load `.opencode/shared/context-loading.contract.md`.
 - You may run `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations`.
 - Context expansion: reading `.cg-docs/cost/token-advice.md` because this
   command summarizes the deterministic audit report it just generated.
@@ -31,7 +31,7 @@ recommendations, but it does not modify project configuration or source files.
 1. Read `compound-gpid.md` if it exists for project identity and constraints.
 2. Read `compound-gpid.local.md` if it exists for local review/model
    preferences.
-3. Load `.github/shared/context-loading.contract.md`.
+3. Load `.opencode/shared/context-loading.contract.md`.
 4. Do not read `.cg-docs/`, `BRAIN*.md`, `brain-index.json`,
    `compound-gpid.context.md`, or `roadmap.json` directly unless the user asks
    for a specific follow-up and the context-loading contract permits targeted

@@ -30,7 +30,7 @@ If `compound-gpid.local.md` exists in the project root: **returning project** �
 
 #### A0.5. Pre-flight health check
 
-Read `.github/prompts/setup-templates.md` (load once — it covers all templates used through A6 and Mode B). Run the checks from the **Pre-flight Health Check** section. If any check fails, stop with the failure message and do not proceed. If all pass, continue silently.
+Read `.opencode/commands/setup-templates.md` (load once — it covers all templates used through A6 and Mode B). Run the checks from the **Pre-flight Health Check** section. If any check fails, stop with the failure message and do not proceed. If all pass, continue silently.
 
 #### A1. Dispatch scanner
 
@@ -300,7 +300,7 @@ After Q7 (or skip): build the charter draft from the user's answers (do **not** 
 
 #### B0.5. Pre-load templates
 
-Context expansion: reading `.github/prompts/setup-templates.md` because
+Context expansion: reading `.opencode/commands/setup-templates.md` because
 returning-project setup reuses the charter/context templates through B4.7,
 including the `compound-gpid.context.md` template. Continue silently.
 

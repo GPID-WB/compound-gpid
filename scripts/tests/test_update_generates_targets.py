@@ -32,11 +32,22 @@ class TestUpdatePs1RegeneratesTargets:
     def test_calls_generator_with_all_flag(self, content: str) -> None:
         assert "--all" in content
 
-    def test_warns_on_generation_failure(self, content: str) -> None:
-        assert "Platform tree generation" in content
+    @pytest.mark.parametrize(
+        "failure",
+        ["generator unavailable", "invalid mapping", "generation validation failure", "Python unavailable"],
+    )
+    def test_generation_failure_is_blocking(self, content: str, failure: str) -> None:
+        assert "throw" in content.lower(), f"{failure} must terminate update.ps1"
+        assert "platform trees not regenerated" not in content.lower()
+        assert "existing trees remain linked" not in content.lower()
 
-    def test_does_not_halt_on_failure(self, content: str) -> None:
-        assert "Write-Warning" in content
+    def test_failure_stops_before_consumer_refresh(self, content: str) -> None:
+        generation = content.index("cg_generate_targets.py")
+        refresh = content.index("Update-CgManagedPlatformFiles")
+        assert "throw" in content[generation:refresh].lower()
+
+    def test_success_still_reports_regenerated_tree(self, content: str) -> None:
+        assert "Platform trees regenerated." in content
 
     def test_uses_resolve_python_command_not_bare_python3(self, content: str) -> None:
         assert "Resolve-PythonCommand" in content
@@ -57,8 +68,21 @@ class TestUpdateShRegeneratesTargets:
     def test_calls_generator_with_all_flag(self, content: str) -> None:
         assert "--all" in content
 
-    def test_warns_on_generation_failure(self, content: str) -> None:
-        assert "Platform tree generation failed" in content
+    @pytest.mark.parametrize(
+        "failure",
+        ["generator unavailable", "invalid mapping", "generation validation failure", "Python unavailable"],
+    )
+    def test_generation_failure_is_blocking(self, content: str, failure: str) -> None:
+        assert 'print_error "Platform tree generation' in content, failure
+        assert "existing trees remain linked" not in content.lower()
+
+    def test_failure_stops_before_managed_file_refresh(self, content: str) -> None:
+        generation = content.index("cg_generate_targets.py")
+        refresh = content.index("managed-files.json")
+        assert "exit 1" in content[generation:refresh]
+
+    def test_success_still_reports_regenerated_tree(self, content: str) -> None:
+        assert "Platform trees regenerated." in content
 
     def test_uses_resolved_python_command_for_generator(self, content: str) -> None:
         assert "resolve_python" in content
@@ -149,8 +173,16 @@ class TestCommitPushPrRegeneratesTargets:
         assert "git diff HEAD" in content
         assert ".github/" in content
 
-    def test_warns_on_failure_does_not_halt(self, content: str) -> None:
-        assert "Do not halt" in content
+    def test_generation_failure_halts_before_staging(self, content: str) -> None:
+        failure = content.index("If generation fails")
+        staging = content.index("### Step 2")
+        failure_contract = content[failure:staging].lower()
+        assert "halt" in failure_contract
+        assert "do not halt" not in failure_contract
+        assert "continue to step 2" not in failure_contract
+
+    def test_missing_generator_is_not_treated_as_consumer_repo(self, content: str) -> None:
+        assert "If either is missing, skip this step" not in content
 
     def test_has_generated_targets_file_group(self, content: str) -> None:
         assert "Generated Targets" in content

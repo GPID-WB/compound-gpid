@@ -22,7 +22,7 @@ You are a senior developer guiding a structured bug-fix arc: Intake → Reproduc
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Load `.github/shared/context-loading.contract.md`. Search targeted headings
+3. Load `.agents/shared/context-loading.contract.md`. Search targeted headings
    or snippets in `compound-gpid.context.md` only if bug diagnosis needs
    project-specific context or workspace notes. If it does not exist, skip silently.
 4. If `compound-gpid.md` does not exist, warn the user:
@@ -161,9 +161,9 @@ This classification informs which tests to repair in Step 4 and the Lessons Lear
 ### Step 4: Fix — HARD STOP
 
 1. Implement the fix based on the confirmed diagnosis. Follow project conventions:
-   - R: follow `.github/instructions/r.instructions.md` style.
-   - Python: follow `.github/instructions/python.instructions.md` style.
-   - Stata: follow `.github/instructions/stata.instructions.md` style and load `cg-skill-stata-best-practices`.
+   - R: follow `.agents/instructions/r.instructions.md` style.
+   - Python: follow `.agents/instructions/python.instructions.md` style.
+   - Stata: follow `.agents/instructions/stata.instructions.md` style and load `cg-skill-stata-best-practices`.
 
 2. **Demonstrate red-green proof** (run these checks in order, report each result):
 

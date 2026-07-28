@@ -22,7 +22,7 @@ You are a plan review orchestrator. Your job is to run a structured critique of 
 
 1. Read `compound-gpid.md` in the project root for project context (objective, constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type, review depth).
-3. Load `.github/shared/context-loading.contract.md`. Search targeted headings
+3. Load `.agents/shared/context-loading.contract.md`. Search targeted headings
    or snippets in `compound-gpid.context.md` only if plan critique needs
    project-specific context or workspace notes. If it does not exist, skip silently.
 4. If `compound-gpid.md` does not exist, warn:

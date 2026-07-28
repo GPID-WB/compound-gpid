@@ -21,10 +21,10 @@ You are a senior data science architect creating a structured implementation pla
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
+3. Load `.opencode/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if the plan topic needs tactical project facts, search headings or snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Check whether the requested work aligns with the charter. Flag conflicts before proceeding.
 5. Parse flags: `--no-phases` sets `phases-default = false`; otherwise `true`. `--no-brain` sets `brain-enabled = false`; otherwise `true`.
-6. Parse `deviate:` flag (case-insensitive): `deviate:ask` (default), `deviate:auto` or `deviate:autonomous` both map to stored `autonomous`, `deviate:strict`. Omitted defaults to `ask`. Empty/invalid values warn and fall back to `ask`. Duplicate `deviate:` tokens warn and the last valid value wins. Store the resolved value as `deviation-policy` in the plan frontmatter. Full spec: `.github/shared/goal-execution.contract.md`.
+6. Parse `deviate:` flag (case-insensitive): `deviate:ask` (default), `deviate:auto` or `deviate:autonomous` both map to stored `autonomous`, `deviate:strict`. Omitted defaults to `ask`. Empty/invalid values warn and fall back to `ask`. Duplicate `deviate:` tokens warn and the last valid value wins. Store the resolved value as `deviation-policy` in the plan frontmatter. Full spec: `.opencode/shared/goal-execution.contract.md`.
 7. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits your GitHub Copilot model picker. If Copilot Auto is selected, I will not infer or name the hidden underlying model. If the actual Auto-selected model matters, check Copilot UI/hover details."
 
 ### Step 0.5: Check for Prior Work
@@ -158,7 +158,7 @@ tags: [<tags>]
 - ...
 ```
 
-For Deep phased plans, add an optional `Phase` column to Verification Surface and Constraints tables. For Lightweight plans, a condensed contract (Outcome + Verification Surface only) is acceptable. See `.github/shared/goal-execution.contract.md` for full schema details.
+For Deep phased plans, add an optional `Phase` column to Verification Surface and Constraints tables. For Lightweight plans, a condensed contract (Outcome + Verification Surface only) is acceptable. See `.opencode/shared/goal-execution.contract.md` for full schema details.
 
 For Standard/Deep plans, include enough detail for `/cg-work` to implement without rediscovering requirements. Keep requirement IDs unique and mapped to steps.
 

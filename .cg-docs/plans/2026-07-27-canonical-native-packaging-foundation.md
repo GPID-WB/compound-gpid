@@ -10,9 +10,8 @@ deviation-policy: "ask"
 tags: [packaging, generator, native-targets, skills, dependency-closure, manifests, path-safety, drift, ci]
 phases: 7
 execution-report: ".cg-docs/work-reports/2026-07-28-canonical-native-packaging-foundation.md"
-completed-phases: [1, 2, 3]
-current-phase: 4
-failing-steps: [8]
+completed-phases: [1, 2, 3, 4, 5]
+current-phase: 6
 ---
 
 # Plan: Canonical-to-Native Packaging Foundation

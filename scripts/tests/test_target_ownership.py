@@ -62,6 +62,8 @@ def _fixture_repo(tmp_path: Path) -> Path:
             "commands": ".claude/commands",
             "skills": ".claude/skills",
             "agents": ".claude/agents",
+            "instructions": ".claude/instructions",
+            "shared": ".claude/shared",
             "rootAdapter": ".claude/CLAUDE.md",
             "modelMapping": ".claude/model-mapping.json",
         },

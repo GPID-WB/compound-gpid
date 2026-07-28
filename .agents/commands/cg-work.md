@@ -22,13 +22,13 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
-3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
+3. Load `.agents/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse flags:
    - `--no-brain` sets `brain-enabled = false`; otherwise `true`.
    - Modes: auto, manual, none, light, standard, data-risk, architecture, full.
    - Default: `review:manual`.
    - Invalid review value: warn and fall back to recommendation mode.
-   - Parse `deviate:` override; invalid warns and falls back to plan policy; duplicate warns, last valid wins. Full spec: `.github/shared/goal-execution.contract.md`.
+   - Parse `deviate:` override; invalid warns and falls back to plan policy; duplicate warns, last valid wins. Full spec: `.agents/shared/goal-execution.contract.md`.
 
 ### Step 1: Load the Plan
 
@@ -47,7 +47,7 @@ You implement `/cg-plan` output with phase/review/deviate controls.
    tooling, and relevant `.cg-docs/` evidence when explicitly authorized for
    Compound GPID maintenance.
    > **After any plan-file fallback** (for example keyword match or changed path): re-count `## Phase` headers from the recovered plan body and re-validate the phase argument N against the new total M.
-4. **Goal contract**: Load `.github/shared/goal-execution.contract.md` and `.github/shared/active-state.contract.md`. Treat the plan's `## Completion Contract` as authority under file permissions, charter, Pester safety, and protected artifacts. If the plan lacks `## Completion Contract` or `deviation-policy`, halt and offer a minimal compatibility contract or `/cg-plan`. Active policy = runtime `deviate:` override else plan `deviation-policy`.
+4. **Goal contract**: Load `.agents/shared/goal-execution.contract.md` and `.agents/shared/active-state.contract.md`. Treat the plan's `## Completion Contract` as authority under file permissions, charter, Pester safety, and protected artifacts. If the plan lacks `## Completion Contract` or `deviation-policy`, halt and offer a minimal compatibility contract or `/cg-plan`. Active policy = runtime `deviate:` override else plan `deviation-policy`.
 5. Load relevant skills only as needed: R, Python, or Stata.
 
 ### Step 1.2: Parse Phase Argument
@@ -100,7 +100,7 @@ If no `github` block and `roadmap.json` has `githubIssues.enabled: true`, sugges
 > "This work item has no linked GitHub issue. Run `/cg-issues link` before or after implementation to attach one."
 Do NOT call `gh`, create issues, or block work.
 
-**Execution report**: Create `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` after roadmap active-status handling and before implementation; failure blocks. Use plan `execution-report` if present; otherwise find/create by plan reference. Same-day collision: append `-2`, `-3`, etc. Write pointer to plan frontmatter; update incrementally; append run/resume sections. Schema: `.github/shared/goal-execution.contract.md`.
+**Execution report**: Create `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` after roadmap active-status handling and before implementation; failure blocks. Use plan `execution-report` if present; otherwise find/create by plan reference. Same-day collision: append `-2`, `-3`, etc. Write pointer to plan frontmatter; update incrementally; append run/resume sections. Schema: `.agents/shared/goal-execution.contract.md`.
 
 **Active-state handoff**: After report creation, phase boundaries, blocked
 stops, and completion, update `.cg-docs/active-state/current.json` per contract:
@@ -212,7 +212,7 @@ For each milestone in the loaded `roadmap.json` containing a feature just marked
 
 ### Step 3.9: Review-Mode Handoff
 
-Read `.github/shared/review-routing.contract.md` and use it as the canonical source for review-mode names, risk triggers, precedence, mandatory escalations, and agent sets. Use the same deterministic changed-file signals as `/cg-review` Step 1.5 to resolve a recommended mode.
+Read `.agents/shared/review-routing.contract.md` and use it as the canonical source for review-mode names, risk triggers, precedence, mandatory escalations, and agent sets. Use the same deterministic changed-file signals as `/cg-review` Step 1.5 to resolve a recommended mode.
 
 | Review mode | Behavior |
 |-------------|----------|

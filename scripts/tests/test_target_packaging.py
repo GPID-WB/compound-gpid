@@ -125,6 +125,15 @@ def test_pilot_canonical_and_all_generated_targets_have_exact_four_file_inventor
 
 
 def test_every_canonical_skill_recursively_matches_all_generated_targets() -> None:
+    mapping = json.loads(
+        (REPO_ROOT / ".github/shared/target-mapping.json").read_text(encoding="utf-8")
+    )
+    targets = {
+        target["outputPaths"]["skills"]: target
+        for target in mapping["targets"]
+        if target.get("generatedTreePath")
+    }
+    assets = gen.scan_canonical_assets(REPO_ROOT)
     for canonical in _canonical_skills():
         canonical_inventory = _relative_inventory(canonical)
         assert canonical_inventory, f"Empty canonical skill bundle: {canonical.name}"
@@ -134,7 +143,17 @@ def test_every_canonical_skill_recursively_matches_all_generated_targets() -> No
             for relative in canonical_inventory:
                 source = canonical / relative
                 output = generated / relative
-                assert hashlib.sha256(output.read_bytes()).digest() == hashlib.sha256(source.read_bytes()).digest()
+                if relative.casefold().endswith((".md", ".markdown")):
+                    source_identity = source.relative_to(REPO_ROOT).as_posix()
+                    expected = gen._rewrite_runtime_dependencies(
+                        source.read_text(encoding="utf-8"),
+                        targets[skill_root],
+                        assets,
+                        source_identity,
+                    ).encode("utf-8")
+                    assert output.read_bytes() == expected
+                else:
+                    assert hashlib.sha256(output.read_bytes()).digest() == hashlib.sha256(source.read_bytes()).digest()
                 assert _is_executable(output) == _is_executable(source)
 
 

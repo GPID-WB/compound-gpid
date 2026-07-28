@@ -64,5 +64,5 @@ Always keep `renv/activate.R` and `renv.lock` tracked.
 
 ## See Also
 
-- `.github/instructions/r.instructions.md` in the Compound GPID repository — renv line items in Environment Management section
+- `.opencode/instructions/r.instructions.md` in the Compound GPID repository — renv line items in Environment Management section
 - [targets-pipelines.md](../workflows/targets-pipelines.md) — targets + renv integration

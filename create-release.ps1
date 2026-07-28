@@ -42,6 +42,7 @@ param(
     [switch]$Prerelease
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # Enforce semver tag format (v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<dev>)
@@ -69,6 +70,41 @@ $notes = "$(Get-Content -Path $NotesFile -Encoding UTF8 -Raw)"
 if ([string]::IsNullOrWhiteSpace($notes)) {
     Write-Error "Notes file is empty: $NotesFile"
     exit 1
+}
+
+# Operational native-packaging preflight. This runs before credentials are read
+# or any GitHub API request can observe or publish release state.
+$pythonCommand = $null
+foreach ($candidate in @("python3", "python", "py")) {
+    if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
+    try {
+        $version = & $candidate --version 2>&1
+        if ("$version".Trim() -match '^Python\s+\d') {
+            $pythonCommand = $candidate
+            break
+        }
+    } catch { continue }
+}
+if (-not $pythonCommand) {
+    throw "Native packaging preflight requires Python (checked: python3, python, py)."
+}
+$preflightTests = @(
+    "scripts/tests/test_target_mapping.py",
+    "scripts/tests/test_cg_generate_targets.py",
+    "scripts/tests/test_target_path_safety.py",
+    "scripts/tests/test_target_packaging.py",
+    "scripts/tests/test_target_ownership.py",
+    "scripts/tests/test_target_closure.py",
+    "scripts/tests/test_target_determinism.py",
+    "scripts/tests/test_target_drift.py",
+    "scripts/tests/test_target_claude.py",
+    "scripts/tests/test_target_codex.py",
+    "scripts/tests/test_target_opencode.py"
+)
+Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
+& $pythonCommand -m pytest @preflightTests -q
+if ($LASTEXITCODE -ne 0) {
+    throw "Native packaging release preflight failed with exit code $LASTEXITCODE. Release publication is blocked."
 }
 
 # Get token from Git Credential Manager. Stderr captured for diagnostics.

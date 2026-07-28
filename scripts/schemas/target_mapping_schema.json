@@ -45,7 +45,7 @@
         },
         "outputPaths": {
           "type": "object",
-          "required": ["commands", "skills", "agents"],
+          "required": ["commands", "skills", "agents", "instructions", "shared"],
           "properties": {
             "commands": { "$ref": "#/definitions/repoPath" },
             "skills": { "$ref": "#/definitions/repoPath" },

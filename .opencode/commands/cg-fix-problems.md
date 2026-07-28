@@ -20,7 +20,7 @@ You are a senior developer who fixes VS Code diagnostic problems interactively.
    constraints, current focus).
 2. Read `compound-gpid.local.md` for user config (language, project type,
    review depth).
-3. Load `.github/shared/context-loading.contract.md`. Search targeted headings
+3. Load `.opencode/shared/context-loading.contract.md`. Search targeted headings
    or snippets in `compound-gpid.context.md` only if diagnostic repair needs
    project-specific context or workspace notes. If it does not exist, skip silently.
 4. If `compound-gpid.md` does not exist, warn the user:

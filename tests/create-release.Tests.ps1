@@ -277,3 +277,25 @@ Describe "create-release.ps1 - parameter validation (integration)" {
         { & $scriptPath -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "nonexistent.md") } | Should -Throw
     }
 }
+
+Describe "create-release.ps1 - native packaging preflight" {
+    BeforeAll {
+        $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
+        $scriptContent = Get-Content $scriptPath -Raw -Encoding UTF8
+    }
+
+    It "invokes the operational preflight before the first GitHub API call" {
+        $preflightIndex = $scriptContent.IndexOf("preflight", [System.StringComparison]::OrdinalIgnoreCase)
+        $apiIndex = $scriptContent.IndexOf("Invoke-RestMethod", [System.StringComparison]::Ordinal)
+        $preflightIndex | Should -BeGreaterThan -1
+        $preflightIndex | Should -BeLessThan $apiIndex
+    }
+
+    It "checks preflight failure before credentials or API state transitions" {
+        $preflightIndex = $scriptContent.IndexOf("preflight", [System.StringComparison]::OrdinalIgnoreCase)
+        $credentialIndex = $scriptContent.IndexOf("git credential fill", [System.StringComparison]::Ordinal)
+        $guard = $scriptContent.Substring($preflightIndex, $credentialIndex - $preflightIndex)
+        $guard | Should -Match 'LASTEXITCODE'
+        $guard | Should -Match '(throw|exit\s+1|Write-Error)'
+    }
+}

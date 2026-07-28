@@ -128,7 +128,7 @@ After processing all in-scope findings:
      Edit that skill to change migration behavior — not this file. -->
 ## Special Mode: `--migrate`
 
-When invoked as `/cg-fix-triage --migrate`, first verify `.github/skills/cg-skill-fix-triage-migrate/SKILL.md` can be read. If not found, stop: "Migration skill not found — re-run `cg-link` to restore it." Otherwise, load `cg-skill-fix-triage-migrate` and follow its instructions to add `findings:` tracking frontmatter using the companion-plan heuristic. Does NOT apply fixes.
+When invoked as `/cg-fix-triage --migrate`, first verify `.opencode/skills/cg-skill-fix-triage-migrate/SKILL.md` can be read. If not found, stop: "Migration skill not found — re-run `cg-link` to restore it." Otherwise, load `cg-skill-fix-triage-migrate` and follow its instructions to add `findings:` tracking frontmatter using the companion-plan heuristic. Does NOT apply fixes.
 
 ## OpenCode Invocation Arguments
 

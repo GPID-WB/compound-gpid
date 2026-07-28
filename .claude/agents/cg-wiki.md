@@ -29,7 +29,7 @@ only.**
 
 Before any operation:
 
-1. Load `cg-skill-wiki` (`.github/skills/cg-skill-wiki/SKILL.md`).
+1. Load `cg-skill-wiki` (`.claude/skills/cg-skill-wiki/SKILL.md`).
 2. Determine the wiki folder: check `## Wiki Configuration` in
    `compound-gpid.context.md` for a `<!-- folder: ... -->` comment. If absent,
    use `"wiki"`. Validate: no `..`, no leading `/` or `\`, no absolute path.

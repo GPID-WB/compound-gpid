@@ -63,6 +63,10 @@ CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
+CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
+    r"[^\s`'\"<>)/][^\s`'\"<>)]*"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -72,7 +76,7 @@ MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.M
 REQUIRED_TARGET_FIELDS = {"id", "name", "generatedTreePath", "modelMappingMode", "capabilities", "formats", "outputPaths"}
 REQUIRED_CAPABILITY_FIELDS = {"supportsNativeCommands", "supportsNativeSkills", "supportsNativeSubagents", "supportsMultiVendorModels", "requiresRootAdapter"}
 REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
-REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents"}
+REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents", "instructions", "shared"}
 VALID_MODEL_MAPPING_MODES = {"role-only", "tier", "exact"}
 VALID_ROLES = {"coding", "review", "reasoning", "mechanical", "inherited", "fallback", "cross-vendor-review"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
@@ -471,6 +475,8 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         "agents": [],
         "skills": [],
         "instructions": [],
+        "prompt_support": [],
+        "shared": [],
     }
 
     for pattern, category in [
@@ -478,8 +484,14 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         (CANONICAL_AGENTS_GLOB, "agents"),
         (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
+        (".github/prompts/*.md", "prompt_support"),
+        (".github/shared/*", "shared"),
     ]:
         for path in sorted(root.glob(pattern)):
+            if category == "prompt_support" and path.name.endswith(".prompt.md"):
+                continue
+            if category == "shared" and path.name.startswith("."):
+                continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
@@ -732,6 +744,21 @@ def _manifest_agents(target: dict[str, Any], agents: list[dict[str, Any]]) -> li
     return entries
 
 
+def _manifest_passthrough(
+    target: dict[str, Any], assets: list[dict[str, Any]], root_name: str, kind: str
+) -> list[dict[str, str]]:
+    """Build entries for target-local Markdown support resources."""
+    destination_root = target["outputPaths"][root_name]
+    return [
+        {
+            "path": f"{destination_root}/{asset['filename']}",
+            "source": asset["relative_path"],
+            "type": kind,
+        }
+        for asset in assets
+    ]
+
+
 def build_output_manifest(
     target: dict[str, Any],
     assets: dict[str, list[dict[str, Any]]],
@@ -750,6 +777,15 @@ def build_output_manifest(
     manifest.extend(_manifest_commands(target, assets["prompts"]))
     manifest.extend(_manifest_skills(target, assets["skills"]))
     manifest.extend(_manifest_agents(target, assets["agents"]))
+    manifest.extend(_manifest_passthrough(
+        target, assets["prompt_support"], "commands", "prompt-support"
+    ))
+    manifest.extend(_manifest_passthrough(
+        target, assets["instructions"], "instructions", "instruction"
+    ))
+    manifest.extend(_manifest_passthrough(
+        target, assets["shared"], "shared", "shared"
+    ))
 
     if output_paths.get("rootAdapter"):
         manifest.append({"path": output_paths["rootAdapter"], "source": "adapter", "type": "root-adapter"})
@@ -821,6 +857,76 @@ def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, di
     return lookups
 
 
+def _runtime_destination_map(
+    target: dict[str, Any], assets: dict[str, list[dict[str, Any]]]
+) -> dict[str, str]:
+    """Classify canonical runtime files and map each exact dependency to its output."""
+    paths = target["outputPaths"]
+    destinations: dict[str, str] = {}
+    for prompt in assets["prompts"]:
+        name = prompt["filename"].replace(".prompt.md", ".md")
+        destinations[prompt["relative_path"]] = f"{paths['commands']}/{name}"
+    for support in assets["prompt_support"]:
+        destinations[support["relative_path"]] = f"{paths['commands']}/{support['filename']}"
+    for agent in assets["agents"]:
+        suffix = ".toml" if "toml" in target["formats"]["agentFormat"] else ".md"
+        name = agent["filename"].replace(".agent.md", suffix)
+        destinations[agent["relative_path"]] = f"{paths['agents']}/{name}"
+    for instruction in assets["instructions"]:
+        destinations[instruction["relative_path"]] = (
+            f"{paths['instructions']}/{instruction['filename']}"
+        )
+    for shared in assets["shared"]:
+        destinations[shared["relative_path"]] = f"{paths['shared']}/{shared['filename']}"
+    for skill in assets["skills"]:
+        skill_name = Path(skill["relative_path"]).parent.name
+        for item in skill["bundle_files"]:
+            destinations[item["relative_path"]] = (
+                f"{paths['skills']}/{skill_name}/{item['bundle_relative_path']}"
+            )
+    return destinations
+
+
+def _rewrite_runtime_dependencies(
+    text: str,
+    target: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+    source_identity: str,
+) -> str:
+    """Rewrite exact canonical runtime dependencies, rejecting unsafe or missing ones."""
+    destinations = _runtime_destination_map(target, assets)
+
+    def replace(match: re.Match[str]) -> str:
+        raw = match.group(0).rstrip(".,;:")
+        suffix = match.group(0)[len(raw):]
+        decoded = urllib.parse.unquote(raw)
+        errors = _validate_repo_relative_path(
+            f"runtime dependency in {source_identity}", decoded
+        )
+        runtime_parts = PurePosixPath(decoded).parts[2:]
+        if any(re.match(r"^[A-Za-z]:", part) for part in runtime_parts):
+            errors.append(
+                f"runtime dependency in {source_identity}: drive-qualified component"
+            )
+        if errors:
+            raise PathSafetyError("unsafe runtime dependency: " + "; ".join(errors))
+        destination = destinations.get(decoded)
+        if destination is None:
+            raise ValueError(
+                f"unresolved runtime dependency in {source_identity}: {raw}"
+            )
+        return destination + suffix
+
+    rewritten = CANONICAL_RUNTIME_PATH_PATTERN.sub(replace, text)
+    unresolved = CANONICAL_RUNTIME_PATH_PATTERN.search(rewritten)
+    if unresolved:
+        raise ValueError(
+            f"unresolved canonical runtime dependency in {source_identity}: "
+            f"{unresolved.group(0)}"
+        )
+    return rewritten
+
+
 def _render_output_entry(
     target: dict[str, Any],
     manifest_entry: dict[str, str],
@@ -835,6 +941,8 @@ def _render_output_entry(
     category = {
         "command": "prompts", "skill": "skills", "agent": "agents",
         "fallback-agent": "agents",
+        "prompt-support": "prompt_support", "instruction": "instructions",
+        "shared": "shared",
     }.get(kind)
     if kind == "skill-resource":
         for skill in assets["skills"]:
@@ -862,6 +970,8 @@ def _render_output_entry(
         text = _emit_agent(source, target, catalog)
     elif kind == "fallback-agent":
         text = _emit_fallback_agent(source, target, catalog)
+    elif kind in ("prompt-support", "instruction", "shared"):
+        text = source["body"]
     elif kind == "root-adapter":
         text = _emit_root_adapter(target)
     elif kind == "model-mapping":
@@ -872,6 +982,13 @@ def _render_output_entry(
         raise ValueError(f"Unsupported output type: {kind}")
 
     if kind != "skill-resource":
+        if kind in ("command", "skill", "agent", "fallback-agent",
+                    "prompt-support", "instruction", "shared"):
+            text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+        content = text.encode("utf-8")
+    elif source_identity.casefold().endswith((".md", ".markdown")):
+        text = content.decode("utf-8")
+        text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
         content = text.encode("utf-8")
     executable = bool(source.get("executable", False)) if source is not None else False
     return OutputEntry(
@@ -1158,8 +1275,8 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     tid = target["id"]
     name = target["name"]
-    gtp = target.get("generatedTreePath", "")
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from `.github/shared/target-mapping.json`.\nIt maps Compound GPID `/cg-*` commands to native {name} paths under `{gtp}/`.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` → `{gtp}/commands/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{gtp}/skills/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{gtp}/agents/`.\n"
+    paths = target["outputPaths"]
+    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
 
 
 def _emit_model_mapping(target: dict[str, Any], catalog: dict[str, Any]) -> str:
@@ -1172,7 +1289,7 @@ def _emit_model_mapping(target: dict[str, Any], catalog: dict[str, Any]) -> str:
         "platform": tid,
         "modelMappingMode": mode,
         "mapping": mapping,
-        "source": ".github/shared/model-catalog.json",
+        "source": target["outputPaths"]["shared"] + "/model-catalog.json",
         "note": "Generated from canonical role assignments. Exact model names are validated where possible; unvalidated names are marked not-tested."
     }
     return json.dumps(artifact, indent=2, ensure_ascii=False) + "\n"

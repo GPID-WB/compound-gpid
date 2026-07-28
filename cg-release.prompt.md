@@ -178,6 +178,19 @@ After writing, save the file as `RELEASE_NOTES.md` in the repo root.
 
 ### Step 4: Present a confirmation summary
 
+Before presenting any publication claim or asking for confirmation, run the native
+packaging release gate:
+
+```powershell
+$python = Get-Command python3, python, py -ErrorAction SilentlyContinue | Select-Object -First 1
+& $python.Source -m pytest scripts/tests/test_target_mapping.py scripts/tests/test_cg_generate_targets.py scripts/tests/test_target_path_safety.py scripts/tests/test_target_packaging.py scripts/tests/test_target_ownership.py scripts/tests/test_target_closure.py scripts/tests/test_target_determinism.py scripts/tests/test_target_drift.py scripts/tests/test_target_claude.py scripts/tests/test_target_codex.py scripts/tests/test_target_opencode.py -q
+```
+
+If Python cannot be resolved or the native packaging release gate exits nonzero,
+**halt**. Report the failure and do not present a ready-to-publish summary, invoke
+`create-release.ps1`, call a GitHub API, or claim the release is ready. Do not weaken
+drift checks when regenerated targets differ from committed `HEAD`.
+
 Show the user a summary before executing anything:
 
 ```

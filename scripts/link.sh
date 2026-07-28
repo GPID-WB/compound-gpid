@@ -145,6 +145,8 @@ add_units_for_platform() {
                 'claude-code|directory|.claude/commands|.claude/commands|link-directory|' \
                 'claude-code|directory|.claude/skills|.claude/skills|link-directory|' \
                 'claude-code|directory|.claude/agents|.claude/agents|link-directory|' \
+                'claude-code|directory|.claude/instructions|.claude/instructions|link-directory|' \
+                'claude-code|directory|.claude/shared|.claude/shared|link-directory|' \
                 'claude-code|file|.claude/CLAUDE.md|.claude/CLAUDE.md|managed-copy|' \
                 'claude-code|file|.claude/model-mapping.claude.json|.claude/model-mapping.claude.json|managed-copy|'
             ;;
@@ -153,6 +155,8 @@ add_units_for_platform() {
                 'codex|directory|.agents/commands|.agents/commands|link-directory|' \
                 'codex|directory|.agents/skills|.agents/skills|link-directory|' \
                 'codex|directory|.agents/subagents|.agents/subagents|link-directory|' \
+                'codex|directory|.agents/instructions|.agents/instructions|link-directory|' \
+                'codex|directory|.agents/shared|.agents/shared|link-directory|' \
                 'codex|file|.agents/AGENTS.md|.agents/AGENTS.md|managed-copy|' \
                 'codex|file|.agents/model-mapping.codex.json|.agents/model-mapping.codex.json|managed-copy|'
             ;;
@@ -161,6 +165,8 @@ add_units_for_platform() {
                 'opencode|directory|.opencode/commands|.opencode/commands|link-directory|' \
                 'opencode|directory|.opencode/skills|.opencode/skills|link-directory|' \
                 'opencode|directory|.opencode/agents|.opencode/agents|link-directory|' \
+                'opencode|directory|.opencode/instructions|.opencode/instructions|link-directory|' \
+                'opencode|directory|.opencode/shared|.opencode/shared|link-directory|' \
                 'opencode|file|.opencode/AGENTS.md|.opencode/AGENTS.md|managed-copy|' \
                 'opencode|file|.opencode/opencode.json|.opencode/opencode.json|config-copy-or-snippet|Add instructions .opencode/AGENTS.md and skills.paths .opencode/skills to your existing opencode.json.' \
                 'opencode|file|.opencode/model-mapping.opencode.json|.opencode/model-mapping.opencode.json|managed-copy|'
@@ -373,7 +379,8 @@ if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found a
 printf '\n'
 print_cyan "Updating Compound GPID..."
 if ! CG_INTERNAL_CALL=1 "$COMPOUND_GPID_DIR/scripts/update.sh"; then
-    print_warn "Could not update Compound GPID (offline?). Continuing with current version."
+    print_error "Could not update and validate Compound GPID; linking is blocked. Existing installed content was left unchanged."
+    exit 1
 fi
 
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
