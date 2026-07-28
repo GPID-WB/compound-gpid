@@ -6,6 +6,7 @@ Run from repo root:
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -159,6 +160,114 @@ class TestDryRun:
         assert "opencode" in captured.out
 
 
+class TestGenerationPlan:
+    def test_entries_are_sorted_and_contain_final_bytes_and_hashes(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        mapping = gen.load_target_mapping(root)
+        assets = gen.scan_canonical_assets(root)
+        catalog = gen.load_model_catalog(root)
+
+        plan = gen.build_generation_plan(root, mapping, assets, catalog)
+
+        destinations = [entry.destination for entry in plan.entries]
+        assert destinations == sorted(destinations)
+        assert all(isinstance(entry.content, bytes) for entry in plan.entries)
+        assert all(entry.sha256 == hashlib.sha256(entry.content).hexdigest() for entry in plan.entries)
+        assert all(isinstance(entry.executable, bool) for entry in plan.entries)
+
+    def test_identical_inputs_produce_identical_structured_plan(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        mapping = gen.load_target_mapping(root)
+        assets = gen.scan_canonical_assets(root)
+        catalog = gen.load_model_catalog(root)
+
+        first = gen.build_generation_plan(root, mapping, assets, catalog)
+        second = gen.build_generation_plan(root, mapping, assets, catalog)
+
+        assert first == second
+
+    def test_plan_exposes_target_results_without_stdout_parsing(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        plan = gen.build_generation_plan(
+            root,
+            gen.load_target_mapping(root),
+            gen.scan_canonical_assets(root),
+            gen.load_model_catalog(root),
+        )
+
+        assert set(plan.by_target) == {"claude-code", "codex", "opencode"}
+        assert all(result.entries for result in plan.by_target.values())
+
+    def test_all_outputs_render_before_first_write(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        root = _make_fixture_repo(tmp_path)
+        mapping = gen.load_target_mapping(root)
+        assets = gen.scan_canonical_assets(root)
+        catalog = gen.load_model_catalog(root)
+        original = gen._render_output_entry
+
+        def fail_on_late_target(*args, **kwargs):
+            target = args[0]
+            if target["id"] == "opencode":
+                raise ValueError("late render failure")
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(gen, "_render_output_entry", fail_on_late_target)
+
+        with pytest.raises(ValueError, match="late render failure"):
+            gen.build_generation_plan(root, mapping, assets, catalog)
+
+        assert not (root / ".claude").exists()
+        assert not (root / ".agents").exists()
+        assert not (root / ".opencode").exists()
+
+    @pytest.mark.parametrize("target_id", ["claude-code", "codex", "opencode"])
+    def test_emit_plan_writes_exact_planned_bytes(self, tmp_path: Path, target_id: str) -> None:
+        root = _make_fixture_repo(tmp_path)
+        plan = gen.build_generation_plan(
+            root,
+            gen.load_target_mapping(root),
+            gen.scan_canonical_assets(root),
+            gen.load_model_catalog(root),
+        )
+
+        result = gen.commit_generation_plan(root, plan, [target_id])
+
+        assert result.target_ids == (target_id,)
+        for entry in plan.by_target[target_id].entries:
+            assert (root / entry.destination).read_bytes() == entry.content
+
+
+class TestMetadataSerialization:
+    def test_generated_toml_parses_adversarial_valid_metadata(self, tmp_path: Path) -> None:
+        tomllib = pytest.importorskip("tomllib")
+        root = _make_fixture_repo(tmp_path)
+        _write(
+            root / ".github/agents/cg-tricky.agent.md",
+            '---\ndescription: A "quoted" path \\ value\ntools: ["read", "odd/tool"]\n---\n\n# Tricky\n\nBody.\n',
+        )
+
+        assert gen.main(["--root", str(root), "--target", "codex"]) == 0
+
+        parsed = tomllib.loads((root / ".agents/subagents/cg-tricky.toml").read_text(encoding="utf-8"))
+        assert parsed["subagent"][0]["description"] == 'A "quoted" path \\ value'
+        assert parsed["subagent"][0]["tools"] == ["read", "odd/tool"]
+
+    def test_generated_frontmatter_quotes_scalar_values(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _write(
+            root / ".github/prompts/cg-tricky.prompt.md",
+            '---\ndescription: "value: #quoted"\n---\n\n# Tricky\n',
+        )
+
+        assert gen.main(["--root", str(root), "--target", "claude-code"]) == 0
+
+        content = (root / ".claude/commands/cg-tricky.md").read_text(encoding="utf-8")
+        description_line = next(
+            line for line in content.splitlines() if line.startswith("description: ")
+        )
+        assert json.loads(description_line.split(": ", 1)[1]) == "value: #quoted"
+
+
 class TestGeneratorWrites:
     def test_claude_code_writes_commands(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -177,6 +286,14 @@ class TestGeneratorWrites:
         gen.main(["--root", str(root), "--target", "codex"])
         toml_files = list((root / ".agents/subagents").glob("*.toml"))
         assert len(toml_files) == 1
+        tomllib = pytest.importorskip("tomllib")
+        parsed = tomllib.loads(toml_files[0].read_text(encoding="utf-8"))
+        agent = parsed["subagent"][0]
+        assert agent["name"] == "cg-test-agent"
+        assert agent["description"] == "Test agent"
+        assert agent["model"] == "GPT-5.4"
+        assert agent["tools"] == ["read", "write"]
+        assert "instructions" in agent
 
     def test_codex_writes_fallback_skills(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -344,3 +461,232 @@ class TestEdgeCases:
         assert exit_code == 0
         assert (root / ".claude/CLAUDE.md").exists()
         assert (root / ".claude/mm.json").exists()
+
+
+class TestOwnershipManifest:
+    """Tests for ownership manifest commit/write path (P2.3)."""
+
+    def _make_entry(self, destination: str, sha256: str = "a" * 64) -> gen.OutputEntry:
+        return gen.OutputEntry(
+            target_id="claude-code", destination=destination, source="src.md",
+            kind="command", content=b"", sha256=sha256, executable=False,
+        )
+
+    def _make_result(self, entries: tuple[gen.OutputEntry, ...]) -> gen.TargetResult:
+        return gen.TargetResult(target_id="claude-code", target_root=".claude", entries=entries)
+
+    def test_ownership_manifest_bytes_structure(self) -> None:
+        """_ownership_manifest_bytes produces deterministic JSON with correct fields."""
+        entries = (
+            self._make_entry(".claude/commands/cg-test.md"),
+            self._make_entry(".claude/agents/cg-agent.md"),
+        )
+        result = self._make_result(entries)
+        manifest = gen._ownership_manifest_bytes(result)
+        data = json.loads(manifest.decode("utf-8"))
+        assert data["schemaVersion"] == 1
+        assert data["target"] == "claude-code"
+        assert data["policyVersion"] == gen.OWNERSHIP_POLICY_VERSION
+        assert len(data["files"]) == 2
+        assert data["files"][0]["path"] == ".claude/commands/cg-test.md"
+        assert data["files"][0]["sha256"] == "a" * 64
+        assert manifest.endswith(b"\n")
+
+    def test_ownership_manifest_bytes_deterministic(self) -> None:
+        """Two calls with the same data produce identical bytes."""
+        entries = (self._make_entry(".claude/commands/cg-test.md"),)
+        result = self._make_result(entries)
+        assert gen._ownership_manifest_bytes(result) == gen._ownership_manifest_bytes(result)
+
+    def test_read_prior_manifest_returns_empty_when_missing(self, tmp_path: Path) -> None:
+        """_read_prior_ownership_manifest returns {} when no manifest exists."""
+        entries = (self._make_entry(".claude/commands/cg-test.md"),)
+        result = self._make_result(entries)
+        root = tmp_path / "fixture"
+        assert gen._read_prior_ownership_manifest(root, result) == {}
+
+    def test_read_prior_manifest_parses_valid(self, tmp_path: Path) -> None:
+        """_read_prior_ownership_manifest correctly parses a valid manifest."""
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        entries = (self._make_entry(".claude/commands/cg-test.md", "b" * 64),)
+        result = self._make_result(entries)
+        manifest_data = {
+            "schemaVersion": 1, "target": "claude-code", "policyVersion": 1,
+            "files": [{"path": ".claude/commands/cg-test.md", "source": "src.md", "kind": "command",
+                       "sha256": "b" * 64, "executable": False}],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(manifest_data), encoding="utf-8"
+        )
+        owned = gen._read_prior_ownership_manifest(root, result)
+        assert owned[".claude/commands/cg-test.md"].sha256 == "b" * 64
+
+    def test_read_prior_manifest_rejects_missing_keys(self, tmp_path: Path) -> None:
+        """_read_prior_ownership_manifest rejects manifest with missing schema keys."""
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        entries = (self._make_entry(".claude/commands/cg-test.md"),)
+        result = self._make_result(entries)
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps({"schemaVersion": 1, "target": "claude-code"}), encoding="utf-8"
+        )
+        with pytest.raises(ValueError, match="invalid schema"):
+            gen._read_prior_ownership_manifest(root, result)
+
+    def test_read_prior_manifest_rejects_wrong_target(self, tmp_path: Path) -> None:
+        """_read_prior_ownership_manifest rejects manifest for a different target."""
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        entries = (self._make_entry(".claude/commands/cg-test.md"),)
+        result = self._make_result(entries)
+        data = {"schemaVersion": 1, "target": "codex", "policyVersion": 1, "files": []}
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(data), encoding="utf-8"
+        )
+        with pytest.raises(ValueError, match="target does not match"):
+            gen._read_prior_ownership_manifest(root, result)
+
+    def test_preflight_target_commit_detects_stale_file_modification(self, tmp_path: Path) -> None:
+        """_preflight_target_commit raises on modified stale owned file."""
+        root = tmp_path / "fixture"
+        (root / ".claude/commands").mkdir(parents=True)
+        stale_path = root / ".claude/commands/stale.md"
+        stale_path.write_text("original content")
+        stale_hash = hashlib.sha256(stale_path.read_bytes()).hexdigest()
+        stale_path.write_text("modified content")
+
+        # Write the expected entry
+        dest_path = root / ".claude/commands/cg-test.md"
+        dest_path.write_text("expected")
+        content_hash = hashlib.sha256(dest_path.read_bytes()).hexdigest()
+
+        entries = (self._make_entry(".claude/commands/cg-test.md", content_hash),)
+        result = self._make_result(entries)
+        prior_data = {
+            "schemaVersion": 1, "target": "claude-code", "policyVersion": 1,
+            "files": [{"path": ".claude/commands/stale.md", "source": "old.md",
+                       "kind": "command", "sha256": stale_hash, "executable": False}],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(prior_data), encoding="utf-8"
+        )
+        with pytest.raises(ValueError, match="Modified stale"):
+            gen._preflight_target_commit(root, result)
+
+    def test_preflight_target_commit_accepts_unmodified_stale(self, tmp_path: Path) -> None:
+        """_preflight_target_commit accepts stale file with matching hash."""
+        root = tmp_path / "fixture"
+        (root / ".claude/commands").mkdir(parents=True)
+        stale_path = root / ".claude/commands/stale.md"
+        stale_path.write_text("stale content")
+        stale_hash = hashlib.sha256(stale_path.read_bytes()).hexdigest()
+
+        # Write the expected entry and compute its proper hash
+        dest_path = root / ".claude/commands/cg-test.md"
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        dest_path.write_text("test")
+        content_hash = hashlib.sha256(dest_path.read_bytes()).hexdigest()
+
+        entry = self._make_entry(".claude/commands/cg-test.md", content_hash)
+        entries = (entry,)
+        result = self._make_result(entries)
+        prior_data = {
+            "schemaVersion": 1, "target": "claude-code", "policyVersion": 1,
+            "files": [{"path": ".claude/commands/stale.md", "source": "old.md",
+                       "kind": "command", "sha256": stale_hash, "executable": False}],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(prior_data), encoding="utf-8"
+        )
+        plan = gen._preflight_target_commit(root, result)
+        assert isinstance(plan, gen.TargetCommitPlan)
+
+    def test_prune_empty_parents_removes_empty_dirs(self, tmp_path: Path) -> None:
+        """_prune_empty_parents removes empty parent directories up to target_root."""
+        target_root = tmp_path / "target"
+        (target_root / "sub" / "deep").mkdir(parents=True)
+        file_path = target_root / "sub" / "deep" / "file.md"
+        file_path.write_text("x")
+        file_path.unlink()
+        gen._prune_empty_parents(file_path, target_root)
+        assert not (target_root / "sub").exists()
+        assert target_root.exists()
+
+    def test_prune_empty_parents_stops_at_non_empty(self, tmp_path: Path) -> None:
+        """_prune_empty_parents stops removing when a parent is non-empty."""
+        target_root = tmp_path / "target"
+        (target_root / "sub" / "deep").mkdir(parents=True)
+        (target_root / "sub" / "other.md").write_text("x")
+        file_path = target_root / "sub" / "deep" / "file.md"
+        file_path.write_text("x")
+        file_path.unlink()
+        gen._prune_empty_parents(file_path, target_root)
+        assert (target_root / "sub").exists()
+        assert not (target_root / "sub" / "deep").exists()
+
+
+class TestHelperFunctions:
+    """Parametrized unit tests for YAML scalar, fenced-code, and reference helpers."""
+
+    @pytest.mark.parametrize("value,expected", [
+        ("simple", "simple"),
+        ("path/to/file", "path/to/file"),
+        ("null", '"null"'),
+        ("true", '"true"'),
+        ("false", '"false"'),
+        ("yes", '"yes"'),
+        ("no", '"no"'),
+        ("on", '"on"'),
+        ("off", '"off"'),
+        ("has spaces", "has spaces"),
+        ("CON", "CON"),
+        ("value: #comment", '"value: #comment"'),
+        ("trailing ", "trailing "),
+        ("123", "123"),
+    ])
+    def test_yaml_scalar(self, value: str, expected: str) -> None:
+        assert gen._yaml_scalar(value) == expected
+
+    @pytest.mark.parametrize("text,expected", [
+        ("plain text", "plain text"),
+        ("before\n```\ncode\n```\nafter", "before\nafter"),
+        ("before\n~~~\ncode\n~~~\nafter", "before\nafter"),
+        ("```\nunterminated\n", ""),
+        ("```python\nprint(1)\n```\nbody\n```\nmore", "body\n"),
+    ])
+    def test_strip_fenced_code(self, text: str, expected: str) -> None:
+        assert gen._strip_fenced_code(text) == expected
+
+    def test_validate_bundle_references_valid(self) -> None:
+        bundle = [
+            {"bundle_relative_path": "doc.md", "content": b"See [other](other.md)", "relative_path": "doc.md"},
+            {"bundle_relative_path": "other.md", "content": b"Other content", "relative_path": "other.md"},
+        ]
+        gen._validate_bundle_markdown_references(bundle)
+
+    def test_validate_bundle_references_missing(self) -> None:
+        bundle = [
+            {"bundle_relative_path": "doc.md", "content": b"See [missing](nope.md)", "relative_path": "doc.md"},
+        ]
+        with pytest.raises(ValueError, match="missing from skill bundle"):
+            gen._validate_bundle_markdown_references(bundle)
+
+    def test_validate_bundle_references_escapes(self) -> None:
+        bundle = [
+            {"bundle_relative_path": "doc.md", "content": b"See [/etc/passwd](/etc/passwd)", "relative_path": "doc.md"},
+        ]
+        with pytest.raises(ValueError, match="escapes skill bundle"):
+            gen._validate_bundle_markdown_references(bundle)
+
+    def test_validate_bundle_references_skips_urls(self) -> None:
+        bundle = [
+            {"bundle_relative_path": "doc.md", "content": b"See [web](https://example.com)", "relative_path": "doc.md"},
+        ]
+        gen._validate_bundle_markdown_references(bundle)
+
+    def test_validate_bundle_references_skips_non_markdown(self) -> None:
+        bundle = [
+            {"bundle_relative_path": "data.csv", "content": b"a,b,c", "relative_path": "data.csv"},
+        ]
+        gen._validate_bundle_markdown_references(bundle)

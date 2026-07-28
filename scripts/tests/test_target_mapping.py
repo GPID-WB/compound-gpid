@@ -55,6 +55,11 @@ class TestTargetMappingSchema:
                 assert field in caps, f"{target['id']}: missing capability {field}"
                 assert isinstance(caps[field], bool)
 
+    def test_all_targets_define_runtime_output_roots(self) -> None:
+        data = _load_repo_mapping()
+        for target in data["targets"]:
+            assert set(gen.REQUIRED_OUTPUT_PATH_FIELDS) <= set(target["outputPaths"])
+
     def test_model_mapping_modes_are_valid(self) -> None:
         data = _load_repo_mapping()
         for target in data["targets"]:
@@ -184,3 +189,35 @@ class TestTargetMappingValidation:
         broken["targets"][0]["installUnits"][0]["strategy"] = "unknown"
         errors = gen.validate_target_mapping(broken)
         assert any("installUnits" in e and "strategy" in e for e in errors)
+
+    def test_schema_version_other_than_one_fails(self) -> None:
+        data = _load_repo_mapping()
+        data["schemaVersion"] = 2
+        errors = gen.validate_target_mapping(data)
+        assert any("schemaVersion" in error and "1" in error for error in errors)
+
+    def test_description_is_required_and_string(self) -> None:
+        data = _load_repo_mapping()
+        del data["description"]
+        assert any("description" in error for error in gen.validate_target_mapping(data))
+        data["description"] = 3
+        assert any("description" in error for error in gen.validate_target_mapping(data))
+
+    def test_target_id_matches_schema_pattern(self) -> None:
+        data = _load_repo_mapping()
+        data["targets"][0]["id"] = "Bad_ID"
+        errors = gen.validate_target_mapping(data)
+        assert any("id" in error and "lowercase" in error for error in errors)
+
+    def test_repo_path_python_validator_is_canonical(self) -> None:
+        """Python _validate_repo_relative_path is the canonical validator for repoPath.
+
+        The JSON Schema regex is a basic structural guard only. Full constraints
+        (empty components, '.' parts, trailing dots/spaces, Windows reserved names)
+        are enforced by the Python validator. This test documents the relationship.
+        """
+        assert gen._validate_repo_relative_path("desc", "a//b") != []
+        assert gen._validate_repo_relative_path("desc", "a/./b") != []
+        assert gen._validate_repo_relative_path("desc", "a/ ") != []
+        assert gen._validate_repo_relative_path("desc", "a/b.") != []
+        assert gen._validate_repo_relative_path("desc", "a/CON/b") != []
