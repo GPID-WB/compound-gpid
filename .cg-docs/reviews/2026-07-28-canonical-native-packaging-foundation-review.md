@@ -7,31 +7,31 @@ branch: feat/implement-canonical-native-packaging
 plan: ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md"
 findings:
   P0.1:
-    status: open
+    status: fixed
     description: "Destination ancestor symlink race can redirect writes outside the repository"
   P0.2:
-    status: open
+    status: fixed
     description: "Stale cleanup does not revalidate ownership immediately before unlink"
   P0.3:
-    status: open
+    status: fixed
     description: "Missing canonical asset roots can produce a destructive partial generation plan"
   P0.4:
-    status: open
+    status: fixed
     description: "Missing model catalog silently degrades to an empty catalog"
   P1.1:
-    status: open
+    status: fixed
     description: "Windows-forbidden path characters and NTFS alternate stream names pass validation"
   P1.2:
-    status: open
+    status: fixed
     description: "Release preflight validates the working tree rather than the tagged commit"
   P1.3:
-    status: open
+    status: fixed
     description: "Release preflight test paths depend on the caller working directory"
   P1.4:
-    status: open
+    status: fixed
     description: "Update failure tests assert source text rather than executing failure scenarios"
   P1.5:
-    status: open
+    status: fixed
     description: "Release blocking tests do not execute a failing preflight against credential/API boundaries"
 ---
 
