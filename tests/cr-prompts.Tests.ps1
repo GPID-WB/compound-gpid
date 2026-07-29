@@ -417,8 +417,8 @@ Describe "CR agent files - structural checks" {
                 ($fm -match '(?m)^\s*user-invocable:\s*false') | Should -Be $true
             }
 
-            It "[$name] has a model: field in frontmatter" {
-                ($fm -match '(?m)^\s*model:') | Should -Be $true
+            It "[$name] has model: GPT-5.4" {
+                ($fm -match '(?m)^\s*model:\s*GPT-5\.4\s*$') | Should -Be $true
             }
         }
     }
