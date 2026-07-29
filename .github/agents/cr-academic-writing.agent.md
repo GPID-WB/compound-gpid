@@ -3,7 +3,7 @@ description: "Reviews academic writing quality in economics research: journal
   style compliance, section structure, argument flow, equation exposition,
   notation consistency, and citation completeness. Loaded by /cr-review
   for Writing tasks."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

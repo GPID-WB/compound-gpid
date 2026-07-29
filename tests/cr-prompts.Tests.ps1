@@ -389,7 +389,7 @@ Describe "CR agent files - structural checks" {
         $path = Join-Path $agentsDir $name
 
         Context "$name - existence and frontmatter" {
-            $fm = Get-Frontmatter -FilePath $path
+            $fm = if (Test-Path $path) { Get-Frontmatter -FilePath $path } else { '' }
 
             It "[$name] exists" {
                 Test-Path $path | Should -Be $true
@@ -404,11 +404,13 @@ Describe "CR agent files - structural checks" {
             }
 
             It "[$name] has tools including 'read'" {
-                ($fm -match "tools:.*'read'") | Should -Be $true
+                $tools = Get-ToolsList -Frontmatter $fm
+                ($tools -contains 'read') | Should -Be $true
             }
 
             It "[$name] does not have 'write' tool" {
-                ($fm -notmatch "'write'") | Should -Be $true
+                $tools = Get-ToolsList -Frontmatter $fm
+                ($tools -contains 'write') | Should -Be $false
             }
 
             It "[$name] has user-invocable: false" {
@@ -487,9 +489,9 @@ Describe "cr-mathematical-verification.agent.md - content" {
         ($content -match '(?i)variable mapping table') | Should -Be $true
     }
 
-    It "uses Claude Opus 4.6 model" {
+    It "uses GPT-5.4 model" {
         $fm = Get-Frontmatter -FilePath $path
-        ($fm -match 'Claude Opus 4\.6') | Should -Be $true
+        ($fm -match 'GPT-5\.4') | Should -Be $true
     }
 
     It "contains graceful skip message for no derivation files" {
@@ -602,9 +604,9 @@ Describe "cr-econometric-reasoning.agent.md - content" {
         ($content -match '(?i)PhD student') | Should -Be $true
     }
 
-    It "uses Claude Opus 4.6 model" {
+    It "uses GPT-5.4 model" {
         $fm = Get-Frontmatter -FilePath $path
-        ($fm -match 'Claude Opus 4\.6') | Should -Be $true
+        ($fm -match 'GPT-5\.4') | Should -Be $true
     }
 }
 
@@ -824,7 +826,7 @@ Describe "CR files - module: research frontmatter" {
         }
     }
 
-    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-publication-output')
+    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-replication-package', 'cr-publication-output')
     foreach ($agent in $crAgents) {
         $agentFile = Join-Path $repoRoot ".github\agents\$agent.agent.md"
         $fm        = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }

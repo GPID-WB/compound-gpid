@@ -3,7 +3,7 @@ description: "Audits identification strategies (IV, RDD, DiD, control function)
   against empirical diagnostics. Flags claimed strategies without matching
   first-stage F-stats, McCrary tests, parallel-trends checks, or overidentification
   tests. Loaded by /cr-review conditionally for tasks claiming identification."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

@@ -3,7 +3,7 @@ description: "Symbolic verification of code against mathematical derivations.
   Compares variable mappings, functional forms, gradient computations, and
   moment conditions between LaTeX/markdown derivations and implementation code.
   Loaded by /cr-review for Theory/Modeling and Implementation tasks."
-model: Claude Opus 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

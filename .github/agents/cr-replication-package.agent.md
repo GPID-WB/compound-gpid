@@ -4,7 +4,7 @@ description: "Audits replication package completeness for journal submission:
   lockfiles, seed registry against manifest.json, data documentation (codebook
   + PII checklist), path portability (no absolute paths), sensitive-data
   handling, and file inventory. Loaded by /cr-review for Reproducibility tasks."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

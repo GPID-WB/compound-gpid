@@ -4,7 +4,7 @@ description: "Audits ML methodology in economics research: train/test/validation
   cross-validation done right (panel-aware, time-series-aware), data leakage
   detection, and economic interpretation of ML output. Loaded by /cr-review
   for ML/Prediction tasks."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

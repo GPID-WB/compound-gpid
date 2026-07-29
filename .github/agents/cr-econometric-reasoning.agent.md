@@ -3,7 +3,7 @@ description: "Reviews structural econometric model logic: economic theory
   consistency, functional form appropriateness, distributional assumptions,
   estimation strategy selection (MLE vs GMM vs Bayesian), and assumption-data
   consistency. Loaded by /cr-review for Theory/Modeling tasks."
-model: Claude Opus 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

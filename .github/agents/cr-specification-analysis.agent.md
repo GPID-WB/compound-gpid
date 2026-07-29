@@ -4,7 +4,7 @@ description: "Bridges theory and data: formulates testable implications of
   specification searching patterns, and checks that theory-data dialogue is
   documented in .cg-docs/research/specifications/. Loaded by /cr-review for
   Specification Analysis tasks."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

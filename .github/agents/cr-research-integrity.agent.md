@@ -3,7 +3,7 @@ description: "Detects P0 silent research errors: code-math mismatch,
   specification searching, identification theater, unseeded randomness,
   asymptotic-assumption violations, wrong SE clustering, and untested
   distributional assumptions. Loaded by /cr-review."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research

@@ -4,7 +4,7 @@ description: "Reviews publication-quality output code: regression table
   figure output (ggplot2+wbplot), font/size compliance, caption discipline,
   table-note discipline, and deterministic output. Loaded by /cr-review
   for Tables/Figures tasks."
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 module: research
