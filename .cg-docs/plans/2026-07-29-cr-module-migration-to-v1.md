@@ -8,6 +8,8 @@ brainstorm: ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md"
 language: "both"
 estimated-effort: "large"
 tags: [migration, compound-research, v1-integration, git-workflow, codex-adapter]
+completed-phases: [0, 1]
+current-phase: 2
 ---
 
 # Plan: Compound Research Module Migration to v1.0
