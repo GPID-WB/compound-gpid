@@ -163,4 +163,65 @@ After solving a non-trivial problem, use `/cg-compound` to capture the solution 
 
 When a prompt contains a "Consult Brain" step, load `cg-skill-brain-query` — it teaches how to navigate BRAIN.md, extract relevant takeaways and gotchas, evaluate and prioritize findings, resolve contradictions, and detect stale entries. The calling prompt's step provides the search directive (what to look for); the skill provides the protocol (how to search and apply findings).
 
+## Compound Research (CR) Module
+
+The research module is activated via `modules: [research]` in `compound-gpid.local.md`.
+When enabled, `/cr-*` prompts and `cr-*` agents are available in addition to
+the core engineering workflow.
+
+### /cr-* Commands
+
+| Situation | Command |
+|---|---|
+| Clarify fuzzy research requirement | `/cr-brainstorm` |
+| Create research implementation plan | `/cr-plan` |
+| Execute phased research plan | `/cr-work` |
+| Run research + engineering review | `/cr-review` |
+| Capture reusable research lesson | `/cr-compound` |
+
+### Research Task Taxonomy (8 types)
+
+- `Theory/Modeling`
+- `Specification Analysis`
+- `EDA`
+- `Implementation`
+- `ML/Prediction`
+- `Writing`
+- `Tables/Figures`
+- `Reproducibility`
+
+### CR Skills
+
+- `cr-skill-research-workflow`: task taxonomy, integrity protocol, workflow conventions
+- `cr-skill-research-integrity`: P0 silent research error catalog and remediation
+- `cr-skill-structural-econometrics`: structural modeling and estimation logic
+- `cr-skill-mathematical-derivation`: derivation quality and notation discipline
+- `cr-skill-symbolic-verification`: derivation-code consistency checks
+- `cr-skill-theory-data-dialogue`: theory-data consistency diagnostics
+- `cr-skill-identification-strategies`: identification methods and required diagnostics
+- `cr-skill-research-eda`: research-framed EDA patterns
+- `cr-skill-ml-economics`: ML methodology for economics research
+- `cr-skill-academic-writing`: paper-writing conventions
+- `cr-skill-publication-output`: publication-quality tables and figures
+- `cr-skill-replication-standards`: replication package standards
+
+### CR Agents
+
+- `cr-research-integrity`
+- `cr-mathematical-verification`
+- `cr-identification-audit`
+- `cr-econometric-reasoning`
+- `cr-ml-methodology`
+- `cr-specification-analysis`
+- `cr-academic-writing`
+- `cr-publication-output`
+- `cr-replication-package`
+
+### Research Integrity Priority
+
+For research tasks, silent correctness failures (code-math mismatch,
+identification theater, unseeded randomness in stochastic estimation,
+undocumented specification searching) are treated as **P0** and block any
+results release until resolved.
+
 <!-- Pester Safety Rules appear at the top of this file -->

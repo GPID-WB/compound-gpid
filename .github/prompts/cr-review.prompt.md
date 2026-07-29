@@ -27,7 +27,7 @@ their findings.
 1. Read `compound-gpid.md`, `compound-gpid.local.md`. Check `modules:` includes `research`.
    If `compound-gpid.local.md` does not exist, proceed with defaults: review-depth = standard.
    If the `modules:` field is absent from `compound-gpid.md`, treat as unset and proceed normally.
-2. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 3. Read review depth from `compound-gpid.local.md` (`review-depth:`).
 4. Load `cr-skill-research-workflow` and `cr-skill-research-integrity`.
 5. Identify the files to review (changed since last commit, or user-specified).

@@ -25,7 +25,7 @@ econometrics work.
 1. Read `compound-gpid.md` and `compound-gpid.local.md`. Check that `modules:` includes `research`.
    If `compound-gpid.local.md` does not exist or `modules:` does not include `research`, warn:
    > "Research module is not enabled. Run `/cg-setup` to add it, or proceed anyway?"
-2. If `compound-gpid.context.md` exists, read it. Otherwise skip silently.
+2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 3. Load `cg-skill-compound-docs` for the capture conventions.
 
 ### Step 1: Capture the Problem

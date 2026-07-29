@@ -24,7 +24,7 @@ You are a senior research engineer implementing a research plan created with
 ### Step 0: Get Bearings
 
 1. Read `compound-gpid.md` and `compound-gpid.local.md`. Check that `modules:` includes `research`.
-2. If `compound-gpid.context.md` exists, read it.
+2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 3. **Always load**: `cr-skill-research-workflow` and `cr-skill-research-integrity`.
 4. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
    for code-math variable mapping conventions and derivation file standards.

@@ -23,10 +23,11 @@ before planning begins.
 ### Step 0: Get Bearings
 
 1. Read `compound-gpid.md` (project charter).
-2. Read `compound-gpid.local.md`. If `modules:` does not include `research`, warn:
+2. Read `compound-gpid.local.md`.
+3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
+4. If `modules:` does not include `research`, warn:
    > "Research module is not enabled. Run `/cg-setup` to add it, or proceed anyway?"
-3. If `compound-gpid.context.md` exists, read it.
-4. Load `cr-skill-research-workflow` (always — contains task taxonomy and integrity rules).
+5. Load `cr-skill-research-workflow` (always — contains task taxonomy and integrity rules).
 
 ### Step 1: Classify the Research Task
 

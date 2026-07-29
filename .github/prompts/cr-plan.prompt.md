@@ -22,7 +22,7 @@ an economics or econometrics research task.
 ### Step 0: Get Bearings
 
 1. Read `compound-gpid.md`, `compound-gpid.local.md`. Check that `modules:` includes `research`.
-2. If `compound-gpid.context.md` exists, read it.
+2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 3. Load `cr-skill-research-workflow`.
 
 ### Step 1: Gather Context
@@ -31,7 +31,7 @@ an economics or econometrics research task.
 2. Scan the project directory for existing code files relevant to the task.
 3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded.
 4. For all tasks: check `.cg-docs/research/specifications/` for existing specification decisions.
-5. If `compound-gpid.context.md` exists, read it for workspace structure notes.
+5. If context is needed for workspace structure notes, read only relevant `compound-gpid.context.md` headings/snippets.
 
 #### Step 1.5 — Scope Assessment
 

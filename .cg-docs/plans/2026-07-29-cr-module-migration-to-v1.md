@@ -8,8 +8,10 @@ brainstorm: ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md"
 language: "both"
 estimated-effort: "large"
 tags: [migration, compound-research, v1-integration, git-workflow, codex-adapter]
+deviation-policy: ask
 completed-phases: [0, 1]
 current-phase: 2
+execution-report: ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md"
 ---
 
 # Plan: Compound Research Module Migration to v1.0
@@ -543,3 +545,31 @@ Test types:
 - Writing Brain entries for research domain (accumulates organically via /cr-compound)
 - Updating roadmap.json (done post-plan via @cg-roadmap)
 - PR to main (personal working branch for now)
+
+## Completion Contract
+
+### Outcome
+
+Phase 2 establishes baseline CR registration in v1.0 by wiring CR module discovery and context-loading contract references into core instruction and prompt surfaces, with CR prompt tests updated accordingly and no regressions to existing prompt-tooling expectations.
+
+### Verification Surface
+
+| ID | Phase | Evidence Required | Command/Artifact | Required |
+|----|-------|-------------------|------------------|----------|
+| V2.1 | 2 | CR module registration docs integrated in core instruction surfaces | `.github/copilot-instructions.md`, `.github/copilot-instructions.template.md` diff review | yes |
+| V2.2 | 2 | Shared language instruction files include module frontmatter | `.github/instructions/r.instructions.md`, `.github/instructions/python.instructions.md`, `.github/instructions/stata.instructions.md` frontmatter inspection | yes |
+| V2.3 | 2 | All CR prompts reference context-loading contract in Step 0 bearings | `.github/prompts/cr-*.prompt.md` content checks | yes |
+| V2.4 | 2 | CR prompt tests reflect v1.0 structure updates | `tests/cr-prompts.Tests.ps1` diff review | yes |
+| V2.5 | 2 | Prompt tooling structure remains valid for CR additions | `tests/prompt-tools.Tests.ps1` targeted review and (if available) safe test evidence | yes |
+
+### Boundaries
+
+- Do not modify protected assets outside the scoped files required for Phase 2.
+- Preserve existing v1.0 behavior for non-CR prompts, agents, and shared contracts.
+- Keep `.github/` as source-of-truth; do not hand-edit generated adapter targets in this phase.
+
+### Blocked-Stop Conditions
+
+- Required Phase 2 evidence row cannot be satisfied and no accepted exception is approved.
+- A change needed for Phase 2 would violate protected-asset or file-permission rules.
+- Prompt/test structural regressions cannot be resolved within the phase without broadening scope.

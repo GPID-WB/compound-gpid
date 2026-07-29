@@ -1,24 +1,24 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-07-28T13:39:50Z",
+  "updatedAt": "2026-07-29T00:00:00Z",
   "workflow": "/cg-work",
-  "status": "handoff",
-  "branch": "feat/implement-canonical-native-packaging",
-  "plan": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
-  "executionReport": ".cg-docs/work-reports/2026-07-28-canonical-native-packaging-foundation.md",
-  "currentPhase": null,
+  "status": "blocked",
+  "branch": "feat/compound-research-v2",
+  "plan": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+  "executionReport": ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md",
+  "currentPhase": 2,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "scripts/tests/test_target_path_safety.py"},
-    {"id": "V2", "status": "passed", "artifact": "scripts/tests/test_target_packaging.py"},
-    {"id": "V3", "status": "passed", "artifact": "scripts/tests/test_target_ownership.py"},
-    {"id": "V4", "status": "passed", "artifact": "scripts/tests/test_target_drift.py"},
-    {"id": "V5", "status": "passed", "artifact": "scripts/tests/test_target_closure.py"}
+    {"id": "V2.1", "status": "passed", "artifact": ".github/copilot-instructions.md"},
+    {"id": "V2.2", "status": "passed", "artifact": ".github/instructions/r.instructions.md"},
+    {"id": "V2.3", "status": "passed", "artifact": ".github/prompts/cr-review.prompt.md"},
+    {"id": "V2.4", "status": "passed", "artifact": "tests/cr-prompts.Tests.ps1"},
+    {"id": "V2.5", "status": "blocked", "artifact": "powershell runtime unavailable for Pester verification"}
   ],
   "unresolvedDecisions": [
-    {"id": "P0", "summary": "Four blocking generator safety findings require fix-triage", "blocking": true}
+    {"id": "D1", "summary": "Run Pester verification for Phase 2 on a runtime with PowerShell available, then mark phase complete", "blocking": true}
   ],
   "artifactRefs": [
-    {"kind": "review", "path": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md", "status": "open"}
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md", "status": "active"}
   ],
-  "nextCommand": "/cg-fix-triage .cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md"
+  "nextCommand": "/cg-work phase2"
 }

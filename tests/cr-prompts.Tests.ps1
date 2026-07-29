@@ -54,6 +54,32 @@ Describe "CR prompt files - structural checks" {
             It "[$name] does not have a tools: restriction (orchestrating prompts must not restrict tools)" {
                 ($fm -notmatch '(?m)^\s*tools:') | Should -Be $true
             }
+
+            It "[$name] references context-loading.contract.md in Step 0" {
+                $content = if (Test-Path $path) { Get-Content $path -Raw -Encoding UTF8 } else { '' }
+                ($content -match 'context-loading\.contract\.md') | Should -Be $true
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Shared instruction frontmatter — module: shared
+# ---------------------------------------------------------------------------
+
+Describe "Shared instruction files - module frontmatter" {
+    $sharedInstructions = @(
+        '.github\\instructions\\r.instructions.md',
+        '.github\\instructions\\python.instructions.md',
+        '.github\\instructions\\stata.instructions.md'
+    )
+
+    foreach ($relPath in $sharedInstructions) {
+        $path = Join-Path $repoRoot $relPath
+        $fm = if (Test-Path $path) { Get-Frontmatter -FilePath $path } else { '' }
+
+        It "$relPath has module: shared in frontmatter" {
+            ($fm -match '(?m)^\s*module:\s*shared\s*$') | Should -Be $true
         }
     }
 }
