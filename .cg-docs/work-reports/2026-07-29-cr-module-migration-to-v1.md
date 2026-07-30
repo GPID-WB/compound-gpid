@@ -295,3 +295,36 @@ plan: .cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md
 ### Phase Status
 
 - `blocked` at Step 25 pending user approval; phase completion write is deferred.
+
+## Run 8 — Phase 7 Governance Close-Out (2026-07-30)
+
+### Scope
+
+- Requested action: user approved the Step 25 charter update
+- In-scope phase: `Phase 7: Cross-Integration Polish`
+- Implemented steps: 25, final close-out sync
+
+### Completed Work
+
+- Updated `compound-gpid.md` `## Current Focus` to reflect the CR migration outcome:
+  - `Compound Research module ported to v1.0 and integrated with Brain, review routing, model catalog, context-loading contracts, active-state, and multi-target generation. Engineering milestones continue in parallel.`
+- Updated `compound-gpid.md` `last-reviewed` metadata to `2026-07-30`.
+- Marked the CR migration plan as completed in frontmatter and advanced `completed-phases` to include Phase 7.
+- Cleared the active-state blocker so the migration no longer presents as awaiting governance approval.
+
+### Evidence Table (Phase 7 Close-Out)
+
+| ID | Status | Artifact/Check | Notes |
+|---|---|---|---|
+| P7.25 | passed | `compound-gpid.md` content inspection | User-approved Current Focus text applied |
+| P7.25b | passed | `compound-gpid.md` frontmatter inspection | `last-reviewed` updated to `2026-07-30` |
+| P7.close | passed | plan + active-state inspection | Phase 7 close-out artifacts synchronized |
+
+### Constraints Check
+
+- Charter body change executed only after explicit user approval, satisfying project governance.
+- Close-out edits were limited to the authoritative charter and workflow-state artifacts.
+
+### Final Status
+
+- `phase-complete` (Phase 7 close-out satisfied; CR migration plan complete)

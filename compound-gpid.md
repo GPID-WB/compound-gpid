@@ -1,7 +1,7 @@
 ---
 project-name: "Compound GPID"
 created: "2026-03-26"
-last-reviewed: "2026-06-22"
+last-reviewed: "2026-07-30"
 ---
 
 # Compound GPID
@@ -32,4 +32,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Token Efficiency Core System — making Compound GPID measurably more token-efficient across its core workflow using native audits, budgeted Knowledge Brain retrieval, compact command summaries, progressive-disclosure skills, handoff compaction, and regression checks before evaluating optional retrieval backends or cross-agent packaging expansion.
+Compound Research module ported to v1.0 and integrated with Brain, review routing, model catalog, context-loading contracts, active-state, and multi-target generation. Engineering milestones continue in parallel.
