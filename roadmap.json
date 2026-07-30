@@ -139,7 +139,8 @@
         },
         {
           "id": "skill-description-consistency-audit",
-          "title": "Skill description consistency audit and optimization",
+          "title": "Skill discovery metadata and trigger-quality audit",
+          "description": "Audit and improve every canonical Compound GPID skill's discovery metadata so relevant skills activate reliably without increasing always-loaded context or causing false-positive activation. Define a project-owned description contract covering WHAT the skill enables, WHEN it must load, concrete file types and user scenarios, likely user vocabulary, important positive triggers, and explicit near-miss or should-not-trigger boundaries where needed. Establish reasonable minimum and maximum description lengths as one part of quality rather than treating length as the objective. Inventory all canonical skills, classify internal versus user-facing discovery behavior, and update descriptions without changing skill semantics. Add deterministic validation for name/folder alignment, required namespace, description presence and bounds, duplicate identities, catalog parity, and cross-platform generated metadata parity. Add behavioral discovery probes for representative positive requests, negative requests, adjacent-skill ambiguity, language/dialect routing, and internal-only skills. Coordinate with progressive disclosure, SkillOpt research, documentation catalogs, and target generation, but keep SkillOpt as a separate later optimization mechanism. Success means users and agents can predict why a skill loads, relevant skills are discoverable using natural user wording, unrelated skills do not activate, and all four supported platforms expose equivalent metadata.",
           "status": "idea",
           "plan": null
         },
@@ -156,12 +157,6 @@
           "plan": ".cg-docs/plans/2026-05-04-stata-testing-skill-revised.md"
         },
         {
-          "id": "skill-description-length-cap",
-          "title": "Skill description length cap with test enforcement [from CE]",
-          "status": "idea",
-          "plan": null
-        },
-        {
           "id": "world-bank-institutional-report-writing-skill",
           "title": "World Bank institutional report-writing skill",
           "description": "Future skill for drafting institutional World Bank reports, policy notes, executive summaries, and analytical documents. Detailed examples and requirements will be supplied during future brainstorming and skill development.",
@@ -172,6 +167,20 @@
           "id": "skillopt-existing-skills-improvement",
           "title": "SkillOpt-based improvement of existing skills",
           "description": "Future pilot to investigate Microsoft's SkillOpt project and use it to evaluate and improve existing Compound GPID skills. It may eventually involve local SkillOpt guidance under .agents/skills/, but no separate-milestone or architecture decision is made yet.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "shared-writing-guardrails-contract",
+          "title": "Shared sensitive-data and output-hygiene contract",
+          "description": "Define a reusable, cross-workflow contract separating sensitive-data protection from ordinary output hygiene for documentation, examples, prompts, logs, source packs, external searches, GitHub issues and pull requests, public reports, code comments, and knowledge artifacts. The sensitive-data policy must classify credentials, PII, confidential or embargoed analytical results, internal URLs, customer/project identifiers, gitignored configuration, local paths, unpublished statistics, and other restricted content; specify where each class may be read, persisted, transmitted, summarized, redacted, or prohibited; fail closed where publication or external transmission is uncertain; and support explicit exceptions for approved public datasets, published indicators, institutional names, citations, and clearly synthetic fixtures. The output-hygiene policy must prevent prompt narration and phrases such as `as requested` or `per the prompt` from leaking into production code, comments, examples, and public documentation while explicitly preserving rationale, requirements, provenance, and decision history in `.cg-docs`, prompts, plans, strategies, and controlled intake records. Reuse existing Team Brain privacy filtering, summary redaction, secret checks, report markers, data-status propagation, and institutional-position safeguards rather than rebuilding them. Define testable propagation rules for preliminary, unpublished, unknown, synthetic, and unverified content; redaction evidence that does not reproduce the secret; retention and bounded-output rules; and platform-neutral guidance for all Compound GPID workflows.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "exemplar-source-pack-schema",
+          "title": "Reusable report source provenance and verification",
+          "description": "Extend the completed World Bank report-writing source-pack foundation into a reusable provenance and verification contract for high-stakes institutional claims. Preserve existing source identity, approval status, terminology dependencies, exact evidence paths, source hierarchy, citation placeholders, visible verification markers, and fixed validator artifacts. Add claim-to-source traceability, immutable or versioned source identity where available, retrieval and last-verified dates, source reachability checks where network policy permits, stale-source handling, explicit unavailable/unknown outcomes, and evidence that a cited source actually supports the attributed claim rather than merely having a valid URL or repository path. Define boundaries for public versus internal or restricted sources and prevent confidential claims or search terms from being sent to external services without approval. Integrate source verification into `cg-skill-wb-report-writing` and related writing workflows instead of adding a generic always-active verification agent. Distinguish source existence, source accessibility, citation correctness, factual support, and final human acceptance as separate states. Success means every material statistic, method, regulatory statement, or institutional claim can be traced to approved evidence with honest unresolved markers, while the system never invents sources, silently treats URL shape as factual verification, or exposes restricted material.",
           "status": "idea",
           "plan": null
         }
@@ -319,6 +328,20 @@
           "title": "Canonical-to-Native Packaging Foundation",
           "status": "done",
           "plan": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md"
+        },
+        {
+          "id": "attribution-documentation",
+          "title": "External asset provenance and controlled intake",
+          "description": "Establish the authoritative governance and intake system for adopting external skills, agents, instructions, scripts, templates, or other AI-assistance assets into Compound GPID. The system must record the upstream repository URL, immutable commit SHA, exact source paths, retrieval/import date, upstream and imported-file SHA-256 hashes, license and attribution obligations, reviewer identity, approval status, local destination mapping, adaptation summary, and refresh/removal history. Updates must compare two pinned upstream revisions and surface source changes for human review rather than merely regenerating local hashes. Intake must inspect all content as untrusted data; assess prompt-injection language, guardrail bypasses, remote-shell execution, automatic package execution, floating dependencies, executable resources, unsafe paths, credentials, network behavior, and runtime assumptions; and distinguish automated advisory findings from human approval. Define explicit outcomes for approved, rejected, quarantined, superseded, removed, and update-pending assets. Integrate with the completed atomic packaging and generated-target system without changing `.github/` as the canonical source. Initial implementation must remain narrowly focused on controlled intake and provenance, not create a public marketplace, generalized dependency DSL, automatic installation from arbitrary repositories, or implicit trust based on catalog inclusion.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "github-actions-supply-chain-hardening-pilot",
+          "title": "GitHub Actions hardening external-skill pilot",
+          "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until `external asset provenance and controlled intake` is implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -484,6 +507,20 @@
           "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "project-scanner-evidence-reality-gaps",
+          "title": "Project scanner evidence, unknowns, and intent-versus-reality gaps",
+          "description": "Enhance the existing completed project scanner without replacing its signal catalog, confidence model, prompt-injection protections, or `/cg-setup` integration. Require every non-trivial scanner conclusion to cite exact repository evidence paths and distinguish declared intent from observed implementation reality. Report contradictions explicitly, such as a README claiming one runtime while manifests show another, a declared test framework with no tests, multiple competing language signals, stale configuration, missing expected artifacts, or generated output masquerading as source conventions. Produce a structured ledger of unknown, unavailable, unverifiable, and user-intent-dependent items instead of collapsing them into low confidence or silently inferring answers. Prevent high-confidence setup-question skipping whenever declared intent and observed state conflict. Add intent-versus-reality findings, stale-declaration warnings, evidence-backed recommendations, and targeted follow-up questions while preserving the existing rule that repository content is untrusted data and not executable instruction. Avoid creating the upstream seven-document codebase map, a second project charter, or a competing architecture authority. Success means setup remains concise for well-understood projects but surfaces material uncertainty and contradictions before writing configuration or charter content.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "wiki-github-pages-site-publishing",
+          "title": "GitHub Pages website publishing for project wikis",
+          "status": "idea",
+          "plan": null,
+          "description": "Extend `/cg-wiki` so a project wiki can become a navigable, accessible static website published through GitHub Pages while preserving Markdown and `_wiki.yml` as the canonical documentation sources. Add explicit website-oriented modes such as initialize, build, preview, publish, status, and remove or disable, with final command names decided during brainstorming. Generate responsive navigation from page order and titles, page and section tables of contents, cross-page links, breadcrumbs, human-readable URLs, project identity and metadata, mobile-friendly layouts, accessible colors and keyboard navigation, and optional lightweight client-side search. Preserve auto-managed versus manual page ownership and never overwrite user content outside managed markers. Treat generated HTML, navigation manifests, search indexes, and assets as derived output that can be rebuilt deterministically from the wiki. Support GitHub Pages deployment through a least-privilege GitHub Actions workflow with immutable action references, explicit permissions, safe base-path handling for project sites, branch and custom-domain awareness, link validation, and clear publishing status. Never overwrite an existing Pages workflow or site configuration silently; inspect existing repository infrastructure, present conflicts, and require approval before adopting or modifying repository-level deployment files. Generate and validate the website locally even when GitHub authentication or Pages availability is missing, and provide actionable manual publishing guidance. Keep GitHub Wiki conversion as a distinct compatibility mode rather than conflating it with the Pages website. Validate site structure, internal links, navigation completeness, mobile behavior, accessibility basics, generated-output determinism, and safe behavior across technical, analytical, package, dashboard, and API project templates. Success means a human can run `/cg-wiki`, create or refresh a professional project website, publish it safely, and understand the project without navigating raw repository files."
         }
       ]
     },
@@ -566,6 +603,13 @@
           "description": "Allow users to select a specific plan file for /cg-work instead of relying on most-recent-plan resolution, enabling independently executable child plans and concurrent plan families.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "automatic-post-pr-verification-handoff",
+          "title": "Automatic post-PR CI verification and universal PR targeting",
+          "status": "idea",
+          "plan": null,
+          "description": "Make `/cg-commit-push-pr` and `/cg-verify-pr` one continuous, reliable PR workflow. After creating a new PR or pushing commits to an existing PR, `/cg-commit-push-pr` must retain the PR number and URL, poll GitHub non-blockingly every 20-30 seconds for up to five minutes, and begin the shared verification workflow as soon as status checks appear. Do not use `gh pr checks --watch`, an unconditional multi-minute sleep, or an indefinite terminal process. Handle checks appearing immediately, delayed check registration, no configured checks, GitHub API or authentication failures, rate limits, user cancellation, and timeout expiry with explicit outcomes. If checks do not appear within five minutes, leave the PR successfully created and provide a resumable `/cg-verify-pr --pr <number-or-url>` handoff rather than treating the PR operation as failed. Refactor verification behavior into one shared contract or implementation surface so `/cg-commit-push-pr` embeds the same logic as `/cg-verify-pr` without duplicating and drifting two copies. Preserve existing pass, pending, failure classification, platform-specific warnings, two-round auto-fix cap, targeted staging, rebase safety, and force-with-lease restrictions. After checks appear, report success when all checks pass, diagnose and optionally fix failures according to the active verification mode, or report pending checks with a precise continuation command. Generalize `/cg-verify-pr` so it works for any accessible GitHub pull request, regardless of whether it was created by Compound GPID, created manually, opened by another tool, associated with a plan, or submitted from a fork. Support PR resolution from the current branch by default and explicit `--pr <number-or-url>` targeting. Remove error messages and assumptions requiring `/cg-commit-push-pr` as the creator. Separate observation from mutation: any accessible PR may be inspected, but automatic fixes and pushes require a matching local checkout, a clean and verified head branch, write permission, and a safe push target. Fork PRs, external contributors, detached checkouts, mismatched heads, or read-only permissions must fall back to observe-only diagnosis unless the user explicitly establishes a writable local workflow. Add deterministic tests for immediate, delayed, empty, pending, successful, failed, timed-out, cancelled, externally created, forked, and explicitly targeted PR scenarios. Success means every PR creation ends with an automatic verification attempt, while `/cg-verify-pr` remains independently usable as the universal PR diagnosis and remediation command."
         }
       ]
     },
@@ -696,13 +740,6 @@
           "plan": null
         },
         {
-          "id": "attribution-documentation",
-          "title": "Attribution documentation (source repos and websites)",
-          "description": "Create a dedicated documentation space (e.g., docs/attribution.md or CREDITS.md) that credits all repositories, websites, blog posts, and other resources used for researching and informing compound-gpid's design. This includes: the three competitive review repos (compound-engineering-plugin, superpowers, GSD-2), any additional repos the user provides, blog posts or articles that influenced prompt design patterns, documentation sources for tools and frameworks (Pester, PowerShell, GitHub Actions), and any community discussions or forum threads that contributed ideas. Each entry should include: the resource name/URL, what it contributed (specific pattern, idea, or validation), and when it was referenced. This serves both as professional attribution and as a reference index for future research sessions.",
-          "status": "idea",
-          "plan": null
-        },
-        {
           "id": "strategy-add-shortcut",
           "title": "/cg-strategy --add <idea> quick-add mode for roadmap ideas",
           "description": "Add a --add flag to /cg-strategy that provides a streamlined path for capturing a single idea into the roadmap without running a full strategy session. When the user runs '/cg-strategy --add <idea text>', the flow is: (1) Parse the idea from the inline argument. (2) If the idea is vague or underspecified, ask targeted clarifying questions to develop it — what problem does it solve, who benefits, what does the finished result look like. (3) Once the agent has a clear understanding, explain the idea back to the user in its own words and ask for confirmation that it captured the intent correctly. (4) Suggest an existing milestone where the idea fits best, explaining why, or propose creating a new milestone if none fits. (5) On user approval, dispatch @cg-roadmap to add the feature with a detailed description (matching the level of detail in other Ongoing Ideas features). This bypasses the full strategy conversation (trigger selection, structured Q&A, proposal iteration) when the user already knows what they want — it's a fast lane for 'I have one idea, put it on the roadmap'. The full /cg-strategy flow remains available for sessions that need broader thinking.",
@@ -727,20 +764,6 @@
           "id": "agent-verified-outcome-evals",
           "title": "Agent-verified outcome definitions with acceptance evals",
           "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
-          "status": "idea",
-          "plan": null
-        },
-        {
-          "id": "exemplar-source-pack-schema",
-          "title": "Reusable exemplar source-pack schema",
-          "description": "Define a durable source-pack schema and validation convention for exemplar-gated skills, including source identity, approval status, terminology dependencies, and exact evidence paths that /cg-work can verify.",
-          "status": "idea",
-          "plan": null
-        },
-        {
-          "id": "shared-writing-guardrails-contract",
-          "title": "Shared institutional writing guardrails contract",
-          "description": "Define reusable marker grammar, source-integrity rules, citation placeholder behavior, data-status propagation, and institutional-position safeguards for future writing skills.",
           "status": "idea",
           "plan": null
         }
