@@ -1,15 +1,16 @@
 # Compound GPID — Claude Code Adapter
 
 This file is generated from the target mapping.
-It maps Compound GPID `/cg-*` commands to native Claude Code paths.
+It maps Compound GPID `/cg-*` and `/cr-*` commands to native Claude Code paths.
 
 ## Command Dispatch
 
 `/cg-<name> [args...]` -> `.claude/commands/cg-<name>.md`
+`/cr-<name> [args...]` -> `.claude/commands/cr-<name>.md`
 
 ## Skills
 
-Load skill files from `.claude/skills/cg-skill-*/SKILL.md`.
+Load skill files from `.claude/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

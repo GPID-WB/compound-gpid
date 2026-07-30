@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.R,**/*.r,**/*.Rmd"
+module: shared
 ---
 
 # R Dialect Router

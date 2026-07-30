@@ -1,15 +1,16 @@
 # Compound GPID — OpenCode Adapter
 
 This file is generated from the target mapping.
-It maps Compound GPID `/cg-*` commands to native OpenCode paths.
+It maps Compound GPID `/cg-*` and `/cr-*` commands to native OpenCode paths.
 
 ## Command Dispatch
 
 `/cg-<name> [args...]` -> `.opencode/commands/cg-<name>.md`
+`/cr-<name> [args...]` -> `.opencode/commands/cr-<name>.md`
 
 ## Skills
 
-Load skill files from `.opencode/skills/cg-skill-*/SKILL.md`.
+Load skill files from `.opencode/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

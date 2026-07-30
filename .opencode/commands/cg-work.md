@@ -28,6 +28,7 @@ You implement `/cg-plan` output with phase/review/deviate controls.
    - Default: `review:manual`.
    - Invalid review value: warn and fall back to recommendation mode.
    - Parse `deviate:` override; invalid warns and falls back to plan policy; duplicate warns, last valid wins. Full spec: `.opencode/shared/goal-execution.contract.md`.
+5. Research-task guidance (non-blocking): if `modules: [research]` is active and the requested work is clearly research-typed (for example econometrics, structural estimation, identification, or ML methodology implementation), suggest `/cr-work` as the specialized workflow while allowing `/cg-work` to continue if the user prefers.
 
 ### Step 1: Load the Plan
 

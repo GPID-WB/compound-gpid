@@ -1,5 +1,6 @@
 ---
 applyTo: "**/*.py"
+module: shared
 ---
 
 # Python Coding Standards

@@ -1,15 +1,16 @@
 # Compound GPID — Codex Adapter
 
 This file is generated from the target mapping.
-It maps Compound GPID `/cg-*` commands to native Codex paths.
+It maps Compound GPID `/cg-*` and `/cr-*` commands to native Codex paths.
 
 ## Command Dispatch
 
 `/cg-<name> [args...]` -> `.agents/commands/cg-<name>.md`
+`/cr-<name> [args...]` -> `.agents/commands/cr-<name>.md`
 
 ## Skills
 
-Load skill files from `.agents/skills/cg-skill-*/SKILL.md`.
+Load skill files from `.agents/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

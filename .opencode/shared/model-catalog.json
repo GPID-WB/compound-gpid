@@ -8,6 +8,7 @@
     "inheritedSource": "GitHub Copilot model picker",
     "notes": [
       "Explicit model assignments are OpenAI-first unless a path is intentionally inherited, mechanical-only, or documented as a cross-vendor fallback.",
+      "Compound Research (CR) review agents are reasoning-heavy and default to GPT-5.4 for OpenAI-first research review consistency.",
       "Sonnet is reserved for targeted fallback or cross-vendor contrast, not blanket coding defaults.",
       "Haiku is reserved for extremely simple mechanical workflows.",
       "Copilot frontmatter support for displayed model strings must be validated in VS Code/Copilot before broad frontmatter rewrites."
@@ -136,6 +137,15 @@
     {"path": ".opencode/agents/cg-roadmap.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Roadmap field updates are mechanical when plan evidence is supplied."},
     {"path": ".opencode/agents/cg-testing.md", "role": "review", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Test review is code-aware and should be OpenAI-first."},
     {"path": ".opencode/agents/cg-version-control.md", "role": "mechanical", "preferredModel": "Claude Haiku 4.5", "frontmatterMode": "explicit", "rationale": "Version-control checks are structured and cheap."},
-    {"path": ".opencode/agents/cg-wiki.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki curation benefits from synthesis."}
+    {"path": ".opencode/agents/cg-wiki.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki curation benefits from synthesis."},
+    {"path": ".opencode/agents/cr-academic-writing.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR writing review requires strong reasoning and domain-consistent research critique."},
+    {"path": ".opencode/agents/cr-econometric-reasoning.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR econometric reasoning is research-heavy and aligned to GPT-5.4 review tier."},
+    {"path": ".opencode/agents/cr-identification-audit.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR identification audits require deep methodological reasoning."},
+    {"path": ".opencode/agents/cr-mathematical-verification.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR symbolic verification requires high-precision reasoning over math and code mappings."},
+    {"path": ".opencode/agents/cr-ml-methodology.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR ML methodology audits are reasoning-centric review tasks."},
+    {"path": ".opencode/agents/cr-publication-output.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR publication-output validation needs consistent high-quality research review judgment."},
+    {"path": ".opencode/agents/cr-replication-package.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR replication-package audits rely on careful standards-based reasoning."},
+    {"path": ".opencode/agents/cr-research-integrity.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR integrity checks are P0-sensitive and require strong reasoning reliability."},
+    {"path": ".opencode/agents/cr-specification-analysis.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "CR specification analysis needs nuanced theory-data reasoning."}
   ]
 }

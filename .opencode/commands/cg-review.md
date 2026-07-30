@@ -31,6 +31,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
    - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
+     Research integrity exception: if prior open findings include `[cr-*]` IDs, additionally dispatch `@cr-research-integrity` in verify mode.
    - `light`, `standard`, `data-risk`, `architecture`, `full` — Explicit staged review modes.
    - `thorough` — Backward-compatible alias; maps to `full` dispatch semantics unless `mode:verify` or `--report-only` guard behavior constrains the run.
    If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `data-risk`, `architecture`, `full`, `thorough`, `--no-brain`."
@@ -61,6 +62,7 @@ Use deterministic preflight routing from `.opencode/shared/review-routing.contra
 | Ordinary implementation, prompt, or test changes without high-risk signals | `normal` | `standard` |
 | Statistical, survey, poverty, welfare, income, weights, joins, aggregation, summary tables, model estimation (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), reproducibility-sensitive scripts, or scripts matching `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}` | `data-risk` | `data-risk` |
 | Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` | `architecture` |
+| `modules: [research]` with research-task signals (econometrics, identification, derivations, replication artifacts, or `/cr-*` invocation context) | `research` | `research` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` | `full` |
 
 Precedence: verify/report-only guard behavior first; otherwise explicit user mode wins (`full`, `thorough` = `full`, `data-risk`, `architecture`, `standard`, `light`), then auto risk-class routing, then line-volume escalation, then config default. Resolve exactly one route.
@@ -73,6 +75,8 @@ Line-volume interaction:
 - ≥ 200 non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
 
 If no explicit mode was requested and multiple auto-routing triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any auto risk-class route applies, report: > "Auto-routing applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
+
+Research mode note: if `modules: [research]` is enabled and research-task signals are present, route to `research` mode and dispatch CR agents through the shared contract.
 
 ### Step 1.7: Build Verification Context (mode:verify only)
 
@@ -120,6 +124,18 @@ Based on the resolved staged mode from Step 1.5 and `.opencode/shared/review-rou
 **Architecture** (architecture-risk or performance-heavy changes):
 - All 8 agents from `standard` with mandatory escalation emphasis for `@cg-architecture`, `@cg-performance`, and `@cg-testing`
 
+**Research** (`modules: [research]` + research-task signals):
+- All 8 agents from `standard`
+- `@cr-research-integrity`
+- `@cr-mathematical-verification`
+- `@cr-identification-audit`
+- `@cr-econometric-reasoning`
+- `@cr-ml-methodology`
+- `@cr-specification-analysis`
+- `@cr-academic-writing`
+- `@cr-publication-output`
+- `@cr-replication-package`
+
 **Full** (explicit full/thorough request, security-risk, release-risk, linking-risk, schema-risk, or very high-risk changes):
 - All 8 agents from `standard`
 - `@cg-learnings-researcher` — Cross-references `.cg-docs/solutions/` and `.cg-docs/brainstorms/` for relevant past learnings
@@ -152,6 +168,7 @@ Dispatch only `@cg-code-quality` and `@cg-testing` (depth is `light` per Step 1.
 Include the suppression context from Step 1.7 in each agent's dispatch.
 Do NOT apply staged risk-class routing — the verify pass stays at light depth regardless of file content.
 Language-specific skill loading still applies — see R/Python/Stata skill checks above.
+Exception: if prior open findings include `[cr-*]` IDs, also dispatch `@cr-research-integrity`.
 
 ### Step 2.5: Subagent Output Quality Check
 
@@ -176,7 +193,7 @@ Merge all agent findings into a single prioritized report:
 ```markdown
 ## Review Report
 
-**Review mode**: <light|standard|data-risk|architecture|full>
+**Review mode**: <light|standard|data-risk|architecture|research|full>
 **Files reviewed**: <count>
 **Findings**: 6 (P0: 0, P1: 2, P2: 3, P3: 1)
 
@@ -232,7 +249,7 @@ Merge all agent findings into a single prioritized report:
    ```yaml
    ---
    date: YYYY-MM-DD
-   depth: <light|standard|data-risk|architecture|full>
+  depth: <light|standard|data-risk|architecture|research|full>
    type: standard
    plan: <path to active plan file, or null>
    findings:

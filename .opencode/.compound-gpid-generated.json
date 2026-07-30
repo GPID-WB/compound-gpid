@@ -7,7 +7,7 @@
       "path": ".opencode/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "7b5932ddeec85350689750cb7f2335b692d8d3bf33a295d85f83b5c3f7754e41",
+      "sha256": "aeaac32d9a0345ee1e56788ea9198188a3be424152a85b3a5085ba88dd7789ff",
       "executable": false
     },
     {
@@ -35,7 +35,7 @@
       "path": ".opencode/agents/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
-      "sha256": "a4495a8d4f6a544bde8c470849df925cd78c3262c29d19492bf5d6f61d0a08b4",
+      "sha256": "5f1578782e51915b6a6656d167c433dab647030991c56e0b32a47285e3c3fe31",
       "executable": false
     },
     {
@@ -63,7 +63,7 @@
       "path": ".opencode/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "ecb64ce3df67a0eccc2abf72f68b1baba0a0be391aecba67b2de72d452baf2dd",
+      "sha256": "5de0fbdcd372d7b4875d8f0c219be20266bec6c6a37bb79b43b6f84c6472d700",
       "executable": false
     },
     {
@@ -91,7 +91,7 @@
       "path": ".opencode/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "193983ade6f2dde0f23a69dc3a6517b0de8575a9fb3185914fb297752460b926",
+      "sha256": "db6ed70374803b44d12d52f6680bce5fcda64b7026029934c2890a9adb67e2b4",
       "executable": false
     },
     {
@@ -112,7 +112,7 @@
       "path": ".opencode/agents/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
-      "sha256": "01fc4f7d0f6b035bf5d4b50fa2fd4418a02c079577f3400e7265b2c39075a3c9",
+      "sha256": "2eb355051629b0e3c55aa18d974939cb3ddd1e8f7f1babb6172187331a09019c",
       "executable": false
     },
     {
@@ -127,6 +127,69 @@
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
       "sha256": "ed3d893d778fee47f8bd4a84f499d4554c0311498a4d876c777e46e0d17b94d9",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-academic-writing.md",
+      "source": ".github/agents/cr-academic-writing.agent.md",
+      "kind": "agent",
+      "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-econometric-reasoning.md",
+      "source": ".github/agents/cr-econometric-reasoning.agent.md",
+      "kind": "agent",
+      "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-identification-audit.md",
+      "source": ".github/agents/cr-identification-audit.agent.md",
+      "kind": "agent",
+      "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-mathematical-verification.md",
+      "source": ".github/agents/cr-mathematical-verification.agent.md",
+      "kind": "agent",
+      "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-ml-methodology.md",
+      "source": ".github/agents/cr-ml-methodology.agent.md",
+      "kind": "agent",
+      "sha256": "bb9320be07c9ccf8463476d19198663b375f4bd4e3b55d4c8c68e31ec3bb2d75",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-publication-output.md",
+      "source": ".github/agents/cr-publication-output.agent.md",
+      "kind": "agent",
+      "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-replication-package.md",
+      "source": ".github/agents/cr-replication-package.agent.md",
+      "kind": "agent",
+      "sha256": "5f64cdd82c95707058fa7debf3e59a8bfeedd38965e2849486b54d34719f22e7",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-research-integrity.md",
+      "source": ".github/agents/cr-research-integrity.agent.md",
+      "kind": "agent",
+      "sha256": "045ccd2420cdf31b83de2491526ca1099a796aa34cb322c02ec1439e432cb32b",
+      "executable": false
+    },
+    {
+      "path": ".opencode/agents/cr-specification-analysis.md",
+      "source": ".github/agents/cr-specification-analysis.agent.md",
+      "kind": "agent",
+      "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4",
       "executable": false
     },
     {
@@ -245,7 +308,7 @@
       "path": ".opencode/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "73a8e0eef35e62322318a25be69aa9c0f6a670a171ed28ddde1b5feae33666b4",
+      "sha256": "11c0f085594043d8542f3f7a694b74a0809e8ef15be6bcb4bf917fdb48b61cbe",
       "executable": false
     },
     {
@@ -294,7 +357,42 @@
       "path": ".opencode/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "2409f1ce516fbb9bbb554cf9b3c9716c67a7e0f54dd9cf1fb07d97c7c33beaf7",
+      "sha256": "3ddbc710dfbdcc25a67ffd51afbe65f27708c71d20de9e79438b44bfa059d78a",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cr-brainstorm.md",
+      "source": ".github/prompts/cr-brainstorm.prompt.md",
+      "kind": "command",
+      "sha256": "5d55b27616d126f5622bd61e28617ea9dac82a38aabb2d7349ffaef79d9c94d0",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cr-compound.md",
+      "source": ".github/prompts/cr-compound.prompt.md",
+      "kind": "command",
+      "sha256": "82fa0e5defbc0dd6be9ecc4d8084ed956d0917d8ecca08baf708f12af21c94f9",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cr-plan.md",
+      "source": ".github/prompts/cr-plan.prompt.md",
+      "kind": "command",
+      "sha256": "585b21ebcde8f279de6cda59299354bc24f957fb835cad320aa58744a2df26bb",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cr-review.md",
+      "source": ".github/prompts/cr-review.prompt.md",
+      "kind": "command",
+      "sha256": "a1cd10fea6c09fb8ca23af3408eb5275a794eca788c749df04e59b86afa63d87",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cr-work.md",
+      "source": ".github/prompts/cr-work.prompt.md",
+      "kind": "command",
+      "sha256": "846f87e06f9c27d2cd61ece53c2c6594eb65fd284ebe1e606b3b892ffcae6a04",
       "executable": false
     },
     {
@@ -312,6 +410,20 @@
       "executable": false
     },
     {
+      "path": ".opencode/instructions/latex.instructions.md",
+      "source": ".github/instructions/latex.instructions.md",
+      "kind": "instruction",
+      "sha256": "79bbfbbd869590523666458d5a0f1571b172b8725026f99f38d190ff7f3f9e0a",
+      "executable": false
+    },
+    {
+      "path": ".opencode/instructions/math.instructions.md",
+      "source": ".github/instructions/math.instructions.md",
+      "kind": "instruction",
+      "sha256": "2efedd2da098e79daef7fc6cab0f6ede63fd8f83310d8f5df73c7715fb3ed5db",
+      "executable": false
+    },
+    {
       "path": ".opencode/instructions/powershell.instructions.md",
       "source": ".github/instructions/powershell.instructions.md",
       "kind": "instruction",
@@ -322,21 +434,21 @@
       "path": ".opencode/instructions/python.instructions.md",
       "source": ".github/instructions/python.instructions.md",
       "kind": "instruction",
-      "sha256": "9ba9234fc1448f1f2849e4fc7622296746fdcd7f051e1a733db7d0c6502e45a6",
+      "sha256": "25a32dc4f7856136470f7fd60e946b1d6a0034c7d197454410b122a9c8f09de6",
       "executable": false
     },
     {
       "path": ".opencode/instructions/r.instructions.md",
       "source": ".github/instructions/r.instructions.md",
       "kind": "instruction",
-      "sha256": "f2722788ca70581828997daebbd024f2ea2924ebc66cfa789da66bc9db8e0d62",
+      "sha256": "4b9374d1b12807cb0471fa25e683059184b84f361ff8092b55c34dd1ef085b12",
       "executable": false
     },
     {
       "path": ".opencode/instructions/stata.instructions.md",
       "source": ".github/instructions/stata.instructions.md",
       "kind": "instruction",
-      "sha256": "854e38351f1504b8354c8b5aacae9d0cacb41c536321efe0095fff5ca8a6d5ae",
+      "sha256": "24782114dce056d988bfdb5ae50527fb08960be092e9678fa3c0c432c5dbd0b1",
       "executable": false
     },
     {
@@ -378,7 +490,7 @@
       "path": ".opencode/shared/model-catalog.json",
       "source": ".github/shared/model-catalog.json",
       "kind": "shared",
-      "sha256": "3ba03311f3680a9833ff3ed3a57e535b895ac37a9f75011e36069bd348af1835",
+      "sha256": "2d438ef006eab97e77b5cb8fbd5a65ea61a3dc3d01e81ec40093e1ca59ec6557",
       "executable": false
     },
     {
@@ -392,7 +504,7 @@
       "path": ".opencode/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "sha256": "473e022e6cea9d6b1e1c98dd5f36e462a83dcc044e548573845a77596dc6eaec",
       "executable": false
     },
     {
@@ -868,7 +980,7 @@
       "path": ".opencode/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "89b14c62d3e5edffc4747c1333b91e722582bdcc6a486320b131d77c2ce7112c",
+      "sha256": "150efd38c34f773fa3ce46681400d43430a77727ca434f7d379d3c7d6bcf47dc",
       "executable": false
     },
     {
@@ -1779,6 +1891,90 @@
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
       "sha256": "9ac6d80dce47d4128a19d69786ae48b6eea705bfca94ed3a36f3420a2099ecda",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-academic-writing/SKILL.md",
+      "source": ".github/skills/cr-skill-academic-writing/SKILL.md",
+      "kind": "skill",
+      "sha256": "7bcfa4b7124aeb0870851c0c26078949f4a1dd70e2a324e76627fe698e03b03f",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-identification-strategies/SKILL.md",
+      "source": ".github/skills/cr-skill-identification-strategies/SKILL.md",
+      "kind": "skill",
+      "sha256": "f3aeb59e9c4a6e16bcc7b687b330bf88091fb763b4b03f0dc2429213658968a3",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-mathematical-derivation/SKILL.md",
+      "source": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
+      "kind": "skill",
+      "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/SKILL.md",
+      "source": ".github/skills/cr-skill-ml-economics/SKILL.md",
+      "kind": "skill",
+      "sha256": "496cc1b395acfce6aa52efaa674351a1280dd33d3086625b04142288be70353e",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-publication-output/SKILL.md",
+      "source": ".github/skills/cr-skill-publication-output/SKILL.md",
+      "kind": "skill",
+      "sha256": "09956e4b721ff09bed148ddffd99296b767134bde5ed2d1f205515aac26bf998",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-replication-standards/SKILL.md",
+      "source": ".github/skills/cr-skill-replication-standards/SKILL.md",
+      "kind": "skill",
+      "sha256": "edee223327b9e0feed251ed8a99392e1b3fc94e419869459db2fa6d39aa367ad",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-research-eda/SKILL.md",
+      "source": ".github/skills/cr-skill-research-eda/SKILL.md",
+      "kind": "skill",
+      "sha256": "d9d2f051127e42d83f7d497f96f989637ed51ef0548448d43bef248e41fed5cc",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-research-integrity/SKILL.md",
+      "source": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "kind": "skill",
+      "sha256": "efe7ab521fa9dccd3d5a760f3d1c792216210ddfb3809ff7970e2fd45183712b",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-research-workflow/SKILL.md",
+      "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
+      "kind": "skill",
+      "sha256": "e74f84e23875980f49473dced6e555bf51fb6bee707bddc24e7c5aab7eb1c7c5",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-structural-econometrics/SKILL.md",
+      "source": ".github/skills/cr-skill-structural-econometrics/SKILL.md",
+      "kind": "skill",
+      "sha256": "332a7bb03192e2a6f3720e59ef0d5247dd391ab317dd968f5e10d5a72caccfb7",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-symbolic-verification/SKILL.md",
+      "source": ".github/skills/cr-skill-symbolic-verification/SKILL.md",
+      "kind": "skill",
+      "sha256": "5f3a3052d03d0269cfd322ad8e1a5b592e51c8eadb6cf448a962c8fd33f58308",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-theory-data-dialogue/SKILL.md",
+      "source": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md",
+      "kind": "skill",
+      "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8",
       "executable": false
     }
   ]
