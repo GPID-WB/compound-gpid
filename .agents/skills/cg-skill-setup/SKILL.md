@@ -90,6 +90,7 @@ Create `compound-gpid.local.md` in the project root with the following format:
 ```markdown
 ---
 language: "<r|python|stata|both|all|other>"
+modules: ["research"]  # optional; include only when enabling the research module
 r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
@@ -157,6 +158,10 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
     └── git-workflows/
         └── .gitkeep
 ```
+
+If the research module is enabled (`modules: ["research"]`), also create the
+research module directories under `.cg-docs/research/` (for example,
+`derivations/`, `specifications/`, and implementation artifacts).
 
 ### Step 6: Confirm
 

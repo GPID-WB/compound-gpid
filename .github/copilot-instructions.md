@@ -202,7 +202,7 @@ the core engineering workflow.
 - `cr-skill-research-eda`: research-framed EDA patterns
 - `cr-skill-ml-economics`: ML methodology for economics research
 - `cr-skill-academic-writing`: paper-writing conventions
-- `cr-skill-publication-output`: publication-quality tables and figures
+- `cr-skill-publication-output`: publication-quality tables and figures (used by `@cr-publication-output`)
 - `cr-skill-replication-standards`: replication package standards
 
 ### CR Agents

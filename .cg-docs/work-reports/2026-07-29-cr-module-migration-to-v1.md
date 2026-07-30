@@ -42,7 +42,7 @@ plan: .cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md
 | V2.2 | passed | frontmatter inspection on 3 shared instruction files | `module: shared` present |
 | V2.3 | passed | CR prompt content inspection | all 5 prompts reference `context-loading.contract.md` |
 | V2.4 | passed | `tests/cr-prompts.Tests.ps1` diff inspection | assertions updated for new structure |
-| V2.5 | blocked | Pester execution (`tests/cr-prompts.Tests.ps1`, `tests/prompt-tools.Tests.ps1`) | local environment missing `powershell`; cannot run safe runner |
+| V2.5 | passed | Pester execution under PowerShell 7 + Pester 4.10.1 (`tests/cr-prompts.Tests.ps1`, `tests/prompt-tools.Tests.ps1`) | `cr-prompts`: 553 passed / 0 failed; `prompt-tools`: 1401 passed / 0 failed |
 
 ### Constraints Check
 
@@ -51,9 +51,25 @@ plan: .cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md
 
 ### Remaining Uncertainty
 
-- Cannot execute Pester verification locally (`powershell` unavailable).
-- `tests/prompt-tools.Tests.ps1` compatibility with CR prompt updates remains unverified until safe test execution is available.
+- Full-suite `Run-Tests.ps1` remains noisy under mixed local environment and includes unrelated baseline failures outside Phase 2 scope.
 
 ### Final Status
 
-- `blocked` (verification-gate blocked on missing local PowerShell runtime)
+- `phase-complete` (Phase 2 evidence gate satisfied)
+
+## Run 2 — Verification Unblocked (2026-07-30)
+
+### Runtime Enablement
+
+- Verified `pwsh` availability (`PowerShell 7.6.4`).
+- Installed required `Pester 4.10.1` (while retaining `Pester 5.7.1` side-by-side).
+
+### Verification Commands Executed
+
+- `pwsh -NoProfile -Command "Import-Module Pester -RequiredVersion 4.10.1 -Force; . tests/Run-Tests.ps1 -File prompt-tools"`
+- `pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 4.10.1 -Force; $r = Invoke-Pester tests/cr-prompts.Tests.ps1 -PassThru -Quiet; $r | Select-Object TotalCount, PassedCount, FailedCount'`
+
+### Results
+
+- `prompt-tools`: 1401 passed / 0 failed
+- `cr-prompts`: 553 passed / 0 failed

@@ -32,6 +32,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
    - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
+     Research integrity exception: if prior open findings include `[cr-*]` IDs, additionally dispatch `@cr-research-integrity` in verify mode.
    - `light`, `standard`, `data-risk`, `architecture`, `full` — Explicit staged review modes.
    - `thorough` — Backward-compatible alias; maps to `full` dispatch semantics unless `mode:verify` or `--report-only` guard behavior constrains the run.
    If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `data-risk`, `architecture`, `full`, `thorough`, `--no-brain`."
@@ -153,6 +154,7 @@ Dispatch only `@cg-code-quality` and `@cg-testing` (depth is `light` per Step 1.
 Include the suppression context from Step 1.7 in each agent's dispatch.
 Do NOT apply staged risk-class routing — the verify pass stays at light depth regardless of file content.
 Language-specific skill loading still applies — see R/Python/Stata skill checks above.
+Exception: if prior open findings include `[cr-*]` IDs, also dispatch `@cr-research-integrity`.
 
 ### Step 2.5: Subagent Output Quality Check
 
