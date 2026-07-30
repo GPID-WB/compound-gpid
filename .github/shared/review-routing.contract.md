@@ -10,6 +10,7 @@ Canonical routing contract for `/cg-review` and `/cg-work review:*`.
 | `standard` | `@cg-code-quality`, `@cg-testing`, `@cg-documentation`, `@cg-version-control`, `@cg-reproducibility`, `@cg-performance`, `@cg-architecture`, `@cg-data-quality` |
 | `data-risk` | all `standard` agents, with mandatory emphasis on `@cg-data-quality` and `@cg-reproducibility` |
 | `architecture` | all `standard` agents, with mandatory emphasis on `@cg-architecture` and `@cg-performance` |
+| `research` | all `standard` agents plus `@cr-research-integrity`, `@cr-mathematical-verification`, `@cr-identification-audit`, `@cr-econometric-reasoning`, `@cr-ml-methodology`, `@cr-specification-analysis`, `@cr-academic-writing`, `@cr-publication-output`, and `@cr-replication-package` |
 | `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial` |
 
 ## Risk Classes
@@ -23,6 +24,7 @@ resolved mode.
 | `normal` | `standard` |
 | `data-risk` | `data-risk` |
 | `architecture-risk` | `architecture` |
+| `research` | `research` |
 | `security-risk` | `full` |
 
 ## Precedence
@@ -52,6 +54,7 @@ review focus.
 | Ordinary implementation, prompt, or test changes without high-risk signals | `normal` |
 | Statistical, survey, poverty, welfare, weights, joins, aggregation, summary tables, model estimation, reproducibility-sensitive scripts, or pipeline/extract/load scripts | `data-risk` |
 | Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` |
+| `modules: [research]` with research-task signals (econometrics, identification, derivations, replication artifacts, `/cr-*` invocations) | `research` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` |
 
 Line volume can raise auto-routed `light -> standard`. Explicit user modes take
@@ -60,6 +63,8 @@ precedence over line-volume upgrades.
 ## Dedup
 
 Apply additive dedup: if multiple rules request the same agent, dispatch once.
-If multiple high-risk classes apply, choose the highest resolved mode by
-coverage: `full` > `architecture` / `data-risk` > `standard` > `light`, then
+If both `research` and `security-risk` signals apply, use composite coverage:
+dispatch `full` plus the CR agent set from `research`.
+Otherwise, if multiple high-risk classes apply, choose the highest resolved mode
+by coverage: `full` > `research` > `architecture` / `data-risk` > `standard` > `light`, then
 include any mandatory emphasis in the dispatch instructions.

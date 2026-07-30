@@ -60,7 +60,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -514,19 +514,6 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
             content = path.read_text(encoding="utf-8")
             fm = _get_parse_frontmatter()(content)
-            if content.lstrip("\ufeff\r\n").startswith("---"):
-                block = content.lstrip("\ufeff\r\n").split("---", 2)[1]
-                for line in block.splitlines():
-                    if line.startswith("description:"):
-                        raw_description = line.partition(":")[2].strip()
-                        if raw_description.startswith('"'):
-                            try:
-                                fm["description"] = json.loads(raw_description)
-                            except json.JSONDecodeError:
-                                pass
-                        elif raw_description.startswith("'") and raw_description.endswith("'"):
-                            fm["description"] = raw_description[1:-1].replace("''", "'")
-                        break
             rel = str(path.relative_to(root)).replace("\\", "/")
             assets[category].append({
                 "path": str(path),
@@ -536,7 +523,9 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 "filename": path.name,
             })
 
-    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+    canonical_skill_roots = tuple(
+        sorted((root / ".github/skills").glob("*-skill-*"))
+    )
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -1429,7 +1418,7 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     tid = target["id"]
     name = target["name"]
     paths = target["outputPaths"]
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` and `/cr-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n`/cr-<name> [args...]` -> `{paths['commands']}/cr-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
 
 
 def _emit_model_mapping(target: dict[str, Any], catalog: dict[str, Any]) -> str:

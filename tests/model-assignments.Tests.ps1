@@ -150,6 +150,50 @@ Describe "docs/model-guide.md - structure and sync" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# model-catalog CR policy coverage
+# ---------------------------------------------------------------------------
+
+Describe "model-catalog.json - CR model policy" {
+    $catalogFile = Join-Path $repoRoot ".github\shared\model-catalog.json"
+
+    It "model-catalog file exists" {
+        Test-Path $catalogFile | Should -Be $true
+    }
+
+    $catalog = if (Test-Path $catalogFile) {
+        Get-Content $catalogFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    } else {
+        $null
+    }
+
+    It "documents CR review-agent assignment rationale in policy notes" {
+        ($catalog.policy.notes -join "`n") | Should -Match "CR|compound research|research review"
+        ($catalog.policy.notes -join "`n") | Should -Match "GPT-5\.4"
+    }
+
+    It "contains assignment entries for all CR agents with GPT-5.4" {
+        $crAgentPaths = @(
+            ".github/agents/cr-academic-writing.agent.md",
+            ".github/agents/cr-econometric-reasoning.agent.md",
+            ".github/agents/cr-identification-audit.agent.md",
+            ".github/agents/cr-mathematical-verification.agent.md",
+            ".github/agents/cr-ml-methodology.agent.md",
+            ".github/agents/cr-publication-output.agent.md",
+            ".github/agents/cr-replication-package.agent.md",
+            ".github/agents/cr-research-integrity.agent.md",
+            ".github/agents/cr-specification-analysis.agent.md"
+        )
+
+        foreach ($path in $crAgentPaths) {
+            $entry = $catalog.assignments | Where-Object { $_.path -eq $path }
+            ($null -ne $entry) | Should -Be $true
+            $entry.preferredModel | Should -Be "GPT-5.4"
+            $entry.role | Should -Be "review"
+        }
+    }
+}
+
 Describe "docs/reference.md - ordinary prompt model picker sync" {
     $referenceFile = Join-Path $repoRoot "docs\reference.md"
     if (-not (Test-Path $referenceFile)) {

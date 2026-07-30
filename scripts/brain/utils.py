@@ -151,11 +151,32 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
     current_key: Optional[str] = None
     current_list: Optional[List[str]] = None
+    current_scalar_key: Optional[str] = None
+    current_scalar_lines: Optional[List[str]] = None
+
+    def flush_scalar() -> None:
+        nonlocal current_scalar_key, current_scalar_lines
+        if current_scalar_key is None or current_scalar_lines is None:
+            return
+        result[current_scalar_key] = _coerce(" ".join(current_scalar_lines).strip())
+        current_scalar_key = None
+        current_scalar_lines = None
 
     for line in block.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
+
+        if (
+            current_scalar_key is not None
+            and current_scalar_lines is not None
+            and line[:1].isspace()
+            and ":" not in stripped.partition(" #")[0]
+        ):
+            current_scalar_lines.append(stripped)
+            continue
+
+        flush_scalar()
 
         # Continuation of a block list (  - item)
         if stripped.startswith("- ") and current_key is not None and current_list is not None:
@@ -197,10 +218,15 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
             result[key] = inline
         else:
             result[key] = _coerce(raw_value)
+            if raw_value.startswith(('"', "'")) and not raw_value.endswith(raw_value[0]):
+                current_scalar_key = key
+                current_scalar_lines = [raw_value]
 
     # Flush trailing block list
     if current_list is not None and current_key is not None and current_list:
         result[current_key] = current_list
+
+    flush_scalar()
 
     return result
 

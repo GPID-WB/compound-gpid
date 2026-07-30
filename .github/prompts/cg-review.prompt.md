@@ -63,6 +63,7 @@ Use deterministic preflight routing from `.github/shared/review-routing.contract
 | Ordinary implementation, prompt, or test changes without high-risk signals | `normal` | `standard` |
 | Statistical, survey, poverty, welfare, income, weights, joins, aggregation, summary tables, model estimation (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), reproducibility-sensitive scripts, or scripts matching `**/pipeline*.{R,py}`, `**/extract*.{R,py}`, `**/load*.{R,py}` | `data-risk` | `data-risk` |
 | Architecture, dependency, module boundary, performance, memory, concurrency, API contract, or large refactor changes | `architecture-risk` | `architecture` |
+| `modules: [research]` with research-task signals (econometrics, identification, derivations, replication artifacts, or `/cr-*` invocation context) | `research` | `research` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` | `full` |
 
 Precedence: verify/report-only guard behavior first; otherwise explicit user mode wins (`full`, `thorough` = `full`, `data-risk`, `architecture`, `standard`, `light`), then auto risk-class routing, then line-volume escalation, then config default. Resolve exactly one route.
@@ -75,6 +76,8 @@ Line-volume interaction:
 - ≥ 200 non-test lines changed with no higher-risk trigger should resolve to `full` only when the user explicitly requested `full`/`thorough`; otherwise recommend: "This is a large change. Consider running `/cg-review full` for `@cg-adversarial` coverage."
 
 If no explicit mode was requested and multiple auto-routing triggers apply, choose the highest resolved mode by coverage and apply additive dedup: if multiple rules request the same agent, dispatch once. If any auto risk-class route applies, report: > "Auto-routing applied: [reason]. Resolved review mode: [mode]. Mandatory emphasis: [agent/domain focus]."
+
+Research mode note: if `modules: [research]` is enabled and research-task signals are present, route to `research` mode and dispatch CR agents through the shared contract.
 
 ### Step 1.7: Build Verification Context (mode:verify only)
 
@@ -121,6 +124,18 @@ Based on the resolved staged mode from Step 1.5 and `.github/shared/review-routi
 
 **Architecture** (architecture-risk or performance-heavy changes):
 - All 8 agents from `standard` with mandatory escalation emphasis for `@cg-architecture`, `@cg-performance`, and `@cg-testing`
+
+**Research** (`modules: [research]` + research-task signals):
+- All 8 agents from `standard`
+- `@cr-research-integrity`
+- `@cr-mathematical-verification`
+- `@cr-identification-audit`
+- `@cr-econometric-reasoning`
+- `@cr-ml-methodology`
+- `@cr-specification-analysis`
+- `@cr-academic-writing`
+- `@cr-publication-output`
+- `@cr-replication-package`
 
 **Full** (explicit full/thorough request, security-risk, release-risk, linking-risk, schema-risk, or very high-risk changes):
 - All 8 agents from `standard`
@@ -179,7 +194,7 @@ Merge all agent findings into a single prioritized report:
 ```markdown
 ## Review Report
 
-**Review mode**: <light|standard|data-risk|architecture|full>
+**Review mode**: <light|standard|data-risk|architecture|research|full>
 **Files reviewed**: <count>
 **Findings**: 6 (P0: 0, P1: 2, P2: 3, P3: 1)
 
@@ -235,7 +250,7 @@ Merge all agent findings into a single prioritized report:
    ```yaml
    ---
    date: YYYY-MM-DD
-   depth: <light|standard|data-risk|architecture|full>
+  depth: <light|standard|data-risk|architecture|research|full>
    type: standard
    plan: <path to active plan file, or null>
    findings:

@@ -203,6 +203,10 @@ Describe "cr-review.prompt.md - agent orchestration" {
         ($content -match '@cg-data-quality') | Should -Be $true
     }
 
+    It "references @cg-architecture" {
+        ($content -match '@cg-architecture') | Should -Be $true
+    }
+
     It "references @cr-research-integrity" {
         ($content -match '@cr-research-integrity') | Should -Be $true
     }
@@ -213,6 +217,11 @@ Describe "cr-review.prompt.md - agent orchestration" {
 
     It "references @cr-identification-audit" {
         ($content -match '@cr-identification-audit') | Should -Be $true
+    }
+
+    It "aligns shared dispatch step with review-routing contract language" {
+        ($content -match 'review-routing\.contract\.md') | Should -Be $true
+        ($content -match '(?i)aligned with the canonical shared routing contract') | Should -Be $true
     }
 
     It "contains P0 priority token in findings format" {
@@ -1565,6 +1574,58 @@ Describe "cr-review.prompt.md - Phase 5 dispatch journey" {
 
     It "Implementation dispatch row routes to @cr-specification-analysis" {
         ($content -match 'Implementation.*cr-specification-analysis') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 5 - Brain and active-state integration
+# ---------------------------------------------------------------------------
+
+Describe "Phase 5 integration - Consult Brain and active-state contract" {
+    $reviewPath = Join-Path $promptsDir "cr-review.prompt.md"
+    $workPath   = Join-Path $promptsDir "cr-work.prompt.md"
+    $reviewContent = Get-Content $reviewPath -Raw -Encoding UTF8
+    $workContent   = Get-Content $workPath -Raw -Encoding UTF8
+
+    It "cr-review includes a Consult Brain step using cg-skill-brain-query" {
+        ($reviewContent -match '(?i)consult brain') | Should -Be $true
+        ($reviewContent -match 'cg-skill-brain-query') | Should -Be $true
+    }
+
+    It "cr-work includes a Consult Brain step using cg-skill-brain-query" {
+        ($workContent -match '(?i)consult brain') | Should -Be $true
+        ($workContent -match 'cg-skill-brain-query') | Should -Be $true
+    }
+
+    It "cr-work references active-state contract and current.json handoff" {
+        ($workContent -match 'active-state\.contract\.md') | Should -Be $true
+        ($workContent -match '\.cg-docs/active-state/current\.json') | Should -Be $true
+    }
+
+    It "cr-work links active-state updates to /cg-resume discoverability" {
+        ($workContent -match '/cg-resume') | Should -Be $true
+    }
+}
+
+Describe "Generated CR command frontmatter parity" {
+    $generatedCommands = @(
+        '.agents\commands\cr-review.md',
+        '.agents\commands\cr-work.md',
+        '.claude\commands\cr-review.md',
+        '.claude\commands\cr-work.md',
+        '.opencode\commands\cr-review.md',
+        '.opencode\commands\cr-work.md'
+    )
+
+    foreach ($relPath in $generatedCommands) {
+        $path = Join-Path $repoRoot $relPath
+        $content = if (Test-Path $path) { Get-Content $path -Raw -Encoding UTF8 } else { '' }
+
+        It "$relPath preserves a non-corrupted description frontmatter line" {
+            Test-Path $path | Should -Be $true
+            ($content -match '(?m)^description:\s*(?!"\\)') | Should -Be $true
+            ($content -notmatch '(?m)^description:\s*"\\') | Should -Be $true
+        }
     }
 }
 

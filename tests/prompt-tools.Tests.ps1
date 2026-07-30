@@ -286,7 +286,7 @@ Describe "cg-review.prompt.md - review findings frontmatter" {
 
     It "includes date, depth, and standard type in the normal review frontmatter template" {
         ($content -match 'date:\s*YYYY-MM-DD') | Should -Be $true
-        ($content -match 'depth:\s*<light\|standard\|data-risk\|architecture\|full>') | Should -Be $true
+        ($content -match 'depth:\s*<light\|standard\|data-risk\|architecture\|research\|full>') | Should -Be $true
         ($content -match 'type:\s*standard') | Should -Be $true
     }
 
@@ -3201,9 +3201,14 @@ Describe "Phase 3 review routing contract" {
     }
 
     It "shared contract defines all staged modes" {
-        foreach ($mode in @("light", "standard", "data-risk", "architecture", "full")) {
+        foreach ($mode in @("light", "standard", "data-risk", "architecture", "research", "full")) {
             ($contract -match [regex]::Escape($mode)) | Should -Be $true
         }
+    }
+
+    It "shared contract defines research mode and maps research risk class" {
+        ($contract -match '(?s)\|\s*`research`\s*\|') | Should -Be $true
+        ($contract -match '(?s)\|\s*`research`\s*\|\s*`research`\s*\|') | Should -Be $true
     }
 
     It "shared contract maps risk classes to resolved modes" {
@@ -3215,6 +3220,7 @@ Describe "Phase 3 review routing contract" {
     It "shared contract documents precedence and additive dedup" {
         ($contract -match '(?s)Resolve exactly one route.*explicit user mode.*auto risk-class routing result.*line-volume escalation.*config default') | Should -Be $true
         ($contract -match 'additive dedup|dispatch once') | Should -Be $true
+        ($contract -match '(?s)If both `research` and `security-risk` signals apply.*dispatch `full` plus the CR agent set from `research`') | Should -Be $true
     }
 
     It "shared contract makes explicit user modes win over auto routing" {
@@ -3244,6 +3250,11 @@ Describe "cg-review.prompt.md - staged routing modes" {
         foreach ($mode in @("data-risk", "architecture", "full")) {
             ($content -match "Recognized:.*$mode") | Should -Be $true
         }
+    }
+
+    It "review report template includes research mode" {
+        ($content -match 'Review mode\*\*:\s*<light\|standard\|data-risk\|architecture\|research\|full>') | Should -Be $true
+        ($content -match 'depth:\s*<light\|standard\|data-risk\|architecture\|research\|full>') | Should -Be $true
     }
 
     It "maps thorough to full for backward compatibility" {
@@ -3278,6 +3289,12 @@ Describe "cg-review.prompt.md - staged routing modes" {
 
     It "routes linking and schema changes to full" {
         ($content -match '(?s)linking/unlinking paths.*schema changes.*security-risk.*full|linking-risk.*schema-risk') | Should -Be $true
+    }
+
+    It "detects research module and dispatches CR agents through research mode" {
+        ($content -match '(?i)modules:\s*\[research\]|modules.*research') | Should -Be $true
+        ($content -match '(?i)research mode') | Should -Be $true
+        ($content -match '(?i)@cr-research-integrity') | Should -Be $true
     }
 
     It "keeps verify mode light-only and exempt from staged broad routing" {
@@ -3317,7 +3334,7 @@ Describe "cg-work.prompt.md - review mode integration" {
     }
 
     It "accepts explicit routed review values" {
-        foreach ($mode in @("review:light", "review:standard", "review:data-risk", "review:architecture", "review:full")) {
+        foreach ($mode in @("review:light", "review:standard", "review:data-risk", "review:architecture", "review:research", "review:full")) {
             ($content -match [regex]::Escape($mode)) | Should -Be $true
         }
     }

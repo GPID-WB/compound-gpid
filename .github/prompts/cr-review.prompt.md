@@ -37,11 +37,18 @@ their findings.
    "Plan file not found at `[path]`. Correct the path or remove it to allow task-type
    inference from code content."
 
+### Step 0.5: Consult Brain
+
+Load `cg-skill-brain-query`. Search for known mistakes and anti-patterns in
+similar econometric, identification, ML, and research-review work. Apply only
+relevant findings to dispatch and prioritization.
+
 ### Step 1: Dispatch Shared Code-Quality Agents
 
-Always dispatch all shared agents regardless of task type or review depth.
-If any agent is not available (returns an error or is not registered), note
-in the review output: '@cg-X not available — skip' and continue:
+Dispatch the shared `standard` `cg-*` set from
+`.github/shared/review-routing.contract.md` first, then layer task-specific CR
+agents. If any agent is not available (returns an error or is not registered),
+note in the review output: '@cg-X not available — skip' and continue:
 
 1. **@cg-code-quality** — style, naming, DRY violations
 2. **@cg-testing** — test coverage, edge cases, test quality
@@ -49,6 +56,11 @@ in the review output: '@cg-X not available — skip' and continue:
 4. **@cg-data-quality** — input validation, NA handling, type safety
 5. **@cg-version-control** — commit hygiene, .gitignore, sensitive data
 6. **@cg-documentation** — roxygen2/docstrings, inline comments, README
+7. **@cg-performance** — vectorization, complexity, memory, and scaling risks
+8. **@cg-architecture** — modularity, dependency boundaries, and API seams
+
+This keeps `/cr-review` aligned with the canonical shared routing contract and
+avoids maintaining a divergent shared-agent policy surface.
 
 For each agent: "Review files [list]. Return findings using the priority format
 `[P0.N]`, `[P1.N]`, `[P2.N]`, `[P3.N]`. If no issues, return 'no issues found'."

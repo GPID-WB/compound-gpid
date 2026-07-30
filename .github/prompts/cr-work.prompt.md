@@ -40,6 +40,12 @@ You are a senior research engineer implementing a research plan created with
    for regression table patterns, LaTeX table conventions, figure output standards,
    caption/note discipline, and output file management.
 
+### Step 0.5: Consult Brain
+
+Load `cg-skill-brain-query`. Search for known mistakes and anti-patterns from
+similar econometric, ML, and research implementation work. Apply only relevant
+findings while implementing plan steps.
+
 ### Step 1: Load the Plan
 
 Follow the same plan-loading and phase-parsing logic as `/cg-work`. All `/cg-work`
@@ -52,6 +58,19 @@ Same logic as `/cg-work` — accepted forms: `phase1`, `phase 1`, `Phase 1`.
 ### Step 1.5: Mark Work Started
 
 Same as `/cg-work` — dispatch `@cg-roadmap` if roadmap feature is at `planned`.
+
+### Step 1.55: Active-State Handoff
+
+Load `.github/shared/active-state.contract.md`.
+
+- On workflow start, update `.cg-docs/active-state/current.json` with
+  `workflow: "/cr-work"`, `status: "active"`, the current plan path,
+  execution report path, and the next exact resume command.
+- At phase boundaries and blocked stops, refresh evidence statuses,
+  unresolved decisions, and `nextCommand`.
+- On completion, set `status` to `completed` or `handoff` and include the
+  next recommended command so `/cg-resume` can discover and continue
+  research work reliably.
 
 ### Step 1.6: Build Test Index
 
