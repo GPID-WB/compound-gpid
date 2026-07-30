@@ -107,3 +107,4 @@ When reviewing a dispatch table:
 
 - [`2026-04-08-cross-cutting-enumeration-propagation-audit.md`](./2026-04-08-cross-cutting-enumeration-propagation-audit.md) — canonical source: when a list changes, audit all mirrors
 - [`2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md`](./2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md) — exact-count tests catch incomplete enumeration
+- [`2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md`](./2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md) — companion pattern: canonical review-routing changes must also update every entry-point prompt and regression layer, not just the dispatch table

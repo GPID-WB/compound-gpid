@@ -9,8 +9,8 @@ language: "both"
 estimated-effort: "large"
 tags: [migration, compound-research, v1-integration, git-workflow, codex-adapter]
 deviation-policy: ask
-completed-phases: [0, 1, 2]
-current-phase: 3
+completed-phases: [0, 1, 2, 3, 4, 5, 6]
+current-phase: 7
 execution-report: ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md"
 ---
 
