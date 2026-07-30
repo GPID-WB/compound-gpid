@@ -853,6 +853,106 @@
           "plan": null
         }
       ]
+    },
+    {
+      "id": "adaptive-workflow-foundation",
+      "title": "Adaptive Workflow Foundation",
+      "objective": "Define a Compound-native, project-neutral method for discovering, representing, building, and validating production workflows.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "workflow-suitability-criteria",
+          "title": "Workflow suitability criteria and non-goals",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "project-scanner-workflow-evidence",
+          "title": "Project scanner workflow-evidence analysis",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "compound-workflow-contract",
+          "title": "Compound workflow contract and .cg-docs/workflows/ schema",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cg-workflow-builder",
+          "title": "/cg-workflow-builder guided discovery and inferred workflow proposal",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-stage-scaffolding",
+          "title": "Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-lifecycle-modes",
+          "title": "Existing-workflow lifecycle with create, extend, and revise modes",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-structure-validation",
+          "title": "Deterministic workflow structure and reference validation",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
+      "id": "workflow-setup-operation",
+      "title": "Workflow Setup and Operation",
+      "objective": "Integrate workflow discovery into onboarding and let users enter, inspect, resume, and complete generated workflows.",
+      "status": "planned",
+      "features": [
+        {
+          "id": "setup-workflow-suitability-assessment",
+          "title": "/cg-setup workflow-suitability assessment",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "setup-workflow-builder-handoff",
+          "title": "Consent-based handoff from /cg-setup to /cg-workflow-builder",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-runner",
+          "title": "Lightweight workflow runner with stage entry and completion guidance",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-status-resume",
+          "title": "Workflow status and resume from filesystem artifacts",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-context-budget-checks",
+          "title": "Context-budget checks for workflow stage contracts",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-representative-pilots",
+          "title": "Representative analytical and technical workflow pilots",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "workflow-pilot-evaluation-gate",
+          "title": "Pilot evaluation gate before broader default exposure",
+          "status": "idea",
+          "plan": null
+        }
+      ]
     }
   ]
 }
