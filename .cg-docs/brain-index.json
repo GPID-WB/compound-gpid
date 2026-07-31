@@ -1,5 +1,5 @@
 {
-  "edge_count": 247,
+  "edge_count": 252,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -323,6 +323,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
       "target": ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
       "target_missing": false
     },
     {
@@ -1011,6 +1017,12 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
       "target": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
       "target_missing": false
@@ -1139,6 +1151,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
       "target": ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
+      "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target_missing": false
     },
     {
@@ -1352,6 +1370,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
+      "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1481,6 +1505,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
       "target": "roadmap.json#canonical-to-native-packaging-foundation",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target": "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
       "target_missing": false
     }
   ],
@@ -2785,6 +2815,34 @@
         "ownership",
         "dependency",
         "closure"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
+      "slug": "2026-07-30-user-selected-model-advisory-routing",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "model-routing",
+        "model-picker",
+        "reasoning-effort",
+        "cross-platform",
+        "token-efficiency"
+      ],
+      "title": "User-selected execution with advisory model and effort routing",
+      "top_keywords": [
+        "approach",
+        "model",
+        "advisory",
+        "/cg-plan",
+        "/cg-work",
+        "/cg-review",
+        "/cg-fix-triage",
+        "claude code",
+        "effort",
+        "execution"
       ]
     },
     {
@@ -5350,6 +5408,35 @@
         ".github/",
         "cg-skill-brainstorming",
         "test_target_drift.py"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "slug": "2026-07-30-user-selected-model-advisory-routing",
+      "status": "completed",
+      "summary": "Replace Compound GPID's model-assignment execution policy with user-selected model and reasoning configuration on every supported platform. Preserve useful model guidance through one centralized advisory contract that recommends capability profiles, effort levels, and clearly qualified model examples at workflow transitions without selecting or constraining the user's model.",
+      "tags": [
+        "model-routing",
+        "model-picker",
+        "reasoning-effort",
+        "cross-platform",
+        "documentation",
+        "token-efficiency"
+      ],
+      "title": "Implement User-Selected Models with Advisory Stage Routing",
+      "top_keywords": [
+        "test scenarios",
+        "model:",
+        "advisory",
+        "scripts/tests/test_audit_context.py",
+        "tests/last-run.json",
+        "last-run.json",
+        "phase",
+        ".github/",
+        "tests/model-assignments.tests.ps1",
+        "docs/model-guide.md"
       ]
     },
     {
@@ -8210,6 +8297,28 @@
         "2026-07-23-wb-report-writing-technical-methodology-review.md",
         "test_target_drift.py",
         "fixed"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-3.md",
+      "slug": "2026-07-23-wb-report-writing-technical-methodology-verify-review-3",
+      "status": "",
+      "summary": "**Review mode**: light (verify) **Files reviewed**: 171 changed or untracked files **Findings**: 10 (P0: 0, P1: 6, P2: 4, P3: 0)",
+      "tags": [],
+      "title": "2026-07-23-wb-report-writing-technical-methodology-verify-review-3",
+      "top_keywords": [
+        "fix",
+        "model: null",
+        "cg_audit_context.py",
+        "test_model_advisory.py",
+        "test_audit_context.py",
+        "2026-07-23-wb-report-writing-technical-methodology-review.md",
+        "verification",
+        "source",
+        "review",
+        "report"
       ]
     },
     {
@@ -13598,6 +13707,34 @@
       ]
     },
     {
+      "date": "2026-07-31",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
+      "slug": "2026-07-31-advisory-inheritance-audit-and-legacy-cleanup",
+      "status": "",
+      "summary": "The user-selected model migration removed execution assignments and replaced them with advisory-only stage guidance. The initial migration passed its focused happy path tests, but a verification pass found several gaps: - `model: null` was treated as if the `model` key were absent. - An empty or malformed advisory JSON bundle could pass validation or raise while the validator was inspecting it. - Optional local advisory settings did not reliably warn and fall back. - Generated native commands copied Copilot-only picker wording. - Existing consumer projects could retain old model-mapping files in managed-file manifests after the mapping outputs were removed from...",
+      "tags": [
+        "model-inheritance",
+        "advisory-validation",
+        "generated-targets",
+        "legacy-cleanup",
+        "cross-platform"
+      ],
+      "title": "Advisory inheritance audits need explicit keys and cross-platform legacy cleanup",
+      "top_keywords": [
+        "cross-platform",
+        "model",
+        "advisory",
+        "explicit",
+        "legacy",
+        "inheritance",
+        "cleanup",
+        "audits",
+        "link.sh",
+        "link.ps1"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -13859,6 +13996,50 @@
         "additions",
         "roadmap.json",
         "decision"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-07-30-adaptive-project-workflow-capability.md",
+      "slug": "2026-07-30-adaptive-project-workflow-capability",
+      "status": "",
+      "summary": "Compound GPID had 12 roadmap milestones and 117 features. Its current focus remained the Token Efficiency Core System. Recent work had already established progressive context disclosure, compact active-state handoffs, project scanning, and cross-platform packaging.",
+      "tags": [],
+      "title": "Adaptive project workflow capability",
+      "top_keywords": [
+        "session",
+        "token efficiency core system",
+        "workflow",
+        "project",
+        "adaptive",
+        "capability",
+        "roadmap.json",
+        "context",
+        "adaptive-workflow-foundation",
+        "workflow-setup-operation"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md",
+      "slug": "2026-07-30-trusted-external-capability-adoption",
+      "status": "",
+      "summary": "Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to `main` through releases `v1.0.2` and `v1.0.3`, with all seven plan phases, verification rows V1-V8, and constraints C1-C8 recorded as passed. This removed the packaging blocker that had prevented safe external-skill intake.",
+      "tags": [],
+      "title": "Trusted External Capability Adoption",
+      "top_keywords": [
+        "awesome copilot",
+        "session",
+        "v1.0.3",
+        "/cg-wiki",
+        "/cg-commit-push-pr",
+        "/cg-verify-pr",
+        "trusted external capability adoption",
+        "native packaging foundation",
+        "world bank",
+        "architecture research"
       ]
     },
     {
@@ -14285,16 +14466,16 @@
       "path": "roadmap.json#skill-description-consistency-audit",
       "slug": "skill-description-consistency-audit",
       "status": "idea",
-      "summary": "Skill description consistency audit and optimization",
+      "summary": "Skill discovery metadata and trigger-quality audit",
       "tags": [],
-      "title": "Skill description consistency audit and optimization",
+      "title": "Skill discovery metadata and trigger-quality audit",
       "top_keywords": [
         "skills enhancement\nobjective",
         "skill",
-        "description",
-        "consistency",
+        "discovery",
+        "metadata",
+        "trigger-quality",
         "audit",
-        "optimization",
         "skills",
         "feature",
         "milestone",
@@ -14348,28 +14529,6 @@
     {
       "date": "",
       "entity_type": "feature",
-      "path": "roadmap.json#skill-description-length-cap",
-      "slug": "skill-description-length-cap",
-      "status": "idea",
-      "summary": "Skill description length cap with test enforcement [from CE]",
-      "tags": [],
-      "title": "Skill description length cap with test enforcement [from CE]",
-      "top_keywords": [
-        "skills enhancement\nobjective",
-        "skill",
-        "description",
-        "length",
-        "cap",
-        "test",
-        "enforcement",
-        "skills",
-        "feature",
-        "milestone"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
       "path": "roadmap.json#world-bank-institutional-report-writing-skill",
       "slug": "world-bank-institutional-report-writing-skill",
       "status": "done",
@@ -14409,6 +14568,50 @@
         "enhancement",
         "objective",
         "deepen"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#shared-writing-guardrails-contract",
+      "slug": "shared-writing-guardrails-contract",
+      "status": "idea",
+      "summary": "Shared sensitive-data and output-hygiene contract",
+      "tags": [],
+      "title": "Shared sensitive-data and output-hygiene contract",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "shared",
+        "sensitive-data",
+        "output-hygiene",
+        "contract",
+        "skills",
+        "feature",
+        "milestone",
+        "enhancement",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#exemplar-source-pack-schema",
+      "slug": "exemplar-source-pack-schema",
+      "status": "idea",
+      "summary": "Reusable report source provenance and verification",
+      "tags": [],
+      "title": "Reusable report source provenance and verification",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "reusable",
+        "report",
+        "source",
+        "provenance",
+        "verification",
+        "skills",
+        "feature",
+        "milestone",
+        "enhancement"
       ]
     },
     {
@@ -14871,6 +15074,50 @@
         "architecture",
         "research",
         "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#attribution-documentation",
+      "slug": "attribution-documentation",
+      "status": "idea",
+      "summary": "External asset provenance and controlled intake",
+      "tags": [],
+      "title": "External asset provenance and controlled intake",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "external",
+        "asset",
+        "provenance",
+        "controlled",
+        "intake",
+        "feature",
+        "milestone",
+        "architecture",
+        "research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#github-actions-supply-chain-hardening-pilot",
+      "slug": "github-actions-supply-chain-hardening-pilot",
+      "status": "idea",
+      "summary": "GitHub Actions hardening external-skill pilot",
+      "tags": [],
+      "title": "GitHub Actions hardening external-skill pilot",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "github",
+        "actions",
+        "hardening",
+        "external-skill",
+        "pilot",
+        "feature",
+        "milestone",
+        "architecture",
+        "research"
       ]
     },
     {
@@ -15382,6 +15629,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#project-scanner-evidence-reality-gaps",
+      "slug": "project-scanner-evidence-reality-gaps",
+      "status": "idea",
+      "summary": "Project scanner evidence, unknowns, and intent-versus-reality gaps",
+      "tags": [],
+      "title": "Project scanner evidence, unknowns, and intent-versus-reality gaps",
+      "top_keywords": [
+        "setup\nobjective",
+        "scanner",
+        "project",
+        "evidence",
+        "unknowns",
+        "intent-versus-reality",
+        "gaps",
+        "feature",
+        "milestone",
+        "onboarding"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#wiki-github-pages-site-publishing",
+      "slug": "wiki-github-pages-site-publishing",
+      "status": "idea",
+      "summary": "GitHub Pages website publishing for project wikis",
+      "tags": [],
+      "title": "GitHub Pages website publishing for project wikis",
+      "top_keywords": [
+        "setup\nobjective",
+        "github",
+        "pages",
+        "website",
+        "publishing",
+        "project",
+        "wikis",
+        "feature",
+        "milestone",
+        "onboarding"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#branch-creation-from-plan",
       "slug": "branch-creation-from-plan",
       "status": "done",
@@ -15619,6 +15910,28 @@
         "workflow",
         "maturity",
         "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#automatic-post-pr-verification-handoff",
+      "slug": "automatic-post-pr-verification-handoff",
+      "status": "idea",
+      "summary": "Automatic post-PR CI verification and universal PR targeting",
+      "tags": [],
+      "title": "Automatic post-PR CI verification and universal PR targeting",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "automatic",
+        "post-pr",
+        "verification",
+        "universal",
+        "targeting",
+        "feature",
+        "milestone",
+        "workflow",
+        "maturity"
       ]
     },
     {
@@ -15976,28 +16289,6 @@
     {
       "date": "",
       "entity_type": "feature",
-      "path": "roadmap.json#attribution-documentation",
-      "slug": "attribution-documentation",
-      "status": "idea",
-      "summary": "Attribution documentation (source repos and websites)",
-      "tags": [],
-      "title": "Attribution documentation (source repos and websites)",
-      "top_keywords": [
-        "ongoing ideas\nobjective",
-        "attribution",
-        "documentation",
-        "source",
-        "repos",
-        "websites",
-        "milestone",
-        "ideas",
-        "feature",
-        "ongoing"
-      ]
-    },
-    {
-      "date": "",
-      "entity_type": "feature",
       "path": "roadmap.json#strategy-add-shortcut",
       "slug": "strategy-add-shortcut",
       "status": "idea",
@@ -16086,41 +16377,41 @@
     {
       "date": "",
       "entity_type": "feature",
-      "path": "roadmap.json#exemplar-source-pack-schema",
-      "slug": "exemplar-source-pack-schema",
-      "status": "idea",
-      "summary": "Reusable exemplar source-pack schema",
+      "path": "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
+      "slug": "user-selected-execution-with-advisory-model-and-effort-routing",
+      "status": "done",
+      "summary": "User-selected execution with advisory model and effort routing",
       "tags": [],
-      "title": "Reusable exemplar source-pack schema",
+      "title": "User-selected execution with advisory model and effort routing",
       "top_keywords": [
         "ongoing ideas\nobjective",
-        "reusable",
-        "exemplar",
-        "source-pack",
-        "schema",
+        "user-selected",
+        "execution",
+        "advisory",
+        "model",
+        "effort",
+        "routing",
         "milestone",
         "ideas",
-        "feature",
-        "ongoing",
-        "objective"
+        "feature"
       ]
     },
     {
       "date": "",
       "entity_type": "feature",
-      "path": "roadmap.json#shared-writing-guardrails-contract",
-      "slug": "shared-writing-guardrails-contract",
+      "path": "roadmap.json#runtime-model-catalog-introspection-across-platforms",
+      "slug": "runtime-model-catalog-introspection-across-platforms",
       "status": "idea",
-      "summary": "Shared institutional writing guardrails contract",
+      "summary": "Runtime model-catalog introspection across platforms",
       "tags": [],
-      "title": "Shared institutional writing guardrails contract",
+      "title": "Runtime model-catalog introspection across platforms",
       "top_keywords": [
         "ongoing ideas\nobjective",
-        "shared",
-        "institutional",
-        "writing",
-        "guardrails",
-        "contract",
+        "runtime",
+        "model-catalog",
+        "introspection",
+        "across",
+        "platforms",
         "milestone",
         "ideas",
         "feature",
@@ -16368,15 +16659,323 @@
         "milestone",
         "optimization"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-suitability-criteria",
+      "slug": "workflow-suitability-criteria",
+      "status": "idea",
+      "summary": "Workflow suitability criteria and non-goals",
+      "tags": [],
+      "title": "Workflow suitability criteria and non-goals",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "workflow",
+        "suitability",
+        "criteria",
+        "non-goals",
+        "feature",
+        "milestone",
+        "adaptive",
+        "foundation",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#project-scanner-workflow-evidence",
+      "slug": "project-scanner-workflow-evidence",
+      "status": "idea",
+      "summary": "Project scanner workflow-evidence analysis",
+      "tags": [],
+      "title": "Project scanner workflow-evidence analysis",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "project",
+        "scanner",
+        "workflow-evidence",
+        "analysis",
+        "feature",
+        "milestone",
+        "adaptive",
+        "workflow",
+        "foundation"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#compound-workflow-contract",
+      "slug": "compound-workflow-contract",
+      "status": "idea",
+      "summary": "Compound workflow contract and .cg-docs/workflows/ schema",
+      "tags": [],
+      "title": "Compound workflow contract and .cg-docs/workflows/ schema",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "workflow",
+        "workflows",
+        "compound",
+        "contract",
+        "cg-docs",
+        "schema",
+        "feature",
+        "milestone",
+        "adaptive"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cg-workflow-builder",
+      "slug": "cg-workflow-builder",
+      "status": "idea",
+      "summary": "/cg-workflow-builder guided discovery and inferred workflow proposal",
+      "tags": [],
+      "title": "/cg-workflow-builder guided discovery and inferred workflow proposal",
+      "top_keywords": [
+        "cg-workflow-builder",
+        "adaptive workflow foundation\nobjective",
+        "workflow",
+        "guided",
+        "discovery",
+        "inferred",
+        "proposal",
+        "feature",
+        "milestone",
+        "adaptive"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-stage-scaffolding",
+      "slug": "workflow-stage-scaffolding",
+      "status": "idea",
+      "summary": "Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation",
+      "tags": [],
+      "title": "Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "workflow",
+        "scaffolding",
+        "stage",
+        "inputs",
+        "processes",
+        "outputs",
+        "checkpoints",
+        "validation",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-lifecycle-modes",
+      "slug": "workflow-lifecycle-modes",
+      "status": "idea",
+      "summary": "Existing-workflow lifecycle with create, extend, and revise modes",
+      "tags": [],
+      "title": "Existing-workflow lifecycle with create, extend, and revise modes",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "existing-workflow",
+        "lifecycle",
+        "extend",
+        "revise",
+        "modes",
+        "feature",
+        "milestone",
+        "adaptive",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-structure-validation",
+      "slug": "workflow-structure-validation",
+      "status": "idea",
+      "summary": "Deterministic workflow structure and reference validation",
+      "tags": [],
+      "title": "Deterministic workflow structure and reference validation",
+      "top_keywords": [
+        "adaptive workflow foundation\nobjective",
+        "workflow",
+        "deterministic",
+        "structure",
+        "reference",
+        "validation",
+        "feature",
+        "milestone",
+        "adaptive",
+        "foundation"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#setup-workflow-suitability-assessment",
+      "slug": "setup-workflow-suitability-assessment",
+      "status": "idea",
+      "summary": "/cg-setup workflow-suitability assessment",
+      "tags": [],
+      "title": "/cg-setup workflow-suitability assessment",
+      "top_keywords": [
+        "cg-setup",
+        "workflow setup",
+        "operation\nobjective",
+        "workflow-suitability",
+        "assessment",
+        "workflow",
+        "feature",
+        "milestone",
+        "setup",
+        "operation"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#setup-workflow-builder-handoff",
+      "slug": "setup-workflow-builder-handoff",
+      "status": "idea",
+      "summary": "Consent-based handoff from /cg-setup to /cg-workflow-builder",
+      "tags": [],
+      "title": "Consent-based handoff from /cg-setup to /cg-workflow-builder",
+      "top_keywords": [
+        "cg-setup",
+        "cg-workflow-builder",
+        "workflow setup",
+        "operation\nobjective",
+        "consent-based",
+        "handoff",
+        "workflow",
+        "feature",
+        "milestone",
+        "setup"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-runner",
+      "slug": "workflow-runner",
+      "status": "idea",
+      "summary": "Lightweight workflow runner with stage entry and completion guidance",
+      "tags": [],
+      "title": "Lightweight workflow runner with stage entry and completion guidance",
+      "top_keywords": [
+        "workflow setup",
+        "operation\nobjective",
+        "workflow",
+        "lightweight",
+        "runner",
+        "stage",
+        "entry",
+        "completion",
+        "guidance",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-status-resume",
+      "slug": "workflow-status-resume",
+      "status": "idea",
+      "summary": "Workflow status and resume from filesystem artifacts",
+      "tags": [],
+      "title": "Workflow status and resume from filesystem artifacts",
+      "top_keywords": [
+        "workflow setup",
+        "operation\nobjective",
+        "workflow",
+        "resume",
+        "status",
+        "filesystem",
+        "artifacts",
+        "feature",
+        "milestone",
+        "setup"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-context-budget-checks",
+      "slug": "workflow-context-budget-checks",
+      "status": "idea",
+      "summary": "Context-budget checks for workflow stage contracts",
+      "tags": [],
+      "title": "Context-budget checks for workflow stage contracts",
+      "top_keywords": [
+        "workflow setup",
+        "operation\nobjective",
+        "workflow",
+        "context-budget",
+        "stage",
+        "contracts",
+        "feature",
+        "milestone",
+        "setup",
+        "operation"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-representative-pilots",
+      "slug": "workflow-representative-pilots",
+      "status": "idea",
+      "summary": "Representative analytical and technical workflow pilots",
+      "tags": [],
+      "title": "Representative analytical and technical workflow pilots",
+      "top_keywords": [
+        "workflow setup",
+        "operation\nobjective",
+        "workflow",
+        "representative",
+        "analytical",
+        "technical",
+        "pilots",
+        "feature",
+        "milestone",
+        "setup"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#workflow-pilot-evaluation-gate",
+      "slug": "workflow-pilot-evaluation-gate",
+      "status": "idea",
+      "summary": "Pilot evaluation gate before broader default exposure",
+      "tags": [],
+      "title": "Pilot evaluation gate before broader default exposure",
+      "top_keywords": [
+        "workflow setup",
+        "operation\nobjective",
+        "pilot",
+        "evaluation",
+        "gate",
+        "broader",
+        "default",
+        "exposure",
+        "workflow",
+        "feature"
+      ]
     }
   ],
-  "entity_count": 570,
-  "generated": "2026-07-28",
+  "entity_count": 595,
+  "generated": "2026-07-31",
   "schema_version": "0.2.0",
   "topic_count": 3,
   "topics": [
     {
-      "entity_count": 414,
+      "entity_count": 420,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -16421,6 +17020,7 @@
         ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
+        ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -16509,6 +17109,7 @@
         ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
         ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+        ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -16634,6 +17235,7 @@
         ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-review.md",
         ".cg-docs/reviews/2026-07-23-wb-institutional-report-writing-skill-verify-review.md",
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md",
+        ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-3.md",
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
@@ -16780,6 +17382,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -16791,7 +17394,9 @@
         ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
         ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
         ".cg-docs/strategy/2026-06-18-token-efficiency-workflow-strategy.md",
-        ".cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md"
+        ".cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md",
+        ".cg-docs/strategy/2026-07-30-adaptive-project-workflow-capability.md",
+        ".cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md"
       ],
       "keywords": [
         "roadmap.json",
@@ -16802,7 +17407,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 114,
+      "entity_count": 133,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -16826,9 +17431,10 @@
         "roadmap.json#skill-description-consistency-audit",
         "roadmap.json#testing-skill-python",
         "roadmap.json#testing-skill-stata",
-        "roadmap.json#skill-description-length-cap",
         "roadmap.json#world-bank-institutional-report-writing-skill",
         "roadmap.json#skillopt-existing-skills-improvement",
+        "roadmap.json#shared-writing-guardrails-contract",
+        "roadmap.json#exemplar-source-pack-schema",
         "roadmap.json#slim-copilot-instructions",
         "roadmap.json#project-context-file",
         "roadmap.json#cg-compound-context-enrichment",
@@ -16850,6 +17456,8 @@
         "roadmap.json#cross-model-adversarial-review",
         "roadmap.json#tiered-model-escalation",
         "roadmap.json#canonical-to-native-packaging-foundation",
+        "roadmap.json#attribution-documentation",
+        "roadmap.json#github-actions-supply-chain-hardening-pilot",
         "roadmap.json#brainstorm-plan-id-traceability",
         "roadmap.json#inline-self-review-brainstorm-plan",
         "roadmap.json#verification-before-completion-cg-work",
@@ -16873,6 +17481,8 @@
         "roadmap.json#cg-setup-refresh-mode",
         "roadmap.json#onboarding-tour-prompt",
         "roadmap.json#cg-help-interactive",
+        "roadmap.json#project-scanner-evidence-reality-gaps",
+        "roadmap.json#wiki-github-pages-site-publishing",
         "roadmap.json#branch-creation-from-plan",
         "roadmap.json#phased-plan-structure",
         "roadmap.json#phased-execution-cg-work",
@@ -16884,6 +17494,7 @@
         "roadmap.json#cg-verify-pr",
         "roadmap.json#goal-driven-execution",
         "roadmap.json#cg-work-explicit-plan-path",
+        "roadmap.json#automatic-post-pr-verification-handoff",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -16900,13 +17511,12 @@
         "roadmap.json#command-default-behaviors",
         "roadmap.json#outcome-criteria-in-plans",
         "roadmap.json#conversation-audit-trail",
-        "roadmap.json#attribution-documentation",
         "roadmap.json#strategy-add-shortcut",
         "roadmap.json#project-wiki-auto-documentation",
         "roadmap.json#planning-stage-test-strategy",
         "roadmap.json#agent-verified-outcome-evals",
-        "roadmap.json#exemplar-source-pack-schema",
-        "roadmap.json#shared-writing-guardrails-contract",
+        "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
+        "roadmap.json#runtime-model-catalog-introspection-across-platforms",
         "roadmap.json#token-audit-context-model",
         "roadmap.json#model-tier-definitions",
         "roadmap.json#model-policy-tests",
@@ -16917,7 +17527,21 @@
         "roadmap.json#stage-context-contracts",
         "roadmap.json#review-deterministic-first",
         "roadmap.json#token-benchmark-before-after",
-        "roadmap.json#token-optimization-compound"
+        "roadmap.json#token-optimization-compound",
+        "roadmap.json#workflow-suitability-criteria",
+        "roadmap.json#project-scanner-workflow-evidence",
+        "roadmap.json#compound-workflow-contract",
+        "roadmap.json#cg-workflow-builder",
+        "roadmap.json#workflow-stage-scaffolding",
+        "roadmap.json#workflow-lifecycle-modes",
+        "roadmap.json#workflow-structure-validation",
+        "roadmap.json#setup-workflow-suitability-assessment",
+        "roadmap.json#setup-workflow-builder-handoff",
+        "roadmap.json#workflow-runner",
+        "roadmap.json#workflow-status-resume",
+        "roadmap.json#workflow-context-budget-checks",
+        "roadmap.json#workflow-representative-pilots",
+        "roadmap.json#workflow-pilot-evaluation-gate"
       ],
       "keywords": [
         "architecture research\nobjective",
