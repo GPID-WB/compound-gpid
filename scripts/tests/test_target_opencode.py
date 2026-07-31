@@ -44,8 +44,8 @@ class TestOpenCodeTreeStructure:
     def test_config_file_exists(self) -> None:
         assert (REPO_ROOT / ".opencode/opencode.json").is_file()
 
-    def test_model_mapping_artifact_exists(self) -> None:
-        assert (REPO_ROOT / ".opencode/model-mapping.opencode.json").is_file()
+    def test_model_mapping_artifact_is_absent(self) -> None:
+        assert not (REPO_ROOT / ".opencode/model-mapping.opencode.json").exists()
 
     def test_every_prompt_has_a_command(self) -> None:
         prompts = list((REPO_ROOT / ".github/prompts").glob("*.prompt.md"))
@@ -97,18 +97,13 @@ class TestOpenCodeTreeStructure:
             assert fm.get("description"), f"Missing skill description: {skill_file}"
 
 
-class TestOpenCodeModelMapping:
-    def test_model_mapping_uses_role_only_mode(self) -> None:
-        data = json.loads((REPO_ROOT / ".opencode/model-mapping.opencode.json").read_text(encoding="utf-8"))
-        assert data["modelMappingMode"] == "role-only"
-
-    def test_agent_files_use_role_not_exact_models(self) -> None:
-        agent_files = list((REPO_ROOT / ".opencode/agents").glob("*.md"))
-        assert len(agent_files) > 0
-        for agent_file in agent_files:
-            content = agent_file.read_text(encoding="utf-8")
-            assert "GPT-5" not in content
-            assert "Claude" not in content
+class TestOpenCodeModelInheritance:
+    def test_commands_and_agent_files_do_not_assign_models(self) -> None:
+        files = list((REPO_ROOT / ".opencode/commands").rglob("*.md"))
+        files += list((REPO_ROOT / ".opencode/agents").glob("*.md"))
+        assert files
+        for path in files:
+            assert "model:" not in path.read_text(encoding="utf-8"), path
 
     def test_config_file_uses_valid_opencode_schema_shape(self) -> None:
         data = json.loads((REPO_ROOT / ".opencode/opencode.json").read_text(encoding="utf-8"))

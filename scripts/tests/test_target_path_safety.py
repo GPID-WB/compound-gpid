@@ -162,6 +162,6 @@ def test_invalid_late_target_prevents_all_writes(tmp_path: Path) -> None:
     _target(broken, "opencode")["outputPaths"]["commands"] = "../escape"
 
     with pytest.raises(gen.MappingValidationError):
-        gen.build_generation_plan(root, broken, {"prompts": [], "agents": [], "skills": [], "instructions": []}, {})
+        gen.build_generation_plan(root, broken, {"prompts": [], "agents": [], "skills": [], "instructions": []})
 
     assert list(root.iterdir()) == []

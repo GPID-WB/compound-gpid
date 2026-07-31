@@ -54,7 +54,6 @@ def _fixture_repo(tmp_path: Path) -> Path:
         "id": "claude-code",
         "name": "Claude Code",
         "generatedTreePath": ".claude",
-        "modelMappingMode": "tier",
         "capabilities": {field: True for field in gen.REQUIRED_CAPABILITY_FIELDS},
         "formats": {
             "commandFormat": "claude-command",
@@ -68,17 +67,11 @@ def _fixture_repo(tmp_path: Path) -> Path:
             "instructions": ".claude/instructions",
             "shared": ".claude/shared",
             "rootAdapter": ".claude/CLAUDE.md",
-            "modelMapping": ".claude/model-mapping.json",
         },
-        "modelMapping": {"coding": "sonnet", "review": "sonnet"},
     }
     _write(
         root / gen.TARGET_MAPPING_PATH,
         json.dumps({"schemaVersion": 1, "description": "test", "targets": [target]}),
-    )
-    _write(
-        root / gen.MODEL_CATALOG_PATH,
-        json.dumps({"models": [], "assignments": [], "frontmatterSupport": []}),
     )
     return root
 
@@ -217,6 +210,42 @@ def test_cleanup_modified_stale_is_preserved_and_fails_before_other_cleanup(tmp_
     assert _manifest_path(root).read_bytes() == manifest_before
 
 
+def _seed_legacy_model_mapping(root: Path) -> Path:
+    legacy = _write(root / ".claude/model-mapping.claude.json", b'{"legacy": true}\n')
+    data = _manifest(root)
+    data["files"].append({
+        "path": ".claude/model-mapping.claude.json",
+        "source": ".claude/model-mapping.claude.json",
+        "kind": "legacy-model-mapping",
+        "sha256": hashlib.sha256(legacy.read_bytes()).hexdigest(),
+        "executable": False,
+    })
+    _manifest_path(root).write_bytes((json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode())
+    return legacy
+
+
+def test_cleanup_removes_unchanged_legacy_model_mapping(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    legacy = _seed_legacy_model_mapping(root)
+
+    assert _generate(root) == 0
+    assert not legacy.exists()
+    assert ".claude/model-mapping.claude.json" not in {
+        item["path"] for item in _manifest(root)["files"]
+    }
+
+
+def test_cleanup_preserves_modified_legacy_model_mapping(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    legacy = _seed_legacy_model_mapping(root)
+    legacy.write_text("user edit\n", encoding="utf-8")
+
+    assert _generate(root) == 1
+    assert legacy.read_text(encoding="utf-8") == "user edit\n"
+
+
 @pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -226,7 +255,7 @@ def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     stale = root / ".claude/commands/cg-alpha.md"
     (root / ".github/prompts/cg-alpha.prompt.md").unlink()
     plan = gen.build_generation_plan(
-        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root), gen.load_model_catalog(root)
+        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root)
     )
     monkeypatch.setattr(
         gen, "_before_secure_unlink",
@@ -244,7 +273,7 @@ def test_commit_rechecks_destination_ancestor_immediately_before_write(
 ) -> None:
     root = _fixture_repo(tmp_path)
     plan = gen.build_generation_plan(
-        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root), gen.load_model_catalog(root)
+        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root)
     )
     outside = tmp_path / "outside"
     outside.mkdir()
@@ -284,7 +313,6 @@ def test_cleanup_adopts_equal_unowned_expected_destination(tmp_path: Path) -> No
         root,
         gen.load_target_mapping(root),
         gen.scan_canonical_assets(root),
-        gen.load_model_catalog(root),
     )
     expected = next(
         item for item in plan.by_target["claude-code"].entries
@@ -341,7 +369,6 @@ def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
                 root,
                 gen.load_target_mapping(root),
                 gen.scan_canonical_assets(root),
-                gen.load_model_catalog(root),
             ),
             ("claude-code",),
         )

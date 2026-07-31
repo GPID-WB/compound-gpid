@@ -25,12 +25,12 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
     root = tmp_path / "fixture"
 
     _write(root / ".github/prompts/cg-test.prompt.md",
-           "---\ndescription: Test prompt\nmodel: GPT-5.3-Codex\n---\n\n# Test Prompt\n\nBody.\n")
+           "---\ndescription: Test prompt\n---\n\n# Test Prompt\n\nBody.\n")
     _write(root / ".github/prompts/cg-another.prompt.md",
            "---\ndescription: Another prompt\n---\n\n# Another\n\nBody.\n")
 
     _write(root / ".github/agents/cg-test-agent.agent.md",
-           "---\ndescription: Test agent\nmodel: GPT-5.4\ntools: ['read', 'write']\n---\n\n# Test Agent\n\nAgent body.\n")
+           "---\ndescription: Test agent\ntools: ['read', 'write']\n---\n\n# Test Agent\n\nAgent body.\n")
 
     _write(root / ".github/skills/cg-skill-test/SKILL.md",
            "---\nname: cg-skill-test\ndescription: Test skill\n---\n\n# Test Skill\n\nSkill body.\n")
@@ -45,7 +45,6 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                 "id": "copilot",
                 "name": "GitHub Copilot",
                 "generatedTreePath": None,
-                "modelMappingMode": "role-only",
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {f: "github-" + f.replace("Format", "") for f in gen.REQUIRED_FORMAT_FIELDS},
                 "outputPaths": {"commands": ".github/prompts", "skills": ".github/skills", "agents": ".github/agents", "instructions": ".github/instructions", "shared": ".github/shared"},
@@ -54,7 +53,6 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                 "id": "claude-code",
                 "name": "Claude Code",
                 "generatedTreePath": ".claude",
-                "modelMappingMode": "tier",
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {"commandFormat": "claude-command", "skillFormat": "claude-skill", "agentFormat": "claude-agent"},
                 "outputPaths": {
@@ -64,15 +62,12 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                     "instructions": ".claude/instructions",
                     "shared": ".claude/shared",
                     "rootAdapter": ".claude/CLAUDE.md",
-                    "modelMapping": ".claude/model-mapping.claude.json",
                 },
-                "modelMapping": {"coding": "sonnet", "review": "sonnet", "reasoning": "opus", "mechanical": "haiku", "inherited": None},
             },
             {
                 "id": "codex",
                 "name": "Codex",
                 "generatedTreePath": ".agents",
-                "modelMappingMode": "exact",
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {"commandFormat": "codex-command", "skillFormat": "codex-skill", "agentFormat": "codex-subagent-toml", "fallbackAgentFormat": "codex-skill"},
                 "outputPaths": {
@@ -82,15 +77,12 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                     "instructions": ".agents/instructions",
                     "shared": ".agents/shared",
                     "rootAdapter": ".agents/AGENTS.md",
-                    "modelMapping": ".agents/model-mapping.codex.json",
                 },
-                "modelMapping": {"coding": "GPT-5.3-Codex", "review": "GPT-5.4", "reasoning": "GPT-5.4", "mechanical": "GPT-5.4 mini", "inherited": None},
             },
             {
                 "id": "opencode",
                 "name": "OpenCode",
                 "generatedTreePath": ".opencode",
-                "modelMappingMode": "role-only",
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {"commandFormat": "opencode-command", "skillFormat": "opencode-skill", "agentFormat": "opencode-agent"},
                 "outputPaths": {
@@ -101,18 +93,8 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                     "shared": ".opencode/shared",
                     "rootAdapter": ".opencode/AGENTS.md",
                     "config": ".opencode/opencode.json",
-                    "modelMapping": ".opencode/model-mapping.opencode.json",
                 },
             },
-        ],
-    }))
-
-    _write(root / ".github/shared/model-catalog.json", json.dumps({
-        "models": [{"name": "GPT-5.3-Codex", "vendor": "openai", "family": "GPT-5-Codex", "roles": ["coding", "review"], "tier": "standard", "policyStatus": "preferred"}],
-        "frontmatterSupport": [{"model": "GPT-5.3-Codex", "status": "frontmatter-supported"}],
-        "assignments": [
-            {"path": ".github/prompts/cg-test.prompt.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "test"},
-            {"path": ".github/agents/cg-test-agent.agent.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "test"},
         ],
     }))
 
@@ -157,26 +139,6 @@ class TestScanCanonicalAssets:
             gen.scan_canonical_assets(root)
 
 
-class TestModelCatalog:
-    def test_missing_catalog_fails(self, tmp_path: Path) -> None:
-        root = _make_fixture_repo(tmp_path)
-        (root / ".github/shared/model-catalog.json").unlink()
-
-        with pytest.raises(FileNotFoundError, match="Model catalog not found"):
-            gen.load_model_catalog(root)
-
-    @pytest.mark.parametrize("field", ["models", "assignments", "frontmatterSupport"])
-    def test_missing_required_catalog_field_fails(self, tmp_path: Path, field: str) -> None:
-        root = _make_fixture_repo(tmp_path)
-        path = root / ".github/shared/model-catalog.json"
-        catalog = json.loads(path.read_text(encoding="utf-8"))
-        del catalog[field]
-        path.write_text(json.dumps(catalog), encoding="utf-8")
-
-        with pytest.raises(ValueError, match=field):
-            gen.load_model_catalog(root)
-
-
 class TestDryRun:
     def test_dry_run_produces_no_files(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -205,9 +167,8 @@ class TestGenerationPlan:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        catalog = gen.load_model_catalog(root)
 
-        plan = gen.build_generation_plan(root, mapping, assets, catalog)
+        plan = gen.build_generation_plan(root, mapping, assets)
 
         destinations = [entry.destination for entry in plan.entries]
         assert destinations == sorted(destinations)
@@ -219,10 +180,9 @@ class TestGenerationPlan:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        catalog = gen.load_model_catalog(root)
 
-        first = gen.build_generation_plan(root, mapping, assets, catalog)
-        second = gen.build_generation_plan(root, mapping, assets, catalog)
+        first = gen.build_generation_plan(root, mapping, assets)
+        second = gen.build_generation_plan(root, mapping, assets)
 
         assert first == second
 
@@ -232,7 +192,6 @@ class TestGenerationPlan:
             root,
             gen.load_target_mapping(root),
             gen.scan_canonical_assets(root),
-            gen.load_model_catalog(root),
         )
 
         assert set(plan.by_target) == {"claude-code", "codex", "opencode"}
@@ -242,7 +201,6 @@ class TestGenerationPlan:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        catalog = gen.load_model_catalog(root)
         original = gen._render_output_entry
 
         def fail_on_late_target(*args, **kwargs):
@@ -254,7 +212,7 @@ class TestGenerationPlan:
         monkeypatch.setattr(gen, "_render_output_entry", fail_on_late_target)
 
         with pytest.raises(ValueError, match="late render failure"):
-            gen.build_generation_plan(root, mapping, assets, catalog)
+            gen.build_generation_plan(root, mapping, assets)
 
         assert not (root / ".claude").exists()
         assert not (root / ".agents").exists()
@@ -267,7 +225,6 @@ class TestGenerationPlan:
             root,
             gen.load_target_mapping(root),
             gen.scan_canonical_assets(root),
-            gen.load_model_catalog(root),
         )
 
         result = gen.commit_generation_plan(root, plan, [target_id])
@@ -331,7 +288,7 @@ class TestGeneratorWrites:
         agent = parsed["subagent"][0]
         assert agent["name"] == "cg-test-agent"
         assert agent["description"] == "Test agent"
-        assert agent["model"] == "GPT-5.4"
+        assert "model" not in agent
         assert agent["tools"] == ["read", "write"]
         assert "instructions" in agent
 
@@ -403,40 +360,15 @@ class TestGeneratorWrites:
         exit_code = gen.main(["--root", str(root), "--target", "claude-code"])
         assert exit_code == 1
 
-    def test_model_mapping_artifact_written(self, tmp_path: Path) -> None:
+    def test_model_mapping_artifact_is_not_written(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "claude-code"])
-        assert (root / ".claude/model-mapping.claude.json").exists()
-        data = json.loads((root / ".claude/model-mapping.claude.json").read_text())
-        assert data["platform"] == "claude-code"
-        assert data["modelMappingMode"] == "tier"
+        assert not (root / ".claude/model-mapping.claude.json").exists()
 
     def test_root_adapter_written(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "claude-code"])
         assert (root / ".claude/CLAUDE.md").exists()
-
-
-class TestModelResolution:
-    def test_exact_mode_returns_model_name(self) -> None:
-        target = {"modelMappingMode": "exact", "modelMapping": {"coding": "GPT-5.3-Codex"}}
-        assert gen.resolve_model(target, "coding") == "GPT-5.3-Codex"
-
-    def test_role_only_mode_returns_none(self) -> None:
-        target = {"modelMappingMode": "role-only", "modelMapping": {}}
-        assert gen.resolve_model(target, "coding") is None
-
-    def test_tier_mode_returns_tier(self) -> None:
-        target = {"modelMappingMode": "tier", "modelMapping": {"coding": "sonnet"}}
-        assert gen.resolve_model(target, "coding") == "sonnet"
-
-    def test_inherited_role_returns_none(self) -> None:
-        target = {"modelMappingMode": "exact", "modelMapping": {"inherited": None}}
-        assert gen.resolve_model(target, "inherited") is None
-
-    def test_unknown_role_returns_none(self) -> None:
-        target = {"modelMappingMode": "exact", "modelMapping": {"coding": "GPT-5.3-Codex"}}
-        assert gen.resolve_model(target, "unknown-role") is None
 
 
 class TestEdgeCases:
@@ -453,20 +385,15 @@ class TestEdgeCases:
         """An agent without a tools: field should generate a TOML with empty tools list."""
         root = _make_fixture_repo(tmp_path)
         _write(root / ".github/agents/cg-no-tools.agent.md",
-               "---\ndescription: Agent without tools\nmodel: GPT-5.4\n---\n\n# Agent\n\nBody.\n")
+               "---\ndescription: Agent without tools\n---\n\n# Agent\n\nBody.\n")
         exit_code = gen.main(["--root", str(root), "--target", "codex"])
         assert exit_code == 0
         toml = (root / ".agents/subagents/cg-no-tools.toml").read_text()
         assert "tools = []" in toml
 
-    def test_model_catalog_with_no_assignments(self, tmp_path: Path) -> None:
-        """A catalog with no assignments array should not crash — roles resolve to None."""
+    def test_generation_without_execution_catalog(self, tmp_path: Path) -> None:
+        """Generation does not require an execution model catalog."""
         root = _make_fixture_repo(tmp_path)
-        _write(root / ".github/shared/model-catalog.json", json.dumps({
-            "models": [{"name": "GPT-5.3-Codex", "vendor": "openai", "family": "GPT-5", "roles": ["coding"], "tier": "standard", "policyStatus": "preferred"}],
-            "frontmatterSupport": [],
-            "assignments": [],
-        }))
         exit_code = gen.main(["--root", str(root), "--target", "claude-code"])
         assert exit_code == 0
 
@@ -490,11 +417,9 @@ class TestEdgeCases:
             "description": "Empty",
             "targets": [{
                 "id": "claude-code", "name": "Claude Code", "generatedTreePath": ".claude",
-                "modelMappingMode": "tier",
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {"commandFormat": "c", "skillFormat": "s", "agentFormat": "a"},
-                "outputPaths": {"commands": ".claude/commands", "skills": ".claude/skills", "agents": ".claude/agents", "instructions": ".claude/instructions", "shared": ".claude/shared", "rootAdapter": ".claude/CLAUDE.md", "modelMapping": ".claude/mm.json"},
-                "modelMapping": {"coding": "sonnet"},
+                "outputPaths": {"commands": ".claude/commands", "skills": ".claude/skills", "agents": ".claude/agents", "instructions": ".claude/instructions", "shared": ".claude/shared", "rootAdapter": ".claude/CLAUDE.md"},
             }],
         }))
         exit_code = gen.main(["--root", str(root), "--target", "claude-code"])

@@ -29,6 +29,18 @@ class TestTargetMappingSchema:
         data = _load_repo_mapping()
         assert data["schemaVersion"] == 1
 
+    def test_json_schema_closes_mapping_objects(self) -> None:
+        schema = json.loads(
+            (REPO_ROOT / "scripts/schemas/target_mapping_schema.json").read_text(encoding="utf-8")
+        )
+        definitions = schema["definitions"]
+        assert schema["additionalProperties"] is False
+        target = definitions["target"]
+        assert target["additionalProperties"] is False
+        for name in ("capabilities", "formats", "outputPaths"):
+            assert target["properties"][name]["additionalProperties"] is False
+        assert definitions["installUnit"]["additionalProperties"] is False
+
     def test_has_four_targets(self) -> None:
         data = _load_repo_mapping()
         ids = {t["id"] for t in data["targets"]}
@@ -60,10 +72,12 @@ class TestTargetMappingSchema:
         for target in data["targets"]:
             assert set(gen.REQUIRED_OUTPUT_PATH_FIELDS) <= set(target["outputPaths"])
 
-    def test_model_mapping_modes_are_valid(self) -> None:
+    def test_model_mapping_fields_are_absent(self) -> None:
         data = _load_repo_mapping()
         for target in data["targets"]:
-            assert target["modelMappingMode"] in gen.VALID_MODEL_MAPPING_MODES
+            assert "modelMappingMode" not in target
+            assert "modelMapping" not in target
+            assert "modelMapping" not in target["outputPaths"]
 
     def test_codex_has_fallback_agent_format(self) -> None:
         data = _load_repo_mapping()
@@ -74,21 +88,6 @@ class TestTargetMappingSchema:
         data = _load_repo_mapping()
         opencode = next(t for t in data["targets"] if t["id"] == "opencode")
         assert opencode["capabilities"]["supportsMultiVendorModels"] is True
-
-    def test_claude_code_uses_tier_mode(self) -> None:
-        data = _load_repo_mapping()
-        claude = next(t for t in data["targets"] if t["id"] == "claude-code")
-        assert claude["modelMappingMode"] == "tier"
-
-    def test_codex_uses_exact_mode(self) -> None:
-        data = _load_repo_mapping()
-        codex = next(t for t in data["targets"] if t["id"] == "codex")
-        assert codex["modelMappingMode"] == "exact"
-
-    def test_opencode_uses_role_only_mode(self) -> None:
-        data = _load_repo_mapping()
-        opencode = next(t for t in data["targets"] if t["id"] == "opencode")
-        assert opencode["modelMappingMode"] == "role-only"
 
     def test_all_targets_define_install_units(self) -> None:
         data = _load_repo_mapping()
@@ -123,11 +122,11 @@ class TestTargetMappingValidation:
         data = {
             "schemaVersion": 1,
             "targets": [
-                {"id": "x", "name": "X", "generatedTreePath": ".x", "modelMappingMode": "role-only",
+                {"id": "x", "name": "X", "generatedTreePath": ".x",
                  "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                  "formats": {f: "x" for f in gen.REQUIRED_FORMAT_FIELDS},
                  "outputPaths": {f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}},
-                {"id": "x", "name": "X2", "generatedTreePath": ".x2", "modelMappingMode": "role-only",
+                {"id": "x", "name": "X2", "generatedTreePath": ".x2",
                  "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                  "formats": {f: "x" for f in gen.REQUIRED_FORMAT_FIELDS},
                  "outputPaths": {f: f".x2/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}},
@@ -136,24 +135,27 @@ class TestTargetMappingValidation:
         errors = gen.validate_target_mapping(data)
         assert any("duplicate" in e for e in errors)
 
-    def test_invalid_model_mapping_mode_fails(self) -> None:
+    def test_stale_model_mapping_fields_fail(self) -> None:
         data = {
             "schemaVersion": 1,
             "targets": [
-                {"id": "x", "name": "X", "generatedTreePath": ".x", "modelMappingMode": "invalid",
+                {"id": "x", "name": "X", "generatedTreePath": ".x",
+                 "modelMappingMode": "exact", "modelMapping": {"coding": "model"},
                  "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                  "formats": {f: "x" for f in gen.REQUIRED_FORMAT_FIELDS},
-                 "outputPaths": {f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}},
+                 "outputPaths": {**{f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}, "modelMapping": ".x/models.json"}},
             ],
         }
         errors = gen.validate_target_mapping(data)
         assert any("modelMappingMode" in e for e in errors)
+        assert any("modelMapping is not supported" in e for e in errors)
+        assert any("outputPaths.modelMapping" in e for e in errors)
 
     def test_missing_capability_fails(self) -> None:
         data = {
             "schemaVersion": 1,
             "targets": [
-                {"id": "x", "name": "X", "generatedTreePath": ".x", "modelMappingMode": "role-only",
+                {"id": "x", "name": "X", "generatedTreePath": ".x",
                  "capabilities": {"supportsNativeCommands": True},
                  "formats": {f: "x" for f in gen.REQUIRED_FORMAT_FIELDS},
                  "outputPaths": {f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}},

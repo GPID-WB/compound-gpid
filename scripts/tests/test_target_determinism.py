@@ -12,9 +12,8 @@ def test_structured_generation_plan_is_byte_deterministic() -> None:
     """Repeated planning from identical canonical inputs emits identical entries."""
     mapping = gen.load_target_mapping(REPO_ROOT)
     assets = gen.scan_canonical_assets(REPO_ROOT)
-    catalog = gen.load_model_catalog(REPO_ROOT)
 
-    first = gen.build_generation_plan(REPO_ROOT, mapping, assets, catalog)
-    second = gen.build_generation_plan(REPO_ROOT, mapping, assets, catalog)
+    first = gen.build_generation_plan(REPO_ROOT, mapping, assets)
+    second = gen.build_generation_plan(REPO_ROOT, mapping, assets)
 
     assert first.entries == second.entries

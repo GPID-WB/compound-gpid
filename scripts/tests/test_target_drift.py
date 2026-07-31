@@ -34,8 +34,7 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
     try:
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        catalog = gen.load_model_catalog(root)
-        return gen.build_generation_plan(root, mapping, assets, catalog)
+        return gen.build_generation_plan(root, mapping, assets)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         pytest.fail(f"Generator failed while building structured plan: {exc}")
 
@@ -240,11 +239,10 @@ class TestNoDrift:
 
             assets = gen.scan_canonical_assets(fixture)
             mapping = gen.load_target_mapping(fixture)
-            catalog = gen.load_model_catalog(fixture)
             for target in mapping["targets"]:
                 if target.get("generatedTreePath") is None:
                     continue
-                gen.emit_for_target(fixture, target, assets, catalog, dry_run=False)
+                gen.emit_for_target(fixture, target, assets, dry_run=False)
 
             mismatches: list[str] = []
             for rel_path in overlap:
@@ -279,12 +277,11 @@ class TestNoDrift:
         prompt_before = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assets = gen.scan_canonical_assets(fixture)
         mapping = gen.load_target_mapping(fixture)
-        catalog = gen.load_model_catalog(fixture)
 
         for target in mapping["targets"]:
             if target.get("generatedTreePath") is None:
                 continue
-            gen.emit_for_target(fixture, target, assets, catalog, dry_run=False)
+            gen.emit_for_target(fixture, target, assets, dry_run=False)
 
         prompt_after = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assert prompt_before == prompt_after, "Generator modified .github/ canonical assets"

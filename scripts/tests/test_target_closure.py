@@ -44,7 +44,6 @@ def _mapping_target(target_id: str, *, custom_paths: bool = False) -> dict:
         "instructions": f"{root}/language-rules",
         "shared": f"{root}/contracts",
         "rootAdapter": f"{root}/ROOT.md",
-        "modelMapping": f"{root}/models.json",
     }
     if target_id == "opencode":
         target["outputPaths"]["config"] = f"{root}/runtime.json"
@@ -94,7 +93,7 @@ Follow `.github/instructions/python.instructions.md` and
 def _plan(root: Path, target: dict) -> gen.GenerationPlan:
     assets = gen.scan_canonical_assets(root)
     mapping = {"schemaVersion": 1, "description": "closure fixture", "targets": [target]}
-    return gen.build_generation_plan(root, mapping, assets, {"models": [], "assignments": []})
+    return gen.build_generation_plan(root, mapping, assets)
 
 
 def _entry_map(plan: gen.GenerationPlan, target_id: str) -> dict[str, gen.OutputEntry]:
