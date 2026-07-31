@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-07-28_
+_Generated 2026-07-31_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1
 
@@ -92,6 +92,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 400 entit
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Canonical-to-Native Packaging Foundation](.cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md)** · `brainstorm` · _decided_ · `2026-07-27`
   > Compound GPID treats `.github/` as canonical and generates committed native trees for Claude Code, Codex, and OpenCod…
+- **[User-selected execution with advisory model and effort routing](.cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md)** · `brainstorm` · _decided_ · `2026-07-30`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -268,6 +270,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 400 entit
   > Add and evaluate an auditable technical/methodology documentation pattern that never fills missing methodological det…
 - **[Canonical-to-Native Packaging Foundation](.cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md)** · `plan` · _completed_ · `2026-07-27`
   > Make native target generation complete, deterministic, confined, owned, and independently usable before any external …
+- **[Implement User-Selected Models with Advisory Stage Routing](.cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md)** · `plan` · _completed_ · `2026-07-30`
+  > Replace Compound GPID's model-assignment execution policy with user-selected model and reasoning configuration on eve…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -518,6 +522,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 400 entit
   > **Review mode**: light (verification mode) **Files reviewed**: 5 **Findings**: 1 (P0: 0, P1: 1, P2: 0, P3: 0)
 - **[2026-07-23-wb-report-writing-technical-methodology-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-review.md)** · `review` · _—_ · `2026-07-24`
   > **Review mode**: full **Files reviewed**: 57 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-3](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-3.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: light (verify) **Files reviewed**: 171 changed or untracked files **Findings**: 10 (P0: 0, P1: 6, P2…
 - **[2026-07-23-wb-report-writing-technical-methodology-verify-review](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md)** · `review` · _—_ · `2026-07-24`
   > **Review mode**: light **Files reviewed**: 6 **Findings**: 2 (P0: 0, P1: 2, P2: 0, P3: 0)
 - **[Canonical-to-Native Packaging Foundation Review](.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md)** · `review` · _fixed_ · `2026-07-28`
@@ -800,11 +806,5 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 400 entit
   > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
 - **[Optional retrieval backends must stay default-disabled during evaluation](.cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md)** · `solution` · _—_ · `2026-06-23`
   > Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a reg…
-- **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
-  > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
-- **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
-  > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
-- **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
-  > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_
