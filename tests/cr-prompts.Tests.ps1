@@ -128,6 +128,10 @@ Describe "cr-brainstorm.prompt.md - research task classification" {
         ($content -match '\bReproducibility\b') | Should -Be $true
     }
 
+    It "lists Measurement/Classification as a task type" {
+        ($content -match 'Measurement/Classification') | Should -Be $true
+    }
+
     It "contains Devil's Advocate step (Step 3.5)" {
         ($content -match '3\.5') | Should -Be $true
         ($content -match '(?i)devil') | Should -Be $true
@@ -173,9 +177,15 @@ Describe "cr-work.prompt.md - P0 enforcement" {
     It "references cr-skill-research-workflow" {
         ($content -match 'cr-skill-research-workflow') | Should -Be $true
     }
+        It "references cr-skill-evidence-provenance" {
+            ($content -match 'cr-skill-evidence-provenance') | Should -Be $true
+        }
 
     It "includes derivation cross-reference check" {
         ($content -match '(?i)derivation') | Should -Be $true
+    }
+    It "contains evidence/provenance enforcement language" {
+        ($content -match '(?i)evidence|provenance|claim-evidence-matrix|provenance-ledger') | Should -Be $true
     }
 }
 
@@ -213,6 +223,9 @@ Describe "cr-review.prompt.md - agent orchestration" {
 
     It "references @cr-mathematical-verification" {
         ($content -match '@cr-mathematical-verification') | Should -Be $true
+    }
+    It "references @cr-provenance-audit" {
+        ($content -match '@cr-provenance-audit') | Should -Be $true
     }
 
     It "references @cr-identification-audit" {
@@ -288,6 +301,11 @@ Describe "cr-compound.prompt.md - research categories" {
     It "contains inherited engineering category 'testing-patterns'" {
         ($content -match '`testing-patterns`') | Should -Be $true
     }
+
+    It "solution frontmatter enum includes Measurement/Classification and Research Scoping" {
+        ($content -match 'task-type:.*Measurement/Classification') | Should -Be $true
+        ($content -match 'task-type:.*Research Scoping') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -307,7 +325,7 @@ Describe "cr-skill-research-workflow/SKILL.md - content" {
         ($fm -match '(?m)^\s*module:\s*[''"]?research[''"]?\s*$') | Should -Be $true
     }
 
-    It "contains all 8 task types" {
+    It "contains all 10 task types" {
         ($content -match 'Theory/Modeling') | Should -Be $true
         ($content -match 'Specification Analysis') | Should -Be $true
         ($content -match '\bEDA\b') | Should -Be $true
@@ -316,6 +334,8 @@ Describe "cr-skill-research-workflow/SKILL.md - content" {
         ($content -match '\bWriting\b') | Should -Be $true
         ($content -match 'Tables/Figures') | Should -Be $true
         ($content -match '\bReproducibility\b') | Should -Be $true
+        ($content -match 'Measurement/Classification') | Should -Be $true
+        ($content -match 'Research Scoping') | Should -Be $true
     }
 
     It "contains P0-P3 priority table" {
@@ -378,6 +398,85 @@ Describe "cr-skill-research-integrity/SKILL.md - content" {
     It "contains Error Class 7: Distributional Assumption Untested" {
         ($content -match '(?i)distributional assumption') | Should -Be $true
     }
+
+    It "contains Error Class 11: Fabricated or Unverifiable Citation" {
+        ($content -match '(?i)fabricated|unverifiable citation') | Should -Be $true
+    }
+
+    It "contains Error Class 12: Uncited Substantive Claim" {
+        ($content -match '(?i)uncited substantive claim') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-skill-evidence-provenance — content validation
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-evidence-provenance/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-evidence-provenance\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research" {
+        $fm = Get-Frontmatter -FilePath $path
+        ($fm -match '(?m)^\s*module:\s*[''\"]?research[''\"]?\s*$') | Should -Be $true
+    }
+
+    It "contains provenance-ledger schema path" {
+        ($content -match 'provenance-ledger\.yaml') | Should -Be $true
+    }
+
+    It "contains claim-evidence matrix schema path" {
+        ($content -match 'claim-evidence-matrix\.yaml') | Should -Be $true
+    }
+
+    It "contains repo-local corpus default" {
+        ($content -match '(?i)repo-local corpus') | Should -Be $true
+    }
+
+    It "contains anti-hallucination language" {
+        ($content -match '(?i)never fabricate|anti-hallucination') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-skill-measurement — content validation
+# ---------------------------------------------------------------------------
+
+Describe "cr-skill-measurement/SKILL.md - content" {
+    $path    = Join-Path $skillsDir "cr-skill-measurement\SKILL.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "exists" {
+        Test-Path $path | Should -Be $true
+    }
+
+    It "has module: research" {
+        $fm = Get-Frontmatter -FilePath $path
+        ($fm -match '(?m)^\s*module:\s*[''\"]?research[''\"]?\s*$') | Should -Be $true
+    }
+
+    It "cites OECD/JRC and Alkire-Foster" {
+        ($content -match 'OECD/JRC') | Should -Be $true
+        ($content -match 'Alkire-Foster') | Should -Be $true
+    }
+
+    It "includes cluster validity named sources" {
+        ($content -match 'Rousseeuw|Tibshirani|Hennig') | Should -Be $true
+    }
+
+    It "contains weighting and cluster artifact paths" {
+        ($content -match 'weighting-sensitivity\.yaml') | Should -Be $true
+        ($content -match 'cluster-validity\.yaml') | Should -Be $true
+    }
+
+    It "contains comparability and thresholding sections" {
+        ($content -match '(?i)comparability') | Should -Be $true
+        ($content -match '(?i)threshold') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -408,6 +507,8 @@ Describe "cg-skill-setup/SKILL.md - research directory layout" {
 Describe "CR agent files - structural checks" {
     $crAgents = @(
         'cr-research-integrity.agent.md',
+        'cr-measurement-integrity.agent.md',
+        'cr-provenance-audit.agent.md',
         'cr-mathematical-verification.agent.md',
         'cr-identification-audit.agent.md',
         'cr-econometric-reasoning.agent.md',
@@ -505,6 +606,58 @@ Describe "cr-research-integrity.agent.md - content" {
 
     It "contains empty-file guard at protocol start" {
         ($content -match '(?i)zero-byte|empty file.*research integrity check skipped') | Should -Be $true
+    }
+
+    It "contains normative-choice smuggling check" {
+        ($content -match '(?i)normative-choice smuggling') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-provenance-audit.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-provenance-audit.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-provenance-audit.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "references provenance ledger" {
+        ($content -match 'provenance') | Should -Be $true
+    }
+
+    It "references claim-evidence linkage" {
+        ($content -match '(?i)claim.*evidence') | Should -Be $true
+    }
+
+    It "states audit-only responsibilities" {
+        ($content -match '(?i)audit-only|do not compute') | Should -Be $true
+    }
+
+    It "contains P0 output format tag" {
+        ($content -match '\[cr-provenance-audit\]') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cr-measurement-integrity.agent.md — content
+# ---------------------------------------------------------------------------
+
+Describe "cr-measurement-integrity.agent.md - content" {
+    $path    = Join-Path (Join-Path $repoRoot ".github\agents") "cr-measurement-integrity.agent.md"
+    $content = Get-Content $path -Raw -Encoding UTF8
+
+    It "references measurement and comparability artifacts" {
+        ($content -match 'weighting-sensitivity\.yaml') | Should -Be $true
+        ($content -match 'cluster-validity\.yaml') | Should -Be $true
+        ($content -match 'vintage-manifest\.yaml') | Should -Be $true
+    }
+
+    It "states audit-only responsibilities" {
+        ($content -match '(?i)audit-only|do not recompute|Do not recompute') | Should -Be $true
+    }
+
+    It "contains P0/P1 parseable output tag" {
+        ($content -match '\[cr-measurement-integrity\]') | Should -Be $true
     }
 }
 
@@ -712,6 +865,17 @@ Describe "cr-review.prompt.md - Phase 3 wiring" {
         ($content -match '`/cg-fix-triage`') | Should -Be $true
         ($content -notmatch '`/cr-fix-triage`') | Should -Be $true
     }
+
+    It "Step 5 writes a findings status map for /cg-fix-triage compatibility" {
+        ($content -match 'findings:\s*\r?\n\s+P1\.1:\s+open') | Should -Be $true
+        ($content -match 'Valid\s+statuses\s+are\s+`open`,\s+`fixed`,\s+and\s+`skipped`') | Should -Be $true
+        ($content -notmatch 'status:\s+open\s*\r?\nfindings:\s+N') | Should -Be $true
+    }
+
+    It "Step 5 handoff example uses bare finding IDs" {
+        ($content -match '/cg-fix-triage P0\.1') | Should -Be $true
+        ($content -notmatch '/cg-fix-triage \[P0\.1\]') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -780,6 +944,10 @@ Describe "cr-plan.prompt.md - research planning process" {
 
     It "handoff at end routes toward /cr-work (not /cg-work)" {
         ($content -match '/cr-work') | Should -Be $true
+    }
+
+    It "frontmatter enum includes Research Scoping" {
+        ($content -match 'task-type:.*Research Scoping') | Should -Be $true
     }
 }
 
@@ -861,7 +1029,7 @@ Describe "CR files - module: research frontmatter" {
         }
     }
 
-    $crAgents = @('cr-research-integrity', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-replication-package', 'cr-publication-output')
+    $crAgents = @('cr-research-integrity', 'cr-measurement-integrity', 'cr-provenance-audit', 'cr-mathematical-verification', 'cr-identification-audit', 'cr-econometric-reasoning', 'cr-ml-methodology', 'cr-specification-analysis', 'cr-academic-writing', 'cr-replication-package', 'cr-publication-output')
     foreach ($agent in $crAgents) {
         $agentFile = Join-Path $repoRoot ".github\agents\$agent.agent.md"
         $fm        = if (Test-Path $agentFile) { Get-Frontmatter -FilePath $agentFile } else { "" }
@@ -2424,13 +2592,17 @@ Describe "cr-review.prompt.md - Phase 9 dispatch journey" {
         ($content -match 'Writing.*cr-academic-writing') | Should -Be $true
     }
 
-    It "dispatch table covers all 8 task types from research workflow taxonomy" {
+    It "dispatch table covers all 10 task types from research workflow taxonomy" {
         $taskTypes = @(
             'Theory/Modeling', 'Specification Analysis', 'ML/Prediction',
-            'Writing', 'Reproducibility', 'Tables/Figures', 'EDA', 'Implementation'
+            'Writing', 'Reproducibility', 'Measurement/Classification', 'Tables/Figures', 'EDA', 'Implementation', 'Research Scoping'
         )
         $missingTypes = $taskTypes | Where-Object { $content -notmatch [regex]::Escape($_) }
         $missingTypes.Count | Should -Be 0
+    }
+
+    It "Measurement/Classification dispatch row routes to @cr-measurement-integrity" {
+        ($content -match 'Measurement/Classification.*cr-measurement-integrity') | Should -Be $true
     }
 
     It "mixed-format files (.Rnw .qmd .Rmd .ipynb) dispatch both academic-writing and publication-output agents" {
@@ -2501,3 +2673,91 @@ Describe "copilot-instructions.md - Phase 9 skill reference updated" {
 # ---------------------------------------------------------------------------
 # END Phase 9
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Responsible Research Lifecycle + Method Packs (2026-07-30 Phase 4)
+#   Additive checks — the existing Step 3 dispatch table remains the single
+#   source of routing truth and is verified verbatim by the dispatch-journey
+#   Describe above. These tests assert the additive lifecycle/pack framing only.
+# ---------------------------------------------------------------------------
+
+Describe "Responsible Research Lifecycle - spine, method packs, and doc sync" {
+    $workflowSkill = Get-Content (Join-Path $skillsDir "cr-skill-research-workflow\SKILL.md") -Raw -Encoding UTF8
+    $reviewPrompt  = Get-Content (Join-Path $promptsDir "cr-review.prompt.md")                -Raw -Encoding UTF8
+    $workPrompt    = Get-Content (Join-Path $promptsDir "cr-work.prompt.md")                  -Raw -Encoding UTF8
+    $bsPrompt      = Get-Content (Join-Path $promptsDir "cr-brainstorm.prompt.md")            -Raw -Encoding UTF8
+    $instructions  = Get-Content (Join-Path $repoRoot ".github\copilot-instructions.md")      -Raw -Encoding UTF8
+    $reference     = Get-Content (Join-Path $repoRoot "docs\reference.md")                    -Raw -Encoding UTF8
+
+    # Collapse whitespace and blockquote markers so the spine matches regardless
+    # of markdown line wrapping or '>' continuation. The '.' between stage names
+    # matches the unicode arrow; spaces are literal.
+    $spine        = 'Scope . Evidence . Theory . Method . Execute . Verify . Communicate . Maintain'
+    $workflowFlat = ($workflowSkill -replace '[\s>]+', ' ')
+    $reviewFlat   = ($reviewPrompt  -replace '[\s>]+', ' ')
+    $workFlat     = ($workPrompt    -replace '[\s>]+', ' ')
+    $bsFlat       = ($bsPrompt      -replace '[\s>]+', ' ')
+    $instrFlat    = ($instructions  -replace '[\s>]+', ' ')
+    $refFlat      = ($reference     -replace '[\s>]+', ' ')
+
+    # V1 — lifecycle spine in the workflow skill
+    It "workflow skill has a Responsible Research Lifecycle section" {
+        ($workflowSkill -match '(?i)Responsible Research Lifecycle') | Should -Be $true
+    }
+
+    It "workflow skill contains the eight-stage lifecycle spine in order" {
+        ($workflowFlat -match $spine) | Should -Be $true
+    }
+
+    It "workflow skill preserves all 10 task types (no taxonomy regression)" {
+        ($workflowSkill -match 'Measurement/Classification') | Should -Be $true
+        ($workflowSkill -match 'Research Scoping') | Should -Be $true
+    }
+
+    # V2 — method-pack model in the workflow skill
+    It "workflow skill defines a Method Packs subsection" {
+        ($workflowSkill -match '(?i)Method Packs') | Should -Be $true
+    }
+
+    It "workflow skill maps the structural, ML, and measurement packs to existing files" {
+        ($workflowSkill -match 'cr-skill-structural-econometrics') | Should -Be $true
+        ($workflowSkill -match 'cr-skill-ml-economics') | Should -Be $true
+        ($workflowSkill -match 'cr-skill-measurement') | Should -Be $true
+    }
+
+    # V3 — additive lifecycle framing in cr-review; dispatch table intact
+    It "cr-review adds additive Lifecycle & Method Packs framing" {
+        ($reviewPrompt -match '(?i)Lifecycle & Method Packs|Lifecycle and Method Packs') | Should -Be $true
+        ($reviewFlat -match $spine) | Should -Be $true
+    }
+
+    It "cr-review preserves the Step 3 Theory/Modeling routing verbatim" {
+        ($reviewPrompt -match 'Theory/Modeling.*cr-identification-audit') | Should -Be $true
+        ($reviewPrompt -match 'Theory/Modeling.*cr-econometric-reasoning') | Should -Be $true
+    }
+
+    # V4 — lifecycle references in cr-work + cr-brainstorm
+    It "cr-work references the lifecycle Execute stage" {
+        ($workPrompt -match '(?i)lifecycle') | Should -Be $true
+        ($workFlat -match $spine) | Should -Be $true
+    }
+
+    It "cr-brainstorm references the lifecycle and method-pack selection" {
+        ($bsPrompt -match '(?i)lifecycle') | Should -Be $true
+        ($bsPrompt -match '(?i)method pack') | Should -Be $true
+    }
+
+    # V5 — doc sync
+    It "copilot-instructions.md documents the lifecycle spine and three packs" {
+        ($instructions -match '(?i)Responsible Research Lifecycle') | Should -Be $true
+        ($instrFlat -match $spine) | Should -Be $true
+        ($instructions -match '(?i)Structural pack') | Should -Be $true
+        ($instructions -match '(?i)ML pack') | Should -Be $true
+        ($instructions -match '(?i)Measurement pack') | Should -Be $true
+    }
+
+    It "docs/reference.md documents the lifecycle spine and packs" {
+        ($reference -match '(?i)Responsible Research Lifecycle') | Should -Be $true
+        ($refFlat -match $spine) | Should -Be $true
+    }
+}

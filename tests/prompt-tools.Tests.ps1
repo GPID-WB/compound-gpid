@@ -2859,6 +2859,11 @@ Describe "cg-setup.prompt.md - Mode B quality gate" {
         ($content -match 'B0\.5') | Should -Be $true
     }
 
+    It "wiki initialization fallback directs users to /cg-wiki init" {
+        ($content -match 'Wiki initialization skipped.*`/cg-wiki init`') | Should -Be $true
+        ($content -notmatch 'Wiki initialization skipped.*`/cg-wiki rebuild`') | Should -Be $true
+    }
+
     It "Mode B B4 instructs carrying forward cg-schema-version on rewrite" {
         ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should -Be $true
     }
@@ -3211,6 +3216,11 @@ Describe "Phase 3 review routing contract" {
         ($contract -match '(?s)\|\s*`research`\s*\|\s*`research`\s*\|') | Should -Be $true
     }
 
+    It "shared research mode includes provenance and measurement review agents" {
+        ($contract -match 'research.*cr-provenance-audit') | Should -Be $true
+        ($contract -match 'research.*cr-measurement-integrity') | Should -Be $true
+    }
+
     It "shared contract maps risk classes to resolved modes" {
         foreach ($riskClass in @("low", "normal", "data-risk", "architecture-risk", "security-risk")) {
             ($contract -match [regex]::Escape($riskClass)) | Should -Be $true
@@ -3247,9 +3257,14 @@ Describe "cg-review.prompt.md - staged routing modes" {
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
     It "parser accepts staged review modes" {
-        foreach ($mode in @("data-risk", "architecture", "full")) {
+        foreach ($mode in @("data-risk", "architecture", "research", "full")) {
             ($content -match "Recognized:.*$mode") | Should -Be $true
         }
+    }
+
+    It "explicit staged mode list includes research" {
+        ($content -match 'staged review modes.*light.*standard.*data-risk.*architecture.*research.*full') | Should -Be $true
+        ($content -match 'explicit user mode wins.*research.*data-risk.*architecture.*standard.*light') | Should -Be $true
     }
 
     It "review report template includes research mode" {
@@ -3295,6 +3310,12 @@ Describe "cg-review.prompt.md - staged routing modes" {
         ($content -match '(?i)modules:\s*\[research\]|modules.*research') | Should -Be $true
         ($content -match '(?i)research mode') | Should -Be $true
         ($content -match '(?i)@cr-research-integrity') | Should -Be $true
+        ($content -match '(?i)@cr-provenance-audit') | Should -Be $true
+        ($content -match '(?i)@cr-measurement-integrity') | Should -Be $true
+    }
+
+    It "documents composite full plus research coverage for security-risk research diffs" {
+        ($content -match '(?s)research.*security-risk.*dispatch `full` plus the CR agent set from `research`|dispatch `full` plus the CR agent set from `research`') | Should -Be $true
     }
 
     It "keeps verify mode light-only and exempt from staged broad routing" {

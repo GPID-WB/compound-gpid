@@ -33,11 +33,11 @@ before planning begins.
 
 #### Step 1.1 — Research Task Classification
 
-After reading the user's request, classify it into one of the 8 research task types
+After reading the user's request, classify it into one of the 10 research task types
 from `cr-skill-research-workflow`:
 
 > "This looks like a **[Theory/Modeling | Specification Analysis | EDA |
-> Implementation | ML/Prediction | Writing | Tables/Figures | Reproducibility]**
+> Implementation | ML/Prediction | Writing | Tables/Figures | Reproducibility | Measurement/Classification | Research Scoping]**
 > task. Confirm or correct?"
 
 Wait for confirmation before proceeding.
@@ -52,6 +52,39 @@ Based on the confirmed task type, note which specialized skills would be loaded
 - Writing → `cr-skill-academic-writing`, `cr-skill-publication-output`
 - Tables/Figures → `cr-skill-r-visualization`, `cr-skill-r-analytical`, `cr-skill-publication-output`
 - Reproducibility → `cr-skill-replication-standards`
+- Measurement/Classification → `cr-skill-measurement`, `cr-skill-theory-data-dialogue`
+- Research Scoping → `cr-skill-research-scoping`
+
+> **Lifecycle context.** Task classification selects the **method pack**
+> (structural / ML / measurement) that will run under the shared responsible
+> research lifecycle (`Scope → Evidence → Theory → Method → Execute → Verify →
+> Communicate → Maintain`; see `cr-skill-research-workflow`). The pack sets the
+> Theory/Method/Verify surfaces; the Scope, Evidence, and Normative stages apply
+> to every task regardless of pack. This note changes no classifier behavior.
+
+#### Step 1.2 — Scoping + Normative Decision Gate (deterministic)
+
+Load `cr-skill-research-scoping` and create/update:
+- `.cg-docs/research/scoping/<study-slug>.md`
+- `.cg-docs/research/normative-decisions/<study-slug>.md`
+
+Before moving to Step 2, deterministically enumerate value-laden decision
+points using the bounded checklist for the confirmed task type (from
+`cr-skill-research-scoping`). For each decision point:
+
+1. Check coverage in the per-study register by existing decision ID.
+2. Coverage is valid only when all conditions hold:
+  - same `study` slug
+  - same decision category
+  - `applies_to` includes the current memo/step/output context
+  - no contradiction with the proposed option
+3. If covered, cite the ID and continue.
+4. If not covered, present defensible options + consequences and require an
+  explicit human decision.
+5. Record the decision with a stable ID `ND-<study-slug>-NNN`, `study`, `plan`,
+  `applies_to`, `decided_by`, `decision`, `justification`, and `decided_on`.
+
+Never auto-select consequential value-laden choices.
 
 #### Step 1.5 — Scope Assessment
 
@@ -113,6 +146,13 @@ Ask 3–6 clarifying questions tailored to the task type. Wait for answers befor
 - What journal's replication standards apply?
 - What data sensitivity constraints exist (restricted access, PII)?
 - What is the target compute environment (local, HPC, Docker)?
+
+**Measurement/Classification**:
+- What construct is being measured or classified, and for which decision context?
+- Which weighting, normalization, and aggregation choices are currently proposed?
+- What threshold or cluster boundary choices are consequential?
+- What comparability constraints apply across units and over time/vintages?
+- What sensitivity and validity evidence is required before publishing rankings or labels?
 
 ### Step 3: Propose Approaches
 

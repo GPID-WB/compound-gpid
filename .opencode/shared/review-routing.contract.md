@@ -63,6 +63,8 @@ precedence over line-volume upgrades.
 ## Dedup
 
 Apply additive dedup: if multiple rules request the same agent, dispatch once.
-If multiple high-risk classes apply, choose the highest resolved mode by
-coverage: `full` > `research` > `architecture` / `data-risk` > `standard` > `light`, then
+If both `research` and `security-risk` signals apply, use composite coverage:
+dispatch `full` plus the CR agent set from `research`.
+Otherwise, if multiple high-risk classes apply, choose the highest resolved mode
+by coverage: `full` > `research` > `architecture` / `data-risk` > `standard` > `light`, then
 include any mandatory emphasis in the dispatch instructions.

@@ -1,6 +1,6 @@
 ---
 description: "Research work — implement a research plan step by step. Supports
-  /cr-work [phaseX]. Enforces P0 seed requirements and specification logging."
+  /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements."
 model: GPT-5.3-Codex
 module: research
 ---
@@ -25,7 +25,8 @@ You are a senior research engineer implementing a research plan created with
 
 1. Read `compound-gpid.md` and `compound-gpid.local.md`. Check that `modules:` includes `research`.
 2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
-3. **Always load**: `cr-skill-research-workflow` and `cr-skill-research-integrity`.
+3. **Always load**: `cr-skill-research-workflow`, `cr-skill-research-integrity`,
+   `cr-skill-research-scoping`, and `cr-skill-evidence-provenance`.
 4. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
    for code-math variable mapping conventions and derivation file standards.
 5. If the plan task type is **Reproducibility**: also load `cr-skill-replication-standards`
@@ -39,6 +40,11 @@ You are a senior research engineer implementing a research plan created with
 6. If the plan task type is **Tables/Figures**: also load `cr-skill-publication-output`
    for regression table patterns, LaTeX table conventions, figure output standards,
    caption/note discipline, and output file management.
+7. If the plan task type is **Measurement/Classification**: also load
+  `cr-skill-measurement` and require production of:
+  `.cg-docs/research/measurement/weighting-sensitivity.yaml`,
+  `.cg-docs/research/measurement/cluster-validity.yaml`, and
+  `.cg-docs/research/vintages/<study-slug>-vintage-manifest.yaml`.
 
 ### Step 0.5: Consult Brain
 
@@ -81,6 +87,15 @@ Same as `/cg-work` — scan for test files covering each plan step.
 For each step, apply all `/cg-work` implementation rules PLUS the following
 research-specific enforcement:
 
+> **Lifecycle context.** These P0 gates are the **Execute** stage of the
+> responsible research lifecycle (`Scope → Evidence → Theory → Method → Execute →
+> Verify → Communicate → Maintain`; see `cr-skill-research-workflow`). Each gate
+> below enforces one earlier stage during execution: **Seed** guards
+> reproducibility (Maintain), **Evidence and Provenance** the Evidence stage,
+> **Measurement and Comparability** the Method stage, **Specification Logging**
+> the Verify stage, and the **Normative-Decision Gate** the Scope stage. No gate
+> behavior changes — this only names the stage each gate serves.
+
 #### P0: Seed Enforcement (active during work)
 
 Before executing any code that involves randomness, check for an explicit seed:
@@ -96,6 +111,39 @@ Before executing any code that involves randomness, check for an explicit seed:
 **Lockfile verification**: Before running estimation, confirm the environment lockfile is
 committed and current (`renv.lock` for R, `requirements.txt` / `pyproject.toml` / `uv.lock` for
 Python, `code/ado/` for Stata via `repado`). If absent or out-of-date, flag and halt.
+
+#### P0: Evidence and Provenance Enforcement (active during work)
+
+For steps that ingest sources or emit substantive cited claims:
+
+1. Ensure `.cg-docs/research/evidence/` exists or create it on demand.
+2. Maintain evidence artifacts:
+  - `.cg-docs/research/evidence/provenance-ledger.yaml`
+  - `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
+3. Enforce repo-local corpus by default. If external sources are used, require
+  explicit `origin: external-opt-in` and `external_flag: true`.
+4. Before emitting substantive claims, verify a corresponding matrix row exists
+  and is marked `status: verified` with resolvable source and locator.
+5. Never invent source metadata, quotes, DOIs, or locators. If unverifiable,
+  mark `unverified`/`abstained` and halt for correction.
+
+The original source document remains authoritative; converted text is an index.
+
+#### P0: Measurement And Comparability Enforcement (active during work)
+
+For Measurement/Classification tasks:
+
+1. Ensure `.cg-docs/research/measurement/` and `.cg-docs/research/vintages/`
+  exist or create them on demand.
+2. Produce/update required artifacts:
+  - `.cg-docs/research/measurement/weighting-sensitivity.yaml`
+  - `.cg-docs/research/measurement/cluster-validity.yaml`
+  - `.cg-docs/research/vintages/<study-slug>-vintage-manifest.yaml`
+3. Before asserting ranking or classification conclusions, verify those claims
+  are supported by artifact summaries.
+4. Block cross-vintage or cross-unit comparability claims unless coverage,
+  harmonization, and method-change attribution are documented.
+5. Treat undisclosed weighting for published rankings as blocking.
 
 #### P0: Specification Logging (active during work)
 
@@ -129,6 +177,31 @@ When the plan step is an Implementation task:
 4. Verify summation/integration limits match
 
 If a discrepancy is found: halt, document it in a comment, and resolve before proceeding.
+
+#### P0: Normative-Decision Gate (active during work)
+
+Before implementing each step, deterministically walk the bounded per-task-type
+value-laden decision-point taxonomy (from `cr-skill-research-scoping`). For each
+decision point touched by the step, check coverage in the per-study register:
+- `.cg-docs/research/normative-decisions/<study-slug>.md`
+
+Coverage is valid only if all hold:
+- same `study` slug
+- same decision category
+- `applies_to` includes the current plan step or output artifact
+- no contradiction with the proposed option
+
+If covered: cite the existing decision ID and proceed.
+
+If not covered: halt and re-escalate to the human for decision, then record a
+new entry (`ND-<study-slug>-NNN`) with `study`, `plan`, `applies_to`,
+`defensible_options`, `consequences`, `decided_by`, `decision`,
+`justification`, and `decided_on` before continuing.
+
+Never auto-default consequential normative choices.
+
+Graceful degradation: run this gate even if Phase-1 evidence spine or Phase-2
+measurement flags are absent.
 
 #### Testing
 

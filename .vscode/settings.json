@@ -16,5 +16,6 @@
     "chat.promptFilesLocations": {
         ".github/prompts": true,
         ".": true
-    }
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }

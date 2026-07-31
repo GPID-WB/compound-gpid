@@ -1,32 +1,29 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-07-30T23:59:00Z",
-  "workflow": "/cg-work",
+  "updatedAt": "2026-07-31T02:00:00Z",
+  "workflow": "/cr-work",
   "status": "completed",
-  "branch": "feat/compound-research-v2",
-  "plan": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
-  "executionReport": ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md",
-  "currentPhase": 8,
+  "branch": "compound-research",
+  "plan": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+  "executionReport": ".cg-docs/work-reports/2026-07-31-cr-method-pack-retrofit.md",
+  "currentPhase": 3,
   "evidenceStatus": [
-    {"id": "V2.1", "status": "passed", "artifact": ".github/copilot-instructions.md"},
-    {"id": "V2.2", "status": "passed", "artifact": ".github/instructions/r.instructions.md"},
-    {"id": "V2.3", "status": "passed", "artifact": ".github/prompts/cr-review.prompt.md"},
-    {"id": "V2.4", "status": "passed", "artifact": "tests/cr-prompts.Tests.ps1"},
-    {"id": "V2.5", "status": "passed", "artifact": "pwsh + Pester 4.10.1: cr-prompts (553/0), prompt-tools (1403/0)"},
-    {"id": "P3.fullsuite", "status": "passed", "artifact": "pwsh + Pester 4.10.1: Run-Tests.ps1 total passed 2349 failed 0"},
-    {"id": "P4.model-catalog", "status": "passed", "artifact": "model-assignments 185/0; CR agent assignments documented in model-catalog.json"},
-    {"id": "P4.fullsuite", "status": "passed", "artifact": "pwsh + Pester 4.10.1: Run-Tests.ps1 total passed 2352 failed 0"},
-    {"id": "P5.brain-active-state", "status": "passed", "artifact": "cr-prompts 557/0; cr-work and cr-review include Consult Brain; cr-work includes active-state handoff language"},
-    {"id": "P5.fullsuite", "status": "passed", "artifact": "pwsh + Pester 4.10.1: Run-Tests.ps1 total passed 2352 failed 0"},
-    {"id": "P6.generation", "status": "passed", "artifact": "cg_generate_targets.py regenerated claude-code/codex/opencode and included cr-* commands, agents, and skills"},
-    {"id": "P6.fullsuite", "status": "passed", "artifact": "pwsh + Pester 4.10.1: Run-Tests.ps1 total passed 2352 failed 0"},
-    {"id": "P7.cross-integration", "status": "passed", "artifact": "research-aware updates added to cg-reproducibility, cg-data-quality, cg-testing, cg-performance, and cg-work guidance for /cr-work"},
-    {"id": "P7.tests", "status": "passed", "artifact": "pwsh + Pester 4.10.1: Run-Tests.ps1 total passed 2352 failed 0; cr-prompts 557/0"},
-    {"id": "P7.25", "status": "passed", "artifact": "compound-gpid.md Current Focus updated after explicit user approval; last-reviewed set to 2026-07-30"}
+    {"id": "V1", "status": "passed", "artifact": ".github/skills/cr-skill-research-workflow/SKILL.md (8-stage lifecycle section)"},
+    {"id": "V2", "status": "passed", "artifact": ".github/skills/cr-skill-research-workflow/SKILL.md (Method Packs subsection)"},
+    {"id": "V3", "status": "passed", "artifact": ".github/prompts/cr-review.prompt.md + tests/cr-prompts.Tests.ps1 (additive framing; routing intact)"},
+    {"id": "V4", "status": "passed", "artifact": ".github/prompts/cr-work.prompt.md + .github/prompts/cr-brainstorm.prompt.md"},
+    {"id": "V5", "status": "passed", "artifact": ".github/copilot-instructions.md + docs/reference.md"},
+    {"id": "V6", "status": "passed", "artifact": "python3 scripts/cg_generate_targets.py --all (887 files) + parity.Tests.ps1 green"},
+    {"id": "V7", "status": "passed", "artifact": ". tests/Run-Tests.ps1 -> tests/last-run.json: 0 failures recorded; top-level counts reconciled via per-file totals"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-07-29-cr-module-migration-to-v1.md", "status": "completed"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md", "status": "completed"},
+    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md", "status": "completed"},
+    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md", "status": "completed"},
+    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md", "status": "completed"},
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-07-31-cr-method-pack-retrofit.md", "status": "closed"},
+    {"kind": "test-artifact", "path": "tests/last-run.json", "status": "passed"}
   ],
-  "nextCommand": "/cg-review"
+  "nextCommand": "/cr-review"
 }

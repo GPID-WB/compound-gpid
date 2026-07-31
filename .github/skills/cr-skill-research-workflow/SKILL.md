@@ -2,7 +2,7 @@
 name: cr-skill-research-workflow
 module: research
 description: "Overarching conventions for the compound-research workflow loop.
-  Covers research task taxonomy (8 types), Research Integrity Priority System
+  Covers research task taxonomy (10 types), Research Integrity Priority System
   (P0–P3), active P0 detection mechanisms, verification chain, .cg-docs/research/
   layout, reasoning-trail documentation, and PhD student scaffolding conventions.
   ALWAYS load for any /cr-* command."
@@ -17,7 +17,7 @@ task regardless of type.
 
 ## Research Task Taxonomy
 
-Classify every research request into one of these 8 types before beginning work.
+Classify every research request into one of these 10 types before beginning work.
 The task type determines which skills and agents are loaded.
 
 | Type | Description | Examples |
@@ -30,6 +30,84 @@ The task type determines which skills and agents are loaded.
 | **Writing** | Academic writing, results narration, abstract, literature review | Introduction section, results table narrative, referee response |
 | **Tables/Figures** | Producing publication-quality output | Regression tables, distribution plots, event-study graphs |
 | **Reproducibility** | Replication packages, environment setup, seed management | Archive for journal submission, Docker environment, repkit workflow |
+| **Measurement/Classification** | Composite indicators, thresholds, clustering, and classification validity with comparability controls | Multidimensional index ranking, poverty threshold classification, cross-country cluster typologies |
+| **Research Scoping** | Front-end framing and normative decision surfacing before plan lock-in | Framing alternatives, priors, success criteria, value-laden decision register |
+
+### Deterministic Normative-Decision Gate
+
+`/cr-brainstorm` and `/cr-work` must apply a bounded, per-task-type checklist
+of value-laden decision points and check each item against the per-study
+register before continuing. This is deterministic workflow logic, not model
+inference.
+
+Coverage rule for reuse of a decision ID:
+- Same `study` slug
+- Same decision category (e.g., threshold, weighting, framing)
+- `applies_to` includes the current memo/plan step/output path
+- No contradiction with the option now being used
+
+If coverage fails, escalate to a human and record a new decision ID.
+
+---
+
+## Responsible Research Lifecycle
+
+Every `/cr-*` task, regardless of type, runs inside a single eight-stage
+lifecycle. The stages are the *spine*; the task type and its method pack (see
+below) plug into it. The lifecycle makes the responsible-AI backbone — evidence,
+measurement integrity, and normative gates — **structural and uniform** across
+methods, rather than duplicated per method.
+
+```
+Scope → Evidence → Theory → Method → Execute → Verify → Communicate → Maintain
+```
+
+| Stage | Purpose | Responsible surface(s) |
+|-------|---------|------------------------|
+| **Scope** | Frame the question; surface value-laden decisions before lock-in | `cr-skill-research-scoping` + Normative-Decision Gate |
+| **Evidence** | Establish source authority and claim provenance | `cr-skill-evidence-provenance` + `@cr-provenance-audit` |
+| **Theory** | Derive the model / identification argument | `cr-skill-structural-econometrics` / `cr-skill-mathematical-derivation` |
+| **Method** | Select and configure the estimator | the **method pack** (structural / ML / measurement) |
+| **Execute** | Run code under active P0 gates | `/cr-work` P0 gates (seed, evidence, measurement, normative) |
+| **Verify** | Audit results against theory and diagnostics | `/cr-review` agents + `@cr-mathematical-verification` |
+| **Communicate** | Narrate and present results | `cr-skill-academic-writing` / `cr-skill-publication-output` |
+| **Maintain** | Preserve reproducibility and comparability over time | `cr-skill-replication-standards` + vintages |
+
+### Task types mapped onto lifecycle stages
+
+The ten task types are not stages — each enters the lifecycle at its primary
+stage and flows forward. Scope, Evidence, and Verify apply to **every** task.
+
+| Task type | Primary stage(s) |
+|-----------|------------------|
+| Research Scoping | Scope |
+| Theory/Modeling | Theory |
+| Specification Analysis | Theory → Method |
+| Measurement/Classification | Method (Measurement pack) |
+| ML/Prediction | Method (ML pack) |
+| Implementation | Method → Execute |
+| EDA | Evidence → Execute |
+| Tables/Figures | Communicate |
+| Writing | Communicate |
+| Reproducibility | Maintain |
+
+### Method Packs
+
+A **method pack** is a `Theory + Method + Verify` bundle that plugs into the
+shared lifecycle. Packs differ only in their theory/estimator/diagnostic
+surfaces; they **share the same Scope, Evidence, Normative, Verify, and
+Communicate stages** — the responsible backbone is never re-implemented per pack.
+
+| Pack | Theory / Method skill | Verify agent(s) |
+|------|-----------------------|-----------------|
+| **Structural** | `cr-skill-structural-econometrics` | `@cr-econometric-reasoning`, `@cr-identification-audit` |
+| **ML** | `cr-skill-ml-economics` | `@cr-ml-methodology` |
+| **Measurement** | `cr-skill-measurement` | `@cr-measurement-integrity` |
+
+This is **documentation cross-linking only**: packs name existing skills/agents
+by reference — no files move, no routing changes, and `/cr-review` dispatch
+(below) remains the single source of routing truth. Fuller pack framing (packs
+participating in dispatch) is deferred to a later phase.
 
 ---
 
@@ -49,6 +127,8 @@ fixed before any output is shared or published.
 | **Asymptotic assumption violations** | Check sample size against estimator requirements (MLE needs n >> p). Flag when n/p < 10 | Revisit estimator choice or document the limitation explicitly |
 | **Wrong SE clustering** | Check if clustering level matches the treatment variation level | Fix clustering level; document mismatch if intentional |
 | **Distributional assumption untested** | Model assumes distributional form (normal errors, log-normal wages) without an empirical test | Run the appropriate test; document if test is infeasible |
+| **Fabricated/unverifiable citation** | Source/locator/quote cannot be resolved in evidence artifacts | Replace with verifiable source or remove claim |
+| **Uncited substantive claim** | Empirical/methodological claim missing verified evidence row | Add verified evidence or withdraw claim |
 
 ### P1 — CRITICAL (must fix before results are shared)
 
@@ -139,12 +219,47 @@ When a causal identification strategy is claimed, check for the required diagnos
 
 ```
 .cg-docs/research/
+├── evidence/
+│   ├── provenance-ledger.yaml     # Source authority map + origin flags
+│   ├── claim-evidence-matrix.yaml # Claim verification matrix
+│   └── converted/                 # Converted source text for locator indexing
+├── measurement/
+│   ├── weighting-sensitivity.yaml # Sensitivity scenarios and rank stability summaries
+│   └── cluster-validity.yaml      # Cluster validity and stability summaries
+├── vintages/           # Vintage manifests with coverage/method change attribution
+├── scoping/            # Front-end scoping memos per study slug
+├── normative-decisions/# Per-study normative decision registers
 ├── derivations/        # LaTeX or Markdown derivations (.tex, .md)
 ├── specifications/     # Spec memos: what models were tested and why
 ├── results/
 │   └── manifest.json  # Auto-appended by /cr-work on every estimation run
 ├── manuscript/         # Working paper drafts, sections
 └── replication/        # Journal submission replication materials
+```
+
+Evidence corpus policy:
+- Default corpus is repo-local.
+- External sources are opt-in and must be explicitly flagged.
+- Original source files remain authoritative; converted text is an index.
+
+### Normative-Decision Entry Schema
+
+Per-study register path:
+- `.cg-docs/research/normative-decisions/<study-slug>.md`
+
+Entry template:
+```markdown
+## ND-<study-slug>-001 — <short name>
+- study: <study-slug>
+- plan: <plan-file-slug or "none">
+- applies_to: [<scoping-memo path>, <plan step/section>, <output path>]
+- choice: <the value-laden decision>
+- defensible_options: [<option A>, <option B>, ...]
+- consequences: <who/what is affected; expected ranking or threshold shifts>
+- decided_by: <human name/role>            # never "default"
+- decision: <chosen option>
+- justification: <why, in value terms>
+- decided_on: YYYY-MM-DD
 ```
 
 Created by `/cg-setup` when `modules:` includes `research`.

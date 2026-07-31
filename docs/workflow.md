@@ -309,6 +309,7 @@ The prompt scans its own output for:
 | **Standard** | All 8 standard agents | Normal implementation, prompt, or test changes without high-risk signals |
 | **Data-risk** | All 8 standard agents with `cg-data-quality` + `cg-reproducibility` emphasis | Statistical, survey, poverty, welfare, joins, aggregation, or reproducibility-sensitive changes |
 | **Architecture** | All 8 standard agents with `cg-architecture` + `cg-performance` emphasis | Architecture, dependency, module-boundary, performance, or large-refactor changes |
+| **Research** | All 8 standard agents + CR review agents | `modules: [research]` with research-task signals such as econometrics, identification, derivations, replication artifacts, or `/cr-*` workflow context |
 | **Full** | All 8 standard agents + `cg-learnings-researcher` + `cg-adversarial` | Explicit full request, security/release risk, or very high-risk changes |
 
 **Deterministic routing signals**:
@@ -319,6 +320,7 @@ The prompt scans its own output for:
 | Ordinary implementation, prompt, or test changes without high-risk signals | `standard` |
 | Pipeline/extract/load scripts, statistical functions (`fmean`, `fsum`, `fgini`, `svymean`, `reghdfe`, `lm`, etc.), summary tables, survey/poverty/welfare/weights/joins/aggregation, or reproducibility-sensitive changes | `data-risk` |
 | Architecture, dependencies, module boundaries, performance, memory, API contracts, or large refactors | `architecture` |
+| `modules: [research]` with research-task signals (econometrics, identification, derivations, replication artifacts, or `/cr-*` context) | `research` |
 | Authentication, secrets, credentials, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `full` |
 | ≥ 50 non-test lines changed with otherwise low risk | raises `light` → `standard` |
 | ≥ 200 non-test lines changed without higher-risk trigger | recommends `full` (does not auto-apply unless explicitly requested) |
@@ -337,6 +339,7 @@ Duplicate agents are dispatched once.
 | `/cg-review standard` | Force standard review; high-risk signals are still reported |
 | `/cg-review data-risk` | Force data-risk routing |
 | `/cg-review architecture` | Force architecture routing |
+| `/cg-review research` | Force research routing |
 | `/cg-review full` | Force full routing (10 agents, adversarial + learnings) |
 | `/cg-review thorough` | Backward-compatible alias for `full` |
 | `/cg-review mode:autofix` | Apply safe mechanical fixes automatically after collecting findings |

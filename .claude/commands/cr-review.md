@@ -40,9 +40,10 @@ relevant findings to dispatch and prioritization.
 
 ### Step 1: Dispatch Shared Code-Quality Agents
 
-Always dispatch all shared agents regardless of task type or review depth.
-If any agent is not available (returns an error or is not registered), note
-in the review output: '@cg-X not available — skip' and continue:
+Dispatch the shared `standard` `cg-*` set from
+`.claude/shared/review-routing.contract.md` first, then layer task-specific CR
+agents. If any agent is not available (returns an error or is not registered),
+note in the review output: '@cg-X not available — skip' and continue:
 
 1. **@cg-code-quality** — style, naming, DRY violations
 2. **@cg-testing** — test coverage, edge cases, test quality
@@ -50,6 +51,11 @@ in the review output: '@cg-X not available — skip' and continue:
 4. **@cg-data-quality** — input validation, NA handling, type safety
 5. **@cg-version-control** — commit hygiene, .gitignore, sensitive data
 6. **@cg-documentation** — roxygen2/docstrings, inline comments, README
+7. **@cg-performance** — vectorization, complexity, memory, and scaling risks
+8. **@cg-architecture** — modularity, dependency boundaries, and API seams
+
+This keeps `/cr-review` aligned with the canonical shared routing contract and
+avoids maintaining a divergent shared-agent policy surface.
 
 For each agent: "Review files [list]. Return findings using the priority format
 `[P0.N]`, `[P1.N]`, `[P2.N]`, `[P3.N]`. If no issues, return 'no issues found'."
@@ -71,6 +77,9 @@ and continue.
 - **@cr-mathematical-verification** — symbolic checks against derivation files
   (dispatch only if `.cg-docs/research/derivations/` contains `.tex` or `.md` files;
   if absent, skip and note: '@cr-mathematical-verification skipped — no derivation files found')
+- **@cr-provenance-audit** — source and citation provenance checks
+  (dispatch when `.cg-docs/research/evidence/` exists, or when task type is Writing
+  or Tables/Figures; otherwise skip and note: '@cr-provenance-audit skipped — no evidence artifacts found')
 
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
 - **@cr-identification-audit** — identification strategy and diagnostics
@@ -80,6 +89,25 @@ and continue.
 - **@cr-ml-methodology** — ML methodology and evaluation
 - **@cr-academic-writing** — academic prose and argument structure
 - **@cr-replication-package** — replication package completeness
+- **@cr-measurement-integrity** — measurement/classification integrity and comparability audit
+
+### Lifecycle & Method Packs (orientation)
+
+This review is the **Verify** stage of the responsible research lifecycle
+(`Scope → Evidence → Theory → Method → Execute → Verify → Communicate →
+Maintain`; see `cr-skill-research-workflow`). The task-type dispatch table in
+Step 3 is the single source of routing truth — this subsection only groups those
+task types under their **method pack** for orientation and changes no routing.
+
+- **Structural pack** — Theory/Modeling, Specification Analysis →
+  `@cr-econometric-reasoning`, `@cr-identification-audit`
+- **ML pack** — ML/Prediction → `@cr-ml-methodology`
+- **Measurement pack** — Measurement/Classification → `@cr-measurement-integrity`
+
+The **unconditional** stages apply to every pack: Scope and Evidence are audited
+by `@cr-provenance-audit` and the normative gate; Verify always dispatches
+`@cr-research-integrity` (and `@cr-mathematical-verification` when derivation
+files exist). Routing for each task type remains exactly as specified below.
 
 ### Step 3: Task-Type-Specific Dispatch
 
@@ -90,11 +118,13 @@ Based on the task type identified in the plan:
 | Theory/Modeling | @cr-identification-audit, @cr-econometric-reasoning, @cg-adversarial |
 | Specification Analysis | @cr-specification-analysis |
 | ML/Prediction | @cr-ml-methodology, @cr-specification-analysis, @cg-performance |
-| Writing | @cr-academic-writing |
+| Writing | @cr-academic-writing, @cr-provenance-audit |
 | Reproducibility | @cr-replication-package |
+| Measurement/Classification | @cr-measurement-integrity |
 | Tables/Figures | @cr-publication-output, @cg-documentation *(dispatch @cg-documentation only if the file defines exported functions)* |
 | EDA | @cg-performance, @cg-data-quality *(No CR agent — @cr-eda-reviewer planned for future phase)* |
 | Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)* |
+| Research Scoping | @cr-specification-analysis, @cr-provenance-audit |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
@@ -112,6 +142,12 @@ plan task type.
 context-scan all reviewed files for `feols`, `ivreg`, `ivreghdfe`, `rdrobust`, `att_gt`,
 `did_imputation`, or DiD-related patterns. If any are found, always dispatch
 `@cr-identification-audit` — even when a plan exists with a non-Theory/Modeling task type.
+
+**Measurement dispatch scope (always applies)**: Dispatch `@cr-measurement-integrity`
+when task type is `Measurement/Classification`, or when reviewed/changed files
+intersect `.cg-docs/research/measurement/` or `.cg-docs/research/vintages/`.
+Do not dispatch based only on repository-wide directory presence. If skipped,
+note: '@cr-measurement-integrity skipped — no measurement artifacts in scope'.
 
 ### Step 4: Merge and Prioritize Findings
 

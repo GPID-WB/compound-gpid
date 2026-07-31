@@ -10,7 +10,7 @@ Canonical routing contract for `/cg-review` and `/cg-work review:*`.
 | `standard` | `@cg-code-quality`, `@cg-testing`, `@cg-documentation`, `@cg-version-control`, `@cg-reproducibility`, `@cg-performance`, `@cg-architecture`, `@cg-data-quality` |
 | `data-risk` | all `standard` agents, with mandatory emphasis on `@cg-data-quality` and `@cg-reproducibility` |
 | `architecture` | all `standard` agents, with mandatory emphasis on `@cg-architecture` and `@cg-performance` |
-| `research` | all `standard` agents plus `@cr-research-integrity`, `@cr-mathematical-verification`, `@cr-identification-audit`, `@cr-econometric-reasoning`, `@cr-ml-methodology`, `@cr-specification-analysis`, `@cr-academic-writing`, `@cr-publication-output`, and `@cr-replication-package` |
+| `research` | all `standard` agents plus `@cr-research-integrity`, `@cr-provenance-audit`, `@cr-mathematical-verification`, `@cr-identification-audit`, `@cr-econometric-reasoning`, `@cr-ml-methodology`, `@cr-specification-analysis`, `@cr-academic-writing`, `@cr-publication-output`, `@cr-replication-package`, and `@cr-measurement-integrity` |
 | `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial` |
 
 ## Risk Classes

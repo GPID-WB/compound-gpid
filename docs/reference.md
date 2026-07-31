@@ -144,6 +144,21 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 ---
 
+## CR Commands
+
+These prompts are available when the research module is enabled for the
+project.
+
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cr-brainstorm` | GPT-5.4 | Clarify fuzzy research requirements, classify the CR task type, and surface normative decisions for human approval. |
+| `/cr-plan` | GPT-5.4 | Create a research implementation plan with CR task typing, evidence requirements, and verification gates. |
+| `/cr-work` | GPT-5.3-Codex | Execute a CR plan step by step with research-integrity gates and active-state handoff support. |
+| `/cr-review` | GPT-5.4 | Run research-mode review routing across engineering and CR-specific review agents. |
+| `/cr-compound` | GPT-5.3-Codex | Capture reusable CR learnings after verified research workflow work. |
+
+---
+
 ## Copilot Chat Prompts
 
 <!-- cg:auto:commands -->
@@ -157,7 +172,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-plan-review` | Copilot model picker | Review implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. |
 | `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Execute a plan against its completion contract, record evidence, and update roadmap state. |
 | `/cg-fixbug` | GPT-5.3-Codex | Structured bug-fix workflow: intake, expected-behavior source at Step 1.5, reproduce, test-gap classification at Step 2.5, diagnose, fix with red-green proof, verify, document. |
-| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | GPT-5.4 | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
+| `/cg-review [light\|standard\|data-risk\|architecture\|research\|full] [--report-only\|mode:autofix\|mode:verify]` | GPT-5.4 | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
 | `/cg-fix-triage` | GPT-5.3-Codex | Apply review findings from saved reports by priority or finding ID. |
 | `/cg-fix-problems` | GPT-5.3-Codex | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
 | `/cg-compound` | GPT-5.4 | Capture a verified solved problem as reusable knowledge in `.cg-docs/solutions/`. Offers `.github/` instruction or skill update suggestions; the user applies those changes manually. |
@@ -335,12 +350,43 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-performance` | Vectorization, memory, algorithm complexity | GPT-5.4 |
 | `cg-architecture` | Project structure, modularity, dependencies | GPT-5.4 |
 | `cg-data-quality` | Input validation, types, missing values | GPT-5.4 |
+| `cr-academic-writing` | Reviews academic writing quality in economics research: argument flow, notation, section structure, and citation completeness | GPT-5.4 |
+| `cr-econometric-reasoning` | Reviews structural econometric logic: theory consistency, functional forms, and estimation strategy | GPT-5.4 |
+| `cr-identification-audit` | Audits identification strategies against required empirical diagnostics | GPT-5.4 |
+| `cr-mathematical-verification` | Symbolically verifies derivations against implementation variables and formulas | GPT-5.4 |
+| `cr-ml-methodology` | Audits ML methodology, validation design, leakage, and economic interpretation | GPT-5.4 |
+| `cr-measurement-integrity` | Audits measurement/classification integrity: weighting disclosure, rank stability, cluster validity, and comparability artifacts | GPT-5.4 |
+| `cr-publication-output` | Reviews publication-quality tables and figures for correctness and submission readiness | GPT-5.4 |
+| `cr-provenance-audit` | Verifies evidence provenance, citation locators, and claim-to-source traceability for CR outputs | GPT-5.4 |
+| `cr-replication-package` | Audits replication-package completeness: archive structure, dependency locks, seed registry, documentation, and path portability | GPT-5.4 |
+| `cr-research-integrity` | Detects silent research correctness failures such as code-math mismatch and undocumented specification searching | GPT-5.4 |
+| `cr-specification-analysis` | Audits theory-data dialogue and specification choice documentation | GPT-5.4 |
 | `cg-learnings-researcher` | Cross-reference past solutions (`full` / `thorough` alias only) | Claude Haiku 4.5 |
 | `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) | GPT-5.4 |
 
 > Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
 > ℹ️ For model selection guidance and escalation criteria, see [Model Guide](model-guide.md).
+
+---
+
+## Responsible Research Lifecycle
+
+All `/cr-*` tasks run inside a single eight-stage lifecycle spine:
+`Scope → Evidence → Theory → Method → Execute → Verify → Communicate → Maintain`
+(defined in `cr-skill-research-workflow`). Task types enter at their primary
+stage; Scope, Evidence, and Verify apply to every task. Method-specific flows are
+expressed as **method packs** under this spine, sharing its
+Scope/Evidence/Normative/Verify/Communicate stages:
+
+| Pack | Theory / Method skill | Verify agent(s) |
+|------|-----------------------|-----------------|
+| Structural | `cr-skill-structural-econometrics` | `cr-econometric-reasoning`, `cr-identification-audit` |
+| ML | `cr-skill-ml-economics` | `cr-ml-methodology` |
+| Measurement | `cr-skill-measurement` | `cr-measurement-integrity` |
+
+`/cr-review` dispatch is the single source of routing truth; the lifecycle and
+method packs are an additive orientation layer over it (no routing change).
 
 ### Review Routing Rules
 

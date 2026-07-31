@@ -158,10 +158,24 @@
       "executable": false
     },
     {
+      "path": ".claude/agents/cr-measurement-integrity.md",
+      "source": ".github/agents/cr-measurement-integrity.agent.md",
+      "kind": "agent",
+      "sha256": "c5f89a6c7f2acf4286928a945fd29488c4ed41a5b990e9eb38c88676ddcbd337",
+      "executable": false
+    },
+    {
       "path": ".claude/agents/cr-ml-methodology.md",
       "source": ".github/agents/cr-ml-methodology.agent.md",
       "kind": "agent",
       "sha256": "aa4a1a920d33fb09e410fc83b38873d5d9d02f280db833894465d7de9a3ed777",
+      "executable": false
+    },
+    {
+      "path": ".claude/agents/cr-provenance-audit.md",
+      "source": ".github/agents/cr-provenance-audit.agent.md",
+      "kind": "agent",
+      "sha256": "84d072265d6efb9b3c32cd096fb21df9f84c3a1625212f3bbdf1ec2afa391a4e",
       "executable": false
     },
     {
@@ -182,7 +196,7 @@
       "path": ".claude/agents/cr-research-integrity.md",
       "source": ".github/agents/cr-research-integrity.agent.md",
       "kind": "agent",
-      "sha256": "1a4b72d046f8433b22053311bdd7a78561c1b4e677c6624d4132d99cee1248ba",
+      "sha256": "a0d06193b9f48fb585637d7dcb49504a5af9a46a4553e7cd86f9ca9a2f0f91b2",
       "executable": false
     },
     {
@@ -357,14 +371,14 @@
       "path": ".claude/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "3d9783c70e17c46be9610931a883e2da8fce07fe60a2c9a4525fb950444b5d7a",
+      "sha256": "9bac487f141c8e5cafea184d51f9f29ed5a633e02fba8fb3fcf7a539a468993d",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "c5dc202505fe7fb95b2780bf06520a40cad1a034e68e5d92f5e922cb8162cfb1",
+      "sha256": "21f7ee97cbd1a3c59c46037ff8e37003a35e2b52c80ddf1e1bcee0ec397f1f09",
       "executable": false
     },
     {
@@ -378,21 +392,21 @@
       "path": ".claude/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "1dc1142a1682121a3f9fcae5584997648791920893ea359b1f11d653fe2751f5",
+      "sha256": "2a9fff03a5f8f71accb9c4d8dde3c0d9eddbe9e34f3edd8799d7fc4bc7c5308a",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "402bd013816c1e3b1c04a9f6678a85de8b87fa5e01a584dce3d424b28c850101",
+      "sha256": "7333b78c4940d61da407c1bc2ccca7c6ca589658e9d491969f6154dbf59c9ad3",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "da77eba23ad625eb9bd566fc41b72a737f00df0f88a0de85b40009113ca01f4c",
+      "sha256": "1b292ab3bcb581731b799c5dcf1345af3e36244a728240d43b90e7f0692a1531",
       "executable": false
     },
     {
@@ -483,7 +497,7 @@
       "path": ".claude/shared/model-catalog.json",
       "source": ".github/shared/model-catalog.json",
       "kind": "shared",
-      "sha256": "6d356fc90e0d54bb1ba62012c655f51f16c81eb60a36612ab6217c1054032217",
+      "sha256": "9b536e82656808b91d1453fba98b12660469c57e993136a58f5ab04dd446abc2",
       "executable": false
     },
     {
@@ -497,7 +511,7 @@
       "path": ".claude/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "473e022e6cea9d6b1e1c98dd5f36e462a83dcc044e548573845a77596dc6eaec",
+      "sha256": "316c15c5f017fb9197c7557be4838508f0ac32f95418916363096d03510c2769",
       "executable": false
     },
     {
@@ -1894,6 +1908,13 @@
       "executable": false
     },
     {
+      "path": ".claude/skills/cr-skill-evidence-provenance/SKILL.md",
+      "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
+      "kind": "skill",
+      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "executable": false
+    },
+    {
       "path": ".claude/skills/cr-skill-identification-strategies/SKILL.md",
       "source": ".github/skills/cr-skill-identification-strategies/SKILL.md",
       "kind": "skill",
@@ -1905,6 +1926,13 @@
       "source": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
       "kind": "skill",
       "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-measurement/SKILL.md",
+      "source": ".github/skills/cr-skill-measurement/SKILL.md",
+      "kind": "skill",
+      "sha256": "5ba3928b963d4f57cdd95005c926a07875434557db84a391e848559a4a5611d0",
       "executable": false
     },
     {
@@ -1939,14 +1967,21 @@
       "path": ".claude/skills/cr-skill-research-integrity/SKILL.md",
       "source": ".github/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "efe7ab521fa9dccd3d5a760f3d1c792216210ddfb3809ff7970e2fd45183712b",
+      "sha256": "25d0b92ad3648b12623144ad13a82a3f66ed6e7a5b9c6f1ed1d9028c0589c9b5",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-research-scoping/SKILL.md",
+      "source": ".github/skills/cr-skill-research-scoping/SKILL.md",
+      "kind": "skill",
+      "sha256": "ab18f52d19559c504e0624f245ece8ae7e513df9fcfd20f9db9db6a044add79c",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "e74f84e23875980f49473dced6e555bf51fb6bee707bddc24e7c5aab7eb1c7c5",
+      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
       "executable": false
     },
     {

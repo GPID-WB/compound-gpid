@@ -179,7 +179,7 @@ the core engineering workflow.
 | Run research + engineering review | `/cr-review` |
 | Capture reusable research lesson | `/cr-compound` |
 
-### Research Task Taxonomy (8 types)
+### Research Task Taxonomy (10 types)
 
 - `Theory/Modeling`
 - `Specification Analysis`
@@ -189,11 +189,31 @@ the core engineering workflow.
 - `Writing`
 - `Tables/Figures`
 - `Reproducibility`
+- `Measurement/Classification`
+- `Research Scoping`
+
+### Responsible Research Lifecycle
+
+All `/cr-*` tasks run inside one eight-stage lifecycle spine:
+`Scope → Evidence → Theory → Method → Execute → Verify → Communicate → Maintain`.
+Task types enter at their primary stage; Scope, Evidence, and Verify apply to
+every task. Method-specific flows are **method packs** under this spine:
+
+- **Structural pack** — `cr-skill-structural-econometrics` + `@cr-econometric-reasoning`, `@cr-identification-audit`
+- **ML pack** — `cr-skill-ml-economics` + `@cr-ml-methodology`
+- **Measurement pack** — `cr-skill-measurement` + `@cr-measurement-integrity`
+
+Packs share the Scope/Evidence/Normative/Verify/Communicate stages — the
+responsible backbone is structural, not duplicated per method. `/cr-review`
+dispatch remains the single source of routing truth; the lifecycle is an
+additive orientation layer. See `cr-skill-research-workflow` for the full mapping.
 
 ### CR Skills
 
 - `cr-skill-research-workflow`: task taxonomy, integrity protocol, workflow conventions
 - `cr-skill-research-integrity`: P0 silent research error catalog and remediation
+- `cr-skill-research-scoping`: scoping memos, bounded decision points, and normative-choice surfacing for policy-relevant research
+- `cr-skill-evidence-provenance`: claim-evidence matrix, provenance ledger, repo-local corpus default, anti-hallucination controls
 - `cr-skill-structural-econometrics`: structural modeling and estimation logic
 - `cr-skill-mathematical-derivation`: derivation quality and notation discipline
 - `cr-skill-symbolic-verification`: derivation-code consistency checks
@@ -204,10 +224,12 @@ the core engineering workflow.
 - `cr-skill-academic-writing`: paper-writing conventions
 - `cr-skill-publication-output`: publication-quality tables and figures (used by `@cr-publication-output`)
 - `cr-skill-replication-standards`: replication package standards
+- `cr-skill-measurement`: composite indicator, classification, clustering, and comparability methodology
 
 ### CR Agents
 
 - `cr-research-integrity`
+- `cr-provenance-audit`
 - `cr-mathematical-verification`
 - `cr-identification-audit`
 - `cr-econometric-reasoning`
@@ -216,12 +238,15 @@ the core engineering workflow.
 - `cr-academic-writing`
 - `cr-publication-output`
 - `cr-replication-package`
+- `cr-measurement-integrity`
 
 ### Research Integrity Priority
 
 For research tasks, silent correctness failures (code-math mismatch,
 identification theater, unseeded randomness in stochastic estimation,
-undocumented specification searching) are treated as **P0** and block any
-results release until resolved.
+undocumented specification searching, normative-choice smuggling without explicit
+human approval, fabricated/unverifiable citation, uncited substantive claim)
+are treated as **P0** and block any results release
+until resolved.
 
 <!-- Pester Safety Rules appear at the top of this file -->

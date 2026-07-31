@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Presentation of Compound GPID before and after the Compound Research module, with proposed next steps.">
+    <meta name="theme-color" content="#101c29">
+    <title>Compound GPID | CR Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #101c29;
+        --ink-soft: #294052;
+        --paper: #f5f3eb;
+        --paper-deep: #e8e4d8;
+        --card: #fffcf4;
+        --card-strong: #fbf6ea;
+        --lime: #c9ee5a;
+        --lime-deep: #8ca928;
+        --coral: #a94735;
+        --sky: #dfeffc;
+        --line: #cad0c8;
+        --muted: #5c6870;
+        --shadow: 0 18px 50px rgba(16, 28, 41, .12);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        background:
+          radial-gradient(circle at top right, rgba(201, 238, 90, .18), transparent 28%),
+          radial-gradient(circle at left 18%, rgba(169, 71, 53, .10), transparent 24%),
+          var(--paper);
+        color: var(--ink);
+        font: 400 17px/1.7 Manrope, sans-serif;
+      }
+
+      a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+      code { font-family: "DM Mono", monospace; }
+
+      .page {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 28px 28px 72px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 0 20px;
+        background: linear-gradient(to bottom, rgba(245,243,235,.96), rgba(245,243,235,.88));
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(202, 208, 200, .8);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font: 700 20px/1 Fraunces, serif;
+        letter-spacing: -.04em;
+      }
+
+      .brand-mark {
+        display: inline-flex;
+        gap: 3px;
+        align-items: end;
+        width: 25px;
+        height: 22px;
+      }
+
+      .brand-mark i { display: block; width: 6px; border-radius: 2px; }
+      .brand-mark i:nth-child(1) { height: 9px; background: var(--ink); }
+      .brand-mark i:nth-child(2) { height: 16px; background: var(--lime-deep); }
+      .brand-mark i:nth-child(3) { height: 22px; background: var(--coral); }
+
+      .topbar-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .topbar-links a {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        background: rgba(255, 252, 244, .86);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 999px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+        gap: 34px;
+        align-items: stretch;
+        padding: 48px 0 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        color: var(--coral);
+        text-transform: uppercase;
+        letter-spacing: .13em;
+        font: 500 11px/1.2 "DM Mono", monospace;
+        margin-bottom: 18px;
+      }
+
+      h1, h2, h3 {
+        font-family: Fraunces, serif;
+        letter-spacing: -.045em;
+        line-height: 1.05;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(46px, 7vw, 86px);
+        max-width: 720px;
+      }
+
+      h1 em { color: var(--coral); font-style: normal; }
+
+      .hero-copy {
+        max-width: 720px;
+        margin: 24px 0 0;
+        color: var(--ink-soft);
+        font-size: 19px;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .hero-meta span {
+        padding: 9px 12px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .hero-card {
+        position: relative;
+        overflow: hidden;
+        padding: 26px;
+        background: var(--ink);
+        color: #f4f7ef;
+        box-shadow: var(--shadow);
+        min-height: 100%;
+      }
+
+      .hero-card::after {
+        content: "";
+        position: absolute;
+        right: -56px;
+        bottom: -56px;
+        width: 184px;
+        height: 184px;
+        border-radius: 50%;
+        background: var(--coral);
+        opacity: .82;
+      }
+
+      .hero-card > * { position: relative; z-index: 1; }
+
+      .hero-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: #b7c6bb;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        font: 10px/1 "DM Mono", monospace;
+      }
+
+      .hero-card h2 {
+        margin-top: 18px;
+        font-size: 32px;
+        color: #fff;
+      }
+
+      .hero-card p {
+        margin: 12px 0 0;
+        color: #d8e2db;
+      }
+
+      .workflow-chain {
+        list-style: none;
+        margin: 22px 0 0;
+        padding: 0;
+      }
+
+      .workflow-chain li {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 12px 0;
+        border-top: 1px solid rgba(235,242,235,.17);
+      }
+
+      .workflow-chain b {
+        color: var(--lime);
+        font: 11px "DM Mono", monospace;
+      }
+
+      .workflow-chain span { font-weight: 700; }
+      .workflow-chain code { color: #ccd8cd; font-size: 11px; }
+
+      .section {
+        margin-top: 48px;
+        padding: 36px;
+        background: rgba(255, 252, 244, .84);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: end;
+        margin-bottom: 26px;
+      }
+
+      .section-head p {
+        margin: 14px 0 0;
+        max-width: 760px;
+        color: var(--ink-soft);
+      }
+
+      .section-kicker {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        font: 11px "DM Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        padding: 22px;
+        background: var(--card);
+        border: 1px solid var(--line);
+      }
+
+      .card strong,
+      .metric-card strong,
+      .step-card strong {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--ink);
+        font-size: 18px;
+      }
+
+      .card p,
+      .metric-card p,
+      .step-card p,
+      .step-card li,
+      .timeline-card li,
+      .next-card li {
+        margin: 0;
+        color: var(--ink-soft);
+      }
+
+      .loop-strip {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .step-card {
+        padding: 18px;
+        background: var(--card-strong);
+        border-top: 4px solid var(--lime-deep);
+      }
+
+      .step-card code {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 3px 6px;
+        background: var(--paper-deep);
+        font-size: 11px;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .timeline-card {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px 20px;
+        background: var(--card);
+        border-left: 4px solid var(--coral);
+      }
+
+      .timeline-card .phase {
+        color: var(--coral);
+        font: 700 12px/1.2 "DM Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+      }
+
+      .timeline-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 21px;
+        color: var(--ink);
+      }
+
+      .timeline-card ul,
+      .next-card ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .metric-card {
+        padding: 18px;
+        background: linear-gradient(180deg, var(--card), #fffdf8);
+        border: 1px solid var(--line);
+      }
+
+      .metric-card .value {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--coral);
+        font: 700 clamp(28px, 3vw, 40px)/1 Fraunces, serif;
+      }
+
+      .metric-card small {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font: 11px "DM Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+      }
+
+      .callout {
+        margin-top: 22px;
+        padding: 18px 20px;
+        background: var(--sky);
+        border-left: 5px solid var(--coral);
+      }
+
+      .callout strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 18px;
+      }
+
+      .next-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .next-card {
+        padding: 20px;
+        background: var(--card);
+        border: 1px solid var(--line);
+      }
+
+      .next-card .label {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--coral);
+        font: 700 11px "DM Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+      }
+
+      .footer-note {
+        margin-top: 34px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 1080px) {
+        .hero,
+        .section-head,
+        .grid-3,
+        .grid-2,
+        .metrics,
+        .next-grid,
+        .loop-strip {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .hero { grid-template-columns: 1fr; }
+        .section-head { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 760px) {
+        .page { padding: 18px 18px 54px; }
+        .topbar { position: static; }
+        .topbar-links { display: none; }
+        .grid-3,
+        .grid-2,
+        .metrics,
+        .next-grid,
+        .loop-strip {
+          grid-template-columns: 1fr;
+        }
+        .section { padding: 24px; }
+        .timeline-card { grid-template-columns: 1fr; }
+        .workflow-chain li { grid-template-columns: 26px 1fr; }
+        .workflow-chain code { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>Compound <b>GPID</b> / CR</span>
+        </div>
+        <nav class="topbar-links" aria-label="Presentation sections">
+          <a href="#before">Before CR</a>
+          <a href="#additions">CR additions</a>
+          <a href="#next">Next steps</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <span class="eyebrow">Reader-friendly briefing</span>
+          <h1>How Compound GPID evolved from a <em>core engineering workflow</em> into a research-aware system.</h1>
+          <p class="hero-copy">This presentation gives a fast overview of the original CG approach, shows what the Compound Research module adds, and closes with pragmatic next steps to make CR fully mature, easier to adopt, and safer to operate.</p>
+          <div class="hero-meta">
+            <span>Original CG loop: setup to compound</span>
+            <span>CR migration target: v1.0</span>
+            <span>Audience: plugin users, maintainers, reviewers</span>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Compound GPID summary">
+          <div class="hero-card-header">
+            <span>Quick summary</span>
+            <span>2026-07-30</span>
+          </div>
+          <h2>CG started as a disciplined AI workflow for engineering and data work.</h2>
+          <p>CR extends that system so economics and research tasks get their own prompts, agents, skills, routing, and review logic instead of being squeezed into the generic coding path.</p>
+          <ol class="workflow-chain">
+            <li><b>01</b><span>Core CG loop</span><code>brainstorm → plan → work → review → compound</code></li>
+            <li><b>02</b><span>CR module added</span><code>research prompts + review agents + skills</code></li>
+            <li><b>03</b><span>Integration challenge</span><code>align contracts, routing, models, generation</code></li>
+            <li><b>04</b><span>Current outcome</span><code>research-aware workflow on v1.0 foundation</code></li>
+          </ol>
+        </aside>
+      </section>
+
+      <section class="section" id="before">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">A. Before CR</span>
+            <h2>The original CG approach</h2>
+            <p>Before the research module, Compound GPID was already a structured operating model for responsible AI-assisted development. It emphasized explicit workflow stages, verification, reusable documentation, and institutional memory.</p>
+          </div>
+          <div class="section-kicker">Pre-CR baseline</div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <strong>1. A fixed workflow loop</strong>
+            <p>Users moved through a repeatable sequence: setup, brainstorm, plan, work, review, fix-triage, and compound. The goal was not “chat until something works,” but “follow a visible process with checkpoints.”</p>
+          </article>
+          <article class="card">
+            <strong>2. Verification before trust</strong>
+            <p>CG was designed around tests, review routing, execution reports, and captured evidence. The system treated verification as a first-class output, not an optional cleanup step.</p>
+          </article>
+          <article class="card">
+            <strong>3. Knowledge compounding</strong>
+            <p>Each solved problem could be turned into a reusable artifact in <code>.cg-docs/</code>, so hard-won lessons became part of the system instead of disappearing into one-off chat history.</p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>What CG was especially good at</strong>
+          It handled engineering and data-science workflow discipline well: planning, implementation, general code review, test coverage, roadmap integration, and cross-platform adapter generation.
+        </div>
+
+        <div class="loop-strip" aria-label="Core workflow commands">
+          <article class="step-card">
+            <strong>Understand</strong>
+            <p>Clarify the task and frame alternatives before implementation.</p>
+            <code>/cg-brainstorm</code>
+          </article>
+          <article class="step-card">
+            <strong>Plan</strong>
+            <p>Create explicit steps, boundaries, tests, and evidence surfaces.</p>
+            <code>/cg-plan</code>
+          </article>
+          <article class="step-card">
+            <strong>Deliver</strong>
+            <p>Implement work against a completion contract, not against vague intent.</p>
+            <code>/cg-work</code>
+          </article>
+          <article class="step-card">
+            <strong>Assure</strong>
+            <p>Dispatch specialized reviewers based on risk and scope.</p>
+            <code>/cg-review</code>
+          </article>
+          <article class="step-card">
+            <strong>Resolve</strong>
+            <p>Apply findings systematically instead of ad hoc patching.</p>
+            <code>/cg-fix-triage</code>
+          </article>
+          <article class="step-card">
+            <strong>Remember</strong>
+            <p>Capture durable lessons so the team improves over time.</p>
+            <code>/cg-compound</code>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="gap">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Why CR was needed</span>
+            <h2>The gap in the original model</h2>
+            <p>The core CG workflow was strong, but economics and research tasks needed deeper domain support. Research work is not just “more code.” It has its own failure modes, vocabulary, validation surfaces, and review needs.</p>
+          </div>
+          <div class="section-kicker">Problem statement</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="card">
+            <strong>Research-specific correctness risks</strong>
+            <p>Generic engineering review is not enough for identification logic, derivation-code consistency, specification searching, replication requirements, survey weights, or publication output standards.</p>
+          </article>
+          <article class="card">
+            <strong>Research needed first-class routing</strong>
+            <p>Without dedicated prompts and agents, research tasks either fell through the generic CG path or relied on maintainers remembering to bolt on extra checks manually.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="additions">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">B. CR additions</span>
+            <h2>What the Compound Research module adds</h2>
+            <p>The CR module extends CG with a parallel research workflow: dedicated prompts, research review agents, domain-specific skills, routing logic, and research-aware integration with the v1.0 platform.</p>
+          </div>
+          <div class="section-kicker">Research-aware layer</div>
+        </div>
+
+        <div class="metrics">
+          <article class="metric-card">
+            <span class="value">5</span>
+            <strong>CR prompts</strong>
+            <p>Research-specific flows for brainstorm, plan, work, review, and compound.</p>
+            <small>/cr-*</small>
+          </article>
+          <article class="metric-card">
+            <span class="value">9</span>
+            <strong>CR review agents</strong>
+            <p>Dedicated agents for integrity, identification, econometrics, writing, publication output, and replication.</p>
+            <small>research review surface</small>
+          </article>
+          <article class="metric-card">
+            <span class="value">12</span>
+            <strong>CR skills</strong>
+            <p>Reusable domain knowledge for economics research methods and standards.</p>
+            <small>task-specific guidance</small>
+          </article>
+          <article class="metric-card">
+            <span class="value">3</span>
+            <strong>New integration layers</strong>
+            <p>Routing, model governance, and generated cross-agent targets were all extended for CR.</p>
+            <small>shared platform glue</small>
+          </article>
+        </div>
+
+        <div class="timeline" style="margin-top: 24px;">
+          <article class="timeline-card">
+            <div class="phase">Prompts</div>
+            <div>
+              <strong>Research-native entry points</strong>
+              <ul>
+                <li><code>/cr-brainstorm</code> for research requirement clarification</li>
+                <li><code>/cr-plan</code> for research implementation planning</li>
+                <li><code>/cr-work</code> for research execution with active-state handoff</li>
+                <li><code>/cr-review</code> for research review orchestration</li>
+                <li><code>/cr-compound</code> for research lesson capture</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="timeline-card">
+            <div class="phase">Agents</div>
+            <div>
+              <strong>Research-specific review capability</strong>
+              <ul>
+                <li>Integrity checks for silent research failures</li>
+                <li>Identification audits for IV, RDD, DiD, and related strategies</li>
+                <li>Econometric reasoning for structural and modeling logic</li>
+                <li>Publication and replication review for papers, tables, figures, and reproducibility packages</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="timeline-card">
+            <div class="phase">Contracts</div>
+            <div>
+              <strong>Research-aware shared system behavior</strong>
+              <ul>
+                <li><code>research</code> added as a first-class review route</li>
+                <li><code>/cg-review</code> and <code>/cg-work</code> updated to understand research-mode semantics</li>
+                <li>Composite coverage added where <code>research</code> and <code>full</code>-trigger conditions overlap</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="timeline-card">
+            <div class="phase">Platform</div>
+            <div>
+              <strong>Integrated with v1.0 infrastructure</strong>
+              <ul>
+                <li>CR agents assigned in the shared model catalog</li>
+                <li>CR prompts wired into Brain consultation and active-state handoff</li>
+                <li>Cross-agent generated targets now emit <code>/cr-*</code> commands, CR agents, and CR skills</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>Most important design move</strong>
+          CR was not bolted on as “extra docs.” It was integrated into the same control surfaces that make CG reliable: routing contracts, model governance, generated adapters, tests, review reports, and reusable knowledge artifacts.
+        </div>
+      </section>
+
+      <section class="section" id="implementation">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Migration results</span>
+            <h2>What was actually implemented in the v1.0 migration</h2>
+            <p>The migration did not just copy files. It re-integrated research functionality against the current platform and added validation around the fragile parts.</p>
+          </div>
+          <div class="section-kicker">Delivered phases</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="card">
+            <strong>Review routing integration</strong>
+            <p><code>research</code> mode was added to the shared review-routing contract, routed through <code>/cg-review</code>, and made explicitly selectable from <code>/cg-work</code>.</p>
+          </article>
+          <article class="card">
+            <strong>Model governance integration</strong>
+            <p>CR review agents were added to the shared model catalog with GPT-5.4 assignments so research review behavior is governed, documented, and testable.</p>
+          </article>
+          <article class="card">
+            <strong>Brain and active-state integration</strong>
+            <p><code>/cr-review</code> and <code>/cr-work</code> now consult the Brain, while <code>/cr-work</code> participates in the active-state handoff used by resume flows.</p>
+          </article>
+          <article class="card">
+            <strong>Generated target integration</strong>
+            <p>The generator now emits CR commands, agents, and skills into the native adapter trees, keeping Copilot, Claude, Codex, and OpenCode aligned.</p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>Validation outcome</strong>
+          The saved review and work-report trail show focused targeted validation, cross-file contract fixes, and generated-tree parity checks rather than a one-time migration dump.
+        </div>
+      </section>
+
+      <section class="section" id="benefits">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Why this matters</span>
+            <h2>What users and maintainers gain from CR</h2>
+            <p>The CR module makes the system better in two ways: it gives researchers a more appropriate workflow, and it gives maintainers a cleaner contract for how research work should be reviewed and integrated.</p>
+          </div>
+          <div class="section-kicker">Practical value</div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <strong>For researchers</strong>
+            <p>They can invoke prompts and review paths that understand econometrics, identification, publication standards, and replication constraints instead of forcing those tasks through generic coding prompts.</p>
+          </article>
+          <article class="card">
+            <strong>For maintainers</strong>
+            <p>Research review is now explicit, routable, and test-guarded. That reduces drift and makes CR behavior part of the platform rather than tribal knowledge.</p>
+          </article>
+          <article class="card">
+            <strong>For the repo</strong>
+            <p>Research functionality is now represented in canonical source files, generated targets, shared contracts, the model catalog, and the knowledge system, which makes future extension easier.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="next">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">C. Proposed next steps</span>
+            <h2>How to mature CR from successful migration to stable operating capability</h2>
+            <p>The technical migration is effectively complete. The remaining work is mostly close-out and maturity work: one pending charter approval step, plus follow-on documentation, validation, and adoption improvements.</p>
+          </div>
+          <div class="section-kicker">Recommended roadmap</div>
+        </div>
+
+        <div class="next-grid">
+          <article class="next-card">
+            <span class="label">1. Close the workflow loop</span>
+            <strong>Close the last Phase 7 governance step and align roadmap messaging</strong>
+            <ul>
+              <li>Resolve the pending charter Current Focus approval step</li>
+              <li>Update roadmap artifacts so CR shows up as a maintained capability, not just migrated content</li>
+              <li>Make the final state visible to resume and release flows</li>
+            </ul>
+          </article>
+
+          <article class="next-card">
+            <span class="label">2. Harden test execution</span>
+            <strong>Make research integration easier to validate locally</strong>
+            <ul>
+              <li>Standardize the PowerShell/Pester runtime path on macOS</li>
+              <li>Install or document missing Python test dependencies like <code>pytest</code> for generator tests</li>
+              <li>Add one or two higher-level end-to-end CR journey tests</li>
+            </ul>
+          </article>
+
+          <article class="next-card">
+            <span class="label">3. Tighten documentation</span>
+            <strong>Make CR discoverable to new users</strong>
+            <ul>
+              <li>Add a concise CR overview to the public docs navigation</li>
+              <li>Document when to use <code>/cg-work</code> versus <code>/cr-work</code></li>
+              <li>Explain the research review path in user-facing docs, not only prompt files</li>
+            </ul>
+          </article>
+
+          <article class="next-card">
+            <span class="label">4. Expand research-aware defaults</span>
+            <strong>Reduce dependence on manual prompt selection</strong>
+            <ul>
+              <li>Improve automatic detection of research-typed tasks</li>
+              <li>Route more existing <code>cg-*</code> reviewers to research-aware checks when appropriate</li>
+              <li>Keep additive composition rules explicit whenever agent families differ</li>
+            </ul>
+          </article>
+
+          <article class="next-card">
+            <span class="label">5. Use CR to compound research practice</span>
+            <strong>Turn domain mistakes into reusable safeguards</strong>
+            <ul>
+              <li>Capture more research-specific solutions in <code>.cg-docs/solutions/</code></li>
+              <li>Promote repeat patterns into instructions or skills when they recur</li>
+              <li>Use review findings to sharpen the research integrity layer over time</li>
+            </ul>
+          </article>
+
+          <article class="next-card">
+            <span class="label">6. Present CR as an operating model</span>
+            <strong>Move from migration narrative to adoption narrative</strong>
+            <ul>
+              <li>Package CR as a clear capability for economics research teams</li>
+              <li>Show example use cases: identification audit, replication package review, publication output review</li>
+              <li>Position CR as a specialized extension of CG, not a separate system</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>Bottom line</strong>
+          The important next move is not “add more CR files.” It is to make CR easier to discover, easier to validate, and harder to misroute. That is what turns a successful migration into a durable operating capability.
+        </div>
+      </section>
+
+      <p class="footer-note">Created 2026-07-30 from project charter, workflow docs, CR migration plan, CR work report, and CR review artifacts. Designed as a standalone HTML briefing for maintainers, reviewers, and stakeholders.</p>
+    </div>
+  </body>
+</html>

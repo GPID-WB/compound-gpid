@@ -25,7 +25,7 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 3. Load `.agents/shared/context-loading.contract.md` and apply Stage 0/1/2. Do not read full `compound-gpid.context.md` by default; if the plan/touched tech needs tactical facts, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 4. Parse flags:
    - `--no-brain` sets `brain-enabled = false`; otherwise `true`.
-   - Modes: auto, manual, none, light, standard, data-risk, architecture, full.
+  - Modes: auto, manual, none, light, standard, data-risk, architecture, research, full.
    - Default: `review:manual`.
    - Invalid review value: warn and fall back to recommendation mode.
    - Parse `deviate:` override; invalid warns and falls back to plan policy; duplicate warns, last valid wins. Full spec: `.agents/shared/goal-execution.contract.md`.
@@ -221,7 +221,7 @@ Read `.agents/shared/review-routing.contract.md` and use it as the canonical sou
 | `review:manual` | No agent dispatch. Emit a structured recommendation only: resolved mode, reason, and suggested `/cg-review <mode>` command. |
 | `review:none` | Suppress review dispatch and show only a brief suppression note. |
 | `review:auto` | Run route-aware agent dispatch using the shared routing contract; dispatch only the route-appropriate agent set. |
-| `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full` | Treat as an explicit user route; dispatch that route exactly once and include any high-risk signals as review focus. |
+| `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:research`, `review:full` | Treat as an explicit user route; dispatch that route exactly once and include any high-risk signals as review focus. |
 
 No review arg defaults to `review:manual` with no agent dispatch. Default and `review:manual` must never dispatch review agents automatically. `review:auto` aligns with `/cg-review` auto-routing outcomes for equivalent diffs. `review:none` dispatches nothing. When `review:auto` or explicit routed modes dispatch agents, include the global protected-artifact constraint from `/cg-review` and preserve P0/P1 reporting strength. Explicit routed modes win; auto routing applies only when no explicit route was requested.
 

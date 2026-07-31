@@ -23,9 +23,9 @@ any review. Then load `cr-skill-research-integrity` for the P0 error catalog.
 
 Before beginning: if the code file is zero-byte or contains only whitespace or
 comments (no executable code), report: "`[file]` is empty — research integrity
-check skipped for this file." Do not run Checks 1–7 against empty files.
+check skipped for this file." Do not run Checks 1–8 against empty files.
 
-For each file under review, perform all 7 checks below in sequence.
+For each file under review, perform all 8 checks below in sequence.
 
 ### Check 1: Unseeded Randomness (P0)
 
@@ -138,6 +138,20 @@ Poisson counts) in comments or model specification:
   (Shapiro-Wilk, KS test, QQ plot, Vuong test, LR test)
 - Flag as P0 if distributional assumption is made but no test is present
 
+### Check 8: Normative-Choice Smuggling (P0)
+
+When value-laden choices (weighting, threshold, inclusion boundary, framing
+baseline) can change rankings/classification outcomes:
+- Verify a matching entry exists in
+  `.cg-docs/research/normative-decisions/<study-slug>.md`
+- Confirm required fields include `study`, `plan`, `applies_to`,
+  `defensible_options`, `consequences`, `decided_by`, `decision`,
+  `justification`, `decided_on`
+- Flag as P0 if no matching entry exists or `decided_by` is missing/`default`
+
+This check audits recorded decisions. Primary prevention occurs in deterministic
+workflow gates in `/cr-brainstorm` and `/cr-work`.
+
 ## Output Format
 
 For each finding, use the following format so findings are parseable by
@@ -145,7 +159,7 @@ For each finding, use the following format so findings are parseable by
 
 ```
 - **[P0.{N}]** [cr-research-integrity] `<file>`:<line> — <title>
-  **Error class**: <which of the 7 classes above>
+  **Error class**: <which of the 8 classes above>
   **Detection**: <what was found — quote the relevant code or variable name>
   **Impact**: <why this is P0 — what result would be wrong>
   **Remediation**: <concrete fix from cr-skill-research-integrity>

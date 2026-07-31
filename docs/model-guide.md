@@ -141,6 +141,17 @@ validated in VS Code/Copilot on 2026-06-16.
 | cg-testing.agent.md | GPT-5.3-Codex | review | Test review is code-aware and should be OpenAI-first. |
 | cg-version-control.agent.md | Claude Haiku 4.5 | mechanical | Version-control checks are structured and cheap. |
 | cg-wiki.agent.md | GPT-5.4 | reasoning | Wiki curation benefits from synthesis. |
+| cr-academic-writing.agent.md | GPT-5.4 | review | CR writing review needs strong reasoning over argument structure and notation. |
+| cr-econometric-reasoning.agent.md | GPT-5.4 | review | Structural and econometric reasoning review is analytical and high-stakes. |
+| cr-identification-audit.agent.md | GPT-5.4 | review | Identification diagnostics and audit logic need strong analytical reasoning. |
+| cr-mathematical-verification.agent.md | GPT-5.4 | review | Code-derivation consistency review needs strong mathematical reasoning. |
+| cr-ml-methodology.agent.md | GPT-5.4 | review | ML methodology review is analytical and audit-oriented. |
+| cr-measurement-integrity.agent.md | GPT-5.4 | review | CR measurement integrity auditing requires comparability and stability reasoning. |
+| cr-publication-output.agent.md | GPT-5.4 | review | Publication-output review needs strong reasoning over tables and figures. |
+| cr-provenance-audit.agent.md | GPT-5.4 | review | CR provenance auditing requires high-reliability evidence and citation integrity checks. |
+| cr-replication-package.agent.md | GPT-5.4 | review | Replication-package review audits archive completeness and path portability. |
+| cr-research-integrity.agent.md | GPT-5.4 | review | Research-integrity review audits silent correctness failures and release blockers. |
+| cr-specification-analysis.agent.md | GPT-5.4 | review | Specification-analysis review needs strong reasoning over theory-data alignment. |
 
 ## Validation Guardrails
 

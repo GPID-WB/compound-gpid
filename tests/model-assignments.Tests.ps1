@@ -80,8 +80,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 26 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should -Be 26
+    It "contains exactly 28 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should -Be 28
     }
 
     foreach ($file in $agentFiles) {
@@ -179,7 +179,9 @@ Describe "model-catalog.json - CR model policy" {
             ".github/agents/cr-identification-audit.agent.md",
             ".github/agents/cr-mathematical-verification.agent.md",
             ".github/agents/cr-ml-methodology.agent.md",
+            ".github/agents/cr-measurement-integrity.agent.md",
             ".github/agents/cr-publication-output.agent.md",
+            ".github/agents/cr-provenance-audit.agent.md",
             ".github/agents/cr-replication-package.agent.md",
             ".github/agents/cr-research-integrity.agent.md",
             ".github/agents/cr-specification-analysis.agent.md"
@@ -215,6 +217,54 @@ Describe "docs/reference.md - ordinary prompt model picker sync" {
             ($content -match "\| ``?$escapedCommand") | Should -Be $true
             ($content -match "\| ``?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
             ($content -match "\| ``?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
+        }
+    }
+}
+
+Describe "docs/reference.md - CR command model sync" {
+    $referenceFile = Join-Path $repoRoot "docs\reference.md"
+    $content = if (Test-Path $referenceFile) { Get-Content $referenceFile -Raw -Encoding UTF8 } else { "" }
+
+    It "/cr-brainstorm documents GPT-5.4" {
+        ($content -match '\| `/cr-brainstorm` \| GPT-5\.4 \|') | Should -Be $true
+    }
+
+    It "/cr-plan documents GPT-5.4" {
+        ($content -match '\| `/cr-plan` \| GPT-5\.4 \|') | Should -Be $true
+    }
+
+    It "/cr-work documents GPT-5.3-Codex" {
+        ($content -match '\| `/cr-work` \| GPT-5\.3-Codex \|') | Should -Be $true
+    }
+
+    It "/cr-review documents GPT-5.4" {
+        ($content -match '\| `/cr-review` \| GPT-5\.4 \|') | Should -Be $true
+    }
+
+    It "/cr-compound documents GPT-5.3-Codex" {
+        ($content -match '\| `/cr-compound` \| GPT-5\.3-Codex \|') | Should -Be $true
+    }
+}
+
+Describe "docs/model-guide.md - CR agent inventory sync" {
+    $guideFile = Join-Path $repoRoot "docs\model-guide.md"
+    $content = if (Test-Path $guideFile) { Get-Content $guideFile -Raw -Encoding UTF8 } else { "" }
+
+    foreach ($agent in @(
+        'cr-academic-writing.agent.md',
+        'cr-econometric-reasoning.agent.md',
+        'cr-identification-audit.agent.md',
+        'cr-mathematical-verification.agent.md',
+        'cr-ml-methodology.agent.md',
+        'cr-measurement-integrity.agent.md',
+        'cr-publication-output.agent.md',
+        'cr-provenance-audit.agent.md',
+        'cr-replication-package.agent.md',
+        'cr-research-integrity.agent.md',
+        'cr-specification-analysis.agent.md'
+    )) {
+        It "$agent is listed in docs/model-guide.md" {
+            ($content -match [regex]::Escape($agent)) | Should -Be $true
         }
     }
 }

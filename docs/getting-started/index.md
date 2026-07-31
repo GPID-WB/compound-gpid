@@ -5,12 +5,6 @@ and complete a first useful workflow. The normal setup provides generated
 targets for GitHub Copilot, Claude Code, Codex, and OpenCode from one canonical
 plugin source.
 
-> **Current packaging limitation:** generated non-canonical skill mirrors
-> contain each `SKILL.md` but do not yet include every progressively loaded
-> `references/`, `workflows/`, or `packages/` file. The canonical `.github/`
-> source is complete. Teams relying on a narrowed non-Copilot installation
-> should assess this limitation before adoption.
-
 ## 1. Confirm the fit
 
 Compound GPID is for data science and software work that benefits from explicit

@@ -57,7 +57,7 @@ date: YYYY-MM-DD
 title: "<descriptive title>"
 status: active
 scope: "<Lightweight|Standard|Deep>"
-task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility>"
+task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility|Measurement/Classification>"
 brainstorm: "<path to brainstorm file if applicable>"
 language: "<R|Python|Stata>"
 estimated-effort: "<small|medium|large>"
@@ -87,10 +87,25 @@ Before presenting the plan, check:
 2. Does the plan include the appropriate P0 enforcement steps?
 3. Is the derivation reference included for Implementation tasks?
 4. Are the acceptance criteria specific and testable?
+5. If task type is Measurement/Classification, are weighting sensitivity,
+   cluster validity, and vintage comparability artifacts explicitly planned?
 
 ### Step 4: Present and Refine
 
 Present the plan. Ask for feedback. Revise if needed.
+
+#### Normative Decisions Checkpoint
+
+At Step 4, add a "Normative Decisions" subsection in the presented plan:
+- List value-laden choices the plan commits to.
+- Reference per-study entries in
+  `.cg-docs/research/normative-decisions/<study-slug>.md`.
+- Treat user acceptance/refinement at this step as explicit approval of those
+  listed choices.
+
+If the plan commits to a consequential value-laden choice without a recorded
+human decision entry, surface as P0 and do not present the plan as final until
+the register is updated.
 
 ### Step 5: Save Plan
 
