@@ -1,6 +1,5 @@
 ﻿---
 description: "Reviews test coverage, edge cases, test quality, and testing patterns. Trilingual R/Python/Stata."
-model: GPT-5.3-Codex
 tools: ['read', 'search']
 user-invocable: false
 ---

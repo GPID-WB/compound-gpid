@@ -1,6 +1,5 @@
 ﻿---
 description: "Reviews performance: vectorization, memory efficiency, algorithm complexity, collapse + data.table optimization. Trilingual R/Python/Stata."
-model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

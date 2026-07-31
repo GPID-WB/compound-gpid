@@ -1,6 +1,5 @@
 ﻿---
 description: "Searches .cg-docs/solutions/ and .cg-docs/brainstorms/ for relevant past learnings before starting new work. Used in thorough reviews."
-model: Claude Haiku 4.5
 tools: ['read', 'search']
 user-invocable: false
 ---
