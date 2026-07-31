@@ -1,6 +1,5 @@
 ---
 description: "Rebuild the project knowledge brain (BRAIN.md + indexes)."
-model: GPT-5.4
 ---
 
 # Brain Rebuild
