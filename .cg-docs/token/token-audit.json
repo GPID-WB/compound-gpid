@@ -1,138 +1,16 @@
 {
   "benchmark": {
-    "comparison": {
-      "model_governance": {
-        "missing_model_count_delta": 0,
-        "model_drift_count_delta": 0,
-        "ordinary_model_picker_violations_delta": 0,
-        "premium_usage_count_delta": 0
-      },
-      "workflows": [
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-brainstorm.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-brainstorm"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-plan.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-plan"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "conditional",
-          "dispatch_burden_before": "conditional",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-work.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-work"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "conditional",
-          "dispatch_burden_before": "conditional",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-review.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-review"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-fix-triage.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-fix-triage"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-compound.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-compound"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-resume.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-resume"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-diagnose.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-diagnose"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-token-audit.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-token-audit"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/skills/cg-skill-brain-query/SKILL.md",
-          "total_refs_delta": 0,
-          "workflow": "Knowledge Brain/context lookup"
-        }
-      ]
-    },
+    "comparison": null,
     "context_loading": {
       "justified": 17,
       "risk": 3,
       "targeted": 102
     },
     "model_governance": {
-      "haiku_role_violations": 0,
-      "missing_model_count": 0,
-      "model_drift_count": 0,
-      "openai_first_violations": 0,
-      "ordinary_model_picker_violations": 0,
-      "premium_usage_count": 0,
-      "sonnet_role_violations": 0
+      "advisory_error_count": 0,
+      "advisory_example_count": 5,
+      "advisory_stage_count": 5,
+      "forbidden_execution_metadata_count": 0
     },
     "review_agent_counts": {
       "available": true,
@@ -158,10 +36,9 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3798,
+        "execution_metadata": false,
         "file_refs": 17,
         "load_verbs": 8,
-        "model": null,
-        "model_tier": "model-picker",
         "path": ".github/prompts/cg-brainstorm.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
@@ -173,7 +50,7 @@
       {
         "agent_refs": 5,
         "available": true,
-        "characters": 12874,
+        "characters": 13382,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 1,
@@ -181,23 +58,22 @@
         "context_targeted_count": 5,
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
-        "estimated_tokens": 3218,
-        "file_refs": 10,
-        "load_verbs": 7,
-        "model": null,
-        "model_tier": "model-picker",
+        "estimated_tokens": 3345,
+        "execution_metadata": false,
+        "file_refs": 11,
+        "load_verbs": 8,
         "path": ".github/prompts/cg-plan.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
         "tool_refs": 0,
-        "total_refs": 23,
+        "total_refs": 25,
         "workflow": "/cg-plan",
         "workflow_id": "cg-plan"
       },
       {
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20471,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 2,
@@ -205,23 +81,22 @@
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
-        "file_refs": 17,
-        "load_verbs": 22,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
+        "estimated_tokens": 5117,
+        "execution_metadata": false,
+        "file_refs": 18,
+        "load_verbs": 23,
         "path": ".github/prompts/cg-work.prompt.md",
         "skill_refs": 2,
         "summary_output_status": "not_observed",
         "tool_refs": 1,
-        "total_refs": 54,
+        "total_refs": 56,
         "workflow": "/cg-work",
         "workflow_id": "cg-work"
       },
       {
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 19558,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 0,
@@ -229,23 +104,22 @@
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
-        "file_refs": 11,
-        "load_verbs": 18,
-        "model": "GPT-5.4",
-        "model_tier": "standard",
+        "estimated_tokens": 4889,
+        "execution_metadata": false,
+        "file_refs": 12,
+        "load_verbs": 19,
         "path": ".github/prompts/cg-review.prompt.md",
         "skill_refs": 5,
         "summary_output_status": "not_observed",
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 58,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 8400,
+        "characters": 8894,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 0,
@@ -253,23 +127,22 @@
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2100,
-        "file_refs": 8,
-        "load_verbs": 3,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
+        "estimated_tokens": 2223,
+        "execution_metadata": false,
+        "file_refs": 9,
+        "load_verbs": 4,
         "path": ".github/prompts/cg-fix-triage.prompt.md",
         "skill_refs": 8,
         "summary_output_status": "not_observed",
         "tool_refs": 1,
-        "total_refs": 20,
+        "total_refs": 22,
         "workflow": "/cg-fix-triage",
         "workflow_id": "cg-fix-triage"
       },
       {
         "agent_refs": 5,
         "available": true,
-        "characters": 9616,
+        "characters": 9601,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 1,
@@ -277,11 +150,10 @@
         "context_targeted_count": 2,
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
-        "estimated_tokens": 2404,
+        "estimated_tokens": 2400,
+        "execution_metadata": false,
         "file_refs": 15,
         "load_verbs": 6,
-        "model": "GPT-5.4",
-        "model_tier": "standard",
         "path": ".github/prompts/cg-compound.prompt.md",
         "skill_refs": 2,
         "summary_output_status": "not_observed",
@@ -293,7 +165,7 @@
       {
         "agent_refs": 3,
         "available": true,
-        "characters": 12637,
+        "characters": 12613,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 1,
@@ -301,11 +173,10 @@
         "context_targeted_count": 6,
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
-        "estimated_tokens": 3159,
+        "estimated_tokens": 3153,
+        "execution_metadata": false,
         "file_refs": 15,
         "load_verbs": 1,
-        "model": "Claude Haiku 4.5",
-        "model_tier": "economy",
         "path": ".github/prompts/cg-resume.prompt.md",
         "skill_refs": 0,
         "summary_output_status": "not_observed",
@@ -317,7 +188,7 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 10590,
+        "characters": 10569,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 0,
@@ -325,11 +196,10 @@
         "context_targeted_count": 0,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2647,
+        "estimated_tokens": 2642,
+        "execution_metadata": false,
         "file_refs": 13,
         "load_verbs": 1,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
         "path": ".github/prompts/cg-diagnose.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
@@ -341,7 +211,7 @@
       {
         "agent_refs": 0,
         "available": true,
-        "characters": 3162,
+        "characters": 3138,
         "command_output_status": "not_observed",
         "conditional_routing": false,
         "context_justified_count": 3,
@@ -349,11 +219,10 @@
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 790,
+        "estimated_tokens": 784,
+        "execution_metadata": false,
         "file_refs": 14,
         "load_verbs": 0,
-        "model": "Claude Haiku 4.5",
-        "model_tier": "economy",
         "path": ".github/prompts/cg-token-audit.prompt.md",
         "skill_refs": 0,
         "summary_output_status": "not_observed",
@@ -368,15 +237,14 @@
         "characters": 11024,
         "conditional_routing": false,
         "context_justified_count": 7,
-        "context_risk_count": 2,
+        "context_risk_count": 3,
         "context_targeted_count": 57,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2756,
+        "execution_metadata": false,
         "file_refs": 0,
         "load_verbs": 0,
-        "model": null,
-        "model_tier": null,
         "path": ".github/skills/cg-skill-brain-query/SKILL.md",
         "query_first": true,
         "skill_refs": 0,
@@ -386,13 +254,18 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-07-24T11:16:57",
+  "generated": "2026-07-31T10:58:19-04:00@c80f66e6828f",
+  "generated_kind": "volatile",
   "guardrails": {
     "failures": [],
     "warnings": [
       {
-        "path": "docs/context-files.md",
-        "reason": "context-loading risk requires review: compound-gpid.context.md"
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "high-frequency prompt estimated tokens > 5000"
+      },
+      {
+        "path": "docs/philosophy.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
       },
       {
         "path": "docs/reference.md",
@@ -410,7 +283,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 53,
+    "acceptable_count": 75,
     "immediate": [
       {
         "category": "prompts",
@@ -635,24 +508,34 @@
     "counts": {
       "accept": 0,
       "docs-only": 3,
-      "fix": 0
+      "fix": 1
     },
     "items": [
       {
-        "action": "Keep as documentation unless wording misleads users.",
-        "artifact": "compound-gpid.context.md",
-        "classification": "docs-only",
-        "line": 257,
-        "path": "docs/context-files.md",
-        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
-        "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+        "action": "Slim the prompt or split only with an explicit caller load point.",
+        "artifact": null,
+        "classification": "fix",
+        "line": null,
+        "path": ".github/prompts/cg-work.prompt.md",
+        "rationale": "High-frequency entrypoints directly affect routine token cost.",
+        "reason": "high-frequency prompt estimated tokens > 5000",
+        "snippet": null
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 156,
+        "line": 322,
+        "path": "docs/philosophy.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "| Review | Judge findings critically and decide what is acceptable | Search for failures through risk-matched review routes | `.cg-docs/reviews/` |"
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 234,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -662,7 +545,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 739,
+        "line": 744,
         "path": "docs/workflow.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -674,29 +557,29 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 92520,
-        "estimated_tokens": 23125,
+        "characters": 92175,
+        "estimated_tokens": 23038,
         "files": 17
       },
       "brain": {
-        "characters": 301409,
-        "estimated_tokens": 75351,
+        "characters": 318519,
+        "estimated_tokens": 79628,
         "files": 4
       },
       "brain_index": {
-        "characters": 666619,
-        "estimated_tokens": 166654,
+        "characters": 701883,
+        "estimated_tokens": 175470,
         "files": 1
       },
       "context": {
-        "characters": 68243,
-        "estimated_tokens": 17060,
+        "characters": 71003,
+        "estimated_tokens": 17750,
         "files": 1
       },
       "docs": {
-        "characters": 213721,
-        "estimated_tokens": 53425,
-        "files": 12
+        "characters": 300738,
+        "estimated_tokens": 75172,
+        "files": 33
       },
       "instructions": {
         "characters": 17340,
@@ -704,23 +587,23 @@
         "files": 4
       },
       "prompts": {
-        "characters": 252445,
-        "estimated_tokens": 63102,
+        "characters": 254404,
+        "estimated_tokens": 63593,
         "files": 24
       },
       "roadmap": {
-        "characters": 54961,
-        "estimated_tokens": 13740,
+        "characters": 72719,
+        "estimated_tokens": 18179,
         "files": 1
       },
       "shared": {
-        "characters": 45681,
-        "estimated_tokens": 11417,
-        "files": 9
+        "characters": 41576,
+        "estimated_tokens": 10391,
+        "files": 10
       },
       "skills": {
-        "characters": 110978,
-        "estimated_tokens": 27738,
+        "characters": 111380,
+        "estimated_tokens": 27837,
         "files": 22
       },
       "template": {
@@ -729,9 +612,9 @@
         "files": 1
       }
     },
-    "total_characters": 1825550,
-    "total_estimated_tokens": 456354,
-    "total_files": 96
+    "total_characters": 1983370,
+    "total_estimated_tokens": 495800,
+    "total_files": 118
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
@@ -1060,6 +943,7 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3798,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".github/shared/context-loading.contract.md",
@@ -1082,8 +966,6 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 8,
-        "model": null,
-        "model_tier": "model-picker",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1138,14 +1020,15 @@
         ],
         "agent_refs": 5,
         "available": true,
-        "characters": 12874,
+        "characters": 13382,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 5,
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
-        "estimated_tokens": 3218,
+        "estimated_tokens": 3345,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1153,18 +1036,20 @@
           ".cg-docs/solutions/",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
+          ".github/shared/model-advisory.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
           "compound-gpid.md",
           "roadmap.json"
         ],
-        "file_refs": 10,
+        "file_refs": 11,
         "large_context_warning_status": "immediate",
         "likely_file_reads": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
+          ".github/shared/model-advisory.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
           "compound-gpid.md",
@@ -1173,9 +1058,7 @@
         "likely_skill_loads": [
           "cg-skill-brain-query"
         ],
-        "load_verbs": 7,
-        "model": null,
-        "model_tier": "model-picker",
+        "load_verbs": 8,
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1218,7 +1101,7 @@
         "skill_refs": 1,
         "tool_references": [],
         "tool_refs": 0,
-        "total_refs": 23,
+        "total_refs": 25,
         "workflow": "/cg-plan",
         "workflow_id": "cg-plan"
       },
@@ -1230,14 +1113,15 @@
         ],
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20471,
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 0,
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
+        "estimated_tokens": 5117,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -1245,6 +1129,7 @@
           ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
+          ".github/shared/model-advisory.contract.md",
           ".github/shared/review-routing.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1257,7 +1142,7 @@
           "tests/test-",
           "tests/test_"
         ],
-        "file_refs": 17,
+        "file_refs": 18,
         "large_context_warning_status": "immediate",
         "likely_file_reads": [
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -1265,6 +1150,7 @@
           ".github/shared/active-state.contract.md",
           ".github/shared/context-loading.contract.md",
           ".github/shared/goal-execution.contract.md",
+          ".github/shared/model-advisory.contract.md",
           ".github/shared/review-routing.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1278,9 +1164,7 @@
         "likely_skill_loads": [
           "cg-skill-brain-query"
         ],
-        "load_verbs": 22,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
+        "load_verbs": 23,
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1326,7 +1210,7 @@
           "execution_subagent"
         ],
         "tool_refs": 1,
-        "total_refs": 54,
+        "total_refs": 56,
         "workflow": "/cg-work",
         "workflow_id": "cg-work"
       },
@@ -1345,14 +1229,15 @@
         ],
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 19558,
         "conditional_routing": true,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
+        "estimated_tokens": 4889,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1360,19 +1245,21 @@
           ".cg-docs/reviews/2026-04-21-foo-review.md",
           ".cg-docs/solutions/",
           ".github/shared/context-loading.contract.md",
+          ".github/shared/model-advisory.contract.md",
           ".github/shared/review-routing.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
           "compound-gpid.md",
           "roadmap.json"
         ],
-        "file_refs": 11,
+        "file_refs": 12,
         "large_context_warning_status": "immediate",
         "likely_file_reads": [
           ".cg-docs/brainstorms/",
           ".cg-docs/reviews/",
           ".cg-docs/solutions/",
           ".github/shared/context-loading.contract.md",
+          ".github/shared/model-advisory.contract.md",
           ".github/shared/review-routing.contract.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1384,9 +1271,7 @@
           "cg-skill-python-best-practices",
           "cg-skill-stata-best-practices"
         ],
-        "load_verbs": 18,
-        "model": "GPT-5.4",
-        "model_tier": "standard",
+        "load_verbs": 19,
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1433,7 +1318,7 @@
         "skill_refs": 5,
         "tool_references": [],
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 58,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },
@@ -1441,16 +1326,18 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 8400,
+        "characters": 8894,
         "conditional_routing": false,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2100,
+        "estimated_tokens": 2223,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/reviews/",
+          ".github/shared/model-advisory.contract.md",
           ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1459,10 +1346,11 @@
           "tests/last-run.json",
           "tests/prompt-tools.Tests.ps1"
         ],
-        "file_refs": 8,
+        "file_refs": 9,
         "large_context_warning_status": "needs_review",
         "likely_file_reads": [
           ".cg-docs/reviews/",
+          ".github/shared/model-advisory.contract.md",
           ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
           "compound-gpid.context.md",
           "compound-gpid.local.md",
@@ -1476,9 +1364,7 @@
           "cg-skill-r-analytical",
           "cg-skill-r-technical"
         ],
-        "load_verbs": 3,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
+        "load_verbs": 4,
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1528,7 +1414,7 @@
           "execution_subagent"
         ],
         "tool_refs": 1,
-        "total_refs": 20,
+        "total_refs": 22,
         "workflow": "/cg-fix-triage",
         "workflow_id": "cg-fix-triage"
       },
@@ -1538,14 +1424,15 @@
         ],
         "agent_refs": 5,
         "available": true,
-        "characters": 9616,
+        "characters": 9601,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
-        "estimated_tokens": 2404,
+        "estimated_tokens": 2400,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/solutions/",
           ".github/shared/context-loading.contract.md",
@@ -1568,8 +1455,6 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 6,
-        "model": "GPT-5.4",
-        "model_tier": "standard",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1624,14 +1509,15 @@
         ],
         "agent_refs": 3,
         "available": true,
-        "characters": 12637,
+        "characters": 12613,
         "conditional_routing": false,
         "context_justified_count": 1,
         "context_risk_count": 0,
         "context_targeted_count": 6,
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
-        "estimated_tokens": 3159,
+        "estimated_tokens": 3153,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1662,8 +1548,6 @@
         ],
         "likely_skill_loads": [],
         "load_verbs": 1,
-        "model": "Claude Haiku 4.5",
-        "model_tier": "economy",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1712,14 +1596,15 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 10590,
+        "characters": 10569,
         "conditional_routing": false,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 0,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 2647,
+        "estimated_tokens": 2642,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
           ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
@@ -1749,8 +1634,6 @@
           "cg-skill-pester-safety"
         ],
         "load_verbs": 1,
-        "model": "GPT-5.3-Codex",
-        "model_tier": "standard",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1803,14 +1686,15 @@
         "agent_references": [],
         "agent_refs": 0,
         "available": true,
-        "characters": 3162,
+        "characters": 3138,
         "conditional_routing": false,
         "context_justified_count": 3,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
-        "estimated_tokens": 790,
+        "estimated_tokens": 784,
+        "execution_metadata": false,
         "file_references": [
           ".cg-docs/cost/",
           ".cg-docs/cost/token-advice.md",
@@ -1839,8 +1723,6 @@
         ],
         "likely_skill_loads": [],
         "load_verbs": 0,
-        "model": "Claude Haiku 4.5",
-        "model_tier": "economy",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
