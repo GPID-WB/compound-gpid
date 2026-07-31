@@ -766,6 +766,19 @@
           "description": "During planning, define what 'done' looks like in concrete, verifiable terms. Reviewer agents then confirm outcomes were met — not just 'code works' but 'the outcome matches the stated definition.' Closes the loop between plan intent and review judgment. Complements outcome-criteria-in-plans (which defines what to check) with the verification mechanism (how to check it).",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "user-selected-execution-with-advisory-model-and-effort-routing",
+          "title": "User-selected execution with advisory model and effort routing",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md"
+        },
+        {
+          "id": "runtime-model-catalog-introspection-across-platforms",
+          "title": "Runtime model-catalog introspection across platforms",
+          "description": "Deferred enhancement that discovers available models and supported reasoning-effort levels through reliable platform APIs or runtime capabilities, without controlling execution and without blocking the user-selected execution/advisory-routing feature.",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
