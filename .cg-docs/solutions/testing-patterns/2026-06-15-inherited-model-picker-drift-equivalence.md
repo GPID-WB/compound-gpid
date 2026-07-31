@@ -117,3 +117,4 @@ When audit reports compare docs, catalogs, and executable metadata:
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md`
+- `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`

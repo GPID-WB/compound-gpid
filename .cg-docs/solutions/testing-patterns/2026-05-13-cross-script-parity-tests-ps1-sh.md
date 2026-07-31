@@ -151,3 +151,4 @@ $testNames = @(
   count assertions for guard-count parity
 - [`2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md`](2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md) — source-scan
   regression guards for scripting patterns
+- [`2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`](2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md) — checksum-guarded cleanup for removed cross-platform install units
