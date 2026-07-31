@@ -121,9 +121,13 @@ $preflightTests = @(
     "scripts/tests/test_target_opencode.py"
 ) | ForEach-Object { Join-Path $PSScriptRoot $_ }
 Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
+$preflightExitCode = 0
 & $pythonCommand -m pytest @preflightTests -q
-if ($LASTEXITCODE -ne 0) {
-    throw "Native packaging release preflight failed with exit code $LASTEXITCODE. Release publication is blocked."
+if (Test-Path variable:LASTEXITCODE) {
+    $preflightExitCode = [int]$LASTEXITCODE
+}
+if ($preflightExitCode -ne 0) {
+    throw "Native packaging release preflight failed with exit code $preflightExitCode. Release publication is blocked."
 }
 
 # Get token from Git Credential Manager. Stderr captured for diagnostics.
