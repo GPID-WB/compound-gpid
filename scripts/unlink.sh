@@ -45,9 +45,9 @@ fi
 all_unit_targets() {
     printf '%s\n' \
         '.github/prompts|directory' '.github/skills|directory' '.github/agents|directory' '.github/instructions|directory' '.github/shared|directory' '.github/copilot-instructions.md|file' \
-        '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/instructions|directory' '.claude/shared|directory' '.claude/CLAUDE.md|file' '.claude/model-mapping.claude.json|file' \
-        '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/instructions|directory' '.agents/shared|directory' '.agents/AGENTS.md|file' '.agents/model-mapping.codex.json|file' \
-        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file' '.opencode/model-mapping.opencode.json|file'
+        '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/instructions|directory' '.claude/shared|directory' '.claude/CLAUDE.md|file' \
+        '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/instructions|directory' '.agents/shared|directory' '.agents/AGENTS.md|file' \
+        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file'
 }
 
 remove_directory_unit() {

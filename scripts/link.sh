@@ -148,7 +148,6 @@ add_units_for_platform() {
                 'claude-code|directory|.claude/instructions|.claude/instructions|link-directory|' \
                 'claude-code|directory|.claude/shared|.claude/shared|link-directory|' \
                 'claude-code|file|.claude/CLAUDE.md|.claude/CLAUDE.md|managed-copy|' \
-                'claude-code|file|.claude/model-mapping.claude.json|.claude/model-mapping.claude.json|managed-copy|'
             ;;
         codex)
             printf '%s\n' \
@@ -158,7 +157,6 @@ add_units_for_platform() {
                 'codex|directory|.agents/instructions|.agents/instructions|link-directory|' \
                 'codex|directory|.agents/shared|.agents/shared|link-directory|' \
                 'codex|file|.agents/AGENTS.md|.agents/AGENTS.md|managed-copy|' \
-                'codex|file|.agents/model-mapping.codex.json|.agents/model-mapping.codex.json|managed-copy|'
             ;;
         opencode)
             printf '%s\n' \
@@ -169,7 +167,6 @@ add_units_for_platform() {
                 'opencode|directory|.opencode/shared|.opencode/shared|link-directory|' \
                 'opencode|file|.opencode/AGENTS.md|.opencode/AGENTS.md|managed-copy|' \
                 'opencode|file|.opencode/opencode.json|.opencode/opencode.json|config-copy-or-snippet|Add instructions .opencode/AGENTS.md and skills.paths .opencode/skills to your existing opencode.json.' \
-                'opencode|file|.opencode/model-mapping.opencode.json|.opencode/model-mapping.opencode.json|managed-copy|'
             ;;
     esac
 }
@@ -373,6 +370,57 @@ PYEOF
     fi
 }
 
+cleanup_legacy_model_mapping_files() {
+    if [ ! -f "$MANIFEST_PATH" ]; then return 0; fi
+    "$PYTHON_CMD" - "$MANIFEST_PATH" "$PROJECT_ROOT" <<'PYEOF'
+import hashlib
+import json
+import os
+import sys
+
+manifest_path, project_root = sys.argv[1:]
+legacy_targets = (
+    ".claude/model-mapping.claude.json",
+    ".agents/model-mapping.codex.json",
+    ".opencode/model-mapping.opencode.json",
+)
+
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    manifest = json.load(handle)
+files = manifest.setdefault("files", {})
+changed = False
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+for target_rel in legacy_targets:
+    record = files.get(target_rel)
+    if not record:
+        continue
+    target_path = os.path.join(project_root, target_rel)
+    if os.path.isfile(target_path) and not os.path.islink(target_path):
+        if sha256(target_path) == record.get("checksum"):
+            os.unlink(target_path)
+            print(f"REMOVED\t{target_rel}")
+        else:
+            print(f"PRESERVED\t{target_rel}\tuser-modified")
+    files.pop(target_rel, None)
+    changed = True
+
+if changed:
+    if files:
+        with open(manifest_path, "w", encoding="utf-8") as handle:
+            json.dump(manifest, handle, indent=2)
+            handle.write("\n")
+    else:
+        os.unlink(manifest_path)
+PYEOF
+}
+
 if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
 
@@ -415,6 +463,8 @@ if [ -n "$missing" ]; then
     printf '%b' "$missing" >&2
     exit 1
 fi
+
+cleanup_legacy_model_mapping_files
 
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
     [ -z "$platform" ] && continue

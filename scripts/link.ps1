@@ -269,6 +269,37 @@ function Get-CgInstalledGitignoreEntries {
     return @($entries | Sort-Object -Unique)
 }
 
+function Remove-CgLegacyModelMappingFiles {
+    param([hashtable]$Manifest)
+
+    $legacyTargets = @(
+        ".claude/model-mapping.claude.json",
+        ".agents/model-mapping.codex.json",
+        ".opencode/model-mapping.opencode.json"
+    )
+
+    foreach ($targetRel in $legacyTargets) {
+        $record = $Manifest.files[$targetRel]
+        if (-not $record) { continue }
+
+        $targetPath = Join-Path $ProjectRoot ($targetRel -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $item = Get-Item -Path $targetPath -ErrorAction SilentlyContinue
+        if ($item -and -not $item.PSIsContainer -and -not $item.LinkType) {
+            if ((Get-CgFileSha256 -Path $targetPath) -eq [string]$record.checksum) {
+                Remove-Item -Path $targetPath -Force
+                Write-Host "  $targetRel - removed legacy model mapping" -ForegroundColor DarkGray
+            } else {
+                Write-Warning "  $targetRel is user-modified; preserving it and dropping CG ownership."
+            }
+        }
+        [void]$Manifest.files.Remove($targetRel)
+    }
+
+    if ($Manifest.files.Count -eq 0 -and (Test-Path $ManifestPath)) {
+        Remove-Item -Path $ManifestPath -Force
+    }
+}
+
 if (-not (Test-Path $CompoundGpidDir)) {
     Write-Error "Compound GPID installation directory not found at: $CompoundGpidDir$CG_INSTALL_GUIDANCE"
     exit 1
@@ -333,6 +364,7 @@ if ($missingSources.Count -gt 0) {
 }
 
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
+Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList
 
 foreach ($target in $targets) {
