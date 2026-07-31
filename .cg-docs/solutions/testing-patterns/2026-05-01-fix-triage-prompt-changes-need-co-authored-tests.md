@@ -117,3 +117,4 @@ works, but whether a regression would fail a test.
 - `.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md` — anchored regex and other quality patterns for prompt assertions
 - `.cg-docs/reviews/2026-05-01-smart-setup-phase2-revised-review.md` — original thorough review (21 findings)
 - `.cg-docs/reviews/2026-05-01-smart-setup-phase2-revised-verify-review.md` — first verify pass (10 coverage gaps found)
+- `.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md` — same co-authored-test rule applied to `/cr-review` frontmatter/output contract repairs
