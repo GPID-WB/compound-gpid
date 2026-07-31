@@ -1,6 +1,5 @@
 ---
 description: "Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup."
-model: Claude Haiku 4.5
 ---
 
 # GitHub Issues Manager

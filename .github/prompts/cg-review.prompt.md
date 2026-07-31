@@ -1,6 +1,5 @@
 ---
 description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
-model: GPT-5.4
 ---
 
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):
@@ -257,6 +256,17 @@ Apply fixes directly — **do NOT delegate to a subagent**. For each `safe_auto`
 Report: > "Autofix complete: applied \<N\> safe fixes (files: <list of file:line changes>), \<M\> manual fixes need your review, \<K\> advisory notes filed."
 
 **If `--report-only`** was passed, present findings one at a time (P0 first, then P1, then P2, then P3). For each ask: **Fix** / **Skip** / **Discuss**.
+
+### Model Advisory Handoff
+
+Read `.github/shared/model-advisory.contract.md` and use the `review` stage for
+the transition to fix triage. Emit a compact recommendation with the review
+capability profile, strong option and effort, economical option when useful, and
+rationale. When the generator family is known, a different family may be
+suggested for independent contrast; when it is unknown or Auto, do not infer the
+hidden identity. Examples are suggestions; availability can differ by platform
+and date, and the user makes the final selection. Do not dispatch, switch,
+retry, or set a model or reasoning effort.
 
 ### Step 5: Summary
 

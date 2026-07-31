@@ -1,6 +1,5 @@
 ---
 description: "Implement a /cg-plan plan. Supports phaseX, review, deviate controls."
-model: GPT-5.3-Codex
 ---
 
 # Work
@@ -223,6 +222,15 @@ Read `.github/shared/review-routing.contract.md` and use it as the canonical sou
 | `review:light`, `review:standard`, `review:data-risk`, `review:architecture`, `review:full` | Treat as an explicit user route; dispatch that route exactly once and include any high-risk signals as review focus. |
 
 No review arg defaults to `review:manual` with no agent dispatch. Default and `review:manual` must never dispatch review agents automatically. `review:auto` aligns with `/cg-review` auto-routing outcomes for equivalent diffs. `review:none` dispatches nothing. When `review:auto` or explicit routed modes dispatch agents, include the global protected-artifact constraint from `/cg-review` and preserve P0/P1 reporting strength. Explicit routed modes win; auto routing applies only when no explicit route was requested.
+
+### Model Advisory Handoff
+
+Read `.github/shared/model-advisory.contract.md` and use the `implementation`
+stage for the transition to review. Emit a compact recommendation for the next
+user selection: implementation capability profile, strong option and effort,
+economical option when useful, and rationale. Examples are suggestions;
+availability can differ by platform and date, and the user makes the final
+selection. Do not dispatch, switch, retry, or set a model or reasoning effort.
 
 ### Step 4: Summary
 

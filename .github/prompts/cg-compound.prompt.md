@@ -1,6 +1,5 @@
 ---
 description: "Capture a solved problem as reusable knowledge. Use after fixing a non-trivial issue."
-model: GPT-5.4
 ---
 
 # Compound

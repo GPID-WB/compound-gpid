@@ -1,6 +1,5 @@
 ---
 description: "Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices."
-model: Claude Haiku 4.5
 ---
 
 # Token Audit
