@@ -123,8 +123,9 @@ $preflightTests = @(
 Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
 $preflightExitCode = 0
 & $pythonCommand -m pytest @preflightTests -q
-if (Test-Path variable:LASTEXITCODE) {
-    $preflightExitCode = [int]$LASTEXITCODE
+$lastExitCodeVariable = Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue
+if ($null -ne $lastExitCodeVariable) {
+    $preflightExitCode = [int]$lastExitCodeVariable
 }
 if ($preflightExitCode -ne 0) {
     throw "Native packaging release preflight failed with exit code $preflightExitCode. Release publication is blocked."
