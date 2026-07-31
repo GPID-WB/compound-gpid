@@ -17,7 +17,7 @@ behavior.
 > run recorded in `.cg-docs/cost/context-audit.json`. If any `.github/` file
 > changes after that run, re-execute
 > `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`
-> and verify `Failures: 0` and `premium_usage_count: 0` before citing any
+> and verify `Failures: 0` and zero executable model metadata before citing any
 > "Passed in Codex" status for a future release candidate. Review the release
 > candidate with `/cg-review full` before merge.
 
@@ -29,12 +29,11 @@ behavior.
 | Phase 6 benchmark summary reviewed | Audit `Benchmark Summary` includes `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound`, `/cg-resume`, and Knowledge Brain/context lookup | Passed in Codex (2026-06-16) |
 | Guardrail failures are zero | Audit `Guardrails` section reports `Failures: 0` | Passed in Codex (2026-06-16), failures 0 |
 | Guardrail warnings are classified | See warning triage below | Passed in Codex (2026-06-16); final audit reports failures 0 and reviewed warnings `fix=0`, `accept=19`, `docs-only=3` |
-| Premium model usage is absent or explicitly justified | Audit model governance shows `premium_usage_count: 0`, or every nonzero item has a release-approved rationale | Passed in Codex (2026-06-16), count 0 |
-| Ordinary model-picker prompts omit `model:` | Audit shows `ordinary_model_picker_violations: 0` | Passed in Codex (2026-06-16), count 0 |
-| Model catalog is complete | `.github/shared/model-catalog.json` has one assignment for every prompt and agent, with role, preferred model, frontmatter mode, and rationale | Passed in Codex (2026-06-16) |
-| OpenAI-first model policy is enforced | Audit reports vendor/family/role inventory plus OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks | Passed in Codex (2026-06-16): model drift 0, OpenAI-first violations 0, Haiku role violations 0, Sonnet role violations 0 |
-| Exact GPT frontmatter support is recorded | VS Code/Copilot validates whether `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`, `GPT-5 mini`, and `GPT-5.4 mini` are accepted in prompt/agent YAML frontmatter | Passed in VS Code/Copilot (2026-06-16); temporary `_model-validation-*` prompt canaries and model selector matched each frontmatter string |
-| `/cg-plan` model-context note is present | Static prompt inspection confirms the model-picker note and Copilot Auto guidance | Passed in Codex (2026-06-09) through audit guardrails; Pester prompt-contract tests remain external |
+| Executable model metadata is absent | Audit reports zero forbidden execution metadata and zero advisory errors | Passed in Codex (2026-07-31) |
+| Advisory contract and examples are valid | Contract covers five stages; examples carry observed dates, availability-unverified status, and verification status | Passed in Codex (2026-07-31) |
+| User-controlled stage guidance is documented | `docs/model-guide.md` and the four handoffs provide capability profiles, strong/economical options, and explicit user control | Passed in Codex (2026-07-31) |
+| Platform inheritance is preserved | Canonical and generated prompts/agents omit executable model fields and generated trees contain no standalone mapping artifacts | Static evidence passed; runtime picker behavior remains external |
+| `/cg-plan` model-context note is present | Static prompt inspection confirms picker inheritance, Copilot Auto guidance, and the planning advisory handoff | Passed in Codex (2026-07-31) |
 | `/cg-review` routed modes remain intact | Shared routing contract and audit review-agent counts match light 2, standard 8, data-risk 8, architecture 8, full 10 | Passed in Codex (2026-06-09) |
 | `/cg-work review:*` modes remain intact | Prompt and audit guardrails preserve `review:auto`, `review:manual`, `review:none`, and explicit `review:<mode>` behavior | Passed in Codex (2026-06-09) |
 | Knowledge Brain retrieval remains selective | `cg-skill-brain-query` keeps the BRAIN.md index, matched-topic, and no-wholesale `brain-index.json` rules | Passed in Codex (2026-06-09) |
@@ -109,10 +108,9 @@ complete" may only be marked done after every row carries a sign-off.
 | `/cg-compound` | VS Code/Copilot | Captures a solution, rebuilds Knowledge Brain when tooling is available, and enriches context/wiki only through documented maintenance behavior | External validation required | |
 | `/cg-resume` | VS Code/Copilot | Loads pending work and roadmap health without carrying unrelated roadmap or Brain records into the session summary | External validation required | |
 | Knowledge Brain selective retrieval | VS Code/Copilot | Uses `.cg-docs/BRAIN.md` as the entry point, selects matched topics, opens only relevant `BRAIN-NN.md` sections, and does not consume the tooling JSON wholesale | External validation required | |
-| Model-picker behavior | VS Code/Copilot | Ordinary model-picker prompts use the selected Copilot model; Auto is not described as a named hidden model; premium model use is user-initiated or explicitly justified | External validation required | |
-| GPT-5.3-Codex frontmatter | VS Code/Copilot | A test prompt/agent with `model: GPT-5.3-Codex` is accepted and dispatched as that model, or the catalog remains `not-tested`/fallback and broad frontmatter edits are blocked | Passed | User / 2026-06-16 |
-| GPT reasoning frontmatter | VS Code/Copilot | `GPT-5.4`, `GPT-5.5`, `GPT-5 mini`, and `GPT-5.4 mini` are tested for exact YAML frontmatter support before production assignment | Passed | User / 2026-06-16 |
-| Cross-vendor review handoff | VS Code/Copilot | If generated code came from Anthropic, `/cg-review` instructs OpenAI review; if generated by OpenAI, it emits a non-OpenAI contrast handoff when available without changing route depth | External validation required | |
+| Model-picker behavior | VS Code/Copilot | Prompts and agents inherit the selected platform configuration; Auto is not described as a named hidden model | External validation required | |
+| Advisory handoffs | VS Code/Copilot | `/cg-plan`, `/cg-work`, `/cg-review`, and `/cg-fix-triage` emit capability/effort suggestions without changing execution | External validation required | |
+| Cross-family review handoff | VS Code/Copilot | A different family may be suggested for contrast when the family is known; unknown or Auto selections are never guessed | External validation required | |
 
 ## Audit Warning Triage
 
@@ -146,8 +144,9 @@ No Phase 6 audit blocker is known at plan start. Treat any of these as a
 release blocker if they appear in the final run:
 
 - guardrail failure count is nonzero;
-- premium model usage is introduced without explicit approved rationale;
-- any ordinary model-picker prompt regains `model:` frontmatter;
+- executable model metadata appears in a canonical or generated prompt/agent;
+- advisory examples lose dates, verification status, or availability labels;
+- a handoff implies automatic model/effort switching or guesses the hidden Auto model;
 - `/cg-review` route precedence, full route, or review-agent counts drift;
 - `/cg-work review:auto`, `review:manual`, or `review:none` disappears or changes dispatch semantics;
 - Knowledge Brain instructions allow wholesale default reads of the tooling JSON;
