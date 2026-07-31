@@ -1,6 +1,5 @@
 ---
 description: "Classifies commits and scans .cg-docs/ entries within a time window to produce a categorized change report for /cg-release. Developer-only — dispatched by cg-release.prompt.md, not invoked directly."
-model: haiku
 ---
 
 # Release Scanner

@@ -1,6 +1,5 @@
 ---
 description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
-model: sonnet
 ---
 
 # Fix Bug
