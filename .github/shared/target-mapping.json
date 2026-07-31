@@ -6,7 +6,6 @@
       "id": "copilot",
       "name": "GitHub Copilot",
       "generatedTreePath": null,
-      "modelMappingMode": "role-only",
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -39,7 +38,6 @@
       "id": "claude-code",
       "name": "Claude Code",
       "generatedTreePath": ".claude",
-      "modelMappingMode": "tier",
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -58,15 +56,7 @@
         "agents": ".claude/agents",
         "instructions": ".claude/instructions",
         "shared": ".claude/shared",
-        "rootAdapter": ".claude/CLAUDE.md",
-        "modelMapping": ".claude/model-mapping.claude.json"
-      },
-      "modelMapping": {
-        "coding": "sonnet",
-        "review": "sonnet",
-        "reasoning": "opus",
-        "mechanical": "haiku",
-        "inherited": null
+        "rootAdapter": ".claude/CLAUDE.md"
       },
       "installUnits": [
         { "type": "directory", "source": ".claude/commands", "target": ".claude/commands", "strategy": "link-directory" },
@@ -74,15 +64,13 @@
         { "type": "directory", "source": ".claude/agents", "target": ".claude/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/instructions", "target": ".claude/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/shared", "target": ".claude/shared", "strategy": "link-directory" },
-        { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" },
-        { "type": "file", "source": ".claude/model-mapping.claude.json", "target": ".claude/model-mapping.claude.json", "strategy": "managed-copy" }
+         { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
       ]
     },
     {
       "id": "codex",
       "name": "Codex",
       "generatedTreePath": ".agents",
-      "modelMappingMode": "exact",
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -102,15 +90,7 @@
         "agents": ".agents/subagents",
         "instructions": ".agents/instructions",
         "shared": ".agents/shared",
-        "rootAdapter": ".agents/AGENTS.md",
-        "modelMapping": ".agents/model-mapping.codex.json"
-      },
-      "modelMapping": {
-        "coding": "GPT-5.3-Codex",
-        "review": "GPT-5.4",
-        "reasoning": "GPT-5.4",
-        "mechanical": "GPT-5.4 mini",
-        "inherited": null
+        "rootAdapter": ".agents/AGENTS.md"
       },
       "installUnits": [
         { "type": "directory", "source": ".agents/commands", "target": ".agents/commands", "strategy": "link-directory" },
@@ -118,15 +98,13 @@
         { "type": "directory", "source": ".agents/subagents", "target": ".agents/subagents", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/instructions", "target": ".agents/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/shared", "target": ".agents/shared", "strategy": "link-directory" },
-        { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" },
-        { "type": "file", "source": ".agents/model-mapping.codex.json", "target": ".agents/model-mapping.codex.json", "strategy": "managed-copy" }
+         { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
       ]
     },
     {
       "id": "opencode",
       "name": "OpenCode",
       "generatedTreePath": ".opencode",
-      "modelMappingMode": "role-only",
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -146,8 +124,7 @@
         "instructions": ".opencode/instructions",
         "shared": ".opencode/shared",
         "rootAdapter": ".opencode/AGENTS.md",
-        "config": ".opencode/opencode.json",
-        "modelMapping": ".opencode/model-mapping.opencode.json"
+        "config": ".opencode/opencode.json"
       },
       "installUnits": [
         { "type": "directory", "source": ".opencode/commands", "target": ".opencode/commands", "strategy": "link-directory" },
@@ -162,8 +139,7 @@
           "target": ".opencode/opencode.json",
           "strategy": "config-copy-or-snippet",
           "manualSnippet": "Add these fields to your existing .opencode/opencode.json if they are not already present: {\"instructions\":[\".opencode/AGENTS.md\"],\"skills\":{\"paths\":[\".opencode/skills\"]}}"
-        },
-        { "type": "file", "source": ".opencode/model-mapping.opencode.json", "target": ".opencode/model-mapping.opencode.json", "strategy": "managed-copy" }
+        }
       ]
     }
   ]

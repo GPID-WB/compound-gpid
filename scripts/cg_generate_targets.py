@@ -53,7 +53,6 @@ def _get_parse_frontmatter():
         from brain.utils import parse_frontmatter as _fn
         _get_parse_frontmatter._cache = _fn
     return _get_parse_frontmatter._cache
-MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
 OWNERSHIP_POLICY_VERSION = 1
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -74,12 +73,10 @@ CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
 # Schema validation (stdlib-only — no jsonschema dependency)
 # ---------------------------------------------------------------------------
 
-REQUIRED_TARGET_FIELDS = {"id", "name", "generatedTreePath", "modelMappingMode", "capabilities", "formats", "outputPaths"}
+REQUIRED_TARGET_FIELDS = {"id", "name", "generatedTreePath", "capabilities", "formats", "outputPaths"}
 REQUIRED_CAPABILITY_FIELDS = {"supportsNativeCommands", "supportsNativeSkills", "supportsNativeSubagents", "supportsMultiVendorModels", "requiresRootAdapter"}
 REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
 REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents", "instructions", "shared"}
-VALID_MODEL_MAPPING_MODES = {"role-only", "tier", "exact"}
-VALID_ROLES = {"coding", "review", "reasoning", "mechanical", "inherited", "fallback", "cross-vendor-review"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
 VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
 TARGET_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -321,9 +318,10 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         else:
             seen_ids.add(tid)
 
-        mode = target.get("modelMappingMode")
-        if mode not in VALID_MODEL_MAPPING_MODES:
-            errors.append(f"{prefix}: modelMappingMode must be one of {VALID_MODEL_MAPPING_MODES}, got '{mode}'")
+        if "modelMappingMode" in target:
+            errors.append(f"{prefix}: modelMappingMode is not supported; targets inherit the user's platform selection")
+        if "modelMapping" in target:
+            errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
@@ -341,6 +339,8 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
 
         output_paths = target.get("outputPaths")
         if isinstance(output_paths, dict):
+            if "modelMapping" in output_paths:
+                errors.append(f"{prefix}.outputPaths.modelMapping is not supported")
             output_items: list[tuple[str, str]] = []
             for field, value in output_paths.items():
                 label = f"{prefix}.outputPaths.{field}"
@@ -407,7 +407,6 @@ def build_generation_plan(
     root: Path,
     mapping: dict[str, Any],
     assets: dict[str, list[dict[str, Any]]],
-    catalog: dict[str, Any],
 ) -> GenerationPlan:
     """Validate and fully render every generated target without writing files."""
     errors = validate_target_mapping(mapping)
@@ -419,7 +418,7 @@ def build_generation_plan(
         if target.get("generatedTreePath") is None:
             continue
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets, catalog)
+            (_render_output_entry(target, entry, assets)
              for entry in build_output_manifest(target, assets)),
             key=lambda entry: entry.destination,
         ))
@@ -671,52 +670,6 @@ def load_target_mapping(root: Path) -> dict[str, Any]:
     return json.loads(mapping_path.read_text(encoding="utf-8"))
 
 
-def load_model_catalog(root: Path) -> dict[str, Any]:
-    """Load model-catalog.json from .github/shared/."""
-    catalog_path = root / MODEL_CATALOG_PATH
-    if not catalog_path.exists():
-        raise FileNotFoundError(f"Model catalog not found at: {catalog_path}")
-    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-    if not isinstance(catalog, dict):
-        raise ValueError("Model catalog must be an object")
-    for field in ("models", "assignments", "frontmatterSupport"):
-        if not isinstance(catalog.get(field), list):
-            raise ValueError(f"Model catalog field '{field}' must be an array")
-    return catalog
-
-
-def get_role_for_asset(rel_path: str, catalog: dict[str, Any]) -> Optional[str]:
-    """Look up the canonical role for an asset from the model catalog assignments."""
-    for assignment in catalog.get("assignments", []):
-        if assignment.get("path") == rel_path:
-            return assignment.get("role")
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Model mapping resolution
-# ---------------------------------------------------------------------------
-
-def resolve_model(target: dict[str, Any], role: Optional[str]) -> Optional[str]:
-    """Resolve a canonical role to a platform-specific model value.
-
-    Returns None for inherited/unmapped roles.
-    """
-    if role is None:
-        return None
-    mode = target.get("modelMappingMode", "role-only")
-    mapping = target.get("modelMapping", {})
-
-    if mode == "role-only":
-        return None
-    if role in mapping:
-        mapped = mapping[role]
-        return mapped if isinstance(mapped, str) else None
-    if role == "inherited":
-        return None
-    return mapping.get("fallback")
-
-
 # ---------------------------------------------------------------------------
 # Output manifest (for dry-run and drift detection)
 # ---------------------------------------------------------------------------
@@ -816,9 +769,6 @@ def build_output_manifest(
     if output_paths.get("rootAdapter"):
         manifest.append({"path": output_paths["rootAdapter"], "source": "adapter", "type": "root-adapter"})
 
-    if output_paths.get("modelMapping"):
-        manifest.append({"path": output_paths["modelMapping"], "source": "model-catalog", "type": "model-mapping"})
-
     if output_paths.get("config"):
         manifest.append({"path": output_paths["config"], "source": "target-mapping", "type": "config"})
 
@@ -839,8 +789,7 @@ def _format_frontmatter(
     Args:
         fm: Canonical frontmatter dict (must contain 'description' at minimum).
         body: Full canonical file body (including original frontmatter).
-        extra_fields: Platform-specific fields to inject (e.g. {'model': 'sonnet'}).
-            None values are omitted.
+        extra_fields: Platform-specific fields to inject. None values are omitted.
     Returns:
         Formatted file content with new frontmatter + stripped body.
     """
@@ -957,7 +906,6 @@ def _render_output_entry(
     target: dict[str, Any],
     manifest_entry: dict[str, str],
     assets: dict[str, list[dict[str, Any]]],
-    catalog: dict[str, Any],
 ) -> OutputEntry:
     """Render one manifest entry into final bytes without filesystem writes."""
     lookups = _build_asset_lookup(assets)
@@ -987,21 +935,19 @@ def _render_output_entry(
             raise ValueError(f"Manifest references unknown {category[:-1]}: {source_identity}")
 
     if kind == "command":
-        text = _emit_command(source, target, catalog)
+        text = _emit_command(source, target)
     elif kind == "skill":
         text = source["body"]
     elif kind == "skill-resource":
         content = source["content"]
     elif kind == "agent":
-        text = _emit_agent(source, target, catalog)
+        text = _emit_agent(source, target)
     elif kind == "fallback-agent":
-        text = _emit_fallback_agent(source, target, catalog)
+        text = _emit_fallback_agent(source, target)
     elif kind in ("prompt-support", "instruction", "shared"):
         text = source["body"]
     elif kind == "root-adapter":
         text = _emit_root_adapter(target)
-    elif kind == "model-mapping":
-        text = _emit_model_mapping(target, catalog)
     elif kind == "config":
         text = _emit_config(target)
     else:
@@ -1342,7 +1288,6 @@ def emit_for_target(
     root: Path,
     target: dict[str, Any],
     assets: dict[str, list[dict[str, Any]]],
-    catalog: dict[str, Any],
     dry_run: bool = False,
 ) -> list[str]:
     """Emit native files for a single target. Returns list of written paths.
@@ -1353,7 +1298,7 @@ def emit_for_target(
     if target.get("generatedTreePath") is None:
         return []
     mapping = {"schemaVersion": 1, "description": "single target", "targets": [target]}
-    plan = build_generation_plan(root, mapping, assets, catalog)
+    plan = build_generation_plan(root, mapping, assets)
     result = plan.by_target[target["id"]]
     if not dry_run:
         commit_generation_plan(root, plan, (target["id"],))
@@ -1363,16 +1308,12 @@ def emit_for_target(
 def _emit_command(
     source: dict[str, Any],
     target: dict[str, Any],
-    catalog: dict[str, Any],
 ) -> str:
     """Emit a platform-native command file from a canonical prompt."""
     fm = source["frontmatter"]
     body = source["body"]
-    role = get_role_for_asset(source["relative_path"], catalog)
-    model = resolve_model(target, role)
-
     if target["id"] in ("claude-code", "codex"):
-        return _format_frontmatter(fm, body, {"model": model})
+        return _format_frontmatter(fm, body, {})
     elif target["id"] == "opencode":
         return _format_frontmatter(fm, _with_opencode_arguments(body), {})
     else:
@@ -1382,18 +1323,14 @@ def _emit_command(
 def _emit_agent(
     source: dict[str, Any],
     target: dict[str, Any],
-    catalog: dict[str, Any],
 ) -> str:
     """Emit a platform-native agent/subagent file from a canonical agent."""
     fm = source["frontmatter"]
     body = source["body"]
-    role = get_role_for_asset(source["relative_path"], catalog)
-    model = resolve_model(target, role)
     agent_format = target.get("formats", {}).get("agentFormat", "")
 
     if "toml" in agent_format:
         desc = json.dumps(str(fm.get("description", "")), ensure_ascii=False)
-        model_line = f"model = {json.dumps(model, ensure_ascii=False)}" if model else '# model = "inherited"'
         tools = fm.get("tools", [])
         if isinstance(tools, list):
             tools_str = ", ".join(json.dumps(str(tool), ensure_ascii=False) for tool in tools)
@@ -1402,9 +1339,9 @@ def _emit_agent(
         body_text = body.split("---", 2)[-1].strip() if "---" in body else body
         name = json.dumps(source["filename"].replace(".agent.md", ""), ensure_ascii=False)
         instructions = json.dumps(body_text, ensure_ascii=False)
-        return f'[[subagent]]\nname = {name}\ndescription = {desc}\n{model_line}\ntools = [{tools_str}]\ninstructions = {instructions}\n'
+        return f'[[subagent]]\nname = {name}\ndescription = {desc}\ntools = [{tools_str}]\ninstructions = {instructions}\n'
     elif target["id"] in ("claude-code",):
-        return _format_frontmatter(fm, body, {"model": model})
+        return _format_frontmatter(fm, body, {})
     elif target["id"] == "opencode":
         return _format_frontmatter(fm, body, {"mode": "subagent"})
     else:
@@ -1414,7 +1351,6 @@ def _emit_agent(
 def _emit_fallback_agent(
     source: dict[str, Any],
     target: dict[str, Any],
-    catalog: dict[str, Any],
 ) -> str:
     """Emit a fallback skill/instruction file for an agent (Codex without native subagent support)."""
     fm = source["frontmatter"]
@@ -1430,22 +1366,6 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     name = target["name"]
     paths = target["outputPaths"]
     return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
-
-
-def _emit_model_mapping(target: dict[str, Any], catalog: dict[str, Any]) -> str:
-    """Emit a platform-specific model mapping artifact."""
-    tid = target["id"]
-    mode = target.get("modelMappingMode", "role-only")
-    mapping = target.get("modelMapping", {})
-
-    artifact = {
-        "platform": tid,
-        "modelMappingMode": mode,
-        "mapping": mapping,
-        "source": target["outputPaths"]["shared"] + "/model-catalog.json",
-        "note": "Generated from canonical role assignments. Exact model names are validated where possible; unvalidated names are marked not-tested."
-    }
-    return json.dumps(artifact, indent=2, ensure_ascii=False) + "\n"
 
 
 def _emit_config(target: dict[str, Any]) -> str:
@@ -1511,9 +1431,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 1
 
     try:
-        catalog = load_model_catalog(root)
         assets = scan_canonical_assets(root)
-        generation_plan = build_generation_plan(root, target_mapping, assets, catalog)
+        generation_plan = build_generation_plan(root, target_mapping, assets)
     except (ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1

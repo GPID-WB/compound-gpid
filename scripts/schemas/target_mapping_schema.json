@@ -13,15 +13,15 @@
       "minItems": 1
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "target": {
       "type": "object",
-      "required": ["id", "name", "generatedTreePath", "modelMappingMode", "capabilities", "formats", "outputPaths"],
+      "required": ["id", "name", "generatedTreePath", "capabilities", "formats", "outputPaths"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
         "name": { "type": "string" },
         "generatedTreePath": { "type": ["string", "null"], "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
-        "modelMappingMode": { "type": "string", "enum": ["role-only", "tier", "exact"] },
         "capabilities": {
           "type": "object",
           "required": ["supportsNativeCommands", "supportsNativeSkills", "supportsNativeSubagents", "supportsMultiVendorModels", "requiresRootAdapter"],
@@ -31,7 +31,8 @@
             "supportsNativeSubagents": { "type": "boolean" },
             "supportsMultiVendorModels": { "type": "boolean" },
             "requiresRootAdapter": { "type": "boolean" }
-          }
+          },
+          "additionalProperties": false
         },
         "formats": {
           "type": "object",
@@ -41,7 +42,8 @@
             "skillFormat": { "type": "string" },
             "agentFormat": { "type": "string" },
             "fallbackAgentFormat": { "type": "string" }
-          }
+          },
+          "additionalProperties": false
         },
         "outputPaths": {
           "type": "object",
@@ -53,27 +55,16 @@
             "instructions": { "$ref": "#/definitions/repoPath" },
             "shared": { "$ref": "#/definitions/repoPath" },
             "rootAdapter": { "$ref": "#/definitions/repoPath" },
-            "modelMapping": { "$ref": "#/definitions/repoPath" },
             "config": { "$ref": "#/definitions/repoPath" }
-          }
-        },
-        "modelMapping": {
-          "type": "object",
-          "properties": {
-            "coding": { "type": ["string", "null"] },
-            "review": { "type": ["string", "null"] },
-            "reasoning": { "type": ["string", "null"] },
-            "mechanical": { "type": ["string", "null"] },
-            "inherited": { "type": ["string", "null"] },
-            "fallback": { "type": ["string", "null"] },
-            "cross-vendor-review": { "type": ["string", "null"] }
-          }
+          },
+          "additionalProperties": false
         },
         "installUnits": {
           "type": "array",
           "items": { "$ref": "#/definitions/installUnit" }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "installUnit": {
       "type": "object",
@@ -85,6 +76,7 @@
         "strategy": { "type": "string", "enum": ["link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"] },
         "manualSnippet": { "type": "string" }
       },
+      "additionalProperties": false,
       "allOf": [
         {
           "if": { "properties": { "strategy": { "const": "link-directory" } } },
