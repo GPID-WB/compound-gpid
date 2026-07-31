@@ -265,6 +265,11 @@ If the user selects **R**, **Both**, or **All**: ask a follow-up before Question
 
 **(Full fallback only — skip this write if entering at Q4)** Write `compound-gpid.local.md` using the **compound-gpid.local.md Template** from `setup-templates.md`.
 
+The template may include the optional `model-advisory` block. Explain that it
+can contain user-maintained advisory example preferences and effort language
+only; it must not contain a runtime model assignment, automatic routing rule,
+or platform configuration override.
+
 **(Partial fallback entry point)** *(Language and project-type config from Step A2 remain in effect. To change them, re-run `/cg-setup` after this session or use Mode B → B4.)*
 
 **Question 4 — Project name** (required for charter creation)
