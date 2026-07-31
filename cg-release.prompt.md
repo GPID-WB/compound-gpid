@@ -1,6 +1,5 @@
 ---
 description: "Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — this file lives at the repo root and is NOT junctioned into user projects."
-model: Claude Sonnet 4.6 (copilot)
 ---
 
 # Release
