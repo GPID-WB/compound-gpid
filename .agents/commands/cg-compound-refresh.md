@@ -1,6 +1,5 @@
 ---
 description: "Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities."
-model: GPT-5.4
 ---
 
 # Compound Refresh

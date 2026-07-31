@@ -1,6 +1,5 @@
 ---
 description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
-model: GPT-5.3-Codex
 ---
 
 # Fix Bug

@@ -1,6 +1,5 @@
 ---
 description: "Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering."
-model: GPT-5.4 mini
 ---
 
 # Roadmap View
