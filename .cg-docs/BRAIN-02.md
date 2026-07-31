@@ -1,15 +1,23 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-07-28_
+_Generated 2026-07-31_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 14 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 20 entities
 
+- **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
+  > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
+- **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
+  > Snapshot and external-research modes are useful future ideas, but they carry different risks from local workflow exec…
+- **[Token dashboards need explicit baseline/pass/fail semantics](.cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md)** · `solution` · _—_ · `2026-06-23`
+  > Workflow token artifacts made static prompt/context pressure visible, but a maintainer still had to inspect multiple …
 - **[Cross-file state contracts must align across docs, validators, and behavioral tests](.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md)** · `solution` · _—_ · `2026-07-24`
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 - **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
+- **[Advisory inheritance audits need explicit keys and cross-platform legacy cleanup](.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md)** · `solution` · _—_ · `2026-07-31`
+  > The user-selected model migration removed execution assignments and replaced them with advisory-only stage guidance. …
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -34,13 +42,17 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 14 entiti
   > Compound GPID already has a substantial token/model-governance foundation:
 - **[Skills Enhancement Idea Additions](.cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md)** · `strategy` · _—_ · `2026-07-22`
   > Compound GPID is in a mid-project phase with the existing `Skills Enhancement` milestone available for additional ski…
+- **[Adaptive project workflow capability](.cg-docs/strategy/2026-07-30-adaptive-project-workflow-capability.md)** · `strategy` · _—_ · `2026-07-30`
+  > Compound GPID had 12 roadmap milestones and 117 features. Its current focus remained the Token Efficiency Core System…
+- **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
+  > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 
 ## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
 
 _Keywords: `architecture research
 objective` · `knowledge brain
 objective` · `quality loop
-objective`_ · 114 entities
+objective`_ · 133 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -80,18 +92,20 @@ objective`_ · 114 entities
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
   > tidymodels addition to cg-skill-r-analytical
-- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill description consistency audit and optimization
+- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill discovery metadata and trigger-quality audit
 - **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
   > Testing skill for Python (pytest/parametrize/monkeypatch)
 - **[Testing skill for Stata \(assert-based/reprun\)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
   > Testing skill for Stata (assert-based/reprun)
-- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
-  > Skill description length cap with test enforcement [from CE]
 - **[World Bank institutional report-writing skill](roadmap.json#world-bank-institutional-report-writing-skill)** · `feature` · _done_ · `—`
   > World Bank institutional report-writing skill
 - **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
   > SkillOpt-based improvement of existing skills
+- **[Shared sensitive-data and output-hygiene contract](roadmap.json#shared-writing-guardrails-contract)** · `feature` · _idea_ · `—`
+  > Shared sensitive-data and output-hygiene contract
+- **[Reusable report source provenance and verification](roadmap.json#exemplar-source-pack-schema)** · `feature` · _idea_ · `—`
+  > Reusable report source provenance and verification
 - **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
@@ -134,6 +148,10 @@ objective`_ · 114 entities
   > Tiered model escalation — super-advanced model dispatch
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
+- **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
+  > External asset provenance and controlled intake
+- **[GitHub Actions hardening external-skill pilot](roadmap.json#github-actions-supply-chain-hardening-pilot)** · `feature` · _idea_ · `—`
+  > GitHub Actions hardening external-skill pilot
 - **[End-to-end ID traceability from brainstorm requirements \(R-IDs\) to plan tasks \(U-IDs\) \[from CE\]](roadmap.json#brainstorm-plan-id-traceability)** · `feature` · _idea_ · `—`
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
@@ -180,6 +198,10 @@ objective`_ · 114 entities
   > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
 - **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
   > /cg-help — comprehensive interactive help system
+- **[Project scanner evidence, unknowns, and intent-versus-reality gaps](roadmap.json#project-scanner-evidence-reality-gaps)** · `feature` · _idea_ · `—`
+  > Project scanner evidence, unknowns, and intent-versus-reality gaps
+- **[GitHub Pages website publishing for project wikis](roadmap.json#wiki-github-pages-site-publishing)** · `feature` · _idea_ · `—`
+  > GitHub Pages website publishing for project wikis
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
 - **[Phased plan structure in /cg-plan](roadmap.json#phased-plan-structure)** · `feature` · _done_ · `—`
@@ -202,6 +224,8 @@ objective`_ · 114 entities
   > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[Explicit plan-path selection for /cg-work](roadmap.json#cg-work-explicit-plan-path)** · `feature` · _idea_ · `—`
   > Explicit plan-path selection for /cg-work
+- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
+  > Automatic post-PR CI verification and universal PR targeting
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
@@ -234,8 +258,6 @@ objective`_ · 114 entities
   > Outcome criteria in plans (verifiable acceptance criteria)
 - **[Conversation audit trail across workflow stages](roadmap.json#conversation-audit-trail)** · `feature` · _idea_ · `—`
   > Conversation audit trail across workflow stages
-- **[Attribution documentation \(source repos and websites\)](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
-  > Attribution documentation (source repos and websites)
 - **[/cg-strategy --add <idea> quick-add mode for roadmap ideas](roadmap.json#strategy-add-shortcut)** · `feature` · _idea_ · `—`
   > /cg-strategy --add <idea> quick-add mode for roadmap ideas
 - **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](roadmap.json#project-wiki-auto-documentation)** · `feature` · _done_ · `—`
@@ -244,10 +266,10 @@ objective`_ · 114 entities
   > Planning-stage test strategy + human review facilitation
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
-- **[Reusable exemplar source-pack schema](roadmap.json#exemplar-source-pack-schema)** · `feature` · _idea_ · `—`
-  > Reusable exemplar source-pack schema
-- **[Shared institutional writing guardrails contract](roadmap.json#shared-writing-guardrails-contract)** · `feature` · _idea_ · `—`
-  > Shared institutional writing guardrails contract
+- **[User-selected execution with advisory model and effort routing](roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing)** · `feature` · _done_ · `—`
+  > User-selected execution with advisory model and effort routing
+- **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
+  > Runtime model-catalog introspection across platforms
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
@@ -270,6 +292,34 @@ objective`_ · 114 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Workflow suitability criteria and non-goals](roadmap.json#workflow-suitability-criteria)** · `feature` · _idea_ · `—`
+  > Workflow suitability criteria and non-goals
+- **[Project scanner workflow-evidence analysis](roadmap.json#project-scanner-workflow-evidence)** · `feature` · _idea_ · `—`
+  > Project scanner workflow-evidence analysis
+- **[Compound workflow contract and .cg-docs/workflows/ schema](roadmap.json#compound-workflow-contract)** · `feature` · _idea_ · `—`
+  > Compound workflow contract and .cg-docs/workflows/ schema
+- **[/cg-workflow-builder guided discovery and inferred workflow proposal](roadmap.json#cg-workflow-builder)** · `feature` · _idea_ · `—`
+  > /cg-workflow-builder guided discovery and inferred workflow proposal
+- **[Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation](roadmap.json#workflow-stage-scaffolding)** · `feature` · _idea_ · `—`
+  > Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation
+- **[Existing-workflow lifecycle with create, extend, and revise modes](roadmap.json#workflow-lifecycle-modes)** · `feature` · _idea_ · `—`
+  > Existing-workflow lifecycle with create, extend, and revise modes
+- **[Deterministic workflow structure and reference validation](roadmap.json#workflow-structure-validation)** · `feature` · _idea_ · `—`
+  > Deterministic workflow structure and reference validation
+- **[/cg-setup workflow-suitability assessment](roadmap.json#setup-workflow-suitability-assessment)** · `feature` · _idea_ · `—`
+  > /cg-setup workflow-suitability assessment
+- **[Consent-based handoff from /cg-setup to /cg-workflow-builder](roadmap.json#setup-workflow-builder-handoff)** · `feature` · _idea_ · `—`
+  > Consent-based handoff from /cg-setup to /cg-workflow-builder
+- **[Lightweight workflow runner with stage entry and completion guidance](roadmap.json#workflow-runner)** · `feature` · _idea_ · `—`
+  > Lightweight workflow runner with stage entry and completion guidance
+- **[Workflow status and resume from filesystem artifacts](roadmap.json#workflow-status-resume)** · `feature` · _idea_ · `—`
+  > Workflow status and resume from filesystem artifacts
+- **[Context-budget checks for workflow stage contracts](roadmap.json#workflow-context-budget-checks)** · `feature` · _idea_ · `—`
+  > Context-budget checks for workflow stage contracts
+- **[Representative analytical and technical workflow pilots](roadmap.json#workflow-representative-pilots)** · `feature` · _idea_ · `—`
+  > Representative analytical and technical workflow pilots
+- **[Pilot evaluation gate before broader default exposure](roadmap.json#workflow-pilot-evaluation-gate)** · `feature` · _idea_ · `—`
+  > Pilot evaluation gate before broader default exposure
 
 ## Tests / Python / Httpx
 
