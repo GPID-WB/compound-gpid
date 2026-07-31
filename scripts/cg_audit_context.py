@@ -2,8 +2,8 @@
 """cg-audit-context — Compound GPID context and model-governance audit.
 
 Inventories context-contributing files, estimates token burden with chars / 4,
-counts prompt and agent references, inventories model declarations, detects
-duplicate paragraph blocks, and writes JSON/Markdown reports.
+counts prompt and agent references, validates model inheritance and advisory
+provenance, detects duplicate paragraph blocks, and writes JSON/Markdown reports.
 
 Usage:
     python scripts/cg_audit_context.py [--root <path>] [--output-dir <path>] [--format json|md|both] [--baseline context-audit.json] [--recommendations] [--token-output-dir <path>] [--no-token-artifacts]
@@ -69,8 +69,26 @@ TOKEN_ARTIFACT_FILENAMES = (
     "large-context-warnings.md",
 )
 
-MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
-MODEL_ROLES = {"inherited", "coding", "review", "reasoning", "mechanical", "fallback"}
+MODEL_ADVISORY_CONTRACT_PATH = ".github/shared/model-advisory.contract.md"
+MODEL_ADVISORY_EXAMPLES_PATH = ".github/shared/model-advisory-examples.json"
+ADVISORY_EFFORT_LABELS = {"low", "medium", "high", "xhigh", "max"}
+ADVISORY_STAGES = {
+    "planning",
+    "implementation",
+    "review",
+    "fix-triage",
+    "compounding-documentation",
+}
+FORBIDDEN_ADVISORY_KEYS = {
+    "model",
+    "preferredmodel",
+    "modelmapping",
+    "dispatchmodel",
+    "switchmodel",
+    "retrywithmodel",
+    "exactmodel",
+    "setmodel",
+}
 
 THRESHOLD_INSTRUCTION_IMMEDIATE = 1500
 THRESHOLD_INSTRUCTION_CRITICAL = 3000
@@ -145,8 +163,6 @@ WORKFLOW_SOURCE_EXACT_PATHS = {
     "copilot-instructions.md",
     "copilot-instructions.template.md",
 }
-ESCALATION_RE = re.compile(r"\b(?:escalat|opus required|borderline|frontier|highest capability)\b", re.IGNORECASE)
-_COPILOT_SUFFIX_RE = re.compile(r"\s*\(copilot\)\s*$", re.IGNORECASE)
 _PARAGRAPH_SEP_RE = re.compile(r"\n\s*\n")
 CONDITIONAL_ROUTING_RE = re.compile(
     r"\b(?:deterministic preflight|risk-class routing|route-aware|resolved mode|staged mode)\b",
@@ -189,15 +205,6 @@ CONTEXT_MAINTENANCE_RE = re.compile(
     r"roadmap commands|setup|audit|tooling|maintenance)\b",
     re.IGNORECASE,
 )
-
-ORDINARY_MODEL_PICKER_PROMPTS = {
-    ".github/prompts/cg-brainstorm.prompt.md",
-    ".github/prompts/cg-ideate.prompt.md",
-    ".github/prompts/cg-plan-review.prompt.md",
-    ".github/prompts/cg-plan.prompt.md",
-    ".github/prompts/cg-review-repos.prompt.md",
-    ".github/prompts/cg-strategy.prompt.md",
-}
 
 WORKFLOW_REGISTRY = (
     {"workflow_id": "cg-brainstorm", "workflow": "/cg-brainstorm", "path": ".github/prompts/cg-brainstorm.prompt.md"},
@@ -272,11 +279,11 @@ EXPECTED_REVIEW_AGENT_COUNTS = {
 RELEASE_READINESS_CHECKLIST = [
     "Audit generated successfully.",
     "Guardrail failures are zero, or warnings are documented as maintenance-intentional.",
-    "Ordinary model-picker prompts still omit model:.",
-    "Premium model usage remains zero.",
-    "Model catalog covers every prompt and agent with one role assignment.",
-    "OpenAI-first, Haiku mechanical-only, and Sonnet fallback/cross-vendor checks are reviewed.",
-    "Exact GPT frontmatter support is validated in VS Code/Copilot before broad GPT prompt edits.",
+    "Canonical prompts and agents contain no executable model metadata.",
+    "The shared advisory contract and examples validate successfully.",
+    "Bundled examples carry observed dates and explicit availability/verification status.",
+    "Named examples remain secondary to capability-only guidance.",
+    "Runtime availability and platform picker behavior remain explicitly unverified unless observed.",
     "/cg-review and /cg-work remain conditional, not broad, dispatch workflows.",
     "Broad Brain/context reads are targeted, justified, or maintenance-only.",
     "Top remaining optimization candidates are reviewed and accepted or filed as future work.",
@@ -374,119 +381,8 @@ def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, in
     return files, by_category
 
 
-def classify_model_tier(model: str | None) -> str:
-    """Classify a model string into a governance tier.
-
-    Args:
-        model: Model name from frontmatter (e.g., ``"Claude Sonnet 4.6 (copilot)"``).
-
-    Returns:
-        One of ``"premium"``, ``"standard"``, ``"economy"``, ``"missing"``, or ``"unknown"``.
-
-    Example::
-
-        classify_model_tier("Claude Opus 4.6")   # "premium"
-        classify_model_tier(None)                 # "missing"
-    """
-    if not model:
-        return "missing"
-    normalized = normalize_model_name(model)
-    catalog_model = model_catalog_model_lookup({}).get(normalized)
-    if catalog_model:
-        return str(catalog_model.get("tier", "unknown"))
-    if "Opus" in model:
-        return "premium"
-    if "Sonnet" in model:
-        return "standard"
-    if "Haiku" in model:
-        return "economy"
-    return "unknown"
-
-
-def normalize_model_name(model: str | None) -> str:
-    """Strip the ``(copilot)`` vendor suffix from a model string.
-
-    Args:
-        model: Raw model string, possibly ``None``.
-
-    Returns:
-        Normalised string with suffix removed and whitespace stripped.
-        Returns empty string for ``None`` or empty input.
-
-    Example::
-
-        normalize_model_name("Claude Sonnet 4.6 (copilot)")  # "Claude Sonnet 4.6"
-    """
-    return _COPILOT_SUFFIX_RE.sub("", model or "").strip()
-
-
-def load_model_catalog(root: Path) -> dict[str, Any]:
-    """Load the durable model governance catalog.
-
-    Returns an empty catalog shape when the file is absent so tests can build
-    minimal temporary repositories without copying the production catalog.
-    """
-    path = root / MODEL_CATALOG_PATH
-    empty = {
-        "schemaVersion": 0,
-        "policy": {},
-        "frontmatterSupport": [],
-        "models": [],
-        "assignments": [],
-    }
-    if not path.exists():
-        return empty
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8-sig"))
-    except json.JSONDecodeError as exc:
-        return {**empty, "load_error": f"{path}: {exc}"}
-    for key in empty:
-        payload.setdefault(key, empty[key])
-    return payload
-
-
-def model_catalog_model_lookup(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    """Return model metadata keyed by normalized model name."""
-    return {
-        normalize_model_name(str(row.get("name", ""))): row
-        for row in catalog.get("models", [])
-        if row.get("name")
-    }
-
-
-def model_catalog_support_lookup(catalog: dict[str, Any]) -> dict[str, str]:
-    """Return frontmatter support status keyed by normalized model name."""
-    return {
-        normalize_model_name(str(row.get("model", ""))): str(row.get("status", "unknown"))
-        for row in catalog.get("frontmatterSupport", [])
-        if row.get("model")
-    }
-
-
-def model_catalog_assignment_lookup(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    """Return expected prompt/agent assignments keyed by repository path."""
-    return {
-        str(row.get("path")): row
-        for row in catalog.get("assignments", [])
-        if row.get("path")
-    }
-
-
 def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Extract model governance metadata from all prompt and agent files.
-
-    Args:
-        root: Repository root path.
-        files: File records from :func:`scan_files`.
-
-    Returns:
-        List of dicts with keys: ``path``, ``category``, ``model``, ``model_tier``,
-        ``has_escalation_condition``, ``tools``.
-    """
-    catalog = load_model_catalog(root)
-    model_lookup = model_catalog_model_lookup(catalog)
-    support_lookup = model_catalog_support_lookup(catalog)
-    assignment_lookup = model_catalog_assignment_lookup(catalog)
+    """Extract forbidden executable model metadata from prompts and agents."""
     declarations: list[dict[str, Any]] = []
     for file_record in files:
         if file_record["category"] not in ("prompts", "agents"):
@@ -494,199 +390,247 @@ def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> l
         path = root / file_record["path"]
         content = path.read_text(encoding="utf-8-sig")
         fm = parse_frontmatter(content)
+        model_key_present = "model" in fm
         model = fm.get("model")
         if model is not None:
             model = str(model)
-        path_string = file_record["path"]
-        normalized = normalize_model_name(model)
-        catalog_model = model_lookup.get(normalized, {})
-        assignment = assignment_lookup.get(path_string, {})
-        model_tier = (
-            "model-picker"
-            if model is None and path_string in ORDINARY_MODEL_PICKER_PROMPTS
-            else str(catalog_model.get("tier") or classify_model_tier(model))
-        )
         declarations.append({
-            "path": path_string,
+            "path": file_record["path"],
             "category": file_record["category"],
             "model": model,
-            "normalized_model": normalized,
-            "model_tier": model_tier,
-            "vendor": catalog_model.get("vendor") or ("inherited" if model_tier == "model-picker" else "unknown"),
-            "family": catalog_model.get("family") or ("Auto" if model_tier == "model-picker" else "unknown"),
-            "role": assignment.get("role", "unknown"),
-            "preferred_model": assignment.get("preferredModel"),
-            "frontmatter_mode": assignment.get("frontmatterMode"),
-            "frontmatter_support": support_lookup.get(normalized) if normalized else None,
-            "catalog_policy_status": catalog_model.get("policyStatus"),
-            "catalog_rationale": assignment.get("rationale"),
-            "has_escalation_condition": bool(ESCALATION_RE.search(content)),
+            "execution_metadata": model_key_present,
             "tools": fm.get("tools"),
         })
     return declarations
 
 
-def parse_model_guide(path: Path) -> dict[str, str]:
-    """Parse ``### Prompts`` / ``### Agents`` assignment tables from the model-guide.
+def _advisory_key_paths(value: Any, prefix: str = "") -> list[str]:
+    """Return paths for forbidden executable advisory keys."""
+    found: list[str] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            key_path = f"{prefix}.{key}" if prefix else str(key)
+            if str(key).casefold() in FORBIDDEN_ADVISORY_KEYS:
+                found.append(key_path)
+            found.extend(_advisory_key_paths(child, key_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(_advisory_key_paths(child, f"{prefix}[{index}]"))
+    return found
 
-    Reads H3-keyed pipe-delimited tables. Returns an empty dict if the file
-    does not exist or contains no matching H3 sections.
 
-    Args:
-        path: Path to ``docs/model-guide.md``.
+def _validate_advisory_option(stage: str, label: str, option: Any, errors: list[str]) -> None:
+    if not isinstance(option, dict):
+        errors.append(f"stage {stage}.{label} must be an object")
+        return
+    effort = option.get("effort")
+    if not isinstance(effort, str) or effort not in ADVISORY_EFFORT_LABELS:
+        errors.append(f"stage {stage}.{label}.effort is not a supported advisory label")
+    refs = option.get("exampleRefs", [])
+    if not isinstance(refs, list) or any(not isinstance(ref, str) for ref in refs):
+        errors.append(f"stage {stage}.{label}.exampleRefs must be a list of strings")
 
-    Returns:
-        Dict mapping filename (e.g., ``"cg-review.prompt.md"``) to model string.
 
-    Example::
-
-        guide = parse_model_guide(root / "docs" / "model-guide.md")
-        guide.get("cg-review.prompt.md")  # "Claude Sonnet 4.6 (copilot)"
-    """
+def validate_local_advisory_config(root: Path) -> list[str]:
+    """Validate optional local advisory preferences without interpreting execution settings."""
+    path = root / "compound-gpid.local.md"
     if not path.exists():
-        return {}
-    guide = parse_model_guide_assignments(path)
-    return {filename: row["model"] for filename, row in guide.items()}
+        return []
+    content = path.read_text(encoding="utf-8-sig")
+    if "model-advisory:" not in content:
+        return []
+    lines = content.splitlines()
+    starts = [index for index, line in enumerate(lines) if line.strip() == "model-advisory:"]
+    if not starts:
+        return []
+    start = starts[0]
+    section: list[tuple[int, str]] = []
+    for index, line in enumerate(lines[start + 1:], start=start + 2):
+        if line.strip() == "---" or (line and not line[0].isspace()):
+            break
+        section.append((index, line))
+    errors: list[str] = []
+    if not any(re.match(r"^\s+enabled\s*:", line) for _, line in section):
+        errors.append("compound-gpid.local.md model-advisory block is missing enabled")
+    if not any(re.match(r"^\s+(examples|preferences)\s*:", line) for _, line in section):
+        errors.append("compound-gpid.local.md model-advisory block is missing examples or preferences")
+    bundled_ids: set[str] = set()
+    examples_path = root / MODEL_ADVISORY_EXAMPLES_PATH
+    if examples_path.exists():
+        try:
+            bundled = json.loads(examples_path.read_text(encoding="utf-8-sig"))
+            if isinstance(bundled, dict) and isinstance(bundled.get("examples"), list):
+                bundled_ids = {
+                    item["id"] for item in bundled["examples"]
+                    if isinstance(item, dict) and isinstance(item.get("id"), str)
+                }
+        except (OSError, json.JSONDecodeError):
+            pass
 
-
-def parse_model_guide_assignments(path: Path) -> dict[str, dict[str, str]]:
-    """Parse model-guide assignment tables with ``File | Model | Role | Rationale``.
-
-    The parser remains tolerant of the older two-column table form, but returns
-    empty role/rationale values for those rows.
-    """
-    if not path.exists():
-        return {}
-    guide: dict[str, dict[str, str]] = {}
-    in_table = False
-    for line in path.read_text(encoding="utf-8-sig").splitlines():
-        stripped = line.strip()
-        if stripped in ("### Prompts", "### Agents"):
-            in_table = True
+    for index, line in section:
+        match = re.match(r"^\s+([^:#]+?)\s*:", line)
+        if not match:
             continue
-        if in_table and stripped.startswith("### "):
-            in_table = False
-        if not in_table or not stripped.startswith("|"):
-            continue
-        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        if len(cells) < 2 or cells[0] in ("File",) or cells[0].startswith("---") or cells[0].startswith(":---"):
-            continue
-        filename = cells[0].strip("` ")
-        model = cells[1].strip("` ")
-        role = cells[2].strip("` ") if len(cells) > 2 else ""
-        rationale = cells[3].strip("` ") if len(cells) > 3 else ""
-        if filename and filename != "---------------":
-            guide[filename] = {"model": model, "role": role, "rationale": rationale}
-    return guide
+        key = match.group(1).strip()
+        key_lower = key.casefold()
+        value = line.split(":", 1)[1].strip().strip("\"'")
+        indent = len(line) - len(line.lstrip())
+        if key_lower in FORBIDDEN_ADVISORY_KEYS:
+            errors.append(f"compound-gpid.local.md line {index} contains executable advisory key")
+        elif indent == 2 and key_lower not in {"enabled", "examples", "preferences"}:
+            errors.append(f"compound-gpid.local.md line {index} contains unsupported advisory field: {key}")
+        elif key_lower == "enabled" and value.casefold() not in {"true", "false"}:
+            errors.append(f"compound-gpid.local.md line {index} enabled must be true or false")
+        elif key_lower in {"effort", "strongeffort", "economicaleffort"} and value not in ADVISORY_EFFORT_LABELS:
+            errors.append(f"compound-gpid.local.md line {index} uses unsupported advisory effort: {value}")
+        elif key_lower in {"strong", "economical", "example", "exampleref"} and bundled_ids and value not in bundled_ids:
+            errors.append(f"compound-gpid.local.md line {index} references unknown advisory example: {value}")
+    return errors
 
 
-def model_guide_matches_declaration(declaration: dict[str, Any], expected: str | None) -> bool:
-    """Return whether a model-guide value matches one prompt/agent declaration.
+def validate_advisory_examples(root: Path) -> dict[str, Any]:
+    """Validate the shared advisory contract and dated example schema."""
+    errors: list[str] = []
+    contract_path = root / MODEL_ADVISORY_CONTRACT_PATH
+    examples_path = root / MODEL_ADVISORY_EXAMPLES_PATH
+    contract = contract_path.read_text(encoding="utf-8-sig") if contract_path.exists() else ""
+    if not contract:
+        errors.append(f"missing advisory contract: {MODEL_ADVISORY_CONTRACT_PATH}")
+    else:
+        for phrase in (
+            "user makes the final selection",
+            "availability can differ by platform and date",
+            "Runtime catalog introspection is intentionally deferred",
+            "must never be translated into prompt or agent frontmatter",
+        ):
+            if phrase.casefold() not in contract.casefold():
+                errors.append(f"advisory contract is missing required phrase: {phrase}")
 
-    Inherited/model-picker prompts intentionally omit ``model:`` frontmatter.
-    The model guide documents those rows as ``Copilot model picker`` so humans
-    can distinguish them from missing metadata; treat that wording as equivalent
-    to absent frontmatter only when the catalog role is explicitly inherited.
-    """
-    if not expected:
-        return True
-    actual = normalize_model_name(declaration.get("model"))
-    guide_value = normalize_model_name(expected)
-    if actual == guide_value:
-        return True
-    if declaration.get("model") is None and declaration.get("role") == "inherited":
-        return guide_value.lower() in {"copilot model picker", "model picker", "inherited"}
-    return False
+    payload: dict[str, Any] = {}
+    payload_loaded = False
+    if not examples_path.exists():
+        errors.append(f"missing advisory examples: {MODEL_ADVISORY_EXAMPLES_PATH}")
+    else:
+        try:
+            loaded = json.loads(examples_path.read_text(encoding="utf-8-sig"))
+            if not isinstance(loaded, dict):
+                errors.append("advisory examples must be an object")
+            else:
+                payload = loaded
+                payload_loaded = True
+        except json.JSONDecodeError as exc:
+            errors.append(f"advisory examples are malformed: {exc}")
+
+    if payload_loaded:
+        for required in ("schemaVersion", "source", "effortLabels", "stages", "examples"):
+            if required not in payload:
+                errors.append(f"advisory examples is missing {required}")
+        if payload.get("schemaVersion") != 1:
+            errors.append("advisory examples schemaVersion must be 1")
+        labels = payload.get("effortLabels")
+        if (
+            not isinstance(labels, list)
+            or any(not isinstance(label, str) for label in labels)
+            or set(labels) != ADVISORY_EFFORT_LABELS
+        ):
+            errors.append("advisory examples effortLabels must be low, medium, high, xhigh, max")
+        stages = payload.get("stages")
+        if not isinstance(stages, dict) or set(stages) != ADVISORY_STAGES:
+            errors.append("advisory examples must cover exactly the five stable stages")
+            stages = stages if isinstance(stages, dict) else {}
+        for stage in ADVISORY_STAGES:
+            entry = stages.get(stage, {})
+            if not isinstance(entry, dict):
+                errors.append(f"stage {stage} must be an object")
+                continue
+            if not isinstance(entry.get("capabilityProfile"), list) or not entry["capabilityProfile"]:
+                errors.append(f"stage {stage} needs a capabilityProfile")
+            if not isinstance(entry.get("rationale"), str) or not entry["rationale"].strip():
+                errors.append(f"stage {stage} needs a rationale")
+            _validate_advisory_option(stage, "strongOption", entry.get("strongOption"), errors)
+            if entry.get("economicalOption") is not None:
+                _validate_advisory_option(stage, "economicalOption", entry.get("economicalOption"), errors)
+            if not re.search(r"\b(?:user|choose|select|decision)\b", str(entry.get("userControl", "")), re.IGNORECASE):
+                errors.append(f"stage {stage} must state user control")
+
+        examples = payload.get("examples")
+        if not isinstance(examples, list) or not examples:
+            errors.append("advisory examples must contain at least one example")
+            examples = []
+        example_ids: set[str] = set()
+        for index, example in enumerate(examples):
+            label = f"examples[{index}]"
+            if not isinstance(example, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            for field in ("id", "name", "vendor", "family", "capabilityTags", "platforms", "observedDate", "availabilityStatus", "verificationStatus"):
+                if field not in example:
+                    errors.append(f"{label} is missing {field}")
+            example_id = example.get("id")
+            if not isinstance(example_id, str) or not example_id or example_id in example_ids:
+                errors.append(f"{label}.id must be a unique non-empty string")
+            else:
+                example_ids.add(example_id)
+            for field in ("capabilityTags", "platforms"):
+                if not isinstance(example.get(field), list) or not example[field]:
+                    errors.append(f"{label}.{field} must be a non-empty list")
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(example.get("observedDate", ""))):
+                errors.append(f"{label}.observedDate must be YYYY-MM-DD")
+            if "unverified" not in str(example.get("availabilityStatus", "")).casefold():
+                errors.append(f"{label}.availabilityStatus must state availability is unverified")
+            if not str(example.get("verificationStatus", "")).strip():
+                errors.append(f"{label}.verificationStatus must be non-empty")
+            errors.extend(f"{key_path} is executable advisory metadata" for key_path in _advisory_key_paths(example, label))
+        referenced = {
+            ref
+            for stage in (stages.values() if isinstance(stages, dict) else [])
+            if isinstance(stage, dict)
+            for option_name in ("strongOption", "economicalOption")
+            if isinstance(stage.get(option_name), dict)
+            for ref in stage[option_name].get("exampleRefs", [])
+        }
+        errors.extend(f"advisory example reference is unknown: {ref}" for ref in sorted(referenced - example_ids))
+        source = payload.get("source")
+        if not isinstance(source, dict):
+            errors.append("advisory source must be an object")
+        else:
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(source.get("observedDate", ""))):
+                errors.append("advisory source needs an observedDate")
+            if "unverified" not in str(source.get("availabilityStatus", "")).casefold():
+                errors.append("advisory source must label availability as unverified")
+            if not str(source.get("verificationStatus", "")).strip():
+                errors.append("advisory source needs a verificationStatus")
+        errors.extend(f"{key_path} is executable advisory metadata" for key_path in _advisory_key_paths(payload))
+
+    errors.extend(validate_local_advisory_config(root))
+    return {
+        "valid": not errors,
+        "errors": errors,
+        "contract_path": MODEL_ADVISORY_CONTRACT_PATH,
+        "examples_path": MODEL_ADVISORY_EXAMPLES_PATH,
+        "stage_count": len(payload.get("stages", {})) if isinstance(payload.get("stages"), dict) else 0,
+        "example_count": len(payload.get("examples", [])) if isinstance(payload.get("examples"), list) else 0,
+    }
 
 
 def build_model_inventory(root: Path, files: Sequence[dict[str, Any]]) -> dict[str, Any]:
-    """Build the full model governance inventory including drift detection.
+    """Build inheritance and advisory validation evidence.
 
     Args:
         root: Repository root path.
         files: File records from :func:`scan_files`.
 
     Returns:
-        Dict with keys: ``declarations``, ``missing``, ``drift``,
-        ``premium_usage``, ``ordinary_model_picker_violations``.
+        Dict with executable metadata findings and advisory validation results.
     """
     declarations = extract_model_declarations(root, files)
-    catalog = load_model_catalog(root)
-    assignment_lookup = model_catalog_assignment_lookup(catalog)
-    support_lookup = model_catalog_support_lookup(catalog)
-    guide = parse_model_guide(root / "docs" / "model-guide.md")
-    missing = [d for d in declarations if d["model_tier"] == "missing"]
-    missing_catalog_assignments = [d for d in declarations if d["role"] == "unknown"]
-    invalid_catalog_roles = [
-        d for d in declarations
-        if d["role"] != "unknown" and d["role"] not in MODEL_ROLES
-    ]
-    stale_model_names = [
-        d for d in declarations
-        if d["model"] is not None and d["vendor"] == "unknown"
-    ]
-    openai_first_violations = []
-    haiku_role_violations = []
-    sonnet_role_violations = []
-    frontmatter_support_gaps = []
-    for declaration in declarations:
-        if declaration["model"] is None:
-            continue
-        role = declaration.get("role")
-        vendor = declaration.get("vendor")
-        normalized = declaration.get("normalized_model")
-        preferred = declaration.get("preferred_model")
-        preferred_support = support_lookup.get(normalize_model_name(str(preferred))) if preferred else None
-        if role in ("coding", "review", "reasoning") and vendor == "anthropic":
-            if role == "review" and declaration.get("frontmatter_mode") == "manual-cross-vendor":
-                sonnet_role_violations.append(declaration)
-            else:
-                openai_first_violations.append(declaration)
-        if role != "mechanical" and normalized == "Claude Haiku 4.5":
-            haiku_role_violations.append(declaration)
-        if normalized == "Claude Sonnet 4.6" and role not in ("fallback",):
-            if declaration.get("frontmatter_mode") != "manual-cross-vendor":
-                sonnet_role_violations.append(declaration)
-        if preferred and preferred_support in ("picker-only", "unsupported", "not-tested", None):
-            frontmatter_support_gaps.append({**declaration, "preferred_model_support": preferred_support or "missing"})
-    catalog_paths = set(assignment_lookup)
-    declaration_paths = {d["path"] for d in declarations}
-    unused_catalog_assignments = sorted(catalog_paths - declaration_paths)
-    drift = []
-    for declaration in declarations:
-        expected = guide.get(Path(declaration["path"]).name)
-        if expected and not model_guide_matches_declaration(declaration, expected):
-            drift.append(
-                {
-                    "path": declaration["path"],
-                    "frontmatter_model": declaration["model"],
-                    "model_guide_model": expected,
-                }
-            )
-    premium_usage = [d for d in declarations if d["model_tier"] == "premium"]
-    ordinary_model_picker_violations = [
-        d for d in declarations
-        if d["path"] in ORDINARY_MODEL_PICKER_PROMPTS and d["model"] is not None
-    ]
+    advisory = validate_advisory_examples(root)
     return {
         "declarations": declarations,
-        "missing": missing,
-        "missing_catalog_assignments": missing_catalog_assignments,
-        "invalid_catalog_roles": invalid_catalog_roles,
-        "stale_model_names": stale_model_names,
-        "openai_first_violations": openai_first_violations,
-        "haiku_role_violations": haiku_role_violations,
-        "sonnet_role_violations": sonnet_role_violations,
-        "frontmatter_support_gaps": frontmatter_support_gaps,
-        "unused_catalog_assignments": unused_catalog_assignments,
-        "drift": drift,
-        "premium_usage": premium_usage,
-        "ordinary_model_picker_violations": ordinary_model_picker_violations,
-        "catalog": {
-            "path": MODEL_CATALOG_PATH,
-            "load_error": catalog.get("load_error"),
-            "assignment_count": len(assignment_lookup),
-        },
+        "forbidden_execution_metadata": [
+            declaration for declaration in declarations if declaration["execution_metadata"]
+        ],
+        "advisory": advisory,
     }
 
 
@@ -934,17 +878,6 @@ def detect_duplicates(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[
     return sorted(duplicates, key=lambda row: (-row["file_count"], -row["total_chars"]))
 
 
-def _has_broad_tools(tools: Any) -> bool:
-    if tools is None:
-        return False
-    if isinstance(tools, list):
-        values = [str(v).lower() for v in tools]
-    else:
-        values = [str(tools).lower()]
-    joined = " ".join(values)
-    return "edit" in joined or "write" in joined or "run" in joined or "*" in joined
-
-
 def classify_optimization_candidates(
     files: Sequence[dict[str, Any]],
     reference_matrix: Sequence[dict[str, Any]],
@@ -964,8 +897,6 @@ def classify_optimization_candidates(
         ``acceptable_count`` (int).
     """
     refs_by_path = {row["path"]: row for row in reference_matrix}
-    models_by_path = {row["path"]: row for row in model_inventory["declarations"]}
-    drift_paths = {row["path"] for row in model_inventory["drift"]}
     immediate: list[dict[str, Any]] = []
     needs_review: list[dict[str, Any]] = []
     classified_paths: set[str] = set()
@@ -979,7 +910,6 @@ def classify_optimization_candidates(
         category = file_record["category"]
         tokens = int(file_record["estimated_tokens"])
         refs = refs_by_path.get(path, {"total_refs": 0})
-        model = models_by_path.get(path)
         reasons_immediate: list[str] = []
         reasons_review: list[str] = []
 
@@ -999,21 +929,6 @@ def classify_optimization_candidates(
                 reasons_review.append(f"skill estimated tokens >= {THRESHOLD_SKILL_REVIEW}")
         if refs["total_refs"] >= THRESHOLD_REFS_IMMEDIATE:
             reasons_review.append(f"reference count >= {THRESHOLD_REFS_IMMEDIATE}")
-        if model:
-            if model["model_tier"] == "premium" and not model["has_escalation_condition"]:
-                reasons_immediate.append("premium model without escalation condition")
-            if category == "agents" and model["model_tier"] == "premium" and _has_broad_tools(model.get("tools")):
-                reasons_immediate.append("agent has broad tools and premium model")
-            if model["model_tier"] == "missing" and refs["total_refs"] >= 3:
-                reasons_review.append("missing model in high-reference prompt/agent")
-            if path in {
-                violation["path"]
-                for violation in model_inventory.get("ordinary_model_picker_violations", [])
-            }:
-                reasons_immediate.append("ordinary prompt hard-codes model instead of inheriting model picker")
-        if path in drift_paths:
-            reasons_review.append("model guide drift")
-
         if reasons_immediate:
             add(immediate, path, category, "; ".join(reasons_immediate + reasons_review))
         elif reasons_review:
@@ -1196,7 +1111,7 @@ def build_workflow_telemetry(root: Path, report: dict[str, Any]) -> dict[str, An
     files_by_path = {row["path"]: row for row in report.get("files", [])}
     refs_by_path = {row["path"]: row for row in report.get("reference_matrix", [])}
     dispatch_by_path = {row["path"]: row for row in report.get("dispatch_burden", [])}
-    models_by_path = {
+    declarations_by_path = {
         row["path"]: row
         for row in report.get("model_inventory", {}).get("declarations", [])
     }
@@ -1213,7 +1128,7 @@ def build_workflow_telemetry(root: Path, report: dict[str, Any]) -> dict[str, An
         content = prompt_path.read_text(encoding="utf-8-sig") if prompt_path.exists() else ""
         ref_row = refs_by_path.get(path_string, {})
         dispatch_row = dispatch_by_path.get(path_string, {})
-        model_row = models_by_path.get(path_string, {})
+        declaration = declarations_by_path.get(path_string, {})
         context_counts = _count_context_levels(context_rows, path_string)
         observability = workflow_observability(file_row is not None)
         validate_observability_matrix(observability)
@@ -1245,8 +1160,7 @@ def build_workflow_telemetry(root: Path, report: dict[str, Any]) -> dict[str, An
             "likely_skill_loads": _line_matches_with_action(SKILL_REF_RE, content),
             "agent_references": _unique_matches(AGENT_REF_RE, content),
             "tool_references": tool_references,
-            "model": model_row.get("model"),
-            "model_tier": model_row.get("model_tier"),
+            "execution_metadata": bool(declaration.get("execution_metadata", False)),
             "context_risk_count": context_counts["risk"],
             "context_justified_count": context_counts["justified"],
             "context_targeted_count": context_counts["targeted"],
@@ -1322,8 +1236,7 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
             "skill_refs": row.get("skill_refs", 0),
             "tool_refs": row.get("tool_refs", 0),
             "load_verbs": row.get("load_verbs", 0),
-            "model": row.get("model"),
-            "model_tier": row.get("model_tier"),
+            "execution_metadata": row.get("execution_metadata", False),
             "context_risk_count": row.get("context_risk_count", 0),
             "context_justified_count": row.get("context_justified_count", 0),
             "context_targeted_count": row.get("context_targeted_count", 0),
@@ -1357,8 +1270,7 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
             "agent_refs": 0,
             "skill_refs": 0,
             "load_verbs": 0,
-            "model": None,
-            "model_tier": None,
+            "execution_metadata": False,
             "context_risk_count": brain_counts["risk"],
             "context_justified_count": brain_counts["justified"],
             "context_targeted_count": brain_counts["targeted"],
@@ -1376,13 +1288,10 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
     return {
         "workflows": workflows,
         "model_governance": {
-            "premium_usage_count": len(model_inventory.get("premium_usage", [])),
-            "missing_model_count": len(model_inventory.get("missing", [])),
-            "model_drift_count": len(model_inventory.get("drift", [])),
-            "ordinary_model_picker_violations": len(model_inventory.get("ordinary_model_picker_violations", [])),
-            "openai_first_violations": len(model_inventory.get("openai_first_violations", [])),
-            "haiku_role_violations": len(model_inventory.get("haiku_role_violations", [])),
-            "sonnet_role_violations": len(model_inventory.get("sonnet_role_violations", [])),
+            "forbidden_execution_metadata_count": len(model_inventory.get("forbidden_execution_metadata", [])),
+            "advisory_error_count": len(model_inventory.get("advisory", {}).get("errors", [])),
+            "advisory_stage_count": model_inventory.get("advisory", {}).get("stage_count", 0),
+            "advisory_example_count": model_inventory.get("advisory", {}).get("example_count", 0),
         },
         "context_loading": _count_context_levels(context_rows),
         "review_agent_counts": _review_agent_counts_from_contract(root),
@@ -1421,7 +1330,7 @@ def compare_benchmark_to_baseline(current: dict[str, Any], baseline: dict[str, A
     current_model = current_benchmark.get("model_governance", {})
     baseline_model = baseline_benchmark.get("model_governance", {})
     model_delta: dict[str, Any] = {}
-    for key in ("premium_usage_count", "ordinary_model_picker_violations", "missing_model_count", "model_drift_count"):
+    for key in ("forbidden_execution_metadata_count", "advisory_error_count", "advisory_stage_count", "advisory_example_count"):
         if current_model.get(key) is not None and baseline_model.get(key) is not None:
             model_delta[f"{key}_delta"] = int(current_model[key]) - int(baseline_model[key])
     return {"workflows": workflow_deltas, "model_governance": model_delta}
@@ -1432,10 +1341,6 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
     files_by_path = {row.get("path"): row for row in report.get("files", [])}
     refs_by_path = {row.get("path"): row for row in report.get("reference_matrix", [])}
     dispatch_by_path = {row.get("path"): row for row in report.get("dispatch_burden", [])}
-    models_by_path = {
-        row.get("path"): row
-        for row in report.get("model_inventory", {}).get("declarations", [])
-    }
     context_rows = report.get("context_loading_risks", [])
     workflows: list[dict[str, Any]] = []
     for workflow, path in BENCHMARK_PROMPTS.items():
@@ -1452,7 +1357,16 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
                 "context_risk_count": context_counts["risk"],
                 "dispatch_refs": dispatch_row.get("dispatch_refs"),
                 "dispatch_burden": dispatch_row.get("burden_level"),
-                "model_tier": models_by_path.get(path, {}).get("model_tier"),
+                "execution_metadata": bool(
+                    next(
+                        (
+                            row.get("execution_metadata", False)
+                            for row in report.get("model_inventory", {}).get("declarations", [])
+                            if row.get("path") == path
+                        ),
+                        False,
+                    )
+                ),
             }
         )
     brain_path = ".github/skills/cg-skill-brain-query/SKILL.md"
@@ -1470,21 +1384,18 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
             "context_risk_count": brain_counts["risk"],
             "dispatch_refs": 0,
             "dispatch_burden": "none",
-            "model_tier": None,
+            "execution_metadata": False,
         }
     )
     inventory = report.get("model_inventory", {})
     return {
         "workflows": workflows,
-        "model_governance": {
-            "premium_usage_count": len(inventory.get("premium_usage", [])),
-            "ordinary_model_picker_violations": len(inventory.get("ordinary_model_picker_violations", [])),
-            "missing_model_count": len(inventory.get("missing", [])),
-            "model_drift_count": len(inventory.get("drift", [])),
-            "openai_first_violations": len(inventory.get("openai_first_violations", [])),
-            "haiku_role_violations": len(inventory.get("haiku_role_violations", [])),
-            "sonnet_role_violations": len(inventory.get("sonnet_role_violations", [])),
-        },
+            "model_governance": {
+                "forbidden_execution_metadata_count": len(inventory.get("forbidden_execution_metadata", [])),
+                "advisory_error_count": len(inventory.get("advisory", {}).get("errors", [])),
+                "advisory_stage_count": inventory.get("advisory", {}).get("stage_count", 0),
+                "advisory_example_count": inventory.get("advisory", {}).get("example_count", 0),
+            },
     }
 
 
@@ -1516,31 +1427,22 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
     def warn(path: str, reason: str) -> None:
         warnings.append({"path": path, "reason": reason})
 
-    for violation in report.get("model_inventory", {}).get("ordinary_model_picker_violations", []):
-        fail(violation["path"], "ordinary prompt hard-codes model instead of inheriting model picker")
-    for premium in report.get("model_inventory", {}).get("premium_usage", []):
-        fail(premium["path"], "premium model usage requires explicit future allowlist and rationale")
-    for drift in report.get("model_inventory", {}).get("drift", []):
-        fail(drift["path"], "model guide drift")
     inventory = report.get("model_inventory", {})
-    if inventory.get("catalog", {}).get("load_error"):
-        fail(MODEL_CATALOG_PATH, f"model catalog could not be parsed: {inventory['catalog']['load_error']}")
-    for row in inventory.get("missing_catalog_assignments", []):
-        fail(row["path"], "prompt/agent is missing a model-catalog role assignment")
-    for row in inventory.get("invalid_catalog_roles", []):
-        fail(row["path"], f"invalid model-catalog role: {row.get('role')}")
-    for path in inventory.get("unused_catalog_assignments", []):
-        fail(path, "model-catalog assignment has no matching prompt/agent file")
-    for row in inventory.get("stale_model_names", []):
-        fail(row["path"], f"frontmatter model is not in model catalog: {row.get('model')}")
-    for row in inventory.get("openai_first_violations", []):
-        fail(row["path"], f"{row.get('role')} workflow is not OpenAI-first: {row.get('model')}")
-    for row in inventory.get("haiku_role_violations", []):
-        fail(row["path"], "Haiku is allowed only for mechanical workflows")
-    for row in inventory.get("sonnet_role_violations", []):
-        fail(row["path"], "Sonnet requires fallback or cross-vendor rationale and must not be a blanket default")
-    for row in inventory.get("frontmatter_support_gaps", []):
-        warn(row["path"], f"preferred model frontmatter support is {row.get('preferred_model_support')}: {row.get('preferred_model')}")
+    for declaration in inventory.get("forbidden_execution_metadata", []):
+        fail(declaration["path"], "prompt or agent contains executable model metadata; omit model: so the user-selected platform configuration is inherited")
+    advisory = inventory.get("advisory", {})
+    for error in advisory.get("errors", []):
+        path = advisory.get("examples_path", MODEL_ADVISORY_EXAMPLES_PATH)
+        if "contract" in str(error):
+            path = advisory.get("contract_path", MODEL_ADVISORY_CONTRACT_PATH)
+        if "local" in str(error):
+            path = "compound-gpid.local.md"
+        if "executable advisory key" in str(error):
+            fail(path, str(error))
+        elif path == "compound-gpid.local.md":
+            warn(path, str(error))
+        else:
+            fail(path, str(error))
 
     for row in report.get("files", []):
         path = row["path"]
@@ -1796,10 +1698,10 @@ def build_token_efficiency_recommendations(report: dict[str, Any]) -> list[dict[
 
     add(
         "low",
-        "model-selection",
-        "Use cheaper models for planning and advisory work when quality allows.",
-        "Model governance keeps ordinary planning prompts on the model picker.",
-        "Use stronger models for implementation, high-risk review, and architecture; use lighter models for simple planning or documentation passes.",
+        "model-advisory",
+        "Choose capability and effort by process stage.",
+        "The shared advisory contract provides five stage profiles and dated examples.",
+        "Prioritize effective completion first, then choose an economical option only when the task is bounded and the user considers it appropriate.",
     )
     return recommendations
 
@@ -1953,7 +1855,7 @@ def render_markdown(report: dict[str, Any]) -> str:
                 "Path",
                 "Tokens",
                 "Refs",
-                "Model Tier",
+                "Execution Metadata",
                 "Context Risk",
                 "Dispatch",
                 "Conditional",
@@ -1964,7 +1866,7 @@ def render_markdown(report: dict[str, Any]) -> str:
                     row["path"],
                     row.get("estimated_tokens"),
                     row.get("total_refs"),
-                    row.get("model_tier") or "",
+                    row.get("execution_metadata", False),
                     row.get("context_risk_count"),
                     row.get("dispatch_burden"),
                     row.get("conditional_routing"),
@@ -1978,13 +1880,10 @@ def render_markdown(report: dict[str, Any]) -> str:
     context_loading = benchmark.get("context_loading", {})
     lines.extend([
         "",
-        f"- Premium model usage count: {model_governance.get('premium_usage_count', 0)}",
-        f"- Ordinary model-picker violations: {model_governance.get('ordinary_model_picker_violations', 0)}",
-        f"- Missing model declarations: {model_governance.get('missing_model_count', 0)}",
-        f"- Model drift count: {model_governance.get('model_drift_count', 0)}",
-        f"- OpenAI-first violations: {model_governance.get('openai_first_violations', 0)}",
-        f"- Haiku role violations: {model_governance.get('haiku_role_violations', 0)}",
-        f"- Sonnet role violations: {model_governance.get('sonnet_role_violations', 0)}",
+        f"- Forbidden execution metadata: {model_governance.get('forbidden_execution_metadata_count', 0)}",
+        f"- Advisory schema/provenance errors: {model_governance.get('advisory_error_count', 0)}",
+        f"- Advisory stages covered: {model_governance.get('advisory_stage_count', 0)}",
+        f"- Dated advisory examples: {model_governance.get('advisory_example_count', 0)}",
         f"- Context loading signals: risk={context_loading.get('risk', 0)}, justified={context_loading.get('justified', 0)}, targeted={context_loading.get('targeted', 0)}",
     ])
     review_counts = benchmark.get("review_agent_counts", {}).get("counts", {})
@@ -2015,10 +1914,10 @@ def render_markdown(report: dict[str, Any]) -> str:
         model_delta = comparison.get("model_governance", {})
         lines.extend([
             "",
-            f"- Premium usage delta: {model_delta.get('premium_usage_count_delta', 0)}",
-            f"- Ordinary model-picker violation delta: {model_delta.get('ordinary_model_picker_violations_delta', 0)}",
-            f"- Missing model delta: {model_delta.get('missing_model_count_delta', 0)}",
-            f"- Model drift delta: {model_delta.get('model_drift_count_delta', 0)}",
+            f"- Forbidden execution metadata delta: {model_delta.get('forbidden_execution_metadata_count_delta', 0)}",
+            f"- Advisory error delta: {model_delta.get('advisory_error_count_delta', 0)}",
+            f"- Advisory stage delta: {model_delta.get('advisory_stage_count_delta', 0)}",
+            f"- Advisory example delta: {model_delta.get('advisory_example_count_delta', 0)}",
         ])
     else:
         lines.append("- No baseline supplied; current audit is the baseline.")
@@ -2104,65 +2003,26 @@ def render_markdown(report: dict[str, Any]) -> str:
         ])
     else:
         lines.append("- None")
-    lines.extend(["", "## Model Inventory", ""])
-    catalog_info = report["model_inventory"].get("catalog", {})
+    lines.extend(["", "## Model Inheritance And Advisory Contract", ""])
+    inventory = report["model_inventory"]
+    advisory = inventory.get("advisory", {})
     lines.extend([
-        f"- Catalog: `{catalog_info.get('path', MODEL_CATALOG_PATH)}`",
-        f"- Catalog assignments: {catalog_info.get('assignment_count', 0)}",
+        f"- Execution model metadata found: {len(inventory.get('forbidden_execution_metadata', []))}",
+        f"- Advisory contract: `{advisory.get('contract_path', MODEL_ADVISORY_CONTRACT_PATH)}`",
+        f"- Advisory examples: `{advisory.get('examples_path', MODEL_ADVISORY_EXAMPLES_PATH)}`",
+        f"- Advisory stages: {advisory.get('stage_count', 0)}",
+        f"- Dated examples: {advisory.get('example_count', 0)}",
+        f"- Advisory validation errors: {len(advisory.get('errors', []))}",
     ])
-    if catalog_info.get("load_error"):
-        lines.append(f"- Catalog load error: {catalog_info['load_error']}")
-    lines.extend([""])
-    lines.extend(markdown_table(["Path", "Category", "Model", "Vendor", "Family", "Role", "Tier", "Preferred", "Support"], [
-        [
-            d["path"],
-            d["category"],
-            d["model"] or "(model picker)",
-            d.get("vendor", ""),
-            d.get("family", ""),
-            d.get("role", ""),
-            d["model_tier"],
-            d.get("preferred_model") or "",
-            d.get("frontmatter_support") or "",
-        ]
-        for d in report["model_inventory"]["declarations"]
-    ]))
-    lines.extend(["", "## Model Policy Violations", ""])
-    policy_sections = [
-        ("Missing catalog assignments", "missing_catalog_assignments", "role assignment missing"),
-        ("Invalid catalog roles", "invalid_catalog_roles", "invalid role"),
-        ("Stale model names", "stale_model_names", "model not in catalog"),
-        ("OpenAI-first violations", "openai_first_violations", "not OpenAI-first"),
-        ("Haiku role violations", "haiku_role_violations", "Haiku outside mechanical role"),
-        ("Sonnet role violations", "sonnet_role_violations", "Sonnet lacks fallback/cross-vendor role"),
-        ("Preferred model support gaps", "frontmatter_support_gaps", "frontmatter support not confirmed"),
-    ]
-    for title, key, reason in policy_sections:
-        rows = report["model_inventory"].get(key, [])
-        lines.append(f"### {title}")
-        if rows:
-            lines.extend([
-                f"- {d['path']}: {d.get('model') or '(model picker)'}; role={d.get('role')}; preferred={d.get('preferred_model')}; support={d.get('preferred_model_support', d.get('frontmatter_support'))}; {reason}"
-                for d in rows
-            ])
-        else:
-            lines.append("- None")
-        lines.append("")
-    lines.extend(["", "## Missing Model Declarations", ""])
-    missing = report["model_inventory"]["missing"]
-    lines.extend([f"- {d['path']}" for d in missing] or ["- None"])
-    lines.extend(["", "## Model Drift", ""])
-    drift = report["model_inventory"]["drift"]
-    lines.extend([f"- {d['path']}: frontmatter `{d['frontmatter_model']}` vs model-guide `{d['model_guide_model']}`"
-                  for d in drift] or ["- None"])
-    lines.extend(["", "## Premium Model Usage", ""])
-    premium = report["model_inventory"]["premium_usage"]
-    lines.extend([f"- {d['path']}: {d['model']} (escalation condition: {d['has_escalation_condition']})"
-                  for d in premium] or ["- None"])
-    lines.extend(["", "## Ordinary Prompt Model-Picker Violations", ""])
-    ordinary_violations = report["model_inventory"].get("ordinary_model_picker_violations", [])
-    lines.extend([f"- {d['path']}: frontmatter model `{d['model']}`"
-                  for d in ordinary_violations] or ["- None"])
+    if inventory.get("forbidden_execution_metadata"):
+        lines.extend([
+            f"- **FAIL** {row['path']}: executable model metadata is present"
+            for row in inventory["forbidden_execution_metadata"]
+        ])
+    if advisory.get("errors"):
+        lines.extend([f"- **FAIL** {error}" for error in advisory["errors"]])
+    else:
+        lines.append("- Advisory schema, provenance, user-control, and fallback checks passed.")
     lines.extend(["", "## Duplicate Paragraphs", ""])
     lines.extend(markdown_table(["Preview", "Files", "Estimated Tokens"], [
         [d["block_preview"].replace("|", "\\|"), d["file_count"], d["total_redundant_tokens"]]
