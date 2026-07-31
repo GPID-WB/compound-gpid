@@ -1,6 +1,5 @@
 ---
 description: Load context and resume interrupted work. Use at the start of a session to pick up where you left off.
-model: haiku
 ---
 
 # Resume

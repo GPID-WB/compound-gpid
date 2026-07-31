@@ -1,6 +1,5 @@
 ---
 description: "Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis."
-model: sonnet
 ---
 
 # Verify PR

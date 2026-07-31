@@ -1,6 +1,5 @@
 ---
 description: "Read-only roadmap renderer. Dispatched by /cg-roadmap-view and other prompts for contextual roadmap display. Never modifies files. Developer-only — not invoked directly by users."
-model: haiku
 ---
 
 # Roadmap View

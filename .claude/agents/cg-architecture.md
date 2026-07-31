@@ -1,6 +1,5 @@
 ---
 description: "Reviews project structure, modularity, separation of concerns, and dependency management. Trilingual R/Python/Stata."
-model: sonnet
 ---
 
 You are an architecture reviewer for R, Python, and Stata data science projects.

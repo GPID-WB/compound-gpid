@@ -45,6 +45,10 @@ project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
 created: "YYYY-MM-DD"
 cg-schema-version: ""
+model-advisory:
+  enabled: true
+  examples: {}
+  preferences: {}
 ---
 ```
 
@@ -53,6 +57,8 @@ cg-schema-version: ""
 > populates this field with the current schema version when run from the project root.
 > `/cg-resume` will nudge the user to run `cg-update` if this field is blank or
 > mismatched — that is the intended migration prompt.
+> `model-advisory` is optional user preference data. It can select advisory
+> examples and effort language, but it never selects or changes the runtime model.
 
 # Compound GPID — Project Config
 

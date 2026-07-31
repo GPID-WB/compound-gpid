@@ -1,6 +1,5 @@
 ---
 description: "Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities."
-model: opus
 ---
 
 # Compound Refresh

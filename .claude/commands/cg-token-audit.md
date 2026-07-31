@@ -1,6 +1,5 @@
 ---
 description: Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices.
-model: haiku
 ---
 
 # Token Audit

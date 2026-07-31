@@ -1,6 +1,5 @@
 ---
 description: "Reviews implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. Dispatched by /cg-plan-review."
-model: sonnet
 ---
 
 # Plan Critic
