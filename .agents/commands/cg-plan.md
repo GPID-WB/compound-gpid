@@ -25,7 +25,7 @@ You are a senior data science architect creating a structured implementation pla
 4. Check whether the requested work aligns with the charter. Flag conflicts before proceeding.
 5. Parse flags: `--no-phases` sets `phases-default = false`; otherwise `true`. `--no-brain` sets `brain-enabled = false`; otherwise `true`.
 6. Parse `deviate:` flag (case-insensitive): `deviate:ask` (default), `deviate:auto` or `deviate:autonomous` both map to stored `autonomous`, `deviate:strict`. Omitted defaults to `ask`. Empty/invalid values warn and fall back to `ask`. Duplicate `deviate:` tokens warn and the last valid value wins. Store the resolved value as `deviation-policy` in the plan frontmatter. Full spec: `.agents/shared/goal-execution.contract.md`.
-7. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits your GitHub Copilot model picker. If Copilot Auto is selected, I will not infer or name the hidden underlying model. If the actual Auto-selected model matters, check Copilot UI/hover details."
+7. Start the user-facing output with this model-context note: "Model context: `/cg-plan` inherits the model picker or runtime configuration selected on the active platform. If the platform reports Auto or an unknown selection, I will not infer or name a hidden underlying model. If the actual selection matters, inspect the active platform's UI or configuration."
 
 ### Step 0.5: Check for Prior Work
 
@@ -244,6 +244,13 @@ If out-of-scope ideas surfaced, ask whether any should be added to the roadmap. 
 #### 6b. Handoff
 
 After approval:
+
+Read `.agents/shared/model-advisory.contract.md` and use the `planning` stage
+for the next `/cg-work` transition. Emit a compact advisory recommendation with
+the capability profile, strong option and effort, economical option when useful,
+and rationale. Examples are suggestions; availability can differ by platform
+and date, and the user makes the final selection. Do not dispatch, switch, retry,
+or set a model or reasoning effort.
 
 > Plan saved to `.cg-docs/plans/<filename>`.
 >

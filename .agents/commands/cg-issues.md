@@ -1,6 +1,5 @@
 ---
 description: "Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup."
-model: GPT-5.4 mini
 ---
 
 # GitHub Issues Manager

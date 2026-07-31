@@ -38,6 +38,16 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 | `.cg-docs/` | Brainstorms, plans, captured solutions | Yes |
 | `roadmap.json` | Milestone/feature tracking (future) | Yes |
 
+## Optional Model Advisory Preferences
+
+`compound-gpid.local.md` may contain a `model-advisory` block with user-selected
+example IDs and effort preferences. Load `.agents/shared/model-advisory.contract.md`
+before interpreting it. The block is advisory only: the platform picker remains
+authoritative, and setup must never write a runtime model, switch a model, set
+reasoning effort, or create a dispatch rule from these values. Invalid or
+unknown values should be reported and ignored in favor of bundled or
+capability-only guidance.
+
 ## Process
 
 ## Configuration Workflow
