@@ -1,7 +1,7 @@
 ---
 date: 2026-07-30
 title: "Implement User-Selected Models with Advisory Stage Routing"
-status: active
+status: completed
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md"
 language: "Python/PowerShell/Markdown"

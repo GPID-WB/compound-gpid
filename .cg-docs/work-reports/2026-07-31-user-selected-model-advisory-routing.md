@@ -1,7 +1,7 @@
 ---
 date: 2026-07-31
 plan: ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md"
-status: blocked
+status: completed
 ---
 
 # Work Report: User-Selected Models With Advisory Stage Routing
@@ -25,10 +25,8 @@ status: blocked
   handoffs and rewrote model documentation around process stages and user
   choice.
 - Phase 4 steps 7-8 implemented: regenerated all native targets, updated audit
-  outputs, and completed the final static, Python, and Pester checks that do
-  not require a clean committed `HEAD`.
-- Phase completion writes remain withheld because the clean-`HEAD` generated
-  drift/release gate is not passable until the intended changes are committed.
+  outputs, and completed the final static, Python, Pester, and committed-`HEAD`
+  drift/release checks.
 
 ## Deviations
 
@@ -44,11 +42,11 @@ status: blocked
 |----|--------|----------|
 | V1 | passed | Generator/target Python checks; regenerated targets contain no executable model assignments or mapping artifacts. |
 | V2 | passed | `python3 -m pytest scripts/tests/test_model_advisory.py scripts/tests/test_audit_context.py -q`: 80 passed. |
-| V3 | passed | Full canonical Pester run: 2,258 passed, 0 failed, unfiltered. |
+| V3 | passed | Full canonical Pester run: 2,261 passed, 0 failed, unfiltered. |
 | V4 | passed | Generated-target documentation tests and Pester prompt/documentation assertions passed. |
-| V5 | blocked | `python3 scripts/cg_generate_targets.py --root . --all --dry-run`: 777 outputs; clean-`HEAD` drift checks await commit. |
-| V6 | blocked | 399 affected Python tests pass when excluding the clean-`HEAD` drift/release wrappers; the full gate has 5 expected working-tree failures. |
-| V7 | passed | `tests/last-run.json` at `2026-07-31T13:57:43Z`: `passed: true`, 2,258/2,258, `failedCount: 0`, `filteredFiles: null`. |
+| V5 | passed | `python3 -m pytest scripts/tests/test_target_drift.py scripts/tests/test_release_gate_targets.py -q`: 21 passed after commit. |
+| V6 | passed | `python3 -m pytest scripts/tests -q`: 429 passed. |
+| V7 | passed | `tests/last-run.json` at `2026-07-31T15:03:07Z`: `passed: true`, 2,261/2,261, `failedCount: 0`, `filteredFiles: null`. |
 | V8 | passed | `.cg-docs/cost/context-audit.json`: 0 failures, 0 advisory errors, 0 forbidden execution metadata, 5 stages, 5 examples. |
 
 ## Constraints Check
@@ -65,19 +63,14 @@ status: blocked
 ## Remaining Uncertainty
 
 - Runtime model inheritance, picker availability, and platform-specific effort support require observation on the actual supported platforms; static checks must not claim those behaviors.
-- The generated trees are correct in the working tree, but the committed-`HEAD`
-  drift/release evidence cannot pass while the generated changes remain
-  uncommitted. This is not recorded as an accepted exception.
+- The generated trees, committed-`HEAD` drift checks, and release wrapper checks
+  now agree. Runtime model inheritance and picker availability remain platform
+  observations rather than static claims.
 
 ## Blocking Condition
 
-- `scripts/tests/test_target_drift.py` reports four failures because `HEAD`
-  still contains the old generated catalog/mapping files and lacks the six new
-  advisory files; `scripts/tests/test_release_gate_targets.py` reports the
-  wrapper failure for the same reason.
-- The next verification command, after committing the intended changes, is:
-  `python3 -m pytest scripts/tests/test_target_drift.py scripts/tests/test_release_gate_targets.py -q`
+- None. The committed-`HEAD` generated drift and release gates pass.
 
 ## Final Status
 
-`blocked`
+`completed`

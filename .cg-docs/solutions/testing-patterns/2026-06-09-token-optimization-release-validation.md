@@ -128,3 +128,4 @@ For future token, prompt, context-loading, or model-governance changes:
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md`
+- `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`
