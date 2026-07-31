@@ -75,18 +75,21 @@ if ([string]::IsNullOrWhiteSpace($notes)) {
 # Operational native-packaging preflight. This runs before credentials are read
 # or any GitHub API request can observe or publish release state.
 $tagCommit = (git -C $PSScriptRoot rev-parse --verify "$Tag`^{commit}" 2>$null | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
+$tagExitCode = (Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue)
+if (($null -ne $tagExitCode -and [int]$tagExitCode -ne 0) -or [string]::IsNullOrWhiteSpace($tagCommit)) {
     throw "Release tag '$Tag' does not resolve to a commit."
 }
 $headCommit = (git -C $PSScriptRoot rev-parse --verify "HEAD^{commit}" 2>$null | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($headCommit)) {
+$headExitCode = (Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue)
+if (($null -ne $headExitCode -and [int]$headExitCode -ne 0) -or [string]::IsNullOrWhiteSpace($headCommit)) {
     throw "Could not resolve the current HEAD commit."
 }
 if ($headCommit.Trim() -ne $tagCommit.Trim()) {
     throw "Release checkout mismatch: tag '$Tag' resolves to $($tagCommit.Trim()) but HEAD is $($headCommit.Trim()). Check out the tag commit before releasing."
 }
 $worktreeChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=normal 2>$null)
-if ($LASTEXITCODE -ne 0) {
+$worktreeExitCode = (Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue)
+if ($null -ne $worktreeExitCode -and [int]$worktreeExitCode -ne 0) {
     throw "Could not verify that the release checkout is clean."
 }
 if ($worktreeChanges.Count -gt 0) {
@@ -123,9 +126,9 @@ $preflightTests = @(
 Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
 $preflightExitCode = 0
 & $pythonCommand -m pytest @preflightTests -q
-$lastExitCodeVariable = Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue
-if ($null -ne $lastExitCodeVariable) {
-    $preflightExitCode = [int]$lastExitCodeVariable
+$preflightExitCodeVariable = Get-Variable -Name LASTEXITCODE -ValueOnly -ErrorAction SilentlyContinue
+if ($null -ne $preflightExitCodeVariable) {
+    $preflightExitCode = [int]$preflightExitCodeVariable
 }
 if ($preflightExitCode -ne 0) {
     throw "Native packaging release preflight failed with exit code $preflightExitCode. Release publication is blocked."
