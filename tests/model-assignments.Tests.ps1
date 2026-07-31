@@ -1,202 +1,193 @@
 # tests/model-assignments.Tests.ps1
-# Validates model-governance metadata for prompt and agent files.
-# Uses dynamic discovery so new files are automatically included in the sweep.
-#
-# Design notes:
-#   - Count sentinels catch accidental additions or deletions of prompt/agent files.
-#     Update the sentinel when intentionally adding a new file.
-#   - Test-Path is included for every file to produce clean, isolated failures
-#     rather than scope-level exceptions if a file is unexpectedly missing.
-#   - Ordinary workflow prompts intentionally omit `model:` so they inherit the
-#     user's GitHub Copilot model-picker selection.
-#   - Regex is anchored to the YAML `model:` key (not a substring anywhere in
-#     frontmatter) and uses -cmatch for case-sensitive matching.
-#   - For tier-assignment rationale and override guidance, see docs/model-guide.md.
-#
-# Run from VS Code/PowerShell with the repository safe runner:
-#   . tests\Run-Tests.ps1
+# Validates user-selected execution and advisory-only model guidance.
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
 
-# ---------------------------------------------------------------------------
-# Model assignments - prompt files
-# Discovers all *.prompt.md files in .github/prompts plus the root-level
-# cg-release.prompt.md (developer-only, not junctioned into user projects).
-# Count sentinel: update to N+1 when adding a new prompt file.
-# ---------------------------------------------------------------------------
+Describe "Canonical prompt execution metadata" {
+    $promptFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File)
 
-Describe "Model assignments - prompt files" {
-    $promptsDir = Join-Path $repoRoot ".github\prompts"
-    $promptFiles = @(Get-ChildItem -Path $promptsDir -Filter "*.prompt.md" -File)
-    $ordinaryPromptNames = @(
-        "cg-brainstorm.prompt.md",
-        "cg-ideate.prompt.md",
-        "cg-plan-review.prompt.md",
-        "cg-plan.prompt.md",
-        "cg-review-repos.prompt.md",
-        "cg-strategy.prompt.md"
-    )
-
-    # Include root-level cg-release.prompt.md (developer-only)
-    $releasePrompt = Join-Path $repoRoot "cg-release.prompt.md"
-    if (Test-Path $releasePrompt) {
-        $promptFiles += Get-Item $releasePrompt
-    }
-
-    It "contains exactly 25 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should -Be 25
+    It "contains exactly 24 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should -Be 24
     }
 
     foreach ($file in $promptFiles) {
-        $filePath = $file.FullName
-        $relPath = $filePath.Replace($repoRoot + "\", "")
+        $path = $file.FullName
+        $relative = $path.Replace($repoRoot + "\", "")
 
-        # P1.2 - explicit existence check so a missing file is a clear test failure,
-        # not a scope-level exception from Get-Content
-        It "$relPath exists" {
-            Test-Path $filePath | Should -Be $true
+        It "$relative exists" {
+            Test-Path $path | Should -Be $true
         }
 
-        It "$relPath has the expected model frontmatter governance" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
-            if ($ordinaryPromptNames -contains $file.Name) {
-                ($frontmatter -cmatch '(?m)^\s*model:') | Should -Be $false
-            } else {
-                # Anchored to key with non-empty value; -cmatch for case-sensitive matching
-                ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
-            }
+        It "$relative does not assign an execution model" {
+            $frontmatter = Get-Frontmatter -FilePath $path
+            ($frontmatter -cmatch '(?m)^\s*model\s*:') | Should -Be $false
         }
     }
 }
 
-# ---------------------------------------------------------------------------
-# Model assignments - agent files
-# Discovers all *.agent.md files in .github/agents.
-# Count sentinel: update to N+1 when adding a new agent file.
-# ---------------------------------------------------------------------------
-
-Describe "Model assignments - agent files" {
-    $agentsDir = Join-Path $repoRoot ".github\agents"
-    $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
+Describe "Canonical agent execution metadata" {
+    $agentFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\agents") -Filter "*.agent.md" -File)
 
     It "contains exactly 17 agent files - update this sentinel when adding a new agent" {
         $agentFiles.Count | Should -Be 17
     }
 
     foreach ($file in $agentFiles) {
-        $filePath = $file.FullName
-        $relPath = $filePath.Replace($repoRoot + "\", "")
+        $path = $file.FullName
+        $relative = $path.Replace($repoRoot + "\", "")
 
-        # P1.2 - same rationale as prompt files above
-        It "$relPath exists" {
-            Test-Path $filePath | Should -Be $true
+        It "$relative exists" {
+            Test-Path $path | Should -Be $true
         }
 
-        It "$relPath has a model: frontmatter key with a non-empty value" {
-            $frontmatter = Get-Frontmatter -FilePath $filePath
-            # Anchored to key with non-empty value; -cmatch for case-sensitive matching
-            ($frontmatter -cmatch '(?m)^\s*model:\s+\S+') | Should -Be $true
+        It "$relative does not assign an execution model" {
+            $frontmatter = Get-Frontmatter -FilePath $path
+            ($frontmatter -cmatch '(?m)^\s*model\s*:') | Should -Be $false
         }
     }
 }
 
-# ---------------------------------------------------------------------------
-# docs/model-guide.md - governance validation
-# Ensures the guide documents model-picker inheritance, escalation guidance,
-# recommended model selection, and the governance principle.
-# ---------------------------------------------------------------------------
+Describe "Developer-only release prompt execution metadata" {
+    $releasePrompt = Join-Path $repoRoot "cg-release.prompt.md"
 
-Describe "docs/model-guide.md - structure and sync" {
-    $guideFile = Join-Path $repoRoot "docs\model-guide.md"
-
-    It "docs/model-guide.md exists" {
-        Test-Path $guideFile | Should -Be $true
+    It "exists in the repository" {
+        Test-Path $releasePrompt | Should -Be $true
     }
 
-    $content = Get-Content $guideFile -Raw -Encoding UTF8
-
-    It "documents ordinary prompts inheriting the user-selected model" {
-        $content | Should -Match "Ordinary workflow prompts"
-        $content | Should -Match "model picker"
-    }
-
-    It "documents recommended model selection" {
-        $content | Should -Match "Recommended Model Selection"
-        $content | Should -Match "Normal daily use"
-        $content | Should -Match "GPT-5\.3-Codex"
-    }
-
-    It "documents OpenAI-first governance" {
-        $content | Should -Match "Governance Principle"
-        $content | Should -Match "Explicit model assignments are OpenAI-first"
-        $content | Should -Match "Sonnet is a targeted fallback"
-        $content | Should -Match "Haiku is allowed only"
-    }
-
-    It "documents prompt and agent assignment tables" {
-        $content | Should -Match "### Prompts"
-        $content | Should -Match "### Agents"
-        $content | Should -Match "File \| Model \| Role \| Rationale"
-    }
-
-    It "documents model-catalog source of truth and validation guardrails" {
-        $content | Should -Match "Explicit Model Assignments"
-        $content | Should -Match "\.github/shared/model-catalog\.json"
-        $content | Should -Match "cg-work\.prompt\.md"
-        $content | Should -Match "cg-review\.prompt\.md"
-        $content | Should -Match "no Haiku assignment outside mechanical workflows"
-        $content | Should -Match "exact GPT frontmatter support"
+    It "does not assign an execution model" {
+        $frontmatter = Get-Frontmatter -FilePath $releasePrompt
+        ($frontmatter -cmatch '(?m)^\s*model\s*:') | Should -Be $false
     }
 }
 
-Describe "docs/reference.md - ordinary prompt model picker sync" {
-    $referenceFile = Join-Path $repoRoot "docs\reference.md"
-    if (-not (Test-Path $referenceFile)) {
-        Write-Warning "docs/reference.md not found -- skipping model picker sync tests"
-    }
-    $content = if (Test-Path $referenceFile) { Get-Content $referenceFile -Raw -Encoding UTF8 } else { "" }
-    $ordinaryCommands = @(
-        "/cg-brainstorm",
-        "/cg-ideate",
-        "/cg-plan",
-        "/cg-plan-review",
-        "/cg-review-repos",
-        "/cg-strategy"
-    )
+Describe "Advisory contract and examples" {
+    $contractPath = Join-Path $repoRoot ".github\shared\model-advisory.contract.md"
+    $examplesPath = Join-Path $repoRoot ".github\shared\model-advisory-examples.json"
+    $mappingPath = Join-Path $repoRoot ".github\shared\target-mapping.json"
 
-    foreach ($command in $ordinaryCommands) {
-        It "$command documents model-picker inheritance rather than a premium default" {
-            $escapedCommand = [regex]::Escape($command)
-            ($content -match "\| ``?$escapedCommand") | Should -Be $true
-            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
-            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
+    It "provides the shared advisory contract and examples" {
+        Test-Path $contractPath | Should -Be $true
+        Test-Path $examplesPath | Should -Be $true
+    }
+
+    It "defines all stable stages and effort labels" {
+        $contract = Get-Content $contractPath -Raw -Encoding UTF8
+        $examples = Get-Content $examplesPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $contract | Should -Match "planning"
+        $contract | Should -Match "implementation"
+        $contract | Should -Match "review"
+        $contract | Should -Match "fix-triage"
+        $contract | Should -Match "compounding-documentation"
+        @($examples.effortLabels) | Should -Contain "low"
+        @($examples.effortLabels) | Should -Contain "medium"
+        @($examples.effortLabels) | Should -Contain "high"
+        @($examples.effortLabels) | Should -Contain "xhigh"
+        @($examples.effortLabels) | Should -Contain "max"
+    }
+
+    It "requires user control and provenance language" {
+        $contract = Get-Content $contractPath -Raw -Encoding UTF8
+        $contract | Should -Match "user makes the final selection"
+        $contract | Should -Match "availability can differ by platform and date"
+        $contract | Should -Match "Runtime catalog introspection is intentionally deferred"
+        $contract | Should -Match "must never be translated into prompt or agent frontmatter"
+    }
+
+    It "does not retain executable model mapping fields" {
+        $mapping = Get-Content $mappingPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        foreach ($target in @($mapping.targets)) {
+            $target.PSObject.Properties.Name | Should -Not -Contain "modelMappingMode"
+            $target.PSObject.Properties.Name | Should -Not -Contain "modelMapping"
+            $target.outputPaths.PSObject.Properties.Name | Should -Not -Contain "modelMapping"
+        }
+        (Get-Content $mappingPath -Raw -Encoding UTF8) | Should -Not -Match "model-mapping"
+    }
+}
+
+Describe "Model guidance documentation" {
+    $guidePath = Join-Path $repoRoot "docs\model-guide.md"
+    $guide = Get-Content $guidePath -Raw -Encoding UTF8
+
+    It "is organized around process stages" {
+        $guide | Should -Match "Planning"
+        $guide | Should -Match "Implementation"
+        $guide | Should -Match "Review"
+        $guide | Should -Match "Fix triage"
+        $guide | Should -Match "Compounding"
+    }
+
+    It "includes strong and economical advisory choices" {
+        $guide | Should -Match "Strong option"
+        $guide | Should -Match "Economical option"
+        $guide | Should -Match "successful completion"
+    }
+
+    It "states user choice and unknown availability" {
+        $guide | Should -Match "user decides"
+        $guide | Should -Match "availability"
+        $guide | Should -Match "must not infer"
+        $guide | Should -Match "unknown"
+    }
+
+    It "does not describe enforced assignments or mapping artifacts" {
+        $guide | Should -Not -Match "Explicit Model Assignments"
+        $guide | Should -Not -Match "model-catalog\.json"
+        $guide | Should -Not -Match "model-mapping"
+        $guide | Should -Not -Match "OpenAI-first"
+    }
+}
+
+Describe "Advisory handoff contracts" {
+    $handoffs = @{
+        "cg-plan.prompt.md" = "planning"
+        "cg-work.prompt.md" = "implementation"
+        "cg-review.prompt.md" = "review"
+        "cg-fix-triage.prompt.md" = "fix-triage"
+    }
+
+    foreach ($name in $handoffs.Keys) {
+        $path = Join-Path $repoRoot (Join-Path ".github\prompts" $name)
+        $content = Get-Content $path -Raw -Encoding UTF8
+        $stage = $handoffs[$name]
+
+        It "$name reads the shared advisory contract" {
+            $content | Should -Match '\.github/shared/model-advisory\.contract\.md'
+        }
+
+        It "$name names the $stage advisory stage" {
+            $content | Should -Match $stage
+        }
+
+        It "$name preserves user control and availability caveats" {
+            $content | Should -Match 'availability can differ by platform\s+and date'
+            $content | Should -Match 'user makes the final\s+selection'
+            $content | Should -Match 'Do not dispatch,\s*switch,\s*retry,\s*or set'
         }
     }
 }
 
-# ---------------------------------------------------------------------------
-# Prompt/agent files - frontmatter delimiters
-# Sanity check: every file must have both opening and closing --- delimiters.
-# Catches frontmatter that was accidentally truncated or never closed.
-# ---------------------------------------------------------------------------
+Describe "Cross-document model policy" {
+    foreach ($fileName in @("workflow.md", "reference.md", "context-files.md")) {
+        $path = Join-Path $repoRoot (Join-Path "docs" $fileName)
+        It "docs/$fileName does not require model mapping artifacts" {
+            $content = Get-Content $path -Raw -Encoding UTF8
+            $content | Should -Not -Match "model-mapping"
+            $content | Should -Not -Match "model-catalog\.json"
+            $content | Should -Not -Match "OpenAI-first"
+        }
+    }
+}
 
-Describe "Prompt/agent files - frontmatter delimiters" {
+Describe "Prompt and agent frontmatter delimiters" {
     $allFiles = @()
     $allFiles += Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File
     $allFiles += Get-ChildItem (Join-Path $repoRoot ".github\agents") -Filter "*.agent.md" -File
 
-    $releasePrompt = Join-Path $repoRoot "cg-release.prompt.md"
-    if (Test-Path $releasePrompt) {
-        $allFiles += Get-Item $releasePrompt
-    }
-
     foreach ($file in $allFiles) {
-        $relPath = $file.FullName.Replace($repoRoot + "\", "")
-
-        It "$relPath has both opening and closing --- frontmatter delimiters" {
+        $relative = $file.FullName.Replace($repoRoot + "\", "")
+        It "$relative has both opening and closing frontmatter delimiters" {
             $content = Get-Content $file.FullName -Raw -Encoding UTF8
-            # At least two --- delimiters means both opening and closing are present
             ($content -split '\r?\n' | Where-Object { $_ -match '^---\s*$' }).Count |
                 Should -BeGreaterThan 1
         }

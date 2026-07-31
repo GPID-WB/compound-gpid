@@ -100,8 +100,8 @@ Describe "cg-fix-triage.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -566,8 +566,8 @@ Describe "cg-compound-refresh.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -938,8 +938,8 @@ Describe "cg-compound.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -1017,21 +1017,21 @@ Describe "cg-plan.prompt.md - no tool restriction" {
     }
 }
 
-Describe "cg-plan.prompt.md - model-context note" {
+Describe "cg-plan.prompt.md - platform-neutral model-context note" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "documents GitHub Copilot model picker inheritance" {
-        ($content -match 'inherits.*GitHub Copilot model picker|GitHub Copilot model picker.*inherits') | Should -Be $true
+    It "documents active-platform model picker inheritance" {
+        ($content -match 'inherits the model picker or runtime configuration selected on the active platform') | Should -Be $true
     }
 
-    It "mentions Copilot Auto without naming the hidden underlying model" {
-        ($content -match 'Copilot Auto') | Should -Be $true
-        ($content -match 'will not infer or name the hidden underlying model|not infer or name.*underlying model') | Should -Be $true
+    It "does not infer an Auto or unknown hidden model" {
+        ($content -match 'platform reports Auto or an unknown selection') | Should -Be $true
+        ($content -match 'will not infer or name a hidden underlying model') | Should -Be $true
     }
 
-    It "points users to Copilot UI or hover details for actual Auto-selected model identity" {
-        ($content -match 'Copilot UI/hover details|Copilot UI.*hover') | Should -Be $true
+    It "points users to the active platform UI or configuration" {
+        ($content -match "inspect the active platform's UI or configuration") | Should -Be $true
     }
 }
 
@@ -1538,8 +1538,8 @@ Describe "cg-fix-problems.prompt.md - frontmatter" {
             $frontmatter | Should -Match 'description:'
         }
 
-        It "has a model in frontmatter" {
-            $frontmatter | Should -Match 'model:'
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -1820,8 +1820,8 @@ Describe "cg-plan-critic.agent.md - existence and structure" {
             ($frontmatter -match 'user-invocable:\s*false') | Should -Be $true
         }
 
-        It "has a model in frontmatter" {
-            ($frontmatter -match 'model:') | Should -Be $true
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 }
@@ -2540,8 +2540,8 @@ Describe "cg-setup.prompt.md - frontmatter" {
         $frontmatter | Should -Match 'description:'
     }
 
-    It "has a model in frontmatter" {
-        $frontmatter | Should -Match 'model:'
+    It "inherits the selected model without model frontmatter" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
     }
 
     It "does not have a tools: key (orchestrating prompt needs unrestricted access)" {
@@ -3448,8 +3448,8 @@ Describe "cg-release-scanner.agent.md - existence and structure" {
             ($frontmatter -match "tools:.*'read'") -and ($frontmatter -match "tools:.*'search'") | Should -Be $true
         }
 
-        It "has a model in frontmatter" {
-            ($frontmatter -match 'model:') | Should -Be $true
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 
@@ -3593,8 +3593,8 @@ Describe "cg-project-scanner.agent.md - existence and structure" {
             ($tools -contains 'read') -and ($tools -contains 'search') -and (-not ($tools -contains 'write')) | Should -Be $true
         }
 
-        It "has model: Claude Haiku 4.5 (copilot) in frontmatter" {
-            ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should -Be $true
+        It "inherits the selected model without model frontmatter" {
+            ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
 
@@ -4352,8 +4352,8 @@ Describe "cg-roadmap-view.agent.md - frontmatter" {
         ($tools -contains 'write') | Should Be $false
     }
 
-    It "uses Haiku model for fast rendering" {
-        ($frontmatter -match 'Haiku') | Should Be $true
+    It "inherits the selected model for fast rendering" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should Be $true
     }
 
     It "has a description in frontmatter" {
@@ -4714,8 +4714,8 @@ Describe "cg-commit-push-pr.prompt.md - frontmatter" {
         ($frontmatter -match 'description:') | Should -Be $true
     }
 
-    It "is assigned GPT-5.3-Codex for OpenAI-first commit and PR workflow" {
-        ($frontmatter -match 'GPT-5\.3-Codex') | Should -Be $true
+    It "inherits the selected model for commit and PR workflow" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
     }
 
     It "does not have a tools: restriction" {
@@ -4854,8 +4854,8 @@ Describe "cg-verify-pr.prompt.md - frontmatter" {
         ($frontmatter -match 'description:') | Should -Be $true
     }
 
-    It "is assigned GPT-5.3-Codex for OpenAI-first PR verification" {
-        ($frontmatter -match 'GPT-5\.3-Codex') | Should -Be $true
+    It "inherits the selected model for PR verification" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
     }
 
     It "does not have a tools: restriction" {
@@ -5213,8 +5213,8 @@ Describe "cg-brain-rebuild.prompt.md - frontmatter" {
         $frontmatter | Should -Match 'description:'
     }
 
-    It "has a model in frontmatter" {
-        $frontmatter | Should -Match 'model:'
+    It "inherits the selected model without model frontmatter" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
     }
 }
 
@@ -5299,8 +5299,8 @@ Describe "cg-token-audit.prompt.md - command contract" {
         Test-Path $promptFile | Should -Be $true
     }
 
-    It "has mechanical model frontmatter" {
-        ($frontmatter -match 'model:\s*Claude Haiku 4\.5') | Should -Be $true
+    It "inherits the selected model without model frontmatter" {
+        ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
     }
 
     It "runs cg-token-audit with explicit project root" {
@@ -5399,15 +5399,17 @@ Describe "docs/reference.md - /cg-brain-rebuild registration" {
     }
 }
 
-Describe "docs/model-guide.md - explicit assignment governance" {
+Describe "docs/model-guide.md - advisory stage guidance" {
     $guideFile = Join-Path $repoRoot "docs\model-guide.md"
     $content = Get-Content $guideFile -Raw -Encoding UTF8
 
-    It "documents catalog-backed explicit assignments and inherited model-picker equivalence" {
-        ($content -match '\.github/shared/model-catalog\.json') | Should -Be $true
-        ($content -match 'Copilot model picker') | Should -Be $true
-        ($content -match 'omitting\s+`model:`') | Should -Be $true
-        ($content -match 'the audit treats those two inherited representations as equivalent') | Should -Be $true
+    It "documents stage guidance and user-controlled inheritance" {
+        ($content -match 'Planning') | Should -Be $true
+        ($content -match 'Implementation') | Should -Be $true
+        ($content -match 'Review') | Should -Be $true
+        ($content -match 'Fix triage') | Should -Be $true
+        ($content -match 'user decides') | Should -Be $true
+        ($content -match 'availability can differ by platform and date') | Should -Be $true
     }
 }
 

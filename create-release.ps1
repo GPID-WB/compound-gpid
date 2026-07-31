@@ -118,7 +118,10 @@ $preflightTests = @(
     "scripts/tests/test_target_drift.py",
     "scripts/tests/test_target_claude.py",
     "scripts/tests/test_target_codex.py",
-    "scripts/tests/test_target_opencode.py"
+    "scripts/tests/test_target_opencode.py",
+    "scripts/tests/test_target_documentation.py",
+    "scripts/tests/test_model_advisory.py",
+    "scripts/tests/test_audit_context.py"
 ) | ForEach-Object { Join-Path $PSScriptRoot $_ }
 Write-Host "Running native packaging release preflight..." -ForegroundColor Cyan
 & $pythonCommand -m pytest @preflightTests -q
