@@ -109,6 +109,30 @@ def _parse_inline_list(raw: str) -> Optional[List[Any]]:
     return items
 
 
+def _strip_inline_yaml_comment(raw: str) -> str:
+    """Strip an inline YAML comment while preserving quoted ``#`` characters."""
+    quote: Optional[str] = None
+    escaped = False
+    for index, char in enumerate(raw):
+        if quote == '"':
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if quote == "'":
+            if char == quote:
+                quote = None
+            continue
+        if char in ('"', "'"):
+            quote = char
+        elif char == "#" and index > 0 and raw[index - 1].isspace():
+            return raw[:index].rstrip()
+    return raw.rstrip()
+
+
 # ---------------------------------------------------------------------------
 # Frontmatter parser (regex-based, best-effort, no PyYAML dependency)
 # ---------------------------------------------------------------------------
@@ -196,9 +220,8 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
         key, _, raw_value = stripped.partition(":")
         key = key.strip()
         raw_value = raw_value.strip()
-        # Strip inline YAML comments (e.g. "status: active # deprecated" → "active")
-        if " #" in raw_value:
-            raw_value = raw_value.split(" #")[0].rstrip()
+        # Strip inline YAML comments without touching quoted values.
+        raw_value = _strip_inline_yaml_comment(raw_value)
 
         if not raw_value:
             # Possibly a block-list key (next lines start with "- ")

@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="created" content="2026-07-31">
+  <meta name="description" content="Compound Research: a philosophy and implementation approach for responsible AI-assisted research.">
+  <meta name="theme-color" content="#132b2f">
+  <title>Compound Research | A different contract with AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #132b2f;
+      --ink-2: #1d4140;
+      --paper: #f4f0e5;
+      --paper-2: #e9e3d2;
+      --white: #fffdf7;
+      --red: #e45e45;
+      --red-dark: #a9372d;
+      --yellow: #e7c95a;
+      --blue: #b9dce0;
+      --green: #9fc48f;
+      --muted: #62706a;
+      --line: rgba(19, 43, 47, .18);
+      --shadow: 0 20px 60px rgba(19, 43, 47, .14);
+      --serif: Fraunces, Georgia, serif;
+      --sans: "DM Sans", Helvetica, sans-serif;
+      --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 320px; min-height: 100%; }
+    body {
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--paper);
+      font: 400 16px/1.45 var(--sans);
+    }
+    button { font: inherit; }
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(19, 43, 47, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19, 43, 47, .035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 36px 36px;
+    }
+    .deck::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 92% 8%, rgba(231, 201, 90, .23), transparent 26%), radial-gradient(circle at 2% 88%, rgba(185, 220, 224, .30), transparent 28%);
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      padding: 48px 7vw 42px;
+      isolation: isolate;
+    }
+    .slide.active { display: flex; animation: arrive .48s ease both; }
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide::after {
+      content: attr(data-number);
+      position: absolute;
+      top: 76px;
+      right: 7vw;
+      color: rgba(19, 43, 47, .2);
+      font: 500 11px/1 var(--mono);
+      letter-spacing: .12em;
+    }
+    .slide.dark {
+      color: var(--paper);
+      background:
+        linear-gradient(rgba(244, 240, 229, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244, 240, 229, .04) 1px, transparent 1px),
+        var(--ink);
+      background-size: 36px 36px;
+    }
+    .slide.dark::after { color: rgba(244, 240, 229, .3); }
+    .slide.red { background: var(--red); color: var(--paper); }
+    .slide.red::after { color: rgba(244, 240, 229, .6); }
+    .slide-inner {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, 100%);
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      min-height: 26px;
+      color: var(--muted);
+      font: 500 10px/1.2 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .dark .topline, .red .topline { color: rgba(244, 240, 229, .66); }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .kicker::before {
+      content: "";
+      display: inline-block;
+      width: 22px;
+      height: 3px;
+      background: var(--red);
+    }
+    .dark .kicker::before, .red .kicker::before { background: var(--yellow); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: var(--serif); letter-spacing: -.045em; line-height: .98; }
+    h1 { max-width: 900px; margin: auto 0 24px; font-size: clamp(54px, 8.2vw, 118px); }
+    h1 em { color: var(--red); font-style: normal; }
+    .cover h1 { max-width: 820px; font-size: clamp(54px, 7.2vw, 92px); }
+    .dark h1 em, .red h1 em { color: var(--yellow); }
+    h2 { max-width: 880px; margin: 42px 0 16px; font-size: clamp(42px, 5vw, 72px); }
+    h3 { font-size: 27px; }
+    .lede {
+      max-width: 720px;
+      margin-bottom: 0;
+      color: var(--ink-2);
+      font-size: clamp(18px, 2vw, 25px);
+      line-height: 1.35;
+    }
+    .dark .lede, .red .lede { color: rgba(244, 240, 229, .78); }
+    .small { font-size: 13px; color: var(--muted); }
+    .dark .small, .red .small { color: rgba(244, 240, 229, .7); }
+    .mono { font-family: var(--mono); }
+    .accent { color: var(--red); }
+    .yellow { color: var(--yellow); }
+    .hero-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 28px;
+      margin-top: auto;
+      padding-bottom: 10px;
+    }
+    .hero-note {
+      max-width: 360px;
+      padding: 17px 19px;
+      border-left: 4px solid var(--red);
+      background: rgba(255, 253, 247, .58);
+      color: var(--ink-2);
+    }
+    .hero-note strong { display: block; margin-bottom: 5px; font: 600 13px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .dark .hero-note { background: rgba(255, 253, 247, .08); color: var(--paper); border-color: var(--yellow); }
+    .cover-mark {
+      width: 140px;
+      height: 116px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      align-items: end;
+      opacity: .95;
+    }
+    .cover-mark i { display: block; background: var(--yellow); }
+    .cover-mark i:nth-child(1) { height: 32%; background: var(--red); }
+    .cover-mark i:nth-child(2) { height: 55%; }
+    .cover-mark i:nth-child(3) { height: 80%; background: var(--blue); }
+    .cover-mark i:nth-child(4) { height: 46%; background: var(--red); }
+    .cover-mark i:nth-child(5) { height: 100%; }
+
+    .statement {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(240px, .7fr);
+      gap: 7vw;
+      align-items: center;
+      height: 100%;
+    }
+    .statement h2 { margin: 0; }
+    .statement-quote {
+      border-top: 1px solid currentColor;
+      border-bottom: 1px solid currentColor;
+      padding: 23px 0;
+      font: 600 clamp(25px, 3vw, 42px)/1.1 var(--serif);
+    }
+    .numbered-list { display: grid; gap: 18px; margin-top: 32px; }
+    .numbered-item { display: grid; grid-template-columns: 35px 1fr; gap: 15px; align-items: start; }
+    .numbered-item .num {
+      padding-top: 4px;
+      color: var(--red);
+      font: 500 12px/1 var(--mono);
+    }
+    .dark .numbered-item .num, .red .numbered-item .num { color: var(--yellow); }
+    .numbered-item strong { display: block; margin-bottom: 3px; font-size: 18px; }
+    .numbered-item p { margin: 0; color: var(--muted); }
+    .dark .numbered-item p, .red .numbered-item p { color: rgba(244, 240, 229, .68); }
+
+    .section-title { margin: 36px 0 10px; }
+    .section-title + .lede { margin-bottom: 34px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .tile {
+      padding: 23px 22px 20px;
+      border-top: 4px solid var(--red);
+      background: rgba(255, 253, 247, .72);
+    }
+    .tile.yellow-top { border-color: var(--yellow); }
+    .tile.blue-top { border-color: var(--blue); }
+    .dark .tile { background: rgba(255, 253, 247, .08); }
+    .red .tile { background: rgba(19, 43, 47, .13); }
+    .tile .index { display: block; margin-bottom: 20px; color: var(--red); font: 500 11px/1 var(--mono); }
+    .dark .tile .index, .red .tile .index { color: var(--yellow); }
+    .tile h3 { margin: 0 0 10px; font-size: 27px; }
+    .tile p { margin: 0; color: var(--muted); }
+    .dark .tile p, .red .tile p { color: rgba(244, 240, 229, .72); }
+    .bottom-line { margin-top: auto; padding-top: 25px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .dark .bottom-line, .red .bottom-line { border-color: rgba(244, 240, 229, .2); color: rgba(244, 240, 229, .65); }
+
+    .risk-table { display: grid; margin-top: 22px; border-top: 1px solid var(--line); }
+    .risk-row {
+      display: grid;
+      grid-template-columns: 155px 1fr 1fr;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .risk-row strong { font-size: 17px; }
+    .risk-row span { color: var(--muted); }
+    .risk-row .signal { color: var(--red); font: 500 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+    .dark .risk-row span { color: rgba(244, 240, 229, .68); }
+    .dark .risk-row .signal { color: var(--yellow); }
+
+    .lifecycle {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 7px;
+      margin: 32px 0 28px;
+    }
+    .life-step {
+      position: relative;
+      min-height: 132px;
+      padding: 13px 11px;
+      background: var(--white);
+      border-bottom: 5px solid var(--red);
+    }
+    .life-step:nth-child(2n) { border-color: var(--yellow); }
+    .life-step:nth-child(3n) { border-color: var(--blue); }
+    .life-step:not(:last-child)::after {
+      content: ">";
+      position: absolute;
+      top: 50%;
+      right: -11px;
+      z-index: 2;
+      color: var(--red);
+      font: 700 17px/1 var(--mono);
+    }
+    .life-step b { display: block; margin-bottom: 15px; font: 500 10px/1 var(--mono); color: var(--muted); }
+    .life-step strong { display: block; margin-bottom: 7px; font: 600 18px/1.05 var(--serif); }
+    .life-step span { display: block; color: var(--muted); font-size: 11px; line-height: 1.25; }
+    .artifact-band {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--line);
+    }
+    .artifact-band div { padding: 15px 17px; background: rgba(255, 253, 247, .76); }
+    .artifact-band b { display: block; margin-bottom: 5px; color: var(--red); font: 500 10px/1 var(--mono); text-transform: uppercase; }
+    .artifact-band span { font-size: 14px; }
+
+    .backbone {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 30px;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .backbone-core {
+      padding: 26px;
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .backbone-core h3 { margin-bottom: 18px; color: var(--yellow); }
+    .core-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .core-pills span { padding: 8px 10px; border: 1px solid rgba(244, 240, 229, .25); font: 500 11px/1 var(--mono); }
+    .packs { display: grid; gap: 10px; }
+    .pack { display: grid; grid-template-columns: 145px 1fr; gap: 18px; padding: 17px; background: var(--white); border-left: 5px solid var(--red); }
+    .pack:nth-child(2) { border-color: var(--yellow); }
+    .pack:nth-child(3) { border-color: var(--blue); }
+    .pack strong { font: 600 21px/1 var(--serif); }
+    .pack p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .gate-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: 34px; align-items: start; margin-top: 22px; }
+    .gate-list { display: grid; gap: 10px; }
+    .gate { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 14px 15px; border: 1px solid var(--line); background: rgba(255, 253, 247, .62); }
+    .gate b { color: var(--red); font: 500 12px/1 var(--mono); }
+    .gate strong { display: block; font-size: 16px; }
+    .gate span { color: var(--muted); font-size: 13px; }
+    .scope-register { padding: 24px; background: var(--ink); color: var(--paper); }
+    .scope-register .label { color: var(--yellow); font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .scope-register h3 { margin: 17px 0 18px; font-size: 32px; }
+    .scope-register ol { margin: 0; padding-left: 21px; color: rgba(244, 240, 229, .75); }
+    .scope-register li { margin-bottom: 10px; }
+    .scope-register li:last-child { margin-bottom: 0; }
+    .scope-register em { color: var(--yellow); font-style: normal; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 24px;
+      border: 1px solid var(--line);
+    }
+    .split > div { padding: 26px; min-height: 260px; }
+    .split > div:first-child { background: var(--ink); color: var(--paper); }
+    .split > div:last-child { background: var(--white); }
+    .split h3 { margin: 0 0 13px; font-size: 31px; }
+    .split p { margin-bottom: 17px; color: var(--muted); }
+    .split > div:first-child p { color: rgba(244, 240, 229, .7); }
+    .split ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .split > div:first-child ul { color: rgba(244, 240, 229, .7); }
+    .split li { margin-bottom: 7px; }
+    .checkpoint { position: relative; margin: 0 25px; height: 0; }
+    .checkpoint span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); padding: 7px 10px; color: var(--paper); background: var(--red); font: 500 10px/1 var(--mono); letter-spacing: .06em; white-space: nowrap; }
+    .matrix {
+      display: grid;
+      grid-template-columns: .5fr 1.4fr .7fr;
+      gap: 0;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .matrix > * { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .matrix > *:nth-child(3n) { border-right: 0; }
+    .matrix .head { color: var(--red); background: var(--paper-2); font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .matrix code { color: var(--ink); font: 500 11px/1.35 var(--mono); }
+    .matrix .verified { color: #356b43; font-weight: 700; }
+
+    .provenance {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 32px;
+      align-items: center;
+      margin-top: 25px;
+    }
+    .chain { display: grid; gap: 0; }
+    .chain-step { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 15px; padding: 16px 0 20px; border-bottom: 1px solid var(--line); }
+    .chain-step:last-child { border-bottom: 0; }
+    .chain-step b { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; background: var(--red); color: var(--paper); font: 500 11px/1 var(--mono); }
+    .chain-step:nth-child(2) b { background: var(--yellow); color: var(--ink); }
+    .chain-step:nth-child(3) b { background: var(--blue); color: var(--ink); }
+    .chain-step:nth-child(4) b { background: var(--ink); color: var(--paper); }
+    .chain-step strong { display: block; margin-bottom: 3px; font-size: 17px; }
+    .chain-step p { margin: 0; color: var(--muted); font-size: 14px; }
+    .ledger {
+      padding: 21px;
+      color: var(--paper);
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font: 11px/1.65 var(--mono);
+    }
+    .ledger .comment { color: var(--green); }
+    .ledger .key { color: var(--yellow); }
+    .ledger .value { color: var(--blue); }
+    .ledger .red-value { color: #ff9a7f; }
+
+    .p0-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 26px; margin-top: 27px; }
+    .priority-stack { display: grid; gap: 8px; }
+    .priority { display: grid; grid-template-columns: 74px 1fr; gap: 18px; align-items: center; padding: 14px 17px; background: var(--white); border-left: 6px solid var(--red); }
+    .priority:nth-child(2) { border-color: var(--yellow); }
+    .priority:nth-child(3) { border-color: var(--blue); }
+    .priority:nth-child(4) { border-color: var(--green); }
+    .priority b { font: 700 19px/1 var(--mono); }
+    .priority span { color: var(--muted); font-size: 14px; }
+    .p0-side { padding: 25px; background: var(--red); color: var(--paper); }
+    .p0-side h3 { margin: 0 0 13px; font-size: 35px; }
+    .p0-side p { color: rgba(244, 240, 229, .82); }
+    .p0-side ul { margin: 22px 0 0; padding-left: 19px; color: rgba(244, 240, 229, .87); }
+    .p0-side li { margin-bottom: 8px; }
+
+    .architecture { margin-top: 23px; }
+    .arch-row { display: grid; grid-template-columns: 1.05fr 1fr 1fr 1fr; gap: 8px; }
+    .arch-row + .arch-row { margin-top: 8px; }
+    .arch-cell { min-height: 91px; padding: 16px; background: var(--white); border-top: 4px solid var(--red); }
+    .arch-row:nth-child(2) .arch-cell { border-color: var(--yellow); }
+    .arch-row:nth-child(3) .arch-cell { border-color: var(--blue); }
+    .arch-cell b { display: block; margin-bottom: 8px; color: var(--red); font: 500 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .arch-row:nth-child(2) .arch-cell b { color: #9c7f11; }
+    .arch-row:nth-child(3) .arch-cell b { color: #397786; }
+    .arch-cell strong { display: block; font: 600 19px/1.05 var(--serif); }
+    .arch-cell span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+    .arch-arrow { display: flex; align-items: center; justify-content: center; color: var(--red); font: 700 20px/1 var(--mono); }
+    .arch-callout { margin-top: 19px; padding: 16px 18px; border-left: 5px solid var(--red); background: rgba(255, 253, 247, .72); }
+    .arch-callout strong { margin-right: 6px; }
+
+    .command-map { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 27px; }
+    .command { padding: 18px 15px; background: var(--white); border-bottom: 5px solid var(--red); }
+    .command:nth-child(2n) { border-color: var(--yellow); }
+    .command:nth-child(3n) { border-color: var(--blue); }
+    .command code { display: block; margin-bottom: 17px; color: var(--red); font: 500 12px/1 var(--mono); }
+    .command strong { display: block; margin-bottom: 7px; font: 600 21px/1 var(--serif); }
+    .command span { display: block; color: var(--muted); font-size: 12px; }
+    .enforcement { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: 20px; background: var(--line); }
+    .enforcement div { padding: 15px 13px; background: rgba(255, 253, 247, .72); }
+    .enforcement b { display: block; margin-bottom: 6px; color: var(--red); font: 500 10px/1 var(--mono); text-transform: uppercase; }
+    .enforcement span { color: var(--muted); font-size: 12px; }
+
+    .tree-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 28px; align-items: stretch; margin-top: 25px; }
+    .tree { padding: 24px; background: var(--ink); color: var(--paper); font: 12px/1.8 var(--mono); }
+    .tree .folder { color: var(--yellow); }
+    .tree .file { color: var(--blue); }
+    .tree .note { color: rgba(244, 240, 229, .55); }
+    .trail { display: grid; gap: 10px; }
+    .trail-item { display: grid; grid-template-columns: 45px 1fr; gap: 15px; padding: 17px; background: var(--white); border-left: 4px solid var(--red); }
+    .trail-item:nth-child(2) { border-color: var(--yellow); }
+    .trail-item:nth-child(3) { border-color: var(--blue); }
+    .trail-item b { color: var(--red); font: 500 11px/1 var(--mono); }
+    .trail-item strong { display: block; margin-bottom: 4px; font-size: 16px; }
+    .trail-item span { color: var(--muted); font-size: 13px; }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 29px; border: 1px solid var(--line); }
+    .compare > div { padding: 22px; }
+    .compare .old { background: var(--paper-2); }
+    .compare .new { background: var(--ink); color: var(--paper); }
+    .compare h3 { margin: 0 0 18px; font-size: 31px; }
+    .compare-row { display: grid; grid-template-columns: 1fr 1.3fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .new .compare-row { border-color: rgba(244, 240, 229, .2); }
+    .compare-row b { font-size: 13px; }
+    .compare-row span { color: var(--muted); font-size: 13px; }
+    .new .compare-row span { color: rgba(244, 240, 229, .7); }
+
+    .ideas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 25px; }
+    .idea { display: grid; grid-template-columns: 54px 1fr; gap: 15px; padding: 20px; background: var(--white); border-top: 4px solid var(--red); }
+    .idea:nth-child(2n) { border-color: var(--yellow); }
+    .idea:nth-child(3n) { border-color: var(--blue); }
+    .idea .idea-num { color: var(--red); font: 500 12px/1 var(--mono); }
+    .idea h3 { margin: 0 0 7px; font-size: 25px; }
+    .idea p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 31px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .roadmap-step { min-height: 220px; padding: 20px 17px 18px; border-right: 1px solid var(--line); }
+    .roadmap-step:last-child { border-right: 0; }
+    .roadmap-step .when { display: block; margin-bottom: 35px; color: var(--red); font: 500 11px/1 var(--mono); text-transform: uppercase; }
+    .roadmap-step:nth-child(2) .when { color: #9c7f11; }
+    .roadmap-step:nth-child(3) .when { color: #397786; }
+    .roadmap-step:nth-child(4) .when { color: #568254; }
+    .roadmap-step h3 { margin: 0 0 9px; font-size: 27px; }
+    .roadmap-step p { margin: 0; color: var(--muted); font-size: 14px; }
+    .sequence-note { margin-top: 21px; padding: 17px; background: var(--ink); color: var(--paper); }
+    .sequence-note strong { color: var(--yellow); }
+
+    .closing { display: grid; grid-template-columns: 1.15fr .85fr; gap: 7vw; align-items: center; height: 100%; }
+    .closing h2 { margin: 0 0 22px; }
+    .closing-questions { display: grid; gap: 10px; }
+    .closing-questions div { padding: 17px; border: 1px solid rgba(244, 240, 229, .28); background: rgba(244, 240, 229, .07); }
+    .closing-questions b { display: block; margin-bottom: 5px; color: var(--yellow); font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .closing-questions span { color: rgba(244, 240, 229, .8); }
+    .closing-mark { display: grid; place-items: center; min-height: 310px; border: 1px solid rgba(244, 240, 229, .25); }
+    .closing-mark p { max-width: 280px; margin: 0; text-align: center; font: 600 32px/1.05 var(--serif); }
+    .closing-mark p em { color: var(--yellow); font-style: normal; }
+
+    .controls {
+      position: fixed;
+      right: 28px;
+      bottom: 22px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .controls button {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 32px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 253, 247, .78);
+      cursor: pointer;
+    }
+    .controls button:hover, .controls button:focus-visible { color: var(--paper); background: var(--ink); outline: none; }
+    .dots { display: flex; align-items: center; gap: 5px; margin: 0 4px; }
+    .dot { width: 5px; height: 5px; padding: 0; border: 0 !important; background: rgba(19, 43, 47, .28) !important; cursor: pointer; }
+    .dot.active { width: 18px; background: var(--red) !important; }
+    .progress {
+      position: fixed;
+      left: 7vw;
+      right: 7vw;
+      bottom: 22px;
+      z-index: 19;
+      height: 2px;
+      background: rgba(19, 43, 47, .15);
+    }
+    .progress span { display: block; width: 0; height: 100%; background: var(--red); transition: width .3s ease; }
+    .slide.dark ~ .controls button, .slide.red ~ .controls button { color: var(--ink); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .deck { min-height: 100vh; height: auto; overflow: visible; }
+      .slide, .slide.active { position: relative; inset: auto; display: none; min-height: 100vh; height: auto; padding: 32px 6vw 74px; animation: none; }
+      .slide.active { display: flex; }
+      .slide::after { top: 58px; right: 6vw; }
+      h1 { margin-top: auto; font-size: clamp(48px, 12vw, 86px); }
+      h2 { margin-top: 38px; font-size: clamp(39px, 10vw, 64px); }
+      .statement, .backbone, .gate-layout, .provenance, .tree-layout, .closing, .p0-grid { grid-template-columns: 1fr; gap: 22px; }
+      .statement { height: auto; margin: auto 0; }
+      .grid-3, .grid-2, .ideas { grid-template-columns: 1fr; }
+      .lifecycle { grid-template-columns: repeat(4, 1fr); }
+      .life-step:not(:last-child)::after { display: none; }
+      .artifact-band, .enforcement { grid-template-columns: 1fr; }
+      .command-map { grid-template-columns: repeat(2, 1fr); }
+      .arch-row { grid-template-columns: 1fr 1fr; }
+      .arch-arrow { display: none; }
+      .roadmap { grid-template-columns: repeat(2, 1fr); }
+      .roadmap-step:nth-child(2) { border-right: 0; }
+      .roadmap-step:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .risk-row { grid-template-columns: 125px 1fr; }
+      .risk-row span:last-child { grid-column: 2; }
+      .controls { right: 6vw; bottom: 14px; }
+      .progress { left: 6vw; right: 6vw; bottom: 14px; }
+    }
+    @media (min-width: 901px) and (max-height: 820px) {
+      .slide { padding-top: 34px; padding-bottom: 34px; }
+      .slide::after { top: 61px; }
+      h1 { font-size: clamp(48px, 6.7vw, 78px); }
+      .lede { font-size: 18px; }
+      .hero-bottom { padding-bottom: 0; }
+      .hero-note { padding: 13px 15px; }
+      h2 { margin-top: 30px; }
+      .section-title + .lede { margin-bottom: 24px; }
+      .lifecycle { margin-top: 22px; margin-bottom: 18px; }
+      .life-step { min-height: 112px; }
+      .tile { padding: 17px 18px 16px; }
+      .tile .index { margin-bottom: 13px; }
+      .tile h3 { font-size: 24px; }
+      .risk-row { padding: 12px 0; }
+    }
+    @media (min-width: 901px) and (max-width: 1100px) {
+      .cover h1 { font-size: clamp(48px, 6.4vw, 72px); }
+      .cover .lede { max-width: 670px; font-size: 19px; }
+      .cover .hero-note { max-width: 320px; }
+    }
+    @media (max-width: 540px) {
+      .topline { font-size: 9px; }
+      .hero-bottom { align-items: start; flex-direction: column; }
+      .cover-mark { width: 105px; height: 80px; }
+      .lifecycle { grid-template-columns: repeat(2, 1fr); }
+      .command-map, .roadmap { grid-template-columns: 1fr; }
+      .roadmap-step { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .roadmap-step:last-child { border-bottom: 0; }
+      .split { grid-template-columns: 1fr; }
+      .checkpoint { display: none; }
+      .matrix { font-size: 10px; }
+      .matrix > * { padding: 9px 8px; }
+      .pack { grid-template-columns: 1fr; gap: 8px; }
+      .arch-row { grid-template-columns: 1fr; }
+      .risk-row { grid-template-columns: 1fr; gap: 7px; }
+      .risk-row span:last-child { grid-column: auto; }
+      .dots { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" aria-live="polite">
+    <section class="slide dark cover active" data-number="01 / 18" data-title="A different contract with AI">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">Compound Research</span><span>Meeting brief / 2026.07.31</span></div>
+        <div style="margin-top:auto;">
+          <h1>Research needs a <em>different contract</em> with AI.</h1>
+          <p class="lede">The CR approach treats AI-assisted research as a governed process for thinking, evidence, judgment, and communication, not as a faster way to produce plausible text.</p>
+        </div>
+        <div class="hero-bottom">
+          <div class="hero-note"><strong>The proposition</strong>Make it easier to explore, harder to silently overclaim, and easier to audit later.</div>
+          <div class="cover-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="02 / 18" data-title="The starting premise">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">01 / Philosophy</span><span>Why research cannot inherit a coding workflow unchanged</span></div>
+        <div class="statement">
+          <div>
+            <h2>AI reduces the cost of <span class="accent">plausibility</span>.</h2>
+            <p class="lede">It does not reduce the cost of truth. In research, that gap is where the serious failures live.</p>
+          </div>
+          <div>
+            <div class="statement-quote">Fluent output is not evidence that the underlying research is correct.</div>
+            <div class="numbered-list">
+              <div class="numbered-item"><span class="num">01</span><div><strong>Evidence must be inspectable</strong><p>Claims need a source, a locator, and a verification status.</p></div></div>
+              <div class="numbered-item"><span class="num">02</span><div><strong>Judgment must be visible</strong><p>Normative and methodological choices cannot disappear into defaults.</p></div></div>
+              <div class="numbered-item"><span class="num">03</span><div><strong>Uncertainty is an output</strong><p>Abstention, limits, and competing explanations are useful research artifacts.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="03 / 18" data-title="Research failure modes">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">02 / Philosophy</span><span>The failure modes are different</span></div>
+        <h2 class="section-title">A generic code review cannot see every research error.</h2>
+        <p class="lede">The most dangerous mistakes are often silent: the code runs, the prose reads well, and the result is still wrong or overstated.</p>
+        <div class="risk-table">
+          <div class="risk-row"><strong>Invented authority</strong><span class="signal">Evidence risk</span><span>Made-up citations, page numbers, quotations, or publication details that look scholarly.</span></div>
+          <div class="risk-row"><strong>Method drift</strong><span class="signal">Theory risk</span><span>The code implements a subtly different model, estimand, or functional form than the derivation.</span></div>
+          <div class="risk-row"><strong>Specification search</strong><span class="signal">Integrity risk</span><span>Many models are run, but only the favorable specification reaches the paper.</span></div>
+          <div class="risk-row"><strong>Default values</strong><span class="signal">Normative risk</span><span>Thresholds, weights, exclusions, or frames are chosen without an explicit human decision.</span></div>
+          <div class="risk-row"><strong>Confident communication</strong><span class="signal">Output risk</span><span>The table or narrative is stronger than the evidence, caveats, or uncertainty support.</span></div>
+        </div>
+        <div class="bottom-line"><strong>Design implication:</strong> research needs its own task taxonomy, artifact contracts, gates, and reviewers.</div>
+      </div>
+    </section>
+
+    <section class="slide dark" data-number="04 / 18" data-title="CR philosophy">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">03 / Philosophy</span><span>The design stance</span></div>
+        <div class="statement">
+          <div>
+            <h2>Constrain the path.<br><span class="yellow">Expand the thinking.</span></h2>
+            <p class="lede">CR is not trying to make research mechanical. It is trying to reserve human attention for the decisions that deserve it.</p>
+          </div>
+          <div class="numbered-list">
+            <div class="numbered-item"><span class="num">01</span><div><strong>Explore broadly</strong><p>Surface alternative frames, methods, assumptions, and explanations.</p></div></div>
+            <div class="numbered-item"><span class="num">02</span><div><strong>Commit explicitly</strong><p>Record why a choice was made, who made it, and what it changes.</p></div></div>
+            <div class="numbered-item"><span class="num">03</span><div><strong>Verify before communicate</strong><p>Separate what the evidence supports from how the result is expressed.</p></div></div>
+            <div class="numbered-item"><span class="num">04</span><div><strong>Preserve for next time</strong><p>Turn reasoning, provenance, and limitations into institutional memory.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="05 / 18" data-title="The responsible lifecycle">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">04 / Philosophy</span><span>The common backbone</span></div>
+        <h2 class="section-title">A research task is a journey of artifacts.</h2>
+        <p class="lede">The lifecycle makes responsible AI structural and uniform across methods. Each stage has a purpose, a decision surface, and something inspectable left behind.</p>
+        <div class="lifecycle" aria-label="Scope, Evidence, Theory, Method, Execute, Verify, Communicate, Maintain">
+          <div class="life-step"><b>01</b><strong>Scope</strong><span>Question, context, affected stakeholders</span></div>
+          <div class="life-step"><b>02</b><strong>Evidence</strong><span>Source authority and claim provenance</span></div>
+          <div class="life-step"><b>03</b><strong>Theory</strong><span>Model, mechanism, identification</span></div>
+          <div class="life-step"><b>04</b><strong>Method</strong><span>Estimator and diagnostic plan</span></div>
+          <div class="life-step"><b>05</b><strong>Execute</strong><span>Code under active integrity gates</span></div>
+          <div class="life-step"><b>06</b><strong>Verify</strong><span>Review, tests, cross-checks</span></div>
+          <div class="life-step"><b>07</b><strong>Communicate</strong><span>Tables, figures, narrative</span></div>
+          <div class="life-step"><b>08</b><strong>Maintain</strong><span>Reproducibility and comparability</span></div>
+        </div>
+        <div class="artifact-band">
+          <div><b>Shared across every task</b><span>Scope, evidence, normative gate, verification, communication</span></div>
+          <div><b>Plug-in surface</b><span>Structural, ML, and measurement method packs</span></div>
+          <div><b>Operating principle</b><span>Do not let a polished final output erase the trail that produced it</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="06 / 18" data-title="One backbone, many method packs">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">05 / Philosophy</span><span>Reuse the responsible parts</span></div>
+        <h2 class="section-title">One backbone, many method packs.</h2>
+        <p class="lede">The method changes the theory, estimator, and diagnostics. It should not change the standard for evidence, explicit judgment, or verification.</p>
+        <div class="backbone">
+          <div class="backbone-core"><h3>Responsible backbone</h3><div class="core-pills"><span>Scope</span><span>Evidence</span><span>Normative gate</span><span>Verify</span><span>Communicate</span><span>Maintain</span></div></div>
+          <div class="packs">
+            <div class="pack"><strong>Structural</strong><p>Economic model, identification strategy, derivation, estimation, and specification diagnostics.</p></div>
+            <div class="pack"><strong>ML / Prediction</strong><p>Data leakage, panel-aware validation, evaluation objectives, and economic interpretation.</p></div>
+            <div class="pack"><strong>Measurement</strong><p>Weights, normalization, thresholds, cluster validity, sensitivity, and cross-vintage comparability.</p></div>
+          </div>
+        </div>
+        <div class="bottom-line"><strong>Why this matters:</strong> new methods extend the system without forking the responsible-AI logic.</div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="07 / 18" data-title="Scope before method">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">06 / The approach</span><span>Start with the decision, not the estimator</span></div>
+        <h2 class="section-title">Scope before method.</h2>
+        <p class="lede">Before a model is selected, CR asks what decision the evidence will inform and which choices could change who is seen, ranked, or affected.</p>
+        <div class="gate-layout">
+          <div class="gate-list">
+            <div class="gate"><b>01</b><div><strong>Problem framing</strong><span>Policy question, target population, unit, time horizon, comparability.</span></div></div>
+            <div class="gate"><b>02</b><div><strong>Competing frames</strong><span>At least two defensible ways to see the same question.</span></div></div>
+            <div class="gate"><b>03</b><div><strong>Theory priors</strong><span>Behavioral, data, and identification assumptions before results.</span></div></div>
+            <div class="gate"><b>04</b><div><strong>Success criteria</strong><span>Substantive, statistical, integrity, and reproducibility standards.</span></div></div>
+          </div>
+          <aside class="scope-register"><span class="label">Human decision register</span><h3>AI surfaces the choice.<br>Humans own the choice.</h3><ol><li>Enumerate the value-laden decision.</li><li>Show defensible options and consequences.</li><li>Require an explicit decision and justification.</li><li>Link it to the study, plan, and output.</li></ol><p class="small"><em>No silent defaults</em> for thresholds, weights, framing, exclusions, or burden allocation.</p></aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="08 / 18" data-title="Evidence before prose">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">07 / The approach</span><span>Separate analysis from composition</span></div>
+        <h2 class="section-title">Evidence comes before prose.</h2>
+        <p class="lede">A fluent draft is downstream of a reviewed evidence base. The writer can express verified claims, but cannot repair missing evidence by sounding confident.</p>
+        <div class="split">
+          <div><h3>Analysis</h3><p>Produce structured, evidence-linked artifacts.</p><ul><li>Claims, methods, results, caveats</li><li>Exact passages and source locators</li><li>Competing findings and unresolved items</li><li>Claim-evidence matrix</li></ul></div>
+          <div><h3>Composition</h3><p>Transform reviewed material into a research output.</p><ul><li>Writing brief and approved source records</li><li>Only claims with <code>status: verified</code></li><li>Citations generated from evidence IDs</li><li>No invented source, result, quote, or certainty</li></ul></div>
+        </div>
+        <div class="checkpoint"><span>evidence review checkpoint</span></div>
+        <div class="matrix"><div class="head">ID</div><div class="head">Claim</div><div class="head">Status</div><code>C001</code><div>Preferred specification reports a positive effect.</div><div class="verified">verified</div><code>C002</code><div>Method is valid under the stated identifying assumption.</div><div class="verified">verified</div><code>C003</code><div>External validity extends to all settings.</div><div>abstained</div></div>
+      </div>
+    </section>
+
+    <section class="slide dark" data-number="09 / 18" data-title="Provenance is a chain">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">08 / The approach</span><span>Source authority is not optional</span></div>
+        <h2 class="section-title">A source is not a citation until it can be resolved.</h2>
+        <p class="lede">The original document remains the authority. Converted text is an index that makes research material searchable; it is never permission to guess.</p>
+        <div class="provenance">
+          <div class="chain">
+            <div class="chain-step"><b>01</b><div><strong>Preserve the original</strong><p>Keep the authority file and its repository path.</p></div></div>
+            <div class="chain-step"><b>02</b><div><strong>Record provenance</strong><p>Source ID, origin, hash, version, retrieval date, converter.</p></div></div>
+            <div class="chain-step"><b>03</b><div><strong>Index for analysis</strong><p>Use converted text for headings, passages, tables, and locators.</p></div></div>
+            <div class="chain-step"><b>04</b><div><strong>Verify the claim</strong><p>Resolve the source and locator before the claim becomes publishable.</p></div></div>
+          </div>
+          <div class="ledger"><span class="comment"># provenance-ledger.yaml</span><br><span class="key">id:</span> <span class="value">S003</span><br><span class="key">origin:</span> <span class="value">repo-local</span><br><span class="key">original_path:</span> <span class="value">data/refs/source.pdf</span><br><span class="key">converted_path:</span> <span class="value">evidence/converted/source.md</span><br><span class="key">sha256:</span> <span class="value">&lt;hash of original&gt;</span><br><span class="key">external_flag:</span> <span class="red-value">false</span><br><br><span class="comment"># external sources are opt-in and flagged</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="10 / 18" data-title="P0 integrity">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">09 / The approach</span><span>Prioritize silent errors</span></div>
+        <h2 class="section-title">The review system is built around what can go wrong quietly.</h2>
+        <p class="lede">CR uses a priority system that blocks silent research errors before they become results, manuscripts, or policy claims.</p>
+        <div class="p0-grid">
+          <div class="priority-stack">
+            <div class="priority"><b>P0</b><span><strong>Blocking</strong> Silent errors that can produce wrong results without warning.</span></div>
+            <div class="priority"><b>P1</b><span><strong>Critical</strong> Incorrect behavior that must be fixed before results are shared.</span></div>
+            <div class="priority"><b>P2</b><span><strong>Important</strong> Missing robustness, documentation, or reproducibility work.</span></div>
+            <div class="priority"><b>P3</b><span><strong>Advisory</strong> Alternatives and presentation improvements worth noting.</span></div>
+          </div>
+          <aside class="p0-side"><h3>P0 examples</h3><p>The system is explicit about the errors it refuses to wave through.</p><ul><li>Code and derivation do not match</li><li>Identification claim lacks its diagnostic</li><li>Randomness has no explicit seed</li><li>Specification search is hidden</li><li>Claim has no verified evidence</li><li>Citation or locator cannot be resolved</li></ul></aside>
+        </div>
+        <div class="bottom-line"><strong>Rule:</strong> abstain and flag beats plausible completion.</div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="11 / 18" data-title="The plugin implementation">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">10 / Implementation</span><span>How the approach enters the plugin</span></div>
+        <h2 class="section-title">CR is a research layer on the same governed platform.</h2>
+        <p class="lede">The implementation does not rely on one clever prompt. It uses the plugin's existing control surfaces and adds research-specific contracts where the risks demand them.</p>
+        <div class="architecture">
+          <div class="arch-row"><div class="arch-cell"><b>Researcher</b><strong>Question or task</strong><span>Economic question, data, source, or output need</span></div><div class="arch-arrow">&gt;</div><div class="arch-cell"><b>Entry points</b><strong>/cr-* prompts</strong><span>Brainstorm, plan, work, review, compound</span></div><div class="arch-arrow">&gt;</div></div>
+          <div class="arch-row"><div class="arch-cell"><b>Knowledge</b><strong>Skills</strong><span>Workflow, scoping, evidence, methods, writing</span></div><div class="arch-cell"><b>Governance</b><strong>Shared contracts</strong><span>Modules, routing, active state, context</span></div><div class="arch-cell"><b>Review</b><strong>Specialized agents</strong><span>Integrity, provenance, identification, ML, measurement</span></div><div class="arch-arrow">&gt;</div></div>
+          <div class="arch-row"><div class="arch-cell"><b>Artifacts</b><strong>Auditable trail</strong><span>Plans, ledgers, matrices, manifests, reviews</span></div><div class="arch-cell"><b>Targets</b><strong>Generated adapters</strong><span>Copilot, Claude, Codex, OpenCode alignment</span></div><div class="arch-cell"><b>Memory</b><strong>Compounded learning</strong><span>Research decisions and solved problems persist</span></div><div class="arch-cell"><b>Output</b><strong>Evidence-ready result</strong><span>With limitations and verification status</span></div></div>
+        </div>
+        <div class="arch-callout"><strong>The key implementation choice:</strong> research is represented in canonical source, routing, model governance, generated targets, tests, and artifacts, rather than living as a side document.</div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="12 / 18" data-title="Executable workflow">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">11 / Implementation</span><span>From command to checkpoint</span></div>
+        <h2 class="section-title">The lifecycle is executable, not just a diagram.</h2>
+        <p class="lede">Each CR command owns a moment in the research process, while the work and review stages enforce the gates that protect it.</p>
+        <div class="command-map">
+          <div class="command"><code>/cr-brainstorm</code><strong>Frame</strong><span>Classify the task, surface alternatives, open the normative gate.</span></div>
+          <div class="command"><code>/cr-plan</code><strong>Commit</strong><span>Specify files, assumptions, tests, artifacts, and acceptance criteria.</span></div>
+          <div class="command"><code>/cr-work</code><strong>Execute</strong><span>Run the plan with active P0 checks and an evidence trail.</span></div>
+          <div class="command"><code>/cr-review</code><strong>Verify</strong><span>Dispatch shared and research-specific reviewers by task type.</span></div>
+          <div class="command"><code>/cr-compound</code><strong>Maintain</strong><span>Capture a solved research problem for institutional reuse.</span></div>
+        </div>
+        <div class="enforcement"><div><b>Scope</b><span>Normative decision register</span></div><div><b>Evidence</b><span>Provenance ledger + claim matrix</span></div><div><b>Execute</b><span>Seed + lockfile checks</span></div><div><b>Verify</b><span>Spec manifest + diagnostics</span></div><div><b>Maintain</b><span>Active state + reusable lesson</span></div></div>
+        <div class="bottom-line"><strong>Important distinction:</strong> the model can propose and inspect; the workflow decides what is allowed to pass.</div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="13 / 18" data-title="The research trail">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">12 / Implementation</span><span>What remains after the session</span></div>
+        <h2 class="section-title">The output is a research trail, not just a chat transcript.</h2>
+        <p class="lede">The trail makes a later review possible: what was asked, what was decided, which evidence was used, what was run, and what remains unresolved.</p>
+        <div class="tree-layout">
+          <div class="tree"><span class="folder">.cg-docs/research/</span><br>&nbsp;&nbsp;<span class="folder">evidence/</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">provenance-ledger.yaml</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">claim-evidence-matrix.yaml</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder">converted/</span><br>&nbsp;&nbsp;<span class="folder">scoping/</span><br>&nbsp;&nbsp;<span class="folder">normative-decisions/</span><br>&nbsp;&nbsp;<span class="folder">derivations/</span><br>&nbsp;&nbsp;<span class="folder">specifications/</span><br>&nbsp;&nbsp;<span class="folder">results/</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">manifest.json</span><br>&nbsp;&nbsp;<span class="folder">vintages/</span><br>&nbsp;&nbsp;<span class="folder">replication/</span><br><br><span class="note"># created on demand; originals remain authoritative</span></div>
+          <div class="trail">
+            <div class="trail-item"><b>01</b><div><strong>Reasoning trail</strong><span>Why this question, model, sample, identification strategy, and specification?</span></div></div>
+            <div class="trail-item"><b>02</b><div><strong>Evidence trail</strong><span>Which source supports each substantive claim, and where can a reviewer find it?</span></div></div>
+            <div class="trail-item"><b>03</b><div><strong>Execution trail</strong><span>Which code ran, with which seed, environment, specification, and output?</span></div></div>
+            <div class="trail-item"><b>04</b><div><strong>Maintenance trail</strong><span>What changed across versions, and what lesson should the team carry forward?</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="14 / 18" data-title="What CR changes">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">13 / The difference</span><span>From core CG to research-aware CG</span></div>
+        <h2 class="section-title">CR changes the unit of trust.</h2>
+        <p class="lede">The underlying plugin remains the same disciplined system. CR changes what “done” has to mean for a research task.</p>
+        <div class="compare">
+          <div class="old"><h3>Core CG</h3><div class="compare-row"><b>Workflow</b><span>Brainstorm -> plan -> work -> review -> compound</span></div><div class="compare-row"><b>Review</b><span>Code quality, tests, architecture, reproducibility</span></div><div class="compare-row"><b>Knowledge</b><span>Reusable engineering and data-science lessons</span></div><div class="compare-row"><b>Trust</b><span>The implementation behaves as intended</span></div></div>
+          <div class="new"><h3>Compound Research</h3><div class="compare-row"><b>Lifecycle</b><span>Scope -> evidence -> theory -> method -> execute -> verify -> communicate -> maintain</span></div><div class="compare-row"><b>Review</b><span>Silent research errors, provenance, identification, measurement, writing</span></div><div class="compare-row"><b>Knowledge</b><span>Reasoning, normative decisions, source records, research methods</span></div><div class="compare-row"><b>Trust</b><span>The claim, method, evidence, uncertainty, and trail can be audited</span></div></div>
+        </div>
+        <div class="bottom-line"><strong>CR is not “CG plus economics vocabulary.”</strong> It is a different research contract built on CG's engineering discipline.</div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="15 / 18" data-title="Research improvements">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">14 / Next</span><span>Ideas for making CR more useful to researchers</span></div>
+        <h2 class="section-title">Research improvements: make the partner more present at the point of judgment.</h2>
+        <p class="lede">The next gains should reduce friction around real research decisions without hiding the decisions themselves.</p>
+        <div class="ideas">
+          <div class="idea"><div class="idea-num">01</div><div><h3>Project source inventory</h3><p>Let a researcher see the local evidence corpus, missing sources, versions, and external opt-ins before analysis begins.</p></div></div>
+          <div class="idea"><div class="idea-num">02</div><div><h3>Interactive evidence checkpoint</h3><p>Give the user a compact review view for approving, correcting, or abstaining on claims before composition.</p></div></div>
+          <div class="idea"><div class="idea-num">03</div><div><h3>Diagnostic templates</h3><p>Offer method-specific checklists and starter artifacts for IV, DiD, RDD, ML validation, and measurement sensitivity.</p></div></div>
+          <div class="idea"><div class="idea-num">04</div><div><h3>Result-to-output lineage</h3><p>Link a table or figure back to the script, specification manifest, data vintage, seed, and review findings.</p></div></div>
+          <div class="idea"><div class="idea-num">05</div><div><h3>Uncertainty in the interface</h3><p>Make unresolved claims, limitations, confidence, and evidence status visible in the normal working view.</p></div></div>
+          <div class="idea"><div class="idea-num">06</div><div><h3>Researcher-friendly onboarding</h3><p>Explain the workflow through one realistic study journey, with examples that feel like economics rather than software setup.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="16 / 18" data-title="Platform development">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">15 / Next</span><span>Ideas for further development of the plugin</span></div>
+        <h2 class="section-title">Platform development: make research native without forking the system.</h2>
+        <p class="lede">The architecture is already pointing in the right direction. The opportunity is to turn its research contracts into durable product surfaces.</p>
+        <div class="ideas">
+          <div class="idea"><div class="idea-num">01</div><div><h3>Typed artifact contracts</h3><p>Validate ledgers, matrices, decision registers, manifests, and vintage files as first-class schemas.</p></div></div>
+          <div class="idea"><div class="idea-num">02</div><div><h3>Evaluation harness</h3><p>Build a benchmark suite of research tasks and silent-error cases, not only prompt-content tests.</p></div></div>
+          <div class="idea"><div class="idea-num">03</div><div><h3>Model routing by risk</h3><p>Use task type and review depth to make model choice, verification depth, and escalation behavior explicit.</p></div></div>
+          <div class="idea"><div class="idea-num">04</div><div><h3>Confidentiality-aware ingestion</h3><p>Separate local, restricted, and external evidence paths with clear controls and audit records.</p></div></div>
+          <div class="idea"><div class="idea-num">05</div><div><h3>Native editor views</h3><p>Surface active state, open P0s, evidence status, and next commands without making users hunt through folders.</p></div></div>
+          <div class="idea"><div class="idea-num">06</div><div><h3>Cross-adapter parity tests</h3><p>Keep the research experience aligned across Copilot, Claude, Codex, and OpenCode as the module evolves.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-number="17 / 18" data-title="A pragmatic sequence">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">16 / Next</span><span>Sequence the value</span></div>
+        <h2 class="section-title">A pragmatic sequence for the next phase.</h2>
+        <p class="lede">The order matters: first make claims traceable, then make measurement decisions robust, then deepen method packs and the user experience around them.</p>
+        <div class="roadmap">
+          <div class="roadmap-step"><span class="when">Now / harden</span><h3>Evidence spine</h3><p>Make provenance, claim verification, anti-hallucination behavior, and P0 review reliable in daily work.</p></div>
+          <div class="roadmap-step"><span class="when">Next / expand</span><h3>Measurement</h3><p>Add weighting sensitivity, cluster validity, threshold checks, and vintage comparability as usable artifacts.</p></div>
+          <div class="roadmap-step"><span class="when">Then / deepen</span><h3>Method packs</h3><p>Retrofit structural econometrics and ML with strong theory-data dialogue and diagnostic templates.</p></div>
+          <div class="roadmap-step"><span class="when">Always / compound</span><h3>Communication</h3><p>Connect evidence and decisions to tables, figures, writing, replication, and institutional memory.</p></div>
+        </div>
+        <div class="sequence-note"><strong>Success test:</strong> a researcher should be able to answer “what do we know, why do we believe it, what did we choose, and what could still be wrong?” without reconstructing the session from memory.</div>
+      </div>
+    </section>
+
+    <section class="slide dark" data-number="18 / 18" data-title="Discussion">
+      <div class="slide-inner">
+        <div class="topline"><span class="kicker">17 / Discussion</span><span>Where the plugin goes next</span></div>
+        <div class="closing">
+          <div>
+            <h2>Does every step make it easier to think, harder to silently overclaim, and easier to audit later?</h2>
+            <p class="lede">That is the standard I would use to judge the research direction of the plugin.</p>
+          </div>
+          <div class="closing-questions">
+            <div><b>Product question</b><span>Which research moment deserves a native interface first?</span></div>
+            <div><b>Engineering question</b><span>Which artifact contract should become executable validation next?</span></div>
+            <div><b>Research question</b><span>Which silent failure would be most valuable to catch in a benchmark?</span></div>
+            <div><b>Partnership question</b><span>Where should the plugin propose, and where must it stop for human judgment?</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+    <div class="controls" aria-label="Presentation controls">
+      <button id="prev" type="button" title="Previous slide" aria-label="Previous slide">&larr;</button>
+      <div class="dots" id="dots" aria-label="Choose slide"></div>
+      <button id="next" type="button" title="Next slide" aria-label="Next slide">&rarr;</button>
+    </div>
+    <div class="sr-only" id="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll('.slide')];
+      const dots = document.getElementById('dots');
+      const status = document.getElementById('status');
+      const progressBar = document.getElementById('progressBar');
+      let current = 0;
+
+      slides.forEach((slide, index) => {
+        const dot = document.createElement('button');
+        dot.className = 'dot';
+        dot.type = 'button';
+        dot.title = `${slide.dataset.number} ${slide.dataset.title}`;
+        dot.setAttribute('aria-label', `Go to slide ${index + 1}: ${slide.dataset.title}`);
+        dot.addEventListener('click', () => show(index));
+        dots.appendChild(dot);
+      });
+
+      function show(index) {
+        current = (index + slides.length) % slides.length;
+        slides.forEach((slide, slideIndex) => slide.classList.toggle('active', slideIndex === current));
+        [...dots.children].forEach((dot, dotIndex) => {
+          dot.classList.toggle('active', dotIndex === current);
+          dot.setAttribute('aria-current', dotIndex === current ? 'true' : 'false');
+        });
+        progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+        status.textContent = `Slide ${current + 1} of ${slides.length}: ${slides[current].dataset.title}`;
+        history.replaceState(null, '', `#${String(current + 1).padStart(2, '0')}`);
+      }
+
+      document.getElementById('prev').addEventListener('click', () => show(current - 1));
+      document.getElementById('next').addEventListener('click', () => show(current + 1));
+      document.addEventListener('keydown', event => {
+        if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); show(current + 1); }
+        if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); show(current - 1); }
+        if (event.key === 'Home') { event.preventDefault(); show(0); }
+        if (event.key === 'End') { event.preventDefault(); show(slides.length - 1); }
+      });
+
+      const hashNumber = Number.parseInt(window.location.hash.replace('#', ''), 10);
+      show(Number.isInteger(hashNumber) && hashNumber > 0 ? hashNumber - 1 : 0);
+    })();
+  </script>
+</body>
+</html>

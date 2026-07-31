@@ -57,7 +57,7 @@ date: YYYY-MM-DD
 title: "<descriptive title>"
 status: active
 scope: "<Lightweight|Standard|Deep>"
-task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility|Measurement/Classification>"
+task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility|Measurement/Classification|Research Scoping>"
 brainstorm: "<path to brainstorm file if applicable>"
 language: "<R|Python|Stata>"
 estimated-effort: "<small|medium|large>"

@@ -65,7 +65,7 @@ Write to `.cg-docs/solutions/<category>/YYYY-MM-DD-<brief-title>.md`:
 date: YYYY-MM-DD
 title: "<descriptive title>"
 category: "<category>"
-task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility>"
+task-type: "<Theory/Modeling|Specification Analysis|EDA|Implementation|ML/Prediction|Writing|Tables/Figures|Reproducibility|Measurement/Classification|Research Scoping>"
 tags: [<relevant tags>]
 ---
 ```

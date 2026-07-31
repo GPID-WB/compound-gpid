@@ -322,7 +322,7 @@
       "path": ".opencode/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "11c0f085594043d8542f3f7a694b74a0809e8ef15be6bcb4bf917fdb48b61cbe",
+      "sha256": "2bbef6fc5df7eb92ebcc1d077e3bc5b6eae6e0e9d914efdeba2a2b3fd3dc3f00",
       "executable": false
     },
     {
@@ -336,7 +336,7 @@
       "path": ".opencode/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "971a0e7309167de797c6b314abdf1f1ff1c3ad4b245ce5e5fc94afe62b72c266",
+      "sha256": "94ef7723c4daba556cfec7a9141aa01fa0adc0e4fdcbf673b2dcf206636d3dfb",
       "executable": false
     },
     {
@@ -385,21 +385,21 @@
       "path": ".opencode/commands/cr-compound.md",
       "source": ".github/prompts/cr-compound.prompt.md",
       "kind": "command",
-      "sha256": "82fa0e5defbc0dd6be9ecc4d8084ed956d0917d8ecca08baf708f12af21c94f9",
+      "sha256": "ef42c14e10a32c2e3ff71a36590681feb19b7467350c3326c8c51e5291feb09b",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "8c40e247401673607a1432970a5f2dcf9290fa2632a83e68d7ac9772820397e6",
+      "sha256": "997d61395c9459253ec8575fb8f0be710f01317bc325ebd11fa80ac072c11cea",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "32fc3a680d0dd164d9322516af389754ed586ee9510e538a5c3976ad99ba435d",
+      "sha256": "70da7fc3a9ff4fb3ba2fa8738fd4ee04f14a4cc164e75bf133de763690af496e",
       "executable": false
     },
     {
@@ -518,7 +518,7 @@
       "path": ".opencode/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "316c15c5f017fb9197c7557be4838508f0ac32f95418916363096d03510c2769",
+      "sha256": "49b6344dbd6c7806264cd8fd3270c2f97ac17a30cc6e5291643d19b873f92c58",
       "executable": false
     },
     {

@@ -198,13 +198,19 @@ Frontmatter:
 date: YYYY-MM-DD
 title: "<description>"
 scope: "<files reviewed>"
-status: open
-findings: N
+findings:
+  P1.1: open
+  P2.1: open
 ---
 ```
 
+Parse all finding IDs matching `P[0-3]\.\d+[a-z]?` from the report body and
+write them into the `findings:` YAML map with initial status `open`. Valid
+statuses are `open`, `fixed`, and `skipped`.
+
 > After writing, confirm: "Review report saved to `.cg-docs/reviews/<filename>.md`.
-> Use `/cg-fix-triage` to apply findings by ID (e.g., `/cg-fix-triage [P0.1]`)."
+> Use `/cg-fix-triage` to apply findings by ID (e.g., `/cg-fix-triage P0.1`) or by
+> priority level (e.g., `/cg-fix-triage P1`)."
 
 ### Step 6: Monte Carlo Verification Offer
 

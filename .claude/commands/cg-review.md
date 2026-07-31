@@ -21,7 +21,7 @@ You are a review orchestrator that coordinates multiple specialized review agent
 1. Read `compound-gpid.md` (objective, constraints, current focus). If missing, warn the user: "No project charter found. Run `/cg-setup` to create one. Proceeding without project context."
 2. Read `compound-gpid.local.md` (language, project type, review depth).
 3. Load `.claude/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; skip silently if absent. If changed files intersect documented project conventions, data sources, or workspace notes, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
-4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
+4. Parse mode flags from the user's invocation: identify any `--report-only`, `mode:verify`, `mode:autofix`, staged review modes (`light`, `standard`, `data-risk`, `architecture`, `research`, `full`), and backward-compatible `thorough`. Record for use in Step 1 and Step 2 dispatches before any file reads or tool dispatch. If `--no-brain` is present, set `brain-enabled = false`. Otherwise set `brain-enabled = true`.
 
 ### Step 1: Determine Scope
 
@@ -33,9 +33,9 @@ You are a review orchestrator that coordinates multiple specialized review agent
    - `mode:autofix` — No-op: autofix is now the default. Accepted without warning for backward compatibility.
    - `mode:verify` — Enable verification mode (see Step 1.7). Locates the most recent review file with fixed findings and passes prior context to agents with a suppression policy. Forces `light` depth.
      Research integrity exception: if prior open findings include `[cr-*]` IDs, additionally dispatch `@cr-research-integrity` in verify mode.
-   - `light`, `standard`, `data-risk`, `architecture`, `full` — Explicit staged review modes.
+  - `light`, `standard`, `data-risk`, `architecture`, `research`, `full` — Explicit staged review modes.
    - `thorough` — Backward-compatible alias; maps to `full` dispatch semantics unless `mode:verify` or `--report-only` guard behavior constrains the run.
-   If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `data-risk`, `architecture`, `full`, `thorough`, `--no-brain`."
+  If unrecognized, warn: "Unrecognized argument '<arg>' — ignoring. Recognized: `--report-only`, `mode:autofix`, `mode:verify`, `light`, `standard`, `data-risk`, `architecture`, `research`, `full`, `thorough`, `--no-brain`."
    `--report-only` and `mode:verify` are mutually exclusive. If both are passed, warn: "Cannot combine `--report-only` and `mode:verify` — using `mode:verify`." and ignore `--report-only`.
 
    **Default**: autofix is ON unless `--report-only` or `mode:verify` is passed. Always include tagging instructions (`[safe_auto]`/`[manual]`/`[advisory]`) in each agent dispatch at Step 2, unless `--report-only` or `mode:verify` is active.
@@ -66,7 +66,7 @@ Use deterministic preflight routing from `.claude/shared/review-routing.contract
 | `modules: [research]` with research-task signals (econometrics, identification, derivations, replication artifacts, or `/cr-*` invocation context) | `research` | `research` |
 | Auth, secrets, credentials, tokens, permissions, release automation, publishing, install/update paths, linking/unlinking paths, schema changes, or destructive filesystem behavior | `security-risk` | `full` |
 
-Precedence: verify/report-only guard behavior first; otherwise explicit user mode wins (`full`, `thorough` = `full`, `data-risk`, `architecture`, `standard`, `light`), then auto risk-class routing, then line-volume escalation, then config default. Resolve exactly one route.
+Precedence: verify/report-only guard behavior first; otherwise explicit user mode wins (`full`, `thorough` = `full`, `research`, `data-risk`, `architecture`, `standard`, `light`), then auto risk-class routing, then line-volume escalation, then config default. Resolve exactly one route.
 
 Auto risk-class routing applies only when no explicit mode is requested. If a user requests `light` or `standard` for a diff that matches `data-risk`, `architecture-risk`, or `security-risk`, keep the explicit route and mention the high-risk signals in the review focus. If a user requests `full` for a low-risk diff, keep `full`.
 
@@ -128,6 +128,7 @@ Based on the resolved staged mode from Step 1.5 and `.claude/shared/review-routi
 **Research** (`modules: [research]` + research-task signals):
 - All 8 agents from `standard`
 - `@cr-research-integrity`
+- `@cr-provenance-audit`
 - `@cr-mathematical-verification`
 - `@cr-identification-audit`
 - `@cr-econometric-reasoning`
@@ -136,6 +137,7 @@ Based on the resolved staged mode from Step 1.5 and `.claude/shared/review-routi
 - `@cr-academic-writing`
 - `@cr-publication-output`
 - `@cr-replication-package`
+- `@cr-measurement-integrity`
 
 **Full** (explicit full/thorough request, security-risk, release-risk, linking-risk, schema-risk, or very high-risk changes):
 - All 8 agents from `standard`
@@ -143,6 +145,9 @@ Based on the resolved staged mode from Step 1.5 and `.claude/shared/review-routi
 - `@cg-adversarial` — Actively tries to break the code: edge cases, data corruption vectors, security vulnerabilities
 
 Users can explicitly request `full` review at any time. `thorough` remains accepted and maps to full dispatch for backward compatibility.
+
+If both `research` and `security-risk` signals apply, use composite coverage:
+dispatch `full` plus the CR agent set from `research`.
 
 Do not dispatch broad full review for small or low-risk changes unless an explicit user mode or high-risk trigger requires it.
 

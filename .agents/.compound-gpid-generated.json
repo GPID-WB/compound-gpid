@@ -126,7 +126,7 @@
       "path": ".agents/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "2968ad8544dc30df07a665081d9b4c1f3f177f5e56b3e57c363cd25cea497c8a",
+      "sha256": "1e17705f4548ca844ca8d4ede3d069e1b4a64aea80f44462a96510e63df067fb",
       "executable": false
     },
     {
@@ -140,7 +140,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "f543cc147e5416a71c5bc1749201dddac2aafbc3b6a8cd9c91feaa22d42fb819",
+      "sha256": "8d922d447b9e895c3b6803d55354698523f0a4f9b4182846295ad183bf01224d",
       "executable": false
     },
     {
@@ -189,21 +189,21 @@
       "path": ".agents/commands/cr-compound.md",
       "source": ".github/prompts/cr-compound.prompt.md",
       "kind": "command",
-      "sha256": "046b3d27662874c02a00f55d8deecef473a6c9a1174c44e8e1fc211e5dc01aee",
+      "sha256": "db713125ca056401cbac77c2fc5295ff7e7ebf0eb6c8589c52440a73da302d51",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "531af9c414539b7fef19abe81c2e86529bc13953abb0e7fb84bda2ee8662209c",
+      "sha256": "e781ed6c63c3b79c3d592f937ec97b9a898b26cd23177476fb3c57c7bce511dd",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "075863f23b38d9f133bb179e0a498a2d4c1f9f8309f3cdfc34082cb992f35609",
+      "sha256": "f493658ffb8d8a80af9451bcca0d8372a01a66c60629e17455c28ddfa9dfd595",
       "executable": false
     },
     {
@@ -315,7 +315,7 @@
       "path": ".agents/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "316c15c5f017fb9197c7557be4838508f0ac32f95418916363096d03510c2769",
+      "sha256": "49b6344dbd6c7806264cd8fd3270c2f97ac17a30cc6e5291643d19b873f92c58",
       "executable": false
     },
     {
