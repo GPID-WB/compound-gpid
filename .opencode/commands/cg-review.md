@@ -257,6 +257,17 @@ Report: > "Autofix complete: applied \<N\> safe fixes (files: <list of file:line
 
 **If `--report-only`** was passed, present findings one at a time (P0 first, then P1, then P2, then P3). For each ask: **Fix** / **Skip** / **Discuss**.
 
+### Model Advisory Handoff
+
+Read `.opencode/shared/model-advisory.contract.md` and use the `review` stage for
+the transition to fix triage. Emit a compact recommendation with the review
+capability profile, strong option and effort, economical option when useful, and
+rationale. When the generator family is known, a different family may be
+suggested for independent contrast; when it is unknown or Auto, do not infer the
+hidden identity. Examples are suggestions; availability can differ by platform
+and date, and the user makes the final selection. Do not dispatch, switch,
+retry, or set a model or reasoning effort.
+
 ### Step 5: Summary
 
 > ## Review Summary

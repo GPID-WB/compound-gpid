@@ -91,6 +91,16 @@ After processing all in-scope findings, run a full-suite regression gate:
 > **execution_subagent query**: "In the repo root, run `. tests\Run-Tests.ps1` (no flags, no pipeline). Then run `if (-not (Test-Path tests\last-run.json)) { Write-Output 'last-run.json not found — run tests first' } else { Get-Content tests\last-run.json | ConvertFrom-Json | Select-Object passed, failedCount, failures, filteredFiles }`. Return only those four fields."
 If new failures appear: note as regressions in the summary.
 
+### Model Advisory Handoff
+
+Read `.opencode/shared/model-advisory.contract.md` and use the `fix-triage` stage
+for the transition to compounding or documentation. Emit a compact
+recommendation with the finding-specific capability profile, strong option and
+effort, economical option for bounded documentation when useful, and rationale.
+Examples are suggestions; availability can differ by platform and date, and the
+user makes the final selection. Do not dispatch, switch, retry, or set a model or
+reasoning effort.
+
 ### Step 4: Summary
 
 After processing all in-scope findings:
