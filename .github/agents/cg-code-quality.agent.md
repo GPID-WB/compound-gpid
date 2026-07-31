@@ -1,6 +1,5 @@
 ﻿---
 description: "Reviews code for style consistency, linting issues, DRY violations, and naming conventions. Trilingual R/Python/Stata."
-model: GPT-5.3-Codex
 tools: ['read', 'search']
 user-invocable: false
 ---

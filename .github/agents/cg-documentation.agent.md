@@ -1,6 +1,5 @@
 ﻿---
 description: "Reviews documentation quality: roxygen2/docstrings, README, inline comments. Trilingual R/Python/Stata."
-model: Claude Haiku 4.5
 tools: ['read', 'search']
 user-invocable: false
 ---

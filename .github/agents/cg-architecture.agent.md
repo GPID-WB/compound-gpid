@@ -1,6 +1,5 @@
 ﻿---
 description: "Reviews project structure, modularity, separation of concerns, and dependency management. Trilingual R/Python/Stata."
-model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---

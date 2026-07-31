@@ -1,6 +1,5 @@
 ---
 description: "Adversarial code reviewer that actively tries to break the code. Finds race conditions, edge cases, missing validations, and security vulnerabilities."
-model: GPT-5.4
 tools: ['read', 'search']
 user-invocable: false
 ---
