@@ -16,7 +16,11 @@ def test_canonical_prompts_and_agents_do_not_assign_execution_models() -> None:
     canonical += list((REPO_ROOT / ".github/agents").glob("*.agent.md"))
 
     assert canonical
-    assigned = [path.as_posix() for path in canonical if MODEL_KEY.search(path.read_text())]
+    assigned = [
+        path.as_posix()
+        for path in canonical
+        if MODEL_KEY.search(path.read_text(encoding="utf-8"))
+    ]
     assert assigned == []
 
 
