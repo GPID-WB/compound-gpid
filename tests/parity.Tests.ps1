@@ -117,6 +117,21 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkSh  | Should -Match '\-\-yes'
         $linkSh  | Should -Match ([regex]::Escape('|-y|'))
     }
+
+    It "both scripts checksum-clean legacy model mappings" {
+        $legacyTargets = @(
+            '.claude/model-mapping.claude.json',
+            '.agents/model-mapping.codex.json',
+            '.opencode/model-mapping.opencode.json'
+        )
+        foreach ($target in $legacyTargets) {
+            $escaped = [regex]::Escape($target)
+            $linkPs1 | Should -Match $escaped
+            $linkSh  | Should -Match $escaped
+        }
+        $linkPs1 | Should -Match 'checksum'
+        $linkSh  | Should -Match 'sha256'
+    }
 }
 
 # ---------------------------------------------------------------------------

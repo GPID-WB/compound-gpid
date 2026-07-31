@@ -28,8 +28,8 @@ class TestCodexTreeStructure:
     def test_root_adapter_exists(self) -> None:
         assert (REPO_ROOT / ".agents/AGENTS.md").is_file()
 
-    def test_model_mapping_artifact_exists(self) -> None:
-        assert (REPO_ROOT / ".agents/model-mapping.codex.json").is_file()
+    def test_model_mapping_artifact_is_absent(self) -> None:
+        assert not (REPO_ROOT / ".agents/model-mapping.codex.json").exists()
 
     def test_every_prompt_has_a_command(self) -> None:
         prompts = list((REPO_ROOT / ".github/prompts").glob("*.prompt.md"))
@@ -74,18 +74,16 @@ class TestCodexTOMLFormat:
         assert "# Agent:" in content
 
 
-class TestCodexModelMapping:
-    def test_model_mapping_uses_exact_mode(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
-        assert data["modelMappingMode"] == "exact"
-
-    def test_model_mapping_has_coding_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
-        assert data["mapping"]["coding"] == "GPT-5.3-Codex"
-
-    def test_model_mapping_has_review_role(self) -> None:
-        data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
-        assert data["mapping"]["review"] == "GPT-5.4"
+class TestCodexModelInheritance:
+    def test_commands_and_subagents_do_not_assign_models(self) -> None:
+        command_files = list((REPO_ROOT / ".agents/commands").rglob("*.md"))
+        subagent_files = list((REPO_ROOT / ".agents/subagents").glob("*.toml"))
+        assert command_files
+        assert subagent_files
+        for path in command_files:
+            assert "model:" not in path.read_text(encoding="utf-8"), path
+        for path in subagent_files:
+            assert "model =" not in path.read_text(encoding="utf-8"), path
 
     def test_root_adapter_references_agents_paths(self) -> None:
         content = (REPO_ROOT / ".agents/AGENTS.md").read_text(encoding="utf-8")

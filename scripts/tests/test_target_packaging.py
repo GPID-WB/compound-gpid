@@ -44,10 +44,6 @@ def _fixture_repo(tmp_path: Path) -> Path:
         root / ".github/shared/target-mapping.json",
         (json.dumps(mapping) + "\n").encode(),
     )
-    _write_bytes(
-        root / ".github/shared/model-catalog.json",
-        b'{"models": [], "assignments": [], "frontmatterSupport": []}\n',
-    )
     _write_bytes(root / ".github/shared/runtime-contract.md", b"# Runtime contract\n")
     _write_bytes(
         root / ".github/prompts/cg-fixture.prompt.md",
@@ -75,7 +71,6 @@ def _plan(root: Path) -> gen.GenerationPlan:
         root,
         gen.load_target_mapping(root),
         gen.scan_canonical_assets(root),
-        gen.load_model_catalog(root),
     )
 
 
