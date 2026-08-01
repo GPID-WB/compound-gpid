@@ -605,6 +605,13 @@
           "plan": null
         },
         {
+          "id": "dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html",
+          "title": "Dual-audience Brainstorm and Plan artifacts with human-readable HTML",
+          "description": "Keep canonical Markdown authoritative for agents while providing a deterministic, self-contained HTML view for human review.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md"
+        },
+        {
           "id": "automatic-post-pr-verification-handoff",
           "title": "Automatic post-PR CI verification and universal PR targeting",
           "status": "idea",
@@ -777,6 +784,20 @@
           "id": "runtime-model-catalog-introspection-across-platforms",
           "title": "Runtime model-catalog introspection across platforms",
           "description": "Deferred enhancement that discovers available models and supported reasoning-effort levels through reliable platform APIs or runtime capabilities, without controlling execution and without blocking the user-selected execution/advisory-routing feature.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "historical-html-backfill-for-existing-compound-gpid-artifacts",
+          "title": "Historical HTML backfill for existing Compound GPID artifacts",
+          "description": "After the version-1 deterministic renderer stabilizes, provide explicit bulk rendering and migration for existing Brainstorm and Plan Markdown artifacts.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "broader-artifact-publishing-formats-and-views",
+          "title": "Broader artifact publishing formats and views",
+          "description": "Extend the proven deterministic renderer to additional .cg-docs artifact types and optional PDF, image, or hosted outputs without changing canonical Markdown authority.",
           "status": "idea",
           "plan": null
         }
