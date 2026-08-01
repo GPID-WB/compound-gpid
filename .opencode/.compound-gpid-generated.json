@@ -322,7 +322,7 @@
       "path": ".opencode/instructions/python.instructions.md",
       "source": ".github/instructions/python.instructions.md",
       "kind": "instruction",
-      "sha256": "9ba9234fc1448f1f2849e4fc7622296746fdcd7f051e1a733db7d0c6502e45a6",
+      "sha256": "53f3c773ef04d394b726e7ada5a680d45d4b4eaf0ef369c5f2905cb0fbf1f32c",
       "executable": false
     },
     {

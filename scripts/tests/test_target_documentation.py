@@ -118,6 +118,26 @@ def test_docs_cover_checksum_cleanup_manifest_last_recovery_and_conflicts() -> N
 
 def test_docs_define_ci_drift_release_and_evidence_gates() -> None:
     _assert_terms(CORPUS, "CI", "drift", "release gate", "isolated", "dependency closure")
+
+
+def test_python_instructions_require_non_clobbering_filesystem_operations() -> None:
+    canonical_path = REPO_ROOT / ".github/instructions/python.instructions.md"
+    canonical = canonical_path.read_text(encoding="utf-8")
+    _assert_terms(
+        canonical,
+        "preserve concurrent winners",
+        "shared `secure_fs` APIs",
+        "non-replacing collision semantics",
+        "preserve quarantine/recovery artifacts",
+        "process umask",
+        "reject hard-link aliases",
+        "Atomic replacement alone is not non-clobbering",
+    )
+    for generated_root in (".claude", ".agents", ".opencode"):
+        generated = (
+            REPO_ROOT / generated_root / "instructions/python.instructions.md"
+        ).read_text(encoding="utf-8")
+        assert generated == canonical
     _assert_terms(CORPUS, "deterministic", "real CLI", "optional", "evidence")
 
 
