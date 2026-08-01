@@ -46,6 +46,32 @@ brew install python@3.11
 
 ---
 
+## Brainstorm or Plan view is missing or stale
+
+Run the one-file freshness check from the project root:
+
+```bash
+cg-render-artifact --check .cg-docs/plans/YYYY-MM-DD-example.md
+```
+
+It reports the expected view as `missing`, `stale`, or `current`. For one-file
+recovery, run:
+
+```bash
+cg-render-artifact .cg-docs/plans/YYYY-MM-DD-example.md
+```
+
+The explicit command works even when `artifact-html: false`. A validation,
+security, path, or write failure leaves canonical Markdown and any prior valid
+view unchanged and prints the exact expected view path plus the same recovery
+command. Do not edit the HTML to repair it.
+
+If the command is not found, restart the terminal after installation. If Python
+is not found, follow the installation steps above. Open Design is not required:
+it is design-time only and is never part of rendering or recovery.
+
+---
+
 ## `cg-update` (or `cg-link`, `cg-unlink`) not recognized after install
 
 **Windows symptom**:

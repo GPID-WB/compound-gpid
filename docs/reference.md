@@ -114,6 +114,10 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
 | `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |
 | `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |
+| `cg-render-artifact <source>` | Project root | Validate and explicitly render one Brainstorm or Plan, even when automatic HTML is disabled. |
+| `cg-render-artifact --automatic <source>` | Project root | Always validate; write HTML only when `artifact-html` is enabled or absent. |
+| `cg-render-artifact --validate-only <source>` | Project root | Validate one canonical artifact without writing HTML. |
+| `cg-render-artifact --check <source>` | Project root | Print `current` and exit code 0 only for an exact current view; print `missing` or `stale` and exit code 1 otherwise. Input/usage errors return exit code 2. |
 | `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. |
 | `cg-test-summary --root . --format json` | Project root | Summarize `tests/last-run.json` without running tests and store a redacted source artifact. |
 | `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. |
@@ -536,6 +540,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
 | `review-depth` | `"light"`, `"standard"`, `"thorough"` | Legacy depth default for `/cg-review`; `thorough` maps to the `full` route. Explicit routed modes can be passed at invocation time. |
+| `artifact-html` | `true`, `false` | Automatic Brainstorm/Plan HTML writes. Missing or invalid values default enabled (invalid values warn). Validation, explicit render, and `--check` remain available when false. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
 ### `compound-gpid.context.md`

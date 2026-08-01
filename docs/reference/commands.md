@@ -45,6 +45,10 @@ steps.
 | `cg-brain-init` | Initialize optional Team Brain integration |
 | `cg-index` | Build or query the local Knowledge Brain index |
 | `cg-index --brain` | Rebuild generated Brain artifacts |
+| `cg-render-artifact <source>` | Explicitly validate and render one Brainstorm or Plan |
+| `cg-render-artifact --automatic <source>` | Validate and render only when automatic HTML is enabled |
+| `cg-render-artifact --validate-only <source>` | Validate one artifact without writing HTML |
+| `cg-render-artifact --check <source>` | Report its derived view as missing, stale, or current |
 | `cg-token-audit` | Generate context, model-governance, and token artifacts |
 | `cg-test-summary` | Summarize an existing `tests/last-run.json`; does not run tests |
 | `cg-diff-summary` | Summarize changed files, hunks, and risk tags |

@@ -178,6 +178,55 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 
 **Output**: `.cg-docs/plans/YYYY-MM-DD-<title>.md`
 
+#### Validated Markdown and Human HTML Views
+
+New Brainstorms and Plans carry `artifact-schema-version: 1`. Canonical Markdown
+is the sole decision and execution authority; HTML is a complete derived review
+surface and never supplies execution state or approvals. Files without a version
+use compatible legacy behavior only when their structure is unambiguous. Unknown
+future versions fail with recovery guidance.
+
+Plan `status` values are exactly: `active`, `blocked`, `completed`.
+
+The one-file mapping is deterministic:
+
+- `.cg-docs/brainstorms/<slug>.md` -> `.cg-docs/views/brainstorms/<slug>.html`
+- `.cg-docs/plans/<slug>.md` -> `.cg-docs/views/plans/<slug>.html`
+
+Normal `/cg-brainstorm` and `/cg-plan` saves run
+`cg-render-artifact --automatic <source>`. The available one-file modes are:
+
+| Command | Result |
+|---|---|
+| `cg-render-artifact <source>` | Validate and explicitly render, even under project opt-out |
+| `cg-render-artifact --automatic <source>` | Always validate; write HTML when automatic generation is enabled |
+| `cg-render-artifact --validate-only <source>` | Validate without writing HTML |
+| `cg-render-artifact --check <source>` | Report the expected view as `missing`, `stale`, or `current` |
+
+Set `artifact-html: false` in `compound-gpid.local.md` to suppress automatic
+HTML writes for the project. Use `--no-html` on an emitter for a one-run skip.
+These settings never disable validation; explicit render and check modes remain
+available. `/cg-work` validates every versioned Plan before roadmap, report, or
+implementation mutation.
+
+Each view visibly and machine-readably embeds its source path, normalized source
+SHA-256, artifact schema version, renderer version, and UTC generation time. The
+normalized source SHA-256 removes one UTF-8 BOM, converts CRLF and lone CR to LF,
+and preserves all remaining Unicode, whitespace, and trailing newlines.
+
+On failure, canonical Markdown and any prior valid view are preserved. The error
+shows the expected path and `missing`/`stale`/`current` state, followed by the
+one-file recovery command `cg-render-artifact <source>`. Generated HTML bodies
+are excluded from model context, Brain indexing, duplicate analysis, release
+knowledge, and review/PR prose; those workflows retain path-level staging and
+freshness checks.
+
+Open Design is design-time only and was used to freeze presentation evidence.
+Rendering has no Open Design daemon, MCP, account, plugin, connector, network,
+or model dependency. Version 1 has no bulk historical conversion, no hosted
+site, no PDF or image product output, no live execution updates, no editing from
+HTML, and no views for artifact types other than new Brainstorms and Plans.
+
 ---
 
 ### 2b. Plan Review (`/cg-plan-review`)
