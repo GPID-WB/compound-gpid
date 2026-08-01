@@ -47,6 +47,7 @@ Race tests inject replacements at `_before_secure_replace` and `_before_secure_u
 
 ## Related
 
+- `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md` — follow-up: publication and rollback need non-replacing collision semantics even after parent handles are pinned
 - `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md`
 - `.cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md`
 - `.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md`
