@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-01T02:39:02Z",
+  "openDesign": {
+    "executable": "/Users/r.andrescastaneda/.local/bin/od",
+    "version": "source-cli 0.12.1; packaged-runtime 0.15.1",
+    "projectId": "2a0a8274-dc4e-4aba-bc2f-c8292e29d3de"
+  },
+  "artifacts": [
+    {
+      "kind": "brainstorm",
+      "sourcePath": ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
+      "sourceSha256": "0d97d0b2a85f329bc8b8c02ec1ef9e98efdbedd2354d7e1de62a81b793f70a45",
+      "viewPath": ".cg-docs/views/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.html",
+      "viewSha256": "53665fef775d166abe24f6c7d0e0626be32cf107ad543bd6d2b5ec01e2ec2688",
+      "viewports": [
+        {
+          "width": 1440,
+          "height": 900,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/brainstorm-1440x900.png"
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/brainstorm-768x1024.png"
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/brainstorm-390x844.png"
+        }
+      ],
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": true,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true
+      },
+      "printPreviewArtifact": ".cg-docs/work-reports/artifact-view-evidence/brainstorm-open-design.pdf",
+      "openDesignImageArtifact": ".cg-docs/work-reports/artifact-view-evidence/brainstorm-open-design.png"
+    },
+    {
+      "kind": "plan",
+      "sourcePath": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
+      "sourceSha256": "ea6787307ed0ee4a84771a801a68d9af1f07b130f27a9238ada34497ad84cb2e",
+      "viewPath": ".cg-docs/views/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.html",
+      "viewSha256": "ad82b8e86f03c9d690b8cb91deadb634c68dff4dc761b782ce26875fdd35e561",
+      "viewports": [
+        {
+          "width": 1440,
+          "height": 900,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/plan-1440x900.png"
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/plan-768x1024.png"
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "checks": {
+            "nonblank": true,
+            "noHorizontalOverflow": true,
+            "noOverlap": true,
+            "navigationReachable": true,
+            "firstViewportIdentity": true
+          },
+          "screenshot": ".cg-docs/work-reports/artifact-view-evidence/plan-390x844.png"
+        }
+      ],
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": true,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true
+      },
+      "printPreviewArtifact": ".cg-docs/work-reports/artifact-view-evidence/plan-open-design.pdf",
+      "openDesignImageArtifact": ".cg-docs/work-reports/artifact-view-evidence/plan-open-design.png"
+    }
+  ],
+  "observations": [
+    {
+      "name": "openDesignNativeExports",
+      "passed": true,
+      "detail": "Both ingested HTML artifacts exported successfully as page PNG and PDF through the packaged Open Design desktop runtime."
+    },
+    {
+      "name": "designDirection",
+      "passed": true,
+      "detail": "Accepted an editorial reading surface with persistent desktop navigation, linear mobile flow, restrained teal and rust accents, and unframed canonical content."
+    }
+  ]
+}
