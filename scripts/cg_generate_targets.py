@@ -40,6 +40,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
+import secure_fs
+
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 
 
@@ -972,17 +974,7 @@ def _render_output_entry(
 
 def _write_atomic_bytes(path: Path, content: bytes) -> None:
     """Atomically replace path with exact bytes from a generation plan."""
-    fd, temporary = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            handle.write(content)
-        os.replace(temporary, path)
-    except BaseException:
-        try:
-            os.unlink(temporary)
-        except FileNotFoundError:
-            pass
-        raise
+    secure_fs.secure_write_bytes(path.parent, Path(path.name), content)
 
 
 def _ownership_manifest_bytes(result: TargetResult) -> bytes:
@@ -1072,96 +1064,43 @@ def _regular_file_hash(path: Path, label: str) -> str:
 def _revalidate_destination_ancestors(root: Path, destination: Path) -> None:
     """Reject a destination whose existing ancestor changed into a link or non-directory."""
     try:
-        destination.relative_to(root)
-    except ValueError as exc:
-        raise PathSafetyError(f"Destination escapes repository root: {destination}") from exc
-    ancestor = destination.parent
-    while ancestor != root:
-        if ancestor.exists() or ancestor.is_symlink():
-            if ancestor.is_symlink() or not ancestor.is_dir():
-                raise PathSafetyError(f"Destination ancestor is unsafe at mutation time: {ancestor}")
-        ancestor = ancestor.parent
+        secure_fs.revalidate_destination_ancestors(root, destination)
+    except secure_fs.SecureMutationError as exc:
+        raise PathSafetyError(str(exc)) from exc
 
 
 def _supports_secure_dir_fd() -> bool:
     """Return whether this host supports no-follow handle-relative mutation."""
-    return os.name != "nt" and os.open in os.supports_dir_fd
+    return secure_fs.supports_secure_dir_fd()
 
 
 def _open_relative_parent(root: Path, relative_path: str, *, create: bool) -> tuple[int, str]:
     """Open a repository-relative parent without following symlink components."""
-    parts = PurePosixPath(relative_path).parts
-    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(root, flags)
-    try:
-        for part in parts[:-1]:
-            if create:
-                try:
-                    os.mkdir(part, dir_fd=descriptor)
-                except FileExistsError:
-                    pass
-            child = os.open(part, flags, dir_fd=descriptor)
-            os.close(descriptor)
-            descriptor = child
-        return descriptor, parts[-1]
-    except BaseException:
-        os.close(descriptor)
-        raise
+    return secure_fs.open_relative_parent(root, relative_path, create=create)
 
 
 def _secure_write_entry(root: Path, entry: OutputEntry) -> None:
     """Atomically write an output through a root-anchored no-follow parent handle."""
-    parent_fd, name = _open_relative_parent(root, entry.destination, create=True)
-    temporary = f".{name}.{uuid.uuid4().hex}.tmp"
-    file_fd: Optional[int] = None
-    try:
-        file_fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600, dir_fd=parent_fd)
-        with os.fdopen(file_fd, "wb", closefd=False) as handle:
-            handle.write(entry.content)
-            handle.flush()
-            os.fsync(handle.fileno())
-        mode = 0o666
-        try:
-            mode = stat.S_IMODE(os.stat(name, dir_fd=parent_fd, follow_symlinks=False).st_mode)
-        except FileNotFoundError:
-            pass
-        mode = (mode | 0o111) if entry.executable else (mode & ~0o111)
-        os.fchmod(file_fd, mode)
-        _before_secure_replace(root / entry.destination)
-        os.replace(temporary, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-    finally:
-        if file_fd is not None:
-            os.close(file_fd)
-        try:
-            os.unlink(temporary, dir_fd=parent_fd)
-        except FileNotFoundError:
-            pass
-        os.close(parent_fd)
+    secure_fs.secure_write_bytes(
+        root,
+        Path(entry.destination),
+        entry.content,
+        executable=entry.executable,
+        before_replace=_before_secure_replace,
+    )
 
 
 def _secure_delete_stale(root: Path, stale: OwnedFile) -> None:
     """Quarantine, verify, and delete a stale file through one pinned parent handle."""
-    parent_fd, name = _open_relative_parent(root, stale.path, create=False)
-    quarantine = f".{name}.{uuid.uuid4().hex}.stale"
     try:
-        _before_secure_unlink(root / stale.path)
-        try:
-            os.replace(name, quarantine, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-        except FileNotFoundError:
-            return
-        with os.fdopen(os.open(quarantine, os.O_RDONLY, dir_fd=parent_fd), "rb") as handle:
-            current_hash = hashlib.sha256(handle.read()).hexdigest()
-        if current_hash != stale.sha256:
-            try:
-                os.replace(quarantine, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-            except OSError as exc:
-                raise ValueError(
-                    f"Stale owned file changed before deletion and could not be restored: {stale.path}"
-                ) from exc
-            raise ValueError(f"Stale owned file changed before deletion: {stale.path}")
-        os.unlink(quarantine, dir_fd=parent_fd)
-    finally:
-        os.close(parent_fd)
+        secure_fs.secure_delete_verified(
+            root,
+            PurePosixPath(stale.path),
+            stale.sha256,
+            before_unlink=_before_secure_unlink,
+        )
+    except secure_fs.SecureMutationError as exc:
+        raise ValueError(str(exc)) from exc
 
 
 def _before_secure_replace(_path: Path) -> None:
@@ -1215,17 +1154,6 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
     )
 
 
-def _prune_empty_parents(path: Path, target_root: Path) -> None:
-    """Remove empty parents below, but never including, the target root."""
-    parent = path.parent
-    while parent != target_root:
-        try:
-            parent.rmdir()
-        except OSError:
-            break
-        parent = parent.parent
-
-
 def commit_generation_plan(
     root: Path,
     plan: GenerationPlan,
@@ -1243,29 +1171,12 @@ def commit_generation_plan(
     entries = tuple(entry for commit_plan in commit_plans
                     for entry in commit_plan.result.entries)
     for entry in entries:
-        destination = root / entry.destination
-        if _supports_secure_dir_fd():
-            _secure_write_entry(root, entry)
-        else:
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            _revalidate_destination_ancestors(root, destination)
-            _write_atomic_bytes(destination, entry.content)
-            mode = destination.stat().st_mode
-            destination.chmod((mode | 0o111) if entry.executable else (mode & ~0o111))
+        _secure_write_entry(root, entry)
     for commit_plan in commit_plans:
         target_root = root / commit_plan.result.target_root
         for stale in commit_plan.stale_files:
             path = root / stale.path
-            if _supports_secure_dir_fd():
-                _secure_delete_stale(root, stale)
-                _prune_empty_parents(path, target_root)
-            elif path.exists() or path.is_symlink():
-                _revalidate_destination_ancestors(root, path)
-                current_hash = _regular_file_hash(path, "Stale owned path at mutation time")
-                if current_hash != stale.sha256:
-                    raise ValueError(f"Stale owned file changed before deletion: {stale.path}")
-                path.unlink()
-                _prune_empty_parents(path, target_root)
+            _secure_delete_stale(root, stale)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_entry = OutputEntry(
             commit_plan.result.target_id,
@@ -1276,11 +1187,7 @@ def commit_generation_plan(
             hashlib.sha256(commit_plan.manifest_content).hexdigest(),
             False,
         )
-        if _supports_secure_dir_fd():
-            _secure_write_entry(root, manifest_entry)
-        else:
-            _revalidate_destination_ancestors(root, commit_plan.manifest_path)
-            _write_atomic_bytes(commit_plan.manifest_path, commit_plan.manifest_content)
+        _secure_write_entry(root, manifest_entry)
     return CommitResult(target_ids, entries)
 
 

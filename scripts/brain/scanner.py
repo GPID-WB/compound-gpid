@@ -26,6 +26,7 @@ from typing import Dict, List, Optional
 
 from brain import Entity
 from brain.utils import extract_summary, parse_frontmatter
+from secure_fs import SecureMutationError, secure_read_bytes
 
 # ---------------------------------------------------------------------------
 # Directory → entity_type mapping
@@ -43,6 +44,7 @@ _DIR_TO_TYPE: Dict[str, Optional[str]] = {
     "archive": None,  # Archived files are excluded from the brain
     "cost": None,  # Generated audit reports are excluded from the brain
     "token": None,  # Generated workflow token reports are excluded from the brain
+    "views": None,  # Generated HTML views never enter Brain/model context
 }
 
 
@@ -84,6 +86,8 @@ def scan_all(root: Path) -> List[Entity]:
     cg_docs_real = cg_docs.resolve()
 
     for md_path in sorted(cg_docs.rglob("*.md")):
+        if _has_symlink_component(md_path, cg_docs):
+            continue
         # Guard: reject symlinks that escape the .cg-docs/ directory (P1.1 fix).
         # Use relative_to() for component-level comparison — startswith() is vulnerable
         # to sibling directories sharing the same string prefix (e.g. .cg-docs-evil).
@@ -135,8 +139,13 @@ def scan_all(root: Path) -> List[Entity]:
             continue  # archive/ or unrecognised directory
 
         try:
-            text = md_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError) as exc:
+            source_bytes = secure_read_bytes(
+                root,
+                md_path.relative_to(root),
+                reject_hardlinks=True,
+            )
+            text = source_bytes.decode("utf-8", errors="strict")
+        except (OSError, UnicodeDecodeError, SecureMutationError) as exc:
             warnings.warn(
                 f"[brain.scanner] Could not read {md_path}: {exc}",
                 stacklevel=2,
@@ -163,6 +172,19 @@ def scan_all(root: Path) -> List[Entity]:
         )
 
     return entities
+
+
+def _has_symlink_component(path: Path, boundary: Path) -> bool:
+    """Return whether a path at or below ``boundary`` contains a symlink."""
+    current = path
+    while current != boundary:
+        if current.is_symlink():
+            return True
+        parent = current.parent
+        if parent == current:
+            return True
+        current = parent
+    return boundary.is_symlink()
 
 
 def scan_roadmap(root: Path) -> List[Entity]:

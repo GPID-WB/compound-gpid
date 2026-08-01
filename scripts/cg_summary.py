@@ -10,7 +10,7 @@ import subprocess
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional, Union
 
 
 OUTPUT_ROOT = Path(".cg-docs/token/outputs")
@@ -30,6 +30,7 @@ SECRET_PATTERNS = [
     re.compile(r"(?i)\b(token|password|api[_-]?key|secret)\s*=\s*([^\s\"']+)"),
     re.compile(r"(?i)\b(token|password|api[_-]?key|secret)\s*:\s*([^\s\"',}]+)"),
 ]
+MODEL_BODY_EXCLUDED_PREFIXES = (".cg-docs/views/",)
 
 
 class SummaryError(RuntimeError):
@@ -47,21 +48,21 @@ def redact(text: str) -> str:
     return redacted
 
 
-def resolve_root(root: str | Path) -> Path:
+def resolve_root(root: Union[str, Path]) -> Path:
     return Path(root).expanduser().resolve()
 
 
-def utc_run_id(now: datetime | None = None) -> str:
+def utc_run_id(now: Optional[datetime] = None) -> str:
     current = now or datetime.now(timezone.utc)
     return current.strftime("%Y%m%d-%H%M%S")
 
 
-def output_dir(root: Path, kind: str, run_id: str | None = None) -> Path:
+def output_dir(root: Path, kind: str, run_id: Optional[str] = None) -> Path:
     safe_kind = re.sub(r"[^a-z0-9_-]+", "-", kind.lower()).strip("-") or "summary"
     return root / OUTPUT_ROOT / f"{run_id or utc_run_id()}-{safe_kind}"
 
 
-def write_artifact(root: Path, kind: str, filename: str, text: str, run_id: str | None = None) -> str:
+def write_artifact(root: Path, kind: str, filename: str, text: str, run_id: Optional[str] = None) -> str:
     directory = output_dir(root, kind, run_id)
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / filename
@@ -81,6 +82,14 @@ def run_git(root: Path, args: list[str], check: bool = False) -> subprocess.Comp
     if check and result.returncode != 0:
         raise SummaryError(result.stderr.strip() or f"git {' '.join(args)} failed")
     return result
+
+
+def display_path(path: Path, root: Path) -> str:
+    """Return a POSIX relative path when contained, otherwise an absolute path."""
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def summarize_last_run(payload: dict[str, Any]) -> dict[str, Any]:
@@ -108,13 +117,13 @@ def summarize_last_run(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def test_summary(root: Path, input_path: Path | None = None, run_id: str | None = None) -> dict[str, Any]:
+def test_summary(root: Path, input_path: Optional[Path] = None, run_id: Optional[str] = None) -> dict[str, Any]:
     source = input_path or root / "tests/last-run.json"
     if not source.exists():
         return {
             "kind": "test",
             "available": False,
-            "reason": f"{source.relative_to(root).as_posix() if source.is_relative_to(root) else source} not found",
+            "reason": f"{display_path(source, root)} not found",
             "note": "Run the repository safe test command first; this wrapper reads existing results only.",
         }
     raw = source.read_text(encoding="utf-8")
@@ -127,7 +136,7 @@ def test_summary(root: Path, input_path: Path | None = None, run_id: str | None 
     summary.update({
         "kind": "test",
         "available": True,
-        "source": source.relative_to(root).as_posix() if source.is_relative_to(root) else str(source),
+        "source": display_path(source, root),
         "raw_artifact": artifact,
         "estimated_summary_tokens": 0,
     })
@@ -159,7 +168,7 @@ def risk_tags_for_paths(paths: Iterable[str]) -> list[str]:
 
 def parse_hunks(diff_text: str) -> dict[str, int]:
     hunks: Counter[str] = Counter()
-    current: str | None = None
+    current: Optional[str] = None
     for line in diff_text.splitlines():
         if line.startswith("diff --git "):
             parts = line.split()
@@ -169,14 +178,25 @@ def parse_hunks(diff_text: str) -> dict[str, int]:
     return dict(sorted(hunks.items()))
 
 
-def diff_summary(root: Path, run_id: str | None = None) -> dict[str, Any]:
-    diff = run_git(root, ["diff", "--no-ext-diff"], check=True).stdout
+def is_model_body_excluded(path: str) -> bool:
+    """Return whether a changed path is listed but excluded from raw patches."""
+    normalized = path.replace("\\", "/")
+    return any(normalized.startswith(prefix) for prefix in MODEL_BODY_EXCLUDED_PREFIXES)
+
+
+def diff_summary(root: Path, run_id: Optional[str] = None) -> dict[str, Any]:
+    diff = run_git(
+        root,
+        ["diff", "--no-ext-diff", "--", ".", ":(exclude).cg-docs/views/**"],
+        check=True,
+    ).stdout
     stat = run_git(root, ["diff", "--stat"], check=False).stdout
     name_only = run_git(root, ["diff", "--name-only"], check=False).stdout
     untracked_output = run_git(root, ["ls-files", "--others", "--exclude-standard"], check=False).stdout
     tracked_files = [line for line in name_only.splitlines() if line.strip()]
     untracked_files = [line for line in untracked_output.splitlines() if line.strip()]
     files = sorted(dict.fromkeys([*tracked_files, *untracked_files]))
+    excluded_body_paths = [path for path in files if is_model_body_excluded(path)]
     raw_artifact = write_artifact(root, "diff", "git-diff.patch", diff, run_id)
     stat_artifact = write_artifact(root, "diff", "git-diff-stat.txt", stat, run_id)
     summary = {
@@ -186,6 +206,7 @@ def diff_summary(root: Path, run_id: str | None = None) -> dict[str, Any]:
         "changed_files": files[:80],
         "tracked_files": tracked_files[:80],
         "untracked_files": untracked_files[:80],
+        "excluded_body_paths": excluded_body_paths[:80],
         "truncated_files": len(files) > 80,
         "hunks_by_file": parse_hunks(diff),
         "risk_tags": risk_tags_for_paths(files),
@@ -198,7 +219,7 @@ def diff_summary(root: Path, run_id: str | None = None) -> dict[str, Any]:
     return summary
 
 
-def default_base_ref(root: Path) -> str | None:
+def default_base_ref(root: Path) -> Optional[str]:
     head = run_git(root, ["symbolic-ref", "refs/remotes/origin/HEAD", "--short"])
     if head.returncode == 0 and head.stdout.strip():
         return head.stdout.strip()
@@ -209,7 +230,7 @@ def default_base_ref(root: Path) -> str | None:
     return None
 
 
-def log_summary(root: Path, base: str | None = None, run_id: str | None = None) -> dict[str, Any]:
+def log_summary(root: Path, base: Optional[str] = None, run_id: Optional[str] = None) -> dict[str, Any]:
     base_ref = base or default_base_ref(root)
     if not base_ref:
         return {"kind": "log", "available": False, "reason": "No base ref found for branch-local log summary."}
@@ -350,7 +371,7 @@ def summarize_text_problems(text: str) -> dict[str, Any]:
     return {"problem_count": sum(counts.values()), "severity_counts": dict(sorted(counts.items())), "samples": samples}
 
 
-def problems_summary(root: Path, input_path: Path | None = None, run_id: str | None = None) -> dict[str, Any]:
+def problems_summary(root: Path, input_path: Optional[Path] = None, run_id: Optional[str] = None) -> dict[str, Any]:
     if input_path is None:
         return {
             "kind": "problems",
@@ -375,7 +396,7 @@ def problems_summary(root: Path, input_path: Path | None = None, run_id: str | N
         "kind": "problems",
         "available": True,
         "parser": parser,
-        "source": source.relative_to(root).as_posix() if source.is_relative_to(root) else str(source),
+        "source": display_path(source, root),
         "raw_artifact": artifact,
         "estimated_summary_tokens": 0,
     })
@@ -457,7 +478,7 @@ def summary_from_args(args: argparse.Namespace) -> dict[str, Any]:
     raise SummaryError(f"Unknown command: {args.command}")
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Optional[list[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
