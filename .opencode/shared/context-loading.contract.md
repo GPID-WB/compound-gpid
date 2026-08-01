@@ -33,3 +33,8 @@ Use the narrowest artifact, section, snippet, or structured field that can answe
 - `.cg-docs/brain-index.json` is a tooling retrieval index. Prompt agents must not read it wholesale; scripts may query it or produce targeted summaries.
 - `compound-gpid.context.md` is tactical project context. Ordinary prompts should search headings or snippets first. Full reads are allowed for setup/context-curation and `/cg-compound` enrichment when placement or conflict checks require whole-file context.
 - `roadmap.json` should be parsed for workflow-relevant structured fields. Full reads are allowed for roadmap commands and `/cg-resume` milestone health or drift checks, but do not carry unrelated records into the working summary.
+- `.cg-docs/views/` contains generated derived HTML. Ordinary and maintenance
+	workflows must exclude view bodies, full content, and diffs from model
+	context, Brain retrieval, duplicate-content inputs, token source totals, and
+	release knowledge scans. Path listing, staging, counts, provenance identity,
+	and `cg-render-artifact --check <source>` freshness results are allowed.

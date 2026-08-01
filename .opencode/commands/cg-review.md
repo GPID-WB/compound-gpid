@@ -26,6 +26,11 @@ You are a review orchestrator that coordinates multiple specialized review agent
 
 1. Use review depth from `compound-gpid.local.md`. If no config, default to `standard`.
 2. Identify changed files (use git diff or ask the user).
+  Treat `.cg-docs/views/**` as generated derived outputs: list paths and counts
+  only; never read view bodies, full content, or HTML diffs into agent context.
+  Review the canonical Markdown, renderer code, tests, and one-file
+  `cg-render-artifact --check <source>` freshness result instead. A generated
+  view may orient a human reader but never supplies review authority.
 3. Read `.opencode/shared/review-routing.contract.md`; it is the canonical source for staged review modes, risk classes, precedence, and additive dedup.
 4. Apply flags parsed at Step 0 (case-insensitive) — semantic reference:
    - `--report-only` — Disable autofix; present findings one-at-a-time for Fix/Skip/Discuss (see Step 4).
@@ -132,6 +137,10 @@ Do not dispatch broad full review for small or low-risk changes unless an explic
 **Global agent constraint**: Include with every agent dispatch: "Never recommend deleting, replacing, renaming, or moving these files: `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, `.cg-docs/archive/`, `compound-gpid.md`, `compound-gpid.local.md`, `roadmap.json`, `SCHEMA_VERSION`, `.github/` (prompts, skills, agents, instructions infrastructure)."
 
 For each agent provide: changed files, project language (from `compound-gpid.local.md`), relevant plan context, and only targeted Brain/context findings gathered under the context-loading contract.
+
+Do not pass `.cg-docs/views/**` file bodies or diffs to any agent. When those
+paths changed, pass only their relative paths/counts and the corresponding
+canonical source plus stale-check result.
 
 **R Package check (all depth levels)**: If the project has `DESCRIPTION` + `NAMESPACE` or `R/`, check `.Rbuildignore` for `.cg-docs/`. If absent, add as **P2** under `@cg-code-quality`:
 > **[cg-code-quality]** `.Rbuildignore` — `.cg-docs/` not excluded from package build. **Why**: shouldn't be bundled. **Fix**: Add `^\.cg-docs$`.

@@ -29,6 +29,9 @@ You are a senior developer helping the user package their work into well-structu
 
 1. Run `git status --short` to inventory staged, unstaged, and untracked changes.
    - If output is empty: "Nothing to commit. Working tree is clean." — halt.
+    - `.cg-docs/views/**` files may be listed and staged as generated paths, but
+       must not be read as full content or diff bodies. Derive all commit/PR prose
+       from canonical Markdown, code, tests, and freshness results.
 
 2. Run `git branch --show-current` to get the current branch name.
    - If output is empty: halt with "You appear to be in detached HEAD state (`git branch --show-current` returned empty). Checkout a branch first: `git checkout -b feat/<name>`"
@@ -127,6 +130,10 @@ For each confirmed group:
 1. Run `git diff HEAD -- <files-in-group>` to read the actual diff.
    - For files listed as `??` (untracked) or `A ` (staged new) in `git status --short`: read the file content directly via `Get-Content <file>` (PowerShell) or `cat <file>` (bash/zsh) — `git diff HEAD` returns empty for files not yet tracked.
    - For modified tracked files (`M `, `MM`, etc.): use `git diff HEAD -- <file>` as normal.
+   - Exception: for `.cg-docs/views/**`, never read the full content or diff; generated view bodies remain path-only.
+       Record path and size only, identify its canonical Brainstorm/Plan source,
+       and run `cg-render-artifact --check <source>`. A missing/stale result blocks
+       commit until regenerated; a current result permits path-level staging.
 2. Generate a conventional commit message:
    - **Subject**: `type(scope): description` — max 72 characters, imperative mood, lowercase after colon.
    - **Types**: `feat` (new feature), `fix` (bug fix), `docs` (documentation), `test` (tests), `refactor` (restructuring), `chore` (maintenance), `data` (data changes), `analysis` (analysis work).

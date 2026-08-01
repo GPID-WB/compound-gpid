@@ -47,7 +47,16 @@ You implement `/cg-plan` output with phase/review/deviate controls.
    Compound GPID maintenance.
    > **After any plan-file fallback** (for example keyword match or changed path): re-count `## Phase` headers from the recovered plan body and re-validate the phase argument N against the new total M.
 4. **Goal contract**: Load `.opencode/shared/goal-execution.contract.md` and `.opencode/shared/active-state.contract.md`. Treat the plan's `## Completion Contract` as authority under file permissions, charter, Pester safety, and protected artifacts. If the plan lacks `## Completion Contract` or `deviation-policy`, halt and offer a minimal compatibility contract or `/cg-plan`. Active policy = runtime `deviate:` override else plan `deviation-policy`.
-5. Load relevant skills only as needed: R, Python, or Stata.
+5. **Artifact validation preflight**: Load
+  `.opencode/shared/artifact-view.contract.md`. HTML may orient readers but never supplies execution semantics; execution semantics come only from canonical Markdown. If the selected Plan has `artifact-schema-version`, run
+  `cg-render-artifact --validate-only <plan-path>` and require success before
+  roadmap status, execution-report creation, active-state writes, or code
+  changes. If validation fails, preserve the Plan and prior view, report the
+  exact error and expected missing/stale/current view path, then halt with the
+  one-file recovery command. Plans without the field remain legacy Plans and
+  use the explicit compatibility approval behavior in Goal contract / Legacy
+  Plan Compatibility; never silently upgrade or reject them here.
+6. Load relevant skills only as needed: R, Python, or Stata.
 
 ### Step 1.2: Parse Phase Argument
 

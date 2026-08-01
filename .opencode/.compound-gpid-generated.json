@@ -84,7 +84,7 @@
       "path": ".opencode/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "0aafdb85fff6154763a64e317a09eb026bfa6994279f453ca71efc6574685993",
+      "sha256": "7ed8463290e76982775e50c939c73ba443172d934df067f54ca60826175e1522",
       "executable": false
     },
     {
@@ -140,14 +140,14 @@
       "path": ".opencode/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "b0fec46a5aeb5dd1397ba5049bac4d18644578543853822311b59d8dcc0f0df5",
+      "sha256": "246ae38bf6e061bfdd670d790a7e7889a0378519f7a63ef19604f0d8737981b6",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1ada8956cf1e811f06d1c850dd2fe90af9c5169a50ed6b109419873e887c9fb1",
+      "sha256": "3a98aa770f2697e7c198d58c179b939fbd82efec6fe935018417b47e0a09191b",
       "executable": false
     },
     {
@@ -224,7 +224,7 @@
       "path": ".opencode/commands/cg-plan.md",
       "source": ".github/prompts/cg-plan.prompt.md",
       "kind": "command",
-      "sha256": "56d51eebdfc1e3736215a29b8fc726b42bdf6f38e937a98cdaa899dbbc0b315d",
+      "sha256": "ae91f98d44748a89d475bae8e30ef69a5e676f1e71ace79be3cb0af9150f140c",
       "executable": false
     },
     {
@@ -245,7 +245,7 @@
       "path": ".opencode/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "5a568d935fa47b34df358cf1715278af40b4878a81956ec4222f01dc726d1522",
+      "sha256": "3f3b48e0efea27c3cd90f8f11dc3756f5406951a34b40f4962581b7717ebf62b",
       "executable": false
     },
     {
@@ -294,7 +294,7 @@
       "path": ".opencode/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "37f9f620f4bdc9aadfd947a9b21f8b19e3563c69df5b06c90ae6a7ff3844830d",
+      "sha256": "1bbeced79823736e174d9e1e30b65417d7aad129d95d655daf58d2f0ea6a7b6c",
       "executable": false
     },
     {
@@ -354,17 +354,24 @@
       "executable": false
     },
     {
+      "path": ".opencode/shared/artifact-view.contract.md",
+      "source": ".github/shared/artifact-view.contract.md",
+      "kind": "shared",
+      "sha256": "308efb2f52518bd6d5ee015a38e2ef4c2e2d3e8b9334738561c71afa9fce343b",
+      "executable": false
+    },
+    {
       "path": ".opencode/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "3346cb1a55edecd5daac95fe0885c145ff17bc0b5735995098c37623cb519b4c",
+      "sha256": "1a2bedd59b8d1de9d1354accedf434db2b6572fb377b034ade64a894ffc4cb62",
       "executable": false
     },
     {
       "path": ".opencode/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "82aa276dfb0500c39b624145f4d8fc0fd8cdbda45973967587a878c795452121",
+      "sha256": "447ec7aaf7e3239d11bf6520bbe2ed19cb85b0d1b23d1caa4950ea3eae5f9cb6",
       "executable": false
     },
     {
