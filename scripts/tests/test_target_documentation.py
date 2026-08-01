@@ -1,6 +1,7 @@
 """Stable documentation contracts for generated native target packaging."""
 from __future__ import annotations
 
+import ast
 import json
 import re
 import urllib.parse
@@ -13,6 +14,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DOCUMENT_PATHS = (
     "README.md",
     "docs/context-files.md",
+    "docs/workflow.md",
+    "docs/reference/commands.md",
+    "docs/reference/files.md",
+    "docs/configuration/index.md",
     "docs/installation.md",
     "docs/reference.md",
     "docs/troubleshooting.md",
@@ -114,6 +119,101 @@ def test_docs_cover_checksum_cleanup_manifest_last_recovery_and_conflicts() -> N
 def test_docs_define_ci_drift_release_and_evidence_gates() -> None:
     _assert_terms(CORPUS, "CI", "drift", "release gate", "isolated", "dependency closure")
     _assert_terms(CORPUS, "deterministic", "real CLI", "optional", "evidence")
+
+
+def test_docs_cover_artifact_view_authority_versions_paths_and_modes() -> None:
+    _assert_terms(
+        CORPUS,
+        "canonical Markdown",
+        "artifact-schema-version",
+        "compatible legacy",
+        ".cg-docs/views/brainstorms/",
+        ".cg-docs/views/plans/",
+        "cg-render-artifact --automatic",
+        "cg-render-artifact --validate-only",
+        "cg-render-artifact --check",
+    )
+
+
+def test_docs_distinguish_opt_out_skip_provenance_and_recovery() -> None:
+    _assert_terms(
+        CORPUS,
+        "artifact-html: false",
+        "--no-html",
+        "never disable validation",
+        "normalized source SHA-256",
+        "missing",
+        "stale",
+        "current",
+        "one-file recovery",
+        "prior valid view",
+    )
+
+
+def test_docs_cover_context_exclusion_open_design_and_v1_boundaries() -> None:
+    _assert_terms(
+        CORPUS,
+        "generated HTML bodies",
+        "model context",
+        "Open Design",
+        "design-time only",
+        "no bulk",
+        "no hosted",
+        "no PDF",
+        "no live execution updates",
+    )
+
+
+def test_complete_reference_documents_render_modes_outputs_and_exit_codes() -> None:
+    reference = (REPO_ROOT / "docs/reference.md").read_text(encoding="utf-8")
+    _assert_terms(
+        reference,
+        "cg-render-artifact",
+        "--automatic",
+        "--validate-only",
+        "--check",
+        "missing",
+        "stale",
+        "current",
+        "exit code",
+        "artifact-html",
+    )
+
+
+def test_installation_lists_renderer_on_windows_and_macos() -> None:
+    installation = (REPO_ROOT / "docs/installation.md").read_text(encoding="utf-8")
+    assert installation.count("cg-render-artifact") >= 2
+    _assert_terms(installation, "Python 3.8+", "Brainstorm", "Plan", "validation")
+
+
+def test_public_artifact_view_functions_have_complete_docstrings() -> None:
+    missing = []
+    paths = sorted((REPO_ROOT / "scripts/artifact_views").glob("*.py"))
+    paths.append(REPO_ROOT / "scripts/secure_fs.py")
+    for path in paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        parents = {
+            child: parent
+            for parent in ast.walk(tree)
+            for child in ast.iter_child_nodes(parent)
+        }
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            parent = parents.get(node)
+            if (
+                node.name.startswith("_")
+                or not isinstance(parent, (ast.Module, ast.ClassDef))
+                or isinstance(parent, ast.ClassDef) and parent.name.startswith("_")
+            ):
+                continue
+            docstring = ast.get_docstring(node) or ""
+            for section in ("Args:", "Returns:", "Example:"):
+                if section not in docstring:
+                    missing.append(
+                        f"{path.relative_to(REPO_ROOT)}:{node.name}:{section}"
+                    )
+    assert not missing, f"Incomplete public API docstrings: {missing}"
 
 
 def test_docs_do_not_claim_generated_skills_contain_only_skill_md() -> None:

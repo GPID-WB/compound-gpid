@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -65,6 +66,63 @@ class TestFileScanner:
         files, by_category = audit.scan_files(tmp_path)
         assert files == []
         assert by_category["shared"]["files"] == 0
+
+    def test_generated_views_are_excluded_even_from_broad_category_glob(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        sentinel = "VIEW_ONLY_SENTINEL_7E5C9A"
+        _write(tmp_path / ".cg-docs/views/plans/view.html", f"<p>{sentinel}</p>")
+        _write(tmp_path / ".cg-docs/plans/canonical.md", "# Canonical\n")
+        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
+
+        files, totals = audit.scan_files(tmp_path)
+        duplicates = audit.detect_duplicates(tmp_path, files)
+
+        assert [row["path"] for row in files] == [".cg-docs/plans/canonical.md"]
+        assert totals["all"]["files"] == 1
+        assert sentinel not in json.dumps(files)
+        assert sentinel not in json.dumps(duplicates)
+
+    def test_view_path_exclusion_is_component_scoped(self) -> None:
+        assert audit.is_model_context_excluded(".cg-docs/views/plans/a.html") is True
+        assert audit.is_model_context_excluded(".cg-docs/views-archive/a.md") is False
+
+    def test_symlink_alias_to_view_is_excluded_from_broad_glob(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        sentinel = "VIEW_ALIAS_SENTINEL_A91D"
+        view = _write(
+            tmp_path / ".cg-docs/views/plans/view.html",
+            f"<p>{sentinel}</p>",
+        )
+        alias = tmp_path / ".cg-docs/plans/leak.md"
+        alias.parent.mkdir(parents=True)
+        alias.symlink_to(view)
+        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
+
+        files, _ = audit.scan_files(tmp_path)
+
+        assert files == []
+        assert sentinel not in json.dumps(files)
+
+    def test_hardlink_alias_to_view_is_excluded_from_broad_glob(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        view = _write(tmp_path / ".cg-docs/views/plans/view.html", "view-secret")
+        alias = tmp_path / ".cg-docs/plans/leak.md"
+        alias.parent.mkdir(parents=True)
+        os.link(view, alias)
+        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
+
+        files, _ = audit.scan_files(tmp_path)
+
+        assert files == []
 
 
 class TestModelExtraction:

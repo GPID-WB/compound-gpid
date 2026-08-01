@@ -11,7 +11,9 @@ $script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:
 # tests on macOS/Linux. install.sh is tested in bash-scripts.Tests.ps1.
 if (-not $script:OnWindows) {
     Describe "install.ps1 - Windows-only tests (skipped on macOS/Linux)" {
-        It "platform check: install.ps1 tests require Windows" { $true | Should -Be $true }
+        It "platform check: install.ps1 tests require Windows" -Skip {
+            $true | Should -Be $true
+        }
     }
     return
 }
@@ -556,6 +558,140 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-render-artifact.cmd copy" {
+    Context "single source of truth" {
+        It "cg-render-artifact.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            Test-Path (Join-Path $repoRoot "bin\cg-render-artifact.cmd") | Should -Be $true
+        }
+
+        It "cg-render-artifact.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-render-artifact.cmd") -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-render-artifact.cmd guards python3 with a where pre-check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-render-artifact.cmd") -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+        }
+
+        It "cg-render-artifact.cmd guards python with a where pre-check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-render-artifact.cmd") -Raw
+            ($content -match 'where python\s+>nul') | Should -Be $true
+        }
+
+        It "cg-render-artifact.cmd guards py with a where pre-check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-render-artifact.cmd") -Raw
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "cg-render-artifact.cmd references render_artifact.py and forwards arguments" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-render-artifact.cmd") -Raw
+            ($content -match 'render_artifact\.py') | Should -Be $true
+            ($content -match '%\*') | Should -Be $true
+            ($content -match 'exit /b %ERRORLEVEL%') | Should -Be $true
+        }
+
+        It "install.ps1 copies the committed cg-render-artifact.cmd" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgRenderArtifactCmdSrc.*cg-render-artifact\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgRenderArtifactCmdSrc') | Should -Be $true
+        }
+
+        It "does not throw when cg-render-artifact.cmd source and destination match" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+            $src = Join-Path $compoundDir "bin\cg-render-artifact.cmd"
+            $dst = Join-Path $binDir "cg-render-artifact.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+            {
+                $srcFull = [System.IO.Path]::GetFullPath($src)
+                $dstFull = [System.IO.Path]::GetFullPath($dst)
+                if ($srcFull -ine $dstFull) {
+                    Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                }
+            } | Should -Not -Throw
+        }
+    }
+}
+
+Describe "Python-backed CMD launchers - runtime selection and status parity" {
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    $launchers = @(
+        "cg-index.cmd",
+        "cg-brain-init.cmd",
+        "cg-token-audit.cmd",
+        "cg-render-artifact.cmd"
+    )
+    $launcherCases = @($launchers | ForEach-Object { @{ Launcher = $_ } })
+
+    foreach ($launcher in $launchers) {
+        It "$launcher selects Python 3.8+ before an external run label" {
+            $content = Get-Content (Join-Path $repoRoot "bin\$launcher") -Raw
+            ($content -match 'sys\.version_info\s*>=\s*\(3,\s*8\)') | Should -Be $true
+            ($content -match 'set "PYTHON_CMD=(python3|python|py)"') | Should -Be $true
+            ($content -match '(?m)^:run_python\s*$') | Should -Be $true
+            ($content -match '(?m)^%PYTHON_CMD%\s+') | Should -Be $true
+        }
+    }
+
+    It "<Launcher> propagates an executed child failure code" -TestCases $launcherCases {
+        param($Launcher)
+        $fakeBin = Join-Path $TestDrive "fake-python"
+        New-Item -ItemType Directory -Path $fakeBin -Force | Out-Null
+        $fakePython = Join-Path $fakeBin "python3.cmd"
+        @'
+@echo off
+if "%~1"=="--version" (echo Python 3.11.0& exit /b 0)
+if "%~1"=="-c" exit /b 0
+exit /b 37
+'@ | Set-Content -Path $fakePython -Encoding ASCII
+        $originalPath = $env:PATH
+        try {
+            $env:PATH = "$fakeBin;$originalPath"
+            $wrapper = Join-Path $repoRoot "bin\$Launcher"
+            & cmd /d /c "`"$wrapper`" ignored.md" | Out-Null
+            $LASTEXITCODE | Should -Be 37
+        } finally {
+            $env:PATH = $originalPath
+        }
+    }
+
+    It "<Launcher> skips Python 3.7 and executes the Python 3.8 fallback" -TestCases $launcherCases {
+        param($Launcher)
+        $fakeBin = Join-Path $TestDrive "fake-python-fallback"
+        New-Item -ItemType Directory -Path $fakeBin -Force | Out-Null
+        @'
+@echo off
+if "%~1"=="--version" (echo Python 3.7.9& exit /b 0)
+if "%~1"=="-c" exit /b 1
+exit /b 39
+'@ | Set-Content -Path (Join-Path $fakeBin "python3.cmd") -Encoding ASCII
+        @'
+@echo off
+if "%~1"=="--version" (echo Python 3.8.0& exit /b 0)
+if "%~1"=="-c" exit /b 0
+exit /b 38
+'@ | Set-Content -Path (Join-Path $fakeBin "python.cmd") -Encoding ASCII
+        $originalPath = $env:PATH
+        try {
+            $env:PATH = "$fakeBin;$originalPath"
+            $wrapper = Join-Path $repoRoot "bin\$Launcher"
+            & cmd /d /c "`"$wrapper`" ignored.md" | Out-Null
+            $LASTEXITCODE | Should -Be 38
+        } finally {
+            $env:PATH = $originalPath
+        }
+    }
+}
+
 Describe "install.ps1 - -Uninstall flag" {
     Context "param block" {
         It "install.ps1 declares an -Uninstall switch parameter" {
@@ -564,8 +700,8 @@ Describe "install.ps1 - -Uninstall flag" {
         }
     }
 
-    Context "wrapper removal logic" {
-        It "removes cg-*.cmd wrappers found in bin dir" {
+    Context "wrapper preservation logic" {
+        It "preserves package-owned cg-* wrappers in bin dir" {
             $fakebin = Join-Path $TestDrive "fake-bin"
             New-Item -ItemType Directory -Path $fakebin -Force | Out-Null
             Set-Content -Path (Join-Path $fakebin "cg-link.cmd")   -Value "@echo off" -Encoding UTF8
@@ -573,11 +709,11 @@ Describe "install.ps1 - -Uninstall flag" {
             Set-Content -Path (Join-Path $fakebin "other.cmd")     -Value "@echo off" -Encoding UTF8
 
             $wrappers = @(Get-ChildItem -Path $fakebin -Filter 'cg-*' -ErrorAction SilentlyContinue)
-            foreach ($w in $wrappers) { Remove-Item -LiteralPath $w.FullName -Force }
 
-            (Test-Path (Join-Path $fakebin "cg-link.cmd"))   | Should -Be $false
-            (Test-Path (Join-Path $fakebin "cg-update.cmd")) | Should -Be $false
+            (Test-Path (Join-Path $fakebin "cg-link.cmd"))   | Should -Be $true
+            (Test-Path (Join-Path $fakebin "cg-update.cmd")) | Should -Be $true
             (Test-Path (Join-Path $fakebin "other.cmd"))     | Should -Be $true
+            $wrappers.Count | Should -Be 2
         }
 
         It "reports zero wrappers found when bin dir is already empty" {
@@ -585,6 +721,55 @@ Describe "install.ps1 - -Uninstall flag" {
             New-Item -ItemType Directory -Path $fakebin -Force | Out-Null
             $wrappers = @(Get-ChildItem -Path $fakebin -Filter 'cg-*' -ErrorAction SilentlyContinue)
             $wrappers.Count | Should -Be 0
+        }
+
+        It "install.ps1 unregisters PATH without deleting package wrapper sources" {
+            $installScript = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw
+            $uninstallStart = $installScript.IndexOf('if ($Uninstall)')
+            $uninstallEnd = $installScript.IndexOf('exit 0', $uninstallStart)
+            $uninstallBlock = $installScript.Substring($uninstallStart, $uninstallEnd - $uninstallStart)
+            ($uninstallBlock -match 'Remove-Item\s+-LiteralPath\s+\$wrapper') | Should -Be $false
+        }
+    }
+
+    Context "isolated uninstall runtime" {
+        It "executes uninstall without deleting package wrapper sources" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $fixtureRoot = Join-Path $TestDrive "uninstall-runtime"
+            $fixtureScripts = Join-Path $fixtureRoot "scripts"
+            $fixtureBin = Join-Path $fixtureRoot "bin"
+            $fakeBin = Join-Path $fixtureRoot "fake-bin"
+            New-Item -ItemType Directory -Path $fixtureScripts, $fixtureBin, $fakeBin -Force | Out-Null
+            Copy-Item (Join-Path $repoRoot "install.ps1") (Join-Path $fixtureRoot "install.ps1")
+            Copy-Item (Join-Path $repoRoot "scripts\helpers.ps1") (Join-Path $fixtureScripts "helpers.ps1")
+            $wrapper = Join-Path $fixtureBin "cg-index.cmd"
+            Set-Content -Path $wrapper -Value "@echo off`r`nexit /b 0" -Encoding ASCII
+            $registryLog = Join-Path $fixtureRoot "registry.log"
+            @'
+@echo off
+echo %*>>"%CG_TEST_REG_LOG%"
+exit /b 1
+'@ | Set-Content -Path (Join-Path $fakeBin "reg.cmd") -Encoding ASCII
+            $profilePath = Join-Path $fixtureRoot "profile.ps1"
+            Set-Content -Path $profilePath -Value "# isolated profile" -Encoding UTF8
+            $originalPath = $env:PATH
+            $originalRegistryLog = $env:CG_TEST_REG_LOG
+            try {
+                $env:PATH = "$fakeBin;$originalPath"
+                $env:CG_TEST_REG_LOG = $registryLog
+                $powerShell = (Get-Process -Id $PID).Path
+                $escapedProfile = $profilePath.Replace("'", "''")
+                $installPath = (Join-Path $fixtureRoot "install.ps1").Replace("'", "''")
+                $command = "`$PROFILE = '$escapedProfile'; & '$installPath' -Uninstall"
+                & $powerShell -NoProfile -ExecutionPolicy Bypass -Command $command | Out-Null
+                $LASTEXITCODE | Should -Be 0
+            } finally {
+                $env:PATH = $originalPath
+                $env:CG_TEST_REG_LOG = $originalRegistryLog
+            }
+            (Test-Path $wrapper) | Should -Be $true
+            (Get-Content $wrapper -Raw) | Should -Match 'exit /b 0'
+            (Get-Content $registryLog -Raw) | Should -Match 'query HKCU\\Environment /v PATH'
         }
     }
 

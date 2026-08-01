@@ -566,28 +566,9 @@ class TestOwnershipManifest:
         plan = gen._preflight_target_commit(root, result)
         assert isinstance(plan, gen.TargetCommitPlan)
 
-    def test_prune_empty_parents_removes_empty_dirs(self, tmp_path: Path) -> None:
-        """_prune_empty_parents removes empty parent directories up to target_root."""
-        target_root = tmp_path / "target"
-        (target_root / "sub" / "deep").mkdir(parents=True)
-        file_path = target_root / "sub" / "deep" / "file.md"
-        file_path.write_text("x")
-        file_path.unlink()
-        gen._prune_empty_parents(file_path, target_root)
-        assert not (target_root / "sub").exists()
-        assert target_root.exists()
-
-    def test_prune_empty_parents_stops_at_non_empty(self, tmp_path: Path) -> None:
-        """_prune_empty_parents stops removing when a parent is non-empty."""
-        target_root = tmp_path / "target"
-        (target_root / "sub" / "deep").mkdir(parents=True)
-        (target_root / "sub" / "other.md").write_text("x")
-        file_path = target_root / "sub" / "deep" / "file.md"
-        file_path.write_text("x")
-        file_path.unlink()
-        gen._prune_empty_parents(file_path, target_root)
-        assert (target_root / "sub").exists()
-        assert not (target_root / "sub" / "deep").exists()
+    def test_pathname_parent_pruning_helper_is_absent(self) -> None:
+        """Generated cleanup must not mutate parent directories by pathname."""
+        assert not hasattr(gen, "_prune_empty_parents")
 
 
 class TestHelperFunctions:

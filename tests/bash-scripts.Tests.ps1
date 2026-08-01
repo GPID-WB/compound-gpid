@@ -55,7 +55,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -110,6 +110,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-update'
         $content | Should -Match 'cg-index'
         $content | Should -Match 'cg-token-audit'
+        $content | Should -Match 'cg-render-artifact'
     }
 
     It "initializes .cg-version" {
@@ -151,6 +152,7 @@ Describe "install.sh - PATH block is idempotent" {
         $tmpInstallScripts = Join-Path $tmpInstall "scripts"
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
 
         try {
             # First run — use temp install dir
@@ -270,8 +272,8 @@ Describe "link.sh - script structure" {
     }
 }
 
-Describe "install.sh - uninstall removes generated wrappers" {
-    It "removes all wrappers created by install.sh" {
+Describe "install.sh - uninstall preserves package wrappers" {
+    It "preserves all package-owned wrappers while removing PATH registration" {
         $tmpHome   = Join-Path ([System.IO.Path]::GetTempPath()) "cg-test-uninstall-$([System.Guid]::NewGuid().ToString('N'))"
         $tmpZshrc  = Join-Path $tmpHome ".zshrc"
         $fakeShell = "/bin/zsh"
@@ -303,15 +305,10 @@ Describe "install.sh - uninstall removes generated wrappers" {
             & bash (Join-Path $tmpInstallScripts "install.sh") --uninstall 2>/dev/null | Out-Null
 
             foreach ($wrapper in $wrappers) {
-                Test-Path (Join-Path $tmpInstallBin $wrapper) | Should -Be $false
+                Test-Path (Join-Path $tmpInstallBin $wrapper) | Should -Be $true
             }
             $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw -Encoding UTF8 } else { "" }
             $profileContent | Should -Not -Match 'Compound GPID'
-
-            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
-            foreach ($wrapper in $wrappers) {
-                Test-Path (Join-Path $tmpInstallBin $wrapper) | Should -Be $true
-            }
         } finally {
             Remove-Item -Path $tmpHome -Recurse -Force -ErrorAction SilentlyContinue
             if ($originalHome)  { $env:HOME  = $originalHome  } else { Remove-Item Env:\HOME  -ErrorAction SilentlyContinue }
@@ -513,6 +510,67 @@ Describe "bash-scripts - bin/cg-token-audit wrapper content" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-token-audit'
         $installSh | Should -Match 'cg_audit_context\.py'
+    }
+}
+
+Describe "bash-scripts - bin/cg-render-artifact wrapper content" {
+    $wrapperPath = Join-Path $repoRoot "bin/cg-render-artifact"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-render-artifact references render_artifact.py" {
+        $wrapperContent | Should -Match 'render_artifact\.py'
+    }
+
+    It "bin/cg-render-artifact resolves all Python candidates" {
+        $wrapperContent | Should -Match 'resolve_python'
+        $wrapperContent | Should -Match 'python3 python py'
+    }
+
+    It "bin/cg-render-artifact forwards arguments and process exit status" {
+        $wrapperContent | Should -Match 'exec "\$PYTHON_CMD"'
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "bin/cg-render-artifact uses SCRIPT_DIR for a self-relative entrypoint" {
+        $wrapperContent | Should -Match 'SCRIPT_DIR'
+        $wrapperContent | Should -Match '\.\./scripts/render_artifact\.py'
+    }
+
+    It "install.sh copies the committed cg-render-artifact wrapper" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'cp.*cg-render-artifact'
+        $installSh | Should -Match 'chmod \+x.*cg-render-artifact'
+    }
+
+    It "install.sh command summary lists cg-render-artifact" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'cg-render-artifact.*Render or validate one workflow artifact'
+    }
+}
+
+Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
+    $wrappers = @(
+        "cg-index",
+        "cg-brain-init",
+        "cg-token-audit",
+        "cg-render-artifact",
+        "cg-diff-summary",
+        "cg-log-summary",
+        "cg-problems-summary",
+        "cg-test-summary",
+        "cg-tree-summary"
+    )
+
+    foreach ($wrapper in $wrappers) {
+        It "$wrapper checks sys.version_info >= (3, 8)" {
+            $content = Get-Content (Join-Path $repoRoot "bin/$wrapper") -Raw -Encoding UTF8
+            $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+        }
+    }
+
+    It "install.sh generated wrappers enforce Python 3.8+" {
+        $content = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
     }
 }
 

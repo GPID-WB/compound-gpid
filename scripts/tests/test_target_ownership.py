@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 import cg_generate_targets as gen
+import secure_fs
 
 
 MANIFEST_NAME = ".compound-gpid-generated.json"
@@ -268,6 +269,38 @@ def test_cleanup_rechecks_stale_content_immediately_before_unlink(
 
 
 @pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
+def test_cleanup_rollback_never_overwrites_post_quarantine_collision(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    stale = root / ".claude/commands/cg-alpha.md"
+    (root / ".github/prompts/cg-alpha.prompt.md").unlink()
+    plan = gen.build_generation_plan(
+        root, gen.load_target_mapping(root), gen.scan_canonical_assets(root)
+    )
+
+    def collide_after_quarantine(original: Path, _quarantine: Path) -> None:
+        original.write_text("concurrent-user-content\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        gen,
+        "_before_secure_unlink",
+        lambda path: path.write_text("changed-owned-content\n", encoding="utf-8"),
+    )
+    monkeypatch.setattr(secure_fs, "_after_secure_quarantine", collide_after_quarantine)
+
+    with pytest.raises(ValueError, match="quarantine preserved"):
+        gen.commit_generation_plan(root, plan, ("claude-code",))
+
+    assert stale.read_text(encoding="utf-8") == "concurrent-user-content\n"
+    quarantine_files = list(stale.parent.glob(f".{stale.name}.*.stale"))
+    assert len(quarantine_files) == 1
+    assert quarantine_files[0].read_text(encoding="utf-8") == "changed-owned-content\n"
+
+
+@pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_commit_rechecks_destination_ancestor_immediately_before_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -383,7 +416,7 @@ def test_cleanup_interrupted_per_file_write_recovers_with_manifest_written_last(
     ).hexdigest()
 
 
-def test_cleanup_prunes_empty_directories_but_stops_at_target_root(tmp_path: Path) -> None:
+def test_cleanup_leaves_empty_directories_to_avoid_pathname_pruning(tmp_path: Path) -> None:
     root = _fixture_repo(tmp_path)
     assert _generate(root) == 0
     source = root / ".github/skills/cg-skill-brainstorming/workflows/nested/run.sh"
@@ -391,6 +424,6 @@ def test_cleanup_prunes_empty_directories_but_stops_at_target_root(tmp_path: Pat
     source.unlink()
 
     assert _generate(root) == 0
-    assert not generated_parent.exists()
+    assert generated_parent.is_dir()
     assert (root / ".claude").is_dir()
     assert _manifest_path(root).is_file()
