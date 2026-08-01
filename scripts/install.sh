@@ -13,7 +13,7 @@
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # Options:
-#   --uninstall   Remove bin/ wrappers and PATH block from shell profile.
+#   --uninstall   Remove PATH registration while preserving package wrappers.
 #
 # This script is idempotent - running it again updates the wrappers
 # and PATH entry without creating duplicates. An existing .cg-version
@@ -42,8 +42,11 @@ resolve_python() {
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
         case "$version" in
-            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+            Python\ [0-9]*) ;;
+            *) continue ;;
         esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -87,16 +90,14 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     print_cyan "========================="
     printf '\n'
 
-    # Remove bin/ wrappers
+    # Package-owned wrappers are source files required for later reinstall.
     BIN_DIR="$COMPOUND_GPID_DIR/bin"
+    wrapper_count=0
     for wrapper in "$BIN_DIR"/cg-*; do
         [[ -e "$wrapper" ]] || continue
-        case "$wrapper" in *.cmd) continue ;; esac
-        if [[ -f "$wrapper" ]]; then
-            rm -f "$wrapper"
-            print_gray "Removed: $wrapper"
-        fi
+        wrapper_count=$((wrapper_count + 1))
     done
+    print_gray "Preserved $wrapper_count package-owned cg-* wrappers in $BIN_DIR"
 
     # Remove PATH block from shell profile
     if [[ -f "$PROFILE_FILE" ]]; then
@@ -232,7 +233,9 @@ resolve_python() {
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
-        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -259,7 +262,9 @@ resolve_python() {
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
-        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -272,6 +277,17 @@ exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/team_brain/init.py" "$@"
 EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
+
+# cg-render-artifact is committed as the installer source of truth.
+CG_RENDER_ARTIFACT_SRC="$COMPOUND_GPID_DIR/bin/cg-render-artifact"
+CG_RENDER_ARTIFACT_DST="$BIN_DIR/cg-render-artifact"
+if [[ "$CG_RENDER_ARTIFACT_SRC" != "$CG_RENDER_ARTIFACT_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-render-artifact" "$BIN_DIR/cg-render-artifact"
+else
+    print_gray "Already present: $CG_RENDER_ARTIFACT_DST"
+fi
+chmod +x "$BIN_DIR/cg-render-artifact"
+print_gray "Registered: $BIN_DIR/cg-render-artifact"
 
 # cg-token-audit calls the context/model-governance audit directly.
 WRAPPER="$BIN_DIR/cg-token-audit"
@@ -286,7 +302,9 @@ resolve_python() {
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
-        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -314,7 +332,7 @@ for spec in \
 # This file is committed to the repo; install.sh regenerates it on install/upgrade.
 set -euo pipefail
 SCRIPT_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
-resolve_python() { for candidate in python3 python py; do command -v "\$candidate" >/dev/null 2>&1 || continue; version="\$("\$candidate" --version 2>&1 || true)"; case "\$version" in Python\ [0-9]*) printf '%s\n' "\$candidate"; return 0 ;; esac; done; return 1; }
+resolve_python() { for candidate in python3 python py; do command -v "\$candidate" >/dev/null 2>&1 || continue; version="\$("\$candidate" --version 2>&1 || true)"; case "\$version" in Python\ [0-9]*) ;; *) continue ;; esac; "\$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue; printf '%s\n' "\$candidate"; return 0; done; return 1; }
 PYTHON_CMD="\$(resolve_python || true)"
 if [[ -z "\$PYTHON_CMD" ]]; then printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2; exit 1; fi
 exec "\$PYTHON_CMD" "\$SCRIPT_DIR/../scripts/cg_summary.py" $kind "\$@"
@@ -414,6 +432,7 @@ printf '  cg-update  -- Pull latest updates                    (run from anywher
 printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)\n'
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
+printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'
 printf '\n'
 printf 'To uninstall: bash "%s/scripts/install.sh" --uninstall\n' "$COMPOUND_GPID_DIR"

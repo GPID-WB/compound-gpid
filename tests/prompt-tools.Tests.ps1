@@ -6220,6 +6220,96 @@ Describe "docs/reference.md and team-brain schema - remaining docs coverage" {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Artifact-view validation, authority, and path-only context contracts
+# ---------------------------------------------------------------------------
+
+Describe "artifact-view workflow contract - emitters validate after save" {
+    $brainstorm = Get-Content (Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md") -Raw -Encoding UTF8
+    $plan = Get-Content (Join-Path $repoRoot ".github\prompts\cg-plan.prompt.md") -Raw -Encoding UTF8
+
+    It "Brainstorm template emits artifact schema version 1" {
+        ($brainstorm -match 'artifact-schema-version:\s*1') | Should -Be $true
+    }
+
+    It "Plan template emits artifact schema version 1" {
+        ($plan -match 'artifact-schema-version:\s*1') | Should -Be $true
+    }
+
+    It "Brainstorm saves and verifies Markdown before automatic validation/rendering" {
+        $save = $brainstorm.IndexOf('save the brainstorm')
+        $render = $brainstorm.IndexOf('cg-render-artifact --automatic')
+        $save | Should -BeGreaterThan -1
+        $render | Should -BeGreaterThan $save
+    }
+
+    It "Plan saves and verifies Markdown before automatic validation/rendering" {
+        $save = $plan.IndexOf('Write the plan')
+        $render = $plan.IndexOf('cg-render-artifact --automatic')
+        $save | Should -BeGreaterThan -1
+        $render | Should -BeGreaterThan $save
+    }
+
+    It "both emitters map --no-html to validation-only rather than bypass" {
+        ($brainstorm -match '--no-html.*--validate-only') | Should -Be $true
+        ($plan -match '--no-html.*--validate-only') | Should -Be $true
+    }
+
+    It "both emitters fail loudly while preserving canonical Markdown" {
+        ($brainstorm -match 'preserve.*Markdown.*stale|Markdown.*preserve.*stale') | Should -Be $true
+        ($plan -match 'preserve.*Markdown.*stale|Markdown.*preserve.*stale') | Should -Be $true
+    }
+}
+
+Describe "artifact-view workflow contract - cg-work preflight" {
+    $work = Get-Content (Join-Path $repoRoot ".github\prompts\cg-work.prompt.md") -Raw -Encoding UTF8
+
+    It "validates versioned Plans with validation-only before roadmap/report mutation" {
+        $validate = $work.IndexOf('cg-render-artifact --validate-only')
+        $roadmap = $work.IndexOf('### Step 1.5: Mark Work Started')
+        $validate | Should -BeGreaterThan -1
+        $validate | Should -BeLessThan $roadmap
+    }
+
+    It "keeps explicit compatibility behavior for legacy Plans" {
+        ($work -match 'legacy.*compatibility|compatibility.*legacy') | Should -Be $true
+    }
+
+    It "states HTML cannot supply execution semantics" {
+        ($work -match 'HTML.*never.*execution semantics|execution semantics.*canonical Markdown') | Should -Be $true
+    }
+}
+
+Describe "artifact-view workflow contract - generated bodies remain path-only" {
+    $review = Get-Content (Join-Path $repoRoot ".github\prompts\cg-review.prompt.md") -Raw -Encoding UTF8
+    $commit = Get-Content (Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md") -Raw -Encoding UTF8
+    $release = Get-Content (Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md") -Raw -Encoding UTF8
+    $context = Get-Content (Join-Path $repoRoot ".github\shared\context-loading.contract.md") -Raw -Encoding UTF8
+
+    It "review excludes view bodies and uses canonical sources plus stale checks" {
+        ($review -match '\.cg-docs/views/\*\*.*body|view bodies') | Should -Be $true
+        ($review -match 'cg-render-artifact --check') | Should -Be $true
+        ($review -match 'canonical Markdown') | Should -Be $true
+    }
+
+    It "commit may stage view paths but never reads their body or diff" {
+        ($commit -match 'stage.*\.cg-docs/views|\.cg-docs/views.*stage') | Should -Be $true
+        ($commit -match 'must not read.*full content|never read.*view.*bodies|must not read.*diff') | Should -Be $true
+        ($commit -match 'cg-render-artifact --check') | Should -Be $true
+    }
+
+    It "release scanner never ingests generated view bodies" {
+        ($release -match '\.cg-docs/views/|generated HTML views') | Should -Be $true
+        ($release -match 'never.*bodies|filenames.*only|paths.*only') | Should -Be $true
+    }
+
+    It "context loading classifies views as derived and body-excluded" {
+        ($context -match '\.cg-docs/views/') | Should -Be $true
+        ($context -match 'derived') | Should -Be $true
+        ($context -match 'never.*bodies|must not.*bodies|exclude.*bodies') | Should -Be $true
+    }
+}
+
 # ===========================================================================
 # GitHub Issues integration -- /cg-issues prompt and workflow guards
 # (Phase 2 Steps 3-4; Phase 3 Steps 5-8; Phase 4 Step 10)

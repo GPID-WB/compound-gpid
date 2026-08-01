@@ -1,11 +1,15 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-07-31_
+_Generated 2026-08-01_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 20 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 22 entities
 
+- **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
+  > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
+- **[Optional retrieval backends must stay default-disabled during evaluation](.cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added a deterministic local Brain query backend. Future retrieval candidates are tempting, but adding a reg…
 - **[Progressive-disclosure prompt cleanup should preserve semantics with explicit expansion rationale](.cg-docs/solutions/testing-patterns/2026-06-23-progressive-disclosure-context-loading-contract.md)** · `solution` · _—_ · `2026-06-23`
   > Broad phrases such as "read roadmap.json" or "scan .cg-docs" can be interpreted as default whole-artifact loading. Th…
 - **[Snapshot and external-research modes need opt-in gates before implementation](.cg-docs/solutions/testing-patterns/2026-06-23-snapshot-external-research-modes-need-opt-in-gates.md)** · `solution` · _—_ · `2026-06-23`
@@ -47,12 +51,12 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 20 entiti
 - **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 
-## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
+## Architecture Research Objective / Knowledge Brain Objective / Workflow Maturity Objective
 
 _Keywords: `architecture research
 objective` · `knowledge brain
-objective` · `quality loop
-objective`_ · 133 entities
+objective` · `workflow maturity
+objective`_ · 136 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -224,6 +228,8 @@ objective`_ · 133 entities
   > Goal-driven execution — plan-as-completion-contract with integrated validation
 - **[Explicit plan-path selection for /cg-work](roadmap.json#cg-work-explicit-plan-path)** · `feature` · _idea_ · `—`
   > Explicit plan-path selection for /cg-work
+- **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
+  > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
@@ -270,6 +276,10 @@ objective`_ · 133 entities
   > User-selected execution with advisory model and effort routing
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
+- **[Historical HTML backfill for existing Compound GPID artifacts](roadmap.json#historical-html-backfill-for-existing-compound-gpid-artifacts)** · `feature` · _idea_ · `—`
+  > Historical HTML backfill for existing Compound GPID artifacts
+- **[Broader artifact publishing formats and views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _idea_ · `—`
+  > Broader artifact publishing formats and views
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
@@ -321,13 +331,26 @@ objective`_ · 133 entities
 - **[Pilot evaluation gate before broader default exposure](roadmap.json#workflow-pilot-evaluation-gate)** · `feature` · _idea_ · `—`
   > Pilot evaluation gate before broader default exposure
 
-## Tests / Python / Httpx
+## Tests / Filesystem / Python
 
-_Keywords: `tests` · `python` · `httpx`_ · 3 entities
+_Keywords: `tests` · `filesystem` · `python`_ · 4 entities
 
+- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
+  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
 - **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
   > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
 - **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
   > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
 - **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
   > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
+
+## Secure_Fs.Py / Validation / Parser.Py
+
+_Keywords: `secure_fs.py` · `validation` · `parser.py`_ · 3 entities
+
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-4](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-4.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-5](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-5.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
+- **[2026-07-31-dual-audience-workflow-artifact-views-v2-review](.cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: full, auto-routed for schema, secure-filesystem, installer, and generated-target risk.

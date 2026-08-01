@@ -8,7 +8,10 @@ resolve_python() {
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
-        case "$version" in Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;; esac
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        if "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1; then
+            printf '%s\n' "$candidate"; return 0
+        fi
     done
     return 1
 }

@@ -25,6 +25,11 @@ override file permissions, bypass Pester safety, or alter protected-artifact
 rules is rejected by `/cg-work`. Authority precedence is checked before
 interpreting any contract instruction.
 
+Versioned Plan Markdown must also pass the renderer-independent validation
+preflight defined in `.opencode/shared/artifact-view.contract.md` before roadmap,
+execution-report, active-state, or implementation mutation. HTML is never an
+execution authority.
+
 ---
 
 ## Completion Contract Schema

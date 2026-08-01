@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md">
+<meta name="artifact-source-sha256" content="ea6787307ed0ee4a84771a801a68d9af1f07b130f27a9238ada34497ad84cb2e">
+<meta name="artifact-schema-version" content="legacy">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Implement Dual-Audience Workflow Artifact Views (Revised) · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":"legacy","generatedAt":"2026-08-01T04:21:51Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md","sourceSha256":"ea6787307ed0ee4a84771a801a68d9af1f07b130f27a9238ada34497ad84cb2e"}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Implement Dual-Audience Workflow Artifact Views (Revised)</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#1-define-the-executable-schema-and-closed-markdown-grammar">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Executable Contract and Mandatory Validation</li><li><strong>Phase 2</strong> · Secure Deterministic Rendering</li><li><strong>Phase 3</strong> · Open Design Evidence and Frozen Presentation</li><li><strong>Phase 4</strong> · CLI, Workflow Integration, Isolation, and Target Parity</li><li><strong>Phase 5</strong> · Documentation and Release Evidence</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1, 2, 5, 11, 15</li><li><strong>R2</strong> → steps 1, 3, 9, 11, 15</li><li><strong>R3</strong> → steps 1, 3</li><li><strong>R4</strong> → steps 1, 2, 3</li><li><strong>R5</strong> → steps 2, 5, 7, 15</li><li><strong>R6</strong> → steps 5, 6, 7, 8, 15</li><li><strong>R7</strong> → steps 2, 4, 5</li><li><strong>R8</strong> → steps 4, 6, 15</li><li><strong>R9</strong> → steps 7, 8, 15</li><li><strong>R10</strong> → steps 4, 9, 10, 14</li><li><strong>R11</strong> → steps 3, 9, 10, 11, 14</li><li><strong>R12</strong> → steps 4, 9, 11, 14, 15</li><li><strong>R13</strong> → steps 11, 12, 14, 15</li><li><strong>R14</strong> → steps 10, 11, 13, 15</li><li><strong>R15</strong> → steps 14</li><li><strong>R16</strong> → steps 3, 4, 6, 7, 8, 9, 10, 12, 13, 15</li><li><strong>R17</strong> → steps 1, 5, 14, 15</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="18-18"><h1 id="plan-implement-dual-audience-workflow-artifact-views-revised">Plan: Implement Dual-Audience Workflow Artifact Views (Revised)</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="20-20"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="22-26"><p>Add mandatory, deterministic validation for Brainstorm and Plan Markdown and an optional schema-aware renderer that produces complete, self-contained HTML views for human review. Markdown remains authoritative; validation cannot be disabled, HTML generation can be opted out, and failures preserve the canonical artifact with exact recovery guidance.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="28-28"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="30-32"><p>The decided brainstorm selected canonical Markdown plus a deterministic semantic renderer. The first plan was reviewed by <code>cg-plan-critic</code> and is superseded by this revision. All review findings are incorporated:</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="34-43"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Finding</th><th scope="col">Revision</th></tr></thead><tbody><tr><td>P1.1 Validation bypassed by HTML opt-outs</td><td>Automatic hooks always validate; <code>/cg-work</code> validates versioned Plans before execution; opt-outs suppress only HTML writes.</td></tr><tr><td>P1.2 Output writes lacked secure containment</td><td>Destination mutation uses root-anchored no-follow traversal, handle-relative replacement where supported, reparse-point rejection, and mutation-boundary race tests.</td></tr><tr><td>P1.3 Evidence rows were subjective</td><td>Every required row now names an exact command or a machine-validated evidence artifact with objective pass criteria.</td></tr><tr><td>P2.1 Canonical target drift crossed phase boundaries</td><td>All canonical <code>.github/</code> edits occur in Phase 4 and target regeneration is the final Phase 4 implementation step.</td></tr><tr><td>P2.2 Review and commit workflows could load HTML bodies</td><td><code>/cg-review</code> and <code>/cg-commit-push-pr</code> list/stage view paths without reading their diffs or full bodies.</td></tr><tr><td>P2.3 Markdown grammar was open-ended</td><td>Version 1 defines an exact block/inline grammar and classifies the emitted status comment as non-substantive schema metadata.</td></tr><tr><td>P2.4 Manual behavior under opt-out was undecided</td><td><code>artifact-html: false</code> suppresses automatic writes only; explicit render and stale-check commands still operate.</td></tr><tr><td>P3.1 Hash normalization was contradictory</td><td>The normalization algorithm is explicit: remove one UTF-8 BOM, normalize CRLF/lone CR to LF, preserve Unicode and remaining whitespace, encode UTF-8, then SHA-256.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0014" data-source-block="block-0014" data-source-lines="45-45"><h3 id="existing-implementation-surfaces">Existing Implementation Surfaces</h3></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="47-61"><ul><li><code>scripts/parsing_utils.py</code> and <code>scripts/brain/utils.py</code> provide the existing dependency-free frontmatter behavior.</li><li><code>.github/prompts/cg-brainstorm.prompt.md</code> emits decision records; <code>.github/prompts/cg-plan.prompt.md</code> emits executable contracts; and <code>.github/prompts/cg-work.prompt.md</code> consumes Plans.</li><li><code>scripts/cg_generate_targets.py</code> already implements root-anchored, handle-relative secure mutation on supported POSIX systems and a tested fallback elsewhere. The shared writer must preserve that behavior.</li><li><code>.github/</code> remains canonical. Claude Code, Codex, and OpenCode assets are derived by <code>scripts/cg_generate_targets.py</code>.</li><li><code>scripts/brain/scanner.py</code>, <code>scripts/cg_audit_context.py</code>, <code>/cg-review</code>, <code>/cg-commit-push-pr</code>, and the release scanner are model-context boundaries that must explicitly exclude generated HTML bodies.</li><li>Open Design is available only during implementation at <code>/Users/r.andrescastaneda/.local/bin/od</code>. Users must not need it at runtime.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0018" data-source-block="block-0018" data-source-lines="63-63"><h3 id="dependency-graph">Dependency Graph</h3></div>
+<div class="source-block" id="render-owner-0020" data-source-block="block-0020" data-source-lines="65-80"><pre><code class="language-mermaid">flowchart TD
+    A[Executable schema and grammar] --&gt; B[Typed source model]
+    B --&gt; C[Parser and validator]
+    C --&gt; D[Mandatory validation-only path]
+    C --&gt; E[Coverage ledger]
+    E --&gt; F[Secure semantic renderer]
+    F --&gt; G[Open Design evidence matrix]
+    G --&gt; H[Frozen templates]
+    D --&gt; I[Workflow preflights]
+    H --&gt; J[One-file CLI]
+    J --&gt; I
+    I --&gt; K[Context exclusions]
+    K --&gt; L[Generated target regeneration]
+    L --&gt; M[Release gates]</code></pre></div>
+<div class="source-block source-heading" id="render-owner-0022" data-source-block="block-0022" data-source-lines="82-82"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0024" data-source-block="block-0024" data-source-lines="84-102"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Preserve Brainstorm and Plan Markdown as the sole authoritative decision and execution source; HTML is derived and regenerable.</td><td>Brainstorm: Audience and authority</td></tr><tr><td>R2</td><td>Define and deterministically validate versioned Brainstorm and Plan schemas after save and, for versioned Plans, before <code>/cg-work</code> execution. Validation must run even when HTML is disabled.</td><td>Brainstorm: Source-contract audit; review P1.1</td></tr><tr><td>R3</td><td>For Standard and Deep Plans, prove unique IDs, valid phase/step structure, complete requirement-to-step mappings, and structurally usable required verification evidence.</td><td>Brainstorm: Source-contract audit</td></tr><tr><td>R4</td><td>Parse sources into typed Brainstorm and Plan models with source spans and explicit strict, compatible-legacy, unsupported, and ambiguous-input behavior.</td><td>Brainstorm: Fidelity and provenance</td></tr><tr><td>R5</td><td>Provide type-specific human information architecture while preserving every substantive source block exactly once and permitting only source-derived navigation, grouping, coverage, status, and counts.</td><td>Brainstorm: Human information architecture</td></tr><tr><td>R6</td><td>Produce self-contained, responsive, accessible, printable HTML with usable long-document navigation, tables, code, commands, and bounded progressive disclosure.</td><td>Brainstorm: Human information architecture</td></tr><tr><td>R7</td><td>Embed source path, normalized source SHA-256, artifact schema version, renderer version, and UTC generation timestamp in machine-readable and visible provenance.</td><td>Brainstorm: Fidelity and provenance</td></tr><tr><td>R8</td><td>Escape or sanitize untrusted content, never execute source HTML/scripts/instructions, enforce safe URL handling and an offline content policy, and securely contain all output writes.</td><td>Brainstorm: Fidelity and provenance; review P1.2</td></tr><tr><td>R9</td><td>Use <code>/Users/r.andrescastaneda/.local/bin/od</code> to validate representative Brainstorm and Plan views across required viewport, offline, print, accessibility, and long-document conditions, then freeze the result into repository templates.</td><td>Brainstorm: Open Design usage</td></tr><tr><td>R10</td><td>Map sources to <code>.cg-docs/views/brainstorms/&lt;slug&gt;.html</code> and <code>.cg-docs/views/plans/&lt;slug&gt;.html</code>; automatic success output is one concise path confirmation.</td><td>Brainstorm: Generation and storage</td></tr><tr><td>R11</td><td>Provide one-file render, validation-only, and stale-check commands; default automatic generation; project opt-out; and one-run <code>--no-html</code>. Opt-outs suppress only automatic HTML writes.</td><td>Brainstorm: Generation and storage; review P2.4</td></tr><tr><td>R12</td><td>Save and verify Markdown before validation/rendering; on failure preserve Markdown and any prior valid view, emit the exact error and expected stale/missing path, and provide one-file recovery.</td><td>Brainstorm: Failure behavior</td></tr><tr><td>R13</td><td>Exclude view bodies from Brain, context, token, review, commit/PR, release, and duplicate-content model inputs while retaining path-level staging and provenance behavior.</td><td>Brainstorm: Token safeguards; review P2.2</td></tr><tr><td>R14</td><td>Keep <code>.github/</code> canonical and regenerate equivalent GitHub Copilot, Claude Code, Codex, and OpenCode behavior before the phase containing canonical edits completes.</td><td>Brainstorm: Cross-platform lifecycle; review P2.1</td></tr><tr><td>R15</td><td>Document authority, schemas, naming, commands, opt-outs, provenance, failure recovery, context exclusions, and Open Design runtime independence.</td><td>Brainstorm: Lifecycle requirements</td></tr><tr><td>R16</td><td>Add contract, parser, validator, coverage, renderer, security, secure-write, CLI, integration, prompt, installer, scanner, evidence, and generated-target tests.</td><td>Brainstorm: Lifecycle requirements</td></tr><tr><td>R17</td><td>Keep version 1 limited to new Brainstorm and Plan views and one-file operations; exclude historical bulk conversion, live execution updates, editing, hosted/export formats, other artifact types, and AI summaries.</td><td>Brainstorm: Version 1 boundaries</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0026" data-source-block="block-0026" data-source-lines="104-104"><h2 id="phase-1-executable-contract-and-mandatory-validation">Phase 1: Executable Contract and Mandatory Validation</h2></div>
+<div class="source-block source-heading" id="render-owner-0028" data-source-block="block-0028" data-source-lines="106-106"><h3 id="1-define-the-executable-schema-and-closed-markdown-grammar">1. Define the executable schema and closed Markdown grammar</h3></div>
+<div class="source-block" id="render-owner-0030" data-source-block="block-0030" data-source-lines="108-152"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 108–152</figcaption><pre><code>- **Requirements**: R1, R2, R3, R4, R17
+- **Files**:
+  - `scripts/artifact_views/__init__.py` (new)
+  - `scripts/artifact_views/schema.py` (new)
+  - `scripts/artifact_views/tests/fixtures/` (new)
+  - `scripts/artifact_views/tests/test_contract.py` (new)
+- **Details**:
+  - Define artifact schema version `1` in executable Python data. Defer all
+    canonical `.github/` prompt and shared-contract edits to Phase 4.
+  - Brainstorm version `1` requires frontmatter identity/status fields and the
+    Context, Requirements, Approaches Considered, Decision, and Next Steps
+    sections. Plan version `1` requires identity/scope/deviation fields,
+    Objective, Context, Requirements, globally numbered steps, test metadata,
+    risks, out-of-scope content, and the complete goal-execution contract.
+  - Define Standard/Deep Plan invariants: unique requirement, verification, and
+    constraint IDs; globally unique consecutive step numbers; unique consecutive
+    phase numbers; exactly one phase owner per phased step; declared mappings;
+    complete requirement coverage; and non-empty evidence/command cells for
+    required verification rows.
+  - Close the block grammar to ATX headings, paragraphs, blank lines, ordered,
+    unordered and task lists, pipe tables, backtick/tilde fenced code,
+    blockquotes, thematic breaks, and raw HTML blocks/comments.
+  - Close the inline grammar to literal text, backslash escapes, emphasis,
+    strong emphasis, code spans, links, autolinks, and hard/soft line breaks.
+    Unsupported inline delimiters remain literal text; ambiguous block ownership
+    fails validation.
+  - Classify only the exact emitted `Valid status values` HTML comment as
+    non-substantive schema metadata. Track it in the lexical ledger but omit it
+    from the human body. Any other raw HTML is substantive inert source and must
+    render visibly escaped exactly once.
+  - Version `1` is strict. Missing version means legacy and renders only when it
+    maps unambiguously. Unknown future versions fail with an actionable error.
+- **Test Scenarios**:
+  - **Happy path**: Strict Brainstorm, non-phased Plan, and phased Deep Plan
+    fixtures satisfy all invariants.
+  - **Edge case**: The exact status comment is metadata; similar comments and
+    other raw HTML remain substantive escaped content.
+  - **Error path**: Unknown versions, duplicate IDs, orphan mappings, malformed
+    completion tables, ambiguous headings, and unclosed fences fail with source
+    lines.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_contract.py`
+- **Acceptance criteria**:
+  - The executable contract contains the full accepted grammar and every R2/R3
+    invariant, with positive and negative fixtures.
+  - Phase 1 changes no canonical `.github/` source.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0032" data-source-block="block-0032" data-source-lines="154-154"><h3 id="2-implement-the-typed-document-and-source-ledger">2. Implement the typed document and source ledger</h3></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="156-182"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 156–182</figcaption><pre><code>- **Requirements**: R1, R4, R5, R7
+- **Files**:
+  - `scripts/artifact_views/model.py` (new)
+  - `scripts/artifact_views/errors.py` (new)
+  - `scripts/artifact_views/tests/test_model.py` (new)
+- **Details**:
+  - Add immutable Python 3.8-compatible dataclasses for identity, frontmatter,
+    source spans, lexical blocks, substantive blocks, requirements, alternatives,
+    phases, steps, tests, risks, and completion-contract rows.
+  - Give each lexical and substantive block a stable document-local ID and
+    one-based line span. Non-substantive metadata remains accounted for but
+    cannot satisfy substantive render coverage.
+  - Mark source-backed and derived presentation elements separately. Derived
+    elements cannot satisfy source coverage or introduce semantic claims.
+  - Define typed read, parse, schema, coverage, security, path, and write errors
+    carrying source path, span, and corrective action.
+- **Test Scenarios**:
+  - **Happy path**: Models preserve source order, identity, spans, and typed
+    Brainstorm/Plan relationships.
+  - **Edge case**: Multiline tables, empty optional sections, and metadata
+    comments keep stable IDs.
+  - **Error path**: Duplicate IDs, overlapping spans, or derived elements
+    claiming source ownership fail construction.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_model.py`
+- **Acceptance criteria**:
+  - Every parsed byte range is represented in the lexical ledger and every
+    substantive block has exactly one source identity before rendering.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0036" data-source-block="block-0036" data-source-lines="184-184"><h3 id="3-implement-fence-aware-parsers-validators-and-validation-only-api">3. Implement fence-aware parsers, validators, and validation-only API</h3></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="186-219"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 186–219</figcaption><pre><code>- **Requirements**: R2, R3, R4, R11, R16
+- **Files**:
+  - `scripts/parsing_utils.py`
+  - `scripts/artifact_views/parser.py` (new)
+  - `scripts/artifact_views/validator.py` (new)
+  - `scripts/artifact_views/tests/test_parser.py` (new)
+  - `scripts/artifact_views/tests/test_validator.py` (new)
+- **Details**:
+  - Reuse `parse_frontmatter_with_body()` and existing null/list semantics;
+    extend shared helpers only when current callers also benefit.
+  - Tokenize blocks without treating headings or pipes inside backtick/tilde
+    fences as structure. Parse completion tables by normalized header names,
+    never column positions.
+  - Parse Brainstorm decision structure and Plan requirements, phases, steps,
+    tests, risks, boundaries, and completion contract while preserving additional
+    unambiguous sections in source order.
+  - Build requirement-to-step and verification-to-phase mappings as
+    source-derived data.
+  - Expose a validation-only API used later by automatic hooks and `/cg-work`.
+    Validation has no dependency on rendering, templates, configuration, Open
+    Design, network access, or model calls.
+  - Return a bounded collection of independent structural errors without
+    cascading noise. Never silently drop unsupported or ambiguous input.
+- **Test Scenarios**:
+  - **Happy path**: Strict fixtures parse and validate with complete mappings.
+  - **Edge case**: Pipes in code spans, CRLF, tilde fences, optional phase
+    columns, repeated headings, and compatible legacy input behave deterministically.
+  - **Error path**: Duplicate mappings, steps outside phases, malformed tables,
+    unknown IDs, and ambiguity fail before any renderer call.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_parser.py scripts/artifact_views/tests/test_validator.py`
+- **Acceptance criteria**:
+  - Validation can run independently for one source and enforces every R2/R3
+    invariant.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="221-221"><h2 id="phase-2-secure-deterministic-rendering">Phase 2: Secure Deterministic Rendering</h2></div>
+<div class="source-block source-heading" id="render-owner-0042" data-source-block="block-0042" data-source-lines="223-223"><h3 id="4-implement-normalized-identity-provenance-and-secure-output-mutation">4. Implement normalized identity, provenance, and secure output mutation</h3></div>
+<div class="source-block" id="render-owner-0044" data-source-block="block-0044" data-source-lines="225-272"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 225–272</figcaption><pre><code>- **Requirements**: R7, R8, R10, R12, R16
+- **Files**:
+  - `scripts/secure_fs.py` (new)
+  - `scripts/cg_generate_targets.py`
+  - `scripts/artifact_views/paths.py` (new)
+  - `scripts/artifact_views/provenance.py` (new)
+  - `scripts/artifact_views/writer.py` (new)
+  - `scripts/artifact_views/tests/test_paths.py` (new)
+  - `scripts/artifact_views/tests/test_provenance.py` (new)
+  - `scripts/artifact_views/tests/test_writer.py` (new)
+  - `scripts/tests/test_target_path_safety.py`
+- **Details**:
+  - Accept regular `.md` sources only under `.cg-docs/brainstorms/` and
+    `.cg-docs/plans/`. Enforce component-level containment with
+    `Path.relative_to()` and reject source symlink escapes.
+  - Map only the final `.md` suffix to the mirrored `.html` destination.
+  - Define normalized source bytes exactly: decode strict UTF-8; remove one
+    leading U+FEFF if present; replace CRLF and lone CR with LF; preserve all
+    Unicode code points, trailing whitespace, and trailing newlines; encode
+    UTF-8; compute SHA-256.
+  - Extract the generator&#x27;s proven root-anchored secure mutation primitives into
+    `scripts/secure_fs.py` without changing target-generator behavior.
+  - On supported POSIX hosts, traverse from an opened root using `dir_fd`,
+    `O_DIRECTORY`, and `O_NOFOLLOW`; create and fsync a temporary file in the
+    pinned parent; and replace through the same handle.
+  - On hosts without secure `dir_fd`, reject symlink/reparse-point ancestors and
+    targets, revalidate immediately at the mutation boundary, and fail closed on
+    any identity/type change. Document the platform capability in diagnostics.
+  - Add `_before_secure_replace`-equivalent injection at the final mutation
+    boundary. Race tests replace destination ancestors there, not before setup.
+  - Preserve the mode of an existing regular view, never follow a destination
+    link, and retain any previous valid view on failure.
+  - Emit machine-readable JSON provenance and visible provenance. Rendering
+    receives an explicit UTC timestamp; fixed complete inputs produce identical
+    bytes.
+- **Test Scenarios**:
+  - **Happy path**: Secure write creates the expected mirrored output and
+    provenance matches normalized source content.
+  - **Edge case**: BOM, CRLF/lone CR, Unicode, spaces, existing modes, and fixed
+    timestamps remain deterministic.
+  - **Error path**: Traversal, source/destination symlinks, reparse ancestors,
+    mutation-boundary swaps, read-only parents, and interrupted replacement
+    fail without outside writes or loss of a valid view.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_provenance.py scripts/artifact_views/tests/test_writer.py scripts/tests/test_target_path_safety.py`
+- **Acceptance criteria**:
+  - Real mutation-boundary race tests prove output cannot escape the project.
+  - Existing generator secure-write tests remain green after extraction.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0046" data-source-block="block-0046" data-source-lines="274-274"><h3 id="5-build-type-specific-templates-and-source-coverage-enforcement">5. Build type-specific templates and source-coverage enforcement</h3></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="276-309"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 276–309</figcaption><pre><code>- **Requirements**: R1, R5, R6, R7, R17
+- **Files**:
+  - `scripts/artifact_views/coverage.py` (new)
+  - `scripts/artifact_views/templates.py` (new)
+  - `scripts/artifact_views/renderer.py` (new)
+  - `scripts/artifact_views/tests/test_coverage.py` (new)
+  - `scripts/artifact_views/tests/test_renderer.py` (new)
+- **Details**:
+  - Render one HTML document with embedded CSS and no remote assets. Prefer
+    native HTML/CSS and include no script unless a source-independent navigation
+    behavior demonstrably requires it.
+  - Brainstorm views organize context, requirements, alternatives/trade-offs,
+    decision/rationale, and next steps. Plan views organize outcome, completion
+    contract, phase map, steps, requirement coverage, verification, risks,
+    boundaries, and next actions.
+  - Mark source-backed blocks with `data-source-block` and derived maps/counts
+    with `data-derived`. Derived elements may reorganize but not summarize or
+    reinterpret source claims.
+  - Enforce a bijection before serialization: each substantive block has exactly
+    one rendered owner and no rendered owner references an unknown block.
+  - Preserve unsupported but structurally bounded blocks visibly as escaped
+    source with type and line information. Ambiguous blocks fail validation.
+- **Test Scenarios**:
+  - **Happy path**: Long Brainstorm and Plan fixtures render all substantive
+    content once with distinct information architectures.
+  - **Edge case**: Dense tables, nested lists, long paths, code, empty optional
+    sections, and bounded unsupported blocks remain complete.
+  - **Error path**: Omitted, duplicated, or invented source ownership blocks
+    serialization.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_renderer.py`
+- **Acceptance criteria**:
+  - Coverage tests prove exact-once ownership for every substantive fixture
+    block.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0050" data-source-block="block-0050" data-source-lines="311-311"><h3 id="6-harden-content-security-offline-behavior-print-and-accessibility">6. Harden content security, offline behavior, print, and accessibility</h3></div>
+<div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="313-342"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 313–342</figcaption><pre><code>- **Requirements**: R6, R8, R16
+- **Files**:
+  - `scripts/artifact_views/security.py` (new)
+  - `scripts/artifact_views/templates.py`
+  - `scripts/artifact_views/tests/test_security.py` (new)
+  - `scripts/artifact_views/tests/test_accessibility.py` (new)
+- **Details**:
+  - Escape text and attributes through structured helpers. Raw HTML is inert;
+    source never enters CSS or script contexts.
+  - Allow only documented relative URLs and explicit safe schemes. Reject
+    encoded script schemes, event handlers, malformed anchors, duplicate IDs,
+    and source-derived styles.
+  - Apply a restrictive CSP blocking network connections, objects, frames,
+    plugins, and external media. Prohibit `innerHTML`, `eval`, and dynamic code.
+  - Add semantic landmarks, skip links, visible focus, keyboard navigation,
+    reduced motion, non-color status cues, contrast, responsive overflow, and
+    stable font sizing.
+  - Print rules retain provenance, headings, table headers, links, code, and all
+    substantive source while removing navigation chrome.
+- **Test Scenarios**:
+  - **Happy path**: Normal links, tables, code, print, and offline loading work.
+  - **Edge case**: Unicode controls, long tokens, quote-heavy code, repeated
+    headings, 200% zoom, and reduced motion remain usable.
+  - **Error path**: Script/raw-event/URL/CSS/JSON payloads remain inert or are
+    rejected before output.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_accessibility.py`
+- **Acceptance criteria**:
+  - Generated files contain no remote runtime dependency or executable source
+    content and preserve full print content.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0054" data-source-block="block-0054" data-source-lines="344-344"><h2 id="phase-3-open-design-evidence-and-frozen-presentation">Phase 3: Open Design Evidence and Frozen Presentation</h2></div>
+<div class="source-block source-heading" id="render-owner-0056" data-source-block="block-0056" data-source-lines="346-346"><h3 id="7-produce-and-validate-the-open-design-evidence-matrix">7. Produce and validate the Open Design evidence matrix</h3></div>
+<div class="source-block" id="render-owner-0058" data-source-block="block-0058" data-source-lines="348-383"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 348–383</figcaption><pre><code>- **Requirements**: R5, R6, R9, R16
+- **Files**:
+  - `scripts/validate_artifact_view_evidence.py` (new)
+  - `scripts/artifact_views/evidence.py` (new)
+  - `scripts/artifact_views/tests/test_evidence.py` (new)
+  - `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json` (new execution evidence)
+  - Representative rendered Brainstorm and Plan HTML views
+- **Details**:
+  - Invoke only `/Users/r.andrescastaneda/.local/bin/od`, never bare `od`.
+  - Evaluate both artifact types at `1440x900`, `768x1024`, and `390x844`.
+    Each artifact/viewport row records `nonblank`, `noHorizontalOverflow`,
+    `noOverlap`, `navigationReachable`, `firstViewportIdentity`, and screenshot
+    path.
+  - Add per-artifact rows for offline load, print preview, keyboard order,
+    visible focus, 200% zoom, contrast, reduced motion, long-document
+    orientation, and complete provenance.
+  - The JSON evidence includes schema version, source/view hashes, generated
+    timestamp, Open Design executable path/version, each required boolean, and
+    local screenshot/print-preview artifact paths. It contains no source body.
+  - `--require-all-pass` validates schema, required matrix coverage, hashes,
+    referenced evidence files, and that every required result is true. A missing
+    row or artifact exits nonzero.
+  - Record accepted design changes in the execution report. Do not commit Open
+    Design runtime state or let it alter canonical content.
+- **Test Scenarios**:
+  - **Happy path**: Complete two-artifact matrix passes the validator.
+  - **Edge case**: Evidence order and additional non-required observations do
+    not affect validity.
+  - **Error path**: Missing viewport/check/file, hash mismatch, false result, or
+    bare `/usr/bin/od` identity fails.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_evidence.py`
+  - `python3 scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json --require-all-pass`
+- **Acceptance criteria**:
+  - The exact command above exits zero and the execution report records V3 as
+    passed.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0060" data-source-block="block-0060" data-source-lines="385-385"><h3 id="8-freeze-accepted-tokens-components-responsive-rules-and-print-rules">8. Freeze accepted tokens, components, responsive rules, and print rules</h3></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="387-412"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 387–412</figcaption><pre><code>- **Requirements**: R6, R9, R16
+- **Files**:
+  - `scripts/artifact_views/templates.py`
+  - `scripts/artifact_views/tests/snapshots/` (new structural snapshots)
+  - `scripts/artifact_views/tests/test_design_contract.py` (new)
+- **Details**:
+  - Translate accepted Open Design results into CSS custom properties,
+    typography, spacing, layout constraints, component rules, breakpoints,
+    focus states, reduced motion, and print rules.
+  - Use local platform-neutral font fallbacks with no font download. Avoid a
+    one-hue palette and represent state with text/symbols as well as color.
+  - Keep the reading flow unframed; cards are limited to repeated items or
+    genuine framed tools. Never nest cards.
+  - Snapshot stable semantics, metadata, classes, and source ownership only;
+    exclude timestamps and irrelevant formatting.
+- **Test Scenarios**:
+  - **Happy path**: Accepted reference structures match frozen contracts.
+  - **Edge case**: Narrow print margins, zoom, long words, and reduced motion do
+    not hide or overlap content.
+  - **Error path**: Removing provenance, print content, focus, overflow guards,
+    or source ownership fails tests.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_accessibility.py`
+- **Acceptance criteria**:
+  - Shipped templates reproduce the accepted views without Open Design or
+    external resources.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0064" data-source-block="block-0064" data-source-lines="414-414"><h2 id="phase-4-cli-workflow-integration-isolation-and-target-parity">Phase 4: CLI, Workflow Integration, Isolation, and Target Parity</h2></div>
+<div class="source-block source-heading" id="render-owner-0066" data-source-block="block-0066" data-source-lines="416-416"><h3 id="9-implement-explicit-and-automatic-one-file-cli-modes">9. Implement explicit and automatic one-file CLI modes</h3></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="418-456"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 418–456</figcaption><pre><code>- **Requirements**: R2, R10, R11, R12, R16
+- **Files**:
+  - `scripts/render_artifact.py` (new)
+  - `scripts/artifact_views/cli.py` (new)
+  - `scripts/artifact_views/config.py` (new)
+  - `scripts/artifact_views/tests/test_cli.py` (new)
+  - `scripts/artifact_views/tests/test_integration.py` (new)
+- **Details**:
+  - Support exactly one source per invocation:
+    - `cg-render-artifact &lt;source&gt;` explicitly validates and renders, ignoring
+      automatic-generation opt-out.
+    - `cg-render-artifact --automatic &lt;source&gt;` always validates, reads
+      `artifact-html`, and writes HTML only when enabled.
+    - `cg-render-artifact --validate-only &lt;source&gt;` validates without writing.
+    - `cg-render-artifact --check &lt;source&gt;` checks missing/stale/current status
+      even when automatic generation is opted out.
+  - Reject directories, multiple sources, bulk/watch modes, and conflicting
+    modes.
+  - `artifact-html` absent/true enables automatic writes; false suppresses only
+    automatic writes; invalid values warn and default enabled. Explicit render,
+    check, and validation-only modes always operate.
+  - Render fully in memory and pass bytes to the secure writer. On success emit
+    one concise relative path, or a concise validation/disabled status for modes
+    that do not write.
+  - On failure return nonzero with exact error, source, expected view path,
+    missing/stale/current state where knowable, and explicit regeneration
+    command. Preserve source and previous valid view.
+  - Make no model, agent, Open Design, subprocess-agent, or network call.
+- **Test Scenarios**:
+  - **Happy path**: Explicit, automatic, validation-only, and check modes have
+    their documented outcomes.
+  - **Edge case**: Opt-out, invalid config, stale/current view, spaces, and
+    existing valid output remain deterministic.
+  - **Error path**: Invalid source/config/mode, validation, coverage, security,
+    and write failures retain canonical and prior-view bytes.
+- **Tests**:
+  - `pytest -q scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_integration.py`
+- **Acceptance criteria**:
+  - Opt-outs cannot bypass validation and explicit commands remain available.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0070" data-source-block="block-0070" data-source-lines="458-458"><h3 id="10-add-cross-platform-launchers-and-installer-lifecycle-support">10. Add cross-platform launchers and installer lifecycle support</h3></div>
+<div class="source-block" id="render-owner-0072" data-source-block="block-0072" data-source-lines="460-489"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 460–489</figcaption><pre><code>- **Requirements**: R10, R11, R14, R16
+- **Files**:
+  - `bin/cg-render-artifact` (new)
+  - `bin/cg-render-artifact.cmd` (new)
+  - `install.ps1`
+  - `scripts/install.sh`
+  - `tests/install.Tests.ps1`
+  - `tests/bash-scripts.Tests.ps1`
+- **Details**:
+  - Add a committed bash launcher resolving verified `python3`, `python`, or
+    `py`, forwarding arguments, and propagating exit codes.
+  - Add a committed CMD launcher with mandatory `where` guards, independent
+    `for /f` version checks, Windows Store stub rejection, forwarding, and exact
+    exit-code propagation for all three candidates.
+  - Register idempotent install/upgrade, uninstall cleanup, command summaries,
+    and help on Windows and macOS/Linux. Keep committed wrappers as source of
+    truth and audit sibling Python launchers for parity without unrelated edits.
+- **Test Scenarios**:
+  - **Happy path**: Both launchers invoke the correct entrypoint and preserve
+    arguments/exit codes.
+  - **Edge case**: Missing `python3` falls through; paths contain spaces;
+    install/upgrade is idempotent.
+  - **Error path**: No Python, Store stubs, missing wrappers, and uninstall
+    failures are actionable and do not leak absent-command stderr.
+- **Tests**:
+  - Safe runner `. tests/Run-Tests.ps1 -File install`
+  - Safe runner `. tests/Run-Tests.ps1 -File bash-scripts`
+- **Acceptance criteria**:
+  - Both installers expose and remove the command, and CMD tests assert every
+    required `where` guard.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0074" data-source-block="block-0074" data-source-lines="491-491"><h3 id="11-add-mandatory-workflow-validation-and-model-context-exclusions">11. Add mandatory workflow validation and model-context exclusions</h3></div>
+<div class="source-block" id="render-owner-0076" data-source-block="block-0076" data-source-lines="493-539"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 493–539</figcaption><pre><code>- **Requirements**: R1, R2, R11, R12, R13, R14
+- **Files**:
+  - `.github/shared/artifact-view.contract.md` (new)
+  - `.github/shared/goal-execution.contract.md`
+  - `.github/shared/context-loading.contract.md`
+  - `.github/prompts/cg-brainstorm.prompt.md`
+  - `.github/prompts/cg-plan.prompt.md`
+  - `.github/prompts/cg-work.prompt.md`
+  - `.github/prompts/cg-review.prompt.md`
+  - `.github/prompts/cg-commit-push-pr.prompt.md`
+  - `.github/agents/cg-release-scanner.agent.md`
+  - `tests/prompt-tools.Tests.ps1`
+- **Details**:
+  - Add `artifact-schema-version: 1` to new Brainstorm and Plan templates and
+    document the executable schema/grammar without duplicating parser internals.
+  - After Markdown save verification, normal emitter flow calls
+    `cg-render-artifact --automatic &lt;source&gt;`; `--no-html` calls
+    `--validate-only`. Both paths fail loudly on validation errors. Rendering
+    failures preserve Markdown and produce required stale/missing guidance.
+  - Add `/cg-work` preflight: strict-validate versioned Plans with
+    `--validate-only` before roadmap status, execution report, or code changes.
+    Preserve the existing explicit compatibility flow for legacy Plans.
+  - State that HTML may orient readers but never supplies execution semantics.
+  - `/cg-review` excludes `.cg-docs/views/**` from agent file bodies/diffs and
+    reviews canonical Markdown, renderer code, tests, and a stale-check result.
+    It may report view paths/counts only.
+  - `/cg-commit-push-pr` may group/stage view files but must not read their full
+    content or diff. It derives commit/PR prose from canonical sources and uses
+    `--check` for generated-view consistency.
+  - Context loading and release scanning classify views as generated derived
+    outputs and never ingest their bodies.
+  - Keep hooks compact and canonical. No platform-specific semantic fork is
+    hand-authored.
+- **Test Scenarios**:
+  - **Happy path**: Both emitters validate; enabled automatic flow writes a view;
+    `/cg-work` validates before execution; review/commit use canonical bodies.
+  - **Edge case**: Project opt-out and `--no-html` still validate; review/commit
+    retain path-level staging without body ingestion; legacy Plans use existing
+    compatibility approval.
+  - **Error path**: Invalid versioned source blocks handoff/execution; renderer
+    failure preserves source; any prompt instruction to read view bodies fails
+    contract assertions.
+- **Tests**:
+  - Safe runner `. tests/Run-Tests.ps1 -File prompt-tools`
+- **Acceptance criteria**:
+  - Validation is mandatory and generated HTML bodies are absent from every
+    named model-facing workflow.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0078" data-source-block="block-0078" data-source-lines="541-541"><h3 id="12-exclude-views-from-scanners-audits-and-duplicate-content-paths">12. Exclude views from scanners, audits, and duplicate-content paths</h3></div>
+<div class="source-block" id="render-owner-0080" data-source-block="block-0080" data-source-lines="543-568"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 543–568</figcaption><pre><code>- **Requirements**: R13, R16
+- **Files**:
+  - `scripts/brain/scanner.py`
+  - `scripts/brain/tests/test_scanner.py`
+  - `scripts/cg_audit_context.py`
+  - `scripts/tests/test_audit_context.py`
+  - Relevant summary/release tests discovered during implementation
+- **Details**:
+  - Add `views: None` to the Brain directory map so nested views skip silently
+    without warnings or entities.
+  - Exclude `.cg-docs/views/` from context inventory, token source totals,
+    duplicate-content checks, query inputs, and release knowledge matching.
+  - Audit all remaining recursive `.cg-docs/` readers. Prove extension/type
+    filters already exclude HTML or add a narrow explicit exclusion.
+  - Use a distinctive sentinel present only in generated HTML and prove it
+    cannot appear in Brain entities/query output, context audit source records,
+    duplicate findings, release references, review inputs, or commit prose.
+- **Test Scenarios**:
+  - **Happy path**: Canonical Markdown remains visible while its view is absent
+    from all model-facing output.
+  - **Edge case**: Nested and malformed HTML views skip without warnings.
+  - **Error path**: Removing any exclusion exposes the sentinel and fails tests.
+- **Tests**:
+  - `pytest -q scripts/brain/tests/test_scanner.py scripts/tests/test_audit_context.py scripts/artifact_views/tests/test_integration.py`
+- **Acceptance criteria**:
+  - View content contributes zero model-context or duplicate-content records.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0082" data-source-block="block-0082" data-source-lines="570-570"><h3 id="13-regenerate-all-native-targets-and-prove-parity">13. Regenerate all native targets and prove parity</h3></div>
+<div class="source-block" id="render-owner-0084" data-source-block="block-0084" data-source-lines="572-597"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 572–597</figcaption><pre><code>- **Requirements**: R14, R16
+- **Files**:
+  - Generated `.claude/`, `.agents/`, and `.opencode/` command/shared trees and ownership manifests
+  - `scripts/tests/test_cg_generate_targets.py`
+  - `scripts/tests/test_target_ownership.py`
+  - `scripts/tests/test_target_closure.py`
+  - `scripts/tests/test_target_determinism.py`
+  - `scripts/tests/test_target_drift.py`
+  - `scripts/tests/test_target_path_safety.py`
+- **Details**:
+  - Run `python3 scripts/cg_generate_targets.py --all` only after all Phase 4
+    canonical `.github/` edits are complete.
+  - Never hand-edit generated targets. Verify equivalent validation, opt-out,
+    authority, failure, review, and commit semantics in each native format.
+  - Run ownership, closure, determinism, path-safety, and drift tests. Regenerate
+    again or use drift tests to prove stable bytes.
+- **Test Scenarios**:
+  - **Happy path**: Every platform receives equivalent compact behavior.
+  - **Edge case**: Format conversion changes only native syntax.
+  - **Error path**: Missing dependencies, manual drift, unstable bytes, or
+    runtime-reference leaks fail.
+- **Tests**:
+  - `python3 scripts/cg_generate_targets.py --all`
+  - `pytest -q scripts/tests/test_cg_generate_targets.py scripts/tests/test_target_ownership.py scripts/tests/test_target_closure.py scripts/tests/test_target_determinism.py scripts/tests/test_target_drift.py scripts/tests/test_target_path_safety.py`
+- **Acceptance criteria**:
+  - Phase 4 ends with clean generated targets and no canonical/generated drift.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0086" data-source-block="block-0086" data-source-lines="599-599"><h2 id="phase-5-documentation-and-release-evidence">Phase 5: Documentation and Release Evidence</h2></div>
+<div class="source-block source-heading" id="render-owner-0088" data-source-block="block-0088" data-source-lines="601-601"><h3 id="14-document-authority-lifecycle-commands-and-recovery">14. Document authority, lifecycle, commands, and recovery</h3></div>
+<div class="source-block" id="render-owner-0090" data-source-block="block-0090" data-source-lines="603-638"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 603–638</figcaption><pre><code>- **Requirements**: R10, R11, R12, R13, R15, R17
+- **Files**:
+  - `docs/workflow.md`
+  - `docs/reference/commands.md`
+  - `docs/reference/files.md`
+  - `docs/configuration/index.md`
+  - `docs/troubleshooting.md`
+  - `docs/context-files.md`
+  - `docs/navigation.json` if required
+  - `README.md` only for a concise pointer if needed
+  - `scripts/tests/test_target_documentation.py`
+- **Details**:
+  - Document canonical authority, schema versions/legacy behavior, naming,
+    automatic and explicit modes, validation-only, stale check, opt-outs,
+    provenance, secure failure recovery, and commit expectations.
+  - Explain that `artifact-html: false` and `--no-html` never disable validation;
+    explicit render/check remain available under project opt-out.
+  - Explain model-context exclusions and that agents may use HTML for orientation
+    only.
+  - State that views are self-contained derived files committed with canonical
+    sources, never edited as authority, and that users need no Open Design
+    daemon, MCP, account, connector, plugin, or runtime.
+  - Document all version 1 exclusions and troubleshooting for validation,
+    stale/missing views, unsafe paths/content, Python launchers, and regeneration.
+- **Test Scenarios**:
+  - **Happy path**: A user can find every lifecycle command and recovery path.
+  - **Edge case**: Documentation clearly distinguishes automatic opt-out,
+    one-run skip, explicit render, and mandatory validation.
+  - **Error path**: Broken links, undocumented flags, Open Design runtime
+    implications, or bulk-render instructions fail review/tests.
+- **Tests**:
+  - `node scripts/check-docs-site.js`
+  - `pytest -q scripts/tests/test_target_documentation.py`
+- **Acceptance criteria**:
+  - User and reference documentation cover the complete lifecycle without
+    promising out-of-scope behavior.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0092" data-source-block="block-0092" data-source-lines="640-640"><h3 id="15-run-end-to-end-audit-documentation-and-full-suite-gates">15. Run end-to-end, audit, documentation, and full-suite gates</h3></div>
+<div class="source-block" id="render-owner-0094" data-source-block="block-0094" data-source-lines="642-673"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 642–673</figcaption><pre><code>- **Requirements**: R1, R2, R5, R6, R8, R9, R12, R13, R14, R16, R17
+- **Files**:
+  - `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json`
+  - `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views-v2.md`
+  - `.cg-docs/cost/artifact-views-final/context-audit.json`
+  - `tests/last-run.json`
+- **Details**:
+  - Render this Plan and its Brainstorm end to end; verify normalized provenance,
+    exact source coverage, safe output, offline load, and stale detection.
+  - Inject parser, coverage, security, destination-race, and write failures;
+    compare canonical and prior-view bytes before/after.
+  - Validate the complete Open Design matrix with the exact V3 command.
+  - Run context audit and assert zero guardrail failures, no view source records,
+    no view sentinel, and no unsupported token-saving claim. Record measured
+    prompt/context deltas as heuristic evidence only.
+  - Run documentation checks, all Python tests, the final generated-target drift
+    gate, and the canonical full Pester suite once through an execution subagent.
+  - Read `tests/last-run.json` and require `passed: true`, `failedCount: 0`, and
+    `filteredFiles: null`.
+  - Review the final diff for debug code, external/runtime Open Design
+    dependencies, accidental HTML-body ingestion, unrelated refactors, and
+    version 1 scope creep.
+- **Test Scenarios**:
+  - **Happy path**: Both artifact types pass every required evidence gate.
+  - **Edge case**: Opt-outs, stale/legacy input, malicious content, long
+    documents, and native targets retain documented behavior.
+  - **Error path**: Failed evidence, filtered Pester, target drift, view
+    ingestion, external resources, or unsafe mutation blocks completion.
+- **Tests**:
+  - Commands and objective pass criteria in the Completion Contract below.
+- **Acceptance criteria**:
+  - V1-V11 have executed evidence and every required constraint passes.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0096" data-source-block="block-0096" data-source-lines="675-675"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0098" data-source-block="block-0098" data-source-lines="677-695"><ol><li>Contract fixtures close the schema and Markdown grammar before renderer work.</li><li>Typed-model and parser tests account for every lexical/source span and validate mappings independently of HTML.</li><li>Secure-write tests run at the actual mutation boundary and reuse the target generator&#x27;s proven root-anchored pattern.</li><li>Coverage tests enforce exact-once ownership before serialization.</li><li>Security tests use raw HTML, encoded URLs, scripts, event handlers, CSS/JSON payloads, path traversal, symlinks, reparse points, and races.</li><li>Design/accessibility tests combine structural checks with a machine-validated Open Design evidence matrix for two artifacts and three viewports.</li><li>CLI tests separate explicit render, automatic generation, validation-only, and stale-check semantics.</li><li>Prompt tests prove validation ordering, <code>/cg-work</code> preflight, and review, commit, context, and release body exclusions.</li><li>Sentinel tests prove generated view content never enters model-facing scans.</li><li>Generated-target tests prove same-phase parity, ownership, closure, determinism, security, and no drift.</li><li>Final gates use full Python, unfiltered safe Pester, documentation, audit, and exact design-evidence commands.</li></ol></div>
+<div class="source-block" id="render-owner-0100" data-source-block="block-0100" data-source-lines="697-698"><p>Pester must run only through the canonical <code>tests/Run-Tests.ps1</code> pattern using an execution subagent. Never invoke Pester directly or pipeline its output.</p></div>
+<div class="source-block source-heading" id="render-owner-0102" data-source-block="block-0102" data-source-lines="700-700"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0104" data-source-block="block-0104" data-source-lines="702-713"><ul><li><input type="checkbox" disabled> Canonical Markdown authority and mandatory validation.</li><li><input type="checkbox" disabled> Version <code>1</code> schema, closed grammar, and compatible legacy behavior.</li><li><input type="checkbox" disabled> Source/view naming and one-file path mapping.</li><li><input type="checkbox" disabled> Explicit render, automatic, validation-only, and stale-check commands.</li><li><input type="checkbox" disabled> Project opt-out versus one-run skip semantics.</li><li><input type="checkbox" disabled> Provenance and normalized hash algorithm.</li><li><input type="checkbox" disabled> Secure atomic write and exact recovery behavior.</li><li><input type="checkbox" disabled> Review, commit, Brain, context, audit, and release exclusions.</li><li><input type="checkbox" disabled> Offline, print, accessibility, and Open Design evidence behavior.</li><li><input type="checkbox" disabled> Open Design implementation-time-only statement.</li><li><input type="checkbox" disabled> Version 1 exclusions, especially no bulk historical conversion.</li><li><input type="checkbox" disabled> Command, files, workflow, configuration, context, and troubleshooting navigation.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0106" data-source-block="block-0106" data-source-lines="715-715"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0108" data-source-block="block-0108" data-source-lines="717-730"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Risk</th><th scope="col">Impact</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>Schema variants exceed the closed grammar.</td><td>Content may be ambiguous or omitted.</td><td>Strict versioning, real emitter fixtures, literal inline fallback, visible bounded unsupported blocks, and hard failure on ownership ambiguity.</td></tr><tr><td>Validation is accidentally tied back to rendering.</td><td>Opt-outs or <code>/cg-work</code> could accept invalid Plans.</td><td>Independent validation API, explicit <code>--validate-only</code>, prompt ordering tests, and <code>/cg-work</code> preflight.</td></tr><tr><td>Output containment is checked before but not during mutation.</td><td>A race could overwrite outside the repository.</td><td>Root-pinned no-follow handles, handle-relative replace, reparse rejection, fail-closed fallback, and final-boundary race injection.</td></tr><tr><td>Shared secure-write extraction regresses target generation.</td><td>Existing generated targets could corrupt or drift.</td><td>Preserve public behavior, run existing path-safety/determinism tests in Phase 2, and include target checks in V2/V6.</td></tr><tr><td>Coverage is syntactic but presentation is misleading.</td><td>Humans may overlook authoritative content.</td><td>Source spans, exact-once ownership, type-specific structure, and representative long-document Open Design checks.</td></tr><tr><td>Sanitization misses an executable context.</td><td>Generated artifacts could run untrusted content.</td><td>Escape by default, allowlisted URLs, no source-derived script/style, CSP, adversarial fixtures, and abort-on-failure.</td></tr><tr><td>Manual design evidence becomes subjective prose.</td><td><code>/cg-work</code> cannot gate Phase 3 objectively.</td><td>Versioned JSON matrix, required rows/files/hashes, exact validator command, and all-pass semantics.</td></tr><tr><td>Canonical edits leave native targets stale.</td><td>Platforms diverge.</td><td>Confine all <code>.github/</code> edits to Phase 4 and make regeneration its final step.</td></tr><tr><td>Review or commit prompts ingest large HTML.</td><td>Duplicate context violates token-efficiency goals.</td><td>Path-only handling, canonical-source prose, stale checks, sentinel tests, and final context audit.</td></tr><tr><td>Generated timestamps create noisy nondeterminism.</td><td>Tests and diffs become unstable.</td><td>Treat timestamp as explicit input and assert determinism over complete fixed inputs.</td></tr><tr><td>Open Design leaks into runtime.</td><td>Users cannot render without local design tooling.</td><td>Absolute path only in Phase 3, frozen plain templates, runtime scans, and offline tests.</td></tr><tr><td>Feature grows into a publishing platform.</td><td>Delivery slips and risk rises.</td><td>Enforce R17; deviations require approval under policy <code>ask</code>.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0110" data-source-block="block-0110" data-source-lines="732-732"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0112" data-source-block="block-0112" data-source-lines="734-745"><ul><li>Automatic bulk conversion or migration of historical artifacts.</li><li>Continuous Plan view updates during <code>/cg-work</code>.</li><li>Editing canonical content or execution state from HTML.</li><li>PDF, image, slide, hosted-site, search-site, or server export.</li><li>Views for reviews, solutions, reports, roadmaps, strategies, or other types.</li><li>Runtime Open Design, daemon, MCP, account, connector, plugin, or sync behavior.</li><li>Per-artifact AI summaries, invented labels/claims, semantic compression, or design generation.</li><li>A general-purpose CommonMark implementation outside the closed version <code>1</code> artifact grammar.</li><li>Bulk/watch mode, preview server, or automatic browser opening.</li><li>Using views as roadmap, execution-report, or approval authority.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0114" data-source-block="block-0114" data-source-lines="747-747"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0116" data-source-block="block-0116" data-source-lines="749-749"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0118" data-source-block="block-0118" data-source-lines="751-754"><p>Brainstorm and Plan Markdown are always schema-validated after save and before versioned Plan execution, while optional self-contained HTML views provide human review. HTML opt-outs suppress only automatic writes; failures preserve Markdown and report exact recovery.</p></div>
+<div class="source-block source-heading" id="render-owner-0120" data-source-block="block-0120" data-source-lines="756-756"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0122" data-source-block="block-0122" data-source-lines="758-770"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Executable schema, typed model, parser, and validator tests pass.</td><td><code>pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_model.py scripts/artifact_views/tests/test_parser.py scripts/artifact_views/tests/test_validator.py</code></td><td>yes</td></tr><tr><td>V2</td><td>2</td><td>Secure path mutation, normalized provenance, exact coverage, renderer, security, and accessibility tests pass without target-generator regression.</td><td><code>pytest -q scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_writer.py scripts/artifact_views/tests/test_provenance.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_accessibility.py scripts/tests/test_target_path_safety.py</code></td><td>yes</td></tr><tr><td>V3</td><td>3</td><td>Required Brainstorm/Plan viewport, offline, print, keyboard, zoom, contrast, reduced-motion, provenance, and long-document matrix is complete and all-pass.</td><td><code>python3 scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json --require-all-pass</code></td><td>yes</td></tr><tr><td>V4</td><td>4</td><td>CLI, mandatory validation-only, opt-out, integration, failure-preservation, and scanner/audit isolation tests pass.</td><td><code>pytest -q scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_integration.py scripts/brain/tests/test_scanner.py scripts/tests/test_audit_context.py</code></td><td>yes</td></tr><tr><td>V5</td><td>4</td><td>Installer, bash launcher, and prompt workflow contracts pass.</td><td>Through execution subagent: <code>. tests/Run-Tests.ps1 -File install</code>; <code>. tests/Run-Tests.ps1 -File bash-scripts</code>; <code>. tests/Run-Tests.ps1 -File prompt-tools</code>. Execution report requires <code>passed: true</code> and <code>failedCount: 0</code> for each.</td><td>yes</td></tr><tr><td>V6</td><td>4</td><td>Native targets regenerate with ownership, closure, determinism, path safety, and zero drift.</td><td><code>python3 scripts/cg_generate_targets.py --all</code> then <code>pytest -q scripts/tests/test_cg_generate_targets.py scripts/tests/test_target_ownership.py scripts/tests/test_target_closure.py scripts/tests/test_target_determinism.py scripts/tests/test_target_drift.py scripts/tests/test_target_path_safety.py</code></td><td>yes</td></tr><tr><td>V7</td><td>4</td><td>Review, commit/PR, release, Brain, and context consumers never load generated HTML bodies; canonical sources remain available.</td><td><code>tests/prompt-tools.Tests.ps1</code> path-only contract assertions plus sentinel tests in <code>scripts/artifact_views/tests/test_integration.py</code> and <code>scripts/tests/test_audit_context.py</code></td><td>yes</td></tr><tr><td>V8</td><td>final</td><td>Context audit reports zero guardrail failures and contains no view source record, sentinel, duplicate-content finding, or unsupported savings claim.</td><td><code>bin/cg-token-audit --root . --output-dir .cg-docs/cost/artifact-views-final --format json --recommendations --no-token-artifacts</code>; inspect <code>.cg-docs/cost/artifact-views-final/context-audit.json</code></td><td>yes</td></tr><tr><td>V9</td><td>final</td><td>Documentation site and target-documentation checks pass.</td><td><code>node scripts/check-docs-site.js &amp;&amp; pytest -q scripts/tests/test_target_documentation.py</code></td><td>yes</td></tr><tr><td>V10</td><td>final</td><td>Complete Python suite passes.</td><td><code>pytest -q</code></td><td>yes</td></tr><tr><td>V11</td><td>final</td><td>Canonical full Pester gate passes unfiltered.</td><td>Through execution subagent: <code>. tests/Run-Tests.ps1</code>; <code>tests/last-run.json</code> requires <code>passed: true</code>, <code>failedCount: 0</code>, and <code>filteredFiles: null</code>.</td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0124" data-source-block="block-0124" data-source-lines="772-772"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0126" data-source-block="block-0126" data-source-lines="774-786"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>1</td><td>Markdown remains the sole semantic authority.</td><td>Contract, provenance, and prompt assertions</td></tr><tr><td>C2</td><td>1</td><td>Validation runs despite <code>artifact-html: false</code> or <code>--no-html</code>, and <code>/cg-work</code> validates versioned Plans.</td><td>Validator API, CLI mode, and prompt-order tests</td></tr><tr><td>C3</td><td>2</td><td>Every substantive source block renders exactly once.</td><td>Source-block bijection tests</td></tr><tr><td>C4</td><td>2</td><td>Source HTML, scripts, styles, and instructions never execute.</td><td>Escaping, URL, CSP, and adversarial tests</td></tr><tr><td>C5</td><td>2</td><td>Output is self-contained and offline.</td><td>Remote-resource and offline-load tests</td></tr><tr><td>C6</td><td>2</td><td>Output mutation is root-anchored, no-follow and handle-relative where supported, rejects links/reparse points, and is race-tested at replacement.</td><td>Secure writer and target path-safety tests</td></tr><tr><td>C7</td><td>3</td><td>Open Design is design-time only.</td><td>Evidence identity, runtime dependency scan, and offline tests</td></tr><tr><td>C8</td><td>4</td><td>Markdown saves before validation/rendering and survives every failure.</td><td>Prompt ordering and failure-injection byte comparisons</td></tr><tr><td>C9</td><td>4</td><td><code>.github/</code> remains canonical and target regeneration completes in the same phase as edits.</td><td>Ownership, closure, parity, and drift tests</td></tr><tr><td>C10</td><td>4</td><td>Generated HTML bodies add no model context.</td><td>Path-only prompt assertions, sentinel tests, and final audit</td></tr><tr><td>C11</td><td>final</td><td>Version 1 boundaries remain intact.</td><td>Final requirements and diff review</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0128" data-source-block="block-0128" data-source-lines="788-788"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0130" data-source-block="block-0130" data-source-lines="790-796"><ul><li>Allowed: artifact schema/model/parser/renderer/CLI, shared secure-write primitives, Open Design evidence validation, launchers/installers, canonical workflow contracts, generated targets, model-context exclusions, documentation, tests, and Brainstorm/Plan views.</li><li>Out of scope: historical bulk conversion, live execution updates, HTML editing, hosted/PDF/slide exports, other artifact types, runtime Open Design, general Markdown publishing, and AI-generated summaries or interpretations.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0132" data-source-block="block-0132" data-source-lines="798-798"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0134" data-source-block="block-0134" data-source-lines="800-811"><ol><li>Validate after every save; opt-outs skip only automatic HTML writes.</li><li>Explicit render and stale-check commands operate under project opt-out.</li><li>The exact emitted status comment is non-substantive metadata; other raw HTML is inert substantive source.</li><li>Normalize hashes by removing one BOM, converting CRLF/lone CR to LF, preserving Unicode and remaining whitespace/newlines, then hashing UTF-8.</li><li>Keep canonical <code>.github/</code> edits in Phase 4 and regenerate targets before the phase completes.</li><li>Reject ambiguous structures and unsafe mutation; never emit a simplified fallback.</li><li>Ask before dependencies, schema expansion, opt-out changes, or version 1 scope changes.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0136" data-source-block="block-0136" data-source-lines="813-813"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0138" data-source-block="block-0138" data-source-lines="815-825"><ul><li>Required source coverage cannot be proven.</li><li>Validation can be bypassed by an HTML setting or execution path.</li><li>Secure destination containment or race resistance cannot be maintained.</li><li>Faithful rendering requires executable or trusted raw source content.</li><li>The required Open Design evidence matrix is incomplete or failing.</li><li>Markdown or a previous valid view changes after a failed render.</li><li>Generated view content enters any model-facing workflow or audit source set.</li><li>Canonical/generated targets drift at a phase boundary.</li><li>Any required Python, Pester, documentation, audit, accessibility, security, or evidence gate fails after allowed recovery attempts.</li><li>Continuing requires an unapproved dependency or version 1 scope expansion.</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md</dd>
+      <dt>Source SHA-256</dt><dd><code>ea6787307ed0ee4a84771a801a68d9af1f07b130f27a9238ada34497ad84cb2e</code></dd>
+      <dt>Artifact schema</dt><dd>legacy</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-01T04:21:51Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

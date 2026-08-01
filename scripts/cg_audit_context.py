@@ -42,6 +42,7 @@ if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
 from brain.utils import parse_frontmatter, write_atomic  # noqa: E402
+from secure_fs import SecureMutationError, secure_read_bytes  # noqa: E402
 
 DISCLAIMER = "Token estimates are heuristic (chars/4) and intended for directional audit use."
 
@@ -163,6 +164,9 @@ WORKFLOW_SOURCE_EXACT_PATHS = {
     "copilot-instructions.md",
     "copilot-instructions.template.md",
 }
+MODEL_CONTEXT_EXCLUDED_PREFIXES = (
+    ".cg-docs/views/",
+)
 _PARAGRAPH_SEP_RE = re.compile(r"\n\s*\n")
 CONDITIONAL_ROUTING_RE = re.compile(
     r"\b(?:deterministic preflight|risk-class routing|route-aware|resolved mode|staged mode)\b",
@@ -329,6 +333,40 @@ def rel_path(path: Path, root: Path) -> str:
         return path.as_posix()
 
 
+def is_model_context_excluded(path: str) -> bool:
+    """Return whether a path is a generated body excluded from model context.
+
+    Args:
+        path: Repository-relative path using either platform separator.
+
+    Returns:
+        ``True`` only for component-scoped generated view paths.
+
+    Example:
+        >>> is_model_context_excluded(".cg-docs/views/plans/a.html")
+        True
+        >>> is_model_context_excluded(".cg-docs/views-archive/a.md")
+        False
+    """
+    normalized = str(path).replace("\\", "/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    return any(normalized.startswith(prefix) for prefix in MODEL_CONTEXT_EXCLUDED_PREFIXES)
+
+
+def has_symlink_component(path: Path, boundary: Path) -> bool:
+    """Return whether a scanned path contains a symlink below its root."""
+    current = path
+    while current != boundary:
+        if current.is_symlink():
+            return True
+        parent = current.parent
+        if parent == current:
+            return True
+        current = parent
+    return boundary.is_symlink()
+
+
 def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, int]]]:
     """Scan all configured SCAN_CATEGORIES under root and return file records.
 
@@ -354,20 +392,36 @@ def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, in
         for path in sorted(root.glob(pattern)):
             if not path.is_file():
                 continue
+            relative_path = rel_path(path, root)
+            if is_model_context_excluded(relative_path):
+                continue
+            if has_symlink_component(path, root):
+                continue
             resolved = path.resolve()
+            try:
+                resolved_relative = resolved.relative_to(root.resolve()).as_posix()
+            except ValueError:
+                continue
+            if is_model_context_excluded(resolved_relative):
+                continue
             if resolved in seen:
                 continue
             seen.add(resolved)
             try:
-                content = path.read_text(encoding="utf-8-sig")
-            except UnicodeDecodeError as exc:
+                source_bytes = secure_read_bytes(
+                    root,
+                    Path(relative_path),
+                    reject_hardlinks=True,
+                )
+                content = source_bytes.decode("utf-8-sig", errors="strict")
+            except (OSError, UnicodeDecodeError, SecureMutationError) as exc:
                 import warnings
                 warnings.warn(f"Skipping {path}: {exc}")
                 continue
             chars = len(content)
             tokens = estimate_tokens(content)
             record = {
-                "path": rel_path(path, root),
+                "path": relative_path,
                 "category": category,
                 "characters": chars,
                 "estimated_tokens": tokens,

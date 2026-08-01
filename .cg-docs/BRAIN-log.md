@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-07-31 · 462 artifacts (newest first) + 133 roadmap features_
+_Generated 2026-08-01 · 469 artifacts (newest first) + 136 roadmap features_
 
 ## undated
 
@@ -123,12 +123,29 @@ _Generated 2026-07-31 · 462 artifacts (newest first) + 133 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-01
+
+- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
+  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
+
 ## 2026-07-31
 
 - **[2026-07-23-wb-report-writing-technical-methodology-verify-review-3](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-3.md)** · `review` · _—_ · `2026-07-31`
   > **Review mode**: light (verify) **Files reviewed**: 171 changed or untracked files **Findings**: 10 (P0: 0, P1: 6, P2…
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-4](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-4.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
+- **[2026-07-23-wb-report-writing-technical-methodology-verify-review-5](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-5.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
+- **[2026-07-31-dual-audience-workflow-artifact-views-v2-review](.cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: full, auto-routed for schema, secure-filesystem, installer, and generated-target risk.
 - **[Advisory inheritance audits need explicit keys and cross-platform legacy cleanup](.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md)** · `solution` · _—_ · `2026-07-31`
   > The user-selected model migration removed execution assignments and replaced them with advisory-only stage guidance. …
+- **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](.cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md)** · `brainstorm` · _decided_ · `2026-07-31`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Implement Dual-Audience Workflow Artifact Views](.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views.md)** · `plan` · _active_ · `2026-07-31`
+  > Add a deterministic, schema-aware rendering system that keeps Brainstorm and Plan Markdown authoritative while produc…
+- **[Implement Dual-Audience Workflow Artifact Views \(Revised\)](.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md)** · `plan` · _completed_ · `2026-07-31`
+  > Add mandatory, deterministic validation for Brainstorm and Plan Markdown and an optional schema-aware renderer that p…
 
 ## 2026-07-30
 
@@ -1211,6 +1228,8 @@ _Generated 2026-07-31 · 462 artifacts (newest first) + 133 roadmap features_
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
+- **[Broader artifact publishing formats and views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _idea_ · `—`
+  > Broader artifact publishing formats and views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
@@ -1255,6 +1274,8 @@ _Generated 2026-07-31 · 462 artifacts (newest first) + 133 roadmap features_
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
+- **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
+  > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`
@@ -1275,6 +1296,8 @@ _Generated 2026-07-31 · 462 artifacts (newest first) + 133 roadmap features_
   > GitHub Issues integration (optional, via gh CLI)
 - **[Goal-driven execution — plan-as-completion-contract with integrated validation](roadmap.json#goal-driven-execution)** · `feature` · _idea_ · `—`
   > Goal-driven execution — plan-as-completion-contract with integrated validation
+- **[Historical HTML backfill for existing Compound GPID artifacts](roadmap.json#historical-html-backfill-for-existing-compound-gpid-artifacts)** · `feature` · _idea_ · `—`
+  > Historical HTML backfill for existing Compound GPID artifacts
 - **[HITL review-loop mode \(--review flag\) for section-by-section approval in /cg-brainstorm and /cg-plan \[from CE\]](roadmap.json#hitl-review-loop-mode)** · `feature` · _idea_ · `—`
   > HITL review-loop mode (--review flag) for section-by-section approval in /cg-brainstorm and /cg-plan [from CE]
 - **[Honest pushback mode in /cg-brainstorm and /cg-strategy](roadmap.json#honest-pushback-in-brainstorm-strategy)** · `feature` · _done_ · `—`

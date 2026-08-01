@@ -116,4 +116,6 @@ project-name/
 
 - **Never use `str.startswith()` for path containment checks**: String prefix matching (`str(resolved).startswith(str(base))`) is bypassed by sibling directories (`.cg-docs-evil/`). Use `resolved.relative_to(base)` (raises `ValueError` if outside) or `resolved.is_relative_to(base)` (Python 3.9+). See `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md`.
 
+- **Secure filesystem operations must preserve concurrent winners**: For security-sensitive writes, deletes, rollback, or model-context reads, use the shared `secure_fs` APIs instead of pathname check-then-mutate/read sequences. Pin filesystem identities through the final syscall; publish and restore with non-replacing collision semantics; preserve quarantine/recovery artifacts when a name is occupied; let the process umask constrain new files; and reject hard-link aliases for model-context reads. Atomic replacement alone is not non-clobbering. See `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md`.
+
 - **Never use `eval()`, `exec()`, or `pickle.loads()` on untrusted input**: Deserializing user-controlled data with these functions is a remote code execution vector (OWASP A03). Use `json.loads()` for structured data, `ast.literal_eval()` only for Python literals from trusted sources.

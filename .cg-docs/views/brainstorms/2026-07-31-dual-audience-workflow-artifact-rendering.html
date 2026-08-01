@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md">
+<meta name="artifact-source-sha256" content="0d97d0b2a85f329bc8b8c02ec1ef9e98efdbedd2354d7e1de62a81b793f70a45">
+<meta name="artifact-schema-version" content="legacy">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Dual-audience Brainstorm and Plan artifacts with human-readable HTML · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":"legacy","generatedAt":"2026-08-01T04:21:51Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md","sourceSha256":"0d97d0b2a85f329bc8b8c02ec1ef9e98efdbedd2354d7e1de62a81b793f70a45"}</script>
+</head>
+<body data-artifact-kind="brainstorm">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Decision record</p>
+    <h1>Dual-audience Brainstorm and Plan artifacts with human-readable HTML</h1>
+    <p class="deck">A complete human view of the canonical Brainstorm, organized around alternatives and the chosen direction. <a href="../../brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#context">Context</a></li><li><a href="#requirements">Requirements</a></li><li><a href="#approaches-considered">Approaches</a></li><li><a href="#decision">Decision</a></li><li><a href="#next-steps">Next steps</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="approach-index" aria-labelledby="approach-index"><h2 id="approach-index">Approach index</h2><ol><li>Approach 1: Canonical Markdown + Deterministic Semantic Renderer</li><li>Approach 2: Canonical Structured Model + Generated Markdown and HTML</li><li>Approach 3: Per-Artifact Agent-Generated HTML</li></ol></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="11-11"><h1 id="dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html">Dual-Audience Brainstorm and Plan Artifacts with Human-Readable HTML</h1></div>
+<div class="source-block source-heading" id="render-owner-0006" data-source-block="block-0006" data-source-lines="13-13"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0008" data-source-block="block-0008" data-source-lines="15-15"><p>Compound GPID&#x27;s Brainstorm and Plan Markdown artifacts serve an important agent-facing purpose, but many are difficult for humans to review. Existing files in this repository reach 500–800 lines. A human must be able to approve direction, monitor execution, and challenge omissions without reconstructing the artifact&#x27;s conceptual structure from a long Markdown file.</p></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="17-17"><p>The same work product therefore needs two audience-specific presentations:</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="19-20"><ul><li><strong>Canonical Markdown</strong> is the detailed, authoritative contract consumed by Compound GPID agents.</li><li><strong>Derived HTML</strong> is the complete human review surface, organized for comprehension without adding, omitting, or substantively reinterpreting source information.</li></ul></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="22-22"><p>Open Design is available at <code>/Users/r.andrescastaneda/.local/bin/od</code> during implementation. It is a design-time tool only. Compound GPID users will not have Open Design, so the shipped renderer and generated HTML must have no Open Design runtime dependency.</p></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="24-24"><p>This work also needs to answer whether current Brainstorm and Plan artifacts are sufficiently clear for downstream agents. The answer affects the renderer: attractive HTML must not conceal ambiguity in the authoritative source.</p></div>
+<div class="source-block source-heading" id="render-owner-0018" data-source-block="block-0018" data-source-lines="26-26"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block source-heading" id="render-owner-0020" data-source-block="block-0020" data-source-lines="28-28"><h3 id="audience-and-authority">Audience and authority</h3></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="30-35"><ul><li>Preserve Markdown as the single authoritative execution and decision source.</li><li>Treat Brainstorms as decision records consumed by <code>/cg-plan</code>, not as direct <code>/cg-work</code> instruction contracts.</li><li>Treat Plans as the executable contract consumed by <code>/cg-work</code>.</li><li>Allow agents to inspect HTML for orientation, while requiring execution semantics to come from canonical Markdown.</li><li>Make HTML sufficient for humans to approve direction, monitor execution, and challenge the artifact without opening Markdown.</li><li>Clearly label the HTML as a derived view and link it to its canonical source.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0024" data-source-block="block-0024" data-source-lines="37-37"><h3 id="source-contract-audit">Source-contract audit</h3></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="39-45"><ul><li>Audit Brainstorm and Plan schemas before implementing the renderer.</li><li>Preserve the current strong Plan semantics: requirement IDs, file targets, implementation details, tests, acceptance criteria, phase structure, and completion contract.</li><li>Add deterministic validation for material structural invariants instead of relying only on agent judgment.</li><li>At minimum, validate required frontmatter and sections, unique IDs, valid phase and step structure, requirement-to-step mappings, and required completion-contract fields.</li><li>For Standard and Deep Plans, validate that every requirement maps to at least one implementation step and that required verification evidence is structurally present.</li><li>Define how unknown or unsupported Markdown structures are handled. Do not silently omit them.</li><li>Fail rendering visibly when source ambiguity prevents a faithful view.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0028" data-source-block="block-0028" data-source-lines="47-47"><h3 id="human-information-architecture">Human information architecture</h3></div>
+<div class="source-block" id="render-owner-0030" data-source-block="block-0030" data-source-lines="49-55"><ul><li>Use type-specific presentation rather than a generic Markdown-to-HTML skin.</li><li>Organize Brainstorm views around context, requirements, alternatives, trade-offs, decision, rationale, and next steps.</li><li>Organize Plan views around outcome, completion contract, phase map, implementation steps, requirement coverage, verification evidence, risks, boundaries, and next actions.</li><li>Preserve every substantive source block exactly once in the human view.</li><li>Permit structural derivations such as navigation, grouping, coverage maps, status indicators, and source-derived counts.</li><li>Forbid model-written summaries, invented claims, or substantive reinterpretation during routine generation.</li><li>Support long documents with clear hierarchy, sticky or persistent navigation, readable tables, code and command presentation, progressive disclosure where appropriate, accessible semantics, and print styles.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0032" data-source-block="block-0032" data-source-lines="57-57"><h3 id="open-design-usage">Open Design usage</h3></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="59-63"><ul><li>During implementation, invoke Open Design with <code>/Users/r.andrescastaneda/.local/bin/od</code>, never bare <code>od</code> because <code>/usr/bin/od</code> shadows it on PATH.</li><li>Use Open Design to create and iterate representative Brainstorm and Plan reference views.</li><li>Evaluate desktop, narrow-screen, offline, print, accessibility, and long-document behavior.</li><li>Freeze the accepted information architecture, design tokens, typography, components, and responsive/print rules into version-controlled renderer templates.</li><li>Do not require Open Design, its daemon, MCP server, artifacts, connectors, plugins, or accounts after implementation.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0036" data-source-block="block-0036" data-source-lines="65-65"><h3 id="generation-and-storage">Generation and storage</h3></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="67-75"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 67–75</figcaption><pre><code>- Generate HTML automatically after a new Brainstorm or Plan Markdown artifact is successfully saved.
+- Store generated files in a mirrored tree:
+  - `.cg-docs/views/brainstorms/&lt;source-slug&gt;.html`
+  - `.cg-docs/views/plans/&lt;source-slug&gt;.html`
+- Make each HTML file fully self-contained, including CSS and any small required script.
+- Do not use CDNs, remote fonts, external stylesheets, or runtime network calls.
+- Add a one-file regeneration command for stale, missing, or manually requested views.
+- Make generation default-on with a project-local opt-out and a one-run `--no-html` override.
+- Keep successful automatic generation quiet apart from a concise path confirmation.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="77-77"><h3 id="fidelity-and-provenance">Fidelity and provenance</h3></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="79-84"><ul><li>Build a deterministic semantic renderer with a typed internal document model for Brainstorms and Plans.</li><li>Include source path, source content hash, artifact schema version, renderer version, and generation timestamp in machine-readable HTML metadata and a human-readable provenance area.</li><li>Define and test a source-coverage invariant so every substantive parsed source block maps to one rendered block.</li><li>Escape or sanitize untrusted source content before placing it in HTML.</li><li>Do not execute scripts, HTML, or instructions embedded in source artifacts.</li><li>Mark views as derived and regenerable; never let HTML become a competing editable source.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0044" data-source-block="block-0044" data-source-lines="86-86"><h3 id="failure-behavior">Failure behavior</h3></div>
+<div class="source-block" id="render-owner-0046" data-source-block="block-0046" data-source-lines="88-91"><ul><li>Save canonical Markdown first.</li><li>If HTML generation fails, preserve the Markdown, fail loudly with the exact rendering error, identify the expected view path as missing or stale, and offer the one-file regeneration command.</li><li>Do not silently produce a simplified fallback that could hide missing information.</li><li>Do not disable future generation automatically after one failure.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0048" data-source-block="block-0048" data-source-lines="93-93"><h3 id="token-and-indexing-safeguards">Token and indexing safeguards</h3></div>
+<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="95-97"><ul><li>Exclude <code>.cg-docs/views/</code> from Knowledge Brain ingestion, context retrieval, release knowledge scans, and other paths that would duplicate canonical Markdown content.</li><li>Ensure HTML generation itself performs no model call.</li><li>Measure any added prompt/context cost and keep prompt hooks compact.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0052" data-source-block="block-0052" data-source-lines="99-99"><h3 id="cross-platform-and-lifecycle-requirements">Cross-platform and lifecycle requirements</h3></div>
+<div class="source-block" id="render-owner-0054" data-source-block="block-0054" data-source-lines="101-104"><ul><li>Keep <code>.github/</code> as the canonical prompt source and regenerate native platform targets through the existing target generator.</li><li>Provide equivalent behavior on supported GitHub Copilot, Claude Code, Codex, and OpenCode workflows.</li><li>Document source/view naming, regeneration, opt-out configuration, failure recovery, and the fact that Open Design is not required by users.</li><li>Add contract, parser, renderer, security, integration, and generated-target parity tests.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0056" data-source-block="block-0056" data-source-lines="106-106"><h2 id="source-contract-assessment">Source-Contract Assessment</h2></div>
+<div class="source-block source-heading" id="render-owner-0058" data-source-block="block-0058" data-source-lines="108-108"><h3 id="brainstorm-artifacts">Brainstorm artifacts</h3></div>
+<div class="source-block" id="render-owner-0060" data-source-block="block-0060" data-source-lines="110-110"><p>Brainstorms are sufficiently structured to hand a decided direction to <code>/cg-plan</code>: they capture context, requirements, alternatives, a decision, and next steps. They should remain decision records rather than accumulating step-level execution instructions.</p></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="112-112"><p>The implementation should strengthen deterministic checks for required metadata and sections, but should not force Brainstorms to duplicate the Plan execution contract. The HTML view can make the decision path easier for humans to understand while preserving the same substantive content.</p></div>
+<div class="source-block source-heading" id="render-owner-0064" data-source-block="block-0064" data-source-lines="114-114"><h3 id="plan-artifacts">Plan artifacts</h3></div>
+<div class="source-block" id="render-owner-0066" data-source-block="block-0066" data-source-lines="116-116"><p>Plans already provide a strong agent contract through:</p></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="118-125"><ul><li>Unique requirement IDs and source attribution.</li><li>Requirement mappings on implementation steps.</li><li>Explicit target files and implementation details.</li><li>Happy-path, edge-case, and error-path test scenarios.</li><li>Test files or commands and observable acceptance criteria.</li><li>Exact phase and step heading contracts.</li><li>An approved completion contract with outcome, verification surface, constraints, boundaries, iteration policy, blocked-stop conditions, and deviation policy.</li><li><code>/cg-work</code> evidence gates and execution-report semantics.</li></ul></div>
+<div class="source-block" id="render-owner-0070" data-source-block="block-0070" data-source-lines="127-127"><p>The main gap is assurance, not wholesale schema redesign. Current prompt checks rely partly on model judgment and do not deterministically prove all requirement, step, test, and verification relationships. Version 1 should formalize and test these invariants before rendering the source.</p></div>
+<div class="source-block source-heading" id="render-owner-0072" data-source-block="block-0072" data-source-lines="129-129"><h2 id="approaches-considered">Approaches Considered</h2></div>
+<div class="source-block source-heading" id="render-owner-0074" data-source-block="block-0074" data-source-lines="131-131"><h3 id="approach-1-canonical-markdown-deterministic-semantic-renderer">Approach 1: Canonical Markdown + Deterministic Semantic Renderer</h3></div>
+<div class="source-block" id="render-owner-0076" data-source-block="block-0076" data-source-lines="133-133"><p>Keep Markdown authoritative. Validate it, parse it into a typed internal model, and render separate Brainstorm and Plan HTML templates from that model.</p></div>
+<div class="source-block" id="render-owner-0078" data-source-block="block-0078" data-source-lines="135-135"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0080" data-source-block="block-0080" data-source-lines="137-141"><ul><li>Preserves one authority for agent execution.</li><li>Deterministic, offline, testable, cross-platform, and token-efficient.</li><li>Supports source-coverage checks and stale-view detection.</li><li>Allows a carefully designed human information architecture without per-artifact model interpretation.</li><li>Uses Open Design where it adds value: designing and validating the reusable presentation system.</li></ul></div>
+<div class="source-block" id="render-owner-0082" data-source-block="block-0082" data-source-lines="143-143"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0084" data-source-block="block-0084" data-source-lines="145-147"><ul><li>Requires robust parsing and validation of the supported Markdown schema.</li><li>Schema evolution requires compatibility and renderer-version tests.</li><li>Unsupported constructs need explicit preservation or failure behavior.</li></ul></div>
+<div class="source-block" id="render-owner-0086" data-source-block="block-0086" data-source-lines="149-149"><p><strong>Effort</strong>: Large.</p></div>
+<div class="source-block" id="render-owner-0088" data-source-block="block-0088" data-source-lines="151-151"><p><strong>Recommended</strong>: Yes. This is the only approach that satisfies authority, fidelity, usability, portability, and token-efficiency requirements together.</p></div>
+<div class="source-block source-heading" id="render-owner-0090" data-source-block="block-0090" data-source-lines="153-153"><h3 id="approach-2-canonical-structured-model-generated-markdown-and-html">Approach 2: Canonical Structured Model + Generated Markdown and HTML</h3></div>
+<div class="source-block" id="render-owner-0092" data-source-block="block-0092" data-source-lines="155-155"><p>Make JSON or YAML the true source and generate both audience views from it.</p></div>
+<div class="source-block" id="render-owner-0094" data-source-block="block-0094" data-source-lines="157-157"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0096" data-source-block="block-0096" data-source-lines="159-161"><ul><li>Strong formal validation and structural correspondence.</li><li>Easier future export to other formats.</li><li>Both outputs derive from the same typed fields.</li></ul></div>
+<div class="source-block" id="render-owner-0098" data-source-block="block-0098" data-source-lines="163-163"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0100" data-source-block="block-0100" data-source-lines="165-167"><ul><li>Replaces the current artifact contract and requires migration across <code>/cg-plan</code>, <code>/cg-work</code>, Brain indexing, roadmap links, and historical artifacts.</li><li>Structured data is less readable and more fragile for direct LLM authoring.</li><li>Disproportionate to the urgent readability problem.</li></ul></div>
+<div class="source-block" id="render-owner-0102" data-source-block="block-0102" data-source-lines="169-169"><p><strong>Effort</strong>: Very large.</p></div>
+<div class="source-block" id="render-owner-0104" data-source-block="block-0104" data-source-lines="171-171"><p><strong>Recommended</strong>: No for version 1. Reconsider only if a constrained Markdown parser cannot provide reliable fidelity.</p></div>
+<div class="source-block source-heading" id="render-owner-0106" data-source-block="block-0106" data-source-lines="173-173"><h3 id="approach-3-per-artifact-agent-generated-html">Approach 3: Per-Artifact Agent-Generated HTML</h3></div>
+<div class="source-block" id="render-owner-0108" data-source-block="block-0108" data-source-lines="175-175"><p>Ask the active agent to write a designed HTML interpretation after each Markdown save.</p></div>
+<div class="source-block" id="render-owner-0110" data-source-block="block-0110" data-source-lines="177-177"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0112" data-source-block="block-0112" data-source-lines="179-181"><ul><li>Faster initial prototype.</li><li>Highly adaptive presentation.</li><li>Less parser implementation at first.</li></ul></div>
+<div class="source-block" id="render-owner-0114" data-source-block="block-0114" data-source-lines="183-183"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0116" data-source-block="block-0116" data-source-lines="185-188"><ul><li>Cannot guarantee no omissions, additions, or reinterpretation.</li><li>Adds model calls and tokens to every workflow run.</li><li>Produces model- and platform-dependent output.</li><li>Is difficult to regression-test and may create a second semantic authority.</li></ul></div>
+<div class="source-block" id="render-owner-0118" data-source-block="block-0118" data-source-lines="190-190"><p><strong>Effort</strong>: Medium initially, with high long-term maintenance.</p></div>
+<div class="source-block" id="render-owner-0120" data-source-block="block-0120" data-source-lines="192-192"><p><strong>Recommended</strong>: No. It conflicts with the core fidelity and token-efficiency requirements.</p></div>
+<div class="source-block source-heading" id="render-owner-0122" data-source-block="block-0122" data-source-lines="194-194"><h2 id="decision">Decision</h2></div>
+<div class="source-block" id="render-owner-0124" data-source-block="block-0124" data-source-lines="196-196"><p>Choose <strong>Canonical Markdown + Deterministic Semantic Renderer</strong>.</p></div>
+<div class="source-block" id="render-owner-0126" data-source-block="block-0126" data-source-lines="198-198"><p>The implementation will first audit and strengthen the agent-facing artifact contracts, then build a schema-aware renderer. Markdown remains authoritative. A typed internal model provides the boundary between source validation and presentation. Type-specific templates reorganize the same substantive information for humans, using only structural derivations.</p></div>
+<div class="source-block" id="render-owner-0128" data-source-block="block-0128" data-source-lines="200-200"><p>Open Design will be used during implementation to design and validate representative reference views. The accepted result will be frozen into version-controlled templates and design tokens. Routine generation will be local and deterministic and will not call Open Design or an AI model.</p></div>
+<div class="source-block" id="render-owner-0130" data-source-block="block-0130" data-source-lines="202-202"><p>Generated HTML will be committed under <code>.cg-docs/views/</code> as portable institutional knowledge views, but excluded from Brain and context ingestion so it does not duplicate the canonical source in agent context.</p></div>
+<div class="source-block source-heading" id="render-owner-0132" data-source-block="block-0132" data-source-lines="204-204"><h2 id="devil-s-advocate-conclusions">Devil&#x27;s Advocate Conclusions</h2></div>
+<div class="source-block" id="render-owner-0134" data-source-block="block-0134" data-source-lines="206-209"><ul><li><strong>Problem validation</strong>: The repository contains many 500–800-line Plan and Brainstorm artifacts. The readability problem is concrete and affects approval, oversight, and challenge.</li><li><strong>Simpler alternative</strong>: A styled Markdown preview improves typography but not semantic navigation, requirement coverage, verification mapping, or provenance. It is insufficient for the stated human-review goals.</li><li><strong>Effort and value</strong>: Avoid turning version 1 into a general publishing platform. Limit it to new Brainstorm and Plan views plus one-file regeneration.</li><li><strong>Charter alignment</strong>: Deterministic rendering aligns with token-efficiency goals. Per-artifact AI rendering does not. Derived HTML must be excluded from knowledge retrieval to prevent context duplication.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0136" data-source-block="block-0136" data-source-lines="211-211"><h2 id="version-1-boundaries">Version 1 Boundaries</h2></div>
+<div class="source-block source-heading" id="render-owner-0138" data-source-block="block-0138" data-source-lines="213-213"><h3 id="included">Included</h3></div>
+<div class="source-block" id="render-owner-0140" data-source-block="block-0140" data-source-lines="215-223"><ul><li>Source-contract audit and targeted schema strengthening.</li><li>Deterministic validation and semantic parsing for current Brainstorm and Plan schemas.</li><li>Open Design-assisted creation of two reference designs.</li><li>Frozen, self-contained, responsive, accessible, and printable HTML templates.</li><li>Automatic default-on generation for newly saved Brainstorms and Plans.</li><li>Mirrored <code>.cg-docs/views/</code> storage.</li><li>Project opt-out and one-run <code>--no-html</code> override.</li><li>One-file regeneration.</li><li>Fidelity, provenance, security, integration, and parity tests.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0142" data-source-block="block-0142" data-source-lines="225-225"><h3 id="out-of-scope">Out of Scope</h3></div>
+<div class="source-block" id="render-owner-0144" data-source-block="block-0144" data-source-lines="227-233"><ul><li>Automatic bulk conversion of all historical artifacts.</li><li>Continuous Plan HTML updates while <code>/cg-work</code> executes.</li><li>Editing canonical content from HTML.</li><li>PDF, image, slide, or hosted-site export.</li><li>HTML views for reviews, solutions, work reports, roadmaps, or other <code>.cg-docs</code> artifact types.</li><li>Runtime Open Design integration.</li><li>Per-artifact AI summarization or design generation.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0146" data-source-block="block-0146" data-source-lines="235-235"><h2 id="next-steps">Next Steps</h2></div>
+<div class="source-block" id="render-owner-0148" data-source-block="block-0148" data-source-lines="237-247"><ol><li>Run <code>/cg-plan</code> from this brainstorm and inherit the <strong>Deep</strong> scope.</li><li>Inventory the exact Brainstorm and Plan schema variants currently emitted and consumed, including legacy compatibility paths.</li><li>Specify a versioned artifact contract and deterministic validation matrix for agent executability.</li><li>Specify the typed intermediate document model and source-coverage invariant.</li><li>Define the renderer entry point, mirrored path mapping, source hash/provenance contract, project opt-out, and <code>--no-html</code> behavior.</li><li>Use <code>/Users/r.andrescastaneda/.local/bin/od</code> during implementation to create representative long-form Brainstorm and Plan views and validate desktop, mobile, print, accessibility, and offline behavior.</li><li>Freeze the approved design system into repository templates with no Open Design runtime dependency.</li><li>Integrate compact post-save hooks into <code>/cg-brainstorm</code> and <code>/cg-plan</code>, preserving Markdown-first failure semantics.</li><li>Exclude <code>.cg-docs/views/</code> from Brain indexing, context loading, and duplicate-content scans.</li><li>Add parser, validator, source-coverage, sanitization, rendering, failure-policy, prompt-contract, documentation, and generated-target parity tests.</li><li>Document generation, view paths, provenance, opt-out, regeneration, failure recovery, and runtime independence from Open Design.</li></ol></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md</dd>
+      <dt>Source SHA-256</dt><dd><code>0d97d0b2a85f329bc8b8c02ec1ef9e98efdbedd2354d7e1de62a81b793f70a45</code></dd>
+      <dt>Artifact schema</dt><dd>legacy</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-01T04:21:51Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

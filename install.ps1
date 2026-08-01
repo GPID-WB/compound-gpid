@@ -6,17 +6,19 @@
 #
 # What this does:
 #   1. Verifies Git is available.
-#   1b. Verifies Python is available (python3, python, or py -- required for cg-index).
+#   1b. Verifies Python is available (required for Python-backed cg-* commands).
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
-#      so cg-link, cg-unlink, cg-update, cg-index, and cg-token-audit are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, and
+#      cg-token-audit are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
-# To uninstall (removes bin\ wrappers, PATH entry, and legacy profile functions):
+# To uninstall (removes PATH registration and legacy profile functions while
+# preserving package-owned bin\ wrapper sources):
 #   & "C:\WBG\.compound-gpid\install.ps1" -Uninstall
 # The install directory itself is NOT deleted -- remove it manually if desired.
 #
-# Python requirement: Python 3.8+ is required (used by cg-index for knowledge indexing).
+# Python requirement: Python 3.8+ is required by Python-backed cg-* commands.
 # The Windows Store installs Python stub launchers that are not real Python -- this
 # script detects and skips them. Install from https://www.python.org/downloads/ or
 # via winget: winget install Python.Python.3.11
@@ -49,14 +51,12 @@ if ($Uninstall) {
 
     $binDir = Join-Path $CompoundGpidDir "bin"
 
-    # Remove cg-* wrappers from bin\
+    # Package-owned wrappers are source files required for later reinstall.
     $wrappers = @(Get-ChildItem -Path $binDir -Filter 'cg-*' -ErrorAction SilentlyContinue)
-    foreach ($wrapper in $wrappers) {
-        Remove-Item -LiteralPath $wrapper.FullName -Force
-        Write-Host "  Removed: $($wrapper.Name)" -ForegroundColor DarkGray
-    }
     if ($wrappers.Count -eq 0) {
         Write-Host "  No cg-* wrappers found in $binDir" -ForegroundColor DarkGray
+    } else {
+        Write-Host "  Preserved $($wrappers.Count) package-owned cg-* wrappers in $binDir" -ForegroundColor DarkGray
     }
 
     # Remove bin\ from user PATH in registry
@@ -128,7 +128,7 @@ Write-Host "  Found: $gitVersion" -ForegroundColor DarkGray
 # All three candidates are verified against the Windows Store stub: Store stubs
 # register aliases (including python3 on Windows 11) that open the Store App
 # instead of running Python. Verification runs `<cmd> --version` and checks
-# that the output starts with "Python".
+# that the output starts with "Python" and the interpreter is Python 3.8+.
 Write-Host "Checking for Python..." -ForegroundColor DarkGray
 
 function Test-PythonCandidate {
@@ -138,7 +138,9 @@ function Test-PythonCandidate {
         $ver = & $Cmd --version 2>&1
         # $ver may be a string or ErrorRecord; normalise to string
         $verStr = "$ver".Trim()
-        return $verStr -match '^Python\s+\d'
+        if ($verStr -notmatch '^Python\s+\d') { return $false }
+        & $Cmd -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
+        return $LASTEXITCODE -eq 0
     } catch {
         return $false
     }
@@ -275,6 +277,22 @@ if (Test-Path $cgBrainInitCmdSrc) {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
 }
 
+# Copy cg-render-artifact.cmd from the committed file (single source of truth).
+$cgRenderArtifactCmdSrc = Join-Path $CompoundGpidDir "bin\cg-render-artifact.cmd"
+$cgRenderArtifactCmdDst = Join-Path $binDir "cg-render-artifact.cmd"
+if (Test-Path $cgRenderArtifactCmdSrc) {
+    $cgRenderArtifactSrcFull = [System.IO.Path]::GetFullPath($cgRenderArtifactCmdSrc)
+    $cgRenderArtifactDstFull = [System.IO.Path]::GetFullPath($cgRenderArtifactCmdDst)
+    if ($cgRenderArtifactSrcFull -ieq $cgRenderArtifactDstFull) {
+        Write-Host "  Already present: cg-render-artifact in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgRenderArtifactCmdSrc -Destination $cgRenderArtifactCmdDst -Force
+        Write-Host "  Copied:  cg-render-artifact in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-render-artifact.cmd not found in installation -- skipping cg-render-artifact wrapper."
+}
+
 # Copy cg-token-audit.cmd from the committed file (same Python resolver pattern
 # as cg-index.cmd).
 $cgTokenAuditCmdSrc = Join-Path $CompoundGpidDir "bin\cg-token-audit.cmd"
@@ -330,7 +348,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -369,6 +387,7 @@ Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update 
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host "  cg-render-artifact -- Render or validate one workflow artifact (run from project root)"
 Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"
 Write-Host ""
 Write-Host "Quick start:"

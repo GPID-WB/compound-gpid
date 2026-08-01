@@ -41,10 +41,17 @@ conflicting files are preserved.
 | `solutions/` | Verified reusable lessons from `/cg-compound` |
 | `strategy/` | `/cg-strategy` records |
 | `token/` | Token dashboard, context map, regression checks, and short-lived output evidence |
+| `views/brainstorms/` | Self-contained HTML derived from canonical Brainstorm Markdown |
+| `views/plans/` | Self-contained HTML derived from canonical Plan Markdown |
 | `work-reports/` | Delivery evidence and implementation summaries |
 
 Generated `BRAIN.md`, topic files, logs, and `brain-index.json` index these source
 artifacts. Preserve the source artifacts as the authority.
+
+Files under `.cg-docs/views/` are committed, regenerable outputs rather than a
+second source of truth. They contain visible and JSON provenance: source path,
+normalized source SHA-256, schema version, renderer version, and UTC timestamp.
+Do not edit them directly or load generated HTML bodies into model context.
 
 ## Related pages
 

@@ -15,7 +15,13 @@ contains the supported setup fields:
 | `r-syntax` | `data.table-collapse` or `tidyverse` | Selects the R manipulation dialect; `collapse` remains available for weighted statistics |
 | `project-type` | `package`, `analysis`, `dashboard`, `api`, `tool`, or `other` | Provides project-structure context |
 | `review-depth` | `light`, `standard`, or `thorough` | Sets the legacy default; `thorough` maps to `full` review |
+| `artifact-html` | `true` or `false` | Enables or suppresses automatic Brainstorm/Plan HTML writes; validation remains mandatory |
 | `cg-schema-version` | Date-prefixed schema identifier | Managed by updates; do not edit manually |
+
+`artifact-html: false` affects automatic writes only. It does not affect
+`cg-render-artifact <source>`, `--validate-only`, or `--check`, and it can never
+disable validation. Emitter flag `--no-html` is the one-run equivalent for the
+HTML write, not a project setting.
 
 ## Shared project context
 

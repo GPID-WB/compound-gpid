@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "tokens": {
+    "paper": "#f6f5f0",
+    "surface": "#ffffff",
+    "ink": "#17212b",
+    "muted": "#59636d",
+    "line": "#c8cdd1",
+    "accent": "#006b5f",
+    "accentStrong": "#004d45",
+    "signal": "#a63d21",
+    "code": "#eef1f3",
+    "focus": "#d43f00"
+  },
+  "typography": {
+    "display": ["Iowan Old Style", "Palatino Linotype", "serif"],
+    "interface": ["Avenir Next", "Segoe UI", "sans-serif"],
+    "code": ["SFMono-Regular", "Consolas", "monospace"],
+    "baseSize": "16px",
+    "letterSpacing": "0"
+  },
+  "layout": {
+    "measure": "78rem",
+    "desktopColumns": "minmax(12rem, 18rem) minmax(0, 1fr)",
+    "readingFlow": "unframed",
+    "mobileColumns": "1fr"
+  },
+  "breakpoints": ["48rem"],
+  "focus": {
+    "outlineWidth": "3px",
+    "outlineOffset": "3px",
+    "colorToken": "focus"
+  },
+  "motion": {
+    "smoothScroll": true,
+    "reduced": true
+  },
+  "print": {
+    "margin": "15mm",
+    "preservesCanonicalContent": true,
+    "repeatsTableHeaders": true,
+    "printsLinkTargets": true
+  },
+  "components": {
+    "persistentNavigation": true,
+    "overflowTables": true,
+    "visibleRawSource": true,
+    "nestedCards": false
+  }
+}

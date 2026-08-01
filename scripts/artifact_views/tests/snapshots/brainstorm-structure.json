@@ -1,0 +1,30 @@
+{
+  "artifactKind": "brainstorm",
+  "landmarks": ["header", "nav", "main", "article", "footer"],
+  "derived": ["approach-index", "navigation"],
+  "metaNames": [
+    "artifact-renderer-version",
+    "artifact-schema-version",
+    "artifact-source",
+    "artifact-source-sha256",
+    "viewport"
+  ],
+  "classes": [
+    "deck",
+    "derived-panel",
+    "eyebrow",
+    "layout",
+    "masthead",
+    "masthead-inner",
+    "provenance",
+    "provenance-inner",
+    "sidebar",
+    "skip-link",
+    "source-block",
+    "source-heading"
+  ],
+  "sourceOwnerCount": 14,
+  "sourceOwnersUnique": true,
+  "sourceLinesComplete": true,
+  "provenanceScript": true
+}

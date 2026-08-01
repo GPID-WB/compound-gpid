@@ -1,31 +1,27 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-07-31T13:57:43Z",
+  "updatedAt": "2026-08-01T03:02:52Z",
   "workflow": "/cg-work",
   "status": "blocked",
-  "branch": "docs/trusted-capability-adoption-strategy",
-  "plan": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
-  "executionReport": ".cg-docs/work-reports/2026-07-31-user-selected-model-advisory-routing.md",
-  "currentPhase": 4,
+  "branch": "feat/human-readable-workflow-artifacts",
+  "plan": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
+  "executionReport": ".cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
+  "currentPhase": null,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "scripts/tests generator and target checks"},
-    {"id": "V2", "status": "passed", "artifact": "80 advisory/audit pytest tests"},
-    {"id": "V3", "status": "passed", "artifact": "tests/last-run.json"},
-    {"id": "V4", "status": "passed", "artifact": "generated-target documentation and Pester assertions"},
-    {"id": "V5", "status": "blocked", "artifact": "clean-HEAD generated-target drift gate"},
-    {"id": "V6", "status": "blocked", "artifact": "full affected Python gate"},
-    {"id": "V7", "status": "passed", "artifact": "tests/last-run.json"},
-    {"id": "V8", "status": "passed", "artifact": ".cg-docs/cost/context-audit.json"}
+    {"id": "V1", "status": "passed", "artifact": "48 focused pytest tests"},
+    {"id": "V2", "status": "passed", "artifact": "90 focused pytest tests"},
+    {"id": "V3", "status": "passed", "artifact": ".cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json"},
+    {"id": "V4-V7", "status": "passed", "artifact": "Phase 4 CLI, Pester, isolation, and generated-target gates"}
   ],
   "unresolvedDecisions": [
-    {"id": "D1", "summary": "Commit the intended generated/canonical changes before rerunning the clean-HEAD drift and release gates.", "blocking": true}
+    {"id": "D1", "summary": "Fix and re-verify all open P0/P1 artifact-view review findings before merge.", "blocking": true}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-07-31-user-selected-model-advisory-routing.md", "status": "blocked"},
-    {"kind": "pester", "path": "tests/last-run.json", "status": "passed"},
-    {"kind": "context-audit", "path": ".cg-docs/cost/context-audit.json", "status": "passed"},
-    {"kind": "generated-targets", "path": ".agents/.compound-gpid-generated.json", "status": "regenerated-uncommitted"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md", "status": "active"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views-v2.md", "status": "blocked"},
+    {"kind": "brainstorm", "path": ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md", "status": "decided"},
+    {"kind": "pester", "path": "tests/last-run.json", "status": "passed-unfiltered"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md", "status": "open-blocking"}
   ],
-  "nextCommand": "python3 -m pytest scripts/tests/test_target_drift.py scripts/tests/test_release_gate_targets.py -q"
+  "nextCommand": "/cg-fix-triage P0 P1"
 }

@@ -107,6 +107,7 @@ brainstorm: "<link or null>"
 language: "<R|Python|Stata|both>"
 estimated-effort: "<small|medium|large>"
 deviation-policy: "<ask|autonomous|strict>"
+artifact-schema-version: 1
 tags: [<tags>]
 ---
 
@@ -157,6 +158,14 @@ tags: [<tags>]
 ### Blocked-Stop Conditions
 - ...
 ```
+
+After writing the plan and verifying the canonical Markdown path, load
+`.claude/shared/artifact-view.contract.md` and validate the saved source:
+
+- Normal flow: `cg-render-artifact --automatic <plan-path>`.
+- When the user supplied `--no-html`, run `cg-render-artifact --validate-only <plan-path>` instead; `--no-html` suppresses only this run's HTML write and never bypasses validation.
+- A nonzero result blocks handoff. Preserve the saved canonical Markdown and any prior valid view, and report the exact error and missing/stale/current expected
+   view path, and show `cg-render-artifact <plan-path>` as recovery.
 
 For Deep phased plans, add an optional `Phase` column to Verification Surface and Constraints tables. For Lightweight plans, a condensed contract (Outcome + Verification Surface only) is acceptable. See `.claude/shared/goal-execution.contract.md` for full schema details.
 

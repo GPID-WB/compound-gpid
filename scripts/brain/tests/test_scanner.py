@@ -6,11 +6,13 @@ Run from repo root:
 from __future__ import annotations
 
 import json
+import os
 import warnings
 from pathlib import Path
 
 import pytest
 
+import brain.scanner as scanner
 from brain.scanner import _DIR_TO_TYPE, scan_all, scan_roadmap
 
 
@@ -90,6 +92,70 @@ class TestScanAllEntityTypes:
 
         assert entities == []
         assert not any("Unknown .cg-docs/ subdirectory" in str(w.message) for w in caught)
+
+    def test_generated_views_are_skipped_without_warning_or_sentinel(self, tmp_path: Path) -> None:
+        sentinel = "VIEW_ONLY_SENTINEL_7E5C9A"
+        _write(tmp_path / ".cg-docs/views/plans/nested/view.html", f"<p>{sentinel}</p>")
+        _write(tmp_path / ".cg-docs/views/plans/nested/malformed.md", f"---\n{sentinel}")
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            entities = scan_all(tmp_path)
+
+        assert entities == []
+        assert not any(sentinel in entity.text for entity in entities)
+        assert not any("Unknown .cg-docs/ subdirectory" in str(item.message) for item in caught)
+
+    def test_plan_symlink_alias_to_view_is_not_indexed(self, tmp_path: Path) -> None:
+        sentinel = "VIEW_ALIAS_SENTINEL_A91D"
+        view = _write(
+            tmp_path / ".cg-docs/views/plans/view.html",
+            f"<p>{sentinel}</p>",
+        )
+        alias = tmp_path / ".cg-docs/plans/leak.md"
+        alias.parent.mkdir(parents=True)
+        alias.symlink_to(view)
+
+        entities = scan_all(tmp_path)
+
+        assert entities == []
+        assert sentinel not in "\n".join(entity.text for entity in entities)
+
+    def test_plan_hardlink_alias_to_view_is_not_indexed(self, tmp_path: Path) -> None:
+        sentinel = "VIEW_HARDLINK_SENTINEL_B62F"
+        view = _write(
+            tmp_path / ".cg-docs/views/plans/view.html",
+            f"<p>{sentinel}</p>",
+        )
+        alias = tmp_path / ".cg-docs/plans/leak.md"
+        alias.parent.mkdir(parents=True)
+        os.link(view, alias)
+
+        entities = scan_all(tmp_path)
+
+        assert entities == []
+
+    def test_path_swap_before_secure_read_cannot_expose_view(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        view = _write(tmp_path / ".cg-docs/views/plans/view.html", "view-secret")
+        source = _write(tmp_path / ".cg-docs/plans/source.md", _md("Source"))
+        original_read = scanner.secure_read_bytes
+        swapped = False
+
+        def swap_then_read(root: Path, relative: Path, **kwargs):
+            nonlocal swapped
+            if relative == Path(".cg-docs/plans/source.md") and not swapped:
+                source.unlink()
+                source.symlink_to(view)
+                swapped = True
+            return original_read(root, relative, **kwargs)
+
+        monkeypatch.setattr(scanner, "secure_read_bytes", swap_then_read)
+
+        assert scan_all(tmp_path) == []
 
     def test_files_directly_in_cg_docs_are_skipped(self, tmp_path: Path) -> None:
         """DIGEST.md at the top level must be skipped (rel_parts length == 1)."""
@@ -300,6 +366,7 @@ class TestDirToTypeMapping:
     def test_generated_audit_dirs_map_to_none(self) -> None:
         assert _DIR_TO_TYPE["cost"] is None
         assert _DIR_TO_TYPE["token"] is None
+        assert _DIR_TO_TYPE["views"] is None
 
     def test_known_types_present(self) -> None:
         for dir_name in ("solutions", "plans", "brainstorms", "reviews", "strategy"):

@@ -179,6 +179,7 @@ date: YYYY-MM-DD
 title: "<descriptive title>"
 status: decided
 scope: "<Lightweight|Standard|Deep|Focused|Extended|Strategic>"
+artifact-schema-version: 1
 chosen-approach: "<approach name>"
 tags: [<relevant tags>]
 ---
@@ -207,6 +208,14 @@ tags: [<relevant tags>]
 <For software/data tasks: concrete actions for handoff to /plan.
 For non-software tasks: follow-up decisions, experiments, or stakeholder consultations.>
 ```
+
+After saving the brainstorm and verifying the canonical Markdown path, load
+`.claude/shared/artifact-view.contract.md` and validate the saved source:
+
+- Normal flow: `cg-render-artifact --automatic <brainstorm-path>`.
+- When the user supplied `--no-html`, run `cg-render-artifact --validate-only <brainstorm-path>` instead; `--no-html` suppresses only this run's HTML write and never bypasses validation.
+- A nonzero result blocks handoff. Preserve the saved canonical Markdown and any prior valid view, and report the exact error and missing/stale/current expected
+  view path, and show `cg-render-artifact <brainstorm-path>` as recovery.
 
 ### Step 5: Handoff
 

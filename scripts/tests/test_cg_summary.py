@@ -42,6 +42,11 @@ def test_redact_secret_like_values() -> None:
     assert redacted.count("<redacted>") == 4
 
 
+def test_runtime_avoids_python_39_only_path_api() -> None:
+    source = Path(cg_summary.__file__).read_text(encoding="utf-8")
+    assert ".is_relative_to(" not in source
+
+
 def test_test_summary_reads_last_run_and_writes_redacted_artifact(tmp_path: Path) -> None:
     payload = {
         "totalCount": 3,
@@ -85,6 +90,26 @@ def test_diff_summary_reports_files_hunks_risks_and_artifacts(git_repo: Path) ->
     assert "token" in summary["risk_tags"]
     assert (git_repo / summary["raw_artifact"]).exists()
     assert (git_repo / summary["stat_artifact"]).exists()
+
+
+def test_diff_summary_lists_view_path_without_storing_html_body(git_repo: Path) -> None:
+    view = write(
+        git_repo / ".cg-docs/views/plans/example.html",
+        "<!doctype html><p>original</p>\n",
+    )
+    git(git_repo, "add", ".cg-docs/views/plans/example.html")
+    git(git_repo, "commit", "-m", "add generated view")
+    sentinel = "VIEW_ONLY_SENTINEL_7E5C9A"
+    view.write_text(f"<!doctype html><p>{sentinel}</p>\n", encoding="utf-8")
+
+    summary = cg_summary.diff_summary(git_repo, run_id="20260623-000001-views")
+    raw_patch = (git_repo / summary["raw_artifact"]).read_text(encoding="utf-8")
+
+    assert ".cg-docs/views/plans/example.html" in summary["changed_files"]
+    assert summary["excluded_body_paths"] == [
+        ".cg-docs/views/plans/example.html"
+    ]
+    assert sentinel not in raw_patch
 
 
 def test_log_summary_reports_branch_commits_and_notable_files(git_repo: Path) -> None:
