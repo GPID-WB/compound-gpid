@@ -152,14 +152,17 @@ def test_every_canonical_skill_recursively_matches_all_generated_targets() -> No
             for relative in canonical_inventory:
                 source = canonical / relative
                 output = generated / relative
-                if relative.casefold().endswith((".md", ".markdown")):
-                    source_identity = source.relative_to(REPO_ROOT).as_posix()
-                    expected = gen._rewrite_runtime_dependencies(
-                        source.read_text(encoding="utf-8"),
-                        targets[skill_root],
-                        assets,
-                        source_identity,
-                    ).encode("utf-8")
+                if relative.casefold().endswith(gen.NORMALIZED_TEXT_RESOURCE_SUFFIXES):
+                    expected_text = source.read_text(encoding="utf-8")
+                    if relative.casefold().endswith(gen.MARKDOWN_RESOURCE_SUFFIXES):
+                        source_identity = source.relative_to(REPO_ROOT).as_posix()
+                        expected_text = gen._rewrite_runtime_dependencies(
+                            expected_text,
+                            targets[skill_root],
+                            assets,
+                            source_identity,
+                        )
+                    expected = expected_text.encode("utf-8")
                     assert output.read_bytes() == expected
                 else:
                     assert hashlib.sha256(output.read_bytes()).digest() == hashlib.sha256(source.read_bytes()).digest()
@@ -225,7 +228,12 @@ def test_pilot_plan_has_exact_bytes_hashes_and_executable_flags_for_all_targets(
         for entry in entries:
             relative = Path(entry.destination).relative_to(Path(skill_root) / PILOT)
             source = root / ".github/skills" / PILOT / relative
-            expected = source.read_bytes()
+            if relative.as_posix().casefold().endswith(
+                gen.NORMALIZED_TEXT_RESOURCE_SUFFIXES
+            ):
+                expected = source.read_text(encoding="utf-8").encode("utf-8")
+            else:
+                expected = source.read_bytes()
             assert entry.source == source.relative_to(root).as_posix()
             assert entry.content == expected
             assert entry.sha256 == hashlib.sha256(expected).hexdigest()

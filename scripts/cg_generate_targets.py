@@ -63,6 +63,8 @@ CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
+MARKDOWN_RESOURCE_SUFFIXES = (".md", ".markdown")
+NORMALIZED_TEXT_RESOURCE_SUFFIXES = MARKDOWN_RESOURCE_SUFFIXES + (".html", ".htm")
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
     r"[^\s`'\"<>)/][^\s`'\"<>)]*"
@@ -958,9 +960,11 @@ def _render_output_entry(
                     "prompt-support", "instruction", "shared"):
             text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
         content = text.encode("utf-8")
-    elif source_identity.casefold().endswith((".md", ".markdown")):
+    elif source_identity.casefold().endswith(NORMALIZED_TEXT_RESOURCE_SUFFIXES):
         text = content.decode("utf-8")
-        text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        if source_identity.casefold().endswith(MARKDOWN_RESOURCE_SUFFIXES):
+            text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
         content = text.encode("utf-8")
     executable = bool(source.get("executable", False)) if source is not None else False
     return OutputEntry(

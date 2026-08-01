@@ -186,6 +186,39 @@ class TestGenerationPlan:
 
         assert first == second
 
+    def test_text_skill_resources_use_lf_and_binary_resources_keep_exact_bytes(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        skill_root = root / ".github/skills/cg-skill-test"
+        (skill_root / "references").mkdir()
+        (skill_root / "references/crlf.md").write_bytes(b"# Reference\r\n\r\nBody.\r\n")
+        (skill_root / "assets").mkdir()
+        (skill_root / "assets/template.html").write_bytes(b"<p>Brief</p>\r\n")
+        binary_content = b"\x00\r\n\xff"
+        (skill_root / "assets/pixels.dat").write_bytes(binary_content)
+
+        plan = gen.build_generation_plan(
+            root,
+            gen.load_target_mapping(root),
+            gen.scan_canonical_assets(root),
+        )
+        entries = {
+            entry.destination: entry.content
+            for entry in plan.by_target["claude-code"].entries
+        }
+
+        assert entries[".claude/skills/cg-skill-test/references/crlf.md"] == (
+            b"# Reference\n\nBody.\n"
+        )
+        assert entries[".claude/skills/cg-skill-test/assets/template.html"] == (
+            b"<p>Brief</p>\n"
+        )
+        assert entries[".claude/skills/cg-skill-test/assets/pixels.dat"] == (
+            binary_content
+        )
+
     def test_plan_exposes_target_results_without_stdout_parsing(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         plan = gen.build_generation_plan(
