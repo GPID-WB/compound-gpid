@@ -24,8 +24,11 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python3 --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            python3 "%~dp0..\scripts\team_brain\init.py" %*
-            exit /b %ERRORLEVEL%
+            python3 -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
+            if not errorlevel 1 (
+                set "PYTHON_CMD=python3"
+                goto run_python
+            )
         )
     )
 )
@@ -35,8 +38,11 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            python "%~dp0..\scripts\team_brain\init.py" %*
-            exit /b %ERRORLEVEL%
+            python -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
+            if not errorlevel 1 (
+                set "PYTHON_CMD=python"
+                goto run_python
+            )
         )
     )
 )
@@ -46,8 +52,11 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('py --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            py "%~dp0..\scripts\team_brain\init.py" %*
-            exit /b %ERRORLEVEL%
+            py -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" >nul 2>&1
+            if not errorlevel 1 (
+                set "PYTHON_CMD=py"
+                goto run_python
+            )
         )
     )
 )
@@ -56,3 +65,7 @@ echo ERROR: Python is not available (checked: python3, python, py). >&2
 echo Install from: https://www.python.org/downloads/ >&2
 echo Or via winget: winget install Python.Python.3.11 >&2
 exit /b 1
+
+:run_python
+%PYTHON_CMD% "%~dp0..\scripts\team_brain\init.py" %*
+exit /b %ERRORLEVEL%
