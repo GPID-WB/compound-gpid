@@ -503,6 +503,7 @@ is retained as a compact technical summary.
 | `cg-skill-git-workflow` | Branching, commits, PR templates, `.gitignore` |
 | `cg-skill-brainstorming` | Requirement elicitation and decision capture |
 | `cg-skill-compound-docs` | Knowledge capture and categorization system |
+| `cg-skill-standalone-html-brief` | Self-contained editorial HTML brief design system and template for turning brainstorms, plans, reviews, decisions, strategies, and methodology notes into accessible human-readable explainers. |
 | `cg-skill-wb-report-writing` | Progressive-disclosure World Bank institutional report-writing router with source-pack preflight, marker safety, and operation/type routing across PRWP, policy briefs, executive summaries, flagship sections, country narratives, technical methodology, internal memos, and data blogs. |
 | `cg-skill-fix-triage-migrate` | Migration mode for `/cg-fix-triage --migrate`: backfills `findings:` tracking frontmatter on legacy review files. Does NOT apply fixes. |
 | `cg-skill-project-scanner` | Project scanner signal catalog for `/cg-setup`: language/framework detection (Tier 1), project type signals (Tier 2), charter-draft content extraction (Tier 3). Dispatched by `@cg-project-scanner`. |

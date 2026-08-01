@@ -10,13 +10,13 @@ release contains generated copies for several agent platforms.
 |---|---|
 | Analyze data, estimate models, manage surveys, calculate poverty measures, or create charts | [Analysis and Economics](analysis.md) |
 | Build technical systems, test code, manage versions, or support platform tooling | [Development and Testing](development.md) |
-| Clarify requirements, retain knowledge, write institutional documents, or maintain a wiki | [Institutional Knowledge](institutional.md) |
+| Clarify requirements, retain knowledge, create visual briefs, write institutional documents, or maintain a wiki | [Institutional Knowledge](institutional.md) |
 
-The catalog currently contains 22 canonical skills:
+The catalog currently contains 23 canonical skills:
 
 - 8 analysis and economics skills.
 - 8 development, testing, reproducibility, and platform skills.
-- 6 institutional knowledge and documentation skills.
+- 7 institutional knowledge and documentation skills.
 
 ## Availability labels
 
@@ -48,11 +48,11 @@ canonical directory set so a new, removed, or renamed skill cannot silently
 leave the catalog inconsistent.
 
 Canonical skill directories may also contain `references/`, `workflows/`,
-`packages/`, source packs, or evaluation files. Those supporting files are the
-detailed source when a skill directs an agent to load them progressively. The
-current generated runtime mirrors include `SKILL.md` files but not all
-supporting files; this known packaging gap is recorded in the
-[documentation migration audit](../about/documentation-audit.md).
+`assets/`, `packages/`, source packs, or evaluation files. Those supporting
+files are the detailed source when a skill directs an agent to load them
+progressively. Each canonical skill directory is packaged as an atomic bundle,
+so its supporting resources are mirrored with `SKILL.md` in every generated
+runtime target.
 
 ## Related pages
 

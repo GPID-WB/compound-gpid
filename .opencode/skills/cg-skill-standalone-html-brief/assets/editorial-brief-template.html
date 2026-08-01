@@ -1,0 +1,1788 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{DOCUMENT_DESCRIPTION}}">
+  <title>{{DOCUMENT_TITLE}}</title>
+  <style>
+    :root {
+      --ink: #181816;
+      --muted: #5d625f;
+      --paper: #fbfbf8;
+      --white: #ffffff;
+      --line: #d8dcd8;
+      --soft-line: #e9ebe8;
+      --coral: #e94f2d;
+      --coral-soft: #fff0eb;
+      --teal: #087c70;
+      --teal-soft: #e8f5f2;
+      --blue: #2856c7;
+      --blue-soft: #edf1ff;
+      --yellow: #f2c84b;
+      --yellow-soft: #fff8dc;
+      --success: #18734c;
+      --danger: #b8322a;
+      --content: 1180px;
+      --radius: 6px;
+      --header-height: 64px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--header-height) + 24px);
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    button,
+    a,
+    code {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      padding: 0.12em 0.34em;
+      border: 1px solid #d9d9d3;
+      border-radius: 3px;
+      background: #f1f1ed;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+      overflow-wrap: anywhere;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 950px;
+      margin-bottom: 22px;
+      font-size: 76px;
+    }
+
+    h2 {
+      max-width: 820px;
+      margin-bottom: 22px;
+      font-size: 46px;
+    }
+
+    h3 {
+      margin-bottom: 16px;
+      font-size: 30px;
+    }
+
+    h4 {
+      margin-bottom: 12px;
+      font-size: 17px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin-top: 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li {
+      margin-top: 9px;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 1000;
+      top: 8px;
+      left: 8px;
+      padding: 9px 12px;
+      transform: translateY(-160%);
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .progress {
+      position: fixed;
+      z-index: 1001;
+      inset: 0 auto auto 0;
+      width: 0;
+      height: 4px;
+      background: var(--coral);
+    }
+
+    .site-header {
+      position: sticky;
+      z-index: 100;
+      top: 0;
+      height: var(--header-height);
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 251, 248, 0.96);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner,
+    .section-inner,
+    .hero-inner,
+    .footer-inner {
+      width: min(calc(100% - 40px), var(--content));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: max-content;
+      gap: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+      background: var(--yellow);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 15px;
+    }
+
+    .brand-label {
+      font-size: 14px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .site-nav a {
+      position: relative;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .site-nav a::after {
+      position: absolute;
+      right: 0;
+      bottom: -8px;
+      left: 0;
+      height: 2px;
+      transform: scaleX(0);
+      background: var(--coral);
+      content: "";
+      transform-origin: left;
+      transition: transform 180ms ease;
+    }
+
+    .site-nav a:hover,
+    .site-nav a[aria-current="true"] {
+      color: var(--ink);
+    }
+
+    .site-nav a[aria-current="true"]::after {
+      transform: scaleX(1);
+    }
+
+    .print-button {
+      min-height: 38px;
+      padding: 7px 13px;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .print-button:hover,
+    .print-button:focus-visible {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .hero {
+      position: relative;
+      display: flex;
+      min-height: calc(100svh - 170px);
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(rgba(24, 24, 22, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 24, 22, 0.045) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      right: 0;
+      content: "";
+    }
+
+    .hero::before {
+      top: 0;
+      width: 24%;
+      height: 12px;
+      background: var(--coral);
+    }
+
+    .hero::after {
+      bottom: 0;
+      width: 41%;
+      height: 10px;
+      background: var(--teal);
+    }
+
+    .hero-inner {
+      display: grid;
+      align-content: center;
+      padding: 62px 0 72px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      margin-bottom: 22px;
+      gap: 10px;
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 30px;
+      height: 3px;
+      background: currentColor;
+      content: "";
+    }
+
+    .hero-lead {
+      max-width: 850px;
+      margin-bottom: 34px;
+      color: #3f4441;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.5;
+    }
+
+    .hero-lower {
+      display: grid;
+      grid-template-columns: 1fr 1.45fr;
+      align-items: end;
+      gap: 48px;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+      border-top: 1px solid var(--ink);
+    }
+
+    .meta-item {
+      padding: 12px 12px 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .meta-item dt {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .meta-item dd {
+      margin: 2px 0 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .hero-visual {
+      display: grid;
+      grid-template-columns: 1fr 44px 1.35fr 44px 0.9fr;
+      min-height: 150px;
+    }
+
+    .visual-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 18px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .visual-block:nth-child(1) {
+      background: var(--coral-soft);
+    }
+
+    .visual-block:nth-child(3) {
+      background: var(--teal-soft);
+    }
+
+    .visual-block:nth-child(5) {
+      background: var(--yellow-soft);
+    }
+
+    .visual-block strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+    }
+
+    .visual-block span {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .visual-arrow {
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .section-band {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-band.white {
+      background: var(--white);
+    }
+
+    .section-band.green {
+      background: #f0f7f4;
+    }
+
+    .section-band.warm {
+      background: #fff6f1;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      margin-bottom: 52px;
+      gap: 48px;
+    }
+
+    .section-index {
+      padding-top: 9px;
+      color: var(--coral);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .section-summary {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .context-grid,
+    .rules-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+      gap: 72px;
+    }
+
+    .narrative p {
+      max-width: 760px;
+    }
+
+    .narrative p:first-child::first-letter {
+      float: left;
+      margin: 7px 10px 0 0;
+      color: var(--coral);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 0.75;
+    }
+
+    .evidence-panel {
+      align-self: start;
+      border-top: 4px solid var(--ink);
+    }
+
+    .evidence-title {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: baseline;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line);
+      gap: 18px;
+    }
+
+    .metric strong {
+      color: var(--blue);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .signal-box {
+      margin-top: 22px;
+      padding: 18px;
+      border-left: 5px solid var(--coral);
+      background: var(--coral-soft);
+      font-size: 14px;
+    }
+
+    .requirements-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 52px 64px;
+    }
+
+    .requirement-group {
+      padding-top: 20px;
+      border-top: 5px solid var(--ink);
+    }
+
+    .requirement-group:nth-child(4n + 1) {
+      border-color: var(--coral);
+    }
+
+    .requirement-group:nth-child(4n + 2) {
+      border-color: var(--teal);
+    }
+
+    .requirement-group:nth-child(4n + 3) {
+      border-color: var(--blue);
+    }
+
+    .requirement-group:nth-child(4n + 4) {
+      border-color: var(--yellow);
+    }
+
+    .requirement-group h3 {
+      font-size: 26px;
+    }
+
+    .risk-strip {
+      display: grid;
+      grid-template-columns: 160px repeat(3, 1fr);
+      margin-top: 64px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--white);
+      overflow: hidden;
+    }
+
+    .risk-label,
+    .risk-item {
+      padding: 20px;
+    }
+
+    .risk-label {
+      display: grid;
+      place-items: center start;
+      color: var(--yellow);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .risk-item {
+      border-left: 1px solid #55554f;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .comparison-table-wrap {
+      margin-bottom: 62px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+    }
+
+    .comparison-table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .comparison-table thead th {
+      background: var(--ink);
+      color: var(--white);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .comparison-table tbody th {
+      width: 22%;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+    }
+
+    .comparison-table tbody tr:last-child > * {
+      border-bottom: 0;
+    }
+
+    .comparison-table .selected-row {
+      background: var(--teal-soft);
+    }
+
+    .recommendation {
+      display: inline-block;
+      padding: 4px 7px;
+      border-radius: 3px;
+      background: var(--success);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .approach {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      padding: 58px 0 66px;
+      border-top: 2px solid var(--ink);
+      gap: 34px;
+    }
+
+    .approach:last-child {
+      padding-bottom: 0;
+    }
+
+    .approach-number {
+      color: #d2d5d1;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 88px;
+      font-weight: 700;
+      line-height: 0.85;
+    }
+
+    .approach.selected .approach-number {
+      color: var(--teal);
+    }
+
+    .approach-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 30px;
+    }
+
+    .approach-heading h3 {
+      max-width: 690px;
+      margin-bottom: 0;
+      font-size: 34px;
+    }
+
+    .effort {
+      min-width: 112px;
+      padding: 8px 10px;
+      border: 1px solid var(--ink);
+      border-radius: 3px;
+      background: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .approach-summary {
+      max-width: 850px;
+      color: #3f4441;
+      font-size: 19px;
+    }
+
+    .tradeoffs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 34px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tradeoff-column {
+      padding: 24px 28px 18px 0;
+    }
+
+    .tradeoff-column + .tradeoff-column {
+      padding-right: 0;
+      padding-left: 28px;
+      border-left: 1px solid var(--line);
+    }
+
+    .tradeoff-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 700;
+    }
+
+    .tradeoff-mark {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      place-items: center;
+      border-radius: 3px;
+      color: var(--white);
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .pros .tradeoff-mark {
+      background: var(--success);
+    }
+
+    .cons .tradeoff-mark {
+      background: var(--danger);
+    }
+
+    .tradeoff-column ul {
+      padding-left: 1.1rem;
+      font-size: 15px;
+    }
+
+    .approach-verdict {
+      margin-top: 24px;
+      padding-left: 18px;
+      border-left: 4px solid var(--ink);
+      font-size: 15px;
+    }
+
+    .approach.selected .approach-verdict {
+      border-color: var(--teal);
+    }
+
+    .decision-band {
+      position: relative;
+      padding: 96px 0;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .decision-band::before,
+    .decision-band::after {
+      position: absolute;
+      height: 10px;
+      content: "";
+    }
+
+    .decision-band::before {
+      top: 0;
+      left: 0;
+      width: 28%;
+      background: var(--yellow);
+    }
+
+    .decision-band::after {
+      right: 0;
+      bottom: 0;
+      width: 38%;
+      background: var(--coral);
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 80px;
+    }
+
+    .decision-label {
+      color: var(--yellow);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .decision-band h2 {
+      margin-top: 18px;
+      color: var(--white);
+    }
+
+    .decision-lead {
+      margin-bottom: 30px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.48;
+    }
+
+    .decision-copy p {
+      color: #d9dbd6;
+    }
+
+    .decision-copy strong {
+      color: var(--white);
+    }
+
+    .numbered-rules {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: rule;
+    }
+
+    .numbered-rules li {
+      position: relative;
+      min-height: 60px;
+      margin: 0;
+      padding: 14px 0 14px 54px;
+      border-bottom: 1px solid var(--line);
+      counter-increment: rule;
+    }
+
+    .numbered-rules li::before {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      content: counter(rule);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .concept-map {
+      display: grid;
+      padding: 24px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 8px 8px 0 var(--yellow);
+      gap: 16px;
+    }
+
+    .map-level {
+      padding: 19px;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+    }
+
+    .map-level:nth-child(1) {
+      background: var(--coral-soft);
+    }
+
+    .map-level:nth-child(3) {
+      background: var(--teal-soft);
+    }
+
+    .map-level:nth-child(5) {
+      background: var(--yellow-soft);
+    }
+
+    .map-level strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+    }
+
+    .map-level span {
+      display: block;
+      color: #474b48;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .map-arrow {
+      height: 22px;
+      margin: -5px auto;
+      border-left: 2px solid var(--ink);
+    }
+
+    .map-note {
+      padding: 14px;
+      border: 1px dashed var(--danger);
+      border-radius: 4px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 920px;
+      margin-left: 58px;
+      padding-left: 58px;
+      counter-reset: step;
+    }
+
+    .timeline::before {
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      left: 17px;
+      width: 2px;
+      background: var(--ink);
+      content: "";
+    }
+
+    .timeline-step {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--white);
+      counter-increment: step;
+    }
+
+    .timeline-step::before {
+      position: absolute;
+      top: 18px;
+      left: -58px;
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--yellow);
+      content: counter(step);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .timeline-step strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+    }
+
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 2px solid var(--ink);
+    }
+
+    .question {
+      min-height: 175px;
+      margin: 0;
+      padding: 26px 30px 26px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      line-height: 1.45;
+    }
+
+    .question:nth-child(even) {
+      padding-right: 0;
+      padding-left: 30px;
+      border-left: 1px solid var(--line);
+    }
+
+    .question::before {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--coral);
+      content: "Open question";
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .page-footer {
+      padding: 44px 0;
+      background: var(--ink);
+      color: #cfd1cc;
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .footer-inner strong {
+      color: var(--white);
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .footer-tag {
+      padding: 3px 7px;
+      border: 1px solid #55564f;
+      border-radius: 3px;
+      color: #dcddd8;
+    }
+
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero .eyebrow,
+    .hero h1,
+    .hero-lead,
+    .hero-lower {
+      animation: intro-rise 620ms both;
+    }
+
+    .hero h1 {
+      animation-delay: 70ms;
+    }
+
+    .hero-lead {
+      animation-delay: 140ms;
+    }
+
+    .hero-lower {
+      animation-delay: 210ms;
+    }
+
+    @keyframes intro-rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .site-nav a:nth-child(even) {
+        display: none;
+      }
+
+      h1 {
+        font-size: 58px;
+      }
+
+      h2 {
+        font-size: 40px;
+      }
+
+      .hero-lower,
+      .context-grid,
+      .rules-layout,
+      .decision-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-lower,
+      .context-grid,
+      .rules-layout,
+      .decision-grid {
+        gap: 40px;
+      }
+
+      .risk-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .risk-item {
+        border-top: 1px solid #55554f;
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
+      :root {
+        --header-height: 56px;
+      }
+
+      body {
+        font-size: 16px;
+      }
+
+      .header-inner,
+      .section-inner,
+      .hero-inner,
+      .footer-inner {
+        width: min(calc(100% - 28px), var(--content));
+      }
+
+      .brand-label,
+      .site-nav {
+        display: none;
+      }
+
+      .print-button {
+        margin-left: auto;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-inner {
+        padding: 42px 0 50px;
+      }
+
+      h1 {
+        font-size: 43px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      h3 {
+        font-size: 26px;
+      }
+
+      .hero-lead {
+        margin-bottom: 26px;
+        font-size: 19px;
+      }
+
+      .hero-visual {
+        grid-template-columns: 1fr 18px 1fr 18px 1fr;
+        min-height: 76px;
+      }
+
+      .visual-block {
+        min-height: 76px;
+        padding: 9px;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+
+      .visual-block strong {
+        font-size: 15px;
+        line-height: 1.15;
+      }
+
+      .visual-block span {
+        display: none;
+      }
+
+      .visual-arrow {
+        font-size: 15px;
+      }
+
+      .section-band,
+      .decision-band {
+        padding: 68px 0;
+      }
+
+      .section-head,
+      .requirements-grid,
+      .tradeoffs,
+      .question-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        margin-bottom: 38px;
+        gap: 8px;
+      }
+
+      .requirements-grid {
+        gap: 38px;
+      }
+
+      .approach {
+        grid-template-columns: 1fr;
+        padding: 48px 0;
+        gap: 18px;
+      }
+
+      .approach-number {
+        font-size: 62px;
+      }
+
+      .approach-heading {
+        display: block;
+      }
+
+      .approach-heading h3 {
+        margin-bottom: 16px;
+        font-size: 29px;
+      }
+
+      .effort {
+        display: inline-block;
+      }
+
+      .tradeoff-column,
+      .tradeoff-column + .tradeoff-column {
+        padding: 22px 0;
+        border-left: 0;
+      }
+
+      .tradeoff-column + .tradeoff-column {
+        border-top: 1px solid var(--line);
+      }
+
+      .timeline {
+        margin-left: 0;
+        padding-left: 42px;
+      }
+
+      .timeline::before {
+        left: 14px;
+      }
+
+      .timeline-step {
+        padding: 16px;
+      }
+
+      .timeline-step::before {
+        left: -44px;
+        width: 30px;
+        height: 30px;
+      }
+
+      .question,
+      .question:nth-child(even) {
+        min-height: 0;
+        padding: 24px 0;
+        border-left: 0;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .tag-list {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        font-size: 11pt;
+      }
+
+      .site-header,
+      .progress,
+      .print-button {
+        display: none !important;
+      }
+
+      .hero {
+        min-height: auto;
+        background: #ffffff;
+      }
+
+      .hero-inner,
+      .section-band,
+      .decision-band {
+        padding-top: 28px;
+        padding-bottom: 28px;
+      }
+
+      .approach,
+      .timeline-step {
+        break-inside: avoid;
+      }
+
+      [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+
+      .decision-band,
+      .page-footer {
+        background: #ffffff;
+        color: #000000;
+      }
+
+      .decision-band h2,
+      .decision-band p,
+      .decision-band strong,
+      .page-footer,
+      .page-footer strong,
+      .decision-label {
+        color: #000000;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!--
+    TEMPLATE USE:
+    1. Replace every {{PLACEHOLDER}}.
+    2. Duplicate or remove content blocks to match the source document.
+    3. Preserve semantic heading order and all source facts.
+    4. Do not add external runtime dependencies.
+  -->
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#overview" aria-label="{{SHORT_TITLE}} overview">
+        <span class="brand-mark" aria-hidden="true">{{MARK}}</span>
+        <span class="brand-label">{{DOCUMENT_TYPE}}<br>Brief</span>
+      </a>
+      <nav class="site-nav" aria-label="Page sections">
+        <a href="#context">Context</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#approaches">Approaches</a>
+        <a href="#decision">Decision</a>
+        <a href="#next-steps">Next steps</a>
+      </nav>
+      <button class="print-button" id="print-button" type="button" title="Open the browser print dialog">Print / PDF</button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" id="overview" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <p class="eyebrow">{{DOCUMENT_TYPE}} / {{STATUS}} / {{DATE}}</p>
+        <h1 id="page-title">{{DOCUMENT_TITLE}}</h1>
+        <p class="hero-lead">{{ONE_OR_TWO_SENTENCE_SUMMARY}}</p>
+
+        <div class="hero-lower">
+          <dl class="meta-list" aria-label="Document metadata">
+            <div class="meta-item">
+              <dt>Status</dt>
+              <dd>{{STATUS}}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Scope</dt>
+              <dd>{{SCOPE}}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Decision</dt>
+              <dd>{{CHOSEN_APPROACH}}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Owner</dt>
+              <dd>{{OWNER_OR_PROJECT}}</dd>
+            </div>
+          </dl>
+
+          <!-- Replace this three-part visual with a subject-specific summary. -->
+          <div class="hero-visual" aria-label="{{HERO_VISUAL_ACCESSIBLE_SUMMARY}}">
+            <div class="visual-block">
+              <strong>{{VISUAL_BLOCK_1_TITLE}}</strong>
+              <span>{{VISUAL_BLOCK_1_DETAIL}}</span>
+            </div>
+            <div class="visual-arrow" aria-hidden="true">&rarr;</div>
+            <div class="visual-block">
+              <strong>{{VISUAL_BLOCK_2_TITLE}}</strong>
+              <span>{{VISUAL_BLOCK_2_DETAIL}}</span>
+            </div>
+            <div class="visual-arrow" aria-hidden="true">&rarr;</div>
+            <div class="visual-block">
+              <strong>{{VISUAL_BLOCK_3_TITLE}}</strong>
+              <span>{{VISUAL_BLOCK_3_DETAIL}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="context" data-section="context">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">01 / Context</div>
+          <div>
+            <h2>{{CONTEXT_HEADING}}</h2>
+            <p class="section-summary">{{CONTEXT_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="context-grid">
+          <div class="narrative" data-reveal>
+            <p>{{CONTEXT_PARAGRAPH_1}}</p>
+            <p>{{CONTEXT_PARAGRAPH_2}}</p>
+            <p>{{CONTEXT_PARAGRAPH_3}}</p>
+          </div>
+          <aside class="evidence-panel" aria-label="Key evidence" data-reveal>
+            <div class="evidence-title">{{EVIDENCE_TITLE}}</div>
+            <div class="metric"><strong>{{METRIC_1}}</strong><span>{{METRIC_1_LABEL}}</span></div>
+            <div class="metric"><strong>{{METRIC_2}}</strong><span>{{METRIC_2_LABEL}}</span></div>
+            <div class="metric"><strong>{{METRIC_3}}</strong><span>{{METRIC_3_LABEL}}</span></div>
+            <div class="signal-box"><strong>{{SIGNAL_TITLE}}</strong>{{SIGNAL_TEXT}}</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band green" id="requirements" data-section="requirements">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">02 / Requirements</div>
+          <div>
+            <h2>{{REQUIREMENTS_HEADING}}</h2>
+            <p class="section-summary">{{REQUIREMENTS_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="requirements-grid">
+          <section class="requirement-group" data-reveal>
+            <h3>{{GROUP_1_TITLE}}</h3>
+            <ul>
+              <li>{{GROUP_1_ITEM_1}}</li>
+              <li>{{GROUP_1_ITEM_2}}</li>
+              <li>{{GROUP_1_ITEM_3}}</li>
+            </ul>
+          </section>
+          <section class="requirement-group" data-reveal>
+            <h3>{{GROUP_2_TITLE}}</h3>
+            <ul>
+              <li>{{GROUP_2_ITEM_1}}</li>
+              <li>{{GROUP_2_ITEM_2}}</li>
+              <li>{{GROUP_2_ITEM_3}}</li>
+            </ul>
+          </section>
+          <section class="requirement-group" data-reveal>
+            <h3>{{GROUP_3_TITLE}}</h3>
+            <ul>
+              <li>{{GROUP_3_ITEM_1}}</li>
+              <li>{{GROUP_3_ITEM_2}}</li>
+              <li>{{GROUP_3_ITEM_3}}</li>
+            </ul>
+          </section>
+          <section class="requirement-group" data-reveal>
+            <h3>{{GROUP_4_TITLE}}</h3>
+            <ul>
+              <li>{{GROUP_4_ITEM_1}}</li>
+              <li>{{GROUP_4_ITEM_2}}</li>
+              <li>{{GROUP_4_ITEM_3}}</li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="risk-strip" aria-label="Highest-priority risks" data-reveal>
+          <div class="risk-label">Prevent first</div>
+          <div class="risk-item">{{RISK_1}}</div>
+          <div class="risk-item">{{RISK_2}}</div>
+          <div class="risk-item">{{RISK_3}}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band warm" id="approaches" data-section="approaches">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">03 / Alternatives</div>
+          <div>
+            <h2>{{APPROACHES_HEADING}}</h2>
+            <p class="section-summary">{{APPROACHES_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="comparison-table-wrap" data-reveal>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th scope="col">Approach</th>
+                <th scope="col">Core idea</th>
+                <th scope="col">Effort</th>
+                <th scope="col">Primary risk</th>
+                <th scope="col">Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected-row">
+                <th scope="row">{{APPROACH_1_SHORT_TITLE}}</th>
+                <td>{{APPROACH_1_CORE_IDEA}}</td>
+                <td>{{APPROACH_1_EFFORT}}</td>
+                <td>{{APPROACH_1_PRIMARY_RISK}}</td>
+                <td><span class="recommendation">Chosen</span></td>
+              </tr>
+              <tr>
+                <th scope="row">{{APPROACH_2_SHORT_TITLE}}</th>
+                <td>{{APPROACH_2_CORE_IDEA}}</td>
+                <td>{{APPROACH_2_EFFORT}}</td>
+                <td>{{APPROACH_2_PRIMARY_RISK}}</td>
+                <td>{{APPROACH_2_VERDICT}}</td>
+              </tr>
+              <tr>
+                <th scope="row">{{APPROACH_3_SHORT_TITLE}}</th>
+                <td>{{APPROACH_3_CORE_IDEA}}</td>
+                <td>{{APPROACH_3_EFFORT}}</td>
+                <td>{{APPROACH_3_PRIMARY_RISK}}</td>
+                <td>{{APPROACH_3_VERDICT}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Duplicate or remove approach articles to match the source exactly. -->
+        <article class="approach selected" data-reveal>
+          <div class="approach-number" aria-hidden="true">01</div>
+          <div>
+            <div class="approach-heading">
+              <h3>{{APPROACH_1_TITLE}}</h3>
+              <span class="effort">Effort: {{APPROACH_1_EFFORT}}</span>
+            </div>
+            <p class="approach-summary">{{APPROACH_1_SUMMARY}}</p>
+            <p>{{APPROACH_1_EXPLANATION}}</p>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>{{APPROACH_1_PRO_1}}</li>
+                  <li>{{APPROACH_1_PRO_2}}</li>
+                  <li>{{APPROACH_1_PRO_3}}</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>{{APPROACH_1_CON_1}}</li>
+                  <li>{{APPROACH_1_CON_2}}</li>
+                  <li>{{APPROACH_1_CON_3}}</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>{{APPROACH_1_VERDICT_LABEL}}</strong> {{APPROACH_1_VERDICT_TEXT}}</p>
+          </div>
+        </article>
+
+        <article class="approach" data-reveal>
+          <div class="approach-number" aria-hidden="true">02</div>
+          <div>
+            <div class="approach-heading">
+              <h3>{{APPROACH_2_TITLE}}</h3>
+              <span class="effort">Effort: {{APPROACH_2_EFFORT}}</span>
+            </div>
+            <p class="approach-summary">{{APPROACH_2_SUMMARY}}</p>
+            <p>{{APPROACH_2_EXPLANATION}}</p>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>{{APPROACH_2_PRO_1}}</li>
+                  <li>{{APPROACH_2_PRO_2}}</li>
+                  <li>{{APPROACH_2_PRO_3}}</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>{{APPROACH_2_CON_1}}</li>
+                  <li>{{APPROACH_2_CON_2}}</li>
+                  <li>{{APPROACH_2_CON_3}}</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>{{APPROACH_2_VERDICT_LABEL}}</strong> {{APPROACH_2_VERDICT_TEXT}}</p>
+          </div>
+        </article>
+
+        <article class="approach" data-reveal>
+          <div class="approach-number" aria-hidden="true">03</div>
+          <div>
+            <div class="approach-heading">
+              <h3>{{APPROACH_3_TITLE}}</h3>
+              <span class="effort">Effort: {{APPROACH_3_EFFORT}}</span>
+            </div>
+            <p class="approach-summary">{{APPROACH_3_SUMMARY}}</p>
+            <p>{{APPROACH_3_EXPLANATION}}</p>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>{{APPROACH_3_PRO_1}}</li>
+                  <li>{{APPROACH_3_PRO_2}}</li>
+                  <li>{{APPROACH_3_PRO_3}}</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>{{APPROACH_3_CON_1}}</li>
+                  <li>{{APPROACH_3_CON_2}}</li>
+                  <li>{{APPROACH_3_CON_3}}</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>{{APPROACH_3_VERDICT_LABEL}}</strong> {{APPROACH_3_VERDICT_TEXT}}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="decision-band" id="decision" data-section="decision">
+      <div class="section-inner decision-grid">
+        <div data-reveal>
+          <div class="decision-label">The decision</div>
+          <h2>{{DECISION_HEADING}}</h2>
+        </div>
+        <div class="decision-copy" data-reveal>
+          <p class="decision-lead">{{DECISION_LEAD}}</p>
+          <p>{{DECISION_RATIONALE}}</p>
+          <p><strong>{{ALTERNATIVES_DISPOSITION_LABEL}}</strong> {{ALTERNATIVES_DISPOSITION}}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="rules" data-section="rules">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">04 / Rules</div>
+          <div>
+            <h2>{{RULES_HEADING}}</h2>
+            <p class="section-summary">{{RULES_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="rules-layout">
+          <ol class="numbered-rules" data-reveal>
+            <li>{{RULE_1}}</li>
+            <li>{{RULE_2}}</li>
+            <li>{{RULE_3}}</li>
+            <li>{{RULE_4}}</li>
+            <li>{{RULE_5}}</li>
+          </ol>
+          <div class="concept-map" aria-label="{{CONCEPT_MAP_ACCESSIBLE_SUMMARY}}" data-reveal>
+            <div class="map-level"><strong>{{MAP_LEVEL_1}}</strong><span>{{MAP_LEVEL_1_DETAIL}}</span></div>
+            <div class="map-arrow" aria-hidden="true"></div>
+            <div class="map-level"><strong>{{MAP_LEVEL_2}}</strong><span>{{MAP_LEVEL_2_DETAIL}}</span></div>
+            <div class="map-arrow" aria-hidden="true"></div>
+            <div class="map-level"><strong>{{MAP_LEVEL_3}}</strong><span>{{MAP_LEVEL_3_DETAIL}}</span></div>
+            <div class="map-note">{{MAP_FORBIDDEN_OR_CAUTION_NOTE}}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band green" id="next-steps" data-section="next-steps">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">05 / Next steps</div>
+          <div>
+            <h2>{{NEXT_STEPS_HEADING}}</h2>
+            <p class="section-summary">{{NEXT_STEPS_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="timeline" data-reveal>
+          <div class="timeline-step"><strong>{{STEP_1_TITLE}}</strong>{{STEP_1_DETAIL}}</div>
+          <div class="timeline-step"><strong>{{STEP_2_TITLE}}</strong>{{STEP_2_DETAIL}}</div>
+          <div class="timeline-step"><strong>{{STEP_3_TITLE}}</strong>{{STEP_3_DETAIL}}</div>
+          <div class="timeline-step"><strong>{{STEP_4_TITLE}}</strong>{{STEP_4_DETAIL}}</div>
+          <div class="timeline-step"><strong>{{STEP_5_TITLE}}</strong>{{STEP_5_DETAIL}}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band warm" id="open-questions" data-section="open-questions">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">06 / Open questions</div>
+          <div>
+            <h2>{{OPEN_QUESTIONS_HEADING}}</h2>
+            <p class="section-summary">{{OPEN_QUESTIONS_SUMMARY}}</p>
+          </div>
+        </div>
+
+        <div class="question-grid" data-reveal>
+          <p class="question">{{OPEN_QUESTION_1}}</p>
+          <p class="question">{{OPEN_QUESTION_2}}</p>
+          <p class="question">{{OPEN_QUESTION_3}}</p>
+          <p class="question">{{OPEN_QUESTION_4}}</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div><strong>{{DOCUMENT_TITLE}}</strong><br>{{FOOTER_NOTE}}</div>
+      <div class="tag-list" aria-label="Topics">
+        <span class="footer-tag">{{TAG_1}}</span>
+        <span class="footer-tag">{{TAG_2}}</span>
+        <span class="footer-tag">{{TAG_3}}</span>
+        <span class="footer-tag">{{TAG_4}}</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var progress = document.getElementById("progress");
+      var printButton = document.getElementById("print-button");
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll(".site-nav a"));
+      var sections = Array.prototype.slice.call(document.querySelectorAll("[data-section]"));
+      var revealItems = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+
+      function updateProgress() {
+        var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+        progress.style.width = Math.min(100, Math.max(0, ratio * 100)) + "%";
+      }
+
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      window.addEventListener("resize", updateProgress);
+      updateProgress();
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+
+      if ("IntersectionObserver" in window) {
+        var revealObserver = new IntersectionObserver(function (entries, observer) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+
+        revealItems.forEach(function (item) {
+          revealObserver.observe(item);
+        });
+
+        var sectionObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) {
+              return;
+            }
+            navLinks.forEach(function (link) {
+              var isCurrent = link.getAttribute("href") === "#" + entry.target.id;
+              if (isCurrent) {
+                link.setAttribute("aria-current", "true");
+              } else {
+                link.removeAttribute("aria-current");
+              }
+            });
+          });
+        }, { rootMargin: "-25% 0px -65% 0px", threshold: 0 });
+
+        sections.forEach(function (section) {
+          sectionObserver.observe(section);
+        });
+      } else {
+        revealItems.forEach(function (item) {
+          item.classList.add("is-visible");
+        });
+      }
+    }());
+  </script>
+</body>
+</html>

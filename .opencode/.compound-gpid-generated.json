@@ -872,6 +872,27 @@
       "executable": false
     },
     {
+      "path": ".opencode/skills/cg-skill-standalone-html-brief/SKILL.md",
+      "source": ".github/skills/cg-skill-standalone-html-brief/SKILL.md",
+      "kind": "skill",
+      "sha256": "d29df8b6f69188cfa62cdf2aa7e2dd1734a05fd487d1f1d2d589042f63ce5a7f",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-standalone-html-brief/assets/editorial-brief-template.html",
+      "source": ".github/skills/cg-skill-standalone-html-brief/assets/editorial-brief-template.html",
+      "kind": "skill-resource",
+      "sha256": "98c2e4711811e0d1d596d742ab52b2d56fa95273b4b79c1dcbf12d83b828280c",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-standalone-html-brief/references/design-system.md",
+      "source": ".github/skills/cg-skill-standalone-html-brief/references/design-system.md",
+      "kind": "skill-resource",
+      "sha256": "5eaa5c07b8bd8c083c363bf8df8b504f9cf1b128e10a4370dfe3b95e458bcf01",
+      "executable": false
+    },
+    {
       "path": ".opencode/skills/cg-skill-stata-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-stata-best-practices/SKILL.md",
       "kind": "skill",
