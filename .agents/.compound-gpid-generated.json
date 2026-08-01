@@ -21,14 +21,14 @@
       "path": ".agents/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "d1074e4b2cf053fd127c342437d4275d40b6eb0742e1ca4bee423ae3e6bbfad8",
+      "sha256": "39b86d534a068f7e0ea321007e531aeec5e92525b9d3d92ab6d182925c2e5891",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "c34cf74415efc2d30f26f53ab727457b633ded08015993a7fddffac95a0d5984",
+      "sha256": "bb5985b44032b5242e7e541d0a0bdab835599eed195830242e73c4851ba358d2",
       "executable": false
     },
     {
@@ -105,7 +105,7 @@
       "path": ".agents/commands/cg-plan.md",
       "source": ".github/prompts/cg-plan.prompt.md",
       "kind": "command",
-      "sha256": "91771ca5497ea712246432ef05ba5ba84e175b0e472aeadd772d75462e6eb758",
+      "sha256": "10e36c1f48ab197a62c276cdc06bd160cd10ab57507d1464788ed4f84239ad34",
       "executable": false
     },
     {
@@ -126,7 +126,7 @@
       "path": ".agents/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "a5d686d69752794ba5c384719e52b041ba13662332398c69a5fddba01dc4a927",
+      "sha256": "4b181dae1b8190673be27cbd04c02e9689c2cc5d5fb493c5c4a141785df35f42",
       "executable": false
     },
     {
@@ -175,7 +175,7 @@
       "path": ".agents/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "96e64870e916bdb7cc4ed023139032e6e5cf68a12532c305311114a5535ea3ef",
+      "sha256": "46d9fd25707e91c66dd5e50329a0d0820322c700985b43e82292f1fbfaffa85e",
       "executable": false
     },
     {
@@ -228,17 +228,24 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/artifact-view.contract.md",
+      "source": ".github/shared/artifact-view.contract.md",
+      "kind": "shared",
+      "sha256": "308efb2f52518bd6d5ee015a38e2ef4c2e2d3e8b9334738561c71afa9fce343b",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "3346cb1a55edecd5daac95fe0885c145ff17bc0b5735995098c37623cb519b4c",
+      "sha256": "1a2bedd59b8d1de9d1354accedf434db2b6572fb377b034ade64a894ffc4cb62",
       "executable": false
     },
     {
       "path": ".agents/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "06febeaac8ba557e89b2fab0ea8f3ae3e96debcee148e7dcd17405ce648adf2b",
+      "sha256": "1f73351c26458b08738213efa32d8b873f4778d7aa44874cc13177224fa079be",
       "executable": false
     },
     {
@@ -357,7 +364,7 @@
       "path": ".agents/skills/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "fallback-agent",
-      "sha256": "a892152eb01c6003b67010b5b648b8433b6c72f1a178a549161d9cde0c7fd4a1",
+      "sha256": "3aaa01430fb1a00c53f0276f589ff3771354c0097b30deba7912f954f8bc3e73",
       "executable": false
     },
     {
@@ -1848,7 +1855,7 @@
       "path": ".agents/subagents/cg-release-scanner.toml",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "8b2654693ac11391955fb770df47e6acc47c5672e2617d6f0b77376cd08b47b8",
+      "sha256": "9ea8c0e1e662deec8df612459332eba452954dab9f30ed5533538ada4203df18",
       "executable": false
     },
     {

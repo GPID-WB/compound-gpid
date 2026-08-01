@@ -56,6 +56,9 @@ Read the filenames (not full content) in these subdirectories:
 - `.cg-docs/plans/`
 - `.cg-docs/solutions/`
 
+Generated HTML views under `.cg-docs/views/` are derived outputs; never read their bodies or diffs. They are not release knowledge entries; at most report
+their paths/counts when the orchestrator explicitly supplies those path names.
+
 If a subdirectory does not exist, treat it as empty (0 entries).
 
 Each filename starts with a date prefix `YYYY-MM-DD-`. Compare that date to `window-start`:
