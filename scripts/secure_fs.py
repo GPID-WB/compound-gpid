@@ -731,7 +731,7 @@ def _windows_open_directory(path: Path):
     ctypes, wintypes, kernel32 = _windows_api()
     handle = kernel32.CreateFileW(
         str(path),
-        0x0080,
+        0x0020 | 0x0080,
         0x00000001 | 0x00000002,
         None,
         3,
@@ -954,22 +954,32 @@ def _windows_rename_handle(handle, parent_handle, name: str, *, replace: bool) -
 
     class RenameInformation(ctypes.Structure):
         _fields_ = [
-            ("ReplaceIfExists", wintypes.BOOL),
+            ("Flags", wintypes.DWORD),
             ("RootDirectory", wintypes.HANDLE),
             ("FileNameLength", wintypes.DWORD),
-            ("FileName", wintypes.WCHAR * len(name)),
+            ("FileName", wintypes.WCHAR * 1),
         ]
 
-    information = RenameInformation()
-    information.ReplaceIfExists = bool(replace)
+    encoded_name = name.encode("utf-16-le")
+    buffer_size = ctypes.sizeof(RenameInformation) + len(encoded_name)
+    buffer = ctypes.create_string_buffer(buffer_size)
+    information = ctypes.cast(
+        buffer,
+        ctypes.POINTER(RenameInformation),
+    ).contents
+    information.Flags = 1 if replace else 0
     information.RootDirectory = parent_handle
-    information.FileNameLength = len(name.encode("utf-16-le"))
-    information.FileName = name
+    information.FileNameLength = len(encoded_name)
+    ctypes.memmove(
+        ctypes.addressof(buffer) + RenameInformation.FileName.offset,
+        encoded_name,
+        len(encoded_name),
+    )
     if not kernel32.SetFileInformationByHandle(
         handle,
         3,
-        ctypes.byref(information),
-        ctypes.sizeof(information),
+        buffer,
+        buffer_size,
     ):
         _windows_raise_last_error(ctypes, f"Could not rename file handle to {name!r}")
 

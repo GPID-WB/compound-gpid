@@ -77,11 +77,15 @@ def test_windows_path_components_normalize_to_portable_relative_path() -> None:
     )
 
 
-def test_windows_rename_payload_uses_four_byte_win32_bool() -> None:
-    implementation = inspect.getsource(secure_fs._windows_rename_handle)
+def test_windows_rename_payload_includes_base_and_flexible_filename_bytes() -> None:
+    rename_implementation = inspect.getsource(secure_fs._windows_rename_handle)
+    directory_implementation = inspect.getsource(secure_fs._windows_open_directory)
 
-    assert '("ReplaceIfExists", wintypes.BOOL)' in implementation
-    assert "wintypes.BOOLEAN" not in implementation
+    assert '("Flags", wintypes.DWORD)' in rename_implementation
+    assert '("FileName", wintypes.WCHAR * 1)' in rename_implementation
+    assert "ctypes.sizeof(RenameInformation) + len(encoded_name)" in rename_implementation
+    assert "RenameInformation.FileName.offset" in rename_implementation
+    assert "0x0020 | 0x0080" in directory_implementation
 
 
 def test_existing_regular_view_mode_is_preserved(tmp_path: Path) -> None:
