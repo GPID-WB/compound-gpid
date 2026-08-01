@@ -84,7 +84,7 @@
       "path": ".claude/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "ce9d5074cceb298b309e2872a887e18d35eadf89c692475b7f5b8dd1cf1e2efe",
+      "sha256": "36d769546b0f7b39228f078868ca5bd4dfd6dc01319d9f9b4eaa140d53a1e5aa",
       "executable": false
     },
     {
@@ -140,14 +140,14 @@
       "path": ".claude/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "a2f2dd51122826627f3c86ada5635082f1deb819dacaf0d5b30b42fc593ebbeb",
+      "sha256": "6a4738d13f5d5ef7902a58577c34c9ec0c00e3b4af7e46f7b8d7a500a4301c28",
       "executable": false
     },
     {
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "d9e5ad61fbbe9d533e5fcd31b4314d580bd6279f698485363dbec57fefbef49c",
+      "sha256": "0ed097c55d949402309fbc6027545398c20da91cdf421806e364476939994e32",
       "executable": false
     },
     {
@@ -224,7 +224,7 @@
       "path": ".claude/commands/cg-plan.md",
       "source": ".github/prompts/cg-plan.prompt.md",
       "kind": "command",
-      "sha256": "39c78ef90184b06238426dd3d9d2c071076429375451ef6fff06b6462c459222",
+      "sha256": "b31fd9055d3a509b70a2fe7b7f3a988daba0ea3992a2ebabdaf3968dacec532c",
       "executable": false
     },
     {
@@ -245,7 +245,7 @@
       "path": ".claude/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "4dbae79b3d2e9b5fdb3d4c275ffd624fe4089e4655899598027068d23546747b",
+      "sha256": "67edc509976dda73894e144268b75a500423b790942b2e3e8a643c8241a1a8af",
       "executable": false
     },
     {
@@ -294,7 +294,7 @@
       "path": ".claude/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "ec75c83f089502831744ce3168aeacbf78f0d322c4b56919203454832772c66e",
+      "sha256": "af9c3527dd3ddf4d09be8b0d5c11732ec08fa8807834d011247e163eea48026f",
       "executable": false
     },
     {
@@ -347,17 +347,24 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/artifact-view.contract.md",
+      "source": ".github/shared/artifact-view.contract.md",
+      "kind": "shared",
+      "sha256": "308efb2f52518bd6d5ee015a38e2ef4c2e2d3e8b9334738561c71afa9fce343b",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "3346cb1a55edecd5daac95fe0885c145ff17bc0b5735995098c37623cb519b4c",
+      "sha256": "1a2bedd59b8d1de9d1354accedf434db2b6572fb377b034ade64a894ffc4cb62",
       "executable": false
     },
     {
       "path": ".claude/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "a552441acf8a0ef7c86e60a07f7647529a0b1729b8442106e7d83f65d1e30154",
+      "sha256": "0563f31465e22ae0464d4ade10eaa0f2da1bfd6a7dcfb9aaea1b0aef579025e2",
       "executable": false
     },
     {
