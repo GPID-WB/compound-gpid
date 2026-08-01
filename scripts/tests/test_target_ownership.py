@@ -300,7 +300,10 @@ def test_cleanup_rollback_never_overwrites_post_quarantine_collision(
     assert quarantine_files[0].read_text(encoding="utf-8") == "changed-owned-content\n"
 
 
-@pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
+@pytest.mark.skipif(
+    os.name != "nt" and not gen._supports_secure_dir_fd(),
+    reason="requires Windows handle pinning or POSIX dir_fd support",
+)
 def test_commit_rechecks_destination_ancestor_immediately_before_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

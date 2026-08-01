@@ -496,7 +496,7 @@ def _secure_write_windows(
     executable: Optional[bool],
     before_replace: BeforeReplace,
 ) -> None:
-    handles, parent, parent_handle, name = _windows_pin_parent_chain(
+    handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
         relative_path,
         create=True,
@@ -524,8 +524,7 @@ def _secure_write_windows(
             _windows_copy_readonly_attribute(existing_handle, temporary_handle)
             _windows_rename_handle(
                 existing_handle,
-                parent_handle,
-                previous_name,
+                parent / previous_name,
                 replace=False,
             )
             previous_quarantined = True
@@ -537,8 +536,7 @@ def _secure_write_windows(
             before_replace(root / PurePosixPath(relative_path))
         _windows_rename_handle(
             temporary_handle,
-            parent_handle,
-            name,
+            parent / name,
             replace=False,
         )
         published = True
@@ -550,8 +548,7 @@ def _secure_write_windows(
             try:
                 _windows_rename_handle(
                     existing_handle,
-                    parent_handle,
-                    name,
+                    parent / name,
                     replace=False,
                 )
                 previous_quarantined = False
@@ -609,7 +606,7 @@ def _secure_delete_windows(
 ) -> None:
     import hashlib
 
-    handles, parent, parent_handle, name = _windows_pin_parent_chain(
+    handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
         relative_path,
         create=False,
@@ -624,11 +621,11 @@ def _secure_delete_windows(
             file_handle = _windows_open_regular(parent / name, read=True, delete=True)
         except FileNotFoundError:
             return
-        _windows_rename_handle(file_handle, parent_handle, quarantine, replace=False)
+        _windows_rename_handle(file_handle, parent / quarantine, replace=False)
         quarantined = True
         actual_sha256 = hashlib.sha256(_windows_read_all(file_handle)).hexdigest()
         if actual_sha256 != expected_sha256:
-            _windows_rename_handle(file_handle, parent_handle, name, replace=False)
+            _windows_rename_handle(file_handle, parent / name, replace=False)
             quarantined = False
             raise SecureMutationError(
                 f"Stale owned file changed before deletion: {relative_path}."
@@ -639,7 +636,7 @@ def _secure_delete_windows(
         if file_handle is not None:
             if quarantined:
                 try:
-                    _windows_rename_handle(file_handle, parent_handle, name, replace=False)
+                    _windows_rename_handle(file_handle, parent / name, replace=False)
                 except OSError:
                     pass
             _windows_close_handle(file_handle)
@@ -949,26 +946,26 @@ def _windows_read_all(handle) -> bytes:
     return b"".join(chunks)
 
 
-def _windows_rename_handle(handle, parent_handle, name: str, *, replace: bool) -> None:
+def _windows_rename_handle(handle, target: Path, *, replace: bool) -> None:
     ctypes, wintypes, kernel32 = _windows_api()
 
     class RenameInformation(ctypes.Structure):
         _fields_ = [
-            ("Flags", wintypes.DWORD),
+            ("ReplaceIfExists", wintypes.BOOLEAN),
             ("RootDirectory", wintypes.HANDLE),
             ("FileNameLength", wintypes.DWORD),
             ("FileName", wintypes.WCHAR * 1),
         ]
 
-    encoded_name = name.encode("utf-16-le")
+    encoded_name = str(target).encode("utf-16-le")
     buffer_size = ctypes.sizeof(RenameInformation) + len(encoded_name)
     buffer = ctypes.create_string_buffer(buffer_size)
     information = ctypes.cast(
         buffer,
         ctypes.POINTER(RenameInformation),
     ).contents
-    information.Flags = 1 if replace else 0
-    information.RootDirectory = parent_handle
+    information.ReplaceIfExists = replace
+    information.RootDirectory = None
     information.FileNameLength = len(encoded_name)
     ctypes.memmove(
         ctypes.addressof(buffer) + RenameInformation.FileName.offset,
@@ -981,7 +978,7 @@ def _windows_rename_handle(handle, parent_handle, name: str, *, replace: bool) -
         buffer,
         buffer_size,
     ):
-        _windows_raise_last_error(ctypes, f"Could not rename file handle to {name!r}")
+        _windows_raise_last_error(ctypes, f"Could not rename file handle to {target!s}")
 
 
 def _windows_dispose_handle(handle) -> None:
