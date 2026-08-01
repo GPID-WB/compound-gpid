@@ -31,7 +31,7 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python3 --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            python3 "%~dp0..\scripts\<entrypoint>.py" %*
+            call python3 "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
         )
     )
@@ -42,7 +42,7 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            python "%~dp0..\scripts\<entrypoint>.py" %*
+            call python "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
         )
     )
@@ -53,7 +53,7 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('py --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            py "%~dp0..\scripts\<entrypoint>.py" %*
+            call py "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
         )
     )
@@ -72,8 +72,13 @@ exit /b 1
 | `where <cmd> >nul 2>&1` | Pre-check: exits non-zero immediately if command absent — `for /f` never entered |
 | `for /f ('cmd --version 2^>^&1')` | Captures version string from the real Python |
 | `findstr /i "^Python [0-9]"` | Rejects Windows Store stubs (output: empty or "Python was not found") |
-| `python3 ... %*` | Delegates to entrypoint with all arguments forwarded |
+| `call python3 ... %*` | Delegates to executables or batch shims, returns control, and forwards all arguments |
 | `exit /b %ERRORLEVEL%` | Propagates Python's exit code exactly |
+
+Use `call` for every version-gate invocation and final interpreter execution.
+Without it, a candidate implemented as a `.cmd` shim replaces the caller's batch
+context, so fallback probing and child status propagation do not resume in the
+launcher. `call` is harmless for real Python executables and required for shims.
 
 ---
 
@@ -92,7 +97,7 @@ if not errorlevel 1 (
     exit /b %ERRORLEVEL%
 )
 
-rem ❌ exit code not propagated
+rem ❌ exit code not propagated, and a .cmd shim does not return
 python3 "%~dp0..\scripts\foo.py" %*
 exit /b 0
 ```

@@ -638,7 +638,8 @@ Describe "Python-backed CMD launchers - runtime selection and status parity" {
             ($content -match 'sys\.version_info\s*>=\s*\(3,\s*8\)') | Should -Be $true
             ($content -match 'set "PYTHON_CMD=(python3|python|py)"') | Should -Be $true
             ($content -match '(?m)^:run_python\s*$') | Should -Be $true
-            ($content -match '(?m)^%PYTHON_CMD%\s+') | Should -Be $true
+            ($content -match '(?m)^call %PYTHON_CMD%\s+') | Should -Be $true
+            ([regex]::Matches($content, '(?m)^\s*call (?:python3|python|py) -c ').Count) | Should -Be 3
         }
     }
 

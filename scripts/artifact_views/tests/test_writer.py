@@ -1,6 +1,7 @@
 """Tests for secure atomic artifact-view mutation."""
 from __future__ import annotations
 
+import inspect
 import os
 from pathlib import Path, PureWindowsPath
 
@@ -74,6 +75,13 @@ def test_windows_path_components_normalize_to_portable_relative_path() -> None:
     assert normalize_relative_path(PureWindowsPath("views", "plans", "a.html")) == (
         "views/plans/a.html"
     )
+
+
+def test_windows_rename_payload_uses_four_byte_win32_bool() -> None:
+    implementation = inspect.getsource(secure_fs._windows_rename_handle)
+
+    assert '("ReplaceIfExists", wintypes.BOOL)' in implementation
+    assert "wintypes.BOOLEAN" not in implementation
 
 
 def test_existing_regular_view_mode_is_preserved(tmp_path: Path) -> None:

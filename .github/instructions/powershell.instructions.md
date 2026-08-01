@@ -30,7 +30,7 @@ if not errorlevel 1 (
     for /f "tokens=*" %%V in ('<cmd> --version 2^>^&1') do (
         echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
-            <cmd> "%~dp0..\scripts\<entrypoint>.py" %*
+            call <cmd> "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
         )
     )
@@ -45,6 +45,11 @@ the next fallback candidate is tried.
 
 The `where <cmd> >nul 2>&1` guard exits non-zero immediately when the command is absent,
 so the `for /f` subshell is never entered.
+
+Use `call` for version gates and final execution outside the `for /f` subshell.
+Real Python executables behave normally, while `.cmd` shims return control to the
+launcher instead of replacing the current batch context. This keeps fallback
+selection and child exit-code propagation testable and correct.
 
 **Anti-pattern — DO NOT USE:**
 

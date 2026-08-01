@@ -954,7 +954,7 @@ def _windows_rename_handle(handle, parent_handle, name: str, *, replace: bool) -
 
     class RenameInformation(ctypes.Structure):
         _fields_ = [
-            ("ReplaceIfExists", wintypes.BOOLEAN),
+            ("ReplaceIfExists", wintypes.BOOL),
             ("RootDirectory", wintypes.HANDLE),
             ("FileNameLength", wintypes.DWORD),
             ("FileName", wintypes.WCHAR * len(name)),
