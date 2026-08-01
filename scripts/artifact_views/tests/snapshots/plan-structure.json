@@ -1,0 +1,33 @@
+{
+  "artifactKind": "plan",
+  "landmarks": ["header", "nav", "main", "article", "footer"],
+  "derived": ["navigation", "phase-map", "requirement-coverage"],
+  "metaNames": [
+    "artifact-renderer-version",
+    "artifact-schema-version",
+    "artifact-source",
+    "artifact-source-sha256",
+    "viewport"
+  ],
+  "classes": [
+    "coverage-list",
+    "deck",
+    "derived-panel",
+    "eyebrow",
+    "layout",
+    "masthead",
+    "masthead-inner",
+    "phase-list",
+    "provenance",
+    "provenance-inner",
+    "sidebar",
+    "skip-link",
+    "source-block",
+    "source-heading",
+    "table-scroll"
+  ],
+  "sourceOwnerCount": 34,
+  "sourceOwnersUnique": true,
+  "sourceLinesComplete": true,
+  "provenanceScript": true
+}
