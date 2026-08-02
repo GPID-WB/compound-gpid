@@ -142,6 +142,7 @@ def test_file_directory_prefix_conflict_fails() -> None:
     assert any("file/directory" in error for error in errors)
 
 
+@pytest.mark.usefixtures("require_symlink_support")
 def test_existing_symlink_ancestor_escape_fails(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     outside = tmp_path / "outside"

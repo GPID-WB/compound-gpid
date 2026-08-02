@@ -161,22 +161,25 @@ Describe "create-release.ps1 - switch parameter semantics" {
 
 Describe "create-release.ps1 - payload construction" {
     Context "all required fields" {
-        It "payload contains tag_name, name, body, draft, prerelease" {
+        It "payload contains tag_name, target_commitish, name, body, draft, prerelease" {
             $Tag        = "v0.0.6"
+            $HeadCommit = "abc123"
             $Name       = "v0.0.6 - Release automation"
             $Notes      = "## What's new`nRelease automation."
             $Draft      = [switch]$false
             $Prerelease = [switch]$false
 
             $payload = @{
-                tag_name   = $Tag
-                name       = $Name
-                body       = $Notes
-                draft      = $Draft.IsPresent
-                prerelease = $Prerelease.IsPresent
+                tag_name         = $Tag
+                target_commitish = $HeadCommit
+                name             = $Name
+                body             = $Notes
+                draft            = $Draft.IsPresent
+                prerelease       = $Prerelease.IsPresent
             }
 
             $payload.tag_name   | Should -Be "v0.0.6"
+            $payload.target_commitish | Should -Be "abc123"
             $payload.name       | Should -Be "v0.0.6 - Release automation"
             $payload.body       | Should -Be $Notes
             $payload.draft      | Should -Be $false
@@ -297,6 +300,19 @@ Describe "create-release.ps1 - native packaging preflight" {
         $guard = $scriptContent.Substring($preflightIndex, $credentialIndex - $preflightIndex)
         $guard | Should -Match 'LASTEXITCODE'
         $guard | Should -Match '(throw|exit\s+1|Write-Error)'
+    }
+
+    It "supports a new tag while pinning publication to the verified HEAD" {
+        $scriptContent | Should -Match 'tag --list \$Tag'
+        $scriptContent | Should -Match 'target_commitish\s*=\s*\$headCommit'
+        $scriptContent | Should -Not -Match '\$Tag`\^\{commit\}'
+    }
+
+    It "tests the exact commit in an isolated LF checkout" {
+        $scriptContent | Should -Match 'clone --quiet --no-hardlinks --no-checkout'
+        $scriptContent | Should -Match 'core\.autocrlf false'
+        $scriptContent | Should -Match 'checkout --detach --quiet \$headCommit'
+        $scriptContent | Should -Match 'Remove-Item -LiteralPath \$preflightRoot -Recurse -Force'
     }
 
     It "executes a failing preflight without reaching credentials or the API" {

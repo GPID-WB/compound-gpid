@@ -89,6 +89,7 @@ class TestFileScanner:
         assert audit.is_model_context_excluded(".cg-docs/views/plans/a.html") is True
         assert audit.is_model_context_excluded(".cg-docs/views-archive/a.md") is False
 
+    @pytest.mark.usefixtures("require_symlink_support")
     def test_symlink_alias_to_view_is_excluded_from_broad_glob(
         self,
         tmp_path: Path,

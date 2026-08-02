@@ -262,6 +262,7 @@ def test_pilot_missing_or_escaping_markdown_link_is_rejected_before_writes(
     assert not any((root / path).exists() for path in (".claude", ".agents", ".opencode"))
 
 
+@pytest.mark.usefixtures("require_symlink_support")
 def test_pilot_symlink_entry_is_rejected_without_following(tmp_path: Path) -> None:
     root = _fixture_repo(tmp_path)
     sentinel = _write_bytes(tmp_path / "outside.txt", b"must not be read")
