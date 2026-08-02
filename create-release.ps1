@@ -74,7 +74,7 @@ if ([string]::IsNullOrWhiteSpace($notes)) {
 
 # Operational native-packaging preflight. This runs before credentials are read
 # or any GitHub API request can observe or publish release state.
-$headCommit = (git -C $PSScriptRoot rev-parse --verify "HEAD^{commit}" 2>$null | Select-Object -First 1)
+$headCommit = git -C $PSScriptRoot rev-parse --verify "HEAD^{commit}" 2>$null
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($headCommit)) {
     throw "Could not resolve the current HEAD commit."
 }
@@ -84,7 +84,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Could not inspect existing release tags."
 }
 if ($matchingTags -contains $Tag) {
-    $tagCommit = (git -C $PSScriptRoot rev-parse --verify "$Tag^{commit}" 2>$null | Select-Object -First 1)
+    $tagCommit = git -C $PSScriptRoot rev-parse --verify "$Tag^{commit}" 2>$null
     if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
         throw "Release tag '$Tag' does not resolve to a commit."
     }

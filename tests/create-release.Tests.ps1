@@ -306,6 +306,7 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Match 'tag --list \$Tag'
         $scriptContent | Should -Match 'target_commitish\s*=\s*\$headCommit'
         $scriptContent | Should -Not -Match '\$Tag`\^\{commit\}'
+        $scriptContent | Should -Not -Match 'rev-parse[^\r\n]+\|\s*Select-Object'
     }
 
     It "tests the exact commit in an isolated LF checkout" {
