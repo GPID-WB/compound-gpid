@@ -1,11 +1,15 @@
 """Root-anchored, no-follow mutation helpers shared by repository writers."""
 from __future__ import annotations
 
+from dataclasses import dataclass
+import hashlib
 import os
 from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 import stat
-from typing import Callable, Optional, Tuple, Union
+import sys
+from typing import BinaryIO, Callable, Optional, Tuple, Union
 import uuid
+import warnings
 
 BeforeReplace = Optional[Callable[[Path], None]]
 BeforeOpen = Optional[Callable[[Path], None]]
@@ -15,10 +19,62 @@ _SUPPORTS_SECURE_DIR_FD = (
     and os.open in os.supports_dir_fd
     and hasattr(os, "O_NOFOLLOW")
 )
+_POSIX_RENAME_EXCL = 0x00000004
+_RENAME_NOREPLACE = 1
 
 
 class SecureMutationError(OSError):
     """A path identity or type changed at a secure mutation boundary."""
+
+
+@dataclass(frozen=True)
+class ExpectedFileState:
+    """Authorized destination state carried into a pinned write transaction."""
+
+    exists: bool
+    sha256: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        if self.exists != (self.sha256 is not None):
+            raise ValueError(
+                "Existing expected state requires a SHA-256; absent state cannot "
+                "carry one."
+            )
+        if self.sha256 is not None and (
+            len(self.sha256) != 64
+            or any(character not in "0123456789abcdef" for character in self.sha256)
+        ):
+            raise ValueError("Expected destination SHA-256 must be lowercase hex.")
+
+    @classmethod
+    def absent(cls) -> "ExpectedFileState":
+        """Return an authorization requiring the destination to stay absent.
+
+        Args:
+            None.
+
+        Returns:
+            Expected state that rejects any destination present at write time.
+
+        Example:
+            ``ExpectedFileState.absent()`` authorizes first publication only.
+        """
+        return cls(False)
+
+    @classmethod
+    def from_bytes(cls, content: bytes) -> "ExpectedFileState":
+        """Return an authorization for one exact destination byte sequence.
+
+        Args:
+            content: Exact destination bytes observed during ownership checks.
+
+        Returns:
+            Expected state carrying the lowercase SHA-256 of ``content``.
+
+        Example:
+            Use this state to bind publication to the bytes that were authorized.
+        """
+        return cls(True, hashlib.sha256(content).hexdigest())
 
 
 def _after_secure_quarantine(_original: Path, _quarantine: Path) -> None:
@@ -38,7 +94,23 @@ def supports_secure_dir_fd() -> bool:
         >>> isinstance(supports_secure_dir_fd(), bool)
         True
     """
-    return _SUPPORTS_SECURE_DIR_FD
+    return _SUPPORTS_SECURE_DIR_FD and _supports_posix_rename_noreplace()
+
+
+def is_windows_host() -> bool:
+    """Return whether the active runtime uses Windows filesystem semantics.
+
+    Args:
+        None.
+
+    Returns:
+        ``True`` on Windows and ``False`` on other hosts.
+
+    Example:
+        Tests may replace this narrow platform boundary without mutating
+        ``os.name`` globally.
+    """
+    return os.name == "nt"
 
 
 def normalize_relative_path(relative_path: Union[str, PurePath]) -> str:
@@ -136,6 +208,7 @@ def secure_write_bytes(
     *,
     executable: Optional[bool] = None,
     before_replace: BeforeReplace = None,
+    expected_state: Optional[ExpectedFileState] = None,
 ) -> Path:
     """Atomically replace one root-relative regular file without following links.
 
@@ -150,6 +223,7 @@ def secure_write_bytes(
         executable: ``True`` to add execute bits, ``False`` to remove them, or
             ``None`` to preserve an existing mode unchanged.
         before_replace: Optional test hook invoked at the final mutation boundary.
+        expected_state: Optional authorized absence or exact prior-byte digest.
 
     Returns:
         The lexical destination path below ``root``.
@@ -178,14 +252,16 @@ def secure_write_bytes(
             content,
             executable=executable,
             before_replace=before_replace,
+            expected_state=expected_state,
         )
-    elif os.name == "nt":
+    elif is_windows_host():
         _secure_write_windows(
             root,
             normalized,
             content,
             executable=executable,
             before_replace=before_replace,
+            expected_state=expected_state,
         )
     else:
         raise SecureMutationError(
@@ -200,6 +276,7 @@ def secure_read_bytes(
     *,
     before_open: BeforeOpen = None,
     reject_hardlinks: bool = False,
+    max_bytes: Optional[int] = None,
 ) -> bytes:
     """Read one root-relative regular file through pinned no-follow handles.
 
@@ -209,6 +286,8 @@ def secure_read_bytes(
         before_open: Optional test hook after the parent is pinned and before
             the final file handle is opened.
         reject_hardlinks: Reject files with more than one filesystem link.
+        max_bytes: Optional maximum returned byte count. The pinned handle is
+            inspected before allocation and read at most this value plus one.
 
     Returns:
         Exact file bytes from the pinned source identity.
@@ -221,6 +300,8 @@ def secure_read_bytes(
         ``secure_read_bytes(root, Path("plan.md"))`` returns pinned file bytes.
     """
     root = Path(root)
+    if max_bytes is not None and max_bytes < 0:
+        raise ValueError("Secure read byte limit must be non-negative.")
     normalized = normalize_relative_path(relative_path)
     if not root.exists() or root.is_symlink() or not root.is_dir():
         raise SecureMutationError(
@@ -232,13 +313,15 @@ def secure_read_bytes(
             normalized,
             before_open=before_open,
             reject_hardlinks=reject_hardlinks,
+            max_bytes=max_bytes,
         )
-    if os.name == "nt":
+    if is_windows_host():
         return _secure_read_windows(
             root,
             normalized,
             before_open=before_open,
             reject_hardlinks=reject_hardlinks,
+            max_bytes=max_bytes,
         )
     raise SecureMutationError(
         "This platform has no secure handle-relative read backend."
@@ -283,7 +366,7 @@ def secure_delete_verified(
             before_unlink=before_unlink,
         )
         return
-    if os.name == "nt":
+    if is_windows_host():
         _secure_delete_windows(
             root,
             normalized,
@@ -340,16 +423,26 @@ def _secure_write_posix(
     *,
     executable: Optional[bool],
     before_replace: BeforeReplace,
+    expected_state: Optional[ExpectedFileState],
 ) -> None:
     parent_fd, name = open_relative_parent(root, relative_path, create=True)
     temporary = f".{name}.{uuid.uuid4().hex}.tmp"
+    previous = f".{name}.{uuid.uuid4().hex}.previous"
     file_fd: Optional[int] = None
+    previous_quarantined = False
+    published = False
+    committed = False
     try:
         original_target = _stat_target(parent_fd, name)
         if original_target is not None and not stat.S_ISREG(original_target.st_mode):
             raise SecureMutationError(
                 f"Destination target is not a regular file: {root / relative_path}."
             )
+        _verify_expected_existence(
+            expected_state,
+            original_target is not None,
+            relative_path,
+        )
         creation_mode = 0o777 if executable is True else 0o666
         file_fd = os.open(
             temporary,
@@ -357,30 +450,88 @@ def _secure_write_posix(
             creation_mode,
             dir_fd=parent_fd,
         )
+        assert file_fd is not None
         with os.fdopen(file_fd, "wb", closefd=False) as handle:
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
         if original_target is not None:
-            os.fchmod(file_fd, _replacement_mode(original_target, executable))
+            _posix_fchmod(
+                file_fd,
+                _replacement_mode(original_target, executable),
+            )
+        _verify_parent_identity(root, relative_path, parent_fd)
+        _verify_target_identity(parent_fd, name, original_target, root / relative_path)
+        if original_target is not None:
+            _posix_rename_noreplace(parent_fd, name, previous)
+            previous_quarantined = True
+            _verify_expected_posix_bytes(
+                parent_fd,
+                previous,
+                expected_state,
+                relative_path,
+            )
+            _after_secure_quarantine(
+                root / PurePosixPath(relative_path),
+                root / PurePosixPath(relative_path).parent / previous,
+            )
         if before_replace is not None:
             before_replace(root / relative_path)
         _verify_parent_identity(root, relative_path, parent_fd)
-        _verify_target_identity(parent_fd, name, original_target, root / relative_path)
-        os.replace(
-            temporary,
-            name,
-            src_dir_fd=parent_fd,
-            dst_dir_fd=parent_fd,
-        )
+        _posix_rename_noreplace(parent_fd, temporary, name)
+        published = True
         os.fsync(parent_fd)
+        committed = True
+        if previous_quarantined:
+            try:
+                os.unlink(previous, dir_fd=parent_fd)
+            except OSError as cleanup_error:
+                warnings.warn(
+                    f"Publication committed; recovery preserved as {previous}: "
+                    f"{cleanup_error}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+            else:
+                previous_quarantined = False
+                try:
+                    os.fsync(parent_fd)
+                except OSError as cleanup_error:
+                    warnings.warn(
+                        "Publication committed; recovery cleanup durability could "
+                        f"not be confirmed: {cleanup_error}",
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+    except BaseException as publication_error:
+        if not committed:
+            try:
+                if published:
+                    _unlink_posix_if_identity(
+                        parent_fd,
+                        name,
+                        os.fstat(file_fd),
+                        relative_path,
+                    )
+                    published = False
+                if previous_quarantined:
+                    _posix_rename_noreplace(parent_fd, previous, name)
+                    previous_quarantined = False
+            except OSError as rollback_error:
+                raise SecureMutationError(
+                    f"Publication failed and rollback could not restore "
+                    f"{relative_path}; recovery preserved as {previous}: "
+                    f"{rollback_error}"
+                ) from publication_error
+        raise
     finally:
         if file_fd is not None:
             os.close(file_fd)
-        try:
-            os.unlink(temporary, dir_fd=parent_fd)
-        except FileNotFoundError:
-            pass
+        if not published:
+            try:
+                os.unlink(temporary, dir_fd=parent_fd)
+            except FileNotFoundError:
+                pass
         os.close(parent_fd)
 
 
@@ -390,6 +541,7 @@ def _secure_read_posix(
     *,
     before_open: BeforeOpen,
     reject_hardlinks: bool,
+    max_bytes: Optional[int],
 ) -> bytes:
     parent_fd, name = open_relative_parent(root, relative_path, create=False)
     file_fd: Optional[int] = None
@@ -398,6 +550,7 @@ def _secure_read_posix(
             before_open(root / relative_path)
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
         file_fd = os.open(name, flags, dir_fd=parent_fd)
+        assert file_fd is not None
         metadata = os.fstat(file_fd)
         if not stat.S_ISREG(metadata.st_mode):
             raise SecureMutationError(
@@ -408,8 +561,14 @@ def _secure_read_posix(
                 f"Source has multiple hard links and is unsafe for model context: "
                 f"{root / relative_path}."
             )
+        source_path = root / relative_path
+        _reject_oversize(metadata.st_size, max_bytes, source_path)
         with os.fdopen(file_fd, "rb", closefd=False) as handle:
-            return handle.read()
+            return _read_stream_bounded(
+                handle,
+                max_bytes=max_bytes,
+                source_path=source_path,
+            )
     finally:
         if file_fd is not None:
             os.close(file_fd)
@@ -423,11 +582,10 @@ def _secure_delete_posix(
     *,
     before_unlink: BeforeOpen,
 ) -> None:
-    import hashlib
-
     parent_fd, name = open_relative_parent(root, relative_path, create=False)
     quarantine = f".{name}.{uuid.uuid4().hex}.stale"
     quarantined = False
+    committed = False
     try:
         if before_unlink is not None:
             before_unlink(root / relative_path)
@@ -446,7 +604,9 @@ def _secure_delete_posix(
             root / PurePosixPath(relative_path).parent / quarantine,
         )
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-        with os.fdopen(os.open(quarantine, flags, dir_fd=parent_fd), "rb") as handle:
+        quarantine_fd = os.open(quarantine, flags, dir_fd=parent_fd)
+        assert quarantine_fd is not None
+        with os.fdopen(quarantine_fd, "rb") as handle:
             actual_sha256 = hashlib.sha256(handle.read()).hexdigest()
         if actual_sha256 != expected_sha256:
             _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
@@ -456,11 +616,27 @@ def _secure_delete_posix(
             )
         os.unlink(quarantine, dir_fd=parent_fd)
         quarantined = False
-        os.fsync(parent_fd)
-    except BaseException:
-        if quarantined:
-            _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
-            quarantined = False
+        committed = True
+        try:
+            os.fsync(parent_fd)
+        except OSError as durability_error:
+            warnings.warn(
+                f"Deletion committed; directory durability could not be confirmed "
+                f"for {relative_path}: {durability_error}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+    except BaseException as deletion_error:
+        if not committed and quarantined:
+            try:
+                _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
+                quarantined = False
+            except OSError as rollback_error:
+                raise SecureMutationError(
+                    f"Deletion failed and rollback could not restore "
+                    f"{relative_path}; recovery preserved as {quarantine}: "
+                    f"{rollback_error}"
+                ) from deletion_error
         raise
     finally:
         os.close(parent_fd)
@@ -495,7 +671,9 @@ def _secure_write_windows(
     *,
     executable: Optional[bool],
     before_replace: BeforeReplace,
+    expected_state: Optional[ExpectedFileState],
 ) -> None:
+    del executable
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
         relative_path,
@@ -520,6 +698,7 @@ def _secure_write_windows(
             )
         except FileNotFoundError:
             existing_handle = None
+        _verify_expected_existence(expected_state, existing_handle is not None, relative_path)
         if existing_handle is not None:
             _windows_copy_readonly_attribute(existing_handle, temporary_handle)
             _windows_rename_handle(
@@ -528,6 +707,11 @@ def _secure_write_windows(
                 replace=False,
             )
             previous_quarantined = True
+            _verify_expected_windows_bytes(
+                existing_handle,
+                expected_state,
+                relative_path,
+            )
             _after_secure_quarantine(
                 root / PurePosixPath(relative_path),
                 parent / previous_name,
@@ -541,10 +725,19 @@ def _secure_write_windows(
         )
         published = True
         if existing_handle is not None:
-            _windows_dispose_handle(existing_handle)
-            previous_quarantined = False
-    except BaseException:
-        if existing_handle is not None and previous_quarantined:
+            try:
+                _windows_dispose_handle(existing_handle)
+            except OSError as cleanup_error:
+                warnings.warn(
+                    f"Publication committed; recovery preserved as {previous_name}: "
+                    f"{cleanup_error}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+            else:
+                previous_quarantined = False
+    except BaseException as publication_error:
+        if not published and existing_handle is not None and previous_quarantined:
             try:
                 _windows_rename_handle(
                     existing_handle,
@@ -552,19 +745,23 @@ def _secure_write_windows(
                     replace=False,
                 )
                 previous_quarantined = False
-            except OSError:
-                pass
+            except OSError as rollback_error:
+                raise SecureMutationError(
+                    f"Publication failed and rollback could not restore "
+                    f"{relative_path}; recovery preserved as {previous_name}: "
+                    f"{rollback_error}"
+                ) from publication_error
         raise
     finally:
         if existing_handle is not None:
             _windows_close_handle(existing_handle)
         if temporary_handle is not None:
+            if not published:
+                try:
+                    _windows_dispose_handle(temporary_handle)
+                except OSError:
+                    pass
             _windows_close_handle(temporary_handle)
-        if not published:
-            try:
-                temporary_path.unlink()
-            except OSError:
-                pass
         _windows_close_handles(handles)
 
 
@@ -574,6 +771,7 @@ def _secure_read_windows(
     *,
     before_open: BeforeOpen,
     reject_hardlinks: bool,
+    max_bytes: Optional[int],
 ) -> bytes:
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
@@ -590,7 +788,14 @@ def _secure_read_windows(
                 f"Source has multiple hard links and is unsafe for model context: "
                 f"{root / PurePosixPath(relative_path)}."
             )
-        return _windows_read_all(file_handle)
+        source_path = root / PurePosixPath(relative_path)
+        _reject_oversize(_windows_handle_size(file_handle), max_bytes, source_path)
+        content = _windows_read_all(file_handle, max_bytes=max_bytes)
+        if max_bytes is not None and len(content) > max_bytes:
+            raise SecureMutationError(
+                f"Source grew beyond secure read limit {max_bytes}: {source_path}."
+            )
+        return content
     finally:
         if file_handle is not None:
             _windows_close_handle(file_handle)
@@ -604,8 +809,6 @@ def _secure_delete_windows(
     *,
     before_unlink: BeforeOpen,
 ) -> None:
-    import hashlib
-
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
         relative_path,
@@ -614,6 +817,8 @@ def _secure_delete_windows(
     file_handle = None
     quarantine = f".{name}.{uuid.uuid4().hex}.stale"
     quarantined = False
+    committed = False
+    rollback_error = None
     try:
         if before_unlink is not None:
             before_unlink(root / PurePosixPath(relative_path))
@@ -625,22 +830,30 @@ def _secure_delete_windows(
         quarantined = True
         actual_sha256 = hashlib.sha256(_windows_read_all(file_handle)).hexdigest()
         if actual_sha256 != expected_sha256:
-            _windows_rename_handle(file_handle, parent / name, replace=False)
-            quarantined = False
             raise SecureMutationError(
                 f"Stale owned file changed before deletion: {relative_path}."
             )
         _windows_dispose_handle(file_handle)
         quarantined = False
+        committed = True
+    except BaseException:
+        if not committed and quarantined:
+            try:
+                _windows_rename_handle(file_handle, parent / name, replace=False)
+                quarantined = False
+            except OSError as error:
+                rollback_error = SecureMutationError(
+                    f"Deletion failed and rollback could not restore "
+                    f"{relative_path}; recovery preserved as {quarantine}: "
+                    f"{error}"
+                )
+        raise
     finally:
         if file_handle is not None:
-            if quarantined:
-                try:
-                    _windows_rename_handle(file_handle, parent / name, replace=False)
-                except OSError:
-                    pass
             _windows_close_handle(file_handle)
         _windows_close_handles(handles)
+        if rollback_error is not None:
+            raise rollback_error
 
 
 def _windows_pin_parent_chain(
@@ -834,8 +1047,13 @@ def _windows_set_readonly_attribute(handle, readonly: bool) -> None:
             ("FileAttributes", wintypes.DWORD),
         ]
 
-    information = FileBasicInfo()
-    information.FileAttributes = 0x00000001 if readonly else 0x00000080
+    information = FileBasicInfo(
+        0,
+        0,
+        0,
+        0,
+        0x00000001 if readonly else 0x00000080,
+    )
     if not kernel32.SetFileInformationByHandle(
         handle,
         0,
@@ -923,14 +1141,20 @@ def _windows_write_all(handle, content: bytes) -> None:
         _windows_raise_last_error(ctypes, "Could not flush temporary file")
 
 
-def _windows_read_all(handle) -> bytes:
+def _windows_read_all(handle, *, max_bytes: Optional[int] = None) -> bytes:
     ctypes, wintypes, kernel32 = _windows_api()
     zero = ctypes.c_longlong(0)
     if not kernel32.SetFilePointerEx(handle, zero, None, 0):
         _windows_raise_last_error(ctypes, "Could not rewind file handle")
     chunks = []
+    remaining = max_bytes + 1 if max_bytes is not None else None
     while True:
-        buffer = ctypes.create_string_buffer(1024 * 1024)
+        chunk_size = 1024 * 1024
+        if remaining is not None:
+            if remaining == 0:
+                break
+            chunk_size = min(chunk_size, remaining)
+        buffer = ctypes.create_string_buffer(chunk_size)
         read = wintypes.DWORD()
         if not kernel32.ReadFile(
             handle,
@@ -943,7 +1167,32 @@ def _windows_read_all(handle) -> bytes:
         if read.value == 0:
             break
         chunks.append(buffer.raw[: read.value])
+        if remaining is not None:
+            remaining -= read.value
     return b"".join(chunks)
+
+
+def _windows_handle_size(handle) -> int:
+    ctypes, wintypes, kernel32 = _windows_api()
+
+    class FileInformation(ctypes.Structure):
+        _fields_ = [
+            ("dwFileAttributes", wintypes.DWORD),
+            ("ftCreationTime", wintypes.FILETIME),
+            ("ftLastAccessTime", wintypes.FILETIME),
+            ("ftLastWriteTime", wintypes.FILETIME),
+            ("dwVolumeSerialNumber", wintypes.DWORD),
+            ("nFileSizeHigh", wintypes.DWORD),
+            ("nFileSizeLow", wintypes.DWORD),
+            ("nNumberOfLinks", wintypes.DWORD),
+            ("nFileIndexHigh", wintypes.DWORD),
+            ("nFileIndexLow", wintypes.DWORD),
+        ]
+
+    information = FileInformation()
+    if not kernel32.GetFileInformationByHandle(handle, ctypes.byref(information)):
+        _windows_raise_last_error(ctypes, "Could not inspect file size")
+    return (information.nFileSizeHigh << 32) | information.nFileSizeLow
 
 
 def _windows_rename_handle(handle, target: Path, *, replace: bool) -> None:
@@ -951,7 +1200,7 @@ def _windows_rename_handle(handle, target: Path, *, replace: bool) -> None:
 
     class RenameInformation(ctypes.Structure):
         _fields_ = [
-            ("ReplaceIfExists", wintypes.BOOLEAN),
+            ("Flags", wintypes.DWORD),
             ("RootDirectory", wintypes.HANDLE),
             ("FileNameLength", wintypes.DWORD),
             ("FileName", wintypes.WCHAR * 1),
@@ -964,7 +1213,7 @@ def _windows_rename_handle(handle, target: Path, *, replace: bool) -> None:
         buffer,
         ctypes.POINTER(RenameInformation),
     ).contents
-    information.ReplaceIfExists = replace
+    information.Flags = 0x00000001 if replace else 0
     information.RootDirectory = None
     information.FileNameLength = len(encoded_name)
     ctypes.memmove(
@@ -1017,6 +1266,189 @@ def _stat_target(parent_fd: int, name: str):
         return os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
     except FileNotFoundError:
         return None
+
+
+def _unlink_posix_if_identity(
+    parent_fd: int,
+    name: str,
+    expected_metadata,
+    relative_path: str,
+) -> None:
+    current = _stat_target(parent_fd, name)
+    if _stat_identity(current) != _stat_identity(expected_metadata):
+        raise SecureMutationError(
+            f"Published destination identity changed during rollback: "
+            f"{relative_path}."
+        )
+    os.unlink(name, dir_fd=parent_fd)
+
+
+def _verify_expected_existence(
+    expected_state: Optional[ExpectedFileState],
+    exists: bool,
+    relative_path: str,
+) -> None:
+    if expected_state is not None and expected_state.exists != exists:
+        raise SecureMutationError(
+            f"Destination changed after authorization: {relative_path}."
+        )
+
+
+def _verify_expected_posix_bytes(
+    parent_fd: int,
+    name: str,
+    expected_state: Optional[ExpectedFileState],
+    relative_path: str,
+) -> None:
+    if expected_state is None or expected_state.sha256 is None:
+        return
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    file_fd = os.open(name, flags, dir_fd=parent_fd)
+    try:
+        actual = _hash_file_descriptor(file_fd)
+    finally:
+        os.close(file_fd)
+    if actual != expected_state.sha256:
+        raise SecureMutationError(
+            f"Destination changed after authorization: {relative_path}."
+        )
+
+
+def _verify_expected_windows_bytes(
+    handle,
+    expected_state: Optional[ExpectedFileState],
+    relative_path: str,
+) -> None:
+    if expected_state is None or expected_state.sha256 is None:
+        return
+    actual = hashlib.sha256(_windows_read_all(handle)).hexdigest()
+    if actual != expected_state.sha256:
+        raise SecureMutationError(
+            f"Destination changed after authorization: {relative_path}."
+        )
+
+
+def _hash_file_descriptor(file_fd: int) -> str:
+    digest = hashlib.sha256()
+    duplicate_fd = os.dup(file_fd)
+    assert duplicate_fd is not None
+    with os.fdopen(duplicate_fd, "rb") as handle:
+        while True:
+            chunk = handle.read(1024 * 1024)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _supports_posix_rename_noreplace() -> bool:
+    if is_windows_host():
+        return False
+    try:
+        import ctypes
+
+        libc = ctypes.CDLL(None, use_errno=True)
+    except (ImportError, OSError):
+        return False
+    if sys.platform.startswith("linux"):
+        return hasattr(libc, "renameat2")
+    if sys.platform == "darwin":
+        return hasattr(libc, "renameatx_np")
+    return False
+
+
+def _posix_fchmod(file_fd: int, mode: int) -> None:
+    import ctypes
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    operation = getattr(libc, "fchmod", None)
+    if operation is None:
+        raise SecureMutationError(
+            "Secure POSIX replacement requires descriptor-based chmod."
+        )
+    if operation.__call__(file_fd, mode) != 0:
+        error_number = ctypes.get_errno()
+        raise OSError(error_number, os.strerror(error_number))
+
+
+def _posix_rename_noreplace(parent_fd: int, source: str, target: str) -> None:
+    """Rename within one pinned parent without replacing the target."""
+    import ctypes
+    import errno
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    source_bytes = os.fsencode(source)
+    target_bytes = os.fsencode(target)
+    if sys.platform.startswith("linux") and hasattr(libc, "renameat2"):
+        operation = libc.renameat2
+        operation.argtypes = (
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        )
+        result = operation(
+            parent_fd,
+            source_bytes,
+            parent_fd,
+            target_bytes,
+            _RENAME_NOREPLACE,
+        )
+    elif sys.platform == "darwin" and hasattr(libc, "renameatx_np"):
+        operation = libc.renameatx_np
+        operation.argtypes = (
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        )
+        result = operation(
+            parent_fd,
+            source_bytes,
+            parent_fd,
+            target_bytes,
+            _POSIX_RENAME_EXCL,
+        )
+    else:
+        raise SecureMutationError(
+            "This POSIX host has no supported no-replace rename primitive."
+        )
+    if result == 0:
+        return
+    error_number = ctypes.get_errno()
+    if error_number == errno.EEXIST:
+        raise FileExistsError(error_number, os.strerror(error_number), target)
+    if error_number == errno.ENOENT:
+        raise FileNotFoundError(error_number, os.strerror(error_number), source)
+    raise OSError(error_number, os.strerror(error_number), source, target)
+
+
+def _reject_oversize(
+    size: int,
+    max_bytes: Optional[int],
+    source_path: Path,
+) -> None:
+    if max_bytes is not None and size > max_bytes:
+        raise SecureMutationError(
+            f"Source size {size} exceeds secure read limit {max_bytes}: "
+            f"{source_path}."
+        )
+
+
+def _read_stream_bounded(
+    stream: BinaryIO,
+    *,
+    max_bytes: Optional[int],
+    source_path: Path,
+) -> bytes:
+    content = stream.read() if max_bytes is None else stream.read(max_bytes + 1)
+    if max_bytes is not None and len(content) > max_bytes:
+        raise SecureMutationError(
+            f"Source grew beyond secure read limit {max_bytes}: {source_path}."
+        )
+    return content
 
 
 def _verify_parent_identity(
@@ -1085,7 +1517,7 @@ def _is_link_or_reparse(metadata) -> bool:
 
 
 def _fsync_directory(path: Path) -> None:
-    if os.name == "nt":
+    if is_windows_host():
         return
     flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
     descriptor = os.open(path, flags)

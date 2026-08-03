@@ -27,35 +27,35 @@ if sys.version_info < (3, 8):
     sys.exit(1)
 
 import argparse
+import functools
 import hashlib
 import json
 import os
 import re
 import stat
-import tempfile
 import unicodedata
 import urllib.parse
-import uuid
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 
 
+@functools.lru_cache(maxsize=1)
 def _get_parse_frontmatter():
     """Lazy-load parse_frontmatter to defer sys.path mutation until first call."""
-    if not hasattr(_get_parse_frontmatter, "_cache"):
-        import sys as _sys
-        _scripts_dir = str(Path(__file__).parent)
-        if _scripts_dir not in _sys.path:
-            _sys.path.insert(0, _scripts_dir)
-        from brain.utils import parse_frontmatter as _fn
-        _get_parse_frontmatter._cache = _fn
-    return _get_parse_frontmatter._cache
+    scripts_dir = str(Path(__file__).parent)
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    from brain.utils import parse_frontmatter
+    return parse_frontmatter
+
+
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
+MAX_OWNERSHIP_MANIFEST_BYTES = 8 * 1024 * 1024
 OWNERSHIP_POLICY_VERSION = 1
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -151,6 +151,8 @@ class TargetCommitPlan:
     stale_files: Tuple[OwnedFile, ...]
     manifest_path: Path
     manifest_content: bytes
+    expected_states: Mapping[str, secure_fs.ExpectedFileState]
+    manifest_expected_state: secure_fs.ExpectedFileState
 
 
 def _portable_path_key(value: str) -> tuple[str, ...]:
@@ -583,7 +585,7 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
                         "path": str(path),
                         "relative_path": path.relative_to(root).as_posix(),
                         "bundle_relative_path": relative,
-                        "content": path.read_bytes(),
+                        "content": _skill_bundle_content(path),
                         "executable": bool(mode & 0o111),
                     })
                 else:
@@ -591,6 +593,18 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
 
     visit(skill_root)
     return sorted(files, key=lambda item: item["bundle_relative_path"])
+
+
+def _skill_bundle_content(path: Path) -> bytes:
+    """Read one skill resource with deterministic Markdown line endings."""
+    content = path.read_bytes()
+    if path.suffix.casefold() not in {".md", ".markdown"}:
+        return content
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"Markdown file is not valid UTF-8: {path}") from exc
+    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
 
 
 def _validate_bundle_markdown_references(
@@ -1002,13 +1016,35 @@ def _read_prior_ownership_manifest(
     result: TargetResult,
 ) -> Dict[str, OwnedFile]:
     """Read and strictly validate a target's prior ownership manifest."""
-    manifest_path = root / result.target_root / OWNERSHIP_MANIFEST_NAME
-    if not manifest_path.exists():
-        return {}
-    if manifest_path.is_symlink() or not manifest_path.is_file():
-        raise ValueError(f"Ownership manifest is not a regular file: {manifest_path}")
+    owned, _expected_state = _read_prior_ownership_manifest_snapshot(root, result)
+    return owned
+
+
+def _read_prior_ownership_manifest_snapshot(
+    root: Path,
+    result: TargetResult,
+) -> tuple[Dict[str, OwnedFile], secure_fs.ExpectedFileState]:
+    """Parse ownership and preserve the exact pinned manifest state."""
+    relative_path = PurePosixPath(
+        result.target_root,
+        OWNERSHIP_MANIFEST_NAME,
+    )
+    manifest_path = root / relative_path
+    if not root.exists():
+        return {}, secure_fs.ExpectedFileState.absent()
     try:
-        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        content = secure_fs.secure_read_bytes(
+            root,
+            relative_path,
+            reject_hardlinks=True,
+            max_bytes=MAX_OWNERSHIP_MANIFEST_BYTES,
+        )
+    except FileNotFoundError:
+        return {}, secure_fs.ExpectedFileState.absent()
+    except secure_fs.SecureMutationError as exc:
+        raise ValueError(f"Ownership manifest is unsafe: {manifest_path}") from exc
+    try:
+        data = json.loads(content.decode("utf-8", errors="strict"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"Ownership manifest is malformed: {manifest_path}") from exc
     if not isinstance(data, dict) or set(data) != {
@@ -1051,7 +1087,7 @@ def _read_prior_ownership_manifest(
         if type(item["executable"]) is not bool:
             raise ValueError(f"{label}.executable must be a boolean")
         owned[path] = OwnedFile(path, item["sha256"])
-    return owned
+    return owned, secure_fs.ExpectedFileState.from_bytes(content)
 
 
 def _regular_file_hash(path: Path, label: str) -> str:
@@ -1062,7 +1098,7 @@ def _regular_file_hash(path: Path, label: str) -> str:
 
 
 def _matches_expected_content(current: bytes, expected: bytes) -> bool:
-    """Return whether current bytes equal expected bytes apart from text EOLs."""
+    """Return whether text checkout EOLs normalize to exact planned bytes."""
     if current == expected:
         return True
     if b"\r\n" not in current:
@@ -1088,7 +1124,11 @@ def _open_relative_parent(root: Path, relative_path: str, *, create: bool) -> tu
     return secure_fs.open_relative_parent(root, relative_path, create=create)
 
 
-def _secure_write_entry(root: Path, entry: OutputEntry) -> None:
+def _secure_write_entry(
+    root: Path,
+    entry: OutputEntry,
+    expected_state: secure_fs.ExpectedFileState,
+) -> None:
     """Atomically write an output through a root-anchored no-follow parent handle."""
     secure_fs.secure_write_bytes(
         root,
@@ -1096,6 +1136,7 @@ def _secure_write_entry(root: Path, entry: OutputEntry) -> None:
         entry.content,
         executable=entry.executable,
         before_replace=_before_secure_replace,
+        expected_state=expected_state,
     )
 
 
@@ -1122,10 +1163,14 @@ def _before_secure_unlink(_path: Path) -> None:
 
 def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPlan:
     """Validate ownership, conflicts, and stale files before mutation."""
-    owned = _read_prior_ownership_manifest(root, result)
+    owned, manifest_expected_state = _read_prior_ownership_manifest_snapshot(
+        root,
+        result,
+    )
     expected = {entry.destination: entry for entry in result.entries}
     target_root = root / result.target_root
     manifest_path = target_root / OWNERSHIP_MANIFEST_NAME
+    expected_states: Dict[str, secure_fs.ExpectedFileState] = {}
 
     for entry in result.entries:
         destination = root / entry.destination
@@ -1137,9 +1182,12 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
                 break
             ancestor = ancestor.parent
         if not destination.exists() and not destination.is_symlink():
+            expected_states[entry.destination] = secure_fs.ExpectedFileState.absent()
             continue
         if destination.is_symlink() or not destination.is_file():
-            raise ValueError(f"Expected destination is not a regular file: {destination}")
+            raise ValueError(
+                f"Expected destination is not a regular file: {destination}"
+            )
         current_bytes = destination.read_bytes()
         current_hash = hashlib.sha256(current_bytes).hexdigest()
         prior = owned.get(entry.destination)
@@ -1148,13 +1196,19 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
             allowed_hashes.add(prior.sha256)
         is_owned = current_hash in allowed_hashes
         if not is_owned and b"\r\n" in current_bytes:
-            normalized_hash = hashlib.sha256(current_bytes.replace(b"\r\n", b"\n")).hexdigest()
+            normalized_hash = hashlib.sha256(
+                current_bytes.replace(b"\r\n", b"\n")
+            ).hexdigest()
             is_owned = normalized_hash in allowed_hashes
         if not is_owned:
             is_owned = _matches_expected_content(current_bytes, entry.content)
         if not is_owned:
             ownership = "owned" if prior is not None else "unowned"
             raise ValueError(f"Conflicting {ownership} expected destination: {entry.destination}")
+        expected_states[entry.destination] = secure_fs.ExpectedFileState(
+            True,
+            current_hash,
+        )
 
     stale_files = tuple(owned[path] for path in sorted(set(owned) - set(expected)))
     for stale in stale_files:
@@ -1165,10 +1219,13 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
         if current_hash != stale.sha256:
             raise ValueError(f"Modified stale owned file will not be deleted: {stale.path}")
 
-    if manifest_path.exists() and (manifest_path.is_symlink() or not manifest_path.is_file()):
-        raise ValueError(f"Ownership manifest is not a regular file: {manifest_path}")
     return TargetCommitPlan(
-        result, stale_files, manifest_path, _ownership_manifest_bytes(result)
+        result,
+        stale_files,
+        manifest_path,
+        _ownership_manifest_bytes(result),
+        expected_states,
+        manifest_expected_state,
     )
 
 
@@ -1188,12 +1245,15 @@ def commit_generation_plan(
     )
     entries = tuple(entry for commit_plan in commit_plans
                     for entry in commit_plan.result.entries)
-    for entry in entries:
-        _secure_write_entry(root, entry)
     for commit_plan in commit_plans:
-        target_root = root / commit_plan.result.target_root
+        for entry in commit_plan.result.entries:
+            _secure_write_entry(
+                root,
+                entry,
+                commit_plan.expected_states[entry.destination],
+            )
+    for commit_plan in commit_plans:
         for stale in commit_plan.stale_files:
-            path = root / stale.path
             _secure_delete_stale(root, stale)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_entry = OutputEntry(
@@ -1205,7 +1265,11 @@ def commit_generation_plan(
             hashlib.sha256(commit_plan.manifest_content).hexdigest(),
             False,
         )
-        _secure_write_entry(root, manifest_entry)
+        _secure_write_entry(
+            root,
+            manifest_entry,
+            commit_plan.manifest_expected_state,
+        )
     return CommitResult(target_ids, entries)
 
 
@@ -1275,7 +1339,7 @@ def _emit_agent(
 
 def _emit_fallback_agent(
     source: dict[str, Any],
-    target: dict[str, Any],
+    _target: dict[str, Any],
 ) -> str:
     """Emit a fallback skill/instruction file for an agent (Codex without native subagent support)."""
     fm = source["frontmatter"]
@@ -1287,7 +1351,6 @@ def _emit_fallback_agent(
 
 def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
-    tid = target["id"]
     name = target["name"]
     paths = target["outputPaths"]
     return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
@@ -1385,6 +1448,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 1
 
     all_written: list[str] = []
+    committed_by_target: dict[str, tuple[OutputEntry, ...]] = {}
     if not args.dry_run:
         try:
             committed = commit_generation_plan(
