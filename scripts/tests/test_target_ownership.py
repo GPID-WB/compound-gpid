@@ -182,6 +182,19 @@ def test_manifest_second_generation_is_byte_identical(tmp_path: Path) -> None:
     assert _manifest_path(root).read_bytes() == first
 
 
+def test_generation_repairs_windows_line_endings_without_conflict(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    command = root / ".claude/commands/cg-alpha.md"
+    command.write_bytes(command.read_bytes().replace(b"\n", b"\r\n"))
+
+    assert _generate(root) == 0
+    assert b"\r\n" not in command.read_bytes()
+    assert _manifest_entry(root, ".claude/commands/cg-alpha.md")["sha256"] == hashlib.sha256(
+        command.read_bytes()
+    ).hexdigest()
+
+
 def test_cleanup_deletes_unchanged_stale_file_after_source_delete_and_rename(tmp_path: Path) -> None:
     root = _fixture_repo(tmp_path)
     assert _generate(root) == 0

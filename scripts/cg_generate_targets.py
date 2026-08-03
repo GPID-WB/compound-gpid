@@ -1061,6 +1061,15 @@ def _regular_file_hash(path: Path, label: str) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _matches_expected_content(current: bytes, expected: bytes) -> bool:
+    """Return whether current bytes equal expected bytes apart from text EOLs."""
+    if current == expected:
+        return True
+    if b"\r\n" not in current:
+        return False
+    return current.replace(b"\r\n", b"\n") == expected
+
+
 def _revalidate_destination_ancestors(root: Path, destination: Path) -> None:
     """Reject a destination whose existing ancestor changed into a link or non-directory."""
     try:
@@ -1129,12 +1138,21 @@ def _preflight_target_commit(root: Path, result: TargetResult) -> TargetCommitPl
             ancestor = ancestor.parent
         if not destination.exists() and not destination.is_symlink():
             continue
-        current_hash = _regular_file_hash(destination, "Expected destination")
+        if destination.is_symlink() or not destination.is_file():
+            raise ValueError(f"Expected destination is not a regular file: {destination}")
+        current_bytes = destination.read_bytes()
+        current_hash = hashlib.sha256(current_bytes).hexdigest()
         prior = owned.get(entry.destination)
         allowed_hashes = {entry.sha256}
         if prior is not None:
             allowed_hashes.add(prior.sha256)
-        if current_hash not in allowed_hashes:
+        is_owned = current_hash in allowed_hashes
+        if not is_owned and b"\r\n" in current_bytes:
+            normalized_hash = hashlib.sha256(current_bytes.replace(b"\r\n", b"\n")).hexdigest()
+            is_owned = normalized_hash in allowed_hashes
+        if not is_owned:
+            is_owned = _matches_expected_content(current_bytes, entry.content)
+        if not is_owned:
             ownership = "owned" if prior is not None else "unowned"
             raise ValueError(f"Conflicting {ownership} expected destination: {entry.destination}")
 
