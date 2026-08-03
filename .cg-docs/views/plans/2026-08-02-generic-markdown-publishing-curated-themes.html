@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md">
+<meta name="artifact-source-sha256" content="ed6d3e54f6009c895253dca672aca000efa7c3b43474cf548375e702eb03b2b1">
+<meta name="artifact-schema-version" content="1">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Generic Markdown Publishing and Curated Artifact Themes · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":1,"generatedAt":"2026-08-03T21:20:49Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md","sourceSha256":"ed6d3e54f6009c895253dca672aca000efa7c3b43474cf548375e702eb03b2b1"}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Generic Markdown Publishing and Curated Artifact Themes</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-08-02-generic-markdown-publishing-curated-themes.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#1-define-the-publishing-and-theme-contracts">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Contracts, Models, and Reproducible Identity</li><li><strong>Phase 2</strong> · Shared Rendering, Curated Themes, and Secure Publication</li><li><strong>Phase 3</strong> · Commands, Workflow Integration, and Platform Parity</li><li><strong>Phase 4</strong> · Cross-Theme Evidence and Adversarial Validation</li><li><strong>Phase 5</strong> · Documentation and Release Gates</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1, 4, 9, 13</li><li><strong>R2</strong> → steps 1, 2, 4, 8, 9, 13, 14</li><li><strong>R3</strong> → steps 2, 6</li><li><strong>R4</strong> → steps 2, 6</li><li><strong>R5</strong> → steps 1, 3, 4, 5, 8, 9, 13</li><li><strong>R6</strong> → steps 1, 3, 8, 9, 13</li><li><strong>R7</strong> → steps 4, 11, 12, 14</li><li><strong>R8</strong> → steps 5, 11, 12</li><li><strong>R9</strong> → steps 1, 2, 4, 5, 6, 11, 12, 14</li><li><strong>R10</strong> → steps 2, 6, 7, 11, 12, 13, 14</li><li><strong>R11</strong> → steps 3, 7, 8, 13</li><li><strong>R12</strong> → steps 7, 10, 14</li><li><strong>R13</strong> → steps 3, 4, 7, 8, 11, 12, 13, 14</li><li><strong>R14</strong> → steps 8, 9, 10, 13</li><li><strong>R15</strong> → steps 9, 10, 13, 14</li><li><strong>R16</strong> → steps 10, 13, 14</li><li><strong>R17</strong> → steps 5, 6, 11, 12, 14</li><li><strong>R18</strong> → steps 1, 2, 5, 6, 9, 10, 12, 13, 14</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="17-17"><h1 id="plan-generic-markdown-publishing-and-curated-artifact-themes">Plan: Generic Markdown Publishing and Curated Artifact Themes</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="19-19"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="21-25"><p>Extend the completed Brainstorm and Plan artifact-view system with an additive, deterministic Markdown publishing path and two curated visual themes. Preserve strict Brainstorm and Plan validation, keep Markdown authoritative, make theme selection explicit and reproducible, and provide a secure generic publisher that the separately planned completion dossier can reuse.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="27-27"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="29-35"><p>The completed artifact-view implementation validates versioned Brainstorms and Plans, builds typed source ledgers, and renders self-contained HTML under <code>.cg-docs/views/</code>. Its architecture deliberately supports only two artifact types: <code>ArtifactKind</code> is closed, <code>resolve_artifact_paths()</code> accepts only the Brainstorm and Plan source roots, <code>write_view()</code> accepts only their view namespaces, and <code>render_document()</code> rejects other document models. The current HTML shell also contains one hard-coded design contract.</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="37-41"><p>This plan is a follow-up to <code>.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md</code>, not a revision of its completed contract. The follow-up keeps that implementation&#x27;s validation, source coverage, security, provenance, failure recovery, context exclusion, and cross-platform behavior as inherited constraints.</p></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="43-44"><p>The decided brainstorm defines one initiative with two linked delivery units. This plan covers only the first unit:</p></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="46-51"><ul><li>a generic Markdown document model and publisher;</li><li>stable <code>reference</code> and <code>editorial</code> themes;</li><li>deterministic defaults and explicit theme overrides;</li><li>shared provenance, freshness, security, accessibility, print, and failure behavior;</li><li>a user-facing <code>/cg-render-doc</code> workflow and local renderer command.</li></ul></div>
+<div class="source-block" id="render-owner-0018" data-source-block="block-0018" data-source-lines="53-55"><p>The second unit will define and synthesize the canonical completion report, integrate it with <code>/cg-compound</code>, and register <code>editorial</code> as that artifact type&#x27;s default. It requires a separate plan after this foundation is accepted.</p></div>
+<div class="source-block" id="render-owner-0020" data-source-block="block-0020" data-source-lines="57-59"><p>The <code>reference</code> theme is the current restrained artifact-view presentation. The <code>editorial</code> theme is ported from the visual system on <code>refactor/modular-compound-gpid</code>, specifically:</p></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="61-62"><ul><li><code>.github/skills/cg-skill-standalone-html-brief/references/design-system.md</code>;</li><li><code>.github/skills/cg-skill-standalone-html-brief/assets/editorial-brief-template.html</code>.</li></ul></div>
+<div class="source-block" id="render-owner-0024" data-source-block="block-0024" data-source-lines="64-66"><p>Those branch assets are design inputs only. Runtime publishing remains deterministic and does not reproduce the branch skill&#x27;s model-authored, document-by-document HTML composition.</p></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="68-72"><p>The generic publisher must not weaken strict validation by pretending arbitrary Markdown satisfies a Brainstorm or Plan schema. It instead needs a separate document model that shares safe lexical parsing, exact source ownership, rendering components, provenance, and publication infrastructure where those contracts genuinely overlap.</p></div>
+<div class="source-block" id="render-owner-0028" data-source-block="block-0028" data-source-lines="74-77"><p>The roadmap feature <code>broader-artifact-publishing-formats-and-views</code> is the matching work item. The separate <code>workflow-completion-report-and-html-dossier</code> feature explicitly depends on this generic publishing capability.</p></div>
+<div class="source-block source-heading" id="render-owner-0030" data-source-block="block-0030" data-source-lines="79-79"><h3 id="dependency-graph">Dependency Graph</h3></div>
+<div class="source-block" id="render-owner-0032" data-source-block="block-0032" data-source-lines="81-97"><pre><code class="language-mermaid">flowchart TD
+    A[Existing strict artifact contracts] --&gt; B[Shared lexical primitives]
+    B --&gt; C[Generic Markdown document model]
+    A --&gt; D[Strict Brainstorm and Plan models]
+    C --&gt; E[Shared semantic page model]
+    D --&gt; E
+    F[Theme registry and default map] --&gt; E
+    E --&gt; G[Reference and editorial HTML shells]
+    G --&gt; H[Theme-aware provenance and freshness]
+    H --&gt; I[Secure root-contained publication]
+    I --&gt; J[Strict and generic CLIs]
+    J --&gt; K[Publishing skill and render-doc prompt]
+    K --&gt; L[Generated platform targets and installers]
+    L --&gt; M[Visual evidence and release gates]
+    M --&gt; N[Future completion-report delivery unit]</code></pre></div>
+<div class="source-block source-heading" id="render-owner-0034" data-source-block="block-0034" data-source-lines="99-99"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0036" data-source-block="block-0036" data-source-lines="101-120"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Preserve canonical Markdown as the sole authority and derived HTML as deterministic, regenerable presentation with no execution, approval, or roadmap semantics.</td><td>Brainstorm: Context and Requirements</td></tr><tr><td>R2</td><td>Keep strict Brainstorm and Plan parsing and mandatory schema validation intact; generic Markdown must use a separate model and validation path.</td><td>Brainstorm: Decision; completed artifact-view contract</td></tr><tr><td>R3</td><td>Parse project-contained generic Markdown into an immutable, source-spanned document model with complete lexical coverage and exact-once rendered ownership.</td><td>Roadmap: generic Markdown publishing</td></tr><tr><td>R4</td><td>Support a documented version 1 Markdown grammar for headings, paragraphs, lists, tables, fenced code, blockquotes, links, images, thematic breaks, and recognized callouts; visibly escape bounded unsupported source and fail on ambiguous structures.</td><td>Roadmap: generic Markdown publishing</td></tr><tr><td>R5</td><td>Define stable <code>reference</code> and <code>editorial</code> theme names, independent theme contract versions, artifact/document-type defaults, compatibility rules, and unknown-theme failure behavior.</td><td>Brainstorm: Requirements and Decision</td></tr><tr><td>R6</td><td>Default Brainstorms, Plans, and unspecified generic documents to <code>reference</code>; reserve <code>editorial</code> as the completion-report default for the dependent delivery unit; allow only explicit user overrides in version 1.</td><td>Brainstorm: Requirements and Decision</td></tr><tr><td>R7</td><td>Preserve the current artifact-view design as <code>reference</code> without weakening strict validation, source fidelity, navigation, accessibility, responsive behavior, or print behavior.</td><td>Brainstorm: Next Steps</td></tr><tr><td>R8</td><td>Port the alternate branch&#x27;s typography, exact palette, layout grammar, comparison surfaces, responsive rules, and print behavior as a coherent <code>editorial</code> theme without importing model-authored content or runtime dependencies.</td><td>Brainstorm: Context and Next Steps</td></tr><tr><td>R9</td><td>Keep theme choice presentation-only: both themes consume the same trusted semantic markup, preserve all substantive source blocks, and expose equivalent landmarks and provenance.</td><td>Brainstorm: Requirements</td></tr><tr><td>R10</td><td>Treat source as untrusted data: escape raw HTML, allow only safe navigation links, securely embed allowlisted project-local bitmap images, reject executable or remote resources, and enforce a restrictive offline CSP.</td><td>Roadmap: security and adversarial acceptance</td></tr><tr><td>R11</td><td>Accept only regular project-contained Markdown sources, reject <code>.cg-docs/views/**</code> as source, map generic defaults under <code>.cg-docs/views/documents/**</code>, and constrain any explicit output to a registered root-contained view namespace.</td><td>Roadmap: paths and explicit output</td></tr><tr><td>R12</td><td>Publish and recover through shared pinned-handle, non-replacing filesystem operations that preserve concurrent winners and recovery artifacts; never rely on pathname check-then-replace behavior.</td><td>Solution: secure publication and rollback</td></tr><tr><td>R13</td><td>Extend visible and machine-readable provenance with document type, provenance schema version, selected theme, theme contract version, source path/hash, renderer version, and generation time; make exact-byte freshness reproduce the recorded theme.</td><td>Brainstorm: Requirements; roadmap: freshness</td></tr><tr><td>R14</td><td>Provide <code>cg-render-markdown</code> plus <code>/cg-render-doc</code> with explicit render, validation, freshness, theme override, constrained output, concise success, and exact recovery behavior; retain <code>cg-render-artifact</code> for strict workflow artifacts.</td><td>Roadmap: command and skill</td></tr><tr><td>R15</td><td>Keep <code>.github/</code> canonical and provide equivalent GitHub Copilot, Claude Code, Codex, and OpenCode prompt/skill behavior, cross-platform launchers, installers, and generated-target closure.</td><td>Brainstorm: Requirements; repository packaging contract</td></tr><tr><td>R16</td><td>Exclude all generated view bodies and diffs from Brain, context, review, commit/PR, release, and duplicate-content model inputs while retaining path, hash, staging, and freshness metadata.</td><td>Brainstorm: Requirements; artifact-view contract</td></tr><tr><td>R17</td><td>Validate technical, decision, and editorial fixtures in both themes for determinism, fidelity, accessibility, offline behavior, responsive layouts, print output, long-document navigation, and no overlap or overflow.</td><td>Brainstorm: Next Steps; roadmap acceptance</td></tr><tr><td>R18</td><td>Keep version 1 one-file, local, dependency-free at runtime, and model/network/Open Design free; exclude completion-report synthesis, bulk backfill, PDF generation, hosted publishing, live editing, arbitrary plugins, and documentation-site restyling.</td><td>Brainstorm: Requirements and Decision; roadmap boundaries</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0038" data-source-block="block-0038" data-source-lines="122-122"><h2 id="phase-1-contracts-models-and-reproducible-identity">Phase 1: Contracts, Models, and Reproducible Identity</h2></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="124-124"><h3 id="1-define-the-publishing-and-theme-contracts">1. Define the publishing and theme contracts</h3></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="126-159"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 126–159</figcaption><pre><code>- **Requirements**: R1, R2, R5, R6, R9, R18
+- **Files**:
+  - `scripts/artifact_views/themes/__init__.py` (new)
+  - `scripts/artifact_views/themes/contract.py` (new)
+  - `scripts/artifact_views/publishing.py` (new)
+  - `scripts/artifact_views/errors.py`
+  - `scripts/artifact_views/tests/test_themes.py` (new)
+  - `scripts/artifact_views/tests/test_contract.py`
+- **Details**:
+  - Add an immutable theme contract with stable name, independent contract
+    version, design tokens, supported semantic components, stylesheet bytes,
+    and compatibility metadata.
+  - Register exactly `reference` and `editorial` in version 1. Unknown names
+    fail with available values and a corrected command; there is no silent
+    fallback or alias.
+  - Define deterministic document-type defaults: Brainstorm, Plan, and generic
+    use `reference`; the registry reserves completion report for `editorial`
+    without adding a completion-report parser, generator, or workflow in this
+    plan.
+  - Keep theme selection out of the canonical source model. Represent it as an
+    explicit rendering input so presentation cannot become source authority.
+  - Define explicit override precedence as command input over the documented
+    document-type default. Do not add subjective agent selection or a hidden
+    project-local theme override in version 1.
+  - Version theme contracts independently from artifact schemas and renderer
+    code so a visual contract change can make views stale without changing
+    canonical Markdown semantics.
+- **Test Scenarios**: stable registry and default lookup; explicit override;
+  reserved completion-report default; duplicate/empty registration; unknown
+  theme; mutation attempts against frozen contracts.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_contract.py`
+- **Acceptance criteria**: theme names, versions, defaults, resolution order,
+  compatibility, and failure behavior are executable contracts; strict schema
+  definitions remain unchanged.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0044" data-source-block="block-0044" data-source-lines="161-161"><h3 id="2-add-an-additive-generic-markdown-model-and-parser">2. Add an additive generic Markdown model and parser</h3></div>
+<div class="source-block" id="render-owner-0046" data-source-block="block-0046" data-source-lines="163-199"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 163–199</figcaption><pre><code>- **Requirements**: R2, R3, R4, R9, R10, R18
+- **Files**:
+  - `scripts/artifact_views/generic_model.py` (new)
+  - `scripts/artifact_views/generic_parser.py` (new)
+  - `scripts/artifact_views/parser.py`
+  - `scripts/artifact_views/model.py`
+  - `scripts/artifact_views/schema.py`
+  - `scripts/artifact_views/tests/test_generic_parser.py` (new)
+  - `scripts/artifact_views/tests/fixtures/generic/` (new fixtures)
+- **Details**:
+  - Extract only genuinely shared fence-aware lexical primitives from the
+    strict parser. Keep `parse_artifact()` and `validate_source()` as the sole
+    Brainstorm/Plan path and preserve their existing public behavior.
+  - Add a separate generic document identity and immutable lexical ledger with
+    one-based line spans, half-open byte ranges, stable block IDs, and complete
+    normalized-source coverage.
+  - Derive title deterministically from frontmatter, then the first level-one
+    heading, then the source filename. Generic documents do not require
+    Compound artifact frontmatter.
+  - Define the closed version 1 block and inline grammar needed by the roadmap.
+    Recognize callouts only through documented source syntax, such as an
+    allowlisted blockquote marker; do not infer callout meaning from prose.
+  - Preserve unsupported but structurally bounded Markdown as a visible,
+    escaped raw-source block. Reject unclosed fences, malformed tables,
+    overlapping ownership, and other ambiguous structures with source spans
+    and recovery guidance.
+  - Prove every substantive byte range is owned exactly once before rendering.
+    Generic parsing must never classify input as a Brainstorm or Plan or claim
+    strict validation success.
+- **Test Scenarios**: no frontmatter; title fallbacks; Unicode and CRLF; nested
+  and long documents; tables with escaped/code-span pipes; recognized and
+  unknown callouts; raw HTML; unclosed fences; malformed tables; unsupported
+  bounded syntax; complete and duplicate source ownership.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_generic_parser.py scripts/artifact_views/tests/test_parser.py scripts/artifact_views/tests/test_model.py scripts/artifact_views/tests/test_coverage.py`
+- **Acceptance criteria**: representative generic Markdown produces an exact,
+  immutable source ledger without entering the strict artifact validator, and
+  ambiguous input fails before any output mutation.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0048" data-source-block="block-0048" data-source-lines="201-201"><h3 id="3-define-safe-generic-paths-and-theme-aware-provenance">3. Define safe generic paths and theme-aware provenance</h3></div>
+<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="203-242"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 203–242</figcaption><pre><code>- **Requirements**: R5, R6, R11, R13
+- **Files**:
+  - `scripts/artifact_views/paths.py`
+  - `scripts/artifact_views/provenance.py`
+  - `scripts/artifact_views/publishing.py` (new)
+  - `scripts/artifact_views/tests/test_paths.py`
+  - `scripts/artifact_views/tests/test_provenance.py`
+  - `scripts/artifact_views/tests/test_publishing_paths.py` (new)
+- **Details**:
+  - Preserve strict mappings for `.cg-docs/brainstorms/**` and
+    `.cg-docs/plans/**`.
+  - Accept generic `.md` sources anywhere under the real project root except
+    `.cg-docs/views/**`, generated-target exclusions where applicable, links,
+    reparse points, non-regular files, and paths that escape through any
+    component.
+  - Map a generic source deterministically to
+    `.cg-docs/views/documents/&lt;project-relative-source&gt;.html`, replacing only
+    the final `.md` suffix. Preserve enough path identity to prevent two source
+    files from colliding.
+  - Support an explicit output only inside the registered generic documents
+    namespace in version 1. Reserve Brainstorm, Plan, and future
+    completion-report namespaces for their typed owners.
+  - Introduce a versioned provenance payload that includes `documentType`,
+    `themeName`, and `themeContractVersion` in addition to current source and
+    renderer identity. Parse exact keys, reject duplicates and invalid types,
+    and classify legacy views deterministically as stale rather than unsafe.
+  - Specify freshness behavior: when an existing view has no command-line
+    theme override, `--check` reproduces bytes with the theme recorded in valid
+    provenance; an explicit override checks that requested theme; missing views
+    resolve from the document-type default. Recovery output includes
+    `--theme &lt;name&gt;` whenever a prior view used a non-default theme.
+- **Test Scenarios**: root Markdown and nested documentation; `.cg-docs` source;
+  `.cg-docs/views` recursion; symlink/reparse/hard-link cases; case and suffix
+  edge cases; explicit-output collision and reserved namespace; provenance
+  round-trip; duplicate/missing/unknown theme fields; legacy view; theme-version
+  drift; default and overridden freshness.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_publishing_paths.py scripts/artifact_views/tests/test_provenance.py`
+- **Acceptance criteria**: every source and output is unambiguous and
+  root-contained, and provenance contains all inputs needed to reproduce the
+  selected presentation without changing source authority.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0052" data-source-block="block-0052" data-source-lines="244-244"><h2 id="phase-2-shared-rendering-curated-themes-and-secure-publication">Phase 2: Shared Rendering, Curated Themes, and Secure Publication</h2></div>
+<div class="source-block source-heading" id="render-owner-0054" data-source-block="block-0054" data-source-lines="246-246"><h3 id="4-extract-the-current-renderer-as-the-reference-theme">4. Extract the current renderer as the reference theme</h3></div>
+<div class="source-block" id="render-owner-0056" data-source-block="block-0056" data-source-lines="248-282"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 248–282</figcaption><pre><code>- **Requirements**: R1, R2, R5, R7, R9, R13
+- **Files**:
+  - `scripts/artifact_views/templates.py`
+  - `scripts/artifact_views/renderer.py`
+  - `scripts/artifact_views/themes/reference.py` (new)
+  - `scripts/artifact_views/themes/components.py` (new)
+  - `scripts/artifact_views/tests/snapshots/design-contract-reference.json` (new)
+  - `scripts/artifact_views/tests/test_design_contract.py`
+  - `scripts/artifact_views/tests/test_renderer.py`
+  - `scripts/artifact_views/tests/test_accessibility.py`
+- **Details**:
+  - Move the frozen current tokens and CSS from `templates.py` into the
+    `reference` theme without changing their values or visual roles.
+  - Separate trusted semantic page markup from presentation. Both themes must
+    consume the same headings, landmarks, source ownership wrappers,
+    navigation, tables, code, callouts, provenance, and safe link/image nodes.
+  - Permit only source-derived grouping, IDs, counts, navigation, and typed
+    relationship summaries. Theme code cannot drop, rewrite, or claim source
+    blocks.
+  - Keep the strict renderer&#x27;s Brainstorm approach index and Plan phase and
+    requirement maps. Generic documents receive heading-derived navigation and
+    no invented summary.
+  - Update the full HTML shell to include theme identity in metadata and body
+    data attributes while maintaining the restrictive CSP and sole
+    non-executable provenance script.
+  - Freeze reference design tokens and semantic snapshots. Allow intentional
+    provenance-schema differences, but require equivalent strict artifact
+    content ownership, landmarks, navigation, accessibility, and print rules.
+- **Test Scenarios**: strict Brainstorm and phased/non-phased Plan; generic
+  document shell; reference default; semantic snapshot; exact source owners;
+  duplicate IDs; navigation anchors; print and reduced-motion guards.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_validator.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_accessibility.py`
+- **Acceptance criteria**: existing strict artifacts still validate and render
+  through `reference` with their complete semantic structure and source ledger;
+  theme extraction does not create a second semantic renderer.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0058" data-source-block="block-0058" data-source-lines="284-284"><h3 id="5-port-the-editorial-design-as-a-complete-second-theme">5. Port the editorial design as a complete second theme</h3></div>
+<div class="source-block" id="render-owner-0060" data-source-block="block-0060" data-source-lines="286-320"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 286–320</figcaption><pre><code>- **Requirements**: R5, R8, R9, R17, R18
+- **Files**:
+  - `scripts/artifact_views/themes/editorial.py` (new)
+  - `scripts/artifact_views/themes/components.py` (new)
+  - `scripts/artifact_views/tests/snapshots/design-contract-editorial.json` (new)
+  - `scripts/artifact_views/tests/test_themes.py`
+  - `scripts/artifact_views/tests/test_design_contract.py`
+  - `scripts/artifact_views/tests/test_renderer.py`
+- **Details**:
+  - Freeze the alternate branch&#x27;s exact core palette: ink `#181816`, paper
+    `#fbfbf8`, coral `#e94f2d`, teal `#087c70`, blue `#2856c7`, yellow
+    `#f2c84b`, plus its documented soft, success, danger, line, geometry, and
+    content-width tokens.
+  - Use Georgia for display text, Trebuchet MS for body and controls, and
+    Consolas for code, with system fallbacks and no downloaded fonts.
+  - Port full-width section bands, grid-textured hero treatment, visible
+    borders, restrained hard shadows, section-index grammar, comparison
+    surfaces, paired tradeoffs, decision bands, timeline styling, and metadata
+    treatment only where the shared semantic markup supplies those structures.
+  - Use CSS and deterministic source-derived classes only. Do not add
+    model-authored layouts, inferred decisions, invented metrics, external
+    resources, runtime JavaScript, or copied source content from the template.
+  - Implement the documented `980px` and `720px` layout behavior, reduced
+    motion, print simplification, stable table overflow, and no nested cards.
+  - Record the alternate branch source paths and token contract in developer
+    documentation so future changes can distinguish the frozen theme from its
+    inspiration.
+- **Test Scenarios**: frozen token snapshot; complete standalone stylesheet;
+  no external URLs or executable scripts; same semantic DOM summary as
+  reference; long title; dense table; comparison and callout classes; mobile
+  stacking; print and reduced motion.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_accessibility.py`
+- **Acceptance criteria**: `editorial` is recognizably the verified alternate
+  branch design system, remains a presentation-only layer, and passes the same
+  semantic, security, accessibility, and print contracts as `reference`.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0062" data-source-block="block-0062" data-source-lines="322-322"><h3 id="6-render-generic-markdown-and-safe-local-resources">6. Render generic Markdown and safe local resources</h3></div>
+<div class="source-block" id="render-owner-0064" data-source-block="block-0064" data-source-lines="324-361"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 324–361</figcaption><pre><code>- **Requirements**: R3, R4, R9, R10, R17, R18
+- **Files**:
+  - `scripts/artifact_views/generic_renderer.py` (new)
+  - `scripts/artifact_views/renderer.py`
+  - `scripts/artifact_views/security.py`
+  - `scripts/artifact_views/coverage.py`
+  - `scripts/artifact_views/tests/test_generic_renderer.py` (new)
+  - `scripts/artifact_views/tests/test_publishing_security.py` (new)
+  - `scripts/artifact_views/tests/fixtures/generic/` (new fixtures)
+- **Details**:
+  - Convert the generic source ledger into the shared semantic page model and
+    reuse the same safe block/inline rendering helpers as strict artifacts.
+  - Generate navigation from real headings and style recognized callouts from
+    their documented markers. Do not synthesize summaries, diagrams,
+    comparisons, decisions, or metadata absent from source.
+  - Escape source raw HTML visibly. Preserve fenced diagram languages as code
+    unless a separate safe renderer is introduced in a future plan.
+  - Permit user-initiated safe relative, fragment, HTTP(S), and mailto links
+    under the existing URL policy; do not fetch any target.
+  - For Markdown images, require useful alt text and a project-relative path to
+    an allowlisted regular PNG, JPEG, GIF, or WebP file. Read once through the
+    shared secure filesystem API with link and hard-link rejection, verify
+    extension and magic bytes, enforce a documented size limit, and embed a
+    deterministic data URI. Reject absolute, remote, `file:`, `data:`, SVG, or
+    missing images with source-spanned recovery guidance.
+  - Extend final HTML structural validation for the exact generated `img`
+    contract without permitting arbitrary `src`, `srcset`, event, style, or
+    executable attributes.
+  - Prove every substantive generic source block has exactly one rendered
+    owner under both themes.
+- **Test Scenarios**: all version 1 Markdown blocks; escaped raw HTML and prompt
+  injection text; safe and unsafe links; valid image formats; MIME mismatch;
+  oversized/missing/linked/hard-linked image; SVG/script payload; duplicate
+  ownership; both themes; offline final HTML.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_generic_parser.py scripts/artifact_views/tests/test_generic_renderer.py scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_publishing_security.py scripts/artifact_views/tests/test_coverage.py`
+- **Acceptance criteria**: supported generic Markdown renders completely in
+  both themes without network activity or executable source content, and every
+  resource and source block has a validated deterministic owner.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0066" data-source-block="block-0066" data-source-lines="363-363"><h3 id="7-generalize-secure-publication-freshness-and-recovery">7. Generalize secure publication, freshness, and recovery</h3></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="365-398"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 365–398</figcaption><pre><code>- **Requirements**: R10, R11, R12, R13
+- **Files**:
+  - `scripts/artifact_views/writer.py`
+  - `scripts/artifact_views/publishing.py` (new)
+  - `scripts/artifact_views/cli.py`
+  - `scripts/artifact_views/tests/test_writer.py`
+  - `scripts/artifact_views/tests/test_publishing_integration.py` (new)
+  - `scripts/artifact_views/tests/test_integration.py`
+- **Details**:
+  - Replace hard-coded destination-prefix checks with a typed, registered view
+    destination validated before the writer is called. Keep namespace
+    ownership explicit so the generic publisher cannot overwrite strict views.
+  - Route publication through `secure_fs.secure_write_bytes()` and retain its
+    current pinned-parent, non-replacing publish and rollback behavior. Do not
+    reintroduce `os.replace()`, string-prefix containment, or path-based cleanup.
+  - Add race hooks at the final publication and quarantine/restore boundaries.
+    Assert that concurrent winners remain at the destination, previous bytes
+    remain in a recovery artifact, unpublished temporary bytes are removed,
+    and restrictive umasks remain effective.
+  - Extend missing/stale/current checks to generic documents and theme-aware
+    provenance. A source hash, renderer version, theme version, document type,
+    output identity, or deterministic-byte mismatch is stale.
+  - Preserve canonical source and prior valid view on parser, resource,
+    renderer, security, provenance, or writer failure. Report source, expected
+    view and state, exact error, and a recovery command that reproduces any
+    non-default theme.
+- **Test Scenarios**: first publication; current rerender; stale source/theme;
+  tampered view; corrupt provenance; parser/render/writer failure; destination
+  created at race boundary; rollback destination occupied; restrictive umask;
+  reserved namespace; recovery command with and without theme override.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_writer.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py`
+- **Acceptance criteria**: generic and strict views share fail-loud freshness
+  and recovery semantics, and no publication or rollback path can clobber a
+  concurrent filesystem winner.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0070" data-source-block="block-0070" data-source-lines="400-400"><h2 id="phase-3-commands-workflow-integration-and-platform-parity">Phase 3: Commands, Workflow Integration, and Platform Parity</h2></div>
+<div class="source-block source-heading" id="render-owner-0072" data-source-block="block-0072" data-source-lines="402-402"><h3 id="8-add-strict-theme-overrides-and-the-generic-publishing-cli">8. Add strict theme overrides and the generic publishing CLI</h3></div>
+<div class="source-block" id="render-owner-0074" data-source-block="block-0074" data-source-lines="404-440"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 404–440</figcaption><pre><code>- **Requirements**: R2, R5, R6, R11, R13, R14
+- **Files**:
+  - `scripts/artifact_views/cli.py`
+  - `scripts/artifact_views/publishing_cli.py` (new)
+  - `scripts/render_markdown.py` (new)
+  - `bin/cg-render-markdown` (new)
+  - `bin/cg-render-markdown.cmd` (new)
+  - `scripts/artifact_views/tests/test_cli.py`
+  - `scripts/artifact_views/tests/test_publishing_cli.py` (new)
+  - `tests/bash-scripts.Tests.ps1`
+  - `tests/install.Tests.ps1`
+- **Details**:
+  - Add `--theme reference|editorial` to `cg-render-artifact` without changing
+    its strict validation, `--automatic`, `--validate-only`, or `--check`
+    authority. Existing automatic prompt hooks continue to resolve to
+    `reference` unless the user explicitly invoked an override.
+  - Add `cg-render-markdown &lt;source&gt;` with `--theme`, `--check`,
+    `--validate-only`, and safely constrained `--output` behavior. Keep one
+    source per invocation and use the same exit-code classes as the strict CLI.
+  - Make `--check` non-mutating and exact. Validation-only must parse, validate
+    resources and paths, and prove ownership without writing HTML.
+  - Emit one concise path on success, `current|stale|missing &lt;path&gt;` for checks,
+    and structured actionable errors without source-body dumps.
+  - Implement the bash and CMD wrappers as thin self-relative launchers. The
+    CMD wrapper must use the mandatory `where` pre-check, version verification,
+    Windows Store stub rejection, argument forwarding, and exit-code parity
+    used by all Python launchers.
+  - Audit launcher parity when adding the new command; do not silently leave
+    one supported platform without the publishing surface.
+- **Test Scenarios**: strict default and explicit theme; generic default and
+  explicit theme; invalid theme; missing/stale/current; constrained output;
+  validation-only; spaces and Unicode in paths; Python candidate selection;
+  missing Python; forwarded exit code.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_publishing_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py`; safe single-file Pester runs for `install.Tests.ps1` and `bash-scripts.Tests.ps1` through `tests/Run-Tests.ps1` using `execution_subagent`.
+- **Acceptance criteria**: users can render, validate, and freshness-check one
+  generic Markdown file or explicitly theme a strict artifact on every
+  supported shell without bypassing strict validation or output containment.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0076" data-source-block="block-0076" data-source-lines="442-442"><h3 id="9-add-the-publishing-skill-and-cg-render-doc-orchestration">9. Add the publishing skill and <code>/cg-render-doc</code> orchestration</h3></div>
+<div class="source-block" id="render-owner-0078" data-source-block="block-0078" data-source-lines="444-481"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 444–481</figcaption><pre><code>- **Requirements**: R1, R2, R5, R6, R14, R15, R18
+- **Files**:
+  - `.github/skills/cg-skill-markdown-publishing/SKILL.md` (new)
+  - `.github/skills/cg-skill-markdown-publishing/references/theme-contract.md` (new)
+  - `.github/prompts/cg-render-doc.prompt.md` (new)
+  - `scripts/cg_generate_targets.py`
+  - `scripts/schemas/target-mapping.schema.json`
+  - generated `.claude/`, `.agents/`, and `.opencode/` targets
+  - `scripts/tests/test_target_mapping.py`
+  - `scripts/tests/test_target_closure.py`
+  - `scripts/tests/test_target_determinism.py`
+  - `scripts/tests/test_target_drift.py`
+  - `tests/prompt-tools.Tests.ps1`
+- **Details**:
+  - Define the skill as knowledge and orchestration for deterministic local
+    publishing, not a request for a model to author bespoke HTML.
+  - Route strict Brainstorm and Plan sources through `cg-render-artifact` and
+    other Markdown through `cg-render-markdown`; never use the generic command
+    to claim strict validation.
+  - Let the user select `--theme` explicitly. An agent may explain why one
+    theme suits a reading job and show the exact command, but it cannot silently
+    choose or persist a subjective theme.
+  - Document defaults, theme stability, source authority, output mapping,
+    image restrictions, freshness, recovery, and the future completion-report
+    integration boundary.
+  - Add `/cg-render-doc &lt;path&gt; [--theme &lt;name&gt;] [--check] [--no-html]` parsing
+    with validation on all paths and no HTML-body reads during checks.
+  - Update canonical target mapping and generate all platform targets only
+    after canonical prompt and skill content stabilizes. Never hand-edit
+    generated copies.
+- **Test Scenarios**: strict/generic routing; explicit recommendation requiring
+  user action; unknown theme; validation-only; stale recovery; prompt tool
+  declarations; skill closure; generated target ownership, determinism, and
+  drift.
+- **Tests**: `pytest -q scripts/tests/test_target_mapping.py scripts/tests/test_target_closure.py scripts/tests/test_target_determinism.py scripts/tests/test_target_drift.py`; safe `execution_subagent` run of `. tests\Run-Tests.ps1 -File prompt-tools.Tests.ps1` and inspection of `tests/last-run.json`.
+- **Acceptance criteria**: every supported agent platform exposes equivalent,
+  deterministic publishing guidance and invokes repository tooling instead of
+  generating document-specific HTML with a model.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0080" data-source-block="block-0080" data-source-lines="483-483"><h3 id="10-integrate-installation-and-preserve-context-exclusions">10. Integrate installation and preserve context exclusions</h3></div>
+<div class="source-block" id="render-owner-0082" data-source-block="block-0082" data-source-lines="485-526"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 485–526</figcaption><pre><code>- **Requirements**: R12, R14, R15, R16, R18
+- **Files**:
+  - `install.ps1`
+  - `scripts/install.sh`
+  - `scripts/link.ps1`
+  - `scripts/link.sh`
+  - `scripts/update.ps1`
+  - `scripts/update.sh`
+  - `scripts/brain/scanner.py`
+  - `scripts/cg_audit_context.py`
+  - `.github/shared/context-loading.contract.md`
+  - `.github/shared/artifact-view.contract.md`
+  - `.github/prompts/cg-review.prompt.md`
+  - `.github/prompts/cg-commit-push-pr.prompt.md`
+  - tests under `scripts/artifact_views/tests/`, `scripts/tests/`, and `tests/`
+- **Details**:
+  - Install and update the new launcher and runtime modules with the same
+    canonical source-of-truth and no-op behavior as existing commands.
+  - Preserve shared secure filesystem dependencies and Python version support
+    across installed and linked layouts.
+  - Generalize the artifact-view contract to cover strict artifact views and
+    generic document views while clearly distinguishing schema validation from
+    generic publishing validation.
+  - Confirm that the existing `.cg-docs/views/**` body exclusion covers the new
+    documents namespace in Brain, context audits, reviews, release scans,
+    commit/PR flows, and duplicate detection. Add explicit sentinels where a
+    broad scanner could regress.
+  - Permit only path, staging state, source/view hash, provenance identity, and
+    freshness result metadata in model context. Do not read or diff generated
+    HTML bodies.
+  - Keep runtime imports free of model SDKs, network clients, browser tools,
+    subprocess agents, and Open Design dependencies.
+- **Test Scenarios**: fresh and repeated install; self-install; update/link
+  layouts; missing launcher source; generic view sentinel in every context
+  scanner; hard-link/symlink alias; runtime dependency scan; generated-target
+  packaging closure.
+- **Tests**: focused Python installer, target, scanner, and integration tests;
+  safe single-file Pester runs through `tests/Run-Tests.ps1` for installer,
+  launcher, and prompt contracts.
+- **Acceptance criteria**: installed and repository-local commands behave
+  equivalently, generic views remain derived and excluded from model context,
+  and runtime publication remains local and dependency-free.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0084" data-source-block="block-0084" data-source-lines="528-528"><h2 id="phase-4-cross-theme-evidence-and-adversarial-validation">Phase 4: Cross-Theme Evidence and Adversarial Validation</h2></div>
+<div class="source-block source-heading" id="render-owner-0086" data-source-block="block-0086" data-source-lines="530-530"><h3 id="11-generalize-the-design-evidence-schema-and-fixtures">11. Generalize the design-evidence schema and fixtures</h3></div>
+<div class="source-block" id="render-owner-0088" data-source-block="block-0088" data-source-lines="532-565"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 532–565</figcaption><pre><code>- **Requirements**: R7, R8, R9, R10, R13, R17
+- **Files**:
+  - `scripts/artifact_views/evidence.py`
+  - `scripts/validate_artifact_view_evidence.py`
+  - `scripts/artifact_views/tests/test_evidence.py`
+  - `scripts/artifact_views/tests/fixtures/publishing/` (new)
+  - `scripts/artifact_views/tests/snapshots/` (new theme snapshots)
+- **Details**:
+  - Preserve validation of the completed schema version 1 evidence artifact,
+    then add a versioned matrix that keys evidence by document class and theme
+    rather than requiring exactly one Brainstorm and one Plan.
+  - Include technical, decision, and editorial Markdown fixtures. Render each
+    with `reference` and `editorial` so the matrix covers six source/theme
+    combinations without requiring a completion-report schema.
+  - Require source, view, screenshot, and print artifact hashes; renderer and
+    theme identity; explicit browser/design-tool producer and version; and
+    booleans for every required check. Never embed canonical source bodies or
+    HTML bodies in evidence JSON.
+  - Use the union of existing and editorial design viewports:
+    `390x844`, `768x1024`, `1024x768`, `1440x900`, and `1920x1080`.
+  - Require nonblank output, no page-level horizontal overflow, no incoherent
+    overlap, reachable navigation and tables, first-viewport identity, keyboard
+    order, visible focus, 200 percent zoom, contrast, reduced motion, offline
+    load, print readability, complete provenance, and long-document
+    orientation.
+  - Keep evidence tooling implementation-only. No browser or design tool may
+    become a publisher runtime dependency.
+- **Test Scenarios**: complete matrix; missing theme/document pair; duplicate
+  pair; stale hash; missing viewport/check/file; false required check; unknown
+  producer; source/HTML body injection; legacy schema 1 evidence.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_evidence.py scripts/artifact_views/tests/test_design_contract.py`
+- **Acceptance criteria**: the validator objectively rejects incomplete,
+  stale, or failing cross-theme evidence while retaining compatibility with the
+  prior completed evidence record.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0090" data-source-block="block-0090" data-source-lines="567-567"><h3 id="12-produce-and-validate-responsive-accessible-and-print-evidence">12. Produce and validate responsive, accessible, and print evidence</h3></div>
+<div class="source-block" id="render-owner-0092" data-source-block="block-0092" data-source-lines="569-596"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 569–596</figcaption><pre><code>- **Requirements**: R7, R8, R9, R10, R13, R17, R18
+- **Files**:
+  - `.cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json` (new)
+  - associated implementation evidence files referenced by hash
+  - renderer, theme, accessibility, and evidence tests as defects are found
+- **Details**:
+  - Render all six fixture/theme combinations with fixed generation inputs and
+    verify repeated deterministic output before browser inspection.
+  - Open each standalone file offline and capture the required viewport and
+    print evidence with a recorded implementation-time tool and version.
+  - Check real DOM geometry for overlap and overflow, not screenshot presence
+    alone. Verify long words, code, tables, images, callouts, navigation, focus,
+    zoom, print page breaks, and first-viewport subject identity.
+  - Compare semantic summaries across themes to prove that visual differences
+    do not alter source ownership, heading order, landmarks, links, or
+    provenance.
+  - Keep screenshots, PDFs, and HTML bodies out of model and Brain inputs. The
+    evidence JSON stores only paths, hashes, statuses, and bounded observations.
+  - Repair the smallest owning theme or shared semantic component when evidence
+    fails, rerender the affected matrix cells, and rerun the validator before
+    broadening changes.
+- **Test Scenarios**: technical code/table stress; decision alternatives and
+  tradeoffs; editorial long-form hierarchy; desktop, tablet portrait/landscape,
+  phone, and wide desktop; offline and print; both themes.
+- **Tests**: `python scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json --require-all-pass`
+- **Acceptance criteria**: all required evidence cells pass with current hashes
+  and theme provenance, and neither theme loses content or fails the shared
+  responsive, accessibility, offline, or print contract.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0094" data-source-block="block-0094" data-source-lines="598-598"><h2 id="phase-5-documentation-and-release-gates">Phase 5: Documentation and Release Gates</h2></div>
+<div class="source-block source-heading" id="render-owner-0096" data-source-block="block-0096" data-source-lines="600-600"><h3 id="13-document-authority-commands-themes-security-and-recovery">13. Document authority, commands, themes, security, and recovery</h3></div>
+<div class="source-block" id="render-owner-0098" data-source-block="block-0098" data-source-lines="602-640"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 602–640</figcaption><pre><code>- **Requirements**: R1, R2, R5, R6, R10, R11, R13, R14, R15, R16, R18
+- **Files**:
+  - `README.md`
+  - `docs/configuration/index.md`
+  - `docs/development/index.md`
+  - `docs/installation.md`
+  - `docs/reference.md`
+  - `docs/reference/commands.md`
+  - `docs/workflow.md`
+  - `docs/context-files.md`
+  - `docs/troubleshooting.md`
+  - `docs/navigation.json`
+- **Details**:
+  - Document strict versus generic validation, canonical authority, default
+    output mapping, constrained explicit output, stable theme names and
+    versions, explicit override syntax, and default resolution.
+  - Show `cg-render-artifact` for Brainstorms/Plans and
+    `cg-render-markdown`/`/cg-render-doc` for other Markdown, including
+    validation-only, freshness, non-default-theme recovery, and unknown-theme
+    errors.
+  - Explain safe link and local image behavior, raw HTML escaping, offline CSP,
+    runtime independence, and why generated HTML must not be edited as
+    authority or loaded into model context.
+  - State that `editorial` is frozen from the alternate branch&#x27;s standalone
+    brief design inputs, but runtime composition is deterministic and
+    model-free.
+  - Mark completion-report generation, its schema, and `/cg-compound`
+    integration as the next dependent delivery unit, not functionality shipped
+    by this plan.
+  - Add troubleshooting for missing/stale/tampered views, unsafe resources,
+    occupied recovery names, unknown themes, and generated-target drift.
+- **Test Scenarios**: command examples match parser help; navigation paths
+  resolve; install summaries include the launcher; no claim that generic
+  documents receive strict schema validation or that the completion dossier is
+  already available.
+- **Tests**: `node scripts/check-docs-site.js`; `pytest -q scripts/tests/test_target_documentation.py`
+- **Acceptance criteria**: a user can select, render, validate, check, recover,
+  and safely share either theme without reading implementation code, and the
+  docs preserve the delivery-unit boundary.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0100" data-source-block="block-0100" data-source-lines="642-642"><h3 id="14-run-final-regressions-and-prove-releasable-platform-parity">14. Run final regressions and prove releasable platform parity</h3></div>
+<div class="source-block" id="render-owner-0102" data-source-block="block-0102" data-source-lines="644-675"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 644–675</figcaption><pre><code>- **Requirements**: R2, R7, R9, R10, R12, R13, R15, R16, R17, R18
+- **Files**:
+  - all files touched by this plan
+  - `tests/last-run.json` (generated test result)
+  - generated target trees and evidence artifacts
+- **Details**:
+  - Run focused theme, parser, renderer, provenance, path, security, writer,
+    CLI, integration, evidence, installer, documentation, and target tests
+    before the broad gates.
+  - Run all Python tests with the repository configuration and require no
+    failures.
+  - Run the complete Pester suite only through the canonical safe runner using
+    `execution_subagent`; require `passed: true` and `filteredFiles: null` in
+    `tests/last-run.json`.
+  - Validate the final evidence matrix and documentation site after all theme
+    and renderer bytes stabilize.
+  - Run generated-target ownership, closure, determinism, and drift checks.
+    Regenerate from `.github/` rather than repairing generated files.
+  - Check VS Code diagnostics for every touched code file and run the saved
+    Plan&#x27;s artifact freshness check.
+  - Review the final diff for generated HTML body leakage, undocumented
+    dependencies, unrelated restyling, completion-report implementation, and
+    any weakening of strict artifact validation.
+- **Test Scenarios**: clean full pass; filtered Pester result; stale generated
+  target; stale design evidence; stale Plan view; diagnostics error; unexpected
+  runtime dependency; out-of-scope completion-report code.
+- **Tests**: `pytest -q`; `node scripts/check-docs-site.js`; final evidence
+  validation; `execution_subagent` run of `. tests\Run-Tests.ps1`; VS Code
+  diagnostics; `cg-render-artifact --check .cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md`.
+- **Acceptance criteria**: all required unfiltered gates pass, generated targets
+  and evidence are current, diagnostics are clear, and the implementation is
+  ready for plan review and the separately planned completion-report unit.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0104" data-source-block="block-0104" data-source-lines="677-677"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0106" data-source-block="block-0106" data-source-lines="679-703"><ul><li><strong>Contract and model tests</strong>: prove strict/generic separation, closed grammar, immutable source ledgers, theme registry stability, and exact requirement defaults.</li><li><strong>Parser and coverage tests</strong>: exercise supported Markdown, bounded raw source, malformed/ambiguous input, source spans, Unicode/newlines, and exact-once ownership.</li><li><strong>Theme and semantic snapshot tests</strong>: freeze both design contracts and compare theme-independent landmarks, IDs, navigation, source ownership, and provenance.</li><li><strong>Security and filesystem tests</strong>: cover URL/resource policy, raw HTML and prompt injection, local bitmap validation, containment, links/reparse points, hard links, non-replacing publication, rollback collisions, umask, CSP, and output structural validation.</li><li><strong>CLI and integration tests</strong>: cover defaults, explicit themes, exact checks, validation-only, constrained output, tampering, failure preservation, recovery commands, and installed layouts.</li><li><strong>Visual evidence</strong>: render technical, decision, and editorial fixtures in both themes across five viewports plus print, offline, keyboard, focus, contrast, zoom, reduced-motion, overflow, overlap, and provenance checks.</li><li><strong>Platform tests</strong>: verify bash/CMD launchers, PowerShell and shell installers, canonical prompt/skill targets, generated closure, ownership, determinism, and drift.</li><li><strong>Regression gates</strong>: run all Python tests, documentation validation, current evidence validation, VS Code diagnostics, and the full unfiltered Pester suite through the canonical safe runner.</li></ul></div>
+<div class="source-block" id="render-owner-0108" data-source-block="block-0108" data-source-lines="705-707"><p>Pester commands must follow <code>cg-skill-pester-safety</code>: agent workflows use <code>execution_subagent</code> with <code>tests/Run-Tests.ps1</code>, never a directory-form <code>Invoke-Pester</code> call or a direct result pipeline.</p></div>
+<div class="source-block source-heading" id="render-owner-0110" data-source-block="block-0110" data-source-lines="709-709"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0112" data-source-block="block-0112" data-source-lines="711-723"><ul><li><input type="checkbox" disabled> Explain Markdown authority and derived HTML status.</li><li><input type="checkbox" disabled> Distinguish strict artifact validation from generic publishing validation.</li><li><input type="checkbox" disabled> Document supported version 1 Markdown and bounded unsupported behavior.</li><li><input type="checkbox" disabled> Document stable theme names, contract versions, defaults, and overrides.</li><li><input type="checkbox" disabled> Document generic source/output mapping and constrained explicit output.</li><li><input type="checkbox" disabled> Document source hash, document type, theme, renderer, and time provenance.</li><li><input type="checkbox" disabled> Document safe links, local bitmap embedding, raw HTML escaping, and CSP.</li><li><input type="checkbox" disabled> Document render, validate-only, check, stale, tamper, and recovery flows.</li><li><input type="checkbox" disabled> Document launcher installation and all supported platform targets.</li><li><input type="checkbox" disabled> Document generated-view model-context and duplicate-content exclusions.</li><li><input type="checkbox" disabled> Credit the frozen editorial design inputs without creating a runtime link.</li><li><input type="checkbox" disabled> State that completion-report synthesis and <code>/cg-compound</code> integration are delivered by a separate dependent plan.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0114" data-source-block="block-0114" data-source-lines="725-725"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0116" data-source-block="block-0116" data-source-lines="727-738"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Risk</th><th scope="col">Impact</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>Generic parsing is implemented by weakening the strict parser or validator.</td><td>Brainstorms and Plans could pass without required execution contracts, causing silent workflow regressions.</td><td>Keep separate entry points and models; share only lexical primitives; retain strict regression tests and validation-only preflights.</td></tr><tr><td>Theme code starts controlling semantics or omitting source content.</td><td>Two views of the same source could communicate different facts.</td><td>Build one trusted semantic page model, enforce exact-once source ownership, and compare cross-theme semantic snapshots.</td></tr><tr><td>Adding theme fields invalidates or misclassifies older provenance.</td><td>Existing views may appear current when they are not, or fail with opaque errors.</td><td>Version provenance, classify legacy payloads as stale, document regeneration, and test exact key/type migration behavior.</td></tr><tr><td>Generic source or explicit output paths escape the project or collide with typed views.</td><td>User files or authoritative artifacts could be exposed or overwritten.</td><td>Reject links/reparse points and view sources, mirror under <code>views/documents</code>, reserve typed namespaces, and use component-aware containment.</td></tr><tr><td>Publication or rollback replaces a concurrent writer.</td><td>User or process-created bytes could be destroyed.</td><td>Use shared pinned-handle, non-replacing operations; preserve recovery artifacts; inject races at final mutation boundaries and assert every byte owner.</td></tr><tr><td>Local image support admits scripts, remote fetches, aliases, or oversized payloads.</td><td>Standalone views could execute content, leak data, or consume excessive memory.</td><td>Allowlist bitmap formats, verify magic bytes and size, securely read one regular low-link-count file, embed data, reject SVG/remote/absolute/data sources.</td></tr><tr><td>The editorial port becomes a hand-tailored AI-authored page generator.</td><td>Output becomes non-deterministic and the source may be summarized or distorted.</td><td>Freeze only tokens, CSS, layout grammar, and shared components; prohibit runtime model calls and source-specific invented composition.</td></tr><tr><td>Visual evidence becomes subjective or stale.</td><td>Accessibility and responsive regressions could pass based on screenshots alone.</td><td>Require hashed matrix cells, DOM geometry checks, explicit booleans, tool/version identity, print artifacts, and current-theme provenance.</td></tr><tr><td>New prompt, skill, launcher, and installer surfaces drift across platforms.</td><td>Users receive different commands or incomplete installations.</td><td>Keep <code>.github/</code> canonical, regenerate targets once canonical work stabilizes, and run mapping, closure, determinism, drift, bash, CMD, and installer tests.</td></tr><tr><td>Completion-report requirements leak into the publishing foundation.</td><td>The first unit grows into an unreviewable synthesis and presentation change.</td><td>Reserve only the document type/default seam; exclude report schemas, generation, source relationships, and <code>/cg-compound</code> integration from this plan.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0118" data-source-block="block-0118" data-source-lines="740-740"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0120" data-source-block="block-0120" data-source-lines="742-752"><ul><li>Completion-report schema, source relationship model, or factual synthesis.</li><li><code>/cg-completion-report</code> and end-of-<code>/cg-compound</code> report generation.</li><li>Report correction, resumability, stage-state, findings, or evidence ledgers.</li><li>Historical bulk conversion or directory-wide publishing.</li><li>Arbitrary output outside registered <code>.cg-docs/views/**</code> namespaces.</li><li>PDF generation, hosted pages, deployment, or runtime web servers.</li><li>Live editing, bidirectional Markdown/HTML synchronization, or HTML authority.</li><li>AI summaries, invented diagrams, transcript ingestion, or arbitrary plugins.</li><li>Executable source HTML, JavaScript, SVG, Mermaid rendering, or remote assets.</li><li>Restyling the documentation site or artifact types beyond Brainstorms, Plans, generic Markdown, and the reserved completion-report default seam.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0122" data-source-block="block-0122" data-source-lines="754-754"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0124" data-source-block="block-0124" data-source-lines="756-756"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0126" data-source-block="block-0126" data-source-lines="758-763"><p>Compound GPID can deterministically publish any project-contained Markdown file as a secure, self-contained HTML view through a generic document path, while preserving strict Brainstorm and Plan validation. The <code>reference</code> and <code>editorial</code> themes are stable presentation-only choices; defaults, overrides, theme versions, provenance, freshness, context exclusion, and failure behavior are reproducible.</p></div>
+<div class="source-block source-heading" id="render-owner-0128" data-source-block="block-0128" data-source-lines="765-765"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0130" data-source-block="block-0130" data-source-lines="767-778"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Generic document model/parser, theme registry/default map, theme-aware provenance, and safe path contracts pass focused tests.</td><td><code>pytest -q scripts/artifact_views/tests/test_generic_parser.py scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_provenance.py</code></td><td>yes</td></tr><tr><td>V2</td><td>2</td><td>Both themes preserve identical semantic/source ownership; strict Brainstorm/Plan validation and the <code>reference</code> baseline do not regress.</td><td><code>pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_validator.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_design_contract.py</code></td><td>yes</td></tr><tr><td>V3</td><td>2</td><td>Local image embedding, links, raw HTML, CSP, unsafe resources, root containment, and non-clobbering publication pass adversarial tests.</td><td><code>pytest -q scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_writer.py scripts/artifact_views/tests/test_publishing_security.py</code></td><td>yes</td></tr><tr><td>V4</td><td>3</td><td>Generic and strict CLIs support deterministic defaults, explicit <code>--theme</code>, exact-byte <code>--check</code>, unknown-theme failure, and recovery while persisting theme identity.</td><td><code>pytest -q scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py</code></td><td>yes</td></tr><tr><td>V5</td><td>3</td><td><code>/cg-render-doc</code>, the publishing skill, launchers, installers, and generated Copilot/Claude/Codex/OpenCode targets remain equivalent.</td><td>Focused Python target tests plus <code>execution_subagent</code> runs of <code>. tests\Run-Tests.ps1 -File install.Tests.ps1</code>, <code>bash-scripts.Tests.ps1</code>, and <code>prompt-tools.Tests.ps1</code>; each <code>tests/last-run.json</code> must report <code>passed: true</code>.</td><td>yes</td></tr><tr><td>V6</td><td>4</td><td>Technical, decision, and editorial fixtures pass both-theme accessibility, offline, responsive, print, long-document, and provenance checks at the required viewport matrix.</td><td><code>python scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json --require-all-pass</code></td><td>yes</td></tr><tr><td>V7</td><td>5</td><td>Documentation and generated-target references are internally consistent.</td><td><code>node scripts/check-docs-site.js</code> and <code>pytest -q scripts/tests/test_target_documentation.py scripts/tests/test_target_drift.py</code></td><td>yes</td></tr><tr><td>V8</td><td>final</td><td>All Python regressions pass.</td><td><code>pytest -q</code></td><td>yes</td></tr><tr><td>V9</td><td>final</td><td>The complete unfiltered Pester suite passes through the canonical safe runner.</td><td><code>execution_subagent</code>: run <code>. tests\Run-Tests.ps1</code>; require <code>tests/last-run.json</code> to contain <code>passed: true</code> and <code>filteredFiles: null</code>.</td><td>yes</td></tr><tr><td>V10</td><td>final</td><td>Touched files have no VS Code errors and the saved Plan view is current.</td><td>VS Code diagnostics plus <code>cg-render-artifact --check .cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md</code></td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0132" data-source-block="block-0132" data-source-lines="780-780"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0134" data-source-block="block-0134" data-source-lines="782-791"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>1</td><td>Generic Markdown never masquerades as a Brainstorm or Plan or weakens mandatory schema validation.</td><td>Existing contract/validator tests plus separate generic parser tests.</td></tr><tr><td>C2</td><td>2</td><td>Themes alter presentation only; no source block, qualifier, semantic landmark, or provenance field is omitted.</td><td>Exact-once coverage and cross-theme semantic snapshots.</td></tr><tr><td>C3</td><td>2</td><td>Runtime remains model-free, network-free, and independent of Open Design or external assets.</td><td>Dependency/static-import, CSP, resource, and offline-load tests.</td></tr><tr><td>C4</td><td>1</td><td>Derived output stays under <code>.cg-docs/views/**</code>; publication and rollback never replace concurrent winners and preserve recovery artifacts.</td><td>Path containment and filesystem race-injection tests.</td></tr><tr><td>C5</td><td>3</td><td>Brainstorm, Plan, and unspecified generic documents default to <code>reference</code>; overrides are explicit and persisted; unknown themes fail without fallback.</td><td>Theme resolution, provenance, stale-check, and CLI error tests.</td></tr><tr><td>C6</td><td>3</td><td><code>.github/</code> remains canonical; generated targets are regenerated only after canonical prompt/skill work stabilizes.</td><td>Target ownership, closure, determinism, and drift tests.</td></tr><tr><td>C7</td><td>4</td><td>Both themes meet shared accessibility, responsive, print, and no-overlap requirements; editorial identity uses the verified alternate-branch design source.</td><td>Machine-validated evidence matrix and source-linked theme contract.</td></tr><tr><td>C8</td><td>final</td><td>Completion-report synthesis and documentation-site restyling do not enter this delivery unit.</td><td>Final diff and requirement mapping review.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0136" data-source-block="block-0136" data-source-lines="793-793"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0138" data-source-block="block-0138" data-source-lines="795-804"><ul><li>Allowed: generic Markdown model/parser; safe local bitmap embedding; theme registry; <code>reference</code> and <code>editorial</code> theme assets; provenance/freshness; root-contained output mapping; strict and generic CLIs; <code>/cg-render-doc</code>; <code>cg-skill-markdown-publishing</code>; launchers/installers; canonical and generated platform assets; tests, evidence, and documentation.</li><li>Out of scope: completion-report schema or synthesis, <code>/cg-completion-report</code>, <code>/cg-compound</code> integration, historical bulk backfill, arbitrary output outside <code>.cg-docs/views/**</code>, PDF generation, hosted publishing, live editing, arbitrary plugins, AI summaries, transcript ingestion, and documentation-site restyling.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0140" data-source-block="block-0140" data-source-lines="806-806"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0142" data-source-block="block-0142" data-source-lines="808-820"><ol><li>Preserve strict validation and the current <code>reference</code> output contract before adding generic behavior.</li><li>Keep generic parsing/modeling additive; do not relax the Brainstorm or Plan schema to gain compatibility.</li><li>Use <code>reference</code> defaults unless the user explicitly selects <code>editorial</code>; agents may recommend but never silently choose.</li><li>Fail on unknown themes, unsafe paths/resources, ambiguous source ownership, and unprovable freshness.</li><li>Run focused executable checks at each phase before expanding scope.</li><li>Accept visual changes only when shared evidence passes for both themes and representative document classes.</li><li>Regenerate platform targets after canonical prompt/skill changes stabilize, then run final Python and canonical Pester gates.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0144" data-source-block="block-0144" data-source-lines="822-822"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0146" data-source-block="block-0146" data-source-lines="824-837"><ul><li>Strict Brainstorm/Plan behavior or the current reference semantic contract cannot be preserved.</li><li>Exact source ownership, safe resource embedding, root containment, or non-clobbering publication cannot be proven.</li><li>Required browser/print/accessibility evidence cannot be produced or remains failing.</li><li>Progress would require executable source HTML/scripts, runtime network/model/ Open Design calls, or an unsafe arbitrary output path.</li><li>Canonical/generated platform parity cannot be restored.</li><li>Completion-report synthesis becomes necessary to finish this foundation, requiring the second linked plan instead.</li><li>A required deviation arises under <code>ask</code> and approval is unavailable.</li><li>Any required evidence remains failed after the permitted focused repair cycle.</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md</dd>
+      <dt>Source SHA-256</dt><dd><code>ed6d3e54f6009c895253dca672aca000efa7c3b43474cf548375e702eb03b2b1</code></dd>
+      <dt>Artifact schema</dt><dd>1</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-03T21:20:49Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

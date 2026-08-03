@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-01 · 469 artifacts (newest first) + 136 roadmap features_
+_Generated 2026-08-03 · 478 artifacts (newest first) + 137 roadmap features_
 
 ## undated
 
@@ -122,6 +122,30 @@ _Generated 2026-08-01 · 469 artifacts (newest first) + 136 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-08-03
+
+- **[2026-08-03-generic-markdown-reference-publishing-core-v2-review](.cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md)** · `review` · _—_ · `2026-08-03`
+  > **Review mode**: full, auto-routed for publishing, provenance schema, installer, concurrency, and secure-filesystem r…
+- **[2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review](.cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md)** · `review` · _—_ · `2026-08-03`
+  > **Review mode**: light verification
+- **[Editorial Theme, Publishing Workflow, and Browser Evidence \(Revised\)](.cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md)** · `plan` · _blocked_ · `2026-08-03`
+  > Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose e…
+- **[Generic Markdown and Reference Publishing Core \(Revised\)](.cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md)** · `plan` · _completed_ · `2026-08-03`
+  > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
+- **[Generic publisher deletion commit points and cross-platform release gates](.cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md)** · `solution` · _—_ · `2026-08-03`
+  > The generic Markdown publisher passed its initial implementation gates, but verification found four closure gaps: - P…
+
+## 2026-08-02
+
+- **[Editorial Theme, Publishing Workflow, and Browser Evidence](.cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md)** · `plan` · _blocked_ · `2026-08-02`
+  > Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose e…
+- **[Generic Markdown and Reference Publishing Core](.cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md)** · `plan` · _active_ · `2026-08-02`
+  > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
+- **[Generic Markdown Publishing and Curated Artifact Themes](.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md)** · `plan` · _blocked_ · `2026-08-02`
+  > Extend the completed Brainstorm and Plan artifact-view system with an additive, deterministic Markdown publishing pat…
+- **[Workflow completion dossier and curated artifact themes](.cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 
 ## 2026-08-01
 
@@ -1228,8 +1252,8 @@ _Generated 2026-08-01 · 469 artifacts (newest first) + 136 roadmap features_
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
-- **[Broader artifact publishing formats and views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _idea_ · `—`
-  > Broader artifact publishing formats and views
+- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _done_ · `—`
+  > Generic Markdown publishing skill and deterministic HTML views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
@@ -1440,6 +1464,8 @@ _Generated 2026-08-01 · 469 artifacts (newest first) + 136 roadmap features_
   > GitHub Pages website publishing for project wikis
 - **[status:completed verification from /cg-work output](roadmap.json#work-completion-verification)** · `feature` · _idea_ · `—`
   > status:completed verification from /cg-work output
+- **[Workflow completion report and human-readable HTML dossier](roadmap.json#workflow-completion-report-and-html-dossier)** · `feature` · _idea_ · `—`
+  > Workflow completion report and human-readable HTML dossier
 - **[Context-budget checks for workflow stage contracts](roadmap.json#workflow-context-budget-checks)** · `feature` · _idea_ · `—`
   > Context-budget checks for workflow stage contracts
 - **[Existing-workflow lifecycle with create, extend, and revise modes](roadmap.json#workflow-lifecycle-modes)** · `feature` · _idea_ · `—`

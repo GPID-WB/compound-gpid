@@ -1,5 +1,5 @@
 {
-  "edge_count": 257,
+  "edge_count": 264,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -341,6 +341,36 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views.md",
       "target": ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
       "target_missing": false
     },
     {
@@ -1067,6 +1097,18 @@
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md",
       "target": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+      "target": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
       "target_missing": false
     },
     {
@@ -2907,6 +2949,36 @@
       ]
     },
     {
+      "date": "2026-08-02",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "slug": "2026-08-02-completion-dossier-and-curated-artifact-themes",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "completion-report",
+        "html",
+        "themes",
+        "artifact-rendering",
+        "workflow",
+        "provenance",
+        "human-review"
+      ],
+      "title": "Workflow completion dossier and curated artifact themes",
+      "top_keywords": [
+        "themes",
+        "editorial",
+        "reference",
+        "approach",
+        "completion",
+        "dossier",
+        "workflow",
+        "broader-artifact-publishing-formats-and-views",
+        "/cg-compound",
+        "one initiative"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3795,9 +3867,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
+        "prompt-tools.tests.ps1",
         "test",
         "failure",
-        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -3961,14 +4033,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "should not",
         "repos.json",
+        "should not",
         "should be",
         "cg-review-repos",
         "--full",
+        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
-        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -3996,9 +4068,9 @@
         "light",
         "/cg-review",
         "test scenarios",
+        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md",
-        "/cg-review light"
+        "verify-review.md"
       ]
     },
     {
@@ -4233,8 +4305,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "update.sh",
         "run-tests.ps1",
+        "update.sh",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -4322,8 +4394,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "scripts/cg-index.py",
-        "python3"
+        "cg-index.cmd",
+        "scripts/cg-index.py"
       ]
     },
     {
@@ -5214,11 +5286,11 @@
         ".qmd",
         "context-audit.json",
         "validate_wb_writing_skill.py",
+        "run-tests.ps1",
         "tests/last-run.json",
         "prompt-tools.tests.ps1",
         "skill",
-        "bin\\cg-token-audit.cmd",
-        "/cg-work"
+        "cg-token-audit.cmd"
       ]
     },
     {
@@ -5564,6 +5636,157 @@
       ]
     },
     {
+      "date": "2026-08-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md",
+      "slug": "2026-08-02-editorial-theme-publishing-workflow-evidence",
+      "status": "blocked",
+      "summary": "Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose explicit theme selection through the canonical publishing workflow on every supported agent platform, and produce reproducible automated and attested browser evidence for both themes.",
+      "tags": [
+        "editorial-theme",
+        "html",
+        "publishing-skill",
+        "playwright",
+        "accessibility",
+        "cross-platform"
+      ],
+      "title": "Editorial Theme, Publishing Workflow, and Browser Evidence",
+      "top_keywords": [
+        "editorial",
+        "/cg-render-doc",
+        "test scenarios",
+        "cg-render-doc",
+        "evidence",
+        "reference",
+        "execution_subagent",
+        "publishing",
+        "phase",
+        "npm run test:artifact-evidence"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md",
+      "slug": "2026-08-02-generic-markdown-publishing-curated-themes",
+      "status": "blocked",
+      "summary": "Extend the completed Brainstorm and Plan artifact-view system with an additive, deterministic Markdown publishing path and two curated visual themes. Preserve strict Brainstorm and Plan validation, keep Markdown authoritative, make theme selection explicit and reproducible, and provide a secure generic publisher that the separately planned completion dossier can reuse.",
+      "tags": [
+        "markdown",
+        "html",
+        "publishing",
+        "themes",
+        "provenance",
+        "security",
+        "accessibility",
+        "cross-platform"
+      ],
+      "title": "Generic Markdown Publishing and Curated Artifact Themes",
+      "top_keywords": [
+        "reference",
+        "editorial",
+        "test scenarios",
+        "execution_subagent",
+        "cg-render-doc",
+        "/cg-render-doc",
+        "/cg-compound",
+        ".cg-docs/views/**",
+        "generic",
+        "publishing"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
+      "slug": "2026-08-02-generic-markdown-reference-publishing-core",
+      "status": "active",
+      "summary": "Build an independently releasable generic Markdown publisher around the existing `reference` presentation while preserving strict Brainstorm and Plan validation. Define and prove source routing, destination ownership, bounded resource handling, reproducible provenance and mode behavior, and non-clobbering filesystem publication before adding a second theme or agent workflow surface.",
+      "tags": [
+        "markdown",
+        "html",
+        "publishing",
+        "reference-theme",
+        "provenance",
+        "security",
+        "filesystem"
+      ],
+      "title": "Generic Markdown and Reference Publishing Core",
+      "top_keywords": [
+        "reference",
+        "test scenarios",
+        "generic",
+        "execution_subagent",
+        "--automatic",
+        "core",
+        "cg-render-markdown",
+        "editorial",
+        "phase",
+        "--check"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
+      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2",
+      "status": "blocked",
+      "summary": "Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose explicit theme selection through the canonical publishing workflow on every supported agent platform, and produce reproducible automated and attested browser evidence for both themes.",
+      "tags": [
+        "editorial-theme",
+        "html",
+        "publishing-skill",
+        "playwright",
+        "accessibility",
+        "cross-platform",
+        "reviewed"
+      ],
+      "title": "Editorial Theme, Publishing Workflow, and Browser Evidence (Revised)",
+      "top_keywords": [
+        "editorial",
+        "test scenarios",
+        "evidence",
+        "publishing",
+        "phase",
+        "theme",
+        "verify",
+        "reference",
+        "prompt-tools",
+        "execution_subagent"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
+      "slug": "2026-08-03-generic-markdown-reference-publishing-core-v2",
+      "status": "completed",
+      "summary": "Build an independently releasable generic Markdown publisher around the existing `reference` presentation while preserving strict Brainstorm and Plan validation. Define and prove source routing, destination ownership, bounded resource handling, reproducible provenance and mode behavior, and non-clobbering filesystem publication before adding a second theme or agent workflow surface.",
+      "tags": [
+        "markdown",
+        "html",
+        "publishing",
+        "reference-theme",
+        "provenance",
+        "security",
+        "filesystem",
+        "reviewed"
+      ],
+      "title": "Generic Markdown and Reference Publishing Core (Revised)",
+      "top_keywords": [
+        "reference",
+        "test scenarios",
+        "generic",
+        "core steps",
+        "execution_subagent",
+        "--automatic",
+        "core",
+        "phase",
+        "filteredfiles",
+        "--check"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -5602,8 +5825,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "/cg-fix-triage",
         "cg-resume.prompt.md",
+        "/cg-fix-triage",
         "fix"
       ]
     },
@@ -5819,12 +6042,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
+        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills",
-        "docs/reference.md"
+        "feat/r-dialect-skills"
       ]
     },
     {
@@ -6277,8 +6500,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "tests/run-tests.ps1",
         "run-tests.ps1",
+        "tests/run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -6324,12 +6547,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
+        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
-        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -6697,12 +6920,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
+        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
-        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -6990,7 +7213,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "unlink\\.sh"
+        "2026-05-13-pr-verification-pipeline-review.md"
       ]
     },
     {
@@ -8578,6 +8801,50 @@
       ]
     },
     {
+      "date": "2026-08-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+      "slug": "2026-08-03-generic-markdown-reference-publishing-core-v2-review",
+      "status": "",
+      "summary": "**Review mode**: full, auto-routed for publishing, provenance schema, installer, concurrency, and secure-filesystem risk.",
+      "tags": [],
+      "title": "2026-08-03-generic-markdown-reference-publishing-core-v2-review",
+      "top_keywords": [
+        "publication",
+        "scripts/artifact_views/generic_cli.py",
+        "scripts/secure_fs.py",
+        "scripts/cg_generate_targets.py",
+        "scripts/artifact_views/security.py",
+        "origin/main",
+        "generic_cli.py",
+        "ownership",
+        "review",
+        "validation"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
+      "slug": "2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification",
+      "tags": [],
+      "title": "2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review",
+      "top_keywords": [
+        "cg-code-quality",
+        "verification",
+        "cg-testing",
+        "generic",
+        "reference",
+        "fsync",
+        "viewdestination",
+        "2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+        "secure_fs.py",
+        "security"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -8841,14 +9108,14 @@
       "top_keywords": [
         "else",
         "ast",
+        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->",
-        "utf-8"
+        "->"
       ]
     },
     {
@@ -8868,10 +9135,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
+        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
-        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -9326,13 +9593,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
+        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1",
-        "result-verification.md"
+        ".ps1"
       ]
     },
     {
@@ -9444,12 +9711,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
+        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
-        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -9474,9 +9741,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
-        "/cg-setup",
         "link.ps1",
         "link.sh",
+        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -9507,13 +9774,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
+        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
-        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -10214,7 +10481,7 @@
         "schema",
         "json",
         "validation",
-        "title"
+        "run-tests.ps1"
       ]
     },
     {
@@ -10238,12 +10505,12 @@
         "source",
         "install",
         "test",
+        "cg-index.cmd",
         "destination",
         "wrapper",
         "ps1",
         "self-copy",
-        "equals",
-        "crash"
+        "equals"
       ]
     },
     {
@@ -10304,6 +10571,39 @@
         "secure",
         "clobber",
         "changes"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
+      "slug": "2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates",
+      "status": "",
+      "summary": "The generic Markdown publisher passed its initial implementation gates, but verification found four closure gaps: - POSIX stale deletion removed quarantine bytes before a fallible directory `fsync`, so a reported failure could follow irreversible deletion. - Windows stale-delete rollback could suppress a no-replace restoration failure, leaving a recovery artifact unnamed and difficult to recover. - Explicit output paths accepted case-folded variants of the registered `.cg-docs/views/documents` namespace, while typed destinations and later ownership checks required the canonical spelling. - The Windows/macOS Python matrix covered native target generation but did not execute the generic publisher's secure filesystem, writer, renderer, image, provenance, CLI,...",
+      "tags": [
+        "generic-publishing",
+        "secure-filesystem",
+        "deletion",
+        "fsync",
+        "quarantine",
+        "recovery",
+        "path-identity",
+        "ci",
+        "windows",
+        "posix"
+      ],
+      "title": "Generic publisher deletion commit points and cross-platform release gates",
+      "top_keywords": [
+        "deletion",
+        "commit",
+        "fsync",
+        "the windows",
+        "generic",
+        "publisher",
+        "cross-platform",
+        "release",
+        "gates",
+        "points"
       ]
     },
     {
@@ -10780,15 +11080,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "subdir\\file.txt",
+        "file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "file.txt",
-        "backslash"
+        "backslash",
+        "separator"
       ]
     },
     {
@@ -11084,11 +11384,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
+        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
-        "structure"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
       ]
     },
     {
@@ -11563,9 +11863,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
+        "cg-review.prompt.md",
         "delegate",
         "file-writing",
-        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -11602,8 +11902,8 @@
         "must",
         "contract",
         "pipeline",
-        "downstream",
-        "location"
+        "cg-fix-triage.prompt.md",
+        "downstream"
       ]
     },
     {
@@ -11665,7 +11965,7 @@
         "safe",
         "invoke-pester tests/ -passthru",
         "copilot-instructions.md",
-        "quiet\ninvoke",
+        "quiet\r\ninvoke",
         "invoke-pester"
       ]
     },
@@ -11820,8 +12120,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "copilot-instructions.md",
         "prompt-tools.tests.ps1",
+        "copilot-instructions.md",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -11851,16 +12151,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
+        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
-        "prompt-tools.tests.ps1",
         "select-string",
         "test",
-        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging"
+        "debugging",
+        "crashes"
       ]
     },
     {
@@ -11947,9 +12247,9 @@
         "failure",
         "guard",
         "fragile",
+        "cg-work.prompt.md",
         "tests",
         "step-ordering",
-        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -12037,8 +12337,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "-quiet",
         "prompt-tools.tests.ps1",
+        "-quiet",
         "pester",
         "execution_subagent",
         "quiet",
@@ -12134,14 +12434,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
+        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
         "run-tests",
-        "last-run.json",
-        "tests\\last-run.json"
+        "context"
       ]
     },
     {
@@ -12380,6 +12680,7 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
+        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -12387,7 +12688,6 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
-        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -12848,8 +13148,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "source-scanning",
         "link.ps1",
+        "source-scanning",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -12880,14 +13180,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
+        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern",
-        "unlink.ps1"
+        "pattern"
       ]
     },
     {
@@ -13150,13 +13450,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
+        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->",
-        "$dirs.count | should -begreaterthan 0"
+        "<!-- folder: docs -->"
       ]
     },
     {
@@ -16159,6 +16459,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#workflow-completion-report-and-html-dossier",
+      "slug": "workflow-completion-report-and-html-dossier",
+      "status": "idea",
+      "summary": "Workflow completion report and human-readable HTML dossier",
+      "tags": [],
+      "title": "Workflow completion report and human-readable HTML dossier",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "workflow",
+        "completion",
+        "report",
+        "human-readable",
+        "html",
+        "dossier",
+        "feature",
+        "milestone",
+        "maturity"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#automatic-post-pr-verification-handoff",
       "slug": "automatic-post-pr-verification-handoff",
       "status": "idea",
@@ -16689,21 +17011,21 @@
       "entity_type": "feature",
       "path": "roadmap.json#broader-artifact-publishing-formats-and-views",
       "slug": "broader-artifact-publishing-formats-and-views",
-      "status": "idea",
-      "summary": "Broader artifact publishing formats and views",
+      "status": "done",
+      "summary": "Generic Markdown publishing skill and deterministic HTML views",
       "tags": [],
-      "title": "Broader artifact publishing formats and views",
+      "title": "Generic Markdown publishing skill and deterministic HTML views",
       "top_keywords": [
+        "generic markdown",
         "ongoing ideas\nobjective",
-        "broader",
-        "artifact",
+        "generic",
+        "markdown",
         "publishing",
-        "formats",
+        "skill",
+        "deterministic",
+        "html",
         "views",
-        "milestone",
-        "ideas",
-        "feature",
-        "ongoing"
+        "milestone"
       ]
     },
     {
@@ -17257,13 +17579,13 @@
       ]
     }
   ],
-  "entity_count": 605,
-  "generated": "2026-08-01",
+  "entity_count": 615,
+  "generated": "2026-08-03",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 423,
+      "entity_count": 432,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -17307,6 +17629,7 @@
         ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
+        ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
@@ -17389,6 +17712,7 @@
         ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
         ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
+        ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
@@ -17401,6 +17725,11 @@
         ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
         ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views.md",
+        ".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md",
+        ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md",
+        ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
+        ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
+        ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -17530,6 +17859,7 @@
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
+        ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -17572,6 +17902,7 @@
         ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
         ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
+        ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -17698,7 +18029,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 136,
+      "entity_count": 137,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -17786,6 +18117,7 @@
         "roadmap.json#goal-driven-execution",
         "roadmap.json#cg-work-explicit-plan-path",
         "roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html",
+        "roadmap.json#workflow-completion-report-and-html-dossier",
         "roadmap.json#automatic-post-pr-verification-handoff",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
@@ -17839,11 +18171,11 @@
       ],
       "keywords": [
         "architecture research\nobjective",
-        "knowledge brain\nobjective",
-        "workflow maturity\nobjective"
+        "workflow maturity\nobjective",
+        "knowledge brain\nobjective"
       ],
-      "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Workflow Maturity\nObjective",
-      "slug": "architecture-research-objective-knowledge-brain-objective-workflow-maturity-objective"
+      "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Knowledge Brain\nObjective",
+      "slug": "architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective"
     },
     {
       "entity_count": 4,
