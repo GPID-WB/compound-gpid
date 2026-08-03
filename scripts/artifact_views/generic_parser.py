@@ -25,7 +25,7 @@ _REJECTED_ROOTS = frozenset({"brainstorms", "plans", "views"})
 
 
 def parse_generic_markdown(source: str, source_path: Path) -> GenericDocument:
-    """Parse generic Markdown without invoking typed artifact validation.
+    r"""Parse generic Markdown without invoking typed artifact validation.
 
     Args:
         source: Unmodified Unicode Markdown decoded as strict UTF-8.

@@ -66,6 +66,7 @@ jobs:
           -q
 
       - name: Run applicable secure backend race gate
+        if: always()
         run: >-
           python -m pytest
           scripts/tests/test_secure_fs.py

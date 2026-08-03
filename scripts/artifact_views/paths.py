@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import os
 from pathlib import Path, PurePosixPath
 import stat
+import unicodedata
 from typing import Union
 
 from artifact_views.errors import ArtifactPathError
@@ -19,7 +20,7 @@ _SOURCE_ROOTS = {
 _REPARSE_POINT_FLAG = 0x400
 _DOCUMENT_VIEW_ROOT = PurePosixPath(".cg-docs/views/documents")
 _WINDOWS_DEVICE_NAMES = frozenset(
-    {"CON", "PRN", "AUX", "NUL"}
+    {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"}
     | {f"COM{index}" for index in range(1, 10)}
     | {f"LPT{index}" for index in range(1, 10)}
 )
@@ -137,9 +138,19 @@ def resolve_generic_paths(
         )
 
     if output_relative is None:
-        output_pure = _portable_output_path(
-            (_DOCUMENT_VIEW_ROOT / source_identity.with_suffix(".html")).as_posix()
-        )
+        derived = (_DOCUMENT_VIEW_ROOT / source_identity.with_suffix(".html")).as_posix()
+        try:
+            output_pure = _portable_output_path(derived)
+        except ArtifactPathError as error:
+            raise ArtifactPathError(
+                "Generic source path is not portable as a mirrored output name.",
+                source_path=relative,
+                corrective_action=(
+                    "Rename the source so no component uses a Windows device "
+                    "name, a trailing space or dot, or a control character; or "
+                    "pass an explicit --output path."
+                ),
+            ) from error
     else:
         raw_output = (
             output_relative if isinstance(output_relative, str) else output_relative.as_posix()
@@ -272,7 +283,8 @@ def _is_link_or_reparse(metadata) -> bool:
 
 def _portable_output_path(raw_output: str) -> PurePosixPath:
     if not raw_output or "\\" in raw_output or any(
-        ord(character) < 32 for character in raw_output
+        unicodedata.category(character)[0] == "C"
+        for character in raw_output
     ):
         raise _portable_output_error(raw_output)
     raw_parts = raw_output.split("/")
@@ -336,6 +348,4 @@ def _reject_portable_output_collisions(
 
 
 def _portable_component_key(component: str) -> str:
-    import unicodedata
-
     return unicodedata.normalize("NFC", component).casefold().rstrip(". ")

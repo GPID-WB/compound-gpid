@@ -352,6 +352,8 @@ def test_commit_rechecks_destination_ancestor_immediately_before_write(
     assert list(outside.iterdir()) == []
 
 
+@pytest.mark.backend_posix
+@pytest.mark.backend_windows
 def test_commit_rejects_later_destination_changed_after_preflight(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -385,6 +387,8 @@ def test_commit_rejects_later_destination_changed_after_preflight(
     assert later.read_bytes() == b"late user content"
 
 
+@pytest.mark.backend_posix
+@pytest.mark.backend_windows
 def test_commit_rejects_manifest_changed_after_pinned_preflight(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

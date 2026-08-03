@@ -1041,7 +1041,7 @@ def _read_prior_ownership_manifest_snapshot(
         )
     except FileNotFoundError:
         return {}, secure_fs.ExpectedFileState.absent()
-    except secure_fs.SecureMutationError as exc:
+    except OSError as exc:
         raise ValueError(f"Ownership manifest is unsafe: {manifest_path}") from exc
     try:
         data = json.loads(content.decode("utf-8", errors="strict"))

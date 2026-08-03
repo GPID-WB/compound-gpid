@@ -1,7 +1,8 @@
 ---
 date: 2026-08-02
 title: "Generic Markdown and Reference Publishing Core"
-status: active
+status: superseded
+superseded-by: ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md"
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md"
 supersedes: ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md"

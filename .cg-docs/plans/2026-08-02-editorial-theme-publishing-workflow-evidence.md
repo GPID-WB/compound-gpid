@@ -1,7 +1,8 @@
 ---
 date: 2026-08-02
 title: "Editorial Theme, Publishing Workflow, and Browser Evidence"
-status: blocked
+status: superseded
+superseded-by: ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md"
 scope: "Standard"
 brainstorm: ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md"
 split-from: ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md"

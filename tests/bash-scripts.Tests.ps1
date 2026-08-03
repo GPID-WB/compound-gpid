@@ -153,6 +153,7 @@ Describe "install.sh - PATH block is idempotent" {
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
 
         try {
             # First run — use temp install dir

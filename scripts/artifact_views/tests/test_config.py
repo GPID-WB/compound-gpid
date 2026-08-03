@@ -1,6 +1,7 @@
 """Tests for secure project-local artifact publication configuration."""
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -40,7 +41,7 @@ def test_unsafe_config_identity_fails_closed(tmp_path: Path) -> None:
     config_path = root / "compound-gpid.local.md"
     config_path.write_text("---\nartifact-html: false\n---\n", encoding="utf-8")
     alias = root / "alias.md"
-    alias.hardlink_to(config_path)
+    os.link(config_path, alias)
 
     with pytest.raises(OSError, match="multiple hard links"):
         config.load_artifact_view_config(root)

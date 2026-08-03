@@ -63,13 +63,14 @@ def normalized_source_bytes(source_bytes: bytes) -> bytes:
 
 
 def source_sha256(source_bytes: bytes) -> str:
-    """Return the lowercase SHA-256 of normalized canonical source bytes.
+    """Return the lowercase SHA-256 of the exact canonical source bytes.
 
     Args:
         source_bytes: Canonical strict UTF-8 source bytes.
 
     Returns:
-        A 64-character lowercase hexadecimal digest.
+        A 64-character lowercase hexadecimal digest of the unmodified bytes.
+        Byte-order marks and line endings change the digest.
 
     Example:
         >>> len(source_sha256(b"artifact\n"))

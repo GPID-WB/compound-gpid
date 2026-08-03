@@ -25,9 +25,9 @@ _INLINE_TOKEN_RE = re.compile(
     r"|(?P<link>\[(?P<link_label>[^\]\r\n]+)\]\((?P<link_uri>[^)\r\n]+)\))"
     r"|(?P<code>`(?P<code_text>[^`\r\n]+)`)"
     r"|(?P<strong_ast>\*\*(?P<strong_ast_text>[^*\r\n]+)\*\*)"
-    r"|(?P<strong_under>__(?P<strong_under_text>[^_\r\n]+)__ )"
+    r"|(?P<strong_under>__(?P<strong_under_text>[^_\r\n]+)__)"
     r"|(?P<em_ast>\*(?P<em_ast_text>[^*\r\n]+)\*)"
-    r"|(?P<em_under>_(?P<em_under_text>[^_\r\n]+)_ )"
+    r"|(?P<em_under>_(?P<em_under_text>[^_\r\n]+)_)"
     r"|(?P<autolink><(?P<autolink_text>[^>\r\n]+)>)",
     re.VERBOSE,
 )
@@ -1247,6 +1247,16 @@ def _valid_vp8l_literal_payload(payload: bytes) -> bool:
     red = trees[1]
     blue = trees[2]
     alpha = trees[3]
+    bits_per_pixel = sum(
+        0 if tree.second is None else 1 for tree in (green, red, blue, alpha)
+    )
+    if bits_per_pixel == 0:
+        # No entropy is consumed per pixel, so the payload must carry no
+        # pixel data beyond the already-consumed header bits.
+        return reader.padding_is_zero()
+    available_pixels = (len(reader.data) * 8 - reader.position) // bits_per_pixel
+    if width * height > available_pixels:
+        return False
     for _pixel in range(width * height):
         green_symbol = green.symbol(reader)
         red_symbol = red.symbol(reader)

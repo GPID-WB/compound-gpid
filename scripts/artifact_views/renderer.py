@@ -364,8 +364,10 @@ def _heading_anchor(
         if block.kind != "atx_heading":
             continue
         match = _HEADING_RE.match(block.raw.rstrip("\r\n"))
-        if match and (match.group(2) or "").strip() == title:
-            return heading_id_map.get(block.block_id, "")
+        if match:
+            candidate = re.sub(r"\s+#+\s*$", "", (match.group(2) or "").strip())
+            if candidate == title:
+                return heading_id_map.get(block.block_id, "")
     return ""
 
 

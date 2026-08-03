@@ -222,7 +222,7 @@ def main(
         errors.write(f"Artifact input invalid: {error}\n")
         return 2
 
-    source_bytes: bytes
+    source_bytes: Optional[bytes] = None
     state = ViewState.MISSING
     try:
         try:
@@ -313,11 +313,15 @@ def main(
         ValueError,
     ) as error:
         try:
-            if "source_bytes" in locals():
+            if source_bytes is not None:
                 state = view_state(
                     paths,
                     source_bytes,
                     explicit_theme=arguments.theme,
+                )
+            else:
+                state = (
+                    ViewState.STALE if paths.view_path.exists() else ViewState.MISSING
                 )
         except (
             ArtifactViewError,

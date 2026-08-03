@@ -532,6 +532,13 @@ def _secure_write_posix(
                 os.unlink(temporary, dir_fd=parent_fd)
             except FileNotFoundError:
                 pass
+            except OSError as cleanup_error:
+                warnings.warn(
+                    f"Temporary publication file could not be removed: "
+                    f"{cleanup_error}",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
         os.close(parent_fd)
 
 
@@ -628,6 +635,12 @@ def _secure_delete_posix(
             )
     except BaseException as deletion_error:
         if not committed and quarantined:
+            # If the primary error is already a SecureMutationError from a
+            # failed restore (the original name is occupied by a concurrent
+            # winner), re-raise it directly — retrying the restore would fail
+            # the same way and mask the actionable "quarantine preserved" cause.
+            if isinstance(deletion_error, SecureMutationError):
+                raise
             try:
                 _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
                 quarantined = False
@@ -1422,6 +1435,19 @@ def _posix_rename_noreplace(parent_fd: int, source: str, target: str) -> None:
         raise FileExistsError(error_number, os.strerror(error_number), target)
     if error_number == errno.ENOENT:
         raise FileNotFoundError(error_number, os.strerror(error_number), source)
+    if sys.platform.startswith("linux") and error_number == errno.EINVAL:
+        raise SecureMutationError(
+            f"renameat2 RENAME_NOREPLACE is unsupported on this filesystem: "
+            f"{os.strerror(error_number)}"
+        )
+    if sys.platform == "darwin" and error_number in (
+        getattr(errno, "ENOTSUP", 0),
+        getattr(errno, "ENOSYS", 0),
+    ):
+        raise SecureMutationError(
+            f"renameatx_np RENAME_EXCL is unsupported on this filesystem: "
+            f"{os.strerror(error_number)}"
+        )
     raise OSError(error_number, os.strerror(error_number), source, target)
 
 
