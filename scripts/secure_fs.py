@@ -520,7 +520,7 @@ def _secure_write_posix(
             except OSError as rollback_error:
                 raise SecureMutationError(
                     f"Publication failed and rollback could not restore "
-                    f"{relative_path}; recovery preserved as {previous}: "
+                    f"{relative_path}; quarantine preserved as {previous}: "
                     f"{rollback_error}"
                 ) from publication_error
         raise

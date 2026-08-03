@@ -1130,14 +1130,19 @@ def _secure_write_entry(
     expected_state: secure_fs.ExpectedFileState,
 ) -> None:
     """Atomically write an output through a root-anchored no-follow parent handle."""
-    secure_fs.secure_write_bytes(
-        root,
-        Path(entry.destination),
-        entry.content,
-        executable=entry.executable,
-        before_replace=_before_secure_replace,
-        expected_state=expected_state,
-    )
+    try:
+        secure_fs.secure_write_bytes(
+            root,
+            Path(entry.destination),
+            entry.content,
+            executable=entry.executable,
+            before_replace=_before_secure_replace,
+            expected_state=expected_state,
+        )
+    except secure_fs.SecureMutationError as exc:
+        if "quarantine preserved" in str(exc):
+            raise ValueError(str(exc)) from exc
+        raise
 
 
 def _secure_delete_stale(root: Path, stale: OwnedFile) -> None:
