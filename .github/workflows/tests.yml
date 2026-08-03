@@ -15,7 +15,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, macos-14]
+        include:
+          - os: windows-2022
+            backend_marker: backend_windows
+          - os: macos-14
+            backend_marker: backend_posix
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
@@ -41,6 +45,52 @@ jobs:
           scripts/tests/test_model_advisory.py
           scripts/tests/test_audit_context.py
           -q
+
+      - name: Run generic publisher and security Python gate
+        run: >-
+          python -m pytest
+          scripts/tests/test_secure_fs.py
+          scripts/artifact_views/tests/test_writer.py
+          scripts/artifact_views/tests/test_generic_cli.py
+          scripts/artifact_views/tests/test_generic_parser.py
+          scripts/artifact_views/tests/test_generic_renderer.py
+          scripts/artifact_views/tests/test_generic_launchers.py
+          scripts/artifact_views/tests/test_publishing.py
+          scripts/artifact_views/tests/test_publishing_paths.py
+          scripts/artifact_views/tests/test_publishing_provenance.py
+          scripts/artifact_views/tests/test_publishing_security.py
+          scripts/artifact_views/tests/test_reference_theme.py
+          scripts/artifact_views/tests/test_themes.py
+          scripts/artifact_views/tests/test_integration.py
+          --junitxml=publisher-results.xml
+          -q
+
+      - name: Run applicable secure backend race gate
+        run: >-
+          python -m pytest
+          scripts/tests/test_secure_fs.py
+          scripts/tests/test_target_ownership.py
+          scripts/artifact_views/tests/test_writer.py
+          -m "${{ matrix.backend_marker }}"
+          --junitxml=publisher-backend-results.xml
+          -q
+
+      - name: Require backend race evidence
+        if: always()
+        run: >-
+          python scripts/assert_backend_race_gate.py
+          publisher-backend-results.xml
+          "${{ matrix.backend_marker }}"
+
+      - name: Upload publisher Python results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: publisher-python-results-${{ matrix.os }}
+          path: |
+            publisher-results.xml
+            publisher-backend-results.xml
+          if-no-files-found: ignore
 
   test:
     name: Pester on ${{ matrix.os }}

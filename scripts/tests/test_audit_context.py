@@ -85,6 +85,24 @@ class TestFileScanner:
         assert sentinel not in json.dumps(files)
         assert sentinel not in json.dumps(duplicates)
 
+    def test_generic_document_views_are_excluded_from_broad_context_glob(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        sentinel = "GENERIC_VIEW_ONLY_SENTINEL_3A9D"
+        _write(
+            tmp_path / ".cg-docs/views/documents/docs/guide.html",
+            f"<p>{sentinel}</p>",
+        )
+        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
+
+        files, _ = audit.scan_files(tmp_path)
+        duplicates = audit.detect_duplicates(tmp_path, files)
+
+        assert sentinel not in json.dumps(files)
+        assert sentinel not in json.dumps(duplicates)
+
     def test_view_path_exclusion_is_component_scoped(self) -> None:
         assert audit.is_model_context_excluded(".cg-docs/views/plans/a.html") is True
         assert audit.is_model_context_excluded(".cg-docs/views-archive/a.md") is False
@@ -1014,7 +1032,7 @@ class TestPhase6Guardrails:
         _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none no agent dispatch route-aware review-routing.contract.md\n")
         _write(tmp_path / ".github/prompts/cg-review.prompt.md", _frontmatter() + "explicit user mode wins. Auto risk-class routing applies only when no explicit mode. full thorough mode:verify light-only\n")
         _write(tmp_path / ".github/shared/review-routing.contract.md", "- `light` | `@cg-code-quality`, `@cg-testing`\n- `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial`\n")
-        files, _ = audit.scan_files(tmp_path)
+        audit.scan_files(tmp_path)
         report = audit.build_report(tmp_path)
         guardrails = report["guardrails"]
         reasons = " ".join(row["reason"] for row in guardrails["failures"])

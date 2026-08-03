@@ -114,11 +114,30 @@ class TestScanAllEntityTypes:
         )
         alias = tmp_path / ".cg-docs/plans/leak.md"
         alias.parent.mkdir(parents=True)
-        alias.symlink_to(view)
+        try:
+            alias.symlink_to(view)
+        except OSError as error:
+            if getattr(error, "winerror", None) == 1314:
+                pytest.skip("Windows symlink privilege is unavailable")
+            raise
 
         entities = scan_all(tmp_path)
 
         assert entities == []
+        assert sentinel not in "\n".join(entity.text for entity in entities)
+
+    def test_generic_document_views_are_excluded_from_brain_input(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        sentinel = "GENERIC_VIEW_ONLY_SENTINEL_3A9D"
+        _write(
+            tmp_path / ".cg-docs/views/documents/docs/guide.html",
+            f"<p>{sentinel}</p>",
+        )
+
+        entities = scan_all(tmp_path)
+
         assert sentinel not in "\n".join(entity.text for entity in entities)
 
     def test_plan_hardlink_alias_to_view_is_not_indexed(self, tmp_path: Path) -> None:
@@ -169,11 +188,9 @@ class TestScanAllEntityTypes:
         assert entities == []
 
     def test_unknown_top_dir_emits_warning(self, tmp_path: Path) -> None:
-        import warnings as _w
-
         _write(tmp_path / ".cg-docs/misc/foo.md", _md())
-        with _w.catch_warnings(record=True) as caught:
-            _w.simplefilter("always")
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
             scan_all(tmp_path)
         assert any("Unknown .cg-docs/ subdirectory" in str(w.message) for w in caught)
 
@@ -199,9 +216,9 @@ class TestScanAllContent:
 
     def test_raw_text_stored(self, tmp_path: Path) -> None:
         content = "---\ntitle: X\n---\n\nSome body.\n"
-        _write(tmp_path / ".cg-docs/plans/p.md", content)
+        source = _write(tmp_path / ".cg-docs/plans/p.md", content)
         e = scan_all(tmp_path)[0]
-        assert e.text == content
+        assert e.text == source.read_bytes().decode("utf-8")
 
     def test_path_is_relative(self, tmp_path: Path) -> None:
         _write(tmp_path / ".cg-docs/plans/p.md", _md())
@@ -329,7 +346,7 @@ class TestScanRoadmap:
 
     def test_malformed_roadmap_returns_empty(self, tmp_path: Path) -> None:
         (tmp_path / "roadmap.json").write_text("not valid json", encoding="utf-8")
-        import warnings
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             result = scan_roadmap(tmp_path)
@@ -384,7 +401,6 @@ class TestScanAllUnreadable:
         """P2.13 — permission-denied file should warn and continue scanning."""
         import stat
         import sys
-        import warnings
 
         _write(tmp_path / ".cg-docs/plans/good.md", _md("Good"))
         bad = _write(tmp_path / ".cg-docs/plans/bad.md", _md("Bad"))

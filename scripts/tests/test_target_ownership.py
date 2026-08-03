@@ -1,6 +1,8 @@
 """Contract tests for generated-target ownership manifests and stale cleanup."""
 from __future__ import annotations
 
+# pylint: disable=protected-access
+
 import hashlib
 import json
 import os
@@ -182,7 +184,9 @@ def test_manifest_second_generation_is_byte_identical(tmp_path: Path) -> None:
     assert _manifest_path(root).read_bytes() == first
 
 
-def test_generation_repairs_windows_line_endings_without_conflict(tmp_path: Path) -> None:
+def test_generation_repairs_windows_line_endings_without_conflict(
+    tmp_path: Path,
+) -> None:
     root = _fixture_repo(tmp_path)
     assert _generate(root) == 0
     command = root / ".claude/commands/cg-alpha.md"
@@ -260,6 +264,7 @@ def test_cleanup_preserves_modified_legacy_model_mapping(tmp_path: Path) -> None
     assert legacy.read_text(encoding="utf-8") == "user edit\n"
 
 
+@pytest.mark.backend_posix
 @pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -281,6 +286,7 @@ def test_cleanup_rechecks_stale_content_immediately_before_unlink(
     assert stale.read_text(encoding="utf-8") == "new user content\n"
 
 
+@pytest.mark.backend_posix
 @pytest.mark.skipif(not gen._supports_secure_dir_fd(), reason="requires POSIX dir_fd support")
 def test_cleanup_rollback_never_overwrites_post_quarantine_collision(
     tmp_path: Path,
@@ -313,6 +319,8 @@ def test_cleanup_rollback_never_overwrites_post_quarantine_collision(
     assert quarantine_files[0].read_text(encoding="utf-8") == "changed-owned-content\n"
 
 
+@pytest.mark.backend_posix
+@pytest.mark.backend_windows
 @pytest.mark.skipif(
     os.name != "nt" and not gen._supports_secure_dir_fd(),
     reason="requires Windows handle pinning or POSIX dir_fd support",
@@ -342,6 +350,66 @@ def test_commit_rechecks_destination_ancestor_immediately_before_write(
     with pytest.raises(OSError):
         gen.commit_generation_plan(root, plan, ("claude-code",))
     assert list(outside.iterdir()) == []
+
+
+def test_commit_rejects_later_destination_changed_after_preflight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    plan = gen.build_generation_plan(
+        root,
+        gen.load_target_mapping(root),
+        gen.scan_canonical_assets(root),
+    )
+    destinations = [
+        root / entry.destination
+        for entry in plan.by_target["claude-code"].entries
+    ]
+    assert len(destinations) >= 2
+    later = destinations[1]
+    calls = 0
+
+    def change_later_destination(_path: Path) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            later.write_bytes(b"late user content")
+
+    monkeypatch.setattr(gen, "_before_secure_replace", change_later_destination)
+
+    with pytest.raises(OSError, match="changed after authorization"):
+        gen.commit_generation_plan(root, plan, ("claude-code",))
+
+    assert later.read_bytes() == b"late user content"
+
+
+def test_commit_rejects_manifest_changed_after_pinned_preflight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _fixture_repo(tmp_path)
+    assert _generate(root) == 0
+    plan = gen.build_generation_plan(
+        root,
+        gen.load_target_mapping(root),
+        gen.scan_canonical_assets(root),
+    )
+    manifest = _manifest_path(root)
+    original_write = gen._secure_write_entry
+
+    def change_manifest_before_write(root_path, entry, expected_state):
+        if entry.kind == "manifest":
+            manifest.write_bytes(b"late unowned manifest")
+        return original_write(root_path, entry, expected_state)
+
+    monkeypatch.setattr(gen, "_secure_write_entry", change_manifest_before_write)
+
+    with pytest.raises(OSError, match="changed after authorization"):
+        gen.commit_generation_plan(root, plan, ("claude-code",))
+
+    assert manifest.read_bytes() == b"late unowned manifest"
 
 
 def test_cleanup_untracked_file_is_preserved(tmp_path: Path) -> None:

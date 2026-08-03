@@ -1,6 +1,8 @@
 """End-to-end failure-preservation and dependency-isolation tests."""
 from __future__ import annotations
 
+# pylint: disable=import-error
+
 import json
 from pathlib import Path
 import shutil
@@ -106,8 +108,29 @@ def test_runtime_modules_have_no_model_network_or_subprocess_dependency() -> Non
         Path(cli.__file__).with_name("validator.py"),
         Path(cli.__file__).with_name("renderer.py"),
         Path(cli.__file__).with_name("writer.py"),
+        Path(cli.__file__).with_name("generic_cli.py"),
+        Path(cli.__file__).with_name("generic_model.py"),
+        Path(cli.__file__).with_name("generic_parser.py"),
+        Path(cli.__file__).with_name("generic_renderer.py"),
+        Path(cli.__file__).with_name("paths.py"),
+        Path(cli.__file__).with_name("provenance.py"),
+        Path(cli.__file__).with_name("publishing.py"),
+        Path(cli.__file__).with_name("reference_theme.py"),
+        Path(cli.__file__).with_name("security.py"),
+        Path(cli.__file__).with_name("templates.py"),
+        Path(cli.__file__).with_name("themes.py"),
     ]
-    forbidden = ("subprocess", "urllib.request", "httpx", "requests", "openai", "anthropic")
+    forbidden = (
+        "subprocess",
+        "urllib.request",
+        "httpx",
+        "requests",
+        "openai",
+        "anthropic",
+        "playwright",
+        "selenium",
+        "open_design",
+    )
 
     for path in runtime_files:
         source = path.read_text(encoding="utf-8")
@@ -125,6 +148,28 @@ def test_view_only_sentinel_never_enters_brain_or_context_audit(
 
     sentinel = "VIEW_ONLY_SENTINEL_7E5C9A"
     view = tmp_path / ".cg-docs/views/plans/sentinel.html"
+    view.parent.mkdir(parents=True)
+    view.write_text(f"<html><body>{sentinel}</body></html>", encoding="utf-8")
+    monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
+
+    entities = scan_all(tmp_path)
+    files, _ = audit.scan_files(tmp_path)
+    duplicates = audit.detect_duplicates(tmp_path, files)
+
+    assert sentinel not in "\n".join(entity.text for entity in entities)
+    assert sentinel not in json.dumps(files)
+    assert sentinel not in json.dumps(duplicates)
+
+
+def test_generic_view_only_sentinel_never_enters_model_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import cg_audit_context as audit
+    from brain.scanner import scan_all
+
+    sentinel = "GENERIC_VIEW_ONLY_SENTINEL_3A9D"
+    view = tmp_path / ".cg-docs/views/documents/docs/guide.html"
     view.parent.mkdir(parents=True)
     view.write_text(f"<html><body>{sentinel}</body></html>", encoding="utf-8")
     monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})

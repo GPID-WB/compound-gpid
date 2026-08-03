@@ -73,9 +73,9 @@ def _run_release_fixture(
         "CG_DIRTY": "1" if dirty else "0",
         "CG_PYTHON_EXIT": str(python_exit),
     })
-    result = subprocess.run(
+    result = subprocess.run(  # pylint: disable=subprocess-run-check
         [pwsh, "-NoProfile", "-Command", command], capture_output=True, text=True,
-        cwd=str(cwd or tmp_path), env=env, timeout=30,
+        cwd=str(cwd or tmp_path), env=env, timeout=30, check=False,
     )
     return result, git_log, python_log, api_log
 
@@ -95,6 +95,26 @@ class TestReleaseGateTargets:
             "test_target_documentation.py", "test_model_advisory.py", "test_audit_context.py",
         ):
             assert test_file in workflow
+
+    def test_workflow_runs_publisher_security_and_backend_race_gates(self) -> None:
+        workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+        for test_file in (
+            "test_secure_fs.py",
+            "test_writer.py",
+            "test_generic_cli.py",
+            "test_generic_parser.py",
+            "test_generic_renderer.py",
+            "test_generic_launchers.py",
+            "test_publishing.py",
+            "test_publishing_paths.py",
+            "test_publishing_provenance.py",
+            "test_publishing_security.py",
+        ):
+            assert test_file in workflow
+        assert "backend_windows" in workflow
+        assert "backend_posix" in workflow
+        assert "assert_backend_race_gate.py" in workflow
+        assert "upload-artifact" in workflow
 
     def test_create_release_invokes_preflight_before_github_api(self) -> None:
         content = (REPO_ROOT / "create-release.ps1").read_text(encoding="utf-8")
@@ -148,9 +168,9 @@ class TestReleaseGateTargets:
 
     def test_generator_runs_clean_against_repo(self) -> None:
         """Generator must run without error against the real repo."""
-        result = subprocess.run(
+        result = subprocess.run(  # pylint: disable=subprocess-run-check
             [sys.executable, str(REPO_ROOT / "scripts/cg_generate_targets.py"), "--root", str(REPO_ROOT), "--all", "--dry-run"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=60,
+            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=60, check=False,
         )
         assert result.returncode == 0, f"Generator failed: {result.stderr}"
 
@@ -164,15 +184,15 @@ class TestReleaseGateTargets:
 
     def test_drift_test_would_pass(self) -> None:
         """Drift check must pass — generated trees must be current."""
-        result = subprocess.run(
+        result = subprocess.run(  # pylint: disable=subprocess-run-check
             [sys.executable, "-m", "pytest", "scripts/tests/test_target_drift.py", "-q"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=60,
+            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=360, check=False,
         )
         assert result.returncode == 0, f"Drift test failed — generated trees are stale:\n{result.stdout}\n{result.stderr}"
 
     def test_all_platform_tests_pass(self) -> None:
         """All per-platform tests must pass at release time."""
-        result = subprocess.run(
+        result = subprocess.run(  # pylint: disable=subprocess-run-check
             [sys.executable, "-m", "pytest",
              "scripts/tests/test_target_claude.py",
              "scripts/tests/test_target_codex.py",
@@ -180,6 +200,6 @@ class TestReleaseGateTargets:
              "scripts/tests/test_target_documentation.py",
              "scripts/tests/test_model_advisory.py",
              "scripts/tests/test_audit_context.py", "-q"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=60,
+            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=60, check=False,
         )
         assert result.returncode == 0, f"Platform tests failed:\n{result.stdout}\n{result.stderr}"

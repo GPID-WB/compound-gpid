@@ -622,13 +622,63 @@ Describe "install.ps1 - cg-render-artifact.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-publish-markdown.cmd copy" {
+    Context "single source of truth" {
+        It "cg-publish-markdown.cmd exists in the committed bin directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            Test-Path (Join-Path $repoRoot "bin\cg-publish-markdown.cmd") | Should -Be $true
+        }
+
+        It "cg-publish-markdown.cmd contains guarded Python probes" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-publish-markdown.cmd") -Raw
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "cg-publish-markdown.cmd references the entrypoint and forwards status" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-publish-markdown.cmd") -Raw
+            ($content -match 'publish_markdown\.py') | Should -Be $true
+            ($content -match '%\*') | Should -Be $true
+            ($content -match 'exit /b %ERRORLEVEL%') | Should -Be $true
+        }
+
+        It "install.ps1 copies the committed cg-publish-markdown.cmd" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgPublishMarkdownCmdSrc.*cg-publish-markdown\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgPublishMarkdownCmdSrc') | Should -Be $true
+        }
+
+        It "does not throw when source and destination match" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+            $src = Join-Path $compoundDir "bin\cg-publish-markdown.cmd"
+            $dst = Join-Path $binDir "cg-publish-markdown.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+            {
+                $srcFull = [System.IO.Path]::GetFullPath($src)
+                $dstFull = [System.IO.Path]::GetFullPath($dst)
+                if ($srcFull -ine $dstFull) {
+                    Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                }
+            } | Should -Not -Throw
+        }
+    }
+}
+
 Describe "Python-backed CMD launchers - runtime selection and status parity" {
     $repoRoot = Split-Path $PSScriptRoot -Parent
     $launchers = @(
         "cg-index.cmd",
         "cg-brain-init.cmd",
         "cg-token-audit.cmd",
-        "cg-render-artifact.cmd"
+        "cg-render-artifact.cmd",
+        "cg-publish-markdown.cmd"
     )
     $launcherCases = @($launchers | ForEach-Object { @{ Launcher = $_ } })
 
