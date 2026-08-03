@@ -209,10 +209,10 @@ These settings never disable validation; explicit render and check modes remain
 available. `/cg-work` validates every versioned Plan before roadmap, report, or
 implementation mutation.
 
-Each view visibly and machine-readably embeds its source path, normalized source
-SHA-256, artifact schema version, renderer version, and UTC generation time. The
-normalized source SHA-256 removes one UTF-8 BOM, converts CRLF and lone CR to LF,
-and preserves all remaining Unicode, whitespace, and trailing newlines.
+Each view visibly and machine-readably embeds its source path, exact pinned-byte
+SHA-256, artifact schema version, renderer version, and UTC generation time.
+The digest changes for BOM and line-ending byte changes; semantic normalization
+is never used as proof that canonical source bytes are unchanged.
 
 On failure, canonical Markdown and any prior valid view are preserved. The error
 shows the expected path and `missing`/`stale`/`current` state, followed by the
@@ -226,6 +226,67 @@ Rendering has no Open Design daemon, MCP, account, plugin, connector, network,
 or model dependency. Version 1 has no bulk historical conversion, no hosted
 site, no PDF or image product output, no live execution updates, no editing from
 HTML, and no views for artifact types other than new Brainstorms and Plans.
+
+#### Generic Markdown Publishing Core
+
+`cg-publish-markdown` publishes one project-contained generic Markdown file
+without weakening Brainstorm and Plan strict validation. Generic publishing
+cannot accept `.cg-docs/brainstorms/**`, `.cg-docs/plans/**`, or generated
+`.cg-docs/views/**` as source; use `cg-render-artifact` for Brainstorms and
+Plans. Generic input has document type `generic-markdown` and a separate source
+ledger, never an artifact schema claim.
+
+The default output mirrors the complete project-relative source path beneath
+`.cg-docs/views/documents/`. For example, `docs/guide.md` maps to
+`.cg-docs/views/documents/docs/guide.html`. `--output` accepts only a portable
+relative `.html` path in that namespace. Traversal, backslashes, alternate
+streams, trailing spaces or dots, Windows device names, links, reparse points,
+and hard-link source aliases are rejected. Each destination has one source
+owner: an existing output is replaceable only when valid provenance proves the
+same source, document type, and `outputPath`. Corrupt, unowned, or differently
+owned bytes are preserved and fail with recovery guidance.
+
+The closed generic grammar supports headings, paragraphs, ordered/unordered and
+task lists, fenced code, pipe tables, block quotes, thematic breaks, links, raw
+HTML as visible escaped source, and exact callouts written as
+`> [!NOTE]`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`, `DECISION`, `PROS`, or
+`CONS`. Similar lowercase or prose labels remain ordinary quotes; no component
+is inferred from prose.
+
+Local images resolve relative to the Markdown source. PNG, JPEG, GIF, and WebP
+are accepted only with non-empty normalized alt text and a matching suffix and
+magic signature. Each file is read from one pinned regular-file handle, rejects
+hard links, and is bounded to 5 MiB before allocation plus a one-byte growth
+probe. Accepted bytes become deterministic bitmap data URIs. Remote images,
+SVG, user data URIs, queries, fragments, encoded separators, and project escapes
+are rejected.
+
+| Command | Result |
+|---|---|
+| `cg-publish-markdown <source>` | Validate and publish with the registered `reference` theme |
+| `cg-publish-markdown --automatic <source>` | Validate; publish only when `artifact-html` is enabled |
+| `cg-publish-markdown --validate-only <source>` | Validate source, paths, resources, and theme without inspecting output |
+| `cg-publish-markdown --check <source>` | Reproduce exact expected bytes and report `missing`, `stale`, or `current` |
+| `cg-publish-markdown --theme reference <source>` | Select the only registered theme explicitly |
+| `cg-publish-markdown --output .cg-docs/views/documents/custom/view.html <source>` | Publish to one portable registered destination |
+
+New strict and generic views use provenance schema 2. It records `sourcePath`,
+exact pinned-byte source SHA-256, `outputPath`, document type, renderer version, theme
+name, theme version, and UTC generation time. A known older theme version is
+stale and rerenders with the current version; an unknown recorded theme fails
+until `--theme reference` is supplied. Legacy provenance schema 1 remains
+readable for deterministic typed migration and is always stale; it cannot prove
+generic output ownership.
+
+Publication and rollback are non-clobbering: supported backends quarantine the
+previous owner and publish or restore with no-replace semantics. If another
+process occupies the destination, its bytes remain untouched and the prior
+owned bytes remain under the reported recovery name. The runtime is
+dependency-free, model-free, network-free, browser-free, and Open Design free.
+
+The editorial theme and publishing workflow are a blocked follow-up. This core
+ships no agent publishing workflow, no browser evidence, no screenshots, no
+PDF product generation, and no completion dossier.
 
 ---
 

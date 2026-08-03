@@ -118,6 +118,11 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-render-artifact --automatic <source>` | Project root | Always validate; write HTML only when `artifact-html` is enabled or absent. |
 | `cg-render-artifact --validate-only <source>` | Project root | Validate one canonical artifact without writing HTML. |
 | `cg-render-artifact --check <source>` | Project root | Print `current` and exit code 0 only for an exact current view; print `missing` or `stale` and exit code 1 otherwise. Input/usage errors return exit code 2. |
+| `cg-publish-markdown <source>` | Project root | Publish one project-contained generic Markdown file to the mirrored `.cg-docs/views/documents/` path. |
+| `cg-publish-markdown --automatic <source>` | Project root | Validate generic Markdown and publish only when `artifact-html` is enabled or absent. |
+| `cg-publish-markdown --validate-only [--theme reference] <source>` | Project root | Validate generic source, output identity, local resources, and theme without inspecting or writing output. |
+| `cg-publish-markdown --check [--theme reference] <source>` | Project root | Reproduce expected schema-2 bytes; return exit code 0 for `current`, 1 for `missing`/`stale`, and 2 for invalid input. |
+| `cg-publish-markdown --output <documents-view.html> <source>` | Project root | Publish to one portable relative destination under `.cg-docs/views/documents/`. |
 | `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. |
 | `cg-test-summary --root . --format json` | Project root | Summarize `tests/last-run.json` without running tests and store a redacted source artifact. |
 | `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. |
@@ -126,6 +131,12 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-problems-summary --root . --input problems.json --format json` | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. |
 
 Windows installs include matching `.cmd` wrappers for the core install commands where platform-specific launch behavior is required.
+
+Generic publishing uses the frozen `reference` theme version 1 and provenance
+schema 2. Every destination has one source owner identified by `sourcePath`,
+`documentType`, and `outputPath`. Existing corrupt or differently owned output
+fails without mutation. Brainstorms and Plans retain strict validation and must
+use `cg-render-artifact`; generic publishing cannot act as a schema bypass.
 <!-- cg:auto:end -->
 
 ---

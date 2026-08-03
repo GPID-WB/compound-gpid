@@ -70,6 +70,28 @@ If the command is not found, restart the terminal after installation. If Python
 is not found, follow the installation steps above. Open Design is not required:
 it is design-time only and is never part of rendering or recovery.
 
+## Generic Markdown output is missing, stale, or differently owned
+
+Run the one-file generic freshness check from the project root:
+
+```bash
+cg-publish-markdown --check docs/guide.md
+```
+
+Recover a missing or stale same-owner view with
+`cg-publish-markdown docs/guide.md`. Output defaults to
+`.cg-docs/views/documents/docs/guide.html`. Use `--output` only for a portable
+relative `.html` destination in `.cg-docs/views/documents/`.
+
+If publication reports corrupt, unowned, or differently owned output, the file
+is preserved. Inspect its provenance and either select the correct source or
+move the conflicting file before rerunning. An unknown recorded theme requires
+`--theme reference`. Recovery is non-clobbering; if another process wins the
+destination, preserve both the winning bytes and any reported recovery file.
+
+Brainstorms and Plans cannot be recovered through the generic command. Run
+`cg-render-artifact <source>` so strict validation remains authoritative.
+
 ---
 
 ## `cg-update` (or `cg-link`, `cg-unlink`) not recognized after install
