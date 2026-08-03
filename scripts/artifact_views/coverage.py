@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Sequence
 
 from artifact_views.errors import ArtifactCoverageError
-from artifact_views.model import ArtifactDocument
+from artifact_views.model import SourceLedgerDocument
 
 
 @dataclass(frozen=True)
@@ -31,7 +31,7 @@ class RenderedOwner:
 class CoverageLedger:
     """Validate a bijection between substantive blocks and rendered owners."""
 
-    def __init__(self, document: ArtifactDocument) -> None:
+    def __init__(self, document: SourceLedgerDocument) -> None:
         self._document = document
 
     def validate(self, owners: Sequence[RenderedOwner]) -> None:

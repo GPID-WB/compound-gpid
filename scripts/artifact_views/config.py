@@ -6,6 +6,9 @@ from pathlib import Path
 from typing import Optional
 
 from parsing_utils import parse_frontmatter_with_body
+from secure_fs import secure_read_bytes
+
+_MAX_CONFIG_BYTES = 256 * 1024
 
 
 @dataclass(frozen=True)
@@ -31,16 +34,22 @@ def load_artifact_view_config(project_root: Path) -> ArtifactViewConfig:
     Example:
         ``load_artifact_view_config(Path('.')).automatic_html`` returns a bool.
     """
-    path = Path(project_root) / "compound-gpid.local.md"
-    if not path.is_file():
-        return ArtifactViewConfig(True)
+    root = Path(project_root)
     try:
-        frontmatter, _ = parse_frontmatter_with_body(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError) as error:
+        content = secure_read_bytes(
+            root,
+            "compound-gpid.local.md",
+            reject_hardlinks=True,
+            max_bytes=_MAX_CONFIG_BYTES,
+        ).decode("utf-8", errors="strict")
+    except FileNotFoundError:
+        return ArtifactViewConfig(True)
+    except UnicodeDecodeError as error:
         return ArtifactViewConfig(
             True,
             f"Invalid artifact-html configuration; defaulting enabled: {error}",
         )
+    frontmatter, _ = parse_frontmatter_with_body(content)
     value = frontmatter.get("artifact-html")
     if value is None:
         return ArtifactViewConfig(True)

@@ -67,6 +67,17 @@ ParsedDocument = Union[BrainstormDocument, PlanDocument]
 TableRows = Tuple[Dict[str, str], ...]
 
 
+@dataclass(frozen=True)
+class ParsedLexicalSource:
+    """Shared source-spanned Markdown ledger before semantic modeling."""
+
+    frontmatter_values: Dict[str, object]
+    frontmatter: Frontmatter
+    lexical_blocks: Tuple[LexicalBlock, ...]
+    substantive_blocks: Tuple[SubstantiveBlock, ...]
+    source_length_bytes: int
+
+
 def parse_artifact(
     source: str,
     source_path: Path,
@@ -94,6 +105,80 @@ def parse_artifact(
     """
     source_path = Path(source_path)
     artifact_kind = _normalize_kind(kind, source_path)
+    parsed_source = parse_lexical_source(source, source_path)
+    frontmatter_values = parsed_source.frontmatter_values
+    lexical_tuple = parsed_source.lexical_blocks
+    substantive = parsed_source.substantive_blocks
+    frontmatter = parsed_source.frontmatter
+    source_length = parsed_source.source_length_bytes
+    title = str(frontmatter_values.get("title") or "").strip()
+    if not title:
+        title = _first_h1_title(lexical_tuple) or ""
+    if not title:
+        raise _parse_error(
+            source_path,
+            "Artifact identity has no title.",
+            None,
+            "Add a non-empty title frontmatter field or level-one heading.",
+        )
+
+    version = frontmatter_values.get("artifact-schema-version")
+    identity = ArtifactIdentity(
+        kind=artifact_kind,
+        source_path=source_path,
+        title=title,
+        schema_version=version,
+        schema_support=schema_support(version),
+    )
+
+    if artifact_kind is ArtifactKind.BRAINSTORM:
+        return BrainstormDocument(
+            identity=identity,
+            frontmatter=frontmatter,
+            lexical_blocks=lexical_tuple,
+            substantive_blocks=substantive,
+            source_length_bytes=source_length,
+            alternatives=_parse_alternatives(lexical_tuple),
+        )
+
+    requirements = _parse_requirements(lexical_tuple)
+    phases = _parse_phases(lexical_tuple)
+    steps, tests = _parse_steps(lexical_tuple)
+    return PlanDocument(
+        identity=identity,
+        frontmatter=frontmatter,
+        lexical_blocks=lexical_tuple,
+        substantive_blocks=substantive,
+        source_length_bytes=source_length,
+        requirements=requirements,
+        phases=phases,
+        steps=steps,
+        tests=tests,
+        risks=_parse_risks(lexical_tuple),
+        completion_rows=_parse_completion_rows(lexical_tuple),
+    )
+
+
+def parse_lexical_source(
+    source: str,
+    source_path: Path,
+) -> ParsedLexicalSource:
+    """Tokenize Markdown into a complete source-spanned ledger.
+
+    Args:
+        source: Unmodified Unicode Markdown decoded as strict UTF-8.
+        source_path: Source identity used only for actionable diagnostics.
+
+    Returns:
+        Parsed frontmatter plus exact lexical and substantive source ledgers.
+
+    Raises:
+        ArtifactParseError: If the closed lexical grammar is ambiguous.
+
+    Example:
+        Strict artifacts and generic Markdown use this shared lexical layer.
+    """
+    source_path = Path(source_path)
     frontmatter_values, body = parse_frontmatter_with_body(source)
     body_start_char = len(source) - len(body)
     lines = _line_records(source)
@@ -139,54 +224,30 @@ def parse_artifact(
             frontmatter_values,
         )
     )
-    title = str(frontmatter_values.get("title") or "").strip()
-    if not title:
-        title = _first_h1_title(lexical) or ""
-    if not title:
-        raise _parse_error(
-            source_path,
-            "Artifact identity has no title.",
-            None,
-            "Add a non-empty title frontmatter field or level-one heading.",
-        )
-
-    version = frontmatter_values.get("artifact-schema-version")
-    identity = ArtifactIdentity(
-        kind=artifact_kind,
-        source_path=source_path,
-        title=title,
-        schema_version=version,
-        schema_support=schema_support(version),
-    )
     source_length = len(source.encode("utf-8"))
     lexical_tuple = tuple(lexical)
-
-    if artifact_kind is ArtifactKind.BRAINSTORM:
-        return BrainstormDocument(
-            identity=identity,
-            frontmatter=frontmatter,
-            lexical_blocks=lexical_tuple,
-            substantive_blocks=substantive,
-            source_length_bytes=source_length,
-            alternatives=_parse_alternatives(lexical_tuple),
-        )
-
-    requirements = _parse_requirements(lexical_tuple)
-    phases = _parse_phases(lexical_tuple)
-    steps, tests = _parse_steps(lexical_tuple)
-    return PlanDocument(
-        identity=identity,
+    return ParsedLexicalSource(
+        frontmatter_values=frontmatter_values,
         frontmatter=frontmatter,
         lexical_blocks=lexical_tuple,
         substantive_blocks=substantive,
         source_length_bytes=source_length,
-        requirements=requirements,
-        phases=phases,
-        steps=steps,
-        tests=tests,
-        risks=_parse_risks(lexical_tuple),
-        completion_rows=_parse_completion_rows(lexical_tuple),
     )
+
+
+def heading_from_block(block: LexicalBlock) -> Optional[Tuple[int, str]]:
+    """Return a heading level/title pair for one lexical block.
+
+    Args:
+        block: Source-spanned lexical block.
+
+    Returns:
+        ``(level, title)`` for an ATX heading, otherwise ``None``.
+
+    Example:
+        Generic documents use this for source-backed heading navigation.
+    """
+    return _heading(block)
 
 
 def parse_pipe_table(raw: str) -> Tuple[Tuple[str, ...], TableRows]:

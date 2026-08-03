@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# bin/cg-publish-markdown -- Publish or check one generic Markdown document.
+# This committed wrapper is the installer source of truth.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$("$candidate" --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        if "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1; then
+            printf '%s\n' "$candidate"; return 0
+        fi
+    done
+    return 1
+}
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2
+    exit 1
+fi
+exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/publish_markdown.py" "$@"

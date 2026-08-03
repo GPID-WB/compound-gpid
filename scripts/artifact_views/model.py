@@ -3,12 +3,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Protocol, Tuple, Union
 
 from artifact_views.errors import ArtifactModelError
 from artifact_views.schema import ArtifactKind, SchemaSupport
 
 CompletionPhase = Optional[Union[int, str]]
+
+
+class SourceLedgerDocument(Protocol):
+    """Structural type required by the shared source-ledger validator."""
+
+    identity: Any
+    lexical_blocks: Tuple["LexicalBlock", ...]
+    substantive_blocks: Tuple["SubstantiveBlock", ...]
+    source_length_bytes: int
 
 
 @dataclass(frozen=True)
@@ -235,7 +244,7 @@ class ArtifactDocument:
     source_length_bytes: int
 
     def __post_init__(self) -> None:
-        _validate_source_ledger(self)
+        validate_source_ledger(self)
 
 
 @dataclass(frozen=True)
@@ -318,7 +327,21 @@ def stable_block_id(index: int) -> str:
     return f"block-{index:04d}"
 
 
-def _validate_source_ledger(document: ArtifactDocument) -> None:
+def validate_source_ledger(document: SourceLedgerDocument) -> None:
+    """Validate exact-once lexical coverage and substantive ownership.
+
+    Args:
+        document: Immutable document implementing the source-ledger protocol.
+
+    Raises:
+        ArtifactModelError: If bytes, spans, IDs, or ownership are ambiguous.
+
+    Returns:
+        ``None`` after exact source coverage is verified.
+
+    Example:
+        Typed and generic document models call this from ``__post_init__``.
+    """
     if document.source_length_bytes < 0:
         raise _model_error(
             document,
@@ -454,7 +477,7 @@ def _first_duplicate(values: list) -> Optional[str]:
 
 
 def _model_error(
-    document: ArtifactDocument,
+    document: SourceLedgerDocument,
     message: str,
     corrective_action: str,
     span: Optional[SourceSpan] = None,

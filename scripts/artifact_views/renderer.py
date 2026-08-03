@@ -5,7 +5,7 @@ from html import escape
 from pathlib import Path, PurePosixPath
 import posixpath
 import re
-from typing import Dict, List, Sequence, Tuple
+from typing import Callable, Dict, List, Sequence, Tuple
 
 from artifact_views.coverage import CoverageLedger, RenderedOwner
 from artifact_views.model import (
@@ -15,9 +15,10 @@ from artifact_views.model import (
     PlanDocument,
 )
 from artifact_views.parser import parse_pipe_table
-from artifact_views.provenance import ArtifactProvenance
+from artifact_views.provenance import ArtifactProvenance, PublicationProvenance
 from artifact_views.security import render_safe_inline, validate_html_security
 from artifact_views.templates import render_html_shell
+from artifact_views.themes import get_theme
 
 _HEADING_RE = re.compile(r"^ {0,3}(#{1,6})(?:[ \t]+(.*?))?[ \t]*$")
 _FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -27,7 +28,7 @@ _TASK_RE = re.compile(r"^\s*[-+*]\s+\[([ xX])\]\s+(.*)$")
 
 def render_document(
     document: ArtifactDocument,
-    provenance: ArtifactProvenance,
+    provenance: ArtifactProvenance | PublicationProvenance,
 ) -> bytes:
     """Render a validated typed document to deterministic self-contained HTML.
 
@@ -54,14 +55,14 @@ def render_document(
             "provenance-heading",
             "approach-index",
         }
-        heading_ids = _heading_ids(document.lexical_blocks, reserved_ids)
-        navigation = _navigation(
+        heading_id_map = _heading_ids(document.lexical_blocks, reserved_ids)
+        navigation_html = _navigation(
             (
-                ("Context", _heading_anchor(document.lexical_blocks, heading_ids, "Context")),
-                ("Requirements", _heading_anchor(document.lexical_blocks, heading_ids, "Requirements")),
-                ("Approaches", _heading_anchor(document.lexical_blocks, heading_ids, "Approaches Considered")),
-                ("Decision", _heading_anchor(document.lexical_blocks, heading_ids, "Decision")),
-                ("Next steps", _heading_anchor(document.lexical_blocks, heading_ids, "Next Steps")),
+                ("Context", _heading_anchor(document.lexical_blocks, heading_id_map, "Context")),
+                ("Requirements", _heading_anchor(document.lexical_blocks, heading_id_map, "Requirements")),
+                ("Approaches", _heading_anchor(document.lexical_blocks, heading_id_map, "Approaches Considered")),
+                ("Decision", _heading_anchor(document.lexical_blocks, heading_id_map, "Decision")),
+                ("Next steps", _heading_anchor(document.lexical_blocks, heading_id_map, "Next Steps")),
                 ("Provenance", "provenance-heading"),
             )
         )
@@ -79,23 +80,23 @@ def render_document(
             "phase-map",
             "requirement-coverage",
         }
-        heading_ids = _heading_ids(document.lexical_blocks, reserved_ids)
+        heading_id_map = _heading_ids(document.lexical_blocks, reserved_ids)
         step_anchor = _heading_anchor(
             document.lexical_blocks,
-            heading_ids,
+            heading_id_map,
             "Implementation Steps",
         )
         if not step_anchor and document.steps:
-            step_anchor = heading_ids.get(document.steps[0].source_block_ids[0], "")
-        navigation = _navigation(
+            step_anchor = heading_id_map.get(document.steps[0].source_block_ids[0], "")
+        navigation_html = _navigation(
             (
-                ("Outcome", _heading_anchor(document.lexical_blocks, heading_ids, "Objective")),
+                ("Outcome", _heading_anchor(document.lexical_blocks, heading_id_map, "Objective")),
                 ("Phase map", "phase-map"),
                 ("Steps", step_anchor),
                 ("Requirement coverage", "requirement-coverage"),
-                ("Verification", _heading_anchor(document.lexical_blocks, heading_ids, "Verification Surface")),
-                ("Risks", _heading_anchor(document.lexical_blocks, heading_ids, "Risks & Mitigations")),
-                ("Boundaries", _heading_anchor(document.lexical_blocks, heading_ids, "Out of Scope")),
+                ("Verification", _heading_anchor(document.lexical_blocks, heading_id_map, "Verification Surface")),
+                ("Risks", _heading_anchor(document.lexical_blocks, heading_id_map, "Risks & Mitigations")),
+                ("Boundaries", _heading_anchor(document.lexical_blocks, heading_id_map, "Out of Scope")),
                 ("Provenance", "provenance-heading"),
             )
         )
@@ -108,15 +109,12 @@ def render_document(
     else:
         raise TypeError(f"Unsupported artifact document: {type(document)!r}")
 
-    owners: List[RenderedOwner] = []
-    rendered_blocks: List[str] = []
-    for index, block in enumerate(document.lexical_blocks, start=1):
-        if not block.substantive:
-            continue
-        owner_id = f"render-owner-{index:04d}"
-        owners.append(RenderedOwner(owner_id, block.block_id))
-        rendered_blocks.append(_render_block(block, owner_id, heading_ids))
-    CoverageLedger(document).validate(tuple(owners))
+    body_html = render_source_blocks(document, heading_id_map)
+    theme_name = (
+        provenance.theme_name
+        if isinstance(provenance, PublicationProvenance)
+        else "reference"
+    )
 
     rendered = render_html_shell(
         artifact_kind=document.identity.kind.value,
@@ -124,26 +122,62 @@ def render_document(
         eyebrow=eyebrow,
         deck=deck,
         canonical_href=canonical_href,
-        navigation_html=navigation,
+        navigation_html=navigation_html,
         derived_html=derived,
-        body_html="\n".join(rendered_blocks),
+        body_html=body_html,
         provenance=provenance,
+        theme=get_theme(theme_name),
     )
     validate_html_security(rendered.decode("utf-8"))
     return rendered
 
 
+def render_source_blocks(
+    document,
+    heading_ids: Dict[str, str],  # pylint: disable=redefined-outer-name
+    inline_renderer: Callable[[str], str] = render_safe_inline,
+) -> str:
+    """Render every substantive source block exactly once.
+
+    Args:
+        document: Strict or generic immutable source-ledger document.
+        heading_ids: Stable source-block to HTML heading IDs.
+
+    Returns:
+        Trusted semantic HTML wrappers in canonical source order.
+
+    Raises:
+        ArtifactCoverageError: If exact-once source ownership fails.
+
+    Example:
+        Strict and generic renderers pass their validated heading ID map.
+    """
+    owners: List[RenderedOwner] = []
+    rendered_blocks: List[str] = []
+    for index, block in enumerate(document.lexical_blocks, start=1):
+        if not block.substantive:
+            continue
+        owner_id = f"render-owner-{index:04d}"
+        owners.append(RenderedOwner(owner_id, block.block_id))
+        rendered_blocks.append(
+            _render_block(block, owner_id, heading_ids, inline_renderer)
+        )
+    CoverageLedger(document).validate(tuple(owners))
+    return "\n".join(rendered_blocks)
+
+
 def _render_block(
     block: LexicalBlock,
     owner_id: str,
-    heading_ids: Dict[str, str],
+    heading_id_map: Dict[str, str],
+    inline_renderer: Callable[[str], str] = render_safe_inline,
 ) -> str:
     attributes = (
         f'id="{escape(owner_id, quote=True)}" '
         f'data-source-block="{escape(block.block_id, quote=True)}" '
         f'data-source-lines="{block.span.start_line}-{block.span.end_line}"'
     )
-    content = _render_block_content(block, heading_ids)
+    content = _render_block_content(block, heading_id_map, inline_renderer)
     class_name = "source-block"
     if block.kind == "atx_heading":
         class_name += " source-heading"
@@ -152,7 +186,8 @@ def _render_block(
 
 def _render_block_content(
     block: LexicalBlock,
-    heading_ids: Dict[str, str],
+    heading_id_map: Dict[str, str],
+    inline_renderer: Callable[[str], str] = render_safe_inline,
 ) -> str:
     raw = block.raw.rstrip("\r\n")
     if block.kind == "atx_heading":
@@ -161,23 +196,23 @@ def _render_block_content(
             return _raw_source(block)
         level = len(match.group(1))
         title = re.sub(r"\s+#+\s*$", "", (match.group(2) or "").strip())
-        heading_id = heading_ids[block.block_id]
-        return f'<h{level} id="{escape(heading_id, quote=True)}">{_inline(title)}</h{level}>'
+        heading_id = heading_id_map[block.block_id]
+        return f'<h{level} id="{escape(heading_id, quote=True)}">{inline_renderer(title)}</h{level}>'
     if block.kind == "paragraph":
         lines = raw.splitlines()
         rendered = []
         for line in lines:
             hard_break = line.endswith("  ")
-            rendered.append(_inline(line.rstrip()))
+            rendered.append(inline_renderer(line.rstrip()))
             if hard_break:
                 rendered.append("<br>")
             else:
                 rendered.append(" ")
         return f"<p>{''.join(rendered).strip()}</p>"
     if block.kind in {"ordered_list", "unordered_list", "task_list"}:
-        return _render_list(block)
+        return _render_list(block, inline_renderer)
     if block.kind == "pipe_table":
-        return _render_table(block)
+        return _render_table(block, inline_renderer)
     if block.kind == "fenced_code":
         return _render_fence(block)
     if block.kind == "blockquote":
@@ -185,7 +220,23 @@ def _render_block_content(
             re.sub(r"^\s*>\s?", "", line)
             for line in raw.splitlines()
         )
-        return f"<blockquote><p>{_inline(text)}</p></blockquote>"
+        return f"<blockquote><p>{inline_renderer(text)}</p></blockquote>"
+    if block.kind == "callout":
+        lines = raw.splitlines()
+        marker_match = re.match(r"^\s*>\s+\[!([A-Z]+)\]\s*$", lines[0])
+        if marker_match is None:
+            return _raw_source(block)
+        marker = marker_match.group(1)
+        text = "\n".join(
+            re.sub(r"^\s*>\s?", "", line)
+            for line in lines[1:]
+        ).strip()
+        return (
+            f'<aside class="callout callout-{marker.casefold()}" '
+            f'aria-label="{escape(marker.title(), quote=True)}">'
+            f'<p class="callout-label">{escape(marker.title())}</p>'
+            f"<p>{inline_renderer(text)}</p></aside>"
+        )
     if block.kind == "thematic_break":
         return "<hr>"
     if block.kind == "raw_html":
@@ -193,7 +244,10 @@ def _render_block_content(
     return _raw_source(block)
 
 
-def _render_list(block: LexicalBlock) -> str:
+def _render_list(
+    block: LexicalBlock,
+    inline_renderer: Callable[[str], str] = render_safe_inline,
+) -> str:
     lines = block.raw.rstrip("\r\n").splitlines()
     if any(
         re.match(r"^\s+(?:[-+*]|\d+[.)])\s+", line)
@@ -208,25 +262,31 @@ def _render_list(block: LexicalBlock) -> str:
             checked = " checked" if task.group(1).lower() == "x" else ""
             items.append(
                 f'<li><input type="checkbox" disabled{checked}> '
-                f"{_inline(task.group(2))}</li>"
+                f"{inline_renderer(task.group(2))}</li>"
             )
             continue
         match = _LIST_RE.match(line)
         if match:
-            items.append(f"<li>{_inline(match.group(1))}</li>")
+            items.append(f"<li>{inline_renderer(match.group(1))}</li>")
         elif items:
-            items[-1] = items[-1][:-5] + f" {_inline(line.strip())}</li>"
+            items[-1] = items[-1][:-5] + f" {inline_renderer(line.strip())}</li>"
     return f"<{tag}>{''.join(items)}</{tag}>"
 
 
-def _render_table(block: LexicalBlock) -> str:
+def _render_table(
+    block: LexicalBlock,
+    inline_renderer: Callable[[str], str] = render_safe_inline,
+) -> str:
     headers, rows = parse_pipe_table(block.raw)
     if not headers:
         return _raw_source(block)
     head = "".join(f"<th scope=\"col\">{escape(_display_header(item))}</th>" for item in headers)
     body_rows = []
     for row in rows:
-        cells = "".join(f"<td>{_inline(row.get(header, ''))}</td>" for header in headers)
+        cells = "".join(
+            f"<td>{inline_renderer(row.get(header, ''))}</td>"
+            for header in headers
+        )
         body_rows.append(f"<tr>{cells}</tr>")
     return (
         '<div class="table-scroll" role="region" aria-label="Source table" tabindex="0">'
@@ -276,9 +336,28 @@ def _heading_ids(
     return result
 
 
+def heading_ids(
+    blocks: Sequence[LexicalBlock],
+    reserved_ids: Sequence[str],
+) -> Dict[str, str]:
+    """Build deterministic unique heading IDs for a document.
+
+    Args:
+        blocks: Complete lexical source blocks.
+        reserved_ids: IDs already owned by the semantic shell.
+
+    Returns:
+        Source-block to unique HTML heading ID mapping.
+
+    Example:
+        Repeated heading text receives deterministic numeric suffixes.
+    """
+    return _heading_ids(blocks, reserved_ids)
+
+
 def _heading_anchor(
     blocks: Sequence[LexicalBlock],
-    heading_ids: Dict[str, str],
+    heading_id_map: Dict[str, str],
     title: str,
 ) -> str:
     for block in blocks:
@@ -286,7 +365,7 @@ def _heading_anchor(
             continue
         match = _HEADING_RE.match(block.raw.rstrip("\r\n"))
         if match and (match.group(2) or "").strip() == title:
-            return heading_ids.get(block.block_id, "")
+            return heading_id_map.get(block.block_id, "")
     return ""
 
 
@@ -303,6 +382,21 @@ def _navigation(items: Sequence[Tuple[str, str]]) -> str:
         if anchor
     )
     return f"<ul>{links}</ul>"
+
+
+def navigation(items: Sequence[Tuple[str, str]]) -> str:
+    """Render one trusted heading-navigation list.
+
+    Args:
+        items: Ordered visible labels and validated heading IDs.
+
+    Returns:
+        Trusted semantic navigation-list HTML.
+
+    Example:
+        ``navigation((('Guide', 'guide'),))`` returns one link.
+    """
+    return _navigation(items)
 
 
 def _brainstorm_overview(document: BrainstormDocument) -> str:
