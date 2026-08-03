@@ -1,7 +1,7 @@
 ---
 description: "Research work — implement a research plan step by step. Supports
   /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements."
-model: GPT-5.3-Codex
+model: GPT-5.6 Luna
 module: research
 ---
 

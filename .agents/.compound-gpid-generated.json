@@ -210,7 +210,7 @@
       "path": ".agents/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "3dcd24bb3fff134eb0e6bf78490fdb764e05cf9496763205795378cb95858070",
+      "sha256": "9fd385fa5d601bfab9f1551e2c791a84e4a0297d6c1a60f8891061f8defeb48e",
       "executable": false
     },
     {
@@ -273,7 +273,7 @@
       "path": ".agents/model-mapping.codex.json",
       "source": "model-catalog",
       "kind": "model-mapping",
-      "sha256": "6064921828ff44bcc3af56efe96f9b46ac11c1117f7f26ecc93829d957008675",
+      "sha256": "b6bcb47d70bedd33c85be939064b47700975a1970dd123813b6afa40d5993170",
       "executable": false
     },
     {
@@ -301,7 +301,7 @@
       "path": ".agents/shared/model-catalog.json",
       "source": ".github/shared/model-catalog.json",
       "kind": "shared",
-      "sha256": "dae827e2c2a6df90a64d193da3f43648596604007a2e4c040cfb601c97a0d5f1",
+      "sha256": "0c2c4e02611bd534e576e1081b4d7e2b7fe42e3d6e2adb58b5bf10382e609e2e",
       "executable": false
     },
     {
@@ -329,7 +329,7 @@
       "path": ".agents/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "20d5458f799febc3266cbfcd6e7ce827d8a30d488c66b903e23b4c6b6df06807",
+      "sha256": "bd3740141b6f03bd248670f56c66d7a8592f297937ca0ab171f1860b7a0e2b65",
       "executable": false
     },
     {

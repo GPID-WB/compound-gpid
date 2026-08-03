@@ -68,6 +68,9 @@ class TestFileScanner:
 
 
 class TestModelExtraction:
+    def test_model_roles_allow_research_execution(self) -> None:
+        assert "research-execution" in audit.MODEL_ROLES
+
     def test_extracts_model_from_frontmatter(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("Claude Sonnet 4.6"))
         files, _ = audit.scan_files(tmp_path)

@@ -406,7 +406,7 @@
       "path": ".claude/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "1b292ab3bcb581731b799c5dcf1345af3e36244a728240d43b90e7f0692a1531",
+      "sha256": "f6cd3ea117052e118527b4131dfc9e56e9cdcb4f54ec732d8a72190af672ff03",
       "executable": false
     },
     {
@@ -469,7 +469,7 @@
       "path": ".claude/model-mapping.claude.json",
       "source": "model-catalog",
       "kind": "model-mapping",
-      "sha256": "d22d604ce1f836b4a384c1c30cea4be71ebbe0402c83e27158b8a61ee445b562",
+      "sha256": "e70df4b0bd4f9f1e4960965b757e2ca6b1ec70a3c45c0077967433aa0e76fe04",
       "executable": false
     },
     {
@@ -497,7 +497,7 @@
       "path": ".claude/shared/model-catalog.json",
       "source": ".github/shared/model-catalog.json",
       "kind": "shared",
-      "sha256": "9b536e82656808b91d1453fba98b12660469c57e993136a58f5ab04dd446abc2",
+      "sha256": "714b125bd1d2c3438bdad3cb62f7ab0a522700e8df7cf805cf1c60d3d048f445",
       "executable": false
     },
     {
@@ -525,7 +525,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "20d5458f799febc3266cbfcd6e7ce827d8a30d488c66b903e23b4c6b6df06807",
+      "sha256": "bd3740141b6f03bd248670f56c66d7a8592f297937ca0ab171f1860b7a0e2b65",
       "executable": false
     },
     {

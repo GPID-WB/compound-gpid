@@ -70,7 +70,15 @@ TOKEN_ARTIFACT_FILENAMES = (
 )
 
 MODEL_CATALOG_PATH = ".github/shared/model-catalog.json"
-MODEL_ROLES = {"inherited", "coding", "review", "reasoning", "mechanical", "fallback"}
+MODEL_ROLES = {
+    "inherited",
+    "coding",
+    "review",
+    "reasoning",
+    "mechanical",
+    "fallback",
+    "research-execution",
+}
 
 THRESHOLD_INSTRUCTION_IMMEDIATE = 1500
 THRESHOLD_INSTRUCTION_CRITICAL = 3000

@@ -46,6 +46,11 @@
       "provenance": "Manual VS Code/Copilot validation, 2026-06-16; temporary _model-validation prompt canary and Copilot model selector matched frontmatter"
     },
     {
+      "model": "GPT-5.6 Luna",
+      "status": "not-tested",
+      "provenance": "Pending manual VS Code/Copilot exact-label validation for /cr-work, 2026-08-03"
+    },
+    {
       "model": "Claude Sonnet 4.6",
       "status": "frontmatter-supported",
       "provenance": "Existing repository frontmatter"
@@ -88,6 +93,7 @@
     {"name": "GPT-5.5", "vendor": "openai", "family": "GPT-5", "roles": ["reasoning", "review"], "tier": "standard", "policyStatus": "preferred"},
     {"name": "GPT-5 mini", "vendor": "openai", "family": "GPT-5", "roles": ["mechanical"], "tier": "economy", "policyStatus": "allowed"},
     {"name": "GPT-5.4 mini", "vendor": "openai", "family": "GPT-5", "roles": ["mechanical"], "tier": "economy", "policyStatus": "allowed"},
+    {"name": "GPT-5.6 Luna", "vendor": "openai", "family": "GPT-5", "roles": ["research-execution"], "tier": "standard", "policyStatus": "preferred"},
     {"name": "Claude Sonnet 4.6", "vendor": "anthropic", "family": "Claude", "roles": ["fallback", "cross-vendor-review"], "tier": "standard", "policyStatus": "fallback"},
     {"name": "Claude Haiku 4.5", "vendor": "anthropic", "family": "Claude", "roles": ["mechanical"], "tier": "economy", "policyStatus": "mechanical-only"},
     {"name": "Claude Opus 4.5", "vendor": "anthropic", "family": "Claude", "roles": ["fallback"], "tier": "premium", "policyStatus": "user-selected-only"},
@@ -121,6 +127,7 @@
     {"path": ".claude/commands/cg-verify-pr.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "PR verification is code-aware."},
     {"path": ".claude/commands/cg-wiki.md", "role": "reasoning", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Wiki maintenance benefits from synthesis."},
     {"path": ".claude/commands/cg-work.md", "role": "coding", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Implementation workflow should prefer GPT-5.3-Codex."},
+    {"path": ".claude/commands/cr-work.md", "role": "research-execution", "preferredModel": "GPT-5.6 Luna", "frontmatterMode": "explicit", "rationale": "CR execution should use GPT-5.6 Luna while preserving existing mappings for all other prompts and agents."},
     {"path": ".claude/agents/cg-adversarial.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "manual-cross-vendor", "rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed."},
     {"path": ".claude/agents/cg-architecture.md", "role": "review", "preferredModel": "GPT-5.4", "frontmatterMode": "explicit", "rationale": "Architecture review needs strong reasoning."},
     {"path": ".claude/agents/cg-code-quality.md", "role": "review", "preferredModel": "GPT-5.3-Codex", "frontmatterMode": "explicit", "rationale": "Code-quality review benefits from Codex specialization."},

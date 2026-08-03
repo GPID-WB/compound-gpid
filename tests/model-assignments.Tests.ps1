@@ -194,6 +194,13 @@ Describe "model-catalog.json - CR model policy" {
             $entry.role | Should -Be "review"
         }
     }
+
+    It "contains /cr-work assignment with research-execution role and GPT-5.6 Luna" {
+        $entry = $catalog.assignments | Where-Object { $_.path -eq ".github/prompts/cr-work.prompt.md" }
+        ($null -ne $entry) | Should -Be $true
+        $entry.role | Should -Be "research-execution"
+        $entry.preferredModel | Should -Be "GPT-5.6 Luna"
+    }
 }
 
 Describe "docs/reference.md - ordinary prompt model picker sync" {
@@ -233,8 +240,8 @@ Describe "docs/reference.md - CR command model sync" {
         ($content -match '\| `/cr-plan` \| GPT-5\.4 \|') | Should -Be $true
     }
 
-    It "/cr-work documents GPT-5.3-Codex" {
-        ($content -match '\| `/cr-work` \| GPT-5\.3-Codex \|') | Should -Be $true
+    It "/cr-work documents GPT-5.6 Luna" {
+        ($content -match '\| `/cr-work` \| GPT-5\.6 Luna \|') | Should -Be $true
     }
 
     It "/cr-review documents GPT-5.4" {
@@ -266,6 +273,15 @@ Describe "docs/model-guide.md - CR agent inventory sync" {
         It "$agent is listed in docs/model-guide.md" {
             ($content -match [regex]::Escape($agent)) | Should -Be $true
         }
+    }
+}
+
+Describe "docs/model-guide.md - /cr-work prompt assignment sync" {
+    $guideFile = Join-Path $repoRoot "docs\model-guide.md"
+    $content = if (Test-Path $guideFile) { Get-Content $guideFile -Raw -Encoding UTF8 } else { "" }
+
+    It "lists cr-work.prompt.md with GPT-5.6 Luna and research-execution role" {
+        ($content -match '\| cr-work\.prompt\.md \| GPT-5\.6 Luna \| research-execution \|') | Should -Be $true
     }
 }
 

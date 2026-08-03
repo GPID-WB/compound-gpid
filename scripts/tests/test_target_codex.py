@@ -87,6 +87,11 @@ class TestCodexModelMapping:
         data = json.loads((REPO_ROOT / ".agents/model-mapping.codex.json").read_text(encoding="utf-8"))
         assert data["mapping"]["review"] == "GPT-5.4"
 
+    def test_cr_work_command_has_luna_model(self) -> None:
+        cmd = REPO_ROOT / ".agents/commands/cr-work.md"
+        content = cmd.read_text(encoding="utf-8")
+        assert "model: GPT-5.6 Luna" in content
+
     def test_root_adapter_references_agents_paths(self) -> None:
         content = (REPO_ROOT / ".agents/AGENTS.md").read_text(encoding="utf-8")
         assert ".agents/" in content

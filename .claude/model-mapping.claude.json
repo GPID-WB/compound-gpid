@@ -6,6 +6,7 @@
     "review": "sonnet",
     "reasoning": "opus",
     "mechanical": "haiku",
+    "research-execution": "sonnet",
     "inherited": null
   },
   "source": ".claude/shared/model-catalog.json",

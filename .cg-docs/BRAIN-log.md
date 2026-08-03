@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-07-30 · 507 artifacts (newest first) + 114 roadmap features_
+_Generated 2026-08-03 · 518 artifacts (newest first) + 123 roadmap features_
 
 ## undated
 
@@ -127,10 +127,41 @@ _Generated 2026-07-30 · 507 artifacts (newest first) + 114 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-03
+
+- **[Single-command model overrides need dedicated roles and baseline-aware audits](.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md)** · `solution` · _—_ · `2026-08-03`
+  > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
+
+## 2026-08-02
+
+- **[Use GPT-5.6 Luna for /cr-work](.cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Use GPT-5.6 Luna for /cr-work](.cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md)** · `plan` · _completed_ · `2026-08-02`
+  > Assign `GPT-5.6 Luna` to the Compound Research `/cr-work` command and carry that assignment through the canonical mod…
+
+## 2026-07-31
+
+- **[2026-07-30-cr-scoping-normative-gates-review](.cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: research **Files reviewed**: 28 **Findings**: 5 (P0: 0, P1: 4, P2: 1, P3: 0)
+- **[2026-07-30-cr-scoping-normative-gates-review-2](.cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: full (composite coverage with research agents per shared routing contract) **Files reviewed**: 643 *…
+- **[Review artifacts must use machine-readable finding maps and stable validation evidence](.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md)** · `solution` · _—_ · `2026-07-31`
+  > A full `/cg-review` pass over the Compound Research branch exposed two coupled contract defects in saved artifacts: -…
+
 ## 2026-07-30
 
 - **[2026-07-29-cr-module-migration-to-v1-review-2](.cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md)** · `review` · _—_ · `2026-07-30`
   > **Review mode**: architecture **Files reviewed**: 42 **Findings**: 6 (P0: 0, P1: 2, P2: 4, P3: 0)
+- **[CR as a responsible research partner for policy-relevant measurement work](.cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md)** · `brainstorm` · _decided_ · `2026-07-30`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR Evidence & Provenance Spine \(Responsible Research Partner — Phase 1\)](.cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module an **evidence and provenance spine** so that every substantive claim in a rese…
+- **[CR Measurement/Classification Archetype + Comparability Controls \(Responsible Research Partner — Phase 2\)](.cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module a first-class **Measurement/Classification** research archetype — the **9th re…
+- **[CR Method-Pack Retrofit + Lifecycle Orchestration \(Responsible Research Partner — Phase 4\)](.cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md)** · `plan` · _completed_ · `2026-07-30`
+  > Refactor CR's existing method-specific flows (structural econometrics, ML) into interchangeable **method packs** runn…
+- **[CR Scoping Front-End + Normative-Decision Gates \(Responsible Research Partner — Phase 3\)](.cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module a **scoping front-end** and a **normative-decision gate backbone**, so that co…
 - **[Review routing contract changes must update all entry points and coverage layers](.cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md)** · `solution` · _—_ · `2026-07-30`
   > The research-route rollout left three different review entry points out of sync: - `.github/shared/review-routing.con…
 
@@ -140,7 +171,7 @@ _Generated 2026-07-30 · 507 artifacts (newest first) + 114 roadmap features_
   > 75 files committed in `feat(cr): port compound-research intellectual content from v0.10 branch` (commit `144066f`): 9…
 - **[Compound Research module migration from v0.10 branch to v1.0 main](.cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md)** · `brainstorm` · _decided_ · `2026-07-29`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Compound Research module migration to v1.0](.cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md)** · `plan` · _active_ · `2026-07-29`
+- **[Compound Research module migration to v1.0](.cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md)** · `plan` · _completed_ · `2026-07-29`
   > Port the Compound Research (CR) module — 9 agents, 12 skills, 5 prompts, 2 instruction files, and associated .cg-docs…
 - **[CR agent model strings must use GPT-5.4 — Claude Opus violates catalog policy](.cg-docs/solutions/build-errors/2026-07-29-cr-agent-model-strings-must-use-gpt-catalog-compliant.md)** · `solution` · _—_ · `2026-07-29`
   > When the Compound Research (CR) module was ported from the `compound-research` v0.10.2 branch onto `feat/compound-res…
@@ -1338,6 +1369,24 @@ _Generated 2026-07-30 · 507 artifacts (newest first) + 114 roadmap features_
   > Copilot CLI execution with worktrees (Model C)
 - **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
   > copilot-instructions.md restructuring (blocked on hooks evaluation)
+- **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
+  > CR evidence and provenance spine with repo-local corpus default
+- **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
+  > CR Measurement/Classification research archetype
+- **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
+  > P0 comparability controls for measurement and indicator work
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
+- **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
+  > Responsible lifecycle and method-pack retrofit
+- **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
+  > Research scoping and normative-decision gates
+- **[Validate the Measurement archetype with a second use case](roadmap.json#cr-second-measurement-use-case-validation)** · `feature` · _idea_ · `—`
+  > Validate the Measurement archetype with a second use case
+- **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
+  > Team-level evidence library
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`

@@ -1,11 +1,25 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-07-30_
+_Generated 2026-08-03_
 
 ## Roadmap.Json / Prompt-Tools.Tests.Ps1 / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `cg-work`_ · 55 entities
+_Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `cg-work`_ · 64 entities
 
+- **[Fix-triage changes to prompt text need co-authored Pester assertions](.cg-docs/solutions/testing-patterns/2026-05-01-fix-triage-prompt-changes-need-co-authored-tests.md)** · `solution` · _—_ · `2026-05-01`
+  > A thorough review of the smart-setup Phase 2 changes produced 21 findings (P0–P3). Fix-triage was applied across four…
+- **[Regex alternation in Pester -match can mask coverage when first branch is always true](.cg-docs/solutions/testing-patterns/2026-05-01-regex-alternation-masks-coverage-split-into-independent-assertions.md)** · `solution` · _—_ · `2026-05-01`
+  > A test was written to verify that the scanner injection sanitization block in `cg-setup.prompt.md` named all three tr…
+- **[Pester regex for assert-with-string-message false-positives on inlist/inrange](.cg-docs/solutions/testing-patterns/2026-05-05-pester-regex-assert-string-message-false-positive-inlist.md)** · `solution` · _—_ · `2026-05-05`
+  > A Pester guard test intended to detect invalid Stata `assert expr, "message"` syntax used the regex `assert\b[^\`\r\n…
+- **[Regex alternation branches become stale dead code after prompt refactoring](.cg-docs/solutions/testing-patterns/2026-05-05-stale-alternation-after-prompt-refactoring.md)** · `solution` · _—_ · `2026-05-05`
+  > A test was written in two-branch alternation form to cover two possible phrasings of the "skip silently" guard in `cg…
+- **[Within-step pre-flight operations must precede the user-facing offer template](.cg-docs/solutions/testing-patterns/2026-05-05-within-step-preflight-must-precede-offer-template.md)** · `solution` · _—_ · `2026-05-05`
+  > `cg-plan.prompt.md` Step 0.7 was written in this order: 1. Check current branch 2. **Show the offer template** (`feat…
+- **[Cross-prompt user journey must be validated end-to-end, not just per-prompt](.cg-docs/solutions/testing-patterns/2026-05-06-cross-prompt-user-journey-must-be-validated-end-to-end.md)** · `solution` · _—_ · `2026-05-06`
+  > During the phased execution verify review, a **P2** finding emerged that all individual-prompt tests had missed: - `c…
+- **[Fix applied as HTML comment not executed — prompt instruction must be prose, not markup](.cg-docs/solutions/testing-patterns/2026-05-06-html-comment-as-fix-never-executed.md)** · `solution` · _—_ · `2026-05-06`
+  > During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dis…
 - **[Pester write-guard regex with ^ always false without \(?m\) — silent false-positive](.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md)** · `solution` · _—_ · `2026-05-06`
   > A write-guard test for `cg-roadmap-view.agent.md` was written as: This test **always passes** — not because the agent…
 - **[Source-scanning regression guard for PowerShell scripting anti-patterns](.cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md)** · `solution` · _—_ · `2026-05-12`
@@ -90,6 +104,10 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `cg-work`_ · 55 entiti
   > In Pester 4 test files that loop over agent/prompt files and parse frontmatter inside a `Context` block, `Get-Frontma…
 - **[Review routing contract changes must update all entry points and coverage layers](.cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md)** · `solution` · _—_ · `2026-07-30`
   > The research-route rollout left three different review entry points out of sync: - `.github/shared/review-routing.con…
+- **[Review artifacts must use machine-readable finding maps and stable validation evidence](.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md)** · `solution` · _—_ · `2026-07-31`
+  > A full `/cg-review` pass over the Compound Research branch exposed two coupled contract defects in saved artifacts: -…
+- **[Single-command model overrides need dedicated roles and baseline-aware audits](.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md)** · `solution` · _—_ · `2026-08-03`
+  > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -117,12 +135,12 @@ _Keywords: `roadmap.json` · `prompt-tools.tests.ps1` · `cg-work`_ · 55 entiti
 - **[Skills Enhancement Idea Additions](.cg-docs/strategy/2026-07-22-skills-enhancement-idea-additions.md)** · `strategy` · _—_ · `2026-07-22`
   > Compound GPID is in a mid-project phase with the existing `Skills Enhancement` milestone available for additional ski…
 
-## Architecture Research Objective / Knowledge Brain Objective / Quality Loop Objective
+## Architecture Research Objective / Knowledge Brain Objective / Model Governance Objective
 
 _Keywords: `architecture research
 objective` · `knowledge brain
-objective` · `quality loop
-objective`_ · 114 entities
+objective` · `model governance
+objective`_ · 116 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -352,6 +370,30 @@ objective`_ · 114 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
+
+## Expand Compound Research / Responsible Research Partner Objective / Measurement
+
+_Keywords: `expand compound research` · `responsible research partner
+objective` · `measurement`_ · 7 entities
+
+- **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
+  > CR evidence and provenance spine with repo-local corpus default
+- **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
+  > CR Measurement/Classification research archetype
+- **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
+  > P0 comparability controls for measurement and indicator work
+- **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
+  > Research scoping and normative-decision gates
+- **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
+  > Responsible lifecycle and method-pack retrofit
+- **[Validate the Measurement archetype with a second use case](roadmap.json#cr-second-measurement-use-case-validation)** · `feature` · _idea_ · `—`
+  > Validate the Measurement archetype with a second use case
+- **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
+  > Team-level evidence library
 
 ## Tests / Python / Httpx
 

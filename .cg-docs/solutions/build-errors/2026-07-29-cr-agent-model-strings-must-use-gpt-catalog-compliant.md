@@ -88,3 +88,4 @@ This was strengthened as part of this fix (commit `8148d22`).
   not value — see P2.6 in review 2026-07-29 for rationale)
 - `.cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review.md` — full
   review where P1.1 and P1.2 were identified
+- `.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md` — follow-on pattern for isolated command-level model overrides in the catalog and native target mappings

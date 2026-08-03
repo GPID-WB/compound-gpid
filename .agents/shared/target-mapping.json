@@ -66,6 +66,7 @@
         "review": "sonnet",
         "reasoning": "opus",
         "mechanical": "haiku",
+        "research-execution": "sonnet",
         "inherited": null
       },
       "installUnits": [
@@ -110,6 +111,7 @@
         "review": "GPT-5.4",
         "reasoning": "GPT-5.4",
         "mechanical": "GPT-5.4 mini",
+        "research-execution": "GPT-5.6 Luna",
         "inherited": null
       },
       "installUnits": [

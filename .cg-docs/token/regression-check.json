@@ -1,139 +1,125 @@
 {
   "comparison": {
-    "model_governance": {
-      "missing_model_count_delta": 0,
-      "model_drift_count_delta": 0,
-      "ordinary_model_picker_violations_delta": 0,
-      "premium_usage_count_delta": 0
-    },
-    "status": "available",
-    "workflows": [
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "limited",
-        "dispatch_burden_before": "limited",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-brainstorm.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-brainstorm"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "limited",
-        "dispatch_burden_before": "limited",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-plan.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-plan"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "conditional",
-        "dispatch_burden_before": "conditional",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-work.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-work"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "conditional",
-        "dispatch_burden_before": "conditional",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-review.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-review"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "none",
-        "dispatch_burden_before": "none",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-fix-triage"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "limited",
-        "dispatch_burden_before": "limited",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-compound.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-compound"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "limited",
-        "dispatch_burden_before": "limited",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-resume.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-resume"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "none",
-        "dispatch_burden_before": "none",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-diagnose.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-diagnose"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "none",
-        "dispatch_burden_before": "none",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/prompts/cg-token-audit.prompt.md",
-        "total_refs_delta": 0,
-        "workflow": "/cg-token-audit"
-      },
-      {
-        "baseline_available": true,
-        "context_risk_count_delta": 0,
-        "dispatch_burden_after": "none",
-        "dispatch_burden_before": "none",
-        "dispatch_refs_delta": 0,
-        "estimated_tokens_delta": 0,
-        "path": ".github/skills/cg-skill-brain-query/SKILL.md",
-        "total_refs_delta": 0,
-        "workflow": "Knowledge Brain/context lookup"
-      }
-    ]
+    "model_governance": {},
+    "status": "not_supplied",
+    "workflows": []
   },
-  "failures": [],
-  "generated": "2026-07-24T11:16:57",
+  "failures": [
+    {
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
+      "reason": "prompt/agent is missing a model-catalog role assignment"
+    },
+    {
+      "path": ".github/prompts/cr-compound.prompt.md",
+      "reason": "prompt/agent is missing a model-catalog role assignment"
+    },
+    {
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "prompt/agent is missing a model-catalog role assignment"
+    },
+    {
+      "path": ".github/prompts/cr-review.prompt.md",
+      "reason": "prompt/agent is missing a model-catalog role assignment"
+    }
+  ],
+  "generated": "2026-07-31T12:11:16-04:00@3cc58d7d3ba3",
+  "generated_kind": "volatile",
   "measurement_policy": {
     "failure_rule": "guardrail failures fail the regression check; advisory warnings remain warnings",
     "savings_claims": "not made without comparable repository probes",
     "token_estimate": "chars/4 heuristic"
   },
   "schema_version": 1,
-  "status": "pass",
-  "status_reason": "No deterministic guardrail failures were found for a comparable baseline run.",
+  "status": "fail",
+  "status_reason": "Deterministic guardrail failures are present.",
   "warnings": [
     {
-      "path": "docs/context-files.md",
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "preferred model frontmatter support is not-tested: GPT-5.6 Luna"
+    },
+    {
+      "path": ".github/prompts/cg-review.prompt.md",
+      "reason": "high-frequency prompt estimated tokens > 5000"
+    },
+    {
+      "path": ".github/prompts/cg-work.prompt.md",
+      "reason": "high-frequency prompt estimated tokens > 5000"
+    },
+    {
+      "path": "(always-on instructions)",
+      "reason": "always-on instruction estimated tokens > 4500"
+    },
+    {
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-identification-audit.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-ml-methodology.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-provenance-audit.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-publication-output.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-research-integrity.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-specification-analysis.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
       "reason": "context-loading risk requires review: compound-gpid.context.md"
+    },
+    {
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "context-loading risk requires review: roadmap.json"
+    },
+    {
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "context-loading risk requires review: roadmap.json"
+    },
+    {
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": "docs/philosophy.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
     },
     {
       "path": "docs/reference.md",
@@ -162,17 +148,17 @@
       "workflow": "/cg-plan"
     },
     {
-      "estimated_tokens": 5000,
+      "estimated_tokens": 5091,
       "path": ".github/prompts/cg-work.prompt.md",
-      "status": "pass",
+      "status": "warn",
       "threshold_failure": 6000,
       "threshold_warning": 5000,
       "workflow": "/cg-work"
     },
     {
-      "estimated_tokens": 4739,
+      "estimated_tokens": 5036,
       "path": ".github/prompts/cg-review.prompt.md",
-      "status": "pass",
+      "status": "warn",
       "threshold_failure": 6000,
       "threshold_warning": 5000,
       "workflow": "/cg-review"

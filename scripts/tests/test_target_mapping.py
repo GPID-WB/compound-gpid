@@ -80,10 +80,20 @@ class TestTargetMappingSchema:
         claude = next(t for t in data["targets"] if t["id"] == "claude-code")
         assert claude["modelMappingMode"] == "tier"
 
+    def test_claude_maps_research_execution_role(self) -> None:
+        data = _load_repo_mapping()
+        claude = next(t for t in data["targets"] if t["id"] == "claude-code")
+        assert claude["modelMapping"]["research-execution"] == "sonnet"
+
     def test_codex_uses_exact_mode(self) -> None:
         data = _load_repo_mapping()
         codex = next(t for t in data["targets"] if t["id"] == "codex")
         assert codex["modelMappingMode"] == "exact"
+
+    def test_codex_maps_research_execution_role(self) -> None:
+        data = _load_repo_mapping()
+        codex = next(t for t in data["targets"] if t["id"] == "codex")
+        assert codex["modelMapping"]["research-execution"] == "GPT-5.6 Luna"
 
     def test_opencode_uses_role_only_mode(self) -> None:
         data = _load_repo_mapping()

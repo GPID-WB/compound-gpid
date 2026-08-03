@@ -8,7 +8,7 @@ root-cause: "The model guide documented inherited prompts as 'Copilot model pick
 severity: "P1"
 plan: ".cg-docs/plans/2026-06-15-model-selection-and-governance-finish.md"
 reviewed-in: ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-2.md"
-related: [".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md"]
+related: [".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md", ".cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md", ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md", ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md"]
 ---
 
 # Inherited Model-Picker Prompts Need Explicit Audit Equivalence
@@ -117,3 +117,4 @@ When audit reports compare docs, catalogs, and executable metadata:
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md`
+- `.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md`

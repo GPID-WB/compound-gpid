@@ -1,5 +1,6 @@
 {
-  "generated": "2026-07-24T11:16:57",
+  "generated": "2026-07-31T12:11:16-04:00@3cc58d7d3ba3",
+  "generated_kind": "volatile",
   "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
   "schema_version": 1,
   "workflows": [
@@ -222,14 +223,14 @@
         {
           "artifact": ".cg-docs/",
           "level": "justified",
-          "line": 40,
+          "line": 41,
           "reason": "maintenance/tooling workflow",
           "snippet": "- Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A"
         },
         {
           "artifact": "roadmap.json",
           "level": "justified",
-          "line": 204,
+          "line": 205,
           "reason": "explicit expansion rationale",
           "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
         },
@@ -250,21 +251,21 @@
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 91,
+          "line": 92,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 207,
+          "line": 208,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 211,
+          "line": 212,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
         }
@@ -377,7 +378,7 @@
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 82,
+          "line": 86,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the "
         }

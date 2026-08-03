@@ -2,9 +2,9 @@
   "benchmark": {
     "comparison": null,
     "context_loading": {
-      "justified": 20,
-      "risk": 3,
-      "targeted": 102
+      "justified": 17,
+      "risk": 20,
+      "targeted": 110
     },
     "model_governance": {
       "haiku_role_violations": 0,
@@ -78,7 +78,7 @@
       {
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20364,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 2,
@@ -86,7 +86,7 @@
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
+        "estimated_tokens": 5091,
         "file_refs": 17,
         "load_verbs": 22,
         "model": "GPT-5.3-Codex",
@@ -102,7 +102,7 @@
       {
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 20145,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 0,
@@ -110,16 +110,16 @@
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
+        "estimated_tokens": 5036,
         "file_refs": 11,
-        "load_verbs": 18,
+        "load_verbs": 22,
         "model": "GPT-5.4",
         "model_tier": "standard",
         "path": ".github/prompts/cg-review.prompt.md",
         "skill_refs": 5,
         "summary_output_status": "not_observed",
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 60,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },
@@ -248,9 +248,9 @@
         "available": true,
         "characters": 11024,
         "conditional_routing": false,
-        "context_justified_count": 9,
-        "context_risk_count": 2,
-        "context_targeted_count": 57,
+        "context_justified_count": 7,
+        "context_risk_count": 17,
+        "context_targeted_count": 59,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2756,
@@ -268,25 +268,161 @@
   },
   "context_loading_risks": [
     {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 25,
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 41,
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "Read the code, comments, derivation files (`.cg-docs/research/derivations/`),"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 29,
+      "path": ".github/agents/cr-identification-audit.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 25,
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 34,
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "Scan `.cg-docs/research/derivations/` for `.tex` and `.md` files."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 26,
+      "path": ".github/agents/cr-ml-methodology.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 19,
+      "path": ".github/agents/cr-provenance-audit.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 28,
+      "path": ".github/agents/cr-publication-output.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from code files, `.cg-docs/research/`"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 21,
+      "path": ".github/agents/cr-research-integrity.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 27,
+      "path": ".github/agents/cr-specification-analysis.agent.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+    },
+    {
       "artifact": "compound-gpid.context.md",
       "level": "risk",
-      "line": 233,
-      "path": "docs/context-files.md",
+      "line": 17,
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
       "reason": "broad context-loading instruction",
-      "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+      "snippet": "- You may read `compound-gpid.md`, `compound-gpid.local.md`, `compound-gpid.context.md`."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "risk",
+      "line": 16,
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "- You may read `roadmap.json`."
     },
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 168,
+      "line": 32,
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded."
+    },
+    {
+      "artifact": "roadmap.json",
+      "level": "risk",
+      "line": 16,
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "- You may read `roadmap.json`."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 174,
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "1. Load the corresponding derivation from `.cg-docs/research/derivations/`"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 26,
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 53,
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "1. Read `.cg-docs/research/results/manifest.json`"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 322,
+      "path": "docs/philosophy.md",
+      "reason": "broad context-loading instruction",
+      "snippet": "| Review | Judge findings critically and decide what is acceptable | Search for failures through risk-matched review routes | `.cg-docs/reviews/` |"
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "risk",
+      "line": 253,
       "path": "docs/reference.md",
       "reason": "broad context-loading instruction",
-      "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
+      "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |"
     },
     {
       "artifact": ".cg-docs/",
       "level": "risk",
-      "line": 739,
+      "line": 747,
       "path": "docs/workflow.md",
       "reason": "broad context-loading instruction",
       "snippet": "6. Open `.cg-docs/token/TOKEN-DASHBOARD.md` and"
@@ -390,7 +526,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "justified",
-      "line": 40,
+      "line": 41,
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "- Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). A"
@@ -398,7 +534,7 @@
     {
       "artifact": "roadmap.json",
       "level": "justified",
-      "line": 204,
+      "line": 205,
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "explicit expansion rationale",
       "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
@@ -420,33 +556,9 @@
       "snippet": "`Context expansion: reading <BRAIN-NN.md topic section> because it matched <search directive/topic>.`"
     },
     {
-      "artifact": "BRAIN.md",
-      "level": "justified",
-      "line": 86,
-      "path": "docs/reference.md",
-      "reason": "maintenance/tooling workflow",
-      "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (`BRAIN.md` + `BRAIN-NN.md` partitions + `BRAIN-log.md` + `brain-index.json`) by running `cg-index --brain`. Use directly after pulling `.cg-docs/` ch"
-    },
-    {
       "artifact": "roadmap.json",
       "level": "justified",
-      "line": 92,
-      "path": "docs/reference.md",
-      "reason": "maintenance/tooling workflow",
-      "snippet": "| `/cg-issues [status\\|backfill\\|link\\|adopt\\|setup]` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. `status` (default, read-only): display linked issues and unlinked features. `backfill`: create"
-    },
-    {
-      "artifact": ".cg-docs/",
-      "level": "justified",
-      "line": 159,
-      "path": "docs/reference.md",
-      "reason": "maintenance/tooling workflow",
-      "snippet": "Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`, a compact advisory report with fix/accept/docs-only wa"
-    },
-    {
-      "artifact": "roadmap.json",
-      "level": "justified",
-      "line": 691,
+      "line": 699,
       "path": "docs/workflow.md",
       "reason": "maintenance/tooling workflow",
       "snippet": "**Hard prerequisite**: `compound-gpid.md` must exist (run `/cg-setup` first). `roadmap.json` is optional — `/cg-strategy` will create it if needed."
@@ -522,6 +634,14 @@
       "path": ".github/agents/cg-roadmap.agent.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- Always parse full `roadmap.json` before making changes (never work from memory)."
+    },
+    {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 87,
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "> files read from `.cg-docs/research/specifications/`. Never relay prose"
     },
     {
       "artifact": "BRAIN.md",
@@ -814,7 +934,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 82,
+      "line": 86,
       "path": ".github/prompts/cg-review.prompt.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the "
@@ -910,7 +1030,7 @@
     {
       "artifact": "roadmap.json",
       "level": "targeted",
-      "line": 91,
+      "line": 92,
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
@@ -918,7 +1038,7 @@
     {
       "artifact": "roadmap.json",
       "level": "targeted",
-      "line": 207,
+      "line": 208,
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
@@ -926,10 +1046,58 @@
     {
       "artifact": "roadmap.json",
       "level": "targeted",
-      "line": 211,
+      "line": 212,
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 27,
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "3. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 28,
+      "path": ".github/prompts/cr-compound.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 25,
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 34,
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "5. If context is needed for workspace structure notes, read only relevant `compound-gpid.context.md` headings/snippets."
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 30,
+      "path": ".github/prompts/cr-review.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading"
+    },
+    {
+      "artifact": "compound-gpid.context.md",
+      "level": "targeted",
+      "line": 27,
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "targeted or guarded context-loading instruction",
+      "snippet": "2. Load `.github/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading"
     },
     {
       "artifact": ".cg-docs/",
@@ -1076,9 +1244,17 @@
       "snippet": "**Prevention**: Before writing an arm, read the actual prompt line and copy the exact wording. Then verify each arm in isolation. See `.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-pas"
     },
     {
+      "artifact": ".cg-docs/",
+      "level": "targeted",
+      "line": 144,
+      "path": ".github/skills/cr-skill-replication-standards/SKILL.md",
+      "reason": "context artifact reference with loading verb",
+      "snippet": "`.cg-docs/research/results/manifest.json`. Every estimation run that uses"
+    },
+    {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 54,
+      "line": 117,
       "path": "docs/context-files.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "`compound-gpid.context.md` is the **tactical ground truth**: file paths, variable caveats, domain vocabulary, workspace layout, and any other recurring fact that would otherwise need to be re-explained. Ordinary prompts "
@@ -1086,7 +1262,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 69,
+      "line": 132,
       "path": "docs/context-files.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "2. Pointers instructing Copilot to read `compound-gpid.md` at session start and load `compound-gpid.context.md` selectively when tactical facts are relevant"
@@ -1094,7 +1270,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 196,
+      "line": 259,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "1. **`/cg-compound`** — after you solve a non-trivial problem, run `/cg-compound`. It saves a solution doc to `.cg-docs/solutions/` and optionally extracts project-specific facts (recurring gotchas, data caveats) directl"
@@ -1102,15 +1278,15 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 232,
+      "line": 295,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
-      "snippet": "2. Run `/cg-setup` in Copilot Chat — this creates `compound-gpid.md`, `compound-gpid.local.md`, and `compound-gpid.context.md`."
+      "snippet": "2. Run `/cg-setup` in agent chat. It creates `compound-gpid.local.md` and can create the optional shared `compound-gpid.md` and `compound-gpid.context.md` files."
     },
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 247,
+      "line": 311,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| You just solved a non-trivial problem | Run `/cg-compound` — it updates `compound-gpid.context.md` and `.cg-docs/solutions/` |"
@@ -1118,7 +1294,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 250,
+      "line": 314,
       "path": "docs/context-files.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| New team member joins | They run `/cg-setup` (creates their personal `compound-gpid.local.md`); the committed `compound-gpid.md` and `compound-gpid.context.md` are already available |"
@@ -1126,39 +1302,39 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 92,
+      "line": 108,
       "path": "docs/installation.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot can consult when needed (data sources, variable caveats, workspace folder descriptions, domain vocabulary). "
     },
     {
+      "artifact": "BRAIN.md",
+      "level": "targeted",
+      "line": 116,
+      "path": "docs/reference.md",
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "| `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |"
+    },
+    {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 40,
+      "line": 117,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
-      "snippet": "| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate legacy `.cg-docs/cost/` reports, additive `.cg-docs/token/` workflow baseline artifacts, and compact token-"
+      "snippet": "| `cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations` | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. |"
     },
     {
-      "artifact": ".cg-docs/",
+      "artifact": "BRAIN.md",
       "level": "targeted",
-      "line": 41,
+      "line": 184,
       "path": "docs/reference.md",
-      "reason": "targeted or guarded context-loading instruction",
-      "snippet": "| `cg-test-summary --root . --format json` | Project root | Summarize existing `tests/last-run.json` without running tests; stores the redacted source artifact under `.cg-docs/token/outputs/` |"
+      "reason": "agent-facing Brain meta-index",
+      "snippet": "| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (BRAIN.md + indexes). |"
     },
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 79,
-      "path": "docs/reference.md",
-      "reason": "targeted or guarded context-loading instruction",
-      "snippet": "| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Step-by-step implementation from plan, guided by the plan's completion contract. Accepts an optional `phaseX` argument (e.g., `/cg-work phase2`) "
-    },
-    {
-      "artifact": ".cg-docs/",
-      "level": "targeted",
-      "line": 218,
+      "line": 298,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep i"
@@ -1166,7 +1342,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 364,
+      "line": 475,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No"
@@ -1174,7 +1350,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 543,
+      "line": 665,
       "path": "docs/reference.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "| Brainstorm | `.cg-docs/brainstorms/` | `open`, `decided`, `abandoned` |"
@@ -1182,7 +1358,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 546,
+      "line": 668,
       "path": "docs/reference.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "| Review | `.cg-docs/reviews/` | Per-finding status in `findings:` frontmatter key: `open`, `fixed`, `skipped` |"
@@ -1190,7 +1366,7 @@
     {
       "artifact": "compound-gpid.context.md",
       "level": "targeted",
-      "line": 47,
+      "line": 49,
       "path": "docs/workflow.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your personal config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through"
@@ -1198,7 +1374,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 214,
+      "line": 216,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**Execution report** (`.cg-docs/work-reports/`): Created early in the run and updated incrementally. Contains the active deviation policy, completed steps/phases, all deviations with decisions, accepted exceptions with r"
@@ -1206,7 +1382,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 225,
+      "line": 227,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- The prompt does a keyword search across `.cg-docs/plans/` first — an existing relevant plan may not have been the most recent."
@@ -1214,7 +1390,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 242,
+      "line": 244,
       "path": "docs/workflow.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "- *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase"
@@ -1222,7 +1398,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 269,
+      "line": 271,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "1. **Intake**: Describe the bug; search only relevant `.cg-docs/solutions/bugs/` filenames, tags, and matched solution snippets for any prior occurrence of the same pattern."
@@ -1230,7 +1406,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 502,
+      "line": 510,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Checks whether your project schema version is current and warns if `cg-update` is needed. Scans `.cg-docs/plans/` for active plans, `.cg-docs/brainstorms/` for decided-but-unplanned brainstorms, `.cg-do"
@@ -1238,7 +1414,7 @@
     {
       "artifact": "roadmap.json",
       "level": "targeted",
-      "line": 587,
+      "line": 595,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Parses `roadmap.json` and renders a formatted Markdown table or detail view directly in chat. Read-only — never modifies any file. Feature and milestone names are **fuzzy-matched**: you do not need to r"
@@ -1246,7 +1422,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 736,
+      "line": 744,
       "path": "docs/workflow.md",
       "reason": "context artifact reference with loading verb",
       "snippet": "3. Run `python3 scripts/cg_audit_context.py --root . --output-dir .cg-docs/cost --format both --recommendations`."
@@ -1254,7 +1430,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 838,
+      "line": 846,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conven"
@@ -1262,7 +1438,7 @@
     {
       "artifact": ".cg-docs/",
       "level": "targeted",
-      "line": 879,
+      "line": 887,
       "path": "docs/workflow.md",
       "reason": "targeted or guarded context-loading instruction",
       "snippet": "- Plan paths are validated before reading (must start with `.cg-docs/plans/`, no `..`, not absolute)."
@@ -1270,6 +1446,13 @@
   ],
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
   "dispatch_burden": [
+    {
+      "broad_dispatch": false,
+      "burden_level": "broad",
+      "conditional_routing": false,
+      "dispatch_refs": 10,
+      "path": ".github/prompts/cr-review.prompt.md"
+    },
     {
       "broad_dispatch": false,
       "burden_level": "none",
@@ -1437,38 +1620,78 @@
       "conditional_routing": true,
       "dispatch_refs": 3,
       "path": ".github/prompts/cg-work.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cr-brainstorm.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cr-compound.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cr-plan.prompt.md"
+    },
+    {
+      "broad_dispatch": false,
+      "burden_level": "limited",
+      "conditional_routing": false,
+      "dispatch_refs": 1,
+      "path": ".github/prompts/cr-work.prompt.md"
     }
   ],
-  "duplicates": [],
+  "duplicates": [
+    {
+      "block_preview": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files\n> is",
+      "file_count": 3,
+      "files": [
+        ".github/agents/cr-econometric-reasoning.agent.md",
+        ".github/agents/cr-identification-audit.agent.md",
+        ".github/agents/cr-research-integrity.agent.md"
+      ],
+      "total_chars": 1533,
+      "total_redundant_tokens": 383
+    }
+  ],
   "files": [
     {
       "category": "brain",
-      "characters": 114860,
-      "estimated_tokens": 28715,
+      "characters": 119638,
+      "estimated_tokens": 29909,
       "path": ".cg-docs/BRAIN-01.md"
     },
     {
       "category": "brain",
-      "characters": 21392,
-      "estimated_tokens": 5348,
+      "characters": 41845,
+      "estimated_tokens": 10461,
       "path": ".cg-docs/BRAIN-02.md"
     },
     {
       "category": "brain",
-      "characters": 150193,
-      "estimated_tokens": 37548,
+      "characters": 175931,
+      "estimated_tokens": 43982,
       "path": ".cg-docs/BRAIN-log.md"
     },
     {
       "category": "brain",
-      "characters": 1140,
-      "estimated_tokens": 285,
+      "characters": 1223,
+      "estimated_tokens": 305,
       "path": ".cg-docs/BRAIN.md"
     },
     {
       "category": "brain_index",
-      "characters": 635388,
-      "estimated_tokens": 158847,
+      "characters": 754690,
+      "estimated_tokens": 188672,
       "path": ".cg-docs/brain-index.json"
     },
     {
@@ -1491,8 +1714,8 @@
     },
     {
       "category": "agents",
-      "characters": 4293,
-      "estimated_tokens": 1073,
+      "characters": 4838,
+      "estimated_tokens": 1209,
       "path": ".github/agents/cg-data-quality.agent.md"
     },
     {
@@ -1515,8 +1738,8 @@
     },
     {
       "category": "agents",
-      "characters": 5026,
-      "estimated_tokens": 1256,
+      "characters": 5626,
+      "estimated_tokens": 1406,
       "path": ".github/agents/cg-performance.agent.md"
     },
     {
@@ -1539,8 +1762,8 @@
     },
     {
       "category": "agents",
-      "characters": 3272,
-      "estimated_tokens": 818,
+      "characters": 3828,
+      "estimated_tokens": 957,
       "path": ".github/agents/cg-reproducibility.agent.md"
     },
     {
@@ -1557,8 +1780,8 @@
     },
     {
       "category": "agents",
-      "characters": 3531,
-      "estimated_tokens": 882,
+      "characters": 4106,
+      "estimated_tokens": 1026,
       "path": ".github/agents/cg-testing.agent.md"
     },
     {
@@ -1574,10 +1797,88 @@
       "path": ".github/agents/cg-wiki.agent.md"
     },
     {
+      "category": "agents",
+      "characters": 9326,
+      "estimated_tokens": 2331,
+      "path": ".github/agents/cr-academic-writing.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 8095,
+      "estimated_tokens": 2023,
+      "path": ".github/agents/cr-econometric-reasoning.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 6977,
+      "estimated_tokens": 1744,
+      "path": ".github/agents/cr-identification-audit.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 7258,
+      "estimated_tokens": 1814,
+      "path": ".github/agents/cr-mathematical-verification.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 2678,
+      "estimated_tokens": 669,
+      "path": ".github/agents/cr-measurement-integrity.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 11255,
+      "estimated_tokens": 2813,
+      "path": ".github/agents/cr-ml-methodology.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 2569,
+      "estimated_tokens": 642,
+      "path": ".github/agents/cr-provenance-audit.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 13238,
+      "estimated_tokens": 3309,
+      "path": ".github/agents/cr-publication-output.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 10364,
+      "estimated_tokens": 2591,
+      "path": ".github/agents/cr-replication-package.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 8759,
+      "estimated_tokens": 2189,
+      "path": ".github/agents/cr-research-integrity.agent.md"
+    },
+    {
+      "category": "agents",
+      "characters": 8887,
+      "estimated_tokens": 2221,
+      "path": ".github/agents/cr-specification-analysis.agent.md"
+    },
+    {
       "category": "template",
-      "characters": 1633,
-      "estimated_tokens": 408,
+      "characters": 1675,
+      "estimated_tokens": 418,
       "path": ".github/copilot-instructions.template.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 2725,
+      "estimated_tokens": 681,
+      "path": ".github/instructions/latex.instructions.md"
+    },
+    {
+      "category": "instructions",
+      "characters": 3529,
+      "estimated_tokens": 882,
+      "path": ".github/instructions/math.instructions.md"
     },
     {
       "category": "instructions",
@@ -1587,20 +1888,20 @@
     },
     {
       "category": "instructions",
-      "characters": 5304,
-      "estimated_tokens": 1326,
+      "characters": 5319,
+      "estimated_tokens": 1329,
       "path": ".github/instructions/python.instructions.md"
     },
     {
       "category": "instructions",
-      "characters": 1014,
-      "estimated_tokens": 253,
+      "characters": 1029,
+      "estimated_tokens": 257,
       "path": ".github/instructions/r.instructions.md"
     },
     {
       "category": "instructions",
-      "characters": 7340,
-      "estimated_tokens": 1835,
+      "characters": 7355,
+      "estimated_tokens": 1838,
       "path": ".github/instructions/stata.instructions.md"
     },
     {
@@ -1617,8 +1918,8 @@
     },
     {
       "category": "prompts",
-      "characters": 13217,
-      "estimated_tokens": 3304,
+      "characters": 15813,
+      "estimated_tokens": 3953,
       "path": ".github/prompts/cg-commit-push-pr.prompt.md"
     },
     {
@@ -1701,8 +2002,8 @@
     },
     {
       "category": "prompts",
-      "characters": 18956,
-      "estimated_tokens": 4739,
+      "characters": 20145,
+      "estimated_tokens": 5036,
       "path": ".github/prompts/cg-review.prompt.md"
     },
     {
@@ -1713,7 +2014,7 @@
     },
     {
       "category": "prompts",
-      "characters": 21795,
+      "characters": 21792,
       "estimated_tokens": 5448,
       "path": ".github/prompts/cg-setup.prompt.md"
     },
@@ -1743,9 +2044,39 @@
     },
     {
       "category": "prompts",
-      "characters": 20003,
-      "estimated_tokens": 5000,
+      "characters": 20364,
+      "estimated_tokens": 5091,
       "path": ".github/prompts/cg-work.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 8856,
+      "estimated_tokens": 2214,
+      "path": ".github/prompts/cr-brainstorm.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 3975,
+      "estimated_tokens": 993,
+      "path": ".github/prompts/cr-compound.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 4884,
+      "estimated_tokens": 1221,
+      "path": ".github/prompts/cr-plan.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 11248,
+      "estimated_tokens": 2812,
+      "path": ".github/prompts/cr-review.prompt.md"
+    },
+    {
+      "category": "prompts",
+      "characters": 11342,
+      "estimated_tokens": 2835,
+      "path": ".github/prompts/cr-work.prompt.md"
     },
     {
       "category": "shared",
@@ -1773,8 +2104,8 @@
     },
     {
       "category": "shared",
-      "characters": 13811,
-      "estimated_tokens": 3452,
+      "characters": 17142,
+      "estimated_tokens": 4285,
       "path": ".github/shared/model-catalog.json"
     },
     {
@@ -1785,8 +2116,8 @@
     },
     {
       "category": "shared",
-      "characters": 3006,
-      "estimated_tokens": 751,
+      "characters": 3690,
+      "estimated_tokens": 922,
       "path": ".github/shared/review-routing.contract.md"
     },
     {
@@ -1794,6 +2125,12 @@
       "characters": 2274,
       "estimated_tokens": 568,
       "path": ".github/shared/snapshot-research-modes.json"
+    },
+    {
+      "category": "shared",
+      "characters": 8049,
+      "estimated_tokens": 2012,
+      "path": ".github/shared/target-mapping.json"
     },
     {
       "category": "skills",
@@ -1875,8 +2212,8 @@
     },
     {
       "category": "skills",
-      "characters": 12708,
-      "estimated_tokens": 3177,
+      "characters": 12616,
+      "estimated_tokens": 3154,
       "path": ".github/skills/cg-skill-r-testing/SKILL.md"
     },
     {
@@ -1893,8 +2230,8 @@
     },
     {
       "category": "skills",
-      "characters": 6412,
-      "estimated_tokens": 1603,
+      "characters": 6707,
+      "estimated_tokens": 1676,
       "path": ".github/skills/cg-skill-setup/SKILL.md"
     },
     {
@@ -1905,14 +2242,20 @@
     },
     {
       "category": "skills",
-      "characters": 2653,
-      "estimated_tokens": 663,
+      "characters": 2574,
+      "estimated_tokens": 643,
       "path": ".github/skills/cg-skill-stata-testing/SKILL.md"
     },
     {
       "category": "skills",
-      "characters": 14272,
-      "estimated_tokens": 3568,
+      "characters": 3392,
+      "estimated_tokens": 848,
+      "path": ".github/skills/cg-skill-wb-report-writing/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 14310,
+      "estimated_tokens": 3577,
       "path": ".github/skills/cg-skill-wiki/SKILL.md"
     },
     {
@@ -1922,10 +2265,106 @@
       "path": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md"
     },
     {
+      "category": "skills",
+      "characters": 9850,
+      "estimated_tokens": 2462,
+      "path": ".github/skills/cr-skill-academic-writing/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 3998,
+      "estimated_tokens": 999,
+      "path": ".github/skills/cr-skill-evidence-provenance/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 13273,
+      "estimated_tokens": 3318,
+      "path": ".github/skills/cr-skill-identification-strategies/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 9915,
+      "estimated_tokens": 2478,
+      "path": ".github/skills/cr-skill-mathematical-derivation/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 4283,
+      "estimated_tokens": 1070,
+      "path": ".github/skills/cr-skill-measurement/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 24830,
+      "estimated_tokens": 6207,
+      "path": ".github/skills/cr-skill-ml-economics/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 12820,
+      "estimated_tokens": 3205,
+      "path": ".github/skills/cr-skill-publication-output/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 13176,
+      "estimated_tokens": 3294,
+      "path": ".github/skills/cr-skill-replication-standards/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 12102,
+      "estimated_tokens": 3025,
+      "path": ".github/skills/cr-skill-research-eda/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 12433,
+      "estimated_tokens": 3108,
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 5137,
+      "estimated_tokens": 1284,
+      "path": ".github/skills/cr-skill-research-scoping/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 14578,
+      "estimated_tokens": 3644,
+      "path": ".github/skills/cr-skill-research-workflow/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 15637,
+      "estimated_tokens": 3909,
+      "path": ".github/skills/cr-skill-structural-econometrics/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 9787,
+      "estimated_tokens": 2446,
+      "path": ".github/skills/cr-skill-symbolic-verification/SKILL.md"
+    },
+    {
+      "category": "skills",
+      "characters": 10772,
+      "estimated_tokens": 2693,
+      "path": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md"
+    },
+    {
       "category": "context",
-      "characters": 64564,
-      "estimated_tokens": 16141,
+      "characters": 71410,
+      "estimated_tokens": 17852,
       "path": "compound-gpid.context.md"
+    },
+    {
+      "category": "docs",
+      "characters": 7638,
+      "estimated_tokens": 1909,
+      "path": "docs/about/documentation-audit.md"
     },
     {
       "category": "docs",
@@ -1935,39 +2374,123 @@
     },
     {
       "category": "docs",
-      "characters": 16253,
-      "estimated_tokens": 4063,
+      "characters": 3027,
+      "estimated_tokens": 756,
+      "path": "docs/configuration/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 20358,
+      "estimated_tokens": 5089,
       "path": "docs/context-files.md"
     },
     {
       "category": "docs",
-      "characters": 13738,
-      "estimated_tokens": 3434,
+      "characters": 2250,
+      "estimated_tokens": 562,
+      "path": "docs/development/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 3982,
+      "estimated_tokens": 995,
+      "path": "docs/getting-started/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 3751,
+      "estimated_tokens": 937,
+      "path": "docs/governance/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2583,
+      "estimated_tokens": 645,
+      "path": "docs/help/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 15982,
+      "estimated_tokens": 3995,
       "path": "docs/installation.md"
     },
     {
       "category": "docs",
-      "characters": 2000,
-      "estimated_tokens": 500,
+      "characters": 1342,
+      "estimated_tokens": 335,
       "path": "docs/manual.md"
     },
     {
       "category": "docs",
-      "characters": 10606,
-      "estimated_tokens": 2651,
+      "characters": 12313,
+      "estimated_tokens": 3078,
       "path": "docs/model-guide.md"
     },
     {
       "category": "docs",
-      "characters": 49230,
-      "estimated_tokens": 12307,
+      "characters": 22498,
+      "estimated_tokens": 5624,
+      "path": "docs/philosophy.md"
+    },
+    {
+      "category": "docs",
+      "characters": 48716,
+      "estimated_tokens": 12179,
       "path": "docs/reference.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2107,
+      "estimated_tokens": 526,
+      "path": "docs/reference/agents.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2809,
+      "estimated_tokens": 702,
+      "path": "docs/reference/commands.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1100,
+      "estimated_tokens": 275,
+      "path": "docs/reference/experimental.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2306,
+      "estimated_tokens": 576,
+      "path": "docs/reference/files.md"
     },
     {
       "category": "docs",
       "characters": 1423,
       "estimated_tokens": 355,
       "path": "docs/retrieval-backends.md"
+    },
+    {
+      "category": "docs",
+      "characters": 3825,
+      "estimated_tokens": 956,
+      "path": "docs/skills/analysis.md"
+    },
+    {
+      "category": "docs",
+      "characters": 3237,
+      "estimated_tokens": 809,
+      "path": "docs/skills/development.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2686,
+      "estimated_tokens": 671,
+      "path": "docs/skills/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2790,
+      "estimated_tokens": 697,
+      "path": "docs/skills/institutional.md"
     },
     {
       "category": "docs",
@@ -1983,36 +2506,174 @@
     },
     {
       "category": "docs",
-      "characters": 29195,
-      "estimated_tokens": 7298,
+      "characters": 35724,
+      "estimated_tokens": 8931,
       "path": "docs/troubleshooting.md"
     },
     {
       "category": "docs",
-      "characters": 9846,
-      "estimated_tokens": 2461,
+      "characters": 9848,
+      "estimated_tokens": 2462,
       "path": "docs/versioning.md"
     },
     {
       "category": "docs",
-      "characters": 67835,
-      "estimated_tokens": 16958,
+      "characters": 6070,
+      "estimated_tokens": 1517,
+      "path": "docs/why-compound-gpid.md"
+    },
+    {
+      "category": "docs",
+      "characters": 68353,
+      "estimated_tokens": 17088,
       "path": "docs/workflow.md"
     },
     {
+      "category": "docs",
+      "characters": 2312,
+      "estimated_tokens": 578,
+      "path": "docs/workflows/assure.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1550,
+      "estimated_tokens": 387,
+      "path": "docs/workflows/deliver.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1701,
+      "estimated_tokens": 425,
+      "path": "docs/workflows/design.md"
+    },
+    {
+      "category": "docs",
+      "characters": 2224,
+      "estimated_tokens": 556,
+      "path": "docs/workflows/index.md"
+    },
+    {
+      "category": "docs",
+      "characters": 1876,
+      "estimated_tokens": 469,
+      "path": "docs/workflows/knowledge.md"
+    },
+    {
       "category": "roadmap",
-      "characters": 67198,
-      "estimated_tokens": 16799,
+      "characters": 59863,
+      "estimated_tokens": 14965,
       "path": "roadmap.json"
     }
   ],
-  "generated": "2026-06-23T14:26:40",
+  "generated": "2026-07-31T12:11:16-04:00@3cc58d7d3ba3",
+  "generated_kind": "volatile",
   "guardrails": {
-    "failures": [],
+    "failures": [
+      {
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      }
+    ],
     "warnings": [
       {
-        "path": "docs/context-files.md",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "preferred model frontmatter support is not-tested: GPT-5.6 Luna"
+      },
+      {
+        "path": ".github/prompts/cg-review.prompt.md",
+        "reason": "high-frequency prompt estimated tokens > 5000"
+      },
+      {
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "high-frequency prompt estimated tokens > 5000"
+      },
+      {
+        "path": "(always-on instructions)",
+        "reason": "always-on instruction estimated tokens > 4500"
+      },
+      {
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
         "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/philosophy.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
       },
       {
         "path": "docs/reference.md",
@@ -2026,7 +2687,7 @@
   },
   "model_inventory": {
     "catalog": {
-      "assignment_count": 41,
+      "assignment_count": 53,
       "load_error": null,
       "path": ".github/shared/model-catalog.json"
     },
@@ -2441,6 +3102,91 @@
       },
       {
         "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-review.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR execution should use GPT-5.6 Luna while preserving existing mappings for all other prompts and agents.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "not-tested",
+        "has_escalation_condition": false,
+        "model": "GPT-5.6 Luna",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.6 Luna",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "preferred_model": "GPT-5.6 Luna",
+        "role": "research-execution",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
         "catalog_rationale": "Adversarial review defaults OpenAI-first with cross-vendor rerun when needed.",
         "category": "agents",
         "family": "GPT-5",
@@ -2781,14 +3527,322 @@
           "search"
         ],
         "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR writing review requires strong reasoning and domain-consistent research critique.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-academic-writing.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR econometric reasoning is research-heavy and aligned to GPT-5.4 review tier.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR identification audits require deep methodological reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR symbolic verification requires high-precision reasoning over math and code mappings.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR measurement integrity audits require high-reliability comparability and stability review.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-measurement-integrity.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR ML methodology audits are reasoning-centric review tasks.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR provenance auditing requires high-reliability evidence and citation integrity review.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR publication-output validation needs consistent high-quality research review judgment.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR replication-package audits rely on careful standards-based reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-replication-package.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR integrity checks are P0-sensitive and require strong reasoning reliability.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR specification analysis needs nuanced theory-data reasoning.",
+        "category": "agents",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "preferred_model": "GPT-5.4",
+        "role": "review",
+        "tools": [
+          "read",
+          "search"
+        ],
+        "vendor": "openai"
       }
     ],
     "drift": [],
-    "frontmatter_support_gaps": [],
+    "frontmatter_support_gaps": [
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": "CR execution should use GPT-5.6 Luna while preserving existing mappings for all other prompts and agents.",
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": "explicit",
+        "frontmatter_support": "not-tested",
+        "has_escalation_condition": false,
+        "model": "GPT-5.6 Luna",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.6 Luna",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "preferred_model": "GPT-5.6 Luna",
+        "preferred_model_support": "not-tested",
+        "role": "research-execution",
+        "tools": null,
+        "vendor": "openai"
+      }
+    ],
     "haiku_role_violations": [],
     "invalid_catalog_roles": [],
     "missing": [],
-    "missing_catalog_assignments": [],
+    "missing_catalog_assignments": [
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5-Codex",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.3-Codex",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.3-Codex",
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      },
+      {
+        "catalog_policy_status": "preferred",
+        "catalog_rationale": null,
+        "category": "prompts",
+        "family": "GPT-5",
+        "frontmatter_mode": null,
+        "frontmatter_support": "frontmatter-supported",
+        "has_escalation_condition": false,
+        "model": "GPT-5.4",
+        "model_tier": "standard",
+        "normalized_model": "GPT-5.4",
+        "path": ".github/prompts/cr-review.prompt.md",
+        "preferred_model": null,
+        "role": "unknown",
+        "tools": null,
+        "vendor": "openai"
+      }
+    ],
     "openai_first_violations": [],
     "ordinary_model_picker_violations": [],
     "premium_usage": [],
@@ -2797,7 +3851,7 @@
     "unused_catalog_assignments": []
   },
   "optimization_candidates": {
-    "acceptable_count": 51,
+    "acceptable_count": 80,
     "immediate": [
       {
         "category": "prompts",
@@ -2867,6 +3921,66 @@
       {
         "category": "skills",
         "path": ".github/skills/cg-skill-wiki/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-academic-writing/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-identification-strategies/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-ml-economics/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-publication-output/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-replication-standards/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-eda/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-workflow/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-structural-econometrics/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-symbolic-verification/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md",
         "reason": "skill estimated tokens >= 2000"
       },
       {
@@ -2947,6 +4061,31 @@
         "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
+        "category": "prompts",
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
         "category": "agents",
         "path": ".github/agents/cg-architecture.agent.md",
         "reason": "reference count >= 5"
@@ -3002,6 +4141,51 @@
         "reason": "agent estimated tokens >= 1500; reference count >= 5"
       },
       {
+        "category": "agents",
+        "path": ".github/agents/cr-academic-writing.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-replication-package.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
         "category": "skills",
         "path": ".github/skills/cg-skill-setup/SKILL.md",
         "reason": "skill estimated tokens >= 1200"
@@ -3015,21 +4199,54 @@
         "category": "skills",
         "path": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
         "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-scoping/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
       }
     ]
   },
   "recommendations": [
     {
+      "advice": "Resolve failures first; they are stronger than advisory token recommendations.",
+      "category": "guardrails",
+      "evidence": "4 guardrail failure(s) are present.",
+      "priority": "high",
+      "title": "Fix audit failures before optimizing cost."
+    },
+    {
+      "advice": "Slim the named entrypoints or convert broad reads to staged, targeted, on-demand loading.",
+      "category": "context-loading",
+      "evidence": "7 warning(s) classified as fix: .github/prompts/cg-review.prompt.md, .github/prompts/cg-work.prompt.md, .github/prompts/cr-brainstorm.prompt.md, .github/prompts/cr-plan.prompt.md, .github/prompts/cr-work.prompt.md.",
+      "priority": "high",
+      "title": "Reduce prompt warnings classified as fix."
+    },
+    {
+      "advice": "Keep safety-critical routing inline, but move rarely used workflow detail behind explicit skills or targeted contracts.",
+      "category": "entrypoint-size",
+      "evidence": ".github/prompts/cg-work.prompt.md is estimated at 5091 tokens.",
+      "priority": "high",
+      "title": "Slim /cg-work."
+    },
+    {
+      "advice": "Keep safety-critical routing inline, but move rarely used workflow detail behind explicit skills or targeted contracts.",
+      "category": "entrypoint-size",
+      "evidence": ".github/prompts/cg-review.prompt.md is estimated at 5036 tokens.",
+      "priority": "high",
+      "title": "Slim /cg-review."
+    },
+    {
       "advice": "Use the Brain meta-index and targeted sections; avoid loading full context, Brain partitions, or brain-index records by default.",
       "category": "project-context",
-      "evidence": "context=16141, brain=71896, brain_index=158847 estimated tokens.",
+      "evidence": "context=17852, brain=84657, brain_index=188672 estimated tokens.",
       "priority": "medium",
       "title": "Use query-first project context."
     },
     {
       "advice": "Do not optimize docs for runtime unless prompts or skills load them automatically.",
       "category": "documentation",
-      "evidence": "docs category is estimated at 53654 tokens.",
+      "evidence": "docs category is estimated at 77711 tokens.",
       "priority": "low",
       "title": "Treat docs size as opt-in cost."
     },
@@ -3061,11 +4278,11 @@
     {
       "agent_refs": 22,
       "file_refs": 8,
-      "load_verbs": 18,
+      "load_verbs": 22,
       "path": ".github/prompts/cg-review.prompt.md",
       "skill_refs": 5,
       "tool_refs": 0,
-      "total_refs": 53
+      "total_refs": 57
     },
     {
       "agent_refs": 12,
@@ -3073,6 +4290,15 @@
       "load_verbs": 22,
       "path": ".github/prompts/cg-work.prompt.md",
       "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 50
+    },
+    {
+      "agent_refs": 16,
+      "file_refs": 7,
+      "load_verbs": 26,
+      "path": ".github/prompts/cr-review.prompt.md",
+      "skill_refs": 1,
       "tool_refs": 0,
       "total_refs": 50
     },
@@ -3176,6 +4402,15 @@
       "total_refs": 15
     },
     {
+      "agent_refs": 2,
+      "file_refs": 5,
+      "load_verbs": 7,
+      "path": ".github/prompts/cr-work.prompt.md",
+      "skill_refs": 1,
+      "tool_refs": 0,
+      "total_refs": 15
+    },
+    {
       "agent_refs": 3,
       "file_refs": 11,
       "load_verbs": 0,
@@ -3221,6 +4456,15 @@
       "total_refs": 12
     },
     {
+      "agent_refs": 1,
+      "file_refs": 8,
+      "load_verbs": 3,
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 12
+    },
+    {
       "agent_refs": 0,
       "file_refs": 4,
       "load_verbs": 2,
@@ -3237,6 +4481,15 @@
       "skill_refs": 0,
       "tool_refs": 0,
       "total_refs": 11
+    },
+    {
+      "agent_refs": 2,
+      "file_refs": 6,
+      "load_verbs": 2,
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 10
     },
     {
       "agent_refs": 0,
@@ -3302,6 +4555,15 @@
       "total_refs": 7
     },
     {
+      "agent_refs": 1,
+      "file_refs": 4,
+      "load_verbs": 1,
+      "path": ".github/prompts/cr-compound.prompt.md",
+      "skill_refs": 1,
+      "tool_refs": 0,
+      "total_refs": 7
+    },
+    {
       "agent_refs": 0,
       "file_refs": 0,
       "load_verbs": 2,
@@ -3349,9 +4611,54 @@
     {
       "agent_refs": 0,
       "file_refs": 0,
+      "load_verbs": 5,
+      "path": ".github/agents/cr-publication-output.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 5
+    },
+    {
+      "agent_refs": 2,
+      "file_refs": 0,
+      "load_verbs": 3,
+      "path": ".github/agents/cr-research-integrity.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 5
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
       "load_verbs": 2,
       "path": ".github/agents/cg-reproducibility.agent.md",
       "skill_refs": 2,
+      "tool_refs": 0,
+      "total_refs": 4
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 4,
+      "path": ".github/agents/cr-academic-writing.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 4
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 4,
+      "path": ".github/agents/cr-ml-methodology.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 4
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 4,
+      "path": ".github/agents/cr-specification-analysis.agent.md",
+      "skill_refs": 0,
       "tool_refs": 0,
       "total_refs": 4
     },
@@ -3375,9 +4682,63 @@
     },
     {
       "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 3,
+      "path": ".github/agents/cr-identification-audit.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 3
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 3,
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 3
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 3,
+      "path": ".github/agents/cr-replication-package.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 3
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 2,
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 2
+    },
+    {
+      "agent_refs": 0,
       "file_refs": 1,
       "load_verbs": 0,
       "path": ".github/agents/cg-release-scanner.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 1
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 1,
+      "path": ".github/agents/cr-measurement-integrity.agent.md",
+      "skill_refs": 0,
+      "tool_refs": 0,
+      "total_refs": 1
+    },
+    {
+      "agent_refs": 0,
+      "file_refs": 0,
+      "load_verbs": 1,
+      "path": ".github/agents/cr-provenance-audit.agent.md",
       "skill_refs": 0,
       "tool_refs": 0,
       "total_refs": 1
@@ -3421,36 +4782,246 @@
   ],
   "reviewed_warnings": {
     "counts": {
-      "accept": 0,
+      "accept": 14,
       "docs-only": 3,
-      "fix": 0
+      "fix": 7
     },
     "items": [
       {
-        "action": "Keep as documentation unless wording misleads users.",
+        "action": "Keep until exact model frontmatter support is validated.",
+        "artifact": null,
+        "classification": "accept",
+        "line": null,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Governance warning documents an external support check, not context loading.",
+        "reason": "preferred model frontmatter support is not-tested: GPT-5.6 Luna",
+        "snippet": null
+      },
+      {
+        "action": "Slim the prompt or split only with an explicit caller load point.",
+        "artifact": null,
+        "classification": "fix",
+        "line": null,
+        "path": ".github/prompts/cg-review.prompt.md",
+        "rationale": "High-frequency entrypoints directly affect routine token cost.",
+        "reason": "high-frequency prompt estimated tokens > 5000",
+        "snippet": null
+      },
+      {
+        "action": "Slim the prompt or split only with an explicit caller load point.",
+        "artifact": null,
+        "classification": "fix",
+        "line": null,
+        "path": ".github/prompts/cg-work.prompt.md",
+        "rationale": "High-frequency entrypoints directly affect routine token cost.",
+        "reason": "high-frequency prompt estimated tokens > 5000",
+        "snippet": null
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": null,
+        "classification": "accept",
+        "line": null,
+        "path": "(always-on instructions)",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "always-on instruction estimated tokens > 4500",
+        "snippet": null
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 29,
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 19,
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 28,
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from code files, `.cg-docs/research/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 21,
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 27,
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
         "artifact": "compound-gpid.context.md",
-        "classification": "docs-only",
-        "line": 233,
-        "path": "docs/context-files.md",
-        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "classification": "fix",
+        "line": 17,
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
         "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+        "snippet": "- You may read `compound-gpid.md`, `compound-gpid.local.md`, `compound-gpid.context.md`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": "roadmap.json",
+        "classification": "fix",
+        "line": 16,
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: roadmap.json",
+        "snippet": "- You may read `roadmap.json`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": ".cg-docs/",
+        "classification": "fix",
+        "line": 32,
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": "roadmap.json",
+        "classification": "fix",
+        "line": 16,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: roadmap.json",
+        "snippet": "- You may read `roadmap.json`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": ".cg-docs/",
+        "classification": "fix",
+        "line": 174,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Load the corresponding derivation from `.cg-docs/research/derivations/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 168,
+        "line": 322,
+        "path": "docs/philosophy.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "| Review | Judge findings critically and decide what is acceptable | Search for failures through risk-matched review routes | `.cg-docs/reviews/` |"
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 253,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals |"
+        "snippet": "| `.cg-docs/token/context-map.json` | Workflow-to-context map of deterministic file, skill, agent, tool, and context-loading signals. |"
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 739,
+        "line": 747,
         "path": "docs/workflow.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -3461,64 +5032,64 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 92520,
-        "estimated_tokens": 23125,
-        "files": 17
+        "characters": 184202,
+        "estimated_tokens": 46040,
+        "files": 28
       },
       "brain": {
-        "characters": 287585,
-        "estimated_tokens": 71896,
+        "characters": 338637,
+        "estimated_tokens": 84657,
         "files": 4
       },
       "brain_index": {
-        "characters": 635388,
-        "estimated_tokens": 158847,
+        "characters": 754690,
+        "estimated_tokens": 188672,
         "files": 1
       },
       "context": {
-        "characters": 64564,
-        "estimated_tokens": 16141,
+        "characters": 71410,
+        "estimated_tokens": 17852,
         "files": 1
       },
       "docs": {
-        "characters": 214637,
-        "estimated_tokens": 53654,
-        "files": 12
+        "characters": 310892,
+        "estimated_tokens": 77711,
+        "files": 33
       },
       "instructions": {
-        "characters": 17340,
-        "estimated_tokens": 4334,
-        "files": 4
+        "characters": 23639,
+        "estimated_tokens": 5907,
+        "files": 6
       },
       "prompts": {
-        "characters": 249887,
-        "estimated_tokens": 62463,
-        "files": 24
+        "characters": 294335,
+        "estimated_tokens": 73575,
+        "files": 29
       },
       "roadmap": {
-        "characters": 67198,
-        "estimated_tokens": 16799,
+        "characters": 59863,
+        "estimated_tokens": 14965,
         "files": 1
       },
       "shared": {
-        "characters": 38732,
-        "estimated_tokens": 9680,
-        "files": 8
+        "characters": 50796,
+        "estimated_tokens": 12696,
+        "files": 9
       },
       "skills": {
-        "characters": 107586,
-        "estimated_tokens": 26890,
-        "files": 21
+        "characters": 283731,
+        "estimated_tokens": 70919,
+        "files": 37
       },
       "template": {
-        "characters": 1633,
-        "estimated_tokens": 408,
+        "characters": 1675,
+        "estimated_tokens": 418,
         "files": 1
       }
     },
-    "total_characters": 1777070,
-    "total_estimated_tokens": 444237,
-    "total_files": 94
+    "total_characters": 2373870,
+    "total_estimated_tokens": 593412,
+    "total_files": 150
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
@@ -4017,14 +5588,14 @@
         ],
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20364,
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 0,
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
+        "estimated_tokens": 5091,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -4132,14 +5703,14 @@
         ],
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 20145,
         "conditional_routing": true,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
+        "estimated_tokens": 5036,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -4171,7 +5742,7 @@
           "cg-skill-python-best-practices",
           "cg-skill-stata-best-practices"
         ],
-        "load_verbs": 18,
+        "load_verbs": 22,
         "model": "GPT-5.4",
         "model_tier": "standard",
         "observability": {
@@ -4220,7 +5791,7 @@
         "skill_refs": 5,
         "tool_references": [],
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 60,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },

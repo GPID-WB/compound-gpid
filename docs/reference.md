@@ -153,9 +153,13 @@ project.
 |--------|-------|---------|
 | `/cr-brainstorm` | GPT-5.4 | Clarify fuzzy research requirements, classify the CR task type, and surface normative decisions for human approval. |
 | `/cr-plan` | GPT-5.4 | Create a research implementation plan with CR task typing, evidence requirements, and verification gates. |
-| `/cr-work` | GPT-5.3-Codex | Execute a CR plan step by step with research-integrity gates and active-state handoff support. |
+| `/cr-work` | GPT-5.6 Luna | Execute a CR plan step by step with research-integrity gates and active-state handoff support. |
 | `/cr-review` | GPT-5.4 | Run research-mode review routing across engineering and CR-specific review agents. |
 | `/cr-compound` | GPT-5.3-Codex | Capture reusable CR learnings after verified research workflow work. |
+
+Native-target mapping note: `/cr-work` maps to `GPT-5.6 Luna` for Codex,
+`sonnet` for Claude Code, and remains inherited for OpenCode. This is a
+target-generation mapping boundary, not a runtime Copilot fallback engine.
 
 ---
 

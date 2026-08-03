@@ -1,6 +1,6 @@
 # Workflow Token Budget Baseline
 
-_Generated: 2026-07-24T11:16:57_
+_Generated: 2026-07-31T12:11:16-04:00@3cc58d7d3ba3_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -10,8 +10,8 @@ repository probes.
 
 ## Source Scope
 
-- Source files counted: 96
-- Source estimated tokens: 456354
+- Source files counted: 150
+- Source estimated tokens: 593412
 - Workflow rows: 9
 - Workflows with prompt source observed: 9
 - Workflows without prompt source observed: 0
@@ -25,8 +25,8 @@ artifacts. They are not part of the normal workflow source-pressure scan.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | /cg-brainstorm | .github/prompts/cg-brainstorm.prompt.md | 3798 | 34 | 0 | limited | not_observed | not_observed |
 | /cg-plan | .github/prompts/cg-plan.prompt.md | 3218 | 23 | 0 | limited | not_observed | not_observed |
-| /cg-work | .github/prompts/cg-work.prompt.md | 5000 | 54 | 0 | conditional | not_observed | not_observed |
-| /cg-review | .github/prompts/cg-review.prompt.md | 4739 | 56 | 0 | conditional | not_observed | not_observed |
+| /cg-work | .github/prompts/cg-work.prompt.md | 5091 | 54 | 0 | conditional | not_observed | not_observed |
+| /cg-review | .github/prompts/cg-review.prompt.md | 5036 | 60 | 0 | conditional | not_observed | not_observed |
 | /cg-fix-triage | .github/prompts/cg-fix-triage.prompt.md | 2100 | 20 | 0 | none | not_observed | not_observed |
 | /cg-compound | .github/prompts/cg-compound.prompt.md | 2404 | 28 | 0 | limited | not_observed | not_observed |
 | /cg-resume | .github/prompts/cg-resume.prompt.md | 3159 | 19 | 0 | limited | not_observed | not_observed |

@@ -1,5 +1,5 @@
 {
-  "edge_count": 271,
+  "edge_count": 282,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -377,6 +377,36 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
       "target": ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
       "target_missing": false
     },
     {
@@ -1166,6 +1196,18 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+      "target": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
+      "target": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1625,6 +1667,30 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
       "target": "roadmap.json#canonical-to-native-packaging-foundation",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "target": "roadmap.json#cr-evidence-provenance-spine",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "target": "roadmap.json#cr-measurement-classification-archetype",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target": "roadmap.json#cr-scoping-and-normative-gates",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "target": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
       "target_missing": false
     }
   ],
@@ -2988,6 +3054,67 @@
         "copilot-instructions.md",
         "approach",
         "origin/main"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "slug": "2026-07-30-cr-responsible-research-partner-measurement",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "measurement",
+        "composite-indicators",
+        "clustering",
+        "provenance",
+        "evidence-synthesis",
+        "research-integrity",
+        "lifecycle",
+        "method-packs"
+      ],
+      "title": "CR as a responsible research partner for policy-relevant measurement work",
+      "top_keywords": [
+        "measurement",
+        "phase",
+        "normative-decisions.md",
+        "compound-gpid.md",
+        "approach",
+        "/cr-brainstorm",
+        "/cr-plan",
+        "next steps",
+        "provenance",
+        "evidence"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
+      "slug": "2026-08-02-cr-work-gpt-5-6-luna",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "cr-work",
+        "model-governance",
+        "gpt-5-6-luna",
+        "native-targets"
+      ],
+      "title": "Use GPT-5.6 Luna for /cr-work",
+      "top_keywords": [
+        "/cr-work",
+        "research-execution",
+        "gpt-5.6 luna",
+        "approach",
+        "cr-work",
+        "claude sonnet",
+        "gpt-5",
+        "luna",
+        "assignment",
+        "role"
       ]
     },
     {
@@ -5781,7 +5908,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
       "slug": "2026-07-29-cr-module-migration-to-v1",
-      "status": "active",
+      "status": "completed",
       "summary": "Port the Compound Research (CR) module — 9 agents, 12 skills, 5 prompts, 2 instruction files, and associated .cg-docs artifacts — from the stale `compound-research` branch (v0.10.2) onto a fresh branch from `origin/main` (v1.0.3), then integrate CR with all v1.0 systems (brain, review routing, model catalog, context-loading contracts, active-state, and multi-target generation).",
       "tags": [
         "migration",
@@ -5802,6 +5929,156 @@
         "commit",
         "commit phase",
         "cg-review.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "slug": "2026-07-30-cr-evidence-provenance-spine",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module an **evidence and provenance spine** so that every substantive claim in a research output is traceable to a **verified, in-repo source**, and fabricated or uncited claims are blocked as **P0**. This is Phase 1 of the CR expansion from a journal-paper econometrics assistant into a responsible partner for the full research lifecycle of policy-relevant measurement work.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "provenance",
+        "evidence",
+        "anti-hallucination",
+        "citations",
+        "p0"
+      ],
+      "title": "CR Evidence & Provenance Spine (Responsible Research Partner — Phase 1)",
+      "top_keywords": [
+        "cr-prompts.tests.ps1",
+        "copilot-instructions.md",
+        "@cr-provenance-audit",
+        "test scenarios",
+        "cr-skill-evidence-provenance",
+        "model-catalog.json",
+        "describe",
+        "/cr-work",
+        "module: research",
+        "/cr-review"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "slug": "2026-07-30-cr-measurement-classification-archetype",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module a first-class **Measurement/Classification** research archetype — the **9th research task type** — so that composite-indicator, clustering, and threshold-classification work (the core of policy-relevant measurement) is held to the same integrity bar as structural econometrics.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "measurement",
+        "classification",
+        "composite-indicators",
+        "comparability",
+        "vintages",
+        "p0"
+      ],
+      "title": "CR Measurement/Classification Archetype + Comparability Controls (Responsible Research Partner — Phase 2)",
+      "top_keywords": [
+        "/cr-work",
+        "cr-prompts.tests.ps1",
+        "@cr-measurement-integrity",
+        "copilot-instructions.md",
+        "/cr-review",
+        "model-assignments.tests.ps1",
+        "test scenarios",
+        "weighting-sensitivity.yaml",
+        "cluster-validity.yaml",
+        "cr-skill-measurement"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+      "slug": "2026-07-30-cr-method-pack-retrofit",
+      "status": "completed",
+      "summary": "Refactor CR's existing method-specific flows (structural econometrics, ML) into interchangeable **method packs** running under a single **responsible research lifecycle**, and converge `/cr-review` dispatch onto that model — so the responsible-AI backbone built in Phases 1–3 (evidence/provenance, measurement integrity, normative gates) is applied **structurally and uniformly** rather than duplicated per method.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "refactor",
+        "method-packs",
+        "lifecycle",
+        "orchestration",
+        "backward-compatibility"
+      ],
+      "title": "CR Method-Pack Retrofit + Lifecycle Orchestration (Responsible Research Partner — Phase 4)",
+      "top_keywords": [
+        "/cr-review",
+        "copilot-instructions.md",
+        "/cr-work",
+        "describe",
+        "tests/last-run.json",
+        "test scenarios",
+        "lifecycle",
+        "/cr-brainstorm",
+        "phase",
+        "reference.md"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module a **scoping front-end** and a **normative-decision gate backbone**, so that consequential value-laden methodological choices are made **visible, contestable, and recorded** — never smuggled in behind a technical result.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "scoping",
+        "normative-decisions",
+        "value-transparency",
+        "gates",
+        "p0"
+      ],
+      "title": "CR Scoping Front-End + Normative-Decision Gates (Responsible Research Partner — Phase 3)",
+      "top_keywords": [
+        "/cr-work",
+        "/cr-brainstorm",
+        "/cr-plan",
+        "applies_to",
+        "test scenarios",
+        "normative-decisions.md",
+        "cr-skill-research-scoping",
+        "describe",
+        "tests/last-run.json",
+        "phase"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "slug": "2026-08-02-cr-work-gpt-5-6-luna-plan",
+      "status": "completed",
+      "summary": "Assign `GPT-5.6 Luna` to the Compound Research `/cr-work` command and carry that assignment through the canonical model catalog, audit tooling, native target projections, documentation, and focused tests without changing any other agent or model assignment.",
+      "tags": [
+        "compound-research",
+        "cr-work",
+        "model-governance",
+        "native-targets",
+        "generator",
+        "testing"
+      ],
+      "title": "Use GPT-5.6 Luna for /cr-work",
+      "top_keywords": [
+        "/cr-work",
+        "research-execution",
+        "gpt-5.6 luna",
+        ".github/prompts/cr-work.prompt.md",
+        "docs/reference.md",
+        "cr-work.prompt.md",
+        "test scenarios",
+        ".github/shared/model-catalog.json",
+        "docs/model-guide.md",
+        "/cr-review"
       ]
     },
     {
@@ -9124,6 +9401,50 @@
         "model-assignments.tests.ps1",
         "cg-review.prompt.md",
         "agent"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates-review-2",
+      "status": "",
+      "summary": "**Review mode**: full (composite coverage with research agents per shared routing contract) **Files reviewed**: 643 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "tags": [],
+      "title": "2026-07-30-cr-scoping-normative-gates-review-2",
+      "top_keywords": [
+        "cg-review",
+        "/cg-review",
+        "/cg-review full",
+        "cg-fix-triage",
+        "/cg-fix-triage",
+        "/cr-review",
+        "tests/last-run.json",
+        "last-run.json",
+        "cr-compound.prompt.md",
+        "research"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates-review",
+      "status": "",
+      "summary": "**Review mode**: research **Files reviewed**: 28 **Findings**: 5 (P0: 0, P1: 4, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-07-30-cr-scoping-normative-gates-review",
+      "top_keywords": [
+        "research scoping",
+        "research",
+        "fix",
+        "cg-fix-triage",
+        "cr-replication-package",
+        "/cr-work",
+        "cr-work.prompt.md",
+        "cg-work",
+        "reference.md",
+        "review"
       ]
     },
     {
@@ -12899,8 +13220,8 @@
         "agent",
         "json",
         "canonical",
-        "run-tests",
         "last-run.json",
+        "run-tests",
         "tests\\last-run.json"
       ]
     },
@@ -15090,6 +15411,67 @@
       ]
     },
     {
+      "date": "2026-07-31",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
+      "slug": "2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence",
+      "status": "",
+      "summary": "A full `/cg-review` pass over the Compound Research branch exposed two coupled contract defects in saved artifacts: - `/cr-review` still instructed the agent to write legacy review frontmatter with `status: open` and `findings: N`, then hand users off to `/cg-fix-triage` as if the report were machine-selectable by finding ID. - CR phase work reports cited `tests/last-run.json` as durable proof for earlier validation events, even though `tests/last-run.json` is intentionally mutable and overwritten by later test runs. The branch looked locally healthy because the prose still read sensibly and the latest runner artifact was green. But the workflow contracts were wrong in...",
+      "tags": [
+        "review-artifacts",
+        "fix-triage",
+        "frontmatter",
+        "findings-map",
+        "validation-evidence",
+        "last-run-json",
+        "provenance",
+        "prompt-tests",
+        "cross-file-contract"
+      ],
+      "title": "Review artifacts must use machine-readable finding maps and stable validation evidence",
+      "top_keywords": [
+        "tests/last-run.json",
+        "cg-fix-triage",
+        "/cg-fix-triage",
+        "last-run.json",
+        "open",
+        "/cr-review",
+        "findings:",
+        "evidence",
+        "fixed",
+        "skipped"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
+      "slug": "2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits",
+      "status": "",
+      "summary": "`/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The immediate temptation was to edit only the prompt frontmatter or to reuse an existing shared role. That was unsafe for two reasons: 1. The model-governance system projects canonical `.github/` metadata into target-specific native trees for Codex, Claude Code, and OpenCode. A prompt frontmatter-only change would leave generated targets, docs, and audits out of sync. 2. The repository already had pre-existing missing catalog assignments for other CR prompts. A repository-wide expectation of \"zero missing assignments\" would fail before and after the change, hiding whether...",
+      "tags": [
+        "model-governance",
+        "cr-work",
+        "native-targets",
+        "audit-baseline",
+        "regression-tests",
+        "target-mapping"
+      ],
+      "title": "Single-command model overrides need dedicated roles and baseline-aware audits",
+      "top_keywords": [
+        "/cr-work",
+        "gpt-5.6 luna",
+        "baseline-aware",
+        "not-tested",
+        ".github/",
+        "model",
+        "dedicated",
+        "roles",
+        "single-command",
+        "overrides"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -15373,6 +15755,160 @@
         "additions",
         "roadmap.json",
         "decision"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-evidence-provenance-spine",
+      "slug": "cr-evidence-provenance-spine",
+      "status": "done",
+      "summary": "CR evidence and provenance spine with repo-local corpus default",
+      "tags": [],
+      "title": "CR evidence and provenance spine with repo-local corpus default",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "evidence",
+        "provenance",
+        "spine",
+        "repo-local",
+        "corpus",
+        "default",
+        "research",
+        "responsible"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-measurement-classification-archetype",
+      "slug": "cr-measurement-classification-archetype",
+      "status": "done",
+      "summary": "CR Measurement/Classification research archetype",
+      "tags": [],
+      "title": "CR Measurement/Classification research archetype",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "measurement",
+        "classification",
+        "archetype",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-measurement-comparability-controls",
+      "slug": "cr-measurement-comparability-controls",
+      "status": "done",
+      "summary": "P0 comparability controls for measurement and indicator work",
+      "tags": [],
+      "title": "P0 comparability controls for measurement and indicator work",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "measurement",
+        "comparability",
+        "controls",
+        "indicator",
+        "work",
+        "research",
+        "responsible",
+        "partner"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-scoping-and-normative-gates",
+      "slug": "cr-scoping-and-normative-gates",
+      "status": "done",
+      "summary": "Research scoping and normative-decision gates",
+      "tags": [],
+      "title": "Research scoping and normative-decision gates",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "scoping",
+        "normative-decision",
+        "gates",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-responsible-lifecycle-method-packs",
+      "slug": "cr-responsible-lifecycle-method-packs",
+      "status": "done",
+      "summary": "Responsible lifecycle and method-pack retrofit",
+      "tags": [],
+      "title": "Responsible lifecycle and method-pack retrofit",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "responsible",
+        "lifecycle",
+        "method-pack",
+        "retrofit",
+        "research",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-second-measurement-use-case-validation",
+      "slug": "cr-second-measurement-use-case-validation",
+      "status": "idea",
+      "summary": "Validate the Measurement archetype with a second use case",
+      "tags": [],
+      "title": "Validate the Measurement archetype with a second use case",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "measurement",
+        "validate",
+        "archetype",
+        "second",
+        "case",
+        "research",
+        "responsible",
+        "partner"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-team-evidence-library",
+      "slug": "cr-team-evidence-library",
+      "status": "idea",
+      "summary": "Team-level evidence library",
+      "tags": [],
+      "title": "Team-level evidence library",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "team-level",
+        "evidence",
+        "library",
+        "research",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
       ]
     },
     {
@@ -17882,15 +18418,59 @@
         "milestone",
         "optimization"
       ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "slug": "cr-work-gpt-5-6-luna-model-governance",
+      "status": "done",
+      "summary": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "tags": [],
+      "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "governance",
+        "assign",
+        "gpt-5",
+        "luna",
+        "cr-work",
+        "native-target",
+        "context",
+        "token"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-prompt-model-catalog-baseline",
+      "slug": "cr-prompt-model-catalog-baseline",
+      "status": "idea",
+      "summary": "Baseline model-catalog coverage for remaining CR prompts",
+      "tags": [],
+      "title": "Baseline model-catalog coverage for remaining CR prompts",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "prompts",
+        "baseline",
+        "model-catalog",
+        "coverage",
+        "remaining",
+        "context",
+        "token",
+        "model"
+      ]
     }
   ],
-  "entity_count": 621,
-  "generated": "2026-07-30",
+  "entity_count": 641,
+  "generated": "2026-08-03",
   "schema_version": "0.2.0",
-  "topic_count": 3,
+  "topic_count": 4,
   "topics": [
     {
-      "entity_count": 462,
+      "entity_count": 472,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -17937,6 +18517,7 @@
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
+        ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -18034,6 +18615,11 @@
         ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
         ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+        ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+        ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+        ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+        ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+        ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -18178,6 +18764,8 @@
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
         ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md",
         ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review.md",
+        ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+        ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -18341,6 +18929,8 @@
         ".cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md",
         ".cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md",
         ".cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -18364,7 +18954,7 @@
       "slug": "roadmap-json-prompt-tools-tests-ps1-cg-work"
     },
     {
-      "entity_count": 114,
+      "entity_count": 116,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -18479,15 +19069,36 @@
         "roadmap.json#stage-context-contracts",
         "roadmap.json#review-deterministic-first",
         "roadmap.json#token-benchmark-before-after",
-        "roadmap.json#token-optimization-compound"
+        "roadmap.json#token-optimization-compound",
+        "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+        "roadmap.json#cr-prompt-model-catalog-baseline"
       ],
       "keywords": [
         "architecture research\nobjective",
         "knowledge brain\nobjective",
-        "quality loop\nobjective"
+        "model governance\nobjective"
       ],
-      "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Quality Loop\nObjective",
-      "slug": "architecture-research-objective-knowledge-brain-objective-quality-loop-objective"
+      "label": "Architecture Research\nObjective / Knowledge Brain\nObjective / Model Governance\nObjective",
+      "slug": "architecture-research-objective-knowledge-brain-objective-model-governance-objective"
+    },
+    {
+      "entity_count": 7,
+      "entity_paths": [
+        "roadmap.json#cr-evidence-provenance-spine",
+        "roadmap.json#cr-measurement-classification-archetype",
+        "roadmap.json#cr-measurement-comparability-controls",
+        "roadmap.json#cr-scoping-and-normative-gates",
+        "roadmap.json#cr-responsible-lifecycle-method-packs",
+        "roadmap.json#cr-second-measurement-use-case-validation",
+        "roadmap.json#cr-team-evidence-library"
+      ],
+      "keywords": [
+        "expand compound research",
+        "responsible research partner\nobjective",
+        "measurement"
+      ],
+      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
+      "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
     },
     {
       "entity_count": 3,

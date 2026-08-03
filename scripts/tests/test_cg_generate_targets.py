@@ -13,6 +13,8 @@ import pytest
 
 import cg_generate_targets as gen
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def _write(path: Path, content: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -437,6 +439,16 @@ class TestModelResolution:
     def test_unknown_role_returns_none(self) -> None:
         target = {"modelMappingMode": "exact", "modelMapping": {"coding": "GPT-5.3-Codex"}}
         assert gen.resolve_model(target, "unknown-role") is None
+
+    def test_repo_research_execution_mapping_resolves_for_codex_and_claude(self) -> None:
+        mapping = json.loads((REPO_ROOT / ".github/shared/target-mapping.json").read_text(encoding="utf-8"))
+        codex = next(t for t in mapping["targets"] if t["id"] == "codex")
+        claude = next(t for t in mapping["targets"] if t["id"] == "claude-code")
+        opencode = next(t for t in mapping["targets"] if t["id"] == "opencode")
+
+        assert gen.resolve_model(codex, "research-execution") == "GPT-5.6 Luna"
+        assert gen.resolve_model(claude, "research-execution") == "sonnet"
+        assert gen.resolve_model(opencode, "research-execution") is None
 
 
 class TestEdgeCases:

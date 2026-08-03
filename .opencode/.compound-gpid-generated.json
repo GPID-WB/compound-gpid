@@ -504,7 +504,7 @@
       "path": ".opencode/shared/model-catalog.json",
       "source": ".github/shared/model-catalog.json",
       "kind": "shared",
-      "sha256": "73a2a7e79320f1222c6890dda86e60cfcc80f2380eafc58312154bad8bd359ee",
+      "sha256": "70a0fa0fd44a9a4fb76966228c32122d8bc6441d05a9e772a1bf5d2b40150a33",
       "executable": false
     },
     {
@@ -532,7 +532,7 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "20d5458f799febc3266cbfcd6e7ce827d8a30d488c66b903e23b4c6b6df06807",
+      "sha256": "bd3740141b6f03bd248670f56c66d7a8592f297937ca0ab171f1860b7a0e2b65",
       "executable": false
     },
     {

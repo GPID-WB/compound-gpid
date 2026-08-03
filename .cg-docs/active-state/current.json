@@ -1,29 +1,61 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-07-31T02:00:00Z",
-  "workflow": "/cr-work",
+  "updatedAt": "2026-08-03T02:00:00Z",
+  "workflow": "/cg-work",
   "status": "completed",
-  "branch": "compound-research",
-  "plan": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
-  "executionReport": ".cg-docs/work-reports/2026-07-31-cr-method-pack-retrofit.md",
-  "currentPhase": 3,
+  "branch": "feat/compound-research-v2",
+  "plan": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-03-cr-work-gpt-5-6-luna-plan.md",
+  "currentPhase": 2,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": ".github/skills/cr-skill-research-workflow/SKILL.md (8-stage lifecycle section)"},
-    {"id": "V2", "status": "passed", "artifact": ".github/skills/cr-skill-research-workflow/SKILL.md (Method Packs subsection)"},
-    {"id": "V3", "status": "passed", "artifact": ".github/prompts/cr-review.prompt.md + tests/cr-prompts.Tests.ps1 (additive framing; routing intact)"},
-    {"id": "V4", "status": "passed", "artifact": ".github/prompts/cr-work.prompt.md + .github/prompts/cr-brainstorm.prompt.md"},
-    {"id": "V5", "status": "passed", "artifact": ".github/copilot-instructions.md + docs/reference.md"},
-    {"id": "V6", "status": "passed", "artifact": "python3 scripts/cg_generate_targets.py --all (887 files) + parity.Tests.ps1 green"},
-    {"id": "V7", "status": "passed", "artifact": ". tests/Run-Tests.ps1 -> tests/last-run.json: 0 failures recorded; top-level counts reconciled via per-file totals"}
+    {
+      "id": "V1",
+      "status": "passed",
+      "artifact": ".github/prompts/cr-work.prompt.md + .github/shared/model-catalog.json + before/after model audit"
+    },
+    {
+      "id": "V2",
+      "status": "passed",
+      "artifact": "cg_generate_targets.py dry-run + generated command checks"
+    },
+    {
+      "id": "V3",
+      "status": "passed",
+      "artifact": "docs/model-guide.md + docs/reference.md"
+    },
+    {
+      "id": "V4",
+      "status": "passed",
+      "artifact": "targeted pytest + tests/model-assignments.Tests.ps1"
+    },
+    {
+      "id": "V5",
+      "status": "passed",
+      "artifact": "tests/Run-Tests.ps1 + tests/last-run.json"
+    },
+    {
+      "id": "V6",
+      "status": "passed",
+      "artifact": "Copilot exact label check + support status provenance"
+    }
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md", "status": "completed"},
-    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md", "status": "completed"},
-    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md", "status": "completed"},
-    {"kind": "plan", "path": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md", "status": "completed"},
-    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-07-31-cr-method-pack-retrofit.md", "status": "closed"},
-    {"kind": "test-artifact", "path": "tests/last-run.json", "status": "passed"}
+    {
+      "kind": "plan",
+      "path": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "status": "active"
+    },
+    {
+      "kind": "work-report",
+      "path": ".cg-docs/work-reports/2026-08-03-cr-work-gpt-5-6-luna-plan.md",
+      "status": "open"
+    },
+    {
+      "kind": "roadmap-feature",
+      "path": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "status": "done"
+    }
   ],
-  "nextCommand": "/cr-review"
+  "nextCommand": "/cg-review standard"
 }

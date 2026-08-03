@@ -85,6 +85,7 @@ validated in VS Code/Copilot on 2026-06-16.
 | GPT-5.5 | openai | GPT-5 | frontmatter-supported | reasoning, review |
 | GPT-5 mini | openai | GPT-5 | frontmatter-supported | mechanical |
 | GPT-5.4 mini | openai | GPT-5 | frontmatter-supported | mechanical |
+| GPT-5.6 Luna | openai | GPT-5 | not-tested | research-execution |
 | Claude Sonnet 4.6 | anthropic | Claude | frontmatter-supported | fallback, cross-vendor-review |
 | Claude Haiku 4.5 | anthropic | Claude | frontmatter-supported | mechanical |
 | Gemini 2.5 Pro | google | Gemini | not-tested | cross-vendor-review, reasoning |
@@ -119,6 +120,7 @@ validated in VS Code/Copilot on 2026-06-16.
 | cg-verify-pr.prompt.md | GPT-5.3-Codex | coding | PR verification is code-aware. |
 | cg-wiki.prompt.md | GPT-5.4 | reasoning | Wiki maintenance benefits from synthesis. |
 | cg-work.prompt.md | GPT-5.3-Codex | coding | Implementation workflow should prefer GPT-5.3-Codex. |
+| cr-work.prompt.md | GPT-5.6 Luna | research-execution | CR execution should use GPT-5.6 Luna while preserving existing mappings for all other prompts and agents. |
 
 ### Agents
 

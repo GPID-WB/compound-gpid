@@ -78,6 +78,11 @@ class TestClaudeCodeModelMapping:
             content = cmd.read_text(encoding="utf-8")
             assert "model:" in content
 
+    def test_cr_work_command_has_sonnet_model(self) -> None:
+        cmd = REPO_ROOT / ".claude/commands/cr-work.md"
+        content = cmd.read_text(encoding="utf-8")
+        assert "model: sonnet" in content
+
     def test_root_adapter_references_claude_paths(self) -> None:
         content = (REPO_ROOT / ".claude/CLAUDE.md").read_text(encoding="utf-8")
         assert ".claude/" in content

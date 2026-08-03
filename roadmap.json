@@ -807,7 +807,7 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "token-audit-context-model",
@@ -883,6 +883,20 @@
           "id": "token-optimization-compound",
           "title": "Capture the learning",
           "description": "After the optimization cycle is validated, capture the reusable lesson through the Compound GPID knowledge workflow. Produces: .cg-docs/solutions/ entry documenting the optimization pattern, updated Knowledge Brain artifacts, guidance for future prompt/agent/skill/model-governance changes.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-work-gpt-5-6-luna-model-governance",
+          "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+          "description": "Assign GPT-5.6 Luna to the canonical /cr-work prompt, register the research-execution role in model governance, generate target-appropriate Codex and Claude mappings while preserving OpenCode inheritance, and synchronize documentation and tests without changing other assignments.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md"
+        },
+        {
+          "id": "cr-prompt-model-catalog-baseline",
+          "title": "Baseline model-catalog coverage for remaining CR prompts",
+          "description": "Establish baseline model-catalog coverage for /cr-brainstorm, /cr-plan, /cr-review, and /cr-compound so the model audit distinguishes intentional existing CR catalog debt from new routing changes. This is separate from the current /cr-work GPT-5.6 Luna plan and covers catalog roles, documentation synchronization, and scoped audit coverage.",
           "status": "idea",
           "plan": null
         }

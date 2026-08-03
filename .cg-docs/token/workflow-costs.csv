@@ -1,8 +1,8 @@
 workflow_id,workflow,path,available,estimated_tokens,total_refs,file_refs,skill_refs,agent_refs,tool_refs,load_verbs,context_risk_count,context_justified_count,context_targeted_count,dispatch_refs,dispatch_burden,command_output_status,summary_output_status
 cg-brainstorm,/cg-brainstorm,.github/prompts/cg-brainstorm.prompt.md,True,3798,34,17,1,7,1,8,0,0,3,2,limited,not_observed,not_observed
 cg-plan,/cg-plan,.github/prompts/cg-plan.prompt.md,True,3218,23,10,1,5,0,7,0,1,5,1,limited,not_observed,not_observed
-cg-work,/cg-work,.github/prompts/cg-work.prompt.md,True,5000,54,17,2,12,1,22,0,2,5,3,conditional,not_observed,not_observed
-cg-review,/cg-review,.github/prompts/cg-review.prompt.md,True,4739,56,11,5,22,0,18,0,0,2,10,conditional,not_observed,not_observed
+cg-work,/cg-work,.github/prompts/cg-work.prompt.md,True,5091,54,17,2,12,1,22,0,2,5,3,conditional,not_observed,not_observed
+cg-review,/cg-review,.github/prompts/cg-review.prompt.md,True,5036,60,11,5,22,0,22,0,0,2,10,conditional,not_observed,not_observed
 cg-fix-triage,/cg-fix-triage,.github/prompts/cg-fix-triage.prompt.md,True,2100,20,8,8,0,1,3,0,0,2,0,none,not_observed,not_observed
 cg-compound,/cg-compound,.github/prompts/cg-compound.prompt.md,True,2404,28,15,2,5,0,6,0,1,2,1,limited,not_observed,not_observed
 cg-resume,/cg-resume,.github/prompts/cg-resume.prompt.md,True,3159,19,15,0,3,0,1,0,1,6,2,limited,not_observed,not_observed

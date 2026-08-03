@@ -1,129 +1,10 @@
 {
   "benchmark": {
-    "comparison": {
-      "model_governance": {
-        "missing_model_count_delta": 0,
-        "model_drift_count_delta": 0,
-        "ordinary_model_picker_violations_delta": 0,
-        "premium_usage_count_delta": 0
-      },
-      "workflows": [
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-brainstorm.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-brainstorm"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-plan.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-plan"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "conditional",
-          "dispatch_burden_before": "conditional",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-work.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-work"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "conditional",
-          "dispatch_burden_before": "conditional",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-review.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-review"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-fix-triage.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-fix-triage"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-compound.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-compound"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "limited",
-          "dispatch_burden_before": "limited",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-resume.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-resume"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-diagnose.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-diagnose"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/prompts/cg-token-audit.prompt.md",
-          "total_refs_delta": 0,
-          "workflow": "/cg-token-audit"
-        },
-        {
-          "baseline_available": true,
-          "context_risk_count_delta": 0,
-          "dispatch_burden_after": "none",
-          "dispatch_burden_before": "none",
-          "dispatch_refs_delta": 0,
-          "estimated_tokens_delta": 0,
-          "path": ".github/skills/cg-skill-brain-query/SKILL.md",
-          "total_refs_delta": 0,
-          "workflow": "Knowledge Brain/context lookup"
-        }
-      ]
-    },
+    "comparison": null,
     "context_loading": {
       "justified": 17,
-      "risk": 3,
-      "targeted": 102
+      "risk": 20,
+      "targeted": 110
     },
     "model_governance": {
       "haiku_role_violations": 0,
@@ -197,7 +78,7 @@
       {
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20364,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 2,
@@ -205,7 +86,7 @@
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
+        "estimated_tokens": 5091,
         "file_refs": 17,
         "load_verbs": 22,
         "model": "GPT-5.3-Codex",
@@ -221,7 +102,7 @@
       {
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 20145,
         "command_output_status": "not_observed",
         "conditional_routing": true,
         "context_justified_count": 0,
@@ -229,16 +110,16 @@
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
+        "estimated_tokens": 5036,
         "file_refs": 11,
-        "load_verbs": 18,
+        "load_verbs": 22,
         "model": "GPT-5.4",
         "model_tier": "standard",
         "path": ".github/prompts/cg-review.prompt.md",
         "skill_refs": 5,
         "summary_output_status": "not_observed",
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 60,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },
@@ -368,8 +249,8 @@
         "characters": 11024,
         "conditional_routing": false,
         "context_justified_count": 7,
-        "context_risk_count": 2,
-        "context_targeted_count": 57,
+        "context_risk_count": 17,
+        "context_targeted_count": 59,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2756,
@@ -386,13 +267,115 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-07-24T11:16:57",
+  "generated": "2026-07-31T12:11:16-04:00@3cc58d7d3ba3",
+  "generated_kind": "volatile",
   "guardrails": {
-    "failures": [],
+    "failures": [
+      {
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      }
+    ],
     "warnings": [
       {
-        "path": "docs/context-files.md",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "preferred model frontmatter support is not-tested: GPT-5.6 Luna"
+      },
+      {
+        "path": ".github/prompts/cg-review.prompt.md",
+        "reason": "high-frequency prompt estimated tokens > 5000"
+      },
+      {
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "high-frequency prompt estimated tokens > 5000"
+      },
+      {
+        "path": "(always-on instructions)",
+        "reason": "always-on instruction estimated tokens > 4500"
+      },
+      {
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
         "reason": "context-loading risk requires review: compound-gpid.context.md"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "context-loading risk requires review: roadmap.json"
+      },
+      {
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
+      },
+      {
+        "path": "docs/philosophy.md",
+        "reason": "context-loading risk requires review: .cg-docs/"
       },
       {
         "path": "docs/reference.md",
@@ -410,7 +393,7 @@
     "token_estimate": "chars/4 heuristic"
   },
   "optimization_candidates": {
-    "acceptable_count": 53,
+    "acceptable_count": 80,
     "immediate": [
       {
         "category": "prompts",
@@ -480,6 +463,66 @@
       {
         "category": "skills",
         "path": ".github/skills/cg-skill-wiki/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-academic-writing/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-identification-strategies/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-ml-economics/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-publication-output/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-replication-standards/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-eda/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-workflow/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-structural-econometrics/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-symbolic-verification/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md",
         "reason": "skill estimated tokens >= 2000"
       },
       {
@@ -560,6 +603,31 @@
         "reason": "prompt size exceeds review threshold; reference count >= 5"
       },
       {
+        "category": "prompts",
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "prompt size exceeds review threshold; reference count >= 5"
+      },
+      {
         "category": "agents",
         "path": ".github/agents/cg-architecture.agent.md",
         "reason": "reference count >= 5"
@@ -615,6 +683,51 @@
         "reason": "agent estimated tokens >= 1500; reference count >= 5"
       },
       {
+        "category": "agents",
+        "path": ".github/agents/cr-academic-writing.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-replication-package.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "reason": "agent estimated tokens >= 1500"
+      },
+      {
         "category": "skills",
         "path": ".github/skills/cg-skill-setup/SKILL.md",
         "reason": "skill estimated tokens >= 1200"
@@ -628,31 +741,246 @@
         "category": "skills",
         "path": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
         "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-research-scoping/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
       }
     ]
   },
   "reviewed_warnings": {
     "counts": {
-      "accept": 0,
+      "accept": 14,
       "docs-only": 3,
-      "fix": 0
+      "fix": 7
     },
     "items": [
       {
-        "action": "Keep as documentation unless wording misleads users.",
+        "action": "Keep until exact model frontmatter support is validated.",
+        "artifact": null,
+        "classification": "accept",
+        "line": null,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Governance warning documents an external support check, not context loading.",
+        "reason": "preferred model frontmatter support is not-tested: GPT-5.6 Luna",
+        "snippet": null
+      },
+      {
+        "action": "Slim the prompt or split only with an explicit caller load point.",
+        "artifact": null,
+        "classification": "fix",
+        "line": null,
+        "path": ".github/prompts/cg-review.prompt.md",
+        "rationale": "High-frequency entrypoints directly affect routine token cost.",
+        "reason": "high-frequency prompt estimated tokens > 5000",
+        "snippet": null
+      },
+      {
+        "action": "Slim the prompt or split only with an explicit caller load point.",
+        "artifact": null,
+        "classification": "fix",
+        "line": null,
+        "path": ".github/prompts/cg-work.prompt.md",
+        "rationale": "High-frequency entrypoints directly affect routine token cost.",
+        "reason": "high-frequency prompt estimated tokens > 5000",
+        "snippet": null
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": null,
+        "classification": "accept",
+        "line": null,
+        "path": "(always-on instructions)",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "always-on instruction estimated tokens > 4500",
+        "snippet": null
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 29,
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 25,
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 19,
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 28,
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from code files, `.cg-docs/research/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 21,
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 27,
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
         "artifact": "compound-gpid.context.md",
-        "classification": "docs-only",
-        "line": 257,
-        "path": "docs/context-files.md",
-        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "classification": "fix",
+        "line": 17,
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
         "reason": "context-loading risk requires review: compound-gpid.context.md",
-        "snippet": "3. Open `compound-gpid.context.md` right after setup and fill in your data source paths, workspace layout, and any domain vocabulary Copilot needs to know. Even a few bullet points pay off immediately."
+        "snippet": "- You may read `compound-gpid.md`, `compound-gpid.local.md`, `compound-gpid.context.md`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": "roadmap.json",
+        "classification": "fix",
+        "line": 16,
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: roadmap.json",
+        "snippet": "- You may read `roadmap.json`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": ".cg-docs/",
+        "classification": "fix",
+        "line": 32,
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": "roadmap.json",
+        "classification": "fix",
+        "line": 16,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: roadmap.json",
+        "snippet": "- You may read `roadmap.json`."
+      },
+      {
+        "action": "Narrow the read or add an explicit accepted rationale.",
+        "artifact": ".cg-docs/",
+        "classification": "fix",
+        "line": 174,
+        "path": ".github/prompts/cr-work.prompt.md",
+        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Load the corresponding derivation from `.cg-docs/research/derivations/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
+      },
+      {
+        "action": "Keep under review in future audits.",
+        "artifact": ".cg-docs/",
+        "classification": "accept",
+        "line": 26,
+        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 156,
+        "line": 322,
+        "path": "docs/philosophy.md",
+        "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
+        "reason": "context-loading risk requires review: .cg-docs/",
+        "snippet": "| Review | Judge findings critically and decide what is acceptable | Search for failures through risk-matched review routes | `.cg-docs/reviews/` |"
+      },
+      {
+        "action": "Keep as documentation unless wording misleads users.",
+        "artifact": ".cg-docs/",
+        "classification": "docs-only",
+        "line": 253,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -662,7 +990,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 739,
+        "line": 747,
         "path": "docs/workflow.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -674,64 +1002,64 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 92520,
-        "estimated_tokens": 23125,
-        "files": 17
+        "characters": 184202,
+        "estimated_tokens": 46040,
+        "files": 28
       },
       "brain": {
-        "characters": 301409,
-        "estimated_tokens": 75351,
+        "characters": 338637,
+        "estimated_tokens": 84657,
         "files": 4
       },
       "brain_index": {
-        "characters": 666619,
-        "estimated_tokens": 166654,
+        "characters": 754690,
+        "estimated_tokens": 188672,
         "files": 1
       },
       "context": {
-        "characters": 68243,
-        "estimated_tokens": 17060,
+        "characters": 71410,
+        "estimated_tokens": 17852,
         "files": 1
       },
       "docs": {
-        "characters": 213721,
-        "estimated_tokens": 53425,
-        "files": 12
+        "characters": 310892,
+        "estimated_tokens": 77711,
+        "files": 33
       },
       "instructions": {
-        "characters": 17340,
-        "estimated_tokens": 4334,
-        "files": 4
+        "characters": 23639,
+        "estimated_tokens": 5907,
+        "files": 6
       },
       "prompts": {
-        "characters": 252445,
-        "estimated_tokens": 63102,
-        "files": 24
+        "characters": 294335,
+        "estimated_tokens": 73575,
+        "files": 29
       },
       "roadmap": {
-        "characters": 54961,
-        "estimated_tokens": 13740,
+        "characters": 59863,
+        "estimated_tokens": 14965,
         "files": 1
       },
       "shared": {
-        "characters": 45681,
-        "estimated_tokens": 11417,
+        "characters": 50796,
+        "estimated_tokens": 12696,
         "files": 9
       },
       "skills": {
-        "characters": 110978,
-        "estimated_tokens": 27738,
-        "files": 22
+        "characters": 283731,
+        "estimated_tokens": 70919,
+        "files": 37
       },
       "template": {
-        "characters": 1633,
-        "estimated_tokens": 408,
+        "characters": 1675,
+        "estimated_tokens": 418,
         "files": 1
       }
     },
-    "total_characters": 1825550,
-    "total_estimated_tokens": 456354,
-    "total_files": 96
+    "total_characters": 2373870,
+    "total_estimated_tokens": 593412,
+    "total_files": 150
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
@@ -1230,14 +1558,14 @@
         ],
         "agent_refs": 12,
         "available": true,
-        "characters": 20003,
+        "characters": 20364,
         "conditional_routing": true,
         "context_justified_count": 2,
         "context_risk_count": 0,
         "context_targeted_count": 5,
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
-        "estimated_tokens": 5000,
+        "estimated_tokens": 5091,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -1345,14 +1673,14 @@
         ],
         "agent_refs": 22,
         "available": true,
-        "characters": 18956,
+        "characters": 20145,
         "conditional_routing": true,
         "context_justified_count": 0,
         "context_risk_count": 0,
         "context_targeted_count": 2,
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
-        "estimated_tokens": 4739,
+        "estimated_tokens": 5036,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1384,7 +1712,7 @@
           "cg-skill-python-best-practices",
           "cg-skill-stata-best-practices"
         ],
-        "load_verbs": 18,
+        "load_verbs": 22,
         "model": "GPT-5.4",
         "model_tier": "standard",
         "observability": {
@@ -1433,7 +1761,7 @@
         "skill_refs": 5,
         "tool_references": [],
         "tool_refs": 0,
-        "total_refs": 56,
+        "total_refs": 60,
         "workflow": "/cg-review",
         "workflow_id": "cg-review"
       },
