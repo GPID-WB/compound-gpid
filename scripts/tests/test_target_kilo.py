@@ -82,7 +82,7 @@ class TestKiloTreeStructure:
         skills = list((REPO_ROOT / ".github/skills").glob("cg-skill-*/SKILL.md"))
         for skill in skills:
             skill_name = skill.parent.name
-            assert (REPO_ROOT / ".kilo/skill" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"
+            assert (REPO_ROOT / ".kilo/skills" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"
 
     def test_skills_are_kilo_discoverable(self) -> None:
         skill_files = list((REPO_ROOT / ".kilo/skills").glob("*/SKILL.md"))
@@ -96,7 +96,7 @@ class TestKiloTreeStructure:
 
 class TestKiloModelInheritance:
     def test_commands_and_agent_files_do_not_assign_models(self) -> None:
-        files = list((REPO_ROOT / ".kilo/command").rglob("*.md"))
+        files = list((REPO_ROOT / ".kilo/commands").rglob("*.md"))
         files += list((REPO_ROOT / ".kilo/agent").glob("*.md"))
         assert files
         for path in files:

@@ -102,8 +102,8 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                 "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                 "formats": {"commandFormat": "kilo-command", "skillFormat": "kilo-skill", "agentFormat": "kilo-agent"},
                 "outputPaths": {
-                    "commands": ".kilo/command",
-                    "skills": ".kilo/skill",
+                    "commands": ".kilo/commands",
+                    "skills": ".kilo/skills",
                     "agents": ".kilo/agent",
                     "instructions": ".kilo/instructions",
                     "shared": ".kilo/shared",
@@ -350,13 +350,13 @@ class TestGeneratorWrites:
         assert data == {
             "$schema": "https://app.kilo.ai/config.json",
             "instructions": [".kilo/AGENTS.md"],
-            "skills": {"paths": [".kilo/skill"]},
+            "skills": {"paths": [".kilo/skills"]},
         }
 
     def test_kilo_commands_use_valid_frontmatter_and_arguments(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "kilo"])
-        content = (root / ".kilo/command/cg-test.md").read_text()
+        content = (root / ".kilo/commands/cg-test.md").read_text()
         assert "description: Test prompt" in content
         assert "role:" not in content.split("---", 2)[1]
         assert "$ARGUMENTS" in content
