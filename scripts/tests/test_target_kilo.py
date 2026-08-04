@@ -30,10 +30,10 @@ def _frontmatter(content: str) -> dict[str, str]:
 
 class TestKiloTreeStructure:
     def test_commands_dir_exists(self) -> None:
-        assert (REPO_ROOT / ".kilo/command").is_dir()
+        assert (REPO_ROOT / ".kilo/commands").is_dir()
 
     def test_skills_dir_exists(self) -> None:
-        assert (REPO_ROOT / ".kilo/skill").is_dir()
+        assert (REPO_ROOT / ".kilo/skills").is_dir()
 
     def test_agents_dir_exists(self) -> None:
         assert (REPO_ROOT / ".kilo/agent").is_dir()
@@ -48,10 +48,10 @@ class TestKiloTreeStructure:
         prompts = list((REPO_ROOT / ".github/prompts").glob("*.prompt.md"))
         for prompt in prompts:
             cmd_name = prompt.name.replace(".prompt.md", ".md")
-            assert (REPO_ROOT / ".kilo/command" / cmd_name).exists(), f"Missing command: {cmd_name}"
+            assert (REPO_ROOT / ".kilo/commands" / cmd_name).exists(), f"Missing command: {cmd_name}"
 
     def test_commands_are_kilo_discoverable(self) -> None:
-        command_files = list((REPO_ROOT / ".kilo/command").glob("cg-*.md"))
+        command_files = list((REPO_ROOT / ".kilo/commands").glob("cg-*.md"))
         assert command_files
         for command_file in command_files:
             content = command_file.read_text(encoding="utf-8")
@@ -85,7 +85,7 @@ class TestKiloTreeStructure:
             assert (REPO_ROOT / ".kilo/skill" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"
 
     def test_skills_are_kilo_discoverable(self) -> None:
-        skill_files = list((REPO_ROOT / ".kilo/skill").glob("*/SKILL.md"))
+        skill_files = list((REPO_ROOT / ".kilo/skills").glob("*/SKILL.md"))
         assert skill_files
         for skill_file in skill_files:
             content = skill_file.read_text(encoding="utf-8")
@@ -106,11 +106,11 @@ class TestKiloModelInheritance:
         data = json.loads((REPO_ROOT / ".kilo/kilo.json").read_text(encoding="utf-8"))
         assert data["$schema"] == "https://app.kilo.ai/config.json"
         assert data["instructions"] == [".kilo/AGENTS.md"]
-        assert data["skills"] == {"paths": [".kilo/skill"]}
+        assert data["skills"] == {"paths": [".kilo/skills"]}
         assert "platform" not in data
         assert "commands" not in data
         assert "agents" not in data
 
     def test_root_adapter_references_kilo_paths(self) -> None:
         content = (REPO_ROOT / ".kilo/AGENTS.md").read_text(encoding="utf-8")
-        assert ".kilo/" in content
+        assert ".kilo/commands" in content

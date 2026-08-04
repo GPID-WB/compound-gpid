@@ -21,7 +21,7 @@ import cg_generate_targets as gen
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TARGET_SKILL_ROOTS = (".claude/skills", ".agents/skills", ".opencode/skills", ".kilo/skill")
+TARGET_SKILL_ROOTS = (".claude/skills", ".agents/skills", ".opencode/skills", ".kilo/skills")
 OWNERSHIP_MANIFESTS = {
     ".claude/.compound-gpid-generated.json",
     ".agents/.compound-gpid-generated.json",

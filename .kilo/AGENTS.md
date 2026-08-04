@@ -5,11 +5,11 @@ It maps Compound GPID `/cg-*` commands to native Kilo paths.
 
 ## Command Dispatch
 
-`/cg-<name> [args...]` -> `.kilo/command/cg-<name>.md`
+`/cg-<name> [args...]` -> `.kilo/commands/cg-<name>.md`
 
 ## Skills
 
-Load skill files from `.kilo/skill/cg-skill-*/SKILL.md`.
+Load skill files from `.kilo/skills/cg-skill-*/SKILL.md`.
 
 ## Agents
 

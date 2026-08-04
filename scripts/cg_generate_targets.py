@@ -1380,7 +1380,7 @@ def _emit_config(target: dict[str, Any]) -> str:
             "$schema": "https://app.kilo.ai/config.json",
             "instructions": [output_paths.get("rootAdapter", ".kilo/AGENTS.md")],
             "skills": {
-                "paths": [output_paths.get("skills", ".kilo/skill")],
+                "paths": [output_paths.get("skills", ".kilo/skills")],
             },
         }
         return json.dumps(config, indent=2, ensure_ascii=False) + "\n"

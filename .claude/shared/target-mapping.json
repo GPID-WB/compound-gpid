@@ -159,8 +159,8 @@
         "agentFormat": "kilo-agent"
       },
       "outputPaths": {
-        "commands": ".kilo/command",
-        "skills": ".kilo/skill",
+        "commands": ".kilo/commands",
+        "skills": ".kilo/skills",
         "agents": ".kilo/agent",
         "instructions": ".kilo/instructions",
         "shared": ".kilo/shared",
@@ -168,8 +168,8 @@
         "config": ".kilo/kilo.json"
       },
       "installUnits": [
-        { "type": "directory", "source": ".kilo/command", "target": ".kilo/command", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/skill", "target": ".kilo/skill", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/skills", "target": ".kilo/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/agent", "target": ".kilo/agent", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/instructions", "target": ".kilo/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/shared", "target": ".kilo/shared", "strategy": "link-directory" },
@@ -179,7 +179,7 @@
           "source": ".kilo/kilo.json",
           "target": ".kilo/kilo.json",
           "strategy": "config-copy-or-snippet",
-          "manualSnippet": "Add these fields to your existing kilo.json if they are not already present: {\"instructions\":[\".kilo/AGENTS.md\"],\"skills\":{\"paths\":[\".kilo/skill\"]}}"
+          "manualSnippet": "Add these fields to your existing kilo.json if they are not already present: {\"instructions\":[\".kilo/AGENTS.md\"],\"skills\":{\"paths\":[\".kilo/skills\"]}}"
         }
       ]
     }
