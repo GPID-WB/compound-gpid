@@ -5,9 +5,11 @@ from pathlib import Path
 
 import pytest
 
+# pylint: disable=import-error
 from artifact_views.errors import ArtifactPathError
 from artifact_views.paths import resolve_artifact_paths
 from artifact_views.schema import ArtifactKind
+# pylint: enable=import-error
 
 
 def _write(path: Path, content: str = "# Artifact\n") -> Path:
@@ -47,6 +49,8 @@ def test_source_maps_to_mirrored_view(
     assert paths.source_relative.as_posix() == source
     assert paths.view_relative.as_posix() == view
     assert paths.view_path == root / view
+    assert paths.destination.namespace.value == kind.value + "s"
+    assert paths.destination.relative.as_posix() == view
 
 
 def test_relative_source_path_is_anchored_to_project_root(tmp_path: Path) -> None:
@@ -104,7 +108,12 @@ def test_source_symlink_and_symlink_ancestor_fail(tmp_path: Path) -> None:
     target = _write(outside / "plan.md")
     source_parent = root / ".cg-docs/plans"
     source_parent.mkdir(parents=True)
-    (source_parent / "linked.md").symlink_to(target)
+    try:
+        (source_parent / "linked.md").symlink_to(target)
+    except OSError as error:
+        if getattr(error, "winerror", None) == 1314:
+            pytest.skip("Windows symlink privilege is unavailable")
+        raise
 
     with pytest.raises(ArtifactPathError, match="symlink|link"):
         resolve_artifact_paths(root, source_parent / "linked.md")

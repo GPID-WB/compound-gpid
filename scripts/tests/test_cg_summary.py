@@ -10,6 +10,9 @@ import pytest
 
 import cg_summary
 
+# Pytest fixtures are injected through same-named test parameters.
+# pylint: disable=redefined-outer-name
+
 
 def write(path: Path, text: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,6 +112,23 @@ def test_diff_summary_lists_view_path_without_storing_html_body(git_repo: Path) 
     assert summary["excluded_body_paths"] == [
         ".cg-docs/views/plans/example.html"
     ]
+    assert sentinel not in raw_patch
+
+
+def test_diff_summary_excludes_generic_document_view_body(git_repo: Path) -> None:
+    view = write(
+        git_repo / ".cg-docs/views/documents/docs/guide.html",
+        "<!doctype html><p>original</p>\n",
+    )
+    git(git_repo, "add", ".cg-docs/views/documents/docs/guide.html")
+    git(git_repo, "commit", "-m", "add generic view")
+    sentinel = "GENERIC_VIEW_ONLY_SENTINEL_3A9D"
+    view.write_text(f"<!doctype html><p>{sentinel}</p>\n", encoding="utf-8")
+
+    summary = cg_summary.diff_summary(git_repo, run_id="20260803-generic-views")
+    raw_patch = (git_repo / summary["raw_artifact"]).read_text(encoding="utf-8")
+
+    assert view.relative_to(git_repo).as_posix() in summary["excluded_body_paths"]
     assert sentinel not in raw_patch
 
 
@@ -221,4 +241,5 @@ def test_shell_wrappers_exist_and_reference_expected_subcommands() -> None:
         content = path.read_text(encoding="utf-8")
         assert content.startswith("#!/bin/bash")
         assert f"cg_summary.py\" {subcommand}" in content
-        assert os.stat(path).st_mode & stat.S_IXUSR
+        if os.name != "nt":
+            assert os.stat(path).st_mode & stat.S_IXUSR

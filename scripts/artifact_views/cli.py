@@ -7,17 +7,23 @@ from enum import Enum
 from pathlib import Path
 import re
 import sys
-from typing import Optional, Sequence, TextIO, Tuple
+from typing import Optional, Sequence, TextIO
 
 from artifact_views import __version__
 from artifact_views.config import load_artifact_view_config
-from artifact_views.errors import ArtifactPathError, ArtifactReadError
+from artifact_views.errors import ArtifactPathError, ArtifactReadError, ArtifactViewError
 from artifact_views.paths import ArtifactPaths, resolve_artifact_paths
-from artifact_views.provenance import ArtifactProvenance, source_sha256
+from artifact_views.provenance import (
+    PublicationProvenance,
+    parse_provenance,
+    source_sha256,
+)
+from artifact_views.publishing import PublishMode, resolve_publication
 from artifact_views.renderer import render_document
+from artifact_views.themes import resolve_theme
 from artifact_views.validator import validate_source
 from artifact_views.writer import write_view
-from secure_fs import secure_read_bytes
+from secure_fs import ExpectedFileState, secure_read_bytes
 
 _PROVENANCE_RE = re.compile(
     r'<script id="artifact-provenance" type="application/json">(.*?)</script>',
@@ -52,6 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
     modes.add_argument("--automatic", action="store_true")
     modes.add_argument("--validate-only", action="store_true")
     modes.add_argument("--check", action="store_true")
+    parser.add_argument("--theme")
     parser.add_argument("source", type=Path)
     return parser
 
@@ -101,6 +108,7 @@ def view_state(
     source_bytes: bytes,
     *,
     renderer_version: str = __version__,
+    explicit_theme: Optional[str] = None,
 ) -> ViewState:
     """Classify a derived view as missing, stale, or current.
 
@@ -126,32 +134,48 @@ def view_state(
         matches = _PROVENANCE_RE.findall(text)
         if len(matches) != 1:
             return ViewState.STALE
-        provenance = ArtifactProvenance.from_json(matches[0])
+        provenance = parse_provenance(matches[0])
+        if not isinstance(provenance, PublicationProvenance):
+            return ViewState.STALE
         source_text = source_bytes.decode("utf-8", errors="strict")
         document = validate_source(source_text, paths.source_relative, paths.kind)
     except (OSError, UnicodeDecodeError, ValueError):
         return ViewState.STALE
-    if provenance.source_path != paths.source_relative.as_posix():
-        return ViewState.STALE
-    if provenance.source_sha256 != source_sha256(source_bytes):
-        return ViewState.STALE
-    if provenance.renderer_version != renderer_version:
-        return ViewState.STALE
-    expected_schema_version = document.identity.schema_version or "legacy"
-    if provenance.artifact_schema_version != expected_schema_version:
-        return ViewState.STALE
     try:
-        expected_provenance = ArtifactProvenance.from_source(
+        decision = resolve_publication(
+            mode=PublishMode.CHECK,
+            source_path=paths.source_relative,
+            output_path=paths.view_relative,
+            document_type=paths.kind.value,
+            explicit_theme=explicit_theme,
+            output_exists=True,
+            existing_provenance=provenance,
+        )
+        if provenance.source_sha256 != source_sha256(source_bytes):
+            return ViewState.STALE
+        if provenance.renderer_version != renderer_version or decision.stale:
+            return ViewState.STALE
+        expected_provenance = PublicationProvenance.from_source(
             source_path=paths.source_relative,
             source_bytes=source_bytes,
-            artifact_schema_version=expected_schema_version,
+            output_path=paths.view_relative,
+            document_type=paths.kind.value,
             renderer_version=renderer_version,
+            theme_name=decision.theme.name,
+            theme_version=decision.theme.contract_version,
             generated_at=provenance.generated_datetime(),
         )
         if provenance != expected_provenance:
             return ViewState.STALE
         expected_bytes = render_document(document, expected_provenance)
-    except Exception:
+    except (
+        ArtifactViewError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        UnicodeError,
+        ValueError,
+    ):
         return ViewState.STALE
     return ViewState.CURRENT if expected_bytes == view_bytes else ViewState.STALE
 
@@ -193,11 +217,12 @@ def main(
             else find_project_root(source_argument)
         )
         paths = resolve_artifact_paths(root, source_argument)
-    except ArtifactPathError as error:
+        resolve_theme(paths.kind.value, arguments.theme)
+    except (ArtifactPathError, ValueError) as error:
         errors.write(f"Artifact input invalid: {error}\n")
         return 2
 
-    source_bytes: bytes
+    source_bytes: Optional[bytes] = None
     state = ViewState.MISSING
     try:
         try:
@@ -209,13 +234,17 @@ def main(
                 source_path=paths.source_relative,
                 corrective_action="Save a readable UTF-8 Markdown source and retry.",
             ) from error
-        state = view_state(paths, source_bytes)
         document = validate_source(source_text, paths.source_relative, paths.kind)
 
         if arguments.validate_only:
             output.write(f"Validated {paths.source_relative.as_posix()}\n")
             return 0
         if arguments.check:
+            state = view_state(
+                paths,
+                source_bytes,
+                explicit_theme=arguments.theme,
+            )
             output.write(f"{state.value} {paths.view_relative.as_posix()}\n")
             return 0 if state is ViewState.CURRENT else 1
         if arguments.automatic:
@@ -228,23 +257,80 @@ def main(
                 )
                 return 0
 
+        output_exists = paths.view_path.exists() or paths.view_path.is_symlink()
+        view_bytes: Optional[bytes] = None
+        existing_provenance = None
+        if output_exists:
+            try:
+                view_bytes = secure_read_bytes(paths.project_root, paths.view_relative)
+                view_text = view_bytes.decode("utf-8", errors="strict")
+                matches = _PROVENANCE_RE.findall(view_text)
+                if len(matches) == 1:
+                    existing_provenance = parse_provenance(matches[0])
+            except (OSError, UnicodeDecodeError, ValueError):
+                existing_provenance = None
+        decision = resolve_publication(
+            mode=(PublishMode.AUTOMATIC if arguments.automatic else PublishMode.RENDER),
+            source_path=paths.source_relative,
+            output_path=paths.view_relative,
+            document_type=paths.kind.value,
+            explicit_theme=arguments.theme,
+            output_exists=output_exists,
+            existing_provenance=existing_provenance,
+        )
+
         timestamp = now or datetime.now(timezone.utc)
-        provenance = ArtifactProvenance.from_source(
+        provenance = PublicationProvenance.from_source(
             source_path=paths.source_relative,
             source_bytes=source_bytes,
-            artifact_schema_version=document.identity.schema_version or "legacy",
+            output_path=paths.view_relative,
+            document_type=paths.kind.value,
             renderer_version=__version__,
+            theme_name=decision.theme.name,
+            theme_version=decision.theme.contract_version,
             generated_at=timestamp,
         )
         content = render_document(document, provenance)
-        write_view(root, paths.view_relative, content)
+        expected_state = (
+            ExpectedFileState.from_bytes(view_bytes)
+            if view_bytes is not None
+            else ExpectedFileState.absent()
+        )
+        write_view(
+            root,
+            paths.destination,
+            content,
+            expected_state=expected_state,
+        )
         output.write(f"{paths.view_relative.as_posix()}\n")
         return 0
-    except Exception as error:
+    except (
+        ArtifactViewError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        UnicodeError,
+        ValueError,
+    ) as error:
         try:
-            if "source_bytes" in locals():
-                state = view_state(paths, source_bytes)
-        except Exception:
+            if source_bytes is not None:
+                state = view_state(
+                    paths,
+                    source_bytes,
+                    explicit_theme=arguments.theme,
+                )
+            else:
+                state = (
+                    ViewState.STALE if paths.view_path.exists() else ViewState.MISSING
+                )
+        except (
+            ArtifactViewError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            UnicodeError,
+            ValueError,
+        ):
             state = ViewState.STALE if paths.view_path.exists() else ViewState.MISSING
         errors.write(f"Artifact render failed: {error}\n")
         errors.write(f"Source: {paths.source_relative.as_posix()}\n")

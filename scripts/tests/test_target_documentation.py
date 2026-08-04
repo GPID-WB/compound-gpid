@@ -149,9 +149,57 @@ def test_docs_cover_artifact_view_authority_versions_paths_and_modes() -> None:
         "compatible legacy",
         ".cg-docs/views/brainstorms/",
         ".cg-docs/views/plans/",
+        ".cg-docs/views/documents/",
         "cg-render-artifact --automatic",
         "cg-render-artifact --validate-only",
         "cg-render-artifact --check",
+    )
+
+def test_docs_cover_generic_markdown_publication_core_contracts() -> None:
+    _assert_terms(
+        CORPUS,
+        "cg-publish-markdown",
+        "generic Markdown",
+        ".cg-docs/views/documents/",
+        "generic-markdown",
+        "provenance schema 2",
+        "outputPath",
+        "one source owner",
+        "reference",
+        "theme version",
+        "NOTE",
+        "TIP",
+        "IMPORTANT",
+        "WARNING",
+        "CAUTION",
+        "DECISION",
+        "PROS",
+        "CONS",
+        "PNG",
+        "JPEG",
+        "GIF",
+        "WebP",
+        "alt text",
+        "5 MiB",
+        "non-clobbering",
+        "recovery",
+        "dependency-free",
+        "network-free",
+        "browser-free",
+    )
+
+
+def test_docs_preserve_typed_authority_and_follow_up_boundary() -> None:
+    _assert_terms(
+        CORPUS,
+        "Brainstorms and Plans",
+        "strict validation",
+        "cg-render-artifact",
+        "cannot",
+        "editorial theme",
+        "blocked follow-up",
+        "no agent publishing workflow",
+        "no browser evidence",
     )
 
 
@@ -161,7 +209,7 @@ def test_docs_distinguish_opt_out_skip_provenance_and_recovery() -> None:
         "artifact-html: false",
         "--no-html",
         "never disable validation",
-        "normalized source SHA-256",
+        "exact pinned-byte source SHA-256",
         "missing",
         "stale",
         "current",
@@ -204,6 +252,11 @@ def test_installation_lists_renderer_on_windows_and_macos() -> None:
     installation = (REPO_ROOT / "docs/installation.md").read_text(encoding="utf-8")
     assert installation.count("cg-render-artifact") >= 2
     _assert_terms(installation, "Python 3.8+", "Brainstorm", "Plan", "validation")
+
+def test_installation_lists_generic_publisher_on_windows_and_macos() -> None:
+    installation = (REPO_ROOT / "docs/installation.md").read_text(encoding="utf-8")
+    assert installation.count("cg-publish-markdown") >= 2
+    _assert_terms(installation, "Python 3.8+", "generic Markdown", "reference")
 
 
 def test_public_artifact_view_functions_have_complete_docstrings() -> None:

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md">
+<meta name="artifact-source-sha256" content="2ac3f4810c2e0c6583df11937d85571851aa11a5f63525b467d00c6a3b6baecd">
+<meta name="artifact-schema-version" content="1">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Generic Markdown and Reference Publishing Core · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":1,"generatedAt":"2026-08-03T21:20:50Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md","sourceSha256":"2ac3f4810c2e0c6583df11937d85571851aa11a5f63525b467d00c6a3b6baecd"}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Generic Markdown and Reference Publishing Core</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-08-02-generic-markdown-reference-publishing-core.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#1-separate-generic-parsing-from-strict-artifact-validation">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Secure Contracts And Generic Identity</li><li><strong>Phase 2</strong> · Reference Rendering And Generic Publication</li><li><strong>Phase 3</strong> · Launchers, Installation, And Context Boundaries</li><li><strong>Phase 4</strong> · Independent Core Release Gate</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1, 4, 8, 9</li><li><strong>R2</strong> → steps 1, 3, 4, 8, 9</li><li><strong>R3</strong> → steps 1, 4, 9</li><li><strong>R4</strong> → steps 1, 4, 5, 9</li><li><strong>R5</strong> → steps 3, 4, 9</li><li><strong>R6</strong> → steps 3, 6, 8, 9</li><li><strong>R7</strong> → steps 3, 6, 8, 9</li><li><strong>R8</strong> → steps 3, 6, 8, 9</li><li><strong>R9</strong> → steps 2, 5, 8, 9</li><li><strong>R10</strong> → steps 2, 6, 9</li><li><strong>R11</strong> → steps 4, 5, 9</li><li><strong>R12</strong> → steps 6, 7, 9</li><li><strong>R13</strong> → steps 7, 9</li><li><strong>R14</strong> → steps 8, 9</li><li><strong>R15</strong> → steps 8, 9</li><li><strong>R16</strong> → steps 2, 5, 7, 8, 9</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="17-17"><h1 id="plan-generic-markdown-and-reference-publishing-core">Plan: Generic Markdown and Reference Publishing Core</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="19-19"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="21-26"><p>Build an independently releasable generic Markdown publisher around the existing <code>reference</code> presentation while preserving strict Brainstorm and Plan validation. Define and prove source routing, destination ownership, bounded resource handling, reproducible provenance and mode behavior, and non-clobbering filesystem publication before adding a second theme or agent workflow surface.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="28-28"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="30-35"><p>This Plan replaces the core portion of the reviewed, oversized <code>.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md</code>. The review identified four blocking and eight important contract gaps. This replacement addresses the findings that belong to the generic publishing kernel; the dependent editorial, platform, and browser-evidence work moves to <code>.cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md</code>.</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="37-37"><p>The completed artifact-view implementation is intentionally strict:</p></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="39-46"><ul><li><code>ArtifactKind</code> supports only Brainstorm and Plan;</li><li><code>parse_artifact()</code> and <code>validate_source()</code> enforce their typed contracts;</li><li><code>resolve_artifact_paths()</code> and <code>write_view()</code> own the corresponding source and output namespaces;</li><li><code>render_document()</code> proves exact-once source ownership before producing self-contained HTML;</li><li>the current shell and CSS form the presentation that this Plan names <code>reference</code>.</li></ul></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="48-50"><p>Generic publishing must be additive. It must never accept canonical Brainstorms or Plans through a weaker path, claim schema validation for an arbitrary document, or publish a second generic view for a typed artifact.</p></div>
+<div class="source-block" id="render-owner-0018" data-source-block="block-0018" data-source-lines="52-58"><p>Two shared filesystem defects are controlling prerequisites. On POSIX, <code>secure_write_bytes()</code> verifies the destination and then calls <code>os.replace()</code>, so a target created at the final boundary can still be overwritten. The shared reader also performs an unbounded <code>read()</code>, so an image size check after the read does not protect memory. This Plan repairs those shared primitives and runs regressions for all existing callers before the generic publisher relies on them.</p></div>
+<div class="source-block source-heading" id="render-owner-0020" data-source-block="block-0020" data-source-lines="60-60"><h3 id="deterministic-mode-matrix">Deterministic Mode Matrix</h3></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="62-64"><p>The core registers only <code>reference</code> at theme contract version 1. The matrix is part of the executable contract and is extended, not reinterpreted, by the follow-up Plan:</p></div>
+<div class="source-block" id="render-owner-0024" data-source-block="block-0024" data-source-lines="66-81"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Mode</th><th scope="col">Explicit Theme</th><th scope="col">Existing Owned View</th><th scope="col">Resolution</th></tr></thead><tbody><tr><td>render</td><td>present</td><td>any</td><td>Validate the named theme; it wins.</td></tr><tr><td>render</td><td>absent</td><td>valid provenance v2</td><td>Reuse the recorded theme name and current registered contract version.</td></tr><tr><td>render</td><td>absent</td><td>missing or legacy provenance v1</td><td>Use the document-type default, <code>reference</code>.</td></tr><tr><td>render</td><td>absent</td><td>corrupt or differently owned output</td><td>Fail without replacing; report ownership recovery.</td></tr><tr><td><code>--automatic</code></td><td>present</td><td>any</td><td>Validate the explicit theme; if HTML is enabled, it wins.</td></tr><tr><td><code>--automatic</code></td><td>absent</td><td>valid provenance v2</td><td>Reuse the recorded theme when HTML is enabled.</td></tr><tr><td><code>--automatic</code></td><td>absent</td><td>missing or legacy provenance v1</td><td>Use <code>reference</code> when HTML is enabled.</td></tr><tr><td><code>--automatic</code> with HTML disabled</td><td>any</td><td>any</td><td>Validate source, paths, resources, and explicit theme if supplied; do not inspect or mutate output bytes.</td></tr><tr><td><code>--validate-only</code></td><td>present</td><td>any</td><td>Validate source, paths, resources, and the named theme; do not consult output.</td></tr><tr><td><code>--validate-only</code></td><td>absent</td><td>any</td><td>Validate against the document-type default; do not consult output.</td></tr><tr><td><code>--check</code></td><td>present</td><td>existing</td><td>Reproduce expected bytes with the named theme; report current only on exact match.</td></tr><tr><td><code>--check</code></td><td>absent</td><td>valid provenance v2</td><td>Reproduce expected bytes with the recorded theme name and current contract version.</td></tr><tr><td><code>--check</code></td><td>absent</td><td>missing or legacy provenance v1</td><td>Resolve the default path and <code>reference</code>; legacy output is stale.</td></tr><tr><td>any mutating mode</td><td>any</td><td>recorded unknown theme</td><td>Fail unless an explicit registered theme is supplied.</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="83-86"><p>Known theme names with an older recorded contract version are stale and are rerendered with the current version of the same name. Unknown names never fall back silently. Provenance schema 1 remains parseable only for ownership and migration; newly written views use provenance schema 2.</p></div>
+<div class="source-block source-heading" id="render-owner-0028" data-source-block="block-0028" data-source-lines="88-88"><h3 id="generic-path-and-ownership-contract">Generic Path And Ownership Contract</h3></div>
+<div class="source-block" id="render-owner-0030" data-source-block="block-0030" data-source-lines="90-110"><ul><li>A generic source is a regular <code>.md</code> file below the real project root.</li><li><code>.cg-docs/brainstorms/**</code>, <code>.cg-docs/plans/**</code>, <code>.cg-docs/views/**</code>, and the registered evidence-assets namespace are rejected, including case, link, reparse-point, and alias variants. Typed roots recover through <code>cg-render-artifact</code>.</li><li>The default output for <code>docs/a.md</code> is <code>.cg-docs/views/documents/docs/a.html</code>; the full project-relative source path prevents basename collisions.</li><li>Explicit output is optional and must be a portable relative <code>.html</code> path under <code>.cg-docs/views/documents/**</code>. Reject absolute paths, traversal, alternate data streams, trailing spaces/dots, reserved Windows device names, and typed namespaces.</li><li>Provenance schema 2 records normalized <code>outputPath</code>. An existing destination may be replaced only when valid provenance proves the same normalized source, document type, and output path, or when a legacy typed view is upgraded by its typed owner. Missing/corrupt provenance or a different source owner fails without replacement.</li><li>On case-insensitive filesystems, case-folded output identity controls ownership. On case-sensitive hosts, an existing case-distinct owner that would collide on Windows is rejected when detected. Sequential attempts to map two sources to one output always fail on the second source.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0032" data-source-block="block-0032" data-source-lines="112-112"><h3 id="generic-image-contract">Generic Image Contract</h3></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="114-129"><ul><li>Markdown image URIs are resolved relative to the source document directory, not the process working directory or project root.</li><li>Version 1 accepts a relative URL path only: no scheme, authority, query, fragment, backslash, control character, NUL, or encoded path separator. Percent-decode UTF-8 once, normalize <code>.</code> and <code>..</code> lexically, and require the result to remain under the real project root and outside excluded generated namespaces.</li><li>Alt text must be non-empty after Markdown whitespace normalization.</li><li>Allow only PNG, JPEG, GIF, and WebP. Verify suffix and magic bytes from the same pinned regular-file handle, reject links/reparse points and hard links, and enforce a documented byte limit before allocation.</li><li>Extend <code>secure_read_bytes()</code> with an optional bound or add an equivalent shared bounded API. Inspect handle metadata first, then read at most <code>max_bytes + 1</code>; reject oversize content before returning bytes.</li><li>Embed accepted bytes as deterministic data URIs. Reject SVG, remote, absolute, <code>file:</code>, user-supplied <code>data:</code>, malformed, missing, and MIME-mismatched images.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0036" data-source-block="block-0036" data-source-lines="131-131"><h3 id="dependency-graph">Dependency Graph</h3></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="133-148"><pre><code class="language-mermaid">flowchart TD
+    A[Strict artifact contracts] --&gt; B[Shared lexical primitives]
+    B --&gt; C[Generic document model]
+    D[Secure filesystem repair] --&gt; E[Bounded resources]
+    D --&gt; F[Non-replacing publication]
+    C --&gt; G[Shared semantic markup]
+    A --&gt; G
+    H[Reference theme registry] --&gt; G
+    G --&gt; I[Provenance v2 and mode matrix]
+    E --&gt; I
+    F --&gt; I
+    I --&gt; J[Generic CLI and launchers]
+    J --&gt; K[Context exclusions and documentation]
+    K --&gt; L[Independent core release gate]</code></pre></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="150-150"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="152-169"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Preserve canonical Markdown as authority and derived HTML as deterministic, regenerable presentation only.</td><td>Brainstorm: Requirements</td></tr><tr><td>R2</td><td>Keep strict Brainstorm and Plan schemas, parsing, validation, path ownership, and recovery intact; reject their roots from generic resolution.</td><td>Review P2.1; completed artifact-view contract</td></tr><tr><td>R3</td><td>Parse generic Markdown through a separate immutable, source-spanned model with complete lexical coverage and exact-once rendered ownership.</td><td>Brainstorm: Decision; roadmap feature</td></tr><tr><td>R4</td><td>Define a closed version 1 generic grammar for headings, paragraphs, lists, tables, fenced code, blockquotes, links, images, thematic breaks, and allowlisted callout markers; escape bounded unsupported input and fail on ambiguity.</td><td>Roadmap feature; review P2.7</td></tr><tr><td>R5</td><td>Extract the current visual system as stable <code>reference</code> theme contract version 1 without changing strict semantic output.</td><td>Brainstorm: Next Steps</td></tr><tr><td>R6</td><td>Implement provenance schema 2 with source, normalized output identity, document type, source hash, renderer version, theme name/version, and UTC generation time; parse legacy schema 1 only for deterministic migration.</td><td>Review P2.2 and P2.4</td></tr><tr><td>R7</td><td>Implement the documented render, automatic, validation-only, and check mode matrix with explicit override, recorded identity, default, legacy, corrupt, old-version, and unknown-theme behavior.</td><td>Review P2.4</td></tr><tr><td>R8</td><td>Accept only project-contained generic sources and portable registered document outputs; enforce one-source destination ownership and fail on collisions.</td><td>Review P2.1 and P2.2</td></tr><tr><td>R9</td><td>Resolve images source-relatively, normalize URIs explicitly, require non-empty alt text, securely bound reads before allocation, verify bitmap signatures, and embed accepted bytes offline.</td><td>Review P2.3</td></tr><tr><td>R10</td><td>Repair shared POSIX publication to use non-replacing final-syscall semantics and preserve concurrent winners and recovery artifacts on every supported platform.</td><td>Review P1.1; secure publication solution</td></tr><tr><td>R11</td><td>Treat source as untrusted data, escape raw HTML, allow only safe navigation links, enforce restrictive CSP, and prohibit executable or remote runtime resources.</td><td>Roadmap feature</td></tr><tr><td>R12</td><td>Provide <code>cg-render-markdown</code> with render, <code>--automatic</code>, <code>--validate-only</code>, <code>--check</code>, optional constrained <code>--output</code>, and <code>--theme reference</code>, while retaining <code>cg-render-artifact</code> for typed sources.</td><td>Roadmap feature</td></tr><tr><td>R13</td><td>Install thin bash and CMD launchers with Python-version, Windows Store stub, argument, and exit-code parity.</td><td>Repository launcher contract</td></tr><tr><td>R14</td><td>Keep generated view bodies out of Brain, context, review, commit/PR, release, summaries, and duplicate-content inputs; edit existing infrastructure only when a focused test proves a gap.</td><td>Brainstorm: Requirements; review P3.1</td></tr><tr><td>R15</td><td>Document strict versus generic validation, paths, ownership, resources, provenance, mode behavior, failures, and the boundary before the dependent editorial Plan.</td><td>Brainstorm: Requirements</td></tr><tr><td>R16</td><td>Keep runtime dependency-free, model-free, network-free, browser-free, and Open Design free.</td><td>Brainstorm: Requirements</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0044" data-source-block="block-0044" data-source-lines="171-171"><h2 id="phase-1-secure-contracts-and-generic-identity">Phase 1: Secure Contracts And Generic Identity</h2></div>
+<div class="source-block source-heading" id="render-owner-0046" data-source-block="block-0046" data-source-lines="173-173"><h3 id="1-separate-generic-parsing-from-strict-artifact-validation">1. Separate generic parsing from strict artifact validation</h3></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="175-204"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 175–204</figcaption><pre><code>- **Requirements**: R1, R2, R3, R4
+- **Files**:
+  - `scripts/artifact_views/generic_model.py` (new)
+  - `scripts/artifact_views/generic_parser.py` (new)
+  - `scripts/artifact_views/parser.py`
+  - `scripts/artifact_views/model.py`
+  - `scripts/artifact_views/schema.py`
+  - `scripts/artifact_views/tests/test_generic_parser.py` (new)
+  - `scripts/artifact_views/tests/fixtures/generic/` (new)
+- **Details**:
+  - Extract only fence-aware lexical primitives that can retain existing strict
+    behavior. Keep `parse_artifact()` and `validate_source()` as the sole typed
+    Brainstorm/Plan path.
+  - Add a generic identity, frontmatter-tolerant document model, stable block
+    IDs, line and byte spans, and a complete lexical ledger.
+  - Resolve title from frontmatter, first level-one heading, then filename.
+  - Define exact source markers for callouts, including `NOTE`, `TIP`,
+    `IMPORTANT`, `WARNING`, `CAUTION`, `DECISION`, `PROS`, and `CONS`. Markers
+    create source-backed semantic callout nodes; no prose inference is allowed.
+    Timeline and diagram semantics are not part of version 1.
+  - Escape structurally bounded unsupported syntax as visible raw source. Reject
+    unclosed fences, malformed tables, overlapping ranges, and ambiguous
+    ownership with source-spanned recovery guidance.
+- **Test Scenarios**: strict regression; generic source with/without
+  frontmatter; title fallbacks; UTF-8 and CRLF; nested and long documents;
+  escaped table pipes; every callout marker; raw HTML; unclosed fence; malformed
+  table; duplicate and missing ownership; typed-root recovery.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_parser.py scripts/artifact_views/tests/test_validator.py scripts/artifact_views/tests/test_model.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_generic_parser.py`
+- **Acceptance criteria**: generic input has a complete independent source
+  ledger, and no generic code path can claim or weaken typed validation.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0050" data-source-block="block-0050" data-source-lines="206-206"><h3 id="2-repair-shared-non-clobbering-publication-and-bounded-reads">2. Repair shared non-clobbering publication and bounded reads</h3></div>
+<div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="208-241"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 208–241</figcaption><pre><code>- **Requirements**: R9, R10, R16
+- **Files**:
+  - `scripts/secure_fs.py`
+  - `scripts/tests/test_secure_fs.py` (new or existing shared tests extended)
+  - `scripts/artifact_views/tests/test_writer.py`
+  - existing generated-target secure-write tests
+- **Details**:
+  - Replace POSIX final `os.replace()` publication with a portable no-replace
+    protocol through the pinned parent descriptor. Quarantine a verified
+    existing destination to a unique sibling, then publish the private
+    temporary file with a non-replacing same-directory hard link followed by
+    unlink of the temporary name. An `EEXIST` preserves the concurrent file and
+    prior quarantine and fails loudly.
+  - Keep Windows handle-relative `replace=False` publication and align recovery
+    reporting across backends.
+  - Restore quarantine only with non-replacing semantics. If the original name
+    is occupied, preserve both the concurrent winner and quarantine and report
+    the recovery name.
+  - Preserve process umask for new files and established mode for replacements.
+    Do not add path-based cleanup after handle-relative mutation.
+  - Extend secure reads with an optional byte bound. Inspect the pinned handle&#x27;s
+    regular-file type, link count, and size before allocation; read no more than
+    the bound plus one byte and reject growth beyond the limit.
+  - Re-run all shared callers because this is a kernel-level behavior change,
+    not an artifact-view-only helper.
+- **Test Scenarios**: no existing target; normal replacement; concurrent target
+  before final publish on POSIX and Windows; occupied rollback; prior bytes in
+  quarantine; temp cleanup; restrictive umask; mode preservation; oversized
+  initial file; file growth during bounded read; symlink/reparse/hard-link
+  source; generated-target caller regression.
+- **Tests**: `pytest -q scripts/tests/test_secure_fs.py scripts/artifact_views/tests/test_writer.py scripts/tests/test_target_path_safety.py scripts/tests/test_target_determinism.py`
+- **Acceptance criteria**: every final publication and rollback is
+  non-replacing, every competing byte owner is preserved, and bounded reads
+  reject oversized content before returning it.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0054" data-source-block="block-0054" data-source-lines="243-243"><h3 id="3-define-portable-paths-destination-ownership-provenance-v2-and-modes">3. Define portable paths, destination ownership, provenance v2, and modes</h3></div>
+<div class="source-block" id="render-owner-0056" data-source-block="block-0056" data-source-lines="245-278"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 245–278</figcaption><pre><code>- **Requirements**: R2, R5, R6, R7, R8
+- **Files**:
+  - `scripts/artifact_views/themes/__init__.py` (new)
+  - `scripts/artifact_views/themes/contract.py` (new)
+  - `scripts/artifact_views/themes/reference.py` (new)
+  - `scripts/artifact_views/paths.py`
+  - `scripts/artifact_views/provenance.py`
+  - `scripts/artifact_views/publishing.py` (new)
+  - `scripts/artifact_views/tests/test_themes.py` (new)
+  - `scripts/artifact_views/tests/test_paths.py`
+  - `scripts/artifact_views/tests/test_publishing_paths.py` (new)
+  - `scripts/artifact_views/tests/test_provenance.py`
+- **Details**:
+  - Register only `reference` version 1 and defaults for Brainstorm, Plan, and
+    generic document. Theme is a rendering input, not canonical source data.
+  - Implement generic source rejection and default/explicit output mapping from
+    the Path and Ownership Contract above. Normalize a portable output identity
+    and protect typed namespaces.
+  - Add provenance schema 2 with exact keys and types, including `outputPath`,
+    `documentType`, `themeName`, and `themeContractVersion`. Reject duplicates,
+    malformed hashes/timestamps, unknown schema versions, and output mismatch.
+  - Preserve a separate strict parser for schema 1 provenance. It may prove a
+    typed source owner and default `reference` migration but is always stale
+    relative to schema 2.
+  - Implement the full mode matrix as table-driven resolution with no hidden
+    project theme config or subjective agent choice.
+- **Test Scenarios**: root and nested Markdown; typed roots; views/evidence
+  recursion; links/reparse points; portable explicit names; Windows reserved
+  names and trailing dots/spaces; same/different owner; case behavior;
+  provenance v1/v2/unknown; duplicate keys; output mismatch; every matrix row;
+  unknown/old theme version.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_publishing_paths.py scripts/artifact_views/tests/test_provenance.py`
+- **Acceptance criteria**: source, output owner, theme identity, and behavior for
+  every CLI mode are deterministic before rendering code can mutate a file.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0058" data-source-block="block-0058" data-source-lines="280-280"><h2 id="phase-2-reference-rendering-and-generic-publication">Phase 2: Reference Rendering And Generic Publication</h2></div>
+<div class="source-block source-heading" id="render-owner-0060" data-source-block="block-0060" data-source-lines="282-282"><h3 id="4-extract-one-shared-semantic-renderer-and-the-reference-theme">4. Extract one shared semantic renderer and the reference theme</h3></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="284-313"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 284–313</figcaption><pre><code>- **Requirements**: R1, R2, R3, R4, R5, R11
+- **Files**:
+  - `scripts/artifact_views/templates.py`
+  - `scripts/artifact_views/renderer.py`
+  - `scripts/artifact_views/generic_renderer.py` (new)
+  - `scripts/artifact_views/themes/reference.py` (new)
+  - `scripts/artifact_views/themes/components.py` (new)
+  - `scripts/artifact_views/tests/test_renderer.py`
+  - `scripts/artifact_views/tests/test_generic_renderer.py` (new)
+  - `scripts/artifact_views/tests/test_design_contract.py`
+  - `scripts/artifact_views/tests/test_accessibility.py`
+- **Details**:
+  - Move the current design tokens and stylesheet unchanged into `reference`
+    version 1 and freeze its contract snapshot.
+  - Build one trusted semantic page shell for headings, landmarks, source
+    ownership wrappers, navigation, lists, tables, code, callouts, images, and
+    provenance. Strict derived maps remain source-derived and type-specific;
+    generic documents receive heading navigation only.
+  - Render supported generic blocks through shared escaping and source owners.
+    Unsupported raw source remains visible and escaped.
+  - Add theme and provenance schema identities to metadata and body attributes
+    without adding executable scripts beyond the JSON provenance element.
+  - Prove strict Brainstorm/Plan semantic snapshots and exact-once coverage do
+    not regress.
+- **Test Scenarios**: strict Brainstorm and phased/non-phased Plan; generic long
+  document; every callout; tables and code; raw HTML; duplicate IDs; navigation;
+  reference token snapshot; print and reduced-motion guards.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_validator.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_generic_renderer.py scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_accessibility.py`
+- **Acceptance criteria**: strict and generic documents share trusted semantic
+  rendering while retaining their distinct validation authorities.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0064" data-source-block="block-0064" data-source-lines="315-315"><h3 id="5-implement-safe-links-bounded-images-csp-and-final-html-validation">5. Implement safe links, bounded images, CSP, and final HTML validation</h3></div>
+<div class="source-block" id="render-owner-0066" data-source-block="block-0066" data-source-lines="317-345"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 317–345</figcaption><pre><code>- **Requirements**: R4, R9, R11, R16
+- **Files**:
+  - `scripts/artifact_views/security.py`
+  - `scripts/artifact_views/generic_renderer.py` (new)
+  - `scripts/artifact_views/publishing.py` (new)
+  - `scripts/artifact_views/tests/test_security.py`
+  - `scripts/artifact_views/tests/test_publishing_security.py` (new)
+  - `scripts/artifact_views/tests/fixtures/generic/` (new)
+- **Details**:
+  - Preserve safe user-initiated relative, fragment, HTTP(S), and mailto links;
+    never fetch them.
+  - Implement the Generic Image Contract exactly. Use the bounded shared read
+    on the normalized source-relative identity and validate bytes from that
+    handle before data-URI encoding.
+  - Extend final structural validation to permit only renderer-generated `img`
+    nodes with allowlisted data MIME types, alt text, and no event, style,
+    source-set, or remote resource attributes.
+  - Escape raw HTML and prompt-like text as source data. Keep the restrictive
+    offline CSP and forbid executable scripts, forms, frames, objects, base
+    elements, refresh, and runtime network attributes.
+- **Test Scenarios**: safe/unsafe links; every allowed bitmap; percent-encoded
+  spaces; encoded separators; `..` inside/outside root; query/fragment; empty
+  alt; suffix/signature mismatch; oversize/growing file; symlink/reparse/hard
+  link; SVG/polyglot/script payload; raw HTML; duplicate generated IDs; offline
+  final HTML.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_publishing_security.py scripts/artifact_views/tests/test_generic_renderer.py`
+- **Acceptance criteria**: accepted documents are complete offline artifacts,
+  and no source-controlled content can become an executable or unbounded
+  runtime resource.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0068" data-source-block="block-0068" data-source-lines="347-347"><h3 id="6-publish-and-freshness-check-strict-and-generic-views">6. Publish and freshness-check strict and generic views</h3></div>
+<div class="source-block" id="render-owner-0070" data-source-block="block-0070" data-source-lines="349-381"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 349–381</figcaption><pre><code>- **Requirements**: R6, R7, R8, R10, R12
+- **Files**:
+  - `scripts/artifact_views/writer.py`
+  - `scripts/artifact_views/cli.py`
+  - `scripts/artifact_views/publishing_cli.py` (new)
+  - `scripts/render_markdown.py` (new)
+  - `scripts/artifact_views/tests/test_cli.py`
+  - `scripts/artifact_views/tests/test_publishing_cli.py` (new)
+  - `scripts/artifact_views/tests/test_integration.py`
+  - `scripts/artifact_views/tests/test_publishing_integration.py` (new)
+- **Details**:
+  - Replace hard-coded writer prefix strings with typed registered
+    destinations; retain strict namespace ownership.
+  - Add `--theme reference` to the strict CLI and implement recorded/default
+    resolution for its existing automatic and check modes.
+  - Add the one-file generic CLI with render, automatic, validation-only,
+    check, theme, and constrained output modes.
+  - Before mutation, securely inspect any existing output provenance and prove
+    ownership. Never replace corrupt, unowned, or differently owned output.
+  - Compute freshness from exact expected bytes using source, normalized output,
+    document type, provenance schema, renderer, theme name/version, and
+    generation identity rules. Preserve a prior valid view on every failure.
+  - Emit concise success/check output and exact source, expected view/state,
+    ownership error, and reproducible recovery command on failure.
+- **Test Scenarios**: every mode-matrix row; strict and generic default;
+  explicit output; same/different owner; legacy migration; tampered/corrupt
+  view; source/theme/output drift; HTML-disabled automatic mode; parser,
+  resource, renderer, security, and writer failure; concurrent publish and
+  rollback collision.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_publishing_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py scripts/artifact_views/tests/test_writer.py`
+- **Acceptance criteria**: rendering and checking are reproducible, ownership
+  is enforced before mutation, and failures preserve every authoritative or
+  concurrently created byte owner.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0072" data-source-block="block-0072" data-source-lines="383-383"><h2 id="phase-3-launchers-installation-and-context-boundaries">Phase 3: Launchers, Installation, And Context Boundaries</h2></div>
+<div class="source-block source-heading" id="render-owner-0074" data-source-block="block-0074" data-source-lines="385-385"><h3 id="7-add-cross-platform-launchers-and-installation">7. Add cross-platform launchers and installation</h3></div>
+<div class="source-block" id="render-owner-0076" data-source-block="block-0076" data-source-lines="387-417"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 387–417</figcaption><pre><code>- **Requirements**: R12, R13, R16
+- **Files**:
+  - `bin/cg-render-markdown` (new)
+  - `bin/cg-render-markdown.cmd` (new)
+  - `install.ps1`
+  - `scripts/install.sh`
+  - link/update scripts only if focused installed-layout tests prove a gap
+  - `tests/bash-scripts.Tests.ps1`
+  - `tests/install.Tests.ps1`
+  - `scripts/artifact_views/tests/test_publishing_integration.py`
+- **Details**:
+  - Add thin self-relative bash and CMD wrappers that forward all arguments and
+    process status to `scripts/render_markdown.py`.
+  - Apply the mandatory CMD `where` pre-check, candidate version verification,
+    and Windows Store stub rejection to `python3`, `python`, and `py`.
+  - Install the new wrapper and required runtime package files idempotently.
+    Preserve same-source/destination no-op behavior.
+  - Treat link/update files as conditional. Run installed-layout tests first
+    and edit only where auto-discovery or existing directory linking does not
+    carry the new module.
+- **Test Scenarios**: each Python candidate; no Python; Store stub; spaces in
+  paths; forwarded arguments/status; fresh/repeated/self install; missing
+  wrapper; installed explicit render and check.
+- **Tests**: focused Python integration tests; `execution_subagent` runs
+  `. tests\Run-Tests.ps1 -File @(&#x27;install&#x27;,&#x27;bash-scripts&#x27;)`, then requires
+  `passed: true`, `failedCount: 0`, `filteredFiles` exactly
+  `[&#x27;install&#x27;,&#x27;bash-scripts&#x27;]`, and passing per-file records in
+  `tests/last-run.json`.
+- **Acceptance criteria**: repository-local and installed generic commands have
+  equivalent behavior on supported shells, with a durable exact filtered-test
+  record.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0078" data-source-block="block-0078" data-source-lines="419-419"><h3 id="8-verify-context-exclusions-and-document-the-core">8. Verify context exclusions and document the core</h3></div>
+<div class="source-block" id="render-owner-0080" data-source-block="block-0080" data-source-lines="421-457"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 421–457</figcaption><pre><code>- **Requirements**: R1, R2, R6, R7, R8, R9, R14, R15, R16
+- **Files**:
+  - `.github/shared/artifact-view.contract.md`
+  - `scripts/brain/scanner.py`, `scripts/cg_audit_context.py`,
+    `scripts/cg_summary.py`, review/commit/release surfaces only if sentinel
+    tests prove the existing `.cg-docs/views/**` exclusion is incomplete
+  - `README.md`
+  - `docs/configuration/index.md`
+  - `docs/development/index.md`
+  - `docs/installation.md`
+  - `docs/reference.md`
+  - `docs/reference/commands.md`
+  - `docs/workflow.md`
+  - `docs/context-files.md`
+  - `docs/troubleshooting.md`
+  - documentation and context-exclusion tests
+- **Details**:
+  - Generalize the shared contract while preserving the distinction between
+    typed schema validation and generic publishing validation.
+  - Add generic-view sentinels under `.cg-docs/views/documents/**` to Brain,
+    context-audit, summary, review, commit/PR, release, and duplicate-content
+    tests. Reuse existing prefix exclusions when they pass; do not churn
+    prompts or scanners without a failing focused test.
+  - Document authority, grammar, callout markers, source/output rules,
+    ownership, image normalization and limits, provenance schemas, the full
+    mode matrix, commands, failures, recovery, installation, and runtime
+    independence.
+  - State that this core ships only `reference`; the blocked follow-up Plan adds
+    `editorial`, `/cg-render-doc`, platform target generation, and browser
+    evidence.
+- **Test Scenarios**: no generic-view body or diff enters any model surface;
+  path/hash/freshness metadata remains usable; command examples match parser
+  help; docs links resolve; no premature editorial or completion-report claim.
+- **Tests**: `node scripts/check-docs-site.js`; `pytest -q scripts/tests/test_target_documentation.py scripts/tests/test_audit_context.py scripts/tests/test_cg_summary.py scripts/artifact_views/tests/test_integration.py`
+- **Acceptance criteria**: the core is understandable and safely reviewable
+  without expanding generated HTML into model context or claiming follow-up
+  functionality.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0082" data-source-block="block-0082" data-source-lines="459-459"><h2 id="phase-4-independent-core-release-gate">Phase 4: Independent Core Release Gate</h2></div>
+<div class="source-block source-heading" id="render-owner-0084" data-source-block="block-0084" data-source-lines="461-461"><h3 id="9-run-focused-and-full-core-verification">9. Run focused and full core verification</h3></div>
+<div class="source-block" id="render-owner-0086" data-source-block="block-0086" data-source-lines="463-488"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 463–488</figcaption><pre><code>- **Requirements**: R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R16
+- **Files**:
+  - all files touched by this Plan
+  - `tests/last-run.json` (generated result)
+- **Details**:
+  - Run the focused parser, secure filesystem, path, provenance, renderer,
+    resource, CLI, integration, launcher, installer, context, and documentation
+    checks from prior steps.
+  - Run all Python tests with repository configuration and require no failures.
+  - Run the complete Pester suite only through `execution_subagent` and the
+    canonical runner. Require `passed: true`, `failedCount: 0`, and
+    `filteredFiles: null`.
+  - Check VS Code diagnostics for touched code and validate the saved Plan view
+    is current.
+  - Review the diff for editorial assets, agent prompts/skills, browser packages,
+    completion-report code, broad infrastructure churn without a failing test,
+    and generated HTML body leakage.
+- **Test Scenarios**: focused failure; shared-caller regression; filtered final
+  Pester result; diagnostics error; stale Plan view; out-of-scope dependency or
+  file.
+- **Tests**: `pytest -q`; `node scripts/check-docs-site.js`;
+  `execution_subagent` run of `. tests\Run-Tests.ps1`; VS Code diagnostics;
+  `cg-render-artifact --check .cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md`.
+- **Acceptance criteria**: all unfiltered required gates pass, the generic
+  `reference` core is independently releasable, and the follow-up Plan can rely
+  on frozen path, provenance, mode, semantic, and filesystem contracts.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0088" data-source-block="block-0088" data-source-lines="490-490"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0090" data-source-block="block-0090" data-source-lines="492-505"><ul><li>Preserve strict artifact behavior through existing contract, parser, validator, coverage, renderer, and integration regressions.</li><li>Test generic parsing and source ownership independently from typed schemas.</li><li>Treat shared secure filesystem changes as kernel work: exercise POSIX and Windows final boundaries, rollback, umask, bounded reads, and all existing generated-target callers.</li><li>Drive path, provenance, ownership, and mode behavior from explicit tables, including legacy, unknown, corrupt, and collision states.</li><li>Test image normalization and bytes from the same pinned handle with no unbounded pre-read.</li><li>Test CLI behavior at source, installed, and shell-wrapper boundaries.</li><li>Use sentinel content to prove generated view bodies remain excluded while path-level metadata remains available.</li><li>Run the full Python and canonical Pester gates only after focused checks pass.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0092" data-source-block="block-0092" data-source-lines="507-507"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0094" data-source-block="block-0094" data-source-lines="509-519"><ul><li><input type="checkbox" disabled> Explain typed versus generic validation authority.</li><li><input type="checkbox" disabled> Document version 1 generic grammar and exact callout markers.</li><li><input type="checkbox" disabled> Document source rejection and default/explicit output mapping.</li><li><input type="checkbox" disabled> Document one-source output ownership and portable filename rules.</li><li><input type="checkbox" disabled> Document provenance schema 2 and legacy schema 1 migration.</li><li><input type="checkbox" disabled> Publish the complete CLI mode matrix.</li><li><input type="checkbox" disabled> Document source-relative image normalization, formats, alt text, and size limit.</li><li><input type="checkbox" disabled> Document non-clobbering publication and recovery artifacts.</li><li><input type="checkbox" disabled> Document <code>cg-render-markdown</code> and installed launchers.</li><li><input type="checkbox" disabled> Document context exclusions and runtime independence.</li><li><input type="checkbox" disabled> State that <code>editorial</code>, <code>/cg-render-doc</code>, browser evidence, and completion dossiers remain follow-up work.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0096" data-source-block="block-0096" data-source-lines="521-521"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0098" data-source-block="block-0098" data-source-lines="523-532"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Risk</th><th scope="col">Impact</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>Shared POSIX publication changes regress generated targets.</td><td>Repository generators could preserve stale recovery files or fail publication.</td><td>Specify one no-replace protocol, run all shared path-safety/determinism tests, and block on any caller regression.</td></tr><tr><td>Hard-link publication behaves differently across filesystems.</td><td>A supported host could lack required semantics.</td><td>Keep temp and target in one pinned directory; probe required operations; fail closed on unsupported hosts rather than falling back to replacement.</td></tr><tr><td>Generic parsing weakens typed validation.</td><td>Malformed Plans could appear valid.</td><td>Separate models and entry points; reject typed roots in resolver and CLI; retain strict preflight tests.</td></tr><tr><td>Output identity is ambiguous across platforms.</td><td>One source could overwrite another or fail after migration.</td><td>Record normalized output path, enforce portable names, compare valid owner provenance, and fail on case/reserved-name collisions.</td></tr><tr><td>Bare rerenders unexpectedly switch themes.</td><td>Presentation would not be reproducible.</td><td>Implement the explicit mode matrix and reuse recorded known theme identity for owned outputs.</td></tr><tr><td>Image limits are checked after allocation.</td><td>Oversized files could exhaust memory.</td><td>Bound reads through the pinned handle before returning bytes and test growth races.</td></tr><tr><td>Raw HTML or image payloads become executable.</td><td>Standalone views could run attacker-controlled content.</td><td>Escape HTML, reject SVG and remote/user data URIs, verify bitmap signatures, and structurally validate final HTML and CSP.</td></tr><tr><td>Infrastructure files are edited speculatively.</td><td>Scope and generated drift increase without value.</td><td>Use focused sentinel/install tests first and edit auto-discovery or exclusion code only on demonstrated failure.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0100" data-source-block="block-0100" data-source-lines="534-534"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0102" data-source-block="block-0102" data-source-lines="536-544"><ul><li><code>editorial</code> theme implementation or theme-specific browser evidence.</li><li><code>/cg-render-doc</code> prompt and <code>cg-skill-markdown-publishing</code>.</li><li>Generated Claude Code, Codex, or OpenCode publishing targets.</li><li>Node, Playwright, axe-core, screenshots, or print evidence.</li><li>Completion-report schema, synthesis, correction, or <code>/cg-compound</code> integration.</li><li>Historical bulk conversion, directory publishing, or output outside <code>.cg-docs/views/**</code>.</li><li>Hosted publishing, product PDF generation, live editing, arbitrary plugins, executable source HTML/SVG/JavaScript, or documentation-site restyling.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0104" data-source-block="block-0104" data-source-lines="546-546"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0106" data-source-block="block-0106" data-source-lines="548-548"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0108" data-source-block="block-0108" data-source-lines="550-554"><p>Compound GPID can publish project-contained generic Markdown through a secure, deterministic <code>reference</code> renderer without weakening strict Brainstorm/Plan validation. Source routing, output ownership, bounded resource reads, theme/provenance identity, mode behavior, freshness, and non-clobbering publication are executable contracts.</p></div>
+<div class="source-block source-heading" id="render-owner-0110" data-source-block="block-0110" data-source-lines="556-556"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0112" data-source-block="block-0112" data-source-lines="558-568"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Strict schemas remain unchanged; generic parsing and exact source ownership pass.</td><td><code>pytest -q scripts/artifact_views/tests/test_contract.py scripts/artifact_views/tests/test_parser.py scripts/artifact_views/tests/test_validator.py scripts/artifact_views/tests/test_model.py scripts/artifact_views/tests/test_coverage.py scripts/artifact_views/tests/test_generic_parser.py</code></td><td>yes</td></tr><tr><td>V2</td><td>1</td><td>POSIX and Windows publication never replace concurrent bytes; bounded secure reads reject oversized or aliased resources.</td><td><code>pytest -q scripts/tests/test_secure_fs.py scripts/artifact_views/tests/test_writer.py scripts/artifact_views/tests/test_publishing_security.py scripts/tests/test_target_path_safety.py scripts/tests/test_target_determinism.py</code></td><td>yes</td></tr><tr><td>V3</td><td>2</td><td>Typed roots are rejected by the generic CLI; output ownership, provenance v2, and every render/check/automatic/validate mode follow the documented matrix.</td><td><code>pytest -q scripts/artifact_views/tests/test_paths.py scripts/artifact_views/tests/test_publishing_paths.py scripts/artifact_views/tests/test_provenance.py scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_publishing_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py</code></td><td>yes</td></tr><tr><td>V4</td><td>2</td><td><code>reference</code> preserves strict semantic output and safely renders generic links, images, callouts, tables, code, and raw source.</td><td><code>pytest -q scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_generic_renderer.py scripts/artifact_views/tests/test_security.py scripts/artifact_views/tests/test_publishing_security.py scripts/artifact_views/tests/test_accessibility.py scripts/artifact_views/tests/test_design_contract.py</code></td><td>yes</td></tr><tr><td>V5</td><td>3</td><td><code>cg-render-markdown</code> launchers and installers work on supported shells.</td><td><code>execution_subagent</code>: run <code>. tests\Run-Tests.ps1 -File @(&#x27;install&#x27;,&#x27;bash-scripts&#x27;)</code>; require <code>passed: true</code>, <code>failedCount: 0</code>, exact <code>filteredFiles</code>, and passing file records in <code>tests/last-run.json</code>.</td><td>yes</td></tr><tr><td>V6</td><td>3</td><td>Documentation and context exclusions are consistent.</td><td><code>node scripts/check-docs-site.js</code> and <code>pytest -q scripts/tests/test_target_documentation.py scripts/tests/test_audit_context.py scripts/tests/test_cg_summary.py</code></td><td>yes</td></tr><tr><td>V7</td><td>final</td><td>All Python regressions pass.</td><td><code>pytest -q</code></td><td>yes</td></tr><tr><td>V8</td><td>final</td><td>Full unfiltered Pester passes safely.</td><td><code>execution_subagent</code>: run <code>. tests\Run-Tests.ps1</code>; require <code>passed: true</code>, <code>failedCount: 0</code>, and <code>filteredFiles: null</code>.</td><td>yes</td></tr><tr><td>V9</td><td>final</td><td>Diagnostics are clear and the replacement Plan view is current.</td><td>VS Code diagnostics and <code>cg-render-artifact --check .cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md</code></td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0114" data-source-block="block-0114" data-source-lines="570-570"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0116" data-source-block="block-0116" data-source-lines="572-578"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>1</td><td>Generic publishing cannot accept typed Brainstorm/Plan roots or claim strict validation.</td><td>Direct resolver and CLI rejection tests with strict recovery commands.</td></tr><tr><td>C2</td><td>2</td><td>The current <code>reference</code> semantic contract and exact source ownership cannot regress.</td><td>Existing strict contract, validator, coverage, and semantic snapshots.</td></tr><tr><td>C3</td><td>1</td><td>Every destination has one recorded source owner and stays under a registered <code>.cg-docs/views/**</code> namespace.</td><td>Output-path provenance, collision, case, reserved-name, and containment tests.</td></tr><tr><td>C4</td><td>1</td><td>Publication uses no-replace primitives; collisions preserve current or quarantined bytes and fail loudly.</td><td>Final-boundary race tests on POSIX and Windows; unsupported hosts fail closed.</td></tr><tr><td>C5</td><td>final</td><td>Runtime remains dependency-free, model-free, network-free, browser-free, and Open Design free.</td><td>Static dependency and offline tests.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0118" data-source-block="block-0118" data-source-lines="580-580"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0120" data-source-block="block-0120" data-source-lines="582-588"><ul><li>Allowed: generic model/parser, <code>reference</code> registry extraction, provenance schema 2, exact mode matrix, typed-root rejection, destination ownership, bounded local bitmap reads, shared secure publication repair, generic CLI, launchers/installers, context exclusions, tests, and core documentation.</li><li>Out of scope: <code>editorial</code>, <code>/cg-render-doc</code>, agent-platform targets, browser evidence tooling, completion-report synthesis, PDF output, hosted publishing, arbitrary output roots, and documentation-site restyling.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0122" data-source-block="block-0122" data-source-lines="590-590"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0124" data-source-block="block-0124" data-source-lines="592-600"><ol><li>Repair and validate shared secure filesystem primitives before using them in the publisher.</li><li>Preserve strict artifact behavior before adding generic paths.</li><li>Define path ownership, provenance, and the mode matrix before CLI rendering.</li><li>Keep all generic output under registered view namespaces and reject ambiguous ownership.</li><li>Run focused executable tests after each phase and stop on strict or security regressions.</li><li>Ship this core independently before the dependent editorial Plan begins.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0126" data-source-block="block-0126" data-source-lines="602-602"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0128" data-source-block="block-0128" data-source-lines="604-609"><ul><li>POSIX or Windows non-clobbering publication cannot be proven.</li><li>Generic routing can bypass strict artifact validation.</li><li>Output ownership or mode/theme reproduction remains ambiguous.</li><li>Resource size is checked only after an unbounded allocation.</li><li>A required deviation arises under <code>ask</code> and approval is unavailable.</li><li>Any required focused or final evidence remains failed.</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md</dd>
+      <dt>Source SHA-256</dt><dd><code>2ac3f4810c2e0c6583df11937d85571851aa11a5f63525b467d00c6a3b6baecd</code></dd>
+      <dt>Artifact schema</dt><dd>1</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-03T21:20:50Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

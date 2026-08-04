@@ -289,6 +289,17 @@ fi
 chmod +x "$BIN_DIR/cg-render-artifact"
 print_gray "Registered: $BIN_DIR/cg-render-artifact"
 
+# cg-publish-markdown is committed as the installer source of truth.
+CG_PUBLISH_MARKDOWN_SRC="$COMPOUND_GPID_DIR/bin/cg-publish-markdown"
+CG_PUBLISH_MARKDOWN_DST="$BIN_DIR/cg-publish-markdown"
+if [[ "$CG_PUBLISH_MARKDOWN_SRC" != "$CG_PUBLISH_MARKDOWN_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-publish-markdown" "$BIN_DIR/cg-publish-markdown"
+else
+    print_gray "Already present: $CG_PUBLISH_MARKDOWN_DST"
+fi
+chmod +x "$BIN_DIR/cg-publish-markdown"
+print_gray "Registered: $BIN_DIR/cg-publish-markdown"
+
 # cg-token-audit calls the context/model-governance audit directly.
 WRAPPER="$BIN_DIR/cg-token-audit"
 cat > "$WRAPPER" <<'EOF'
@@ -433,6 +444,7 @@ printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
+printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'
 printf '\n'
 printf 'To uninstall: bash "%s/scripts/install.sh" --uninstall\n' "$COMPOUND_GPID_DIR"

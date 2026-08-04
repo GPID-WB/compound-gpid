@@ -1,12 +1,16 @@
 """Tests for one-file artifact render, validation, and stale-check CLI modes."""
 from __future__ import annotations
 
+# pylint: disable=import-error
+
+from datetime import datetime, timezone
 from pathlib import Path
 import shutil
 
 import pytest
 
 from artifact_views import cli
+from artifact_views.provenance import ArtifactProvenance
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SOURCE_RELATIVE = Path(".cg-docs/plans/example.md")
@@ -59,6 +63,57 @@ def test_explicit_render_writes_one_view_and_prints_only_path(
     assert (root / VIEW_RELATIVE).read_text(encoding="utf-8").startswith(
         "<!doctype html>\n"
     )
+    assert '"provenanceSchemaVersion":2' in (root / VIEW_RELATIVE).read_text(
+        encoding="utf-8"
+    )
+
+
+def test_strict_cli_accepts_reference_theme_and_rejects_unknown(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    root = _project(tmp_path)
+
+    assert _run(
+        root,
+        ["--theme", "reference", str(SOURCE_RELATIVE)],
+        capsys,
+    )[0] == 0
+    result, _, stderr = _run(
+        root,
+        ["--validate-only", "--theme", "unknown", str(SOURCE_RELATIVE)],
+        capsys,
+    )
+    assert result == 2
+    assert "unknown theme" in stderr.lower()
+
+
+def test_strict_schema_1_view_is_stale_then_migrates_to_schema_2(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    root = _project(tmp_path)
+    source = root / SOURCE_RELATIVE
+    view = root / VIEW_RELATIVE
+    view.parent.mkdir(parents=True)
+    legacy = ArtifactProvenance.from_source(
+        source_path=SOURCE_RELATIVE,
+        source_bytes=source.read_bytes(),
+        artifact_schema_version=1,
+        renderer_version="0.1.0",
+        generated_at=datetime(2026, 7, 31, tzinfo=timezone.utc),
+    )
+    view.write_text(
+        '<script id="artifact-provenance" type="application/json">'
+        f"{legacy.to_json()}</script>",
+        encoding="utf-8",
+    )
+
+    result, stdout, _ = _run(root, ["--check", str(SOURCE_RELATIVE)], capsys)
+    assert result == 1
+    assert stdout == f"stale {VIEW_RELATIVE.as_posix()}\n"
+    assert _run(root, [str(SOURCE_RELATIVE)], capsys)[0] == 0
+    assert '"provenanceSchemaVersion":2' in view.read_text(encoding="utf-8")
 
 
 def test_find_project_root_accepts_charterless_cg_docs_boundary(tmp_path: Path) -> None:
@@ -187,7 +242,7 @@ def test_check_reports_missing_current_and_stale_even_under_opt_out(
     (
         lambda text: text.replace("Execution contract", "Forged contract", 1),
         lambda text: text.replace("default-src 'none'", "default-src *", 1),
-        lambda text: text.replace('"artifactSchemaVersion":1,', "", 1),
+        lambda text: text.replace('"provenanceSchemaVersion":2,', "", 1),
     ),
     ids=("body", "csp", "provenance"),
 )

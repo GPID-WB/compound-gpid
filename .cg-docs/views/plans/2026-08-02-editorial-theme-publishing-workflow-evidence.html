@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md">
+<meta name="artifact-source-sha256" content="656d576819a083fe7211d0f1c118442fe146a75e2c84bba0c637f33792afb9d2">
+<meta name="artifact-schema-version" content="1">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Editorial Theme, Publishing Workflow, and Browser Evidence · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":1,"generatedAt":"2026-08-03T21:20:47Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md","sourceSha256":"656d576819a083fe7211d0f1c118442fe146a75e2c84bba0c637f33792afb9d2"}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Editorial Theme, Publishing Workflow, and Browser Evidence</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#1-verify-and-freeze-the-editorial-design-inputs">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Immutable Editorial Theme</li><li><strong>Phase 2</strong> · Publishing Workflow And Platform Parity</li><li><strong>Phase 3</strong> · Reproducible Browser Evidence</li><li><strong>Phase 4</strong> · Documentation And Final Gate</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1</li><li><strong>R2</strong> → steps 1, 7</li><li><strong>R3</strong> → steps 1, 2, 7</li><li><strong>R4</strong> → steps 2, 7</li><li><strong>R5</strong> → steps 2, 3, 7</li><li><strong>R6</strong> → steps 3, 7</li><li><strong>R7</strong> → steps 3, 4, 7</li><li><strong>R8</strong> → steps 5, 6, 7</li><li><strong>R9</strong> → steps 5, 6, 7</li><li><strong>R10</strong> → steps 5, 6, 7</li><li><strong>R11</strong> → steps 3, 4, 7</li><li><strong>R12</strong> → steps 7</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="17-17"><h1 id="plan-editorial-theme-publishing-workflow-and-browser-evidence">Plan: Editorial Theme, Publishing Workflow, and Browser Evidence</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="19-19"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="21-24"><p>Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose explicit theme selection through the canonical publishing workflow on every supported agent platform, and produce reproducible automated and attested browser evidence for both themes.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="26-26"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="28-36"><p>This is the second replacement unit created after review of <code>.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md</code>. It is blocked until <code>.cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md</code> is completed with current required evidence. That dependency supplies the generic document model, trusted semantic markup, <code>reference</code> theme, provenance schema 2, mode matrix, destination ownership, safe resources, non-clobbering writer, generic CLI, launchers, and context exclusions. This Plan must consume those contracts rather than redesign them.</p></div>
+<div class="source-block source-heading" id="render-owner-0012" data-source-block="block-0012" data-source-lines="38-38"><h3 id="immutable-editorial-inputs">Immutable Editorial Inputs</h3></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="40-42"><p>The visual source is pinned to Git commit <code>52fc749ed484af2246dd7152b032f4dd01e86621</code> on the historical <code>refactor/modular-compound-gpid</code> line:</p></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="44-47"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Input</th><th scope="col">Path At Pinned Commit</th><th scope="col">Git Blob</th></tr></thead><tbody><tr><td>Design system</td><td><code>.github/skills/cg-skill-standalone-html-brief/references/design-system.md</code></td><td><code>8176439ea8ea60cdb6c541a8fdd6baced3dbc6cf</code></td></tr><tr><td>Editorial template</td><td><code>.github/skills/cg-skill-standalone-html-brief/assets/editorial-brief-template.html</code></td><td><code>aefb61c65acecc2ec07878191d9a28191fc8aed2</code></td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0018" data-source-block="block-0018" data-source-lines="49-54"><p>Implementation preflight must resolve the commit and both blobs exactly with Git object reads. A moved branch name is irrelevant after the object check. If the commit or either blob is unavailable or mismatched, implementation stops; the agent must not recreate an &quot;approximately similar&quot; design from memory. The accepted tokens and supported component rules are then frozen in the repository theme contract so runtime has no Git-branch dependency.</p></div>
+<div class="source-block source-heading" id="render-owner-0020" data-source-block="block-0020" data-source-lines="56-56"><h3 id="supported-editorial-semantics">Supported Editorial Semantics</h3></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="58-59"><p>The editorial theme may style only semantic nodes emitted by the completed core:</p></div>
+<div class="source-block" id="render-owner-0024" data-source-block="block-0024" data-source-lines="61-69"><ul><li>headings, full-width section rhythm, navigation, paragraphs, lists, tables, code, images, provenance, and generic callouts;</li><li>exact <code>DECISION</code>, <code>PROS</code>, and <code>CONS</code> callout markers may receive decision-band and tradeoff treatments;</li><li>source tables may receive explicit comparison-table treatment without changing their cells or interpreting a recommendation;</li><li>fenced diagram languages remain visible code; timelines, architecture diagrams, metrics, approach selection, paired callout grouping, and other source-specific compositions are not inferred in version 1.</li></ul></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="71-73"><p>This narrows the alternate template&#x27;s component catalog to deterministic source-backed structures. A future schema may add explicit timeline or diagram nodes; this Plan must not infer them from headings or prose.</p></div>
+<div class="source-block source-heading" id="render-owner-0028" data-source-block="block-0028" data-source-lines="75-75"><h3 id="extended-theme-mode-matrix">Extended Theme Mode Matrix</h3></div>
+<div class="source-block" id="render-owner-0030" data-source-block="block-0030" data-source-lines="77-78"><p>The completed core matrix remains controlling. This Plan adds <code>editorial</code> theme contract version 1 and these cases:</p></div>
+<div class="source-block" id="render-owner-0032" data-source-block="block-0032" data-source-lines="80-92"><ul><li>Explicit <code>--theme editorial</code> wins for render, automatic generation when enabled, validation-only, and check.</li><li>Bare render, automatic, and check reuse <code>editorial</code> from valid owned provenance schema 2; they do not revert to <code>reference</code>.</li><li>Missing output and legacy schema 1 use the document-type default: Brainstorm, Plan, and generic document use <code>reference</code>; the registry reserves completion report for <code>editorial</code> without adding a report parser or workflow.</li><li>A recorded known theme with an older contract version is stale and rerenders with the current version of the same theme.</li><li>A recorded unknown theme is stale for check and blocks mutation until the user supplies a registered explicit theme.</li><li>Validation-only never consults existing output. HTML-disabled automatic mode validates an explicit theme but does not inspect or mutate output bytes.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0034" data-source-block="block-0034" data-source-lines="94-94"><h3 id="evidence-architecture">Evidence Architecture</h3></div>
+<div class="source-block" id="render-owner-0036" data-source-block="block-0036" data-source-lines="96-98"><p>The current evidence schema 1 validator remains byte-for-byte behaviorally compatible for the completed Brainstorm/Plan record. This Plan adds exact schema 2 dispatch rather than changing shared constants:</p></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="100-107"><ul><li>schema 1 retains its two artifact kinds, three viewports, Open Design identity, fields, and checks;</li><li>schema 2 requires unique <code>(documentClass, themeName)</code> cells for technical, decision, and editorial fixtures under both <code>reference</code> and <code>editorial</code>;</li><li>schema 2 records source/view/screenshot/print hashes, provenance identity, Node, Playwright, Chromium, and axe-core versions, automated measurements, and bounded manual attestations;</li><li>unknown versions and cross-version fields fail.</li></ul></div>
+<div class="source-block" id="render-owner-0040" data-source-block="block-0040" data-source-lines="109-114"><p>Add a pinned development-only Node harness using <code>package.json</code> and committed <code>package-lock.json</code>, Playwright Chromium, and axe-core. The producer opens local standalone HTML, computes DOM geometry and accessibility results, captures screenshots and print PDFs, and writes the schema 2 manifest. It must run before the Python validator. It may use the network only during explicit dependency or browser installation, never during evidence capture or publisher runtime.</p></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="116-123"><p>Automated checks include offline load, nonblank output, page overflow, bounded element geometry, reachable navigation/tables, first-viewport identity, sequential headings, keyboard focus order, visible focus, axe violations and contrast, 200 percent zoom, reduced-motion behavior, complete provenance, and print-PDF production. Print readability and any judgment not reducible to a stable measurement require an attestation with reviewer, UTC timestamp, fixture/theme identity, check name, result, and bounded note; a bare boolean is invalid.</p></div>
+<div class="source-block" id="render-owner-0044" data-source-block="block-0044" data-source-lines="125-130"><p>Screenshots and print artifacts live under <code>.cg-docs/views/evidence/curated-themes/**</code>, so existing generated-view body and diff exclusions apply. The metadata-only manifest lives under <code>.cg-docs/work-reports/</code>. Binary sentinels must prove audit, summary, review, commit/PR, release, Brain, and duplicate-content surfaces never load evidence asset bodies.</p></div>
+<div class="source-block source-heading" id="render-owner-0046" data-source-block="block-0046" data-source-lines="132-132"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="134-147"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Require the completed core Plan and verify its current required evidence before implementation.</td><td>Review P2.8</td></tr><tr><td>R2</td><td>Verify the pinned editorial commit and blob identities before extracting or changing theme code.</td><td>Review P1.3</td></tr><tr><td>R3</td><td>Register stable <code>editorial</code> theme contract version 1 with the exact approved core tokens, typography, geometry, responsive, and print rules.</td><td>Brainstorm: Decision; pinned design inputs</td></tr><tr><td>R4</td><td>Keep both themes presentation-only and semantically equivalent; style only deterministic source-backed nodes and defer unsupported rich components.</td><td>Review P2.7</td></tr><tr><td>R5</td><td>Extend the completed mode matrix for explicit, recorded, default, legacy, old-version, unknown, validation-only, and HTML-disabled editorial cases.</td><td>Review P2.4</td></tr><tr><td>R6</td><td>Add <code>/cg-render-doc</code> and <code>cg-skill-markdown-publishing</code> as orchestration for deterministic repository tooling, never model-authored bespoke HTML.</td><td>Roadmap feature</td></tr><tr><td>R7</td><td>Keep <code>.github/</code> canonical, finish all canonical prompt/skill/shared edits before one generated-target pass, and verify Copilot, Claude Code, Codex, and OpenCode parity.</td><td>Review P2.8 and P3.1</td></tr><tr><td>R8</td><td>Add a pinned Playwright/Chromium/axe-core development harness that produces measured browser evidence before validation.</td><td>Review P1.2</td></tr><tr><td>R9</td><td>Define evidence schema 2 exactly while preserving schema 1 dispatch unchanged and rejecting unknown/mixed versions.</td><td>Review P2.5</td></tr><tr><td>R10</td><td>Store binary evidence under the excluded views namespace and prove every model/review/release path remains metadata-only.</td><td>Review P2.6</td></tr><tr><td>R11</td><td>Use valid canonical Pester basenames and enumerate target Python modules in focused gates.</td><td>Review P1.4</td></tr><tr><td>R12</td><td>Document immutable design provenance, themes, workflow, browser evidence, recovery, platform behavior, and the separate completion-report boundary.</td><td>Brainstorm: Requirements</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0050" data-source-block="block-0050" data-source-lines="149-149"><h2 id="phase-1-immutable-editorial-theme">Phase 1: Immutable Editorial Theme</h2></div>
+<div class="source-block source-heading" id="render-owner-0052" data-source-block="block-0052" data-source-lines="151-151"><h3 id="1-verify-and-freeze-the-editorial-design-inputs">1. Verify and freeze the editorial design inputs</h3></div>
+<div class="source-block" id="render-owner-0054" data-source-block="block-0054" data-source-lines="153-180"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 153–180</figcaption><pre><code>- **Requirements**: R1, R2, R3
+- **Files**:
+  - `scripts/artifact_views/themes/editorial.py` (new)
+  - `scripts/artifact_views/themes/contract.py`
+  - `scripts/artifact_views/tests/snapshots/design-contract-editorial.json` (new)
+  - `scripts/artifact_views/tests/test_themes.py`
+  - developer documentation for theme provenance
+- **Details**:
+  - Preflight the completed core Plan status, execution report, and required
+    evidence before any implementation mutation.
+  - Resolve the pinned commit and both blobs with `git cat-file`/`git rev-parse`.
+    Compare exact IDs above and stop on absence or mismatch.
+  - Freeze editorial version 1 with the approved tokens: ink `#181816`, paper
+    `#fbfbf8`, coral `#e94f2d`, teal `#087c70`, blue `#2856c7`, yellow
+    `#f2c84b`, documented soft/success/danger/line values, `1180px` content
+    width, and radius no greater than `6px`.
+  - Use Georgia display, Trebuchet MS body/control, and Consolas code stacks with
+    system fallbacks and no external fonts.
+  - Record commit, blob IDs, supported source-backed components, and explicitly
+    deferred components in the frozen contract and documentation. Runtime
+    modules contain the accepted design and never read Git history.
+- **Test Scenarios**: exact object preflight; missing/mismatched object;
+  immutable registry; duplicate theme; frozen token snapshot; no external
+  resource tokens; core dependency incomplete.
+- **Tests**: Git object preflight command; `pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_design_contract.py`
+- **Acceptance criteria**: the exact accepted source is auditable and the
+  runtime editorial contract is stable, standalone, and independent of the
+  branch name.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0056" data-source-block="block-0056" data-source-lines="182-182"><h3 id="2-render-editorial-presentation-from-shared-semantic-nodes">2. Render editorial presentation from shared semantic nodes</h3></div>
+<div class="source-block" id="render-owner-0058" data-source-block="block-0058" data-source-lines="184-213"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 184–213</figcaption><pre><code>- **Requirements**: R3, R4, R5
+- **Files**:
+  - `scripts/artifact_views/themes/editorial.py` (new)
+  - `scripts/artifact_views/themes/components.py`
+  - `scripts/artifact_views/renderer.py`
+  - `scripts/artifact_views/cli.py`
+  - `scripts/artifact_views/publishing_cli.py`
+  - renderer, theme, accessibility, provenance, CLI, and integration tests
+- **Details**:
+  - Add warm paper, grid-textured unframed hero treatment, full-width section
+    rhythm, visible borders, restrained hard shadows, multi-accent roles,
+    editorial typography, responsive `980px`/`720px` behavior, and print rules.
+  - Style source tables as comparison surfaces without changing cells. Style
+    `DECISION`, `PROS`, and `CONS` callouts distinctly without inferring a
+    selected approach or pairing unrelated blocks.
+  - Do not render timelines, architecture diagrams, invented metrics, or
+    source-specific summaries. Fenced diagrams remain code.
+  - Add `editorial` to the completed registry and mode matrix. Preserve
+    `reference` defaults for strict and generic documents and reserve the future
+    completion-report default without implementing that document type.
+  - Compare semantic DOM summaries across themes: landmarks, heading order,
+    source owners, links, tables, callout identities, and provenance fields must
+    match; only approved presentation metadata and CSS differ.
+- **Test Scenarios**: strict and generic sources in both themes; explicit and
+  recorded editorial; missing/legacy/old/unknown theme; HTML-disabled and
+  validation-only modes; long titles/words; dense tables; every callout;
+  responsive and print contract tokens; no remote assets or scripts.
+- **Tests**: `pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_generic_renderer.py scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_accessibility.py scripts/artifact_views/tests/test_provenance.py scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_publishing_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py`
+- **Acceptance criteria**: editorial is visually faithful within the supported
+  semantic vocabulary and cannot alter or omit canonical source meaning.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0060" data-source-block="block-0060" data-source-lines="215-215"><h2 id="phase-2-publishing-workflow-and-platform-parity">Phase 2: Publishing Workflow And Platform Parity</h2></div>
+<div class="source-block source-heading" id="render-owner-0062" data-source-block="block-0062" data-source-lines="217-217"><h3 id="3-add-the-publishing-skill-and-cg-render-doc">3. Add the publishing skill and <code>/cg-render-doc</code></h3></div>
+<div class="source-block" id="render-owner-0064" data-source-block="block-0064" data-source-lines="219-245"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 219–245</figcaption><pre><code>- **Requirements**: R5, R6, R7, R11
+- **Files**:
+  - `.github/skills/cg-skill-markdown-publishing/SKILL.md` (new)
+  - `.github/skills/cg-skill-markdown-publishing/references/theme-contract.md` (new)
+  - `.github/prompts/cg-render-doc.prompt.md` (new)
+  - `.github/shared/artifact-view.contract.md` only if the completed core does
+    not already expose the two-theme orchestration requirements
+  - prompt and target tests
+- **Details**:
+  - Route Brainstorms and Plans to `cg-render-artifact`; route other accepted
+    Markdown to `cg-render-markdown`. The generic command still rejects typed
+    roots directly.
+  - Parse explicit `--theme reference|editorial`, `--check`, `--validate-only`,
+    and constrained `--output`. Do not ask a model to compose or rewrite HTML.
+  - An agent may explain theme differences and recommend an exact user-visible
+    option, but cannot silently select or persist a subjective theme.
+  - Document source authority, defaults, recorded-theme regeneration, unknown
+    theme recovery, resource restrictions, and context exclusions in the skill.
+  - Treat generator mapping and shared infrastructure as test-first and
+    conditional because canonical prompts/skills are auto-discovered.
+- **Test Scenarios**: typed/generic routing; explicit themes; bare recorded
+  editorial rerender; check and validation-only; unsafe source/output;
+  recommendation without silent selection; prompt tools and skill bundle.
+- **Tests**: focused prompt and target Python tests; safe Pester command in Step
+  4 after all canonical content is stable.
+- **Acceptance criteria**: the user workflow invokes deterministic local tools
+  with explicit presentation choice and no schema bypass or bespoke model HTML.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0066" data-source-block="block-0066" data-source-lines="247-247"><h3 id="4-generate-all-platform-targets-once-and-verify-parity">4. Generate all platform targets once and verify parity</h3></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="249-277"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 249–277</figcaption><pre><code>- **Requirements**: R7, R11
+- **Files**:
+  - `scripts/cg_generate_targets.py` and target mapping only if focused tests
+    prove auto-discovery insufficient
+  - generated `.claude/`, `.agents/`, and `.opencode/` targets
+  - `scripts/tests/test_target_mapping.py`
+  - `scripts/tests/test_target_closure.py`
+  - `scripts/tests/test_target_ownership.py`
+  - `scripts/tests/test_target_packaging.py`
+  - `scripts/tests/test_target_documentation.py`
+  - `scripts/tests/test_target_determinism.py`
+  - `scripts/tests/test_target_path_safety.py`
+  - `scripts/tests/test_target_drift.py`
+  - `tests/prompt-tools.Tests.ps1`
+- **Details**:
+  - Finish every canonical `.github` prompt, skill, reference, and shared
+    contract edit before generation.
+  - Generate targets once from canonical sources; never hand-edit generated
+    copies. Verify the new skill&#x27;s bundled reference closure.
+  - Enumerate the complete focused Python target gate rather than saying
+    &quot;target tests&quot; generically.
+  - Run Pester with the registered basename `prompt-tools`, not a filename.
+    Inspect the durable artifact for exact filtered identity and per-file pass.
+- **Test Scenarios**: canonical auto-discovery; bundled reference; target
+  ownership and closure; deterministic bytes; path safety; stale/dirty target;
+  command and tool parity on all supported targets.
+- **Tests**: `pytest -q scripts/tests/test_target_mapping.py scripts/tests/test_target_closure.py scripts/tests/test_target_ownership.py scripts/tests/test_target_packaging.py scripts/tests/test_target_documentation.py scripts/tests/test_target_determinism.py scripts/tests/test_target_path_safety.py scripts/tests/test_target_drift.py`; `execution_subagent` runs `. tests\Run-Tests.ps1 -File @(&#x27;prompt-tools&#x27;)`, requiring `passed: true`, `failedCount: 0`, `filteredFiles: [&#x27;prompt-tools&#x27;]`, and a passing file record.
+- **Acceptance criteria**: all canonical and generated platforms expose the same
+  deterministic workflow and the generated tree is clean after a single pass.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0070" data-source-block="block-0070" data-source-lines="279-279"><h2 id="phase-3-reproducible-browser-evidence">Phase 3: Reproducible Browser Evidence</h2></div>
+<div class="source-block source-heading" id="render-owner-0072" data-source-block="block-0072" data-source-lines="281-281"><h3 id="5-add-the-pinned-evidence-producer-and-exact-schema-2">5. Add the pinned evidence producer and exact schema 2</h3></div>
+<div class="source-block" id="render-owner-0074" data-source-block="block-0074" data-source-lines="283-319"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 283–319</figcaption><pre><code>- **Requirements**: R8, R9, R10
+- **Files**:
+  - `package.json` (new)
+  - `package-lock.json` (new)
+  - `scripts/capture_artifact_view_evidence.js` (new)
+  - `scripts/tests-js/artifact-view-evidence.test.js` (new)
+  - `scripts/artifact_views/evidence.py`
+  - `scripts/validate_artifact_view_evidence.py`
+  - `scripts/artifact_views/tests/test_evidence.py`
+  - `scripts/artifact_views/tests/fixtures/publishing/` (new)
+- **Details**:
+  - Pin Playwright and axe-core as development dependencies through the lockfile
+    and record Node, package, and installed Chromium versions in every manifest.
+  - Add `npm` scripts for evidence unit tests and capture. Evidence capture must
+    run with network disabled after local dependency/browser installation.
+  - Render technical, decision, and editorial Markdown fixtures with both
+    themes using fixed source and generation inputs.
+  - Use Playwright to open each local HTML, execute measured checks, capture
+    `390x844`, `768x1024`, `1024x768`, `1440x900`, and `1920x1080`
+    screenshots, and print a PDF. Inject the locally installed axe script into
+    the browser only; never add it to published HTML.
+  - Define schema 2 in separate validation functions and constants. Require six
+    unique document/theme cells, exact viewport sets, file hashes, provenance,
+    producer versions, measured results, and structured manual attestations.
+    Leave schema 1 code and accepted fields unchanged; dispatch by exact
+    integer version and reject unknown/mixed data.
+  - Fail capture on browser console errors, network requests, blank output,
+    page overflow, invalid geometry, inaccessible focus/navigation, axe
+    violations, provenance mismatch, or missing print bytes.
+- **Test Scenarios**: deterministic manifest ordering; all six cells; missing or
+  duplicate cell; stale hash; missing viewport/check; false measurement;
+  malformed/manual bare boolean; unknown schema; mixed schema fields; unchanged
+  schema 1 fixture; blocked network; external resource attempt; console error.
+- **Tests**: `npm ci`; pinned Playwright Chromium installation; `npm run test:artifact-evidence`; focused Python evidence tests.
+- **Acceptance criteria**: a named, locked command computes browser evidence
+  before validation, and schema 1 compatibility plus schema 2 strictness are
+  executable rather than self-attested.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0076" data-source-block="block-0076" data-source-lines="321-321"><h3 id="6-produce-evidence-and-prove-binary-context-exclusion">6. Produce evidence and prove binary context exclusion</h3></div>
+<div class="source-block" id="render-owner-0078" data-source-block="block-0078" data-source-lines="323-348"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 323–348</figcaption><pre><code>- **Requirements**: R8, R9, R10
+- **Files**:
+  - `.cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json` (new)
+  - `.cg-docs/views/evidence/curated-themes/**` (generated screenshots and print PDFs)
+  - context, summary, review, PR, release, Brain, and duplicate-content tests
+  - implementation files only where measured evidence reveals a defect
+- **Details**:
+  - Run the locked evidence producer first, then the Python manifest validator
+    with all required automated and manual results enforced.
+  - Perform bounded manual print/readability review for each theme and document
+    class and record structured reviewer attestations; do not use anonymous
+    booleans.
+  - Add unique binary/text sentinels to evidence assets and prove no body or
+    diff reaches model-facing scans or agents. Existing `.cg-docs/views/**`
+    exclusions should pass; edit infrastructure only on a demonstrated gap.
+  - Keep only paths, hashes, statuses, producer identities, measurements, and
+    bounded attestations in the work-report manifest.
+  - Repair the smallest owning theme or shared component on failure and rerun
+    affected capture cells before validation.
+- **Test Scenarios**: all viewports and print; long words/code/tables/images;
+  callouts and source comparisons; 200 percent zoom; reduced motion; keyboard
+  focus; offline capture; evidence binary sentinel in every model/review/release
+  path; stale manifest after any asset change.
+- **Tests**: locked capture command; `python scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json --require-all-pass`; focused context-exclusion tests.
+- **Acceptance criteria**: measured and attested evidence is current for all six
+  cells, and no screenshot, PDF, or generated HTML body enters model context.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0080" data-source-block="block-0080" data-source-lines="350-350"><h2 id="phase-4-documentation-and-final-gate">Phase 4: Documentation And Final Gate</h2></div>
+<div class="source-block source-heading" id="render-owner-0082" data-source-block="block-0082" data-source-lines="352-352"><h3 id="7-document-and-verify-the-complete-curated-publishing-workflow">7. Document and verify the complete curated publishing workflow</h3></div>
+<div class="source-block" id="render-owner-0084" data-source-block="block-0084" data-source-lines="354-394"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 354–394</figcaption><pre><code>- **Requirements**: R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12
+- **Files**:
+  - `README.md`
+  - `docs/configuration/index.md`
+  - `docs/development/index.md`
+  - `docs/installation.md`
+  - `docs/reference.md`
+  - `docs/reference/commands.md`
+  - `docs/workflow.md`
+  - `docs/context-files.md`
+  - `docs/troubleshooting.md`
+  - `docs/navigation.json`
+  - all files touched by this Plan
+  - `tests/last-run.json` (generated result)
+- **Details**:
+  - Document pinned design provenance, supported/deferred editorial semantics,
+    both themes, complete mode behavior, `/cg-render-doc`, skill behavior,
+    platform parity, evidence setup/capture/validation, manual attestation,
+    binary exclusions, and recovery.
+  - State that browser packages are development-only and publisher runtime
+    remains dependency-free and network-free.
+  - Keep completion-report schema, generation, and `/cg-compound` integration
+    explicitly outside this Plan despite the reserved default.
+  - Run docs validation, the exact focused target gate, evidence producer and
+    validator, all Python tests, Node evidence tests, and the full unfiltered
+    Pester suite through `execution_subagent`.
+  - Check diagnostics, target drift, evidence freshness, and this Plan&#x27;s current
+    derived view. Review the diff for inferred editorial semantics, model-authored
+    HTML, runtime browser imports, binary body leakage, or premature dossier
+    implementation.
+- **Test Scenarios**: broken docs link; stale target; stale evidence; filtered
+  final Pester artifact; diagnostics error; runtime Playwright/axe import;
+  unavailable design object; out-of-scope report code.
+- **Tests**: `node scripts/check-docs-site.js`; exact focused target pytest gate;
+  `npm run test:artifact-evidence`; locked evidence capture and validation;
+  `pytest -q`; `execution_subagent` run of `. tests\Run-Tests.ps1` requiring
+  `passed: true`, `failedCount: 0`, `filteredFiles: null`; VS Code diagnostics;
+  `cg-render-artifact --check .cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md`.
+- **Acceptance criteria**: both themes and the publishing workflow are
+  documented, platform-equivalent, objectively evidenced, diagnostics-clean,
+  and independently releasable before completion-report work starts.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0086" data-source-block="block-0086" data-source-lines="396-396"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0088" data-source-block="block-0088" data-source-lines="398-411"><ul><li>Verify immutable Git object identities before any design implementation.</li><li>Freeze editorial tokens and compare theme-independent semantic summaries.</li><li>Extend the completed core&#x27;s table-driven mode tests rather than adding theme-specific conditionals without coverage.</li><li>Finish all canonical <code>.github</code> changes before one generation pass and run an enumerated target gate.</li><li>Use locked Playwright Chromium plus axe-core to compute evidence; validate the manifest only after capture.</li><li>Preserve schema 1 in isolated code and tests while adding strict schema 2 dispatch.</li><li>Keep screenshot/PDF/HTML bodies in the excluded views namespace and prove every model-facing path remains metadata-only.</li><li>Run focused tests before broad Python, Node, documentation, evidence, and canonical Pester gates.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0090" data-source-block="block-0090" data-source-lines="413-413"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0092" data-source-block="block-0092" data-source-lines="415-425"><ul><li><input type="checkbox" disabled> Record the editorial commit and both blob identities.</li><li><input type="checkbox" disabled> Freeze exact tokens, typography, geometry, responsive, and print rules.</li><li><input type="checkbox" disabled> List supported and deferred editorial semantic components.</li><li><input type="checkbox" disabled> Document two-theme mode behavior and recovery.</li><li><input type="checkbox" disabled> Document <code>/cg-render-doc</code> and publishing skill routing.</li><li><input type="checkbox" disabled> Document canonical/generated platform ownership.</li><li><input type="checkbox" disabled> Document locked evidence installation, capture, validation, and attestation.</li><li><input type="checkbox" disabled> Document schema 1 compatibility and schema 2 identity.</li><li><input type="checkbox" disabled> Document evidence asset body/diff exclusions.</li><li><input type="checkbox" disabled> Document runtime independence from Node, browsers, Git history, models, and network.</li><li><input type="checkbox" disabled> Preserve the completion-report delivery boundary.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0094" data-source-block="block-0094" data-source-lines="427-427"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0096" data-source-block="block-0096" data-source-lines="429-438"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Risk</th><th scope="col">Impact</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>Pinned Git objects disappear from a shallow or rewritten clone.</td><td>Exact editorial fidelity cannot be verified.</td><td>Make object availability a blocked stop; fetch the explicit commit outside the implementation workflow or revise the Plan with a newly approved immutable source.</td></tr><tr><td>Editorial styling invents semantic groupings.</td><td>Two themes could communicate different facts.</td><td>Style only shared nodes and exact callout markers; defer timelines, diagrams, metrics, and inferred pairing.</td></tr><tr><td>Bare rerender reverts an editorial view.</td><td>Theme selection becomes unstable.</td><td>Reuse recorded known theme identity according to the completed mode matrix and test every mode.</td></tr><tr><td>Browser checks remain self-attested.</td><td>Overlap, accessibility, and print regressions could falsely pass.</td><td>Require locked evidence production before validation and structured attestation only for irreducibly manual checks.</td></tr><tr><td>Playwright becomes a runtime dependency.</td><td>Publisher installation grows and offline guarantees weaken.</td><td>Keep Node packages in development-only scripts/tests; statically reject runtime imports and document separate setup.</td></tr><tr><td>Evidence schema changes invalidate the completed record.</td><td>Prior acceptance evidence becomes unreadable.</td><td>Preserve schema 1 code/constants/tests and dispatch schema 2 through isolated exact validation.</td></tr><tr><td>Evidence binaries enter model context.</td><td>Token cost and duplicate-content noise increase sharply.</td><td>Store assets under <code>.cg-docs/views/evidence/**</code> and enforce binary sentinels across every model/review/release path.</td></tr><tr><td>Generated targets drift after late canonical edits.</td><td>Supported platforms receive inconsistent workflows.</td><td>Complete canonical edits first, generate once, and run ownership, closure, determinism, and drift gates.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0098" data-source-block="block-0098" data-source-lines="440-440"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0100" data-source-block="block-0100" data-source-lines="442-451"><ul><li>Changes to the completed generic parser, path ownership, secure writer, or resource contracts except focused defect repairs exposed by evidence.</li><li>Inferred timelines, architecture diagrams, metrics, approach selection, or model-authored document layouts.</li><li>Completion-report schema, synthesis, correction, <code>/cg-completion-report</code>, or <code>/cg-compound</code> integration.</li><li>Historical bulk publishing, arbitrary output roots, hosted publishing, product PDF generation, live editing, or documentation-site restyling.</li><li>Executable source HTML, SVG, JavaScript, remote assets, runtime browser calls, or Open Design runtime dependency.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0102" data-source-block="block-0102" data-source-lines="453-453"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0104" data-source-block="block-0104" data-source-lines="455-455"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0106" data-source-block="block-0106" data-source-lines="457-461"><p>The accepted editorial design is reproducibly ported from immutable source objects as a second presentation-only theme. Users can explicitly select it through <code>/cg-render-doc</code> on every supported agent platform, and automated browser evidence proves both themes remain semantically equivalent, accessible, responsive, printable, offline, and current.</p></div>
+<div class="source-block source-heading" id="render-owner-0108" data-source-block="block-0108" data-source-lines="463-463"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0110" data-source-block="block-0110" data-source-lines="465-475"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Editorial source commit and both blob hashes match the approved immutable identities.</td><td>Git object preflight against commit <code>52fc749ed484af2246dd7152b032f4dd01e86621</code>, design blob <code>8176439ea8ea60cdb6c541a8fdd6baced3dbc6cf</code>, and template blob <code>aefb61c65acecc2ec07878191d9a28191fc8aed2</code>.</td><td>yes</td></tr><tr><td>V2</td><td>1</td><td>Editorial tokens and only source-triggered components are frozen; cross-theme semantic summaries are identical.</td><td><code>pytest -q scripts/artifact_views/tests/test_themes.py scripts/artifact_views/tests/test_renderer.py scripts/artifact_views/tests/test_generic_renderer.py scripts/artifact_views/tests/test_design_contract.py scripts/artifact_views/tests/test_accessibility.py</code></td><td>yes</td></tr><tr><td>V3</td><td>1</td><td>Two-theme render, automatic, validation, check, legacy, old-version, and unknown cases follow the complete mode matrix.</td><td><code>pytest -q scripts/artifact_views/tests/test_provenance.py scripts/artifact_views/tests/test_cli.py scripts/artifact_views/tests/test_publishing_cli.py scripts/artifact_views/tests/test_integration.py scripts/artifact_views/tests/test_publishing_integration.py</code></td><td>yes</td></tr><tr><td>V4</td><td>2</td><td><code>/cg-render-doc</code>, publishing skill, canonical assets, and generated targets are equivalent.</td><td>Enumerated target pytest modules from Step 4 plus <code>execution_subagent</code> run of <code>. tests\Run-Tests.ps1 -File @(&#x27;prompt-tools&#x27;)</code>; exact filtered result required.</td><td>yes</td></tr><tr><td>V5</td><td>3</td><td>A locked Playwright/Chromium/axe producer computes browser results and emits valid schema 2 evidence; manual-only checks carry structured attestation.</td><td><code>npm ci</code>; pinned Chromium installation; <code>npm run test:artifact-evidence</code>; locked capture command; <code>python scripts/validate_artifact_view_evidence.py --evidence .cg-docs/work-reports/2026-08-02-curated-artifact-themes.design-evidence.json --require-all-pass</code>.</td><td>yes</td></tr><tr><td>V6</td><td>3</td><td>Screenshot, print, and generated HTML bodies remain excluded from every model/review/release input.</td><td>Focused context, summary, Brain, review, commit/PR, release, and duplicate-content sentinel tests.</td><td>yes</td></tr><tr><td>V7</td><td>final</td><td>Documentation plus all Python and Node regressions pass.</td><td><code>node scripts/check-docs-site.js</code>; <code>npm run test:artifact-evidence</code>; <code>pytest -q</code>.</td><td>yes</td></tr><tr><td>V8</td><td>final</td><td>Full unfiltered Pester passes safely.</td><td><code>execution_subagent</code>: run <code>. tests\Run-Tests.ps1</code>; require <code>passed: true</code>, <code>failedCount: 0</code>, and <code>filteredFiles: null</code>.</td><td>yes</td></tr><tr><td>V9</td><td>final</td><td>Diagnostics are clear, targets/evidence are current, and the replacement Plan view is current.</td><td>VS Code diagnostics, target drift check, evidence validator, and <code>cg-render-artifact --check .cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md</code>.</td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0112" data-source-block="block-0112" data-source-lines="477-477"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0114" data-source-block="block-0114" data-source-lines="479-487"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>1</td><td>The core Plan is completed and current before this Plan changes theme or platform surfaces.</td><td>Plan status, execution report, and required evidence preflight.</td></tr><tr><td>C2</td><td>1</td><td>Editorial inputs are immutable and verified before porting; runtime has no branch dependency.</td><td>Commit/blob preflight and frozen theme contract.</td></tr><tr><td>C3</td><td>1</td><td>Editorial styling cannot infer comparisons, decisions, tradeoffs, timelines, or diagrams from prose.</td><td>Only shared nodes and exact callout markers trigger variants; cross-theme semantic snapshots match.</td></tr><tr><td>C4</td><td>3</td><td>Browser and axe packages are pinned development-only dependencies and never enter publisher runtime imports.</td><td>Lockfile, package, static dependency, and runtime isolation tests.</td></tr><tr><td>C5</td><td>3</td><td>Screenshots and print artifacts live under <code>.cg-docs/views/evidence/**</code>, remain metadata-only to agents, and never enter Brain or model context.</td><td>Binary sentinel tests across all model/review/release paths.</td></tr><tr><td>C6</td><td>2</td><td>All canonical <code>.github</code> edits finish before one generated-target pass.</td><td>Target ownership, closure, determinism, and drift tests.</td></tr><tr><td>C7</td><td>final</td><td>Completion-report schema and workflow integration remain a separate dependent Plan.</td><td>Final diff and scope review.</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0116" data-source-block="block-0116" data-source-lines="489-489"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0118" data-source-block="block-0118" data-source-lines="491-497"><ul><li>Allowed: pinned editorial port, explicit two-theme mode extension, <code>/cg-render-doc</code>, publishing skill, generated platform targets, Playwright/axe development harness, evidence schema 2 and protected assets, documentation, and release gates.</li><li>Out of scope: generic core redesign, model-authored layout, inferred rich components, completion-report generation, executable Markdown HTML/SVG/ JavaScript, hosted publishing, product PDF format, and docs-site restyling.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0120" data-source-block="block-0120" data-source-lines="499-499"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0122" data-source-block="block-0122" data-source-lines="501-509"><ol><li>Require the completed core Plan before implementation.</li><li>Verify immutable design objects before extracting tokens or components.</li><li>Narrow editorial behavior to deterministic source-backed semantics.</li><li>Finish canonical prompt, skill, and shared changes before generating targets once.</li><li>Produce browser evidence before validating its manifest.</li><li>Fix the smallest owning theme or component when evidence fails.</li><li>Keep browser tooling development-only and generated evidence out of model context.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0124" data-source-block="block-0124" data-source-lines="511-511"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0126" data-source-block="block-0126" data-source-lines="513-521"><ul><li>The core Plan is incomplete or its required evidence is stale or failed.</li><li>Pinned design objects are unavailable or hash-mismatched.</li><li>Editorial output changes source ownership or semantic structure.</li><li>A promised visual component requires prose inference.</li><li>Browser evidence cannot be reproduced from the pinned lockfile and tool versions.</li><li>Evidence assets enter model, Brain, review, or diff bodies.</li><li>A required deviation arises under <code>ask</code> and approval is unavailable.</li><li>Generated platform parity or any required final gate fails.</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md</dd>
+      <dt>Source SHA-256</dt><dd><code>656d576819a083fe7211d0f1c118442fe146a75e2c84bba0c637f33792afb9d2</code></dd>
+      <dt>Artifact schema</dt><dd>1</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-03T21:20:47Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

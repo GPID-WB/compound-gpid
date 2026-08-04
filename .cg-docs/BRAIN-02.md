@@ -1,11 +1,27 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-01_
+_Generated 2026-08-03_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 22 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 30 entities
 
+- **[Untrusted content containing triple-backtick sequences breaks out of fenced code blocks](.cg-docs/solutions/testing-patterns/2026-06-11-fenced-block-delimiter-collision-in-untrusted-content.md)** · `solution` · _—_ · `2026-06-11`
+  > A prompt (e.g., `cg-issues.prompt.md`) instructs an agent to embed untrusted content (plan file body, roadmap descrip…
+- **[Within-prompt section drift: operational step and Safety Rules summary can diverge silently](.cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md)** · `solution` · _—_ · `2026-06-11`
+  > `cg-issues.prompt.md` maintained an injection-token blocklist in two places: **Step 6 (operational)**: > Strip lines …
+- **[Regex arm silently dead from inception due to typo — test passes via sibling arm](.cg-docs/solutions/testing-patterns/2026-06-12-regex-arm-dead-from-inception-typo-passes-via-sibling.md)** · `solution` · _—_ · `2026-06-12`
+  > A journey-fixture test was written to verify that `/cg-work` warns when an invalid `deviate:` override is provided an…
+- **[Inherited model-picker prompts need explicit audit equivalence](.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md)** · `solution` · _—_ · `2026-06-15`
+  > The OpenAI-first model-governance pass added a durable model catalog and changed `docs/model-guide.md` to describe ea…
+- **[Reviewed warning classifications close token work without hiding risk](.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md)** · `solution` · _—_ · `2026-06-16`
+  > The Token Optimization & Model Governance milestone had no audit failures after the OpenAI-first model-governance mig…
+- **[Workflow telemetry needs source-aware path and tool extraction](.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md)** · `solution` · _—_ · `2026-06-22`
+  > Phase 1.1 added workflow-level token/context telemetry to `scripts/cg_audit_context.py`, but the first implementation…
+- **[Active-state handoff records should be artifact-reference-first](.cg-docs/solutions/testing-patterns/2026-06-23-active-state-handoff-records.md)** · `solution` · _—_ · `2026-06-23`
+  > Long `/cg-work` sessions can span phases, review loops, blocked stops, and crash recovery. Reconstructing state from …
+- **[Budgeted Knowledge Brain query needs rendered-output budget gates](.cg-docs/solutions/testing-patterns/2026-06-23-budgeted-knowledge-brain-query.md)** · `solution` · _—_ · `2026-06-23`
+  > Phase 1.2 added `cg-index query` so workflow prompts can retrieve bounded Knowledge Brain context. The first implemen…
 - **[Command-output summary wrappers should preserve raw evidence without replacing validation](.cg-docs/solutions/testing-patterns/2026-06-23-command-output-summary-wrappers.md)** · `solution` · _—_ · `2026-06-23`
   > Compound GPID workflows often need evidence from tests, diffs, logs, repository trees, and diagnostics. Copying raw o…
 - **[Optional retrieval backends must stay default-disabled during evaluation](.cg-docs/solutions/testing-patterns/2026-06-23-optional-retrieval-backends-default-disabled.md)** · `solution` · _—_ · `2026-06-23`
@@ -51,12 +67,12 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 22 entiti
 - **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 
-## Architecture Research Objective / Knowledge Brain Objective / Workflow Maturity Objective
+## Architecture Research Objective / Workflow Maturity Objective / Knowledge Brain Objective
 
 _Keywords: `architecture research
-objective` · `knowledge brain
 objective` · `workflow maturity
-objective`_ · 136 entities
+objective` · `knowledge brain
+objective`_ · 137 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -230,6 +246,8 @@ objective`_ · 136 entities
   > Explicit plan-path selection for /cg-work
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
+- **[Workflow completion report and human-readable HTML dossier](roadmap.json#workflow-completion-report-and-html-dossier)** · `feature` · _idea_ · `—`
+  > Workflow completion report and human-readable HTML dossier
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
@@ -278,8 +296,8 @@ objective`_ · 136 entities
   > Runtime model-catalog introspection across platforms
 - **[Historical HTML backfill for existing Compound GPID artifacts](roadmap.json#historical-html-backfill-for-existing-compound-gpid-artifacts)** · `feature` · _idea_ · `—`
   > Historical HTML backfill for existing Compound GPID artifacts
-- **[Broader artifact publishing formats and views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _idea_ · `—`
-  > Broader artifact publishing formats and views
+- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _done_ · `—`
+  > Generic Markdown publishing skill and deterministic HTML views
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`

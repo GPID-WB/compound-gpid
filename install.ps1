@@ -293,6 +293,22 @@ if (Test-Path $cgRenderArtifactCmdSrc) {
     Write-Warning "  bin\cg-render-artifact.cmd not found in installation -- skipping cg-render-artifact wrapper."
 }
 
+# Copy cg-publish-markdown.cmd from the committed file (single source of truth).
+$cgPublishMarkdownCmdSrc = Join-Path $CompoundGpidDir "bin\cg-publish-markdown.cmd"
+$cgPublishMarkdownCmdDst = Join-Path $binDir "cg-publish-markdown.cmd"
+if (Test-Path $cgPublishMarkdownCmdSrc) {
+    $cgPublishMarkdownSrcFull = [System.IO.Path]::GetFullPath($cgPublishMarkdownCmdSrc)
+    $cgPublishMarkdownDstFull = [System.IO.Path]::GetFullPath($cgPublishMarkdownCmdDst)
+    if ($cgPublishMarkdownSrcFull -ieq $cgPublishMarkdownDstFull) {
+        Write-Host "  Already present: cg-publish-markdown in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgPublishMarkdownCmdSrc -Destination $cgPublishMarkdownCmdDst -Force
+        Write-Host "  Copied:  cg-publish-markdown in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-publish-markdown.cmd not found in installation -- skipping cg-publish-markdown wrapper."
+}
+
 # Copy cg-token-audit.cmd from the committed file (same Python resolver pattern
 # as cg-index.cmd).
 $cgTokenAuditCmdSrc = Join-Path $CompoundGpidDir "bin\cg-token-audit.cmd"
@@ -348,7 +364,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -388,6 +404,7 @@ Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
 Write-Host "  cg-render-artifact -- Render or validate one workflow artifact (run from project root)"
+Write-Host "  cg-publish-markdown -- Publish one generic Markdown document (run from project root)"
 Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"
 Write-Host ""
 Write-Host "Quick start:"

@@ -3,11 +3,19 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
+import shutil
+import struct
+import subprocess
+import zlib
 
 import pytest
 
 import cg_generate_targets as gen
+from artifact_views.errors import ArtifactWriteError
+from artifact_views.writer import ViewDestination, write_view
+from secure_fs import ExpectedFileState
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -166,3 +174,189 @@ def test_invalid_late_target_prevents_all_writes(tmp_path: Path) -> None:
         gen.build_generation_plan(root, broken, {"prompts": [], "agents": [], "skills": [], "instructions": []})
 
     assert list(root.iterdir()) == []
+
+
+def test_active_backend_preserves_destination_created_after_authorized_absence(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    destination = ViewDestination.from_path(
+        Path(".cg-docs/views/documents/backend-race.html")
+    )
+    output = root / destination.relative
+
+    def insert_concurrent_owner(_path: Path) -> None:
+        output.write_bytes(b"concurrent owner")
+
+    with pytest.raises(ArtifactWriteError):
+        write_view(
+            root,
+            destination,
+            b"new publication",
+            before_replace=insert_concurrent_owner,
+            expected_state=ExpectedFileState.absent(),
+        )
+
+    assert output.read_bytes() == b"concurrent owner"
+
+
+def test_matrix_installed_publisher_renders_bitmap_and_checks_from_outside_cwd(
+    tmp_path: Path,
+) -> None:
+    install_root = tmp_path / "installed publisher with spaces"
+    shutil.copytree(REPO_ROOT / "scripts", install_root / "scripts")
+    (install_root / "bin").mkdir()
+    launcher_name = (
+        "cg-publish-markdown.cmd" if os.name == "nt" else "cg-publish-markdown"
+    )
+    launcher = install_root / "bin" / launcher_name
+    shutil.copy2(REPO_ROOT / "bin" / launcher_name, launcher)
+    if os.name != "nt":
+        launcher.chmod(0o755)
+    project = tmp_path / "project with spaces"
+    project.mkdir()
+    (project / "compound-gpid.md").write_text("# Project\n", encoding="utf-8")
+    (project / "guide.md").write_text(
+        "# Guide\n\n![Pixel](pixel.png)\n",
+        encoding="utf-8",
+    )
+    def png_chunk(chunk_type: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + chunk_type
+            + data
+            + struct.pack(">I", zlib.crc32(chunk_type + data) & 0xFFFFFFFF)
+        )
+
+    (project / "pixel.png").write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
+        + png_chunk(b"IDAT", zlib.compress(b"\x00\x00\x00\x00\x00"))
+        + png_chunk(b"IEND", b"")
+    )
+    outside = tmp_path / "outside"
+    outside.mkdir()
+
+    rendered = subprocess.run(
+        [str(launcher), "--root", str(project), "guide.md"],
+        cwd=outside,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    checked = subprocess.run(
+        [str(launcher), "--root", str(project), "--check", "guide.md"],
+        cwd=outside,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert rendered.returncode == 0, rendered.stderr
+    assert checked.returncode == 0, checked.stderr
+    assert "current .cg-docs/views/documents/guide.html" in checked.stdout
+    output = project / ".cg-docs/views/documents/guide.html"
+    assert "data:image/png;base64," in output.read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(os.name == "nt", reason="executes Bash candidate fallback")
+def test_matrix_bash_wrapper_fallback_and_child_failure(tmp_path: Path) -> None:
+    install_root = tmp_path / "install"
+    shutil.copytree(REPO_ROOT / "scripts", install_root / "scripts")
+    (install_root / "bin").mkdir()
+    wrapper = install_root / "bin/cg-publish-markdown"
+    shutil.copy2(REPO_ROOT / "bin/cg-publish-markdown", wrapper)
+    wrapper.chmod(0o755)
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    log = tmp_path / "python.log"
+    (fake_bin / "python3").write_text(
+        "#!/bin/sh\n"
+        "if [ \"$1\" = \"--version\" ]; then echo 'not python'; exit 0; fi\n"
+        "exit 99\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python3").chmod(0o755)
+    (fake_bin / "python").write_text(
+        "#!/bin/sh\n"
+        "if [ \"$1\" = \"--version\" ]; then echo 'Python 3.11.0'; exit 0; fi\n"
+        "if [ \"$1\" = \"-c\" ]; then exit 0; fi\n"
+        f"printf '%s\\n' \"$*\" >> '{log}'\n"
+        "exit 7\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python").chmod(0o755)
+    environment = os.environ.copy()
+    environment["PATH"] = f"{fake_bin}{os.pathsep}{environment.get('PATH', '')}"
+
+    result = subprocess.run(
+        [str(wrapper), "--check", "guide with spaces.md"],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 7
+    assert "guide with spaces.md" in log.read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(os.name == "nt", reason="executes repository-local Bash wrapper")
+def test_matrix_repository_bash_wrapper_runs_and_falls_back(tmp_path: Path) -> None:
+    wrapper = REPO_ROOT / "bin/cg-publish-markdown"
+    project = tmp_path / "repo project with spaces"
+    project.mkdir()
+    (project / "compound-gpid.md").write_text("# Project\n", encoding="utf-8")
+    (project / "guide with spaces.md").write_text("# Guide\n", encoding="utf-8")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+
+    rendered = subprocess.run(
+        [str(wrapper), "--root", str(project), "guide with spaces.md"],
+        cwd=outside,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    checked = subprocess.run(
+        [str(wrapper), "--root", str(project), "--check", "guide with spaces.md"],
+        cwd=outside,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert rendered.returncode == 0, rendered.stderr
+    assert checked.returncode == 0, checked.stderr
+
+    fake_bin = tmp_path / "repo-fake-bin"
+    fake_bin.mkdir()
+    log = tmp_path / "repo-python.log"
+    (fake_bin / "python3").write_text(
+        "#!/bin/sh\nif [ \"$1\" = \"--version\" ]; then echo bad; exit 0; fi\nexit 99\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python3").chmod(0o755)
+    (fake_bin / "python").write_text(
+        "#!/bin/sh\n"
+        "if [ \"$1\" = \"--version\" ]; then echo 'Python 3.11.0'; exit 0; fi\n"
+        "if [ \"$1\" = \"-c\" ]; then exit 0; fi\n"
+        f"printf '%s\\n' \"$*\" >> '{log}'\nexit 7\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "python").chmod(0o755)
+    environment = os.environ.copy()
+    environment["PATH"] = f"{fake_bin}{os.pathsep}{environment.get('PATH', '')}"
+    failed = subprocess.run(
+        [str(wrapper), "--check", "guide with spaces.md"],
+        cwd=outside,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert failed.returncode == 7
+    assert "guide with spaces.md" in log.read_text(encoding="utf-8")

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md">
+<meta name="artifact-source-sha256" content="91cd96a8874c721e3fdad7fa5727856fa0a28c0f235c2c15ce9f86a0c213956c">
+<meta name="artifact-schema-version" content="1">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Workflow completion dossier and curated artifact themes · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"artifactSchemaVersion":1,"generatedAt":"2026-08-03T21:20:47Z","rendererVersion":"0.1.0","sourcePath":".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md","sourceSha256":"91cd96a8874c721e3fdad7fa5727856fa0a28c0f235c2c15ce9f86a0c213956c"}</script>
+</head>
+<body data-artifact-kind="brainstorm">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Decision record</p>
+    <h1>Workflow completion dossier and curated artifact themes</h1>
+    <p class="deck">A complete human view of the canonical Brainstorm, organized around alternatives and the chosen direction. <a href="../../brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#context">Context</a></li><li><a href="#requirements">Requirements</a></li><li><a href="#approaches-considered">Approaches</a></li><li><a href="#decision">Decision</a></li><li><a href="#next-steps">Next steps</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="approach-index" aria-labelledby="approach-index"><h2 id="approach-index">Approach index</h2><ol><li>Approach 1: One Initiative, Two Linked Delivery Units</li><li>Approach 2: One Integrated Deep Implementation Plan</li><li>Approach 3: Completion Dossier First, Themes Later</li></ol></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="12-12"><h1 id="workflow-completion-dossier-and-curated-artifact-themes">Workflow Completion Dossier and Curated Artifact Themes</h1></div>
+<div class="source-block source-heading" id="render-owner-0006" data-source-block="block-0006" data-source-lines="14-14"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0008" data-source-block="block-0008" data-source-lines="16-16"><p>Compound GPID already produces canonical Brainstorm, Plan, work, review, fix-triage, and solution artifacts, but no single artifact explains the complete journey from the original problem through implementation, verification, review, resolution, and knowledge capture. The task owner needs one coherent account that explains what happened, why decisions were made, what changed during execution, which problems were found, how they were resolved, and what remains open or correctable.</p></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="18-18"><p>This extends the decision in <code>.cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md</code>. Canonical Markdown remains authoritative. HTML remains a deterministic, self-contained, regenerable human view and never becomes a competing source.</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="20-20"><p>The repository also contains two appealing but materially different visual systems:</p></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="22-23"><ul><li>The current <code>main</code> artifact-view design is restrained, contract-like, and optimized for exact review of Brainstorms and Plans.</li><li>The <code>refactor/modular-compound-gpid</code> editorial brief design uses Georgia, Trebuchet MS, and Consolas; warm paper; coral, teal, blue, and yellow accents; full-width bands; diagrams; explicit comparison surfaces; and stronger narrative hierarchy.</li></ul></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="25-25"><p>The question is not whether to replace one with the other, but whether Compound GPID can support both coherently and select predictable defaults for distinct reading jobs.</p></div>
+<div class="source-block source-heading" id="render-owner-0018" data-source-block="block-0018" data-source-lines="27-27"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0020" data-source-block="block-0020" data-source-lines="29-44"><ul><li>Optimize the completion dossier first for the original task owner to understand and correct the recorded process.</li><li>Create canonical completion-report Markdown as a synthesized, correctable account grounded in persisted workflow artifacts.</li><li>Use recorded facts only. When rationale or evidence was discussed but not persisted, flag the gap rather than infer or silently fill it.</li><li>Preserve source links, provenance, uncertainty, unresolved items, skipped items, and manual follow-up prominently enough to challenge the account.</li><li>Keep the completion dossier concise at the top while retaining detailed evidence and traceability for review and future maintenance.</li><li>Keep canonical source authority and model-assisted synthesis separate from deterministic HTML presentation.</li><li>Support two coherent themes rather than mixing fonts, palettes, layouts, and components case by case.</li><li>Use deterministic artifact-type defaults with an explicit user override.</li><li>Use the restrained reference theme by default for Brainstorms and Plans.</li><li>Use the editorial theme by default for completion dossiers.</li><li>Permit an agent to recommend a theme override, but never let it silently make a non-reproducible aesthetic choice.</li><li>Persist the selected theme in generation inputs or provenance so regeneration is stable.</li><li>Share security, source coverage, provenance, accessibility, responsive behavior, print behavior, freshness checks, and failure semantics across themes.</li><li>Scope the first iteration to workflow artifact views: Brainstorms, Plans, and completion dossiers. Do not restyle the documentation site or all <code>.cg-docs</code> artifacts.</li><li>Exclude derived HTML from model context, Knowledge Brain ingestion, and other duplicate-content paths.</li><li>Deliver the work as one product initiative with two separately planned, implemented, reviewed, and verifiable units.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0022" data-source-block="block-0022" data-source-lines="46-46"><h2 id="approaches-considered">Approaches Considered</h2></div>
+<div class="source-block source-heading" id="render-owner-0024" data-source-block="block-0024" data-source-lines="48-48"><h3 id="approach-1-one-initiative-two-linked-delivery-units">Approach 1: One Initiative, Two Linked Delivery Units</h3></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="50-50"><p>Build the curated theme and generic publishing foundation first, then build the completion dossier as a dependent unit that reuses it.</p></div>
+<div class="source-block" id="render-owner-0028" data-source-block="block-0028" data-source-lines="52-52"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0030" data-source-block="block-0030" data-source-lines="54-58"><ul><li>Matches the existing roadmap boundaries between generic Markdown publishing and the completion report.</li><li>Keeps content synthesis and presentation concerns separate.</li><li>Reuses provenance, security, freshness, accessibility, print, and theme-selection behavior.</li><li>Allows each unit to ship, fail, and be validated independently.</li><li>Avoids coupling strict Brainstorm and Plan parsing to completion-report synthesis.</li></ul></div>
+<div class="source-block" id="render-owner-0032" data-source-block="block-0032" data-source-lines="60-60"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="62-64"><ul><li>Requires coordination across two implementation plans or pull requests.</li><li>The completion dossier arrives after the publishing and theme foundation.</li><li>Cross-unit contracts must be explicit to prevent drift.</li></ul></div>
+<div class="source-block" id="render-owner-0036" data-source-block="block-0036" data-source-lines="66-66"><p><strong>Effort</strong>: Large overall, divided into manageable medium-sized units.</p></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="68-68"><p><strong>Recommended</strong>: Yes. This preserves one coherent product direction without creating one oversized acceptance surface.</p></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="70-70"><h3 id="approach-2-one-integrated-deep-implementation-plan">Approach 2: One Integrated Deep Implementation Plan</h3></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="72-72"><p>Add the theme registry, port both visual systems, define the completion-report schema and generator, and integrate report generation into <code>/cg-compound</code> in one plan and branch.</p></div>
+<div class="source-block" id="render-owner-0044" data-source-block="block-0044" data-source-lines="74-74"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0046" data-source-block="block-0046" data-source-lines="76-78"><ul><li>Makes all architectural decisions in one pass.</li><li>Allows the editorial theme to be designed directly around the dossier.</li><li>Avoids an intermediate publishing-only state.</li></ul></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="80-80"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="82-84"><ul><li>Creates a very large blast radius across parsing, rendering, prompts, platform targets, source relationships, and tests.</li><li>Makes failures and regressions harder to localize.</li><li>Risks conflating report correctness with visual acceptance.</li></ul></div>
+<div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="86-86"><p><strong>Effort</strong>: Very large.</p></div>
+<div class="source-block" id="render-owner-0054" data-source-block="block-0054" data-source-lines="88-88"><p><strong>Recommended</strong>: No. It is technically feasible but unnecessarily difficult to verify as one task.</p></div>
+<div class="source-block source-heading" id="render-owner-0056" data-source-block="block-0056" data-source-lines="90-90"><h3 id="approach-3-completion-dossier-first-themes-later">Approach 3: Completion Dossier First, Themes Later</h3></div>
+<div class="source-block" id="render-owner-0058" data-source-block="block-0058" data-source-lines="92-92"><p>Generate completion-report Markdown first and render it with one existing style, then add curated themes later.</p></div>
+<div class="source-block" id="render-owner-0060" data-source-block="block-0060" data-source-lines="94-94"><p><strong>Pros</strong></p></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="96-98"><ul><li>Tests the dossier&#x27;s usefulness sooner.</li><li>Delivers the main comprehension and correction value before broader presentation work.</li><li>Reduces the first implementation&#x27;s design scope.</li></ul></div>
+<div class="source-block" id="render-owner-0064" data-source-block="block-0064" data-source-lines="100-100"><p><strong>Cons</strong></p></div>
+<div class="source-block" id="render-owner-0066" data-source-block="block-0066" data-source-lines="102-104"><ul><li>The current strict renderer supports Brainstorm and Plan schemas, not arbitrary or completion-report Markdown.</li><li>Likely creates a temporary dossier-specific rendering path.</li><li>Introduces predictable rework when theme support is added.</li></ul></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="106-106"><p><strong>Effort</strong>: Medium initially, followed by additional migration work.</p></div>
+<div class="source-block" id="render-owner-0070" data-source-block="block-0070" data-source-lines="108-108"><p><strong>Recommended</strong>: No unless delivery urgency outweighs the expected rework.</p></div>
+<div class="source-block source-heading" id="render-owner-0072" data-source-block="block-0072" data-source-lines="110-110"><h2 id="decision">Decision</h2></div>
+<div class="source-block" id="render-owner-0074" data-source-block="block-0074" data-source-lines="112-112"><p>Choose <strong>One Initiative, Two Linked Delivery Units</strong>.</p></div>
+<div class="source-block" id="render-owner-0076" data-source-block="block-0076" data-source-lines="114-114"><p>The first unit extends the existing deterministic publishing architecture with a small curated theme registry and a generic Markdown document path. It preserves two complete visual identities:</p></div>
+<div class="source-block" id="render-owner-0078" data-source-block="block-0078" data-source-lines="116-117"><ul><li><code>reference</code>: the restrained current artifact-view design, default for Brainstorms and Plans.</li><li><code>editorial</code>: the richer standalone editorial brief design, default for completion dossiers.</li></ul></div>
+<div class="source-block" id="render-owner-0080" data-source-block="block-0080" data-source-lines="119-119"><p>The renderer selects the documented default from artifact type. Users can override it explicitly, for example with <code>--theme reference</code> or <code>--theme editorial</code>. The selected theme is recorded so regeneration remains deterministic. Agents may recommend an override but must not silently choose presentation based on subjective judgment.</p></div>
+<div class="source-block" id="render-owner-0082" data-source-block="block-0082" data-source-lines="121-121"><p>The second unit defines and generates the canonical completion-report Markdown, integrates explicit and default generation into the workflow, and renders the report through the shared publishing and theme capability. The report synthesizes persisted evidence, identifies evidence gaps, and remains open to correction. It must never present inferred rationale as recorded fact.</p></div>
+<div class="source-block" id="render-owner-0084" data-source-block="block-0084" data-source-lines="123-123"><p>This decision combines the ideas at the product and architecture level while separating their implementation gates. The theme foundation is reusable presentation infrastructure; the dossier is a source-governed workflow product built on top of it.</p></div>
+<div class="source-block source-heading" id="render-owner-0086" data-source-block="block-0086" data-source-lines="125-125"><h2 id="devil-s-advocate-conclusions">Devil&#x27;s Advocate Conclusions</h2></div>
+<div class="source-block" id="render-owner-0088" data-source-block="block-0088" data-source-lines="127-131"><ul><li><strong>Problem validation</strong>: The missing end-to-end account is a real workflow gap. Multiple themes are valuable only where distinct document types have demonstrably different reading jobs; they are not an end in themselves.</li><li><strong>Simplicity</strong>: The existing <code>broader-artifact-publishing-formats-and-views</code> roadmap feature already calls for a small curated theme system. Reuse it rather than embedding theme intelligence in the completion-report command.</li><li><strong>Decision reversibility</strong>: Theme defaults are reversible because HTML is derived. The completion-report schema and source-linking model are durable contracts and must be versioned carefully.</li><li><strong>Stakeholder impact</strong>: The task owner needs correction affordances, reviewers need evidence, future maintainers need provenance, and agents need duplicate-content exclusions. Visual polish must not obscure missing evidence.</li><li><strong>Charter fit</strong>: One model-assisted synthesis of canonical report Markdown can be justified, while routine HTML generation stays local, deterministic, and model-free to align with token-efficiency goals.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0090" data-source-block="block-0090" data-source-lines="133-133"><h2 id="next-steps">Next Steps</h2></div>
+<div class="source-block" id="render-owner-0092" data-source-block="block-0092" data-source-lines="135-145"><ol><li>Create the first linked plan for the generic Markdown publishing and curated theme foundation, using roadmap feature <code>broader-artifact-publishing-formats-and-views</code>.</li><li>Define the theme contract: stable names, artifact-type defaults, explicit override, provenance, compatibility, fallback and unknown-theme failure behavior, shared semantic components, and visual regression evidence.</li><li>Port the <code>main</code> artifact-view aesthetics as the <code>reference</code> theme without weakening existing Brainstorm and Plan fidelity or validation.</li><li>Port the alternate branch&#x27;s aesthetics as the <code>editorial</code> theme using only its style, typography, palette, layout grammar, responsive behavior, print rules, and presentation components.</li><li>Keep both themes fully standalone with no external fonts, stylesheets, scripts, runtime network calls, model calls, or Open Design dependency.</li><li>Validate the theme foundation independently across representative technical, decision, and editorial Markdown documents.</li><li>After the foundation is accepted, create the second linked plan for roadmap feature <code>workflow-completion-report-and-html-dossier</code>.</li><li>Define a versioned completion-report schema, explicit source-relationship contract, evidence-gap markers, correction workflow, resumable regeneration behavior, and required report sections.</li><li>Integrate explicit <code>/cg-completion-report</code> generation and default end-of-<code>/cg-compound</code> generation with a <code>--no-report</code> opt-out.</li><li>Render completion dossiers through the shared publisher with <code>editorial</code> as the deterministic default and <code>reference</code> as an explicit override.</li><li>Validate report factual grounding, source coverage, missing-evidence disclosure, correction behavior, duplicate-content exclusions, cross-platform parity, accessibility, responsive behavior, and print output.</li></ol></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md</dd>
+      <dt>Source SHA-256</dt><dd><code>91cd96a8874c721e3fdad7fa5727856fa0a28c0f235c2c15ce9f86a0c213956c</code></dd>
+      <dt>Artifact schema</dt><dd>1</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Generated UTC</dt><dd>2026-08-03T21:20:47Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

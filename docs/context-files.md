@@ -285,11 +285,13 @@ Bad entries are **transient or task-specific**:
 - The plan for implementing the poverty decomposition feature → `.cg-docs/plans/`
 - The solution to the PPP vintage mismatch bug → `.cg-docs/solutions/bugs/`
 
-Brainstorm and Plan HTML under `.cg-docs/views/` is generated for human review.
+Brainstorm, Plan, and generic document HTML under `.cg-docs/views/` is generated
+for human review. Generic views live under `.cg-docs/views/documents/`.
 Canonical Markdown remains authoritative. Generated HTML bodies are excluded
 from model context, Brain/query inputs, token source totals, duplicate checks,
 release knowledge, and review or commit prose. Agents may retain view paths,
-counts, provenance, staging state, and `cg-render-artifact --check` results.
+counts, provenance, staging state, and `cg-render-artifact --check` or
+`cg-publish-markdown --check` results.
 
 ---
 

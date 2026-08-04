@@ -35,6 +35,13 @@ def _write_bytes(path: Path, content: bytes) -> Path:
     return path
 
 
+def _mkfifo(path: Path) -> None:
+    mkfifo = getattr(os, "mkfifo", None)
+    if mkfifo is None:
+        pytest.skip("FIFO creation is unavailable")
+    mkfifo.__call__(path)
+
+
 def _fixture_repo(tmp_path: Path) -> Path:
     root = tmp_path / "repo"
     mapping = json.loads(
@@ -96,7 +103,9 @@ def _canonical_skills(root: Path = REPO_ROOT) -> tuple[Path, ...]:
 
 
 def _local_markdown_targets(markdown: Path, bundle_root: Path) -> tuple[Path, ...]:
-    text = gen._strip_fenced_code(markdown.read_text(encoding="utf-8"))
+    text = gen._strip_fenced_code(  # pylint: disable=protected-access
+        markdown.read_text(encoding="utf-8")
+    )
     references = gen.MARKDOWN_LINK_PATTERN.findall(text)
     references.extend(gen.MARKDOWN_REFERENCE_PATTERN.findall(text))
     targets: list[Path] = []
@@ -154,7 +163,7 @@ def test_every_canonical_skill_recursively_matches_all_generated_targets() -> No
                 output = generated / relative
                 if relative.casefold().endswith((".md", ".markdown")):
                     source_identity = source.relative_to(REPO_ROOT).as_posix()
-                    expected = gen._rewrite_runtime_dependencies(
+                    expected = gen._rewrite_runtime_dependencies(  # pylint: disable=protected-access
                         source.read_text(encoding="utf-8"),
                         targets[skill_root],
                         assets,
@@ -225,7 +234,7 @@ def test_pilot_plan_has_exact_bytes_hashes_and_executable_flags_for_all_targets(
         for entry in entries:
             relative = Path(entry.destination).relative_to(Path(skill_root) / PILOT)
             source = root / ".github/skills" / PILOT / relative
-            expected = source.read_bytes()
+            expected = gen._skill_bundle_content(source)  # pylint: disable=protected-access
             assert entry.source == source.relative_to(root).as_posix()
             assert entry.content == expected
             assert entry.sha256 == hashlib.sha256(expected).hexdigest()
@@ -281,7 +290,7 @@ def test_pilot_special_entry_is_rejected_without_opening(tmp_path: Path) -> None
     root = _fixture_repo(tmp_path)
     _skill_file(root, "SKILL.md", b"# Fixture\n")
     fifo = root / ".github/skills" / PILOT / "named-pipe"
-    os.mkfifo(fifo)
+    _mkfifo(fifo)
 
     with pytest.raises(ValueError, match="regular|special|FIFO"):
         gen.scan_canonical_assets(root)
@@ -293,7 +302,7 @@ def test_special_entry_in_non_pilot_skill_is_rejected(tmp_path: Path) -> None:
     _write_bytes(skill_root / "SKILL.md", b"# Fixture\n")
     if not hasattr(os, "mkfifo"):
         pytest.skip("FIFO creation is unavailable")
-    os.mkfifo(skill_root / "named-pipe")
+    _mkfifo(skill_root / "named-pipe")
 
     with pytest.raises(ValueError, match="regular|special|FIFO"):
         gen.scan_canonical_assets(root)

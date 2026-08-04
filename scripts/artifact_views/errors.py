@@ -46,7 +46,7 @@ class ArtifactViewError(Exception):
     def __str__(self) -> str:
         location = ""
         if self.source_path is not None:
-            location = str(self.source_path)
+            location = self.source_path.as_posix()
             if self.span is not None:
                 if self.span.start_line == self.span.end_line:
                     location += f":{self.span.start_line}"

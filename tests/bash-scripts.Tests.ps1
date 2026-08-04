@@ -55,7 +55,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -153,6 +153,7 @@ Describe "install.sh - PATH block is idempotent" {
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
 
         try {
             # First run — use temp install dir
@@ -548,12 +549,44 @@ Describe "bash-scripts - bin/cg-render-artifact wrapper content" {
     }
 }
 
+Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
+    $wrapperPath = Join-Path $repoRoot "bin/cg-publish-markdown"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-publish-markdown exists" {
+        Test-Path $wrapperPath | Should -Be $true
+    }
+
+    It "bin/cg-publish-markdown references publish_markdown.py" {
+        $wrapperContent | Should -Match 'publish_markdown\.py'
+    }
+
+    It "bin/cg-publish-markdown resolves all Python candidates" {
+        $wrapperContent | Should -Match 'resolve_python'
+        $wrapperContent | Should -Match 'python3 python py'
+        $wrapperContent | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+    }
+
+    It "bin/cg-publish-markdown forwards arguments and process exit status" {
+        $wrapperContent | Should -Match 'exec "\$PYTHON_CMD"'
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "install.sh copies and lists cg-publish-markdown" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'cp.*cg-publish-markdown'
+        $installSh | Should -Match 'chmod \+x.*cg-publish-markdown'
+        $installSh | Should -Match 'cg-publish-markdown.*Publish one generic Markdown document'
+    }
+}
+
 Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     $wrappers = @(
         "cg-index",
         "cg-brain-init",
         "cg-token-audit",
         "cg-render-artifact",
+        "cg-publish-markdown",
         "cg-diff-summary",
         "cg-log-summary",
         "cg-problems-summary",

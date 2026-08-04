@@ -201,7 +201,7 @@ class TestGenerationPlan:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        original = gen._render_output_entry
+        original = gen._render_output_entry  # pylint: disable=protected-access
 
         def fail_on_late_target(*args, **kwargs):
             target = args[0]
@@ -446,7 +446,7 @@ class TestOwnershipManifest:
             self._make_entry(".claude/agents/cg-agent.md"),
         )
         result = self._make_result(entries)
-        manifest = gen._ownership_manifest_bytes(result)
+        manifest = gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
         data = json.loads(manifest.decode("utf-8"))
         assert data["schemaVersion"] == 1
         assert data["target"] == "claude-code"
@@ -460,14 +460,18 @@ class TestOwnershipManifest:
         """Two calls with the same data produce identical bytes."""
         entries = (self._make_entry(".claude/commands/cg-test.md"),)
         result = self._make_result(entries)
-        assert gen._ownership_manifest_bytes(result) == gen._ownership_manifest_bytes(result)
+        assert gen._ownership_manifest_bytes(  # pylint: disable=protected-access
+            result
+        ) == gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
 
     def test_read_prior_manifest_returns_empty_when_missing(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest returns {} when no manifest exists."""
         entries = (self._make_entry(".claude/commands/cg-test.md"),)
         result = self._make_result(entries)
         root = tmp_path / "fixture"
-        assert gen._read_prior_ownership_manifest(root, result) == {}
+        assert gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+            root, result
+        ) == {}
 
     def test_read_prior_manifest_parses_valid(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest correctly parses a valid manifest."""
@@ -483,8 +487,74 @@ class TestOwnershipManifest:
         (root / ".claude/.compound-gpid-generated.json").write_text(
             json.dumps(manifest_data), encoding="utf-8"
         )
-        owned = gen._read_prior_ownership_manifest(root, result)
+        owned = gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+            root, result
+        )
         assert owned[".claude/commands/cg-test.md"].sha256 == "b" * 64
+
+    def test_read_prior_manifest_uses_bounded_secure_reader(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        result = self._make_result(())
+        manifest_data = {
+            "schemaVersion": 1,
+            "target": "claude-code",
+            "policyVersion": 1,
+            "files": [],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(manifest_data),
+            encoding="utf-8",
+        )
+        observed = {}
+        original_read = gen.secure_fs.secure_read_bytes
+
+        def observe(root_path, relative_path, **kwargs):
+            observed.update(kwargs)
+            return original_read(root_path, relative_path, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", observe)
+
+        gen._read_prior_ownership_manifest(root, result)  # pylint: disable=protected-access
+
+        assert observed["reject_hardlinks"] is True
+        assert observed["max_bytes"] > 0
+
+    @pytest.mark.usefixtures("require_symlink_support")
+    def test_manifest_final_component_swap_fails_closed(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        result = self._make_result(())
+        manifest = root / ".claude/.compound-gpid-generated.json"
+        manifest.write_bytes(
+            gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
+        )
+        outside = tmp_path / "outside.json"
+        outside.write_text(
+            '{"schemaVersion":1,"target":"claude-code","policyVersion":1,"files":[]}',
+            encoding="utf-8",
+        )
+        original_read = gen.secure_fs.secure_read_bytes
+
+        def swap_then_read(root_path, relative_path, **kwargs):
+            def swap(_path: Path) -> None:
+                manifest.unlink()
+                manifest.symlink_to(outside)
+
+            return original_read(root_path, relative_path, before_open=swap, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", swap_then_read)
+
+        with pytest.raises(ValueError, match="unsafe"):
+            gen._read_prior_ownership_manifest(root, result)  # pylint: disable=protected-access
 
     def test_read_prior_manifest_rejects_missing_keys(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest rejects manifest with missing schema keys."""
@@ -496,7 +566,9 @@ class TestOwnershipManifest:
             json.dumps({"schemaVersion": 1, "target": "claude-code"}), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="invalid schema"):
-            gen._read_prior_ownership_manifest(root, result)
+            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+                root, result
+            )
 
     def test_read_prior_manifest_rejects_wrong_target(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest rejects manifest for a different target."""
@@ -509,7 +581,9 @@ class TestOwnershipManifest:
             json.dumps(data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="target does not match"):
-            gen._read_prior_ownership_manifest(root, result)
+            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+                root, result
+            )
 
     def test_preflight_target_commit_detects_stale_file_modification(self, tmp_path: Path) -> None:
         """_preflight_target_commit raises on modified stale owned file."""
@@ -536,7 +610,7 @@ class TestOwnershipManifest:
             json.dumps(prior_data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="Modified stale"):
-            gen._preflight_target_commit(root, result)
+            gen._preflight_target_commit(root, result)  # pylint: disable=protected-access
 
     def test_preflight_target_commit_accepts_unmodified_stale(self, tmp_path: Path) -> None:
         """_preflight_target_commit accepts stale file with matching hash."""
@@ -563,12 +637,14 @@ class TestOwnershipManifest:
         (root / ".claude/.compound-gpid-generated.json").write_text(
             json.dumps(prior_data), encoding="utf-8"
         )
-        plan = gen._preflight_target_commit(root, result)
+        plan = gen._preflight_target_commit(  # pylint: disable=protected-access
+            root, result
+        )
         assert isinstance(plan, gen.TargetCommitPlan)
 
     def test_pathname_parent_pruning_helper_is_absent(self) -> None:
         """Generated cleanup must not mutate parent directories by pathname."""
-        assert not hasattr(gen, "_prune_empty_parents")
+        assert not hasattr(gen, "_prune_empty_parents")  # pylint: disable=protected-access
 
 
 class TestHelperFunctions:
@@ -591,7 +667,7 @@ class TestHelperFunctions:
         ("123", "123"),
     ])
     def test_yaml_scalar(self, value: str, expected: str) -> None:
-        assert gen._yaml_scalar(value) == expected
+        assert gen._yaml_scalar(value) == expected  # pylint: disable=protected-access
 
     @pytest.mark.parametrize("text,expected", [
         ("plain text", "plain text"),
@@ -601,37 +677,37 @@ class TestHelperFunctions:
         ("```python\nprint(1)\n```\nbody\n```\nmore", "body\n"),
     ])
     def test_strip_fenced_code(self, text: str, expected: str) -> None:
-        assert gen._strip_fenced_code(text) == expected
+        assert gen._strip_fenced_code(text) == expected  # pylint: disable=protected-access
 
     def test_validate_bundle_references_valid(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [other](other.md)", "relative_path": "doc.md"},
             {"bundle_relative_path": "other.md", "content": b"Other content", "relative_path": "other.md"},
         ]
-        gen._validate_bundle_markdown_references(bundle)
+        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
 
     def test_validate_bundle_references_missing(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [missing](nope.md)", "relative_path": "doc.md"},
         ]
         with pytest.raises(ValueError, match="missing from skill bundle"):
-            gen._validate_bundle_markdown_references(bundle)
+            gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
 
     def test_validate_bundle_references_escapes(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [/etc/passwd](/etc/passwd)", "relative_path": "doc.md"},
         ]
         with pytest.raises(ValueError, match="escapes skill bundle"):
-            gen._validate_bundle_markdown_references(bundle)
+            gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
 
     def test_validate_bundle_references_skips_urls(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [web](https://example.com)", "relative_path": "doc.md"},
         ]
-        gen._validate_bundle_markdown_references(bundle)
+        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
 
     def test_validate_bundle_references_skips_non_markdown(self) -> None:
         bundle = [
             {"bundle_relative_path": "data.csv", "content": b"a,b,c", "relative_path": "data.csv"},
         ]
-        gen._validate_bundle_markdown_references(bundle)
+        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
