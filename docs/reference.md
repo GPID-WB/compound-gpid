@@ -31,7 +31,7 @@ The mapping defines these target-local runtime and support roots:
 | Claude Code | `.claude/commands` | `.claude/skills` | `.claude/agents` | `.claude/instructions` | `.claude/shared` |
 | Codex | `.agents/commands` | `.agents/skills` | `.agents/subagents` | `.agents/instructions` | `.agents/shared` |
 | OpenCode | `.opencode/commands` | `.opencode/skills` | `.opencode/agents` | `.opencode/instructions` | `.opencode/shared` |
-| Kilo | `.kilo/command` | `.kilo/skill` | `.kilo/agent` | `.kilo/instructions` | `.kilo/shared` |
+| Kilo | `.kilo/commands` | `.kilo/skills` | `.kilo/agent` | `.kilo/instructions` | `.kilo/shared` |
 
 Generation computes a deterministic isolated dependency closure across command
 support files, complete skill bundles, agents, instructions, and shared
@@ -580,7 +580,7 @@ your-project/
 ├── .claude/                  # Claude Code install units: commands/skills/agents linked; root files copied if managed
 ├── .agents/                  # Codex install units: commands/skills/subagents linked; root files copied if managed
 ├── .opencode/                # OpenCode install units: commands/skills/agents linked; config copied if managed
-├── .kilo/                    # Kilo install units: command/skill/agent linked; config copied if managed
+├── .kilo/                    # Kilo install units: commands/skills/agent linked; config copied if managed
 ├── .compound-gpid/managed-files.json  # sidecar checksums for copied strict config/root files
 ├── compound-gpid.md          # Project charter (4 sections: Objective, Key Deliverables, Constraints, Current Focus). YAML: project-name, team, created, last-reviewed. Committed -- shared.
 ├── compound-gpid.context.md  # Growing project knowledge base (data sources, domain vocab, workspace notes). Committed -- institutional memory.

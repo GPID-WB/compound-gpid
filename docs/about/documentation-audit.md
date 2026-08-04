@@ -56,7 +56,7 @@ at commit
 - Product roadmap, charter, and release-history discrepancies are reported,
   not silently rewritten as settled facts.
 - The public skills catalog counts canonical `.github/skills/cg-skill-*/SKILL.md`
-  directories once. Generated `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` copies
+   directories once. Generated `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` copies
   are mirrors, not additional skills.
 
 ## Stale material requiring owner review
