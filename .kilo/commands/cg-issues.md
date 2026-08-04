@@ -188,7 +188,7 @@ Configure GitHub Issues integration for this project (stores config in `roadmap.
 - **No bidirectional sync in v1**: GitHub Issues state (open/closed, comments, assignees) is never mirrored back into `roadmap.json`. This is intentionally one-way linkage.
 - **`autoCreate` defaults to `false`**: unless the user explicitly requests `autoCreate: true`, always store `false`.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

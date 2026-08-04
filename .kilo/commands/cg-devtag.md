@@ -95,7 +95,7 @@ Note: this tag is invisible to regular users in cg-update --list.
 
 > **See also**: `docs/versioning.md` -- "Dev tags (maintainer-only)" section explains the invisibility guarantees, filtering behavior in `cg-update`, and cleanup steps.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

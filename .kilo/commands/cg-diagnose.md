@@ -276,7 +276,7 @@ Full crash documentation:
 - `.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md`
 - `.cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md`
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

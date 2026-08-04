@@ -104,7 +104,7 @@ clearly and suggest the three most likely causes:
 Show the raw error output from `cg-index` verbatim so the user can diagnose
 unexpected failures beyond these two common causes.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

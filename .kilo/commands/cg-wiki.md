@@ -166,7 +166,7 @@ After any write operation, offer:
 > 2. **`/cg-review`** — Run a code review on recent changes
 > 3. **`/cg-compound`** — Capture learnings from this session
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

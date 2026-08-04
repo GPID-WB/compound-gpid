@@ -273,7 +273,7 @@ Wait for the user's response before proceeding.
 - Keep commits focused.
 - Ask before proceeding when a step is unclear.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

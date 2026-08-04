@@ -242,7 +242,7 @@ Suggest the logical next action based on what was decided:
   > "Option A: <X>. Option B: <Y>. Which would you like to proceed with,
   > or shall we end the session?"
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

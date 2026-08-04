@@ -262,7 +262,7 @@ If none were found, write "None.">
   - **P2**: Performance problem, missing test, poor error handling.
   - **P3**: Minor behavior deviation, cosmetic issue.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

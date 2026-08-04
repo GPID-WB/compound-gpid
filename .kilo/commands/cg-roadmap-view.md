@@ -85,7 +85,7 @@ Dispatch `@cg-roadmap-view` with:
 Present the agent's rendered output directly to the user. Do not add
 commentary or reformatting — the agent output is the final response.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

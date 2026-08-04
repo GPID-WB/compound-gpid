@@ -264,7 +264,7 @@ For each confirmed commit group, in order:
   >   - macOS: `brew install gh`, then `gh auth login`
   >   - Linux: see https://cli.github.com/, then `gh auth login`"
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

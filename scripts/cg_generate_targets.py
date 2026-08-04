@@ -840,6 +840,22 @@ def _with_opencode_arguments(body: str) -> str:
     )
 
 
+def _with_arguments_block(body: str, target_id: str) -> str:
+    """Append platform-appropriate argument placeholder to a command template body."""
+    if target_id == "opencode":
+        heading = "OpenCode Invocation Arguments"
+    else:
+        heading = "Invocation Arguments"
+    return (
+        f"{body.rstrip()}\n\n"
+        f"## {heading}\n\n"
+        "User-provided slash-command arguments:\n\n"
+        "```text\n"
+        "$ARGUMENTS\n"
+        "```\n"
+    )
+
+
 def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, dict[str, Any]]]:
     """Build per-category lookup dicts keyed by relative_path for O(1) access."""
     lookups: dict[str, dict[str, dict[str, Any]]] = {}
@@ -1309,7 +1325,7 @@ def _emit_command(
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, _with_opencode_arguments(body), {})
+        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), {})
     else:
         return body
 

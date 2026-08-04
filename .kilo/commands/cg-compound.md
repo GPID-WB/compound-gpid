@@ -222,7 +222,7 @@ If `enrich = false` (i.e., `--no-enrich` was passed): skip this step entirely.
 4. **Done**: No further action needed
 ```
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

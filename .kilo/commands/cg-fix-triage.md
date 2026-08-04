@@ -140,7 +140,7 @@ After processing all in-scope findings:
 
 When invoked as `/cg-fix-triage --migrate`, first verify `.kilo/skills/cg-skill-fix-triage-migrate/SKILL.md` can be read. If not found, stop: "Migration skill not found — re-run `cg-link` to restore it." Otherwise, load `cg-skill-fix-triage-migrate` and follow its instructions to add `findings:` tracking frontmatter using the companion-plan heuristic. Does NOT apply fixes.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

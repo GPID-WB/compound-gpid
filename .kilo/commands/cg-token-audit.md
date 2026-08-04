@@ -75,7 +75,7 @@ generated it as the compact recommendations source. Summarize:
 
 Keep the answer concise and evidence-driven. Do not auto-fix anything.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

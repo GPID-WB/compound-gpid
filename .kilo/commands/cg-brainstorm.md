@@ -288,7 +288,7 @@ Present the following options to the user:
 
 Wait for the user's response before proceeding.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

@@ -163,7 +163,7 @@ it in the summary.
 - Do not modify code files, prompts, agents, or skills — only `.cg-docs/solutions/` and `.cg-docs/archive/`.
 - If unsure whether to Archive vs. Replace, default to Replace with the current approach.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

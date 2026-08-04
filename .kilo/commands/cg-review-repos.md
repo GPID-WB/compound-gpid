@@ -400,7 +400,7 @@ Then ask:
 > "Want me to add any of these to the roadmap via `@cg-roadmap`? List the feature IDs
 > you'd like queued, or say 'none' to skip."
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 

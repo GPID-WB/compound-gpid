@@ -295,7 +295,7 @@ retry, or set a model or reasoning effort.
 
 Wait for the user's response before proceeding.
 
-## OpenCode Invocation Arguments
+## Invocation Arguments
 
 User-provided slash-command arguments:
 
