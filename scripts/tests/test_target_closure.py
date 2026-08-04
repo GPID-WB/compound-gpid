@@ -14,7 +14,7 @@ import cg_generate_targets as gen
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NATIVE_TARGETS = ("claude-code", "codex", "opencode")
+NATIVE_TARGETS = ("claude-code", "codex", "opencode", "kilo")
 CANONICAL_RUNTIME_REFERENCE = re.compile(
     r"(?<![A-Za-z0-9_.-])\.github/(?:prompts|skills|agents|instructions|shared)/"
     r"[^\s`'\"<>)]*"
@@ -242,7 +242,7 @@ def test_unsafe_canonical_runtime_rewrite_is_rejected(
 
 
 def _cli_evidence(target_id: str) -> dict[str, str]:
-    executable = {"claude-code": "claude", "codex": "codex", "opencode": "opencode"}[target_id]
+    executable = {"claude-code": "claude", "codex": "codex", "opencode": "opencode", "kilo": "kilo"}[target_id]
     path = shutil.which(executable)
     return {
         "target": target_id,

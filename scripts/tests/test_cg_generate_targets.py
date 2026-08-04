@@ -95,6 +95,22 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                     "config": ".opencode/opencode.json",
                 },
             },
+            {
+                "id": "kilo",
+                "name": "Kilo",
+                "generatedTreePath": ".kilo",
+                "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
+                "formats": {"commandFormat": "kilo-command", "skillFormat": "kilo-skill", "agentFormat": "kilo-agent"},
+                "outputPaths": {
+                    "commands": ".kilo/command",
+                    "skills": ".kilo/skill",
+                    "agents": ".kilo/agent",
+                    "instructions": ".kilo/instructions",
+                    "shared": ".kilo/shared",
+                    "rootAdapter": ".kilo/AGENTS.md",
+                    "config": ".kilo/kilo.json",
+                },
+            },
         ],
     }))
 
@@ -194,7 +210,7 @@ class TestGenerationPlan:
             gen.scan_canonical_assets(root),
         )
 
-        assert set(plan.by_target) == {"claude-code", "codex", "opencode"}
+        assert set(plan.by_target) == {"claude-code", "codex", "opencode", "kilo"}
         assert all(result.entries for result in plan.by_target.values())
 
     def test_all_outputs_render_before_first_write(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -217,8 +233,9 @@ class TestGenerationPlan:
         assert not (root / ".claude").exists()
         assert not (root / ".agents").exists()
         assert not (root / ".opencode").exists()
+        assert not (root / ".kilo").exists()
 
-    @pytest.mark.parametrize("target_id", ["claude-code", "codex", "opencode"])
+    @pytest.mark.parametrize("target_id", ["claude-code", "codex", "opencode", "kilo"])
     def test_emit_plan_writes_exact_planned_bytes(self, tmp_path: Path, target_id: str) -> None:
         root = _make_fixture_repo(tmp_path)
         plan = gen.build_generation_plan(
@@ -326,6 +343,34 @@ class TestGeneratorWrites:
         assert "role:" not in content.split("---", 2)[1]
         assert "GPT-5" not in content
 
+    def test_kilo_writes_config(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        gen.main(["--root", str(root), "--target", "kilo"])
+        data = json.loads((root / ".kilo/kilo.json").read_text())
+        assert data == {
+            "$schema": "https://app.kilo.ai/config.json",
+            "instructions": [".kilo/AGENTS.md"],
+            "skills": {"paths": [".kilo/skill"]},
+        }
+
+    def test_kilo_commands_use_valid_frontmatter_and_arguments(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        gen.main(["--root", str(root), "--target", "kilo"])
+        content = (root / ".kilo/command/cg-test.md").read_text()
+        assert "description: Test prompt" in content
+        assert "role:" not in content.split("---", 2)[1]
+        assert "$ARGUMENTS" in content
+
+    def test_kilo_uses_role_only_no_exact_models(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        gen.main(["--root", str(root), "--target", "kilo"])
+        agent_files = list((root / ".kilo/agent").glob("*.md"))
+        assert len(agent_files) == 1
+        content = agent_files[0].read_text()
+        assert "mode: subagent" in content
+        assert "role:" not in content.split("---", 2)[1]
+        assert "GPT-5" not in content
+
     def test_generator_does_not_modify_github(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         prompt_before = (root / ".github/prompts/cg-test.prompt.md").read_text()
@@ -339,6 +384,7 @@ class TestGeneratorWrites:
         assert (root / ".claude").exists()
         assert (root / ".agents").exists()
         assert (root / ".opencode").exists()
+        assert (root / ".kilo").exists()
 
     def test_copilot_target_produces_no_output(self, tmp_path: Path) -> None:
         """Copilot target has generatedTreePath: null and must produce no files."""

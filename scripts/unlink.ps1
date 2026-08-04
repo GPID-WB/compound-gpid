@@ -108,7 +108,7 @@ function Remove-CgGitignoreBlock {
     if (-not (Test-Path $gitignorePath)) { return }
     $content = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
     if (-not $content) { return }
-    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
     $updated = ($content -replace $pattern, "").TrimEnd()
     if ($updated -ne $content.TrimEnd()) {
         if ([string]::IsNullOrWhiteSpace($updated)) {
@@ -154,7 +154,7 @@ $removedAny = $false
 $roots = New-Object System.Collections.ArrayList
 
 # Legacy whole-root junctions from older linkers.
-foreach ($rootName in @(".github", ".claude", ".agents", ".opencode")) {
+foreach ($rootName in @(".github", ".claude", ".agents", ".opencode", ".kilo")) {
     $rootPath = Join-Path $ProjectRoot $rootName
     $item = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
     if (Test-CgOwnedJunction $item) {

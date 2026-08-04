@@ -398,7 +398,7 @@ Then retry `cg-link` from your project root.
 **Fix**:
 1. If the existing file/directory is intentional, leave it in place. For OpenCode config, apply the manual snippet printed by `cg-link` if needed.
 2. If you want Compound GPID to manage that unit, move or remove the existing path, then re-run `cg-link`.
-3. To install only one platform, run `cg-link --platforms opencode` or `cg-link --platforms copilot`.
+3. To install only one platform, run `cg-link --platforms opencode`, `cg-link --platforms kilo`, or `cg-link --platforms copilot`.
 
 ---
 

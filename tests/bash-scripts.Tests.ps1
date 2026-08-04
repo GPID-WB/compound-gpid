@@ -254,7 +254,7 @@ Describe "link.sh - script structure" {
 
     It "defaults to all platforms through normalize_platforms" {
         $content | Should -Match 'input="all"'
-        $content | Should -Match 'copilot claude-code codex opencode'
+        $content | Should -Match 'copilot claude-code codex opencode kilo'
     }
 
     It "fails loudly for missing selected source units" {

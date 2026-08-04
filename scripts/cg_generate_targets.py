@@ -1308,7 +1308,7 @@ def _emit_command(
     body = source["body"]
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
-    elif target["id"] == "opencode":
+    elif target["id"] in ("opencode", "kilo"):
         return _format_frontmatter(fm, _with_opencode_arguments(body), {})
     else:
         return body
@@ -1336,7 +1336,7 @@ def _emit_agent(
         return f'[[subagent]]\nname = {name}\ndescription = {desc}\ntools = [{tools_str}]\ninstructions = {instructions}\n'
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {})
-    elif target["id"] == "opencode":
+    elif target["id"] in ("opencode", "kilo"):
         return _format_frontmatter(fm, body, {"mode": "subagent"})
     else:
         return body
@@ -1362,7 +1362,7 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
 
 
 def _emit_config(target: dict[str, Any]) -> str:
-    """Emit a platform config file (e.g. opencode.json)."""
+    """Emit a platform config file (e.g. opencode.json, kilo.json)."""
     tid = target["id"]
     output_paths = target.get("outputPaths", {})
     if tid == "opencode":
@@ -1371,6 +1371,16 @@ def _emit_config(target: dict[str, Any]) -> str:
             "instructions": [output_paths.get("rootAdapter", ".opencode/AGENTS.md")],
             "skills": {
                 "paths": [output_paths.get("skills", ".opencode/skills")],
+            },
+        }
+        return json.dumps(config, indent=2, ensure_ascii=False) + "\n"
+
+    if tid == "kilo":
+        config = {
+            "$schema": "https://app.kilo.ai/config.json",
+            "instructions": [output_paths.get("rootAdapter", ".kilo/AGENTS.md")],
+            "skills": {
+                "paths": [output_paths.get("skills", ".kilo/skill")],
             },
         }
         return json.dumps(config, indent=2, ensure_ascii=False) + "\n"
@@ -1393,7 +1403,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         description="Generate native platform trees from canonical .github/ source."
     )
     parser.add_argument("--root", default=".", help="Project root directory (default: current directory)")
-    parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode)")
+    parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode, kilo)")
     parser.add_argument("--all", action="store_true", help="Generate all non-copilot targets")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be written without writing")
     args = parser.parse_args(argv)

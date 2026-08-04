@@ -80,6 +80,7 @@ def test_docs_define_fixed_deterministic_generated_ownership_manifests() -> None
         ".claude/.compound-gpid-generated.json",
         ".agents/.compound-gpid-generated.json",
         ".opencode/.compound-gpid-generated.json",
+        ".kilo/.compound-gpid-generated.json",
     ):
         assert path in CORPUS, f"Undocumented generated ownership manifest: {path}"
     _assert_terms(
@@ -133,7 +134,7 @@ def test_python_instructions_require_non_clobbering_filesystem_operations() -> N
         "reject hard-link aliases",
         "Atomic replacement alone is not non-clobbering",
     )
-    for generated_root in (".claude", ".agents", ".opencode"):
+    for generated_root in (".claude", ".agents", ".opencode", ".kilo"):
         generated = (
             REPO_ROOT / generated_root / "instructions/python.instructions.md"
         ).read_text(encoding="utf-8")

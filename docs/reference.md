@@ -5,10 +5,9 @@ and file structure. Use the focused [Commands](reference/commands.md),
 [Agents](reference/agents.md), [Skills](skills/index.md), and
 [Files and Artifacts](reference/files.md) pages for quicker navigation.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`). See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
-Compound GPID generates native platform trees for Claude Code, Codex, and
-OpenCode from the canonical `.github/` source. The trees are committed,
+Compound GPID generates native platform trees for Claude Code, Codex, OpenCode, and Kilo from the canonical `.github/` source. The trees are committed,
 release-validated, and distributed through merge-safe per-platform install units.
 `cg-link` links all supported platforms by default; use `--platforms` to narrow
 the install to a comma-separated list. The `adapters/` directory contains
@@ -32,6 +31,7 @@ The mapping defines these target-local runtime and support roots:
 | Claude Code | `.claude/commands` | `.claude/skills` | `.claude/agents` | `.claude/instructions` | `.claude/shared` |
 | Codex | `.agents/commands` | `.agents/skills` | `.agents/subagents` | `.agents/instructions` | `.agents/shared` |
 | OpenCode | `.opencode/commands` | `.opencode/skills` | `.opencode/agents` | `.opencode/instructions` | `.opencode/shared` |
+| Kilo | `.kilo/command` | `.kilo/skill` | `.kilo/agent` | `.kilo/instructions` | `.kilo/shared` |
 
 Generation computes a deterministic isolated dependency closure across command
 support files, complete skill bundles, agents, instructions, and shared
@@ -41,8 +41,9 @@ tree; unresolved or unsafe canonical runtime references fail generation.
 ### Ownership manifest schema
 
 The fixed manifests are `.claude/.compound-gpid-generated.json`,
-`.agents/.compound-gpid-generated.json`, and
-`.opencode/.compound-gpid-generated.json`. Their schema is:
+`.agents/.compound-gpid-generated.json`,
+`.opencode/.compound-gpid-generated.json`, and
+`.kilo/.compound-gpid-generated.json`. Their schema is:
 
 ```json
 {
@@ -84,7 +85,7 @@ release gate: `create-release.ps1` runs mapping, path-safety, packaging,
 ownership, closure, determinism, drift, and platform suites before reading
 credentials or calling GitHub.
 
-A real CLI smoke run with `claude`, `codex`, or `opencode` is optional,
+A real CLI smoke run with `claude`, `codex`, `opencode`, or `kilo` is optional,
 additional runtime evidence only. CLI availability is reported separately;
 missing real CLI evidence never skips or weakens deterministic isolated
 closure, and documentation must not imply runtime proof that was not run.
@@ -108,7 +109,7 @@ evaluation-only: `local-workflow` remains the only active mode.
 <!-- cg:auto:shell-commands -->
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
-| `cg-link [--platforms <list>]` | Project root | Link all supported platforms by default: Copilot `.github/`, Claude Code `.claude/`, Codex `.agents/`, and OpenCode `.opencode/`. Use `--platforms copilot` or another comma-separated list to narrow the install. |
+| `cg-link [--platforms <list>]` | Project root | Link all supported platforms by default: Copilot `.github/`, Claude Code `.claude/`, Codex `.agents/`, OpenCode `.opencode/`, and Kilo `.kilo/`. Use `--platforms copilot` or another comma-separated list to narrow the install. |
 | `cg-unlink` | Project root | Remove Compound GPID-managed install units and manifest-managed copied files while preserving user-owned platform content. |
 | `cg-update [<version>\|latest\|--list\|--fix]` | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
@@ -579,6 +580,7 @@ your-project/
 ├── .claude/                  # Claude Code install units: commands/skills/agents linked; root files copied if managed
 ├── .agents/                  # Codex install units: commands/skills/subagents linked; root files copied if managed
 ├── .opencode/                # OpenCode install units: commands/skills/agents linked; config copied if managed
+├── .kilo/                    # Kilo install units: command/skill/agent linked; config copied if managed
 ├── .compound-gpid/managed-files.json  # sidecar checksums for copied strict config/root files
 ├── compound-gpid.md          # Project charter (4 sections: Objective, Key Deliverables, Constraints, Current Focus). YAML: project-name, team, created, last-reviewed. Committed -- shared.
 ├── compound-gpid.context.md  # Growing project knowledge base (data sources, domain vocab, workspace notes). Committed -- institutional memory.

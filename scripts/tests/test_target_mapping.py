@@ -41,10 +41,10 @@ class TestTargetMappingSchema:
             assert target["properties"][name]["additionalProperties"] is False
         assert definitions["installUnit"]["additionalProperties"] is False
 
-    def test_has_four_targets(self) -> None:
+    def test_has_five_targets(self) -> None:
         data = _load_repo_mapping()
         ids = {t["id"] for t in data["targets"]}
-        assert ids == {"copilot", "claude-code", "codex", "opencode"}
+        assert ids == {"copilot", "claude-code", "codex", "opencode", "kilo"}
 
     def test_copilot_has_null_generated_tree_path(self) -> None:
         data = _load_repo_mapping()
@@ -103,6 +103,18 @@ class TestTargetMappingSchema:
         assert len(config_units) == 1
         assert config_units[0]["strategy"] == "config-copy-or-snippet"
         assert "manualSnippet" in config_units[0]
+
+    def test_kilo_target_has_generated_tree_and_config(self) -> None:
+        data = _load_repo_mapping()
+        kilo = next(t for t in data["targets"] if t["id"] == "kilo")
+        assert kilo["generatedTreePath"] == ".kilo"
+        assert "config" in kilo["outputPaths"]
+        assert kilo["outputPaths"]["config"] == ".kilo/kilo.json"
+        config_units = [u for u in kilo["installUnits"] if u["target"] == ".kilo/kilo.json"]
+        assert len(config_units) == 1
+        assert config_units[0]["strategy"] == "config-copy-or-snippet"
+        assert "manualSnippet" in config_units[0]
+        assert kilo["capabilities"]["supportsMultiVendorModels"] is True
 
 
 class TestTargetMappingValidation:
