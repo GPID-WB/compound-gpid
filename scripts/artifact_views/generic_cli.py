@@ -77,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--theme",
-        help="Registered theme name; currently only reference.",
+        help="Registered theme name (reference or editorial).",
     )
     parser.add_argument(
         "--output",

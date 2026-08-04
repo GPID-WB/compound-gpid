@@ -1,11 +1,15 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-03_
+_Generated 2026-08-04_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 30 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 32 entities
 
+- **[Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)** · `solution` · _—_ · `2026-06-09`
+  > Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledg…
+- **[Release checklist statuses must be anchored to audit-run timestamps](.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md)** · `solution` · _—_ · `2026-06-10`
+  > The Phase 7 release checklist had a column of pre-filled statuses like `"Passed in Codex"` across all automated gates…
 - **[Untrusted content containing triple-backtick sequences breaks out of fenced code blocks](.cg-docs/solutions/testing-patterns/2026-06-11-fenced-block-delimiter-collision-in-untrusted-content.md)** · `solution` · _—_ · `2026-06-11`
   > A prompt (e.g., `cg-issues.prompt.md`) instructs an agent to embed untrusted content (plan file body, roadmap descrip…
 - **[Within-prompt section drift: operational step and Safety Rules summary can diverge silently](.cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md)** · `solution` · _—_ · `2026-06-11`
@@ -296,7 +300,7 @@ objective`_ · 137 entities
   > Runtime model-catalog introspection across platforms
 - **[Historical HTML backfill for existing Compound GPID artifacts](roadmap.json#historical-html-backfill-for-existing-compound-gpid-artifacts)** · `feature` · _idea_ · `—`
   > Historical HTML backfill for existing Compound GPID artifacts
-- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _done_ · `—`
+- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _active_ · `—`
   > Generic Markdown publishing skill and deterministic HTML views
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage

@@ -1,0 +1,335 @@
+/**
+ * Tests for the evidence capture script.
+ *
+ * These tests validate the structure and correctness of the schema-2
+ * evidence manifest produced by capture.js. They do NOT launch a browser
+ * — they test the manifest format, hash computation, and path validation.
+ *
+ * Run: node --test scripts/evidence/tests/
+ */
+
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+const { describe, it } = require("node:test");
+const assert = require("node:assert/strict");
+
+const PROJECT_ROOT = path.resolve(__dirname, "..", "..", "..");
+const EVIDENCE_DIR = path.join(
+  PROJECT_ROOT,
+  ".cg-docs", "views", "evidence", "curated-themes"
+);
+const FIXTURE_DIR = path.join(PROJECT_ROOT, ".cg-docs", "evidence-fixtures");
+const MANIFEST_PATH = path.join(EVIDENCE_DIR, "evidence-schema2.json");
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function sha256(filePath) {
+  return crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(filePath))
+    .digest("hex");
+}
+
+function loadManifest() {
+  if (!fs.existsSync(MANIFEST_PATH)) {
+    throw new Error(
+      `Manifest not found: ${MANIFEST_PATH}. Run capture.js first.`
+    );
+  }
+  return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8"));
+}
+
+const REQUIRED_VIEWPORTS = [
+  { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 1024, height: 768 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+];
+
+const REQUIRED_VIEWPORT_CHECKS = [
+  "nonblank",
+  "noHorizontalOverflow",
+  "noOverlap",
+  "navigationReachable",
+  "firstViewportIdentity",
+];
+
+const REQUIRED_ARTIFACT_CHECKS = [
+  "offlineLoad",
+  "printPreview",
+  "keyboardOrder",
+  "visibleFocus",
+  "zoom200",
+  "contrast",
+  "reducedMotion",
+  "longDocumentOrientation",
+  "completeProvenance",
+  "consoleErrors",
+  "axeViolations",
+];
+
+const EXPECTED_CELLS = [
+  { documentType: "brainstorm", theme: "reference" },
+  { documentType: "brainstorm", theme: "editorial" },
+  { documentType: "plan", theme: "reference" },
+  { documentType: "plan", theme: "editorial" },
+];
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe("Schema 2 evidence manifest", () => {
+  let manifest;
+
+  it("capture passes the bundled axe source to the audit", () => {
+    const captureSource = fs.readFileSync(
+      path.join(PROJECT_ROOT, "scripts", "evidence", "capture.js"),
+      "utf-8"
+    );
+    assert.match(
+      captureSource,
+      /runAxeAudit\(page,\s*axeSource\)/,
+      "capture must pass axeSource to runAxeAudit"
+    );
+  });
+
+  // Load manifest before tests (skip if not generated)
+  try {
+    manifest = loadManifest();
+  } catch (err) {
+    it("manifest exists (SKIP if not yet captured)", () => {
+      assert.fail("Manifest not found. Run capture.js first.");
+    });
+    return;
+  }
+
+  it("has schemaVersion 2", () => {
+    assert.strictEqual(manifest.schemaVersion, 2);
+  });
+
+  it("has valid generatedAt timestamp", () => {
+    const ts = manifest.generatedAt;
+    assert.match(ts, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
+    const date = new Date(ts);
+    assert.ok(!isNaN(date.getTime()), "generatedAt must be a valid date");
+  });
+
+  it("has producer metadata", () => {
+    assert.ok(manifest.producer, "producer must exist");
+    assert.strictEqual(manifest.producer.tool, "playwright");
+    assert.ok(manifest.producer.version, "playwright version required");
+    assert.strictEqual(manifest.producer.browser, "chromium");
+    assert.ok(manifest.producer.axeCoreVersion, "axe-core version required");
+  });
+
+  it("has exactly 4 cells in deterministic order", () => {
+    assert.strictEqual(manifest.cells.length, 4);
+    for (let i = 0; i < EXPECTED_CELLS.length; i++) {
+      assert.strictEqual(
+        manifest.cells[i].documentType,
+        EXPECTED_CELLS[i].documentType,
+        `cell ${i} documentType`
+      );
+      assert.strictEqual(
+        manifest.cells[i].theme,
+        EXPECTED_CELLS[i].theme,
+        `cell ${i} theme`
+      );
+    }
+  });
+
+  it("each cell has valid source and view paths", () => {
+    for (const cell of manifest.cells) {
+      assert.ok(cell.sourcePath, "sourcePath required");
+      assert.ok(cell.viewPath, "viewPath required");
+      assert.ok(
+        !cell.sourcePath.includes(".."),
+        "sourcePath must not escape project"
+      );
+      assert.ok(
+        !cell.viewPath.includes(".."),
+        "viewPath must not escape project"
+      );
+      assert.ok(
+        !path.isAbsolute(cell.sourcePath),
+        "sourcePath must be relative"
+      );
+      assert.ok(
+        !path.isAbsolute(cell.viewPath),
+        "viewPath must be relative"
+      );
+    }
+  });
+
+  it("each cell has valid SHA-256 hashes", () => {
+    const shaRe = /^[0-9a-f]{64}$/;
+    for (const cell of manifest.cells) {
+      assert.match(cell.sourceSha256, shaRe, `${cell.documentType}/${cell.theme} source hash`);
+      assert.match(cell.viewSha256, shaRe, `${cell.documentType}/${cell.theme} view hash`);
+    }
+  });
+
+  it("hashes match actual file content", () => {
+    for (const cell of manifest.cells) {
+      const sourcePath = path.join(PROJECT_ROOT, cell.sourcePath);
+      const viewPath = path.join(PROJECT_ROOT, cell.viewPath);
+
+      if (fs.existsSync(sourcePath)) {
+        const actualSource = sha256(sourcePath);
+        assert.strictEqual(
+          cell.sourceSha256,
+          actualSource,
+          `${cell.documentType}/${cell.theme} source hash mismatch`
+        );
+      }
+
+      if (fs.existsSync(viewPath)) {
+        const actualView = sha256(viewPath);
+        assert.strictEqual(
+          cell.viewSha256,
+          actualView,
+          `${cell.documentType}/${cell.theme} view hash mismatch`
+        );
+      }
+    }
+  });
+
+  it("each cell has a non-empty print preview artifact", () => {
+    for (const cell of manifest.cells) {
+      assert.ok(
+        cell.printPreviewArtifact,
+        `${cell.documentType}/${cell.theme} print preview required`
+      );
+      const pdfPath = path.join(PROJECT_ROOT, cell.printPreviewArtifact);
+      if (fs.existsSync(pdfPath)) {
+        const stat = fs.statSync(pdfPath);
+        assert.ok(stat.size > 0, `${cell.documentType}/${cell.theme} PDF must not be empty`);
+      }
+    }
+  });
+
+  it("each cell has all required artifact checks", () => {
+    for (const cell of manifest.cells) {
+      assert.ok(cell.checks, `${cell.documentType}/${cell.theme} checks required`);
+      for (const check of REQUIRED_ARTIFACT_CHECKS) {
+        assert.ok(
+          check in cell.checks,
+          `${cell.documentType}/${cell.theme} missing check: ${check}`
+        );
+      }
+    }
+  });
+
+  it("each cell has exactly 5 viewports", () => {
+    for (const cell of manifest.cells) {
+      assert.strictEqual(
+        cell.viewports.length,
+        5,
+        `${cell.documentType}/${cell.theme} must have 5 viewports`
+      );
+    }
+  });
+
+  it("viewports match required set", () => {
+    for (const cell of manifest.cells) {
+      const found = cell.viewports.map((v) => `${v.width}x${v.height}`).sort();
+      const expected = REQUIRED_VIEWPORTS.map(
+        (v) => `${v.width}x${v.height}`
+      ).sort();
+      assert.deepStrictEqual(
+        found,
+        expected,
+        `${cell.documentType}/${cell.theme} viewport mismatch`
+      );
+    }
+  });
+
+  it("each viewport has all required checks", () => {
+    for (const cell of manifest.cells) {
+      for (const vp of cell.viewports) {
+        assert.ok(vp.checks, `viewport ${vp.width}x${vp.height} checks required`);
+        for (const check of REQUIRED_VIEWPORT_CHECKS) {
+          assert.ok(
+            check in vp.checks,
+            `${cell.documentType}/${cell.theme} ${vp.width}x${vp.height} missing check: ${check}`
+          );
+        }
+      }
+    }
+  });
+
+  it("each viewport has a screenshot path", () => {
+    for (const cell of manifest.cells) {
+      for (const vp of cell.viewports) {
+        assert.ok(vp.screenshot, `viewport ${vp.width}x${vp.height} screenshot required`);
+        assert.ok(
+          !vp.screenshot.includes(".."),
+          "screenshot path must not escape project"
+        );
+      }
+    }
+  });
+
+  it("first viewport has firstViewportIdentity true", () => {
+    for (const cell of manifest.cells) {
+      assert.strictEqual(
+        cell.viewports[0].checks.firstViewportIdentity,
+        true,
+        `${cell.documentType}/${cell.theme} first viewport identity`
+      );
+    }
+  });
+
+  it("no duplicate viewports per cell", () => {
+    for (const cell of manifest.cells) {
+      const sizes = cell.viewports.map((v) => `${v.width}x${v.height}`);
+      const unique = new Set(sizes);
+      assert.strictEqual(
+        unique.size,
+        sizes.length,
+        `${cell.documentType}/${cell.theme} has duplicate viewports`
+      );
+    }
+  });
+
+  it("manifest does not contain source body content", () => {
+    const json = JSON.stringify(manifest);
+    const forbidden = ["sourceBody", "sourceContent", "markdownBody"];
+    for (const key of forbidden) {
+      assert.ok(
+        !json.includes(`"${key}"`),
+        `manifest must not contain "${key}"`
+      );
+    }
+  });
+
+  it("manifest is valid JSON with trailing newline", () => {
+    const raw = fs.readFileSync(MANIFEST_PATH, "utf-8");
+    JSON.parse(raw); // must parse
+    assert.ok(raw.endsWith("\n"), "manifest must end with newline");
+  });
+});
+
+describe("Schema 2 vs Schema 1 isolation", () => {
+  it("schema 2 manifest does not use schema 1 fields", () => {
+    const manifest = loadManifest();
+    // Schema 1 uses "artifacts" array; schema 2 uses "cells"
+    assert.ok(!("artifacts" in manifest), "schema 2 must not have 'artifacts'");
+    assert.ok(!("openDesign" in manifest), "schema 2 must not have 'openDesign'");
+  });
+
+  it("schema 2 cells use 'documentType' not 'kind'", () => {
+    const manifest = loadManifest();
+    for (const cell of manifest.cells) {
+      assert.ok("documentType" in cell, "schema 2 cell must have documentType");
+      assert.ok(!("kind" in cell), "schema 2 cell must not have 'kind'");
+    }
+  });
+});

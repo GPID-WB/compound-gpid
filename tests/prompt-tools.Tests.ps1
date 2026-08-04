@@ -22,6 +22,19 @@ if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_
 # Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved here to avoid duplication across test files)
 
 # ---------------------------------------------------------------------------
+# cg-render-doc.prompt.md must exclude generated views from publishing
+# ---------------------------------------------------------------------------
+
+Describe "cg-render-doc.prompt.md - generated views routing" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-render-doc.prompt.md"
+    $content = Get-Content $promptFile -Raw
+
+    It "explicitly excludes .cg-docs/views/ generated outputs" {
+        ($content -match '\.cg-docs/views/') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
 # cg-review.prompt.md must NOT have a tools: restriction
 # ---------------------------------------------------------------------------
 

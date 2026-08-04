@@ -7,8 +7,8 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 Describe "Canonical prompt execution metadata" {
     $promptFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File)
 
-    It "contains exactly 24 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should -Be 24
+    It "contains exactly 25 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should -Be 25
     }
 
     foreach ($file in $promptFiles) {

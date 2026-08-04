@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-04T02:43:27Z",
+  "producer": {
+    "tool": "playwright",
+    "version": "1.52.0",
+    "browser": "chromium",
+    "axeCoreVersion": "4.10.3"
+  },
+  "cells": [
+    {
+      "documentType": "brainstorm",
+      "theme": "reference",
+      "sourcePath": ".cg-docs/evidence-fixtures/fixture-brainstorm.md",
+      "sourceSha256": "ce52163727e8c41c7145f7be39cef41e87b257a661bb15456b65dc144be7d8a1",
+      "viewPath": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference.html",
+      "viewSha256": "fef6914f864f0a06c4dbc99a7fed53ef8fdc502ead9e5df3223964194bad7712",
+      "printPreviewArtifact": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-print.pdf",
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": false,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true,
+        "consoleErrors": 0,
+        "axeViolations": 0
+      },
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-390x844.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": true
+          }
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-768x1024.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1024,
+          "height": 768,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-1024x768.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1440,
+          "height": 900,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-1440x900.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-reference-1920x1080.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        }
+      ]
+    },
+    {
+      "documentType": "brainstorm",
+      "theme": "editorial",
+      "sourcePath": ".cg-docs/evidence-fixtures/fixture-brainstorm.md",
+      "sourceSha256": "ce52163727e8c41c7145f7be39cef41e87b257a661bb15456b65dc144be7d8a1",
+      "viewPath": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial.html",
+      "viewSha256": "691020c4981d71c6deff096a9b90e09d4a71e300e87d66b9f775febf0f2b1e9e",
+      "printPreviewArtifact": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-print.pdf",
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": false,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true,
+        "consoleErrors": 0,
+        "axeViolations": 0
+      },
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-390x844.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": true
+          }
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-768x1024.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1024,
+          "height": 768,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-1024x768.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1440,
+          "height": 900,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-1440x900.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/brainstorm-editorial-1920x1080.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        }
+      ]
+    },
+    {
+      "documentType": "plan",
+      "theme": "reference",
+      "sourcePath": ".cg-docs/evidence-fixtures/fixture-plan.md",
+      "sourceSha256": "7792e58df7f9962347b1c058be5bff57b6f5ddd38a338bb8430b7475de9ba859",
+      "viewPath": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference.html",
+      "viewSha256": "83ef3a648cbef19d51b568fbb41391f7cd9aa5fe095d328103838282cfa4a818",
+      "printPreviewArtifact": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-print.pdf",
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": false,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true,
+        "consoleErrors": 0,
+        "axeViolations": 0
+      },
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-390x844.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": true
+          }
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-768x1024.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1024,
+          "height": 768,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-1024x768.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1440,
+          "height": 900,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-1440x900.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-reference-1920x1080.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        }
+      ]
+    },
+    {
+      "documentType": "plan",
+      "theme": "editorial",
+      "sourcePath": ".cg-docs/evidence-fixtures/fixture-plan.md",
+      "sourceSha256": "7792e58df7f9962347b1c058be5bff57b6f5ddd38a338bb8430b7475de9ba859",
+      "viewPath": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial.html",
+      "viewSha256": "2f73d7e9bacf50f1fb7e8032e96b15f125b878b2bf3321cd146caeb5c8e16424",
+      "printPreviewArtifact": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-print.pdf",
+      "checks": {
+        "offlineLoad": true,
+        "printPreview": false,
+        "keyboardOrder": true,
+        "visibleFocus": true,
+        "zoom200": true,
+        "contrast": true,
+        "reducedMotion": true,
+        "longDocumentOrientation": true,
+        "completeProvenance": true,
+        "consoleErrors": 0,
+        "axeViolations": 0
+      },
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-390x844.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": true
+          }
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-768x1024.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1024,
+          "height": 768,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-1024x768.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1440,
+          "height": 900,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-1440x900.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "screenshot": ".cg-docs/views/evidence/curated-themes/rendered/plan-editorial-1920x1080.png",
+          "checks": {
+            "nonblank": false,
+            "noHorizontalOverflow": false,
+            "noOverlap": false,
+            "navigationReachable": false,
+            "firstViewportIdentity": false
+          }
+        }
+      ]
+    }
+  ]
+}

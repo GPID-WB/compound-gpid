@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/evidence-fixtures/fixture-plan.md">
+<meta name="artifact-source-sha256" content="7792e58df7f9962347b1c058be5bff57b6f5ddd38a338bb8430b7475de9ba859">
+<meta name="publication-provenance-schema" content="2">
+<meta name="publication-output" content=".cg-docs/views/evidence/curated-themes/rendered/plan-editorial.html">
+<meta name="publication-theme" content="editorial">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Editorial Theme Implementation Plan · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --ink: #181816;
+  --muted: #5d625f;
+  --paper: #fbfbf8;
+  --white: #ffffff;
+  --line: #d8dcd8;
+  --soft-line: #e9ebe8;
+  --coral: #e94f2d;
+  --coral-soft: #fff0eb;
+  --teal: #087c70;
+  --teal-soft: #e8f5f2;
+  --blue: #2856c7;
+  --blue-soft: #edf1ff;
+  --yellow: #f2c84b;
+  --yellow-soft: #fff8dc;
+  --success: #18734c;
+  --danger: #b8322a;
+  --content: 1180px;
+  --radius: 6px;
+  --header-height: 64px;
+  --measure: 1180px;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--blue); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: var(--white); padding: .6rem .8rem; border-radius: 4px; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--white); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--coral); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: Georgia, "Times New Roman", serif; line-height: 1.08; margin: 1.5em 0 .55em; overflow-wrap: anywhere; letter-spacing: 0; }
+h1 { margin: 0; font-size: 3rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--coral); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: #f1f1ed; border-left: 4px solid var(--coral); white-space: pre; border-radius: 3px; }
+code { font-family: Consolas, "Courier New", monospace; font-size: .88em; }
+:not(pre) > code { background: #f1f1ed; padding: .08em .3em; border: 1px solid #d9d9d3; border-radius: 3px; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e8f5f2; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--coral); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; border-radius: var(--radius); }
+.raw-source figcaption { padding: .45rem .7rem; background: var(--coral-soft); font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--white); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --white: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"documentType":"generic-markdown","generatedAt":"2026-08-04T02:43:19Z","outputPath":".cg-docs/views/evidence/curated-themes/rendered/plan-editorial.html","provenanceSchemaVersion":2,"rendererVersion":"0.1.0","sourcePath":".cg-docs/evidence-fixtures/fixture-plan.md","sourceSha256":"7792e58df7f9962347b1c058be5bff57b6f5ddd38a338bb8430b7475de9ba859","themeName":"editorial","themeVersion":1}</script>
+</head>
+<body data-artifact-kind="generic-markdown">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Published document</p>
+    <h1>Editorial Theme Implementation Plan</h1>
+    <p class="deck">A complete human view of project-contained generic Markdown. <a href="../../../../evidence-fixtures/fixture-plan.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Document sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#editorial-theme-implementation-plan">Editorial Theme Implementation Plan</a></li><li><a href="#overview">Overview</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#implementation-steps">Implementation Steps</a></li><li><a href="#phase-1-theme-module">Phase 1: Theme Module</a></li><li><a href="#phase-2-publishing-skill">Phase 2: Publishing Skill</a></li><li><a href="#phase-3-browser-evidence">Phase 3: Browser Evidence</a></li><li><a href="#phase-4-documentation">Phase 4: Documentation</a></li><li><a href="#design-tokens-editorial">Design Tokens (Editorial)</a></li><li><a href="#constraints">Constraints</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    
+    <article aria-label="Canonical document content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="8-8"><h1 id="editorial-theme-implementation-plan">Editorial Theme Implementation Plan</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="10-10"><h2 id="overview">Overview</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="12-13"><p>Port the editorial visual system as a second HTML presentation theme alongside the existing <code>reference</code> theme in the GPID curated HTML publishing pipeline.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="15-15"><h2 id="architecture">Architecture</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="17-17"><p>The theme system uses a <code>_THEMES</code> registry in <code>themes.py</code>. Each theme provides:</p></div>
+<div class="source-block" id="render-owner-0011" data-source-block="block-0011" data-source-lines="18-19"><ul><li>A <strong>design contract</strong> (frozen dict of design tokens)</li><li>A <strong>stylesheet</strong> (CSS string targeting shared HTML shell class names)</li></ul></div>
+<div class="source-block" id="render-owner-0013" data-source-block="block-0013" data-source-lines="21-25"><p>The HTML shell is rendered by <code>templates.py</code> <code>render_html_shell()</code>, which injects <code>{theme.stylesheet}</code> into a <code>&lt;style&gt;</code> tag. Both themes must target the same shell class names: <code>.skip-link</code>, <code>.masthead</code>, <code>.masthead-inner</code>, <code>.eyebrow</code>, <code>.deck</code>, <code>.layout</code>, <code>.sidebar</code>, <code>.derived-panel</code>, <code>.source-block</code>, <code>.source-heading</code>, <code>.raw-source</code>, <code>.provenance</code>, <code>.provenance-inner</code>.</p></div>
+<div class="source-block source-heading" id="render-owner-0015" data-source-block="block-0015" data-source-lines="27-27"><h2 id="implementation-steps">Implementation Steps</h2></div>
+<div class="source-block source-heading" id="render-owner-0017" data-source-block="block-0017" data-source-lines="29-29"><h3 id="phase-1-theme-module">Phase 1: Theme Module</h3></div>
+<div class="source-block" id="render-owner-0019" data-source-block="block-0019" data-source-lines="31-35"><figure class="raw-source"><figcaption>Raw source · ordered_list · lines 31–35</figcaption><pre><code>1. Create `scripts/artifact_views/editorial_theme.py` with:
+   - `_DESIGN_CONTRACT` dict (frozen design tokens)
+   - `_EDITORIAL_CSS` string (adapted to shared shell class names)
+   - `editorial_design_contract()` function
+   - `editorial_css()` function</code></pre></figure></div>
+<div class="source-block" id="render-owner-0021" data-source-block="block-0021" data-source-lines="37-37"><ol><li>Register <code>&quot;editorial&quot;</code> in <code>themes.py</code> <code>_THEMES</code> dict.</li></ol></div>
+<div class="source-block" id="render-owner-0023" data-source-block="block-0023" data-source-lines="39-43"><figure class="raw-source"><figcaption>Raw source · ordered_list · lines 39–43</figcaption><pre><code>3. Update tests in `test_themes.py`:
+   - Verify both themes are registered
+   - Cross-theme semantic comparison tests
+   - Design token validation
+   - CSS self-containment checks</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0025" data-source-block="block-0025" data-source-lines="45-45"><h3 id="phase-2-publishing-skill">Phase 2: Publishing Skill</h3></div>
+<div class="source-block" id="render-owner-0027" data-source-block="block-0027" data-source-lines="47-52"><figure class="raw-source"><figcaption>Raw source · ordered_list · lines 47–52</figcaption><pre><code>1. Create `.github/skills/cg-skill-render-doc/` with:
+   - `SKILL.md` — skill definition
+   - `workflows/render-document.md` — routing logic
+   - `workflows/check-freshness.md` — freshness check
+   - `references/theme-reference.md` — theme design contracts
+   - `references/cli-reference.md` — CLI tools reference</code></pre></figure></div>
+<div class="source-block" id="render-owner-0029" data-source-block="block-0029" data-source-lines="54-54"><ol><li>Create <code>.github/prompts/cg-render-doc.prompt.md</code> with theme resolution rules.</li></ol></div>
+<div class="source-block" id="render-owner-0031" data-source-block="block-0031" data-source-lines="56-56"><ol><li>Generate platform targets for Claude Code, Codex, and OpenCode.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0033" data-source-block="block-0033" data-source-lines="58-58"><h3 id="phase-3-browser-evidence">Phase 3: Browser Evidence</h3></div>
+<div class="source-block" id="render-owner-0035" data-source-block="block-0035" data-source-lines="60-63"><ol><li>Add <code>package.json</code> with Playwright and axe-core dependencies.</li><li>Create evidence capture script using Playwright.</li><li>Add Node.js tests for the capture script.</li><li>Add Python evidence validation tests for schema 2.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0037" data-source-block="block-0037" data-source-lines="65-65"><h3 id="phase-4-documentation">Phase 4: Documentation</h3></div>
+<div class="source-block" id="render-owner-0039" data-source-block="block-0039" data-source-lines="67-69"><ol><li>Document the curated publishing workflow.</li><li>Verify all gates pass (Python tests, Pester tests, Node tests).</li><li>Produce final browser evidence for both themes.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0041" data-source-block="block-0041" data-source-lines="71-71"><h2 id="design-tokens-editorial">Design Tokens (Editorial)</h2></div>
+<div class="source-block" id="render-owner-0043" data-source-block="block-0043" data-source-lines="73-89"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Token</th><th scope="col">Value</th></tr></thead><tbody><tr><td>Background</td><td><code>#fbfbf8</code> (warm paper)</td></tr><tr><td>Text</td><td><code>#181816</code> (ink)</td></tr><tr><td>Muted</td><td><code>#5d625f</code></td></tr><tr><td>Accent Coral</td><td><code>#e94f2d</code></td></tr><tr><td>Accent Teal</td><td><code>#087c70</code></td></tr><tr><td>Accent Blue</td><td><code>#2856c7</code></td></tr><tr><td>Accent Yellow</td><td><code>#f2c84b</code></td></tr><tr><td>Success</td><td><code>#18734c</code></td></tr><tr><td>Danger</td><td><code>#b8322a</code></td></tr><tr><td>Display Font</td><td>Georgia</td></tr><tr><td>Body Font</td><td>Trebuchet MS</td></tr><tr><td>Code Font</td><td>Consolas</td></tr><tr><td>Max Width</td><td>1180px</td></tr><tr><td>Breakpoints</td><td>980px, 720px</td></tr><tr><td>Border Radius</td><td>≤ 6px</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0045" data-source-block="block-0045" data-source-lines="91-91"><h2 id="constraints">Constraints</h2></div>
+<div class="source-block" id="render-owner-0047" data-source-block="block-0047" data-source-lines="93-96"><ul><li>The editorial CSS must target the same HTML shell class names as reference.</li><li>Print styles must be self-contained within the theme CSS.</li><li>All color pairs must meet WCAG AA contrast ratios.</li><li>The theme must not require any template changes.</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/evidence-fixtures/fixture-plan.md</dd>
+      <dt>Source SHA-256</dt><dd><code>7792e58df7f9962347b1c058be5bff57b6f5ddd38a338bb8430b7475de9ba859</code></dd>
+      <dt>Output</dt><dd>.cg-docs/views/evidence/curated-themes/rendered/plan-editorial.html</dd>
+      <dt>Document type</dt><dd>generic-markdown</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Theme</dt><dd>editorial v1</dd>
+      <dt>Generated UTC</dt><dd>2026-08-04T02:43:19Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

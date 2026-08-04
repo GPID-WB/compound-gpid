@@ -228,6 +228,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-render-doc.md",
+      "source": ".github/prompts/cg-render-doc.prompt.md",
+      "kind": "command",
+      "sha256": "4072236aa55b3f70fc1d99462e97e969a03bd28d7a90b5e1dc1d933899fd1deb",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
@@ -869,6 +876,41 @@
       "source": ".github/skills/cg-skill-r-visualization/references/ggplot2-reference.md",
       "kind": "skill-resource",
       "sha256": "9e7638bce9a0a733b207da1e5765a1f395d7126c0463aa2d64aaa4cbe26127ea",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-render-doc/SKILL.md",
+      "source": ".github/skills/cg-skill-render-doc/SKILL.md",
+      "kind": "skill",
+      "sha256": "d9e62cb6af9eaab4c1f06c84055d6d549f0091022b968de50771513b14ad70e7",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-render-doc/references/cli-reference.md",
+      "source": ".github/skills/cg-skill-render-doc/references/cli-reference.md",
+      "kind": "skill-resource",
+      "sha256": "90d2b20b4ac3e7bb954ee3cc5a50e55865b797da855d91bf130d25d3ef185d79",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-render-doc/references/theme-reference.md",
+      "source": ".github/skills/cg-skill-render-doc/references/theme-reference.md",
+      "kind": "skill-resource",
+      "sha256": "fe877d14a1783a0678fb1605e6daea2ca8cec28e34048321606e80745b3573be",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-render-doc/workflows/check-freshness.md",
+      "source": ".github/skills/cg-skill-render-doc/workflows/check-freshness.md",
+      "kind": "skill-resource",
+      "sha256": "88abe6b8091fe702e2fc5f538c1ed169c08caf691586f40eececaff21e687103",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-render-doc/workflows/render-document.md",
+      "source": ".github/skills/cg-skill-render-doc/workflows/render-document.md",
+      "kind": "skill-resource",
+      "sha256": "640cdc212ef9ac3cfbad7bfa21f2c7b146f649a383528c81bc466bb742091b16",
       "executable": false
     },
     {

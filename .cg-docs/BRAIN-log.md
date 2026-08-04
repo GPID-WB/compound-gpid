@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-03 · 478 artifacts (newest first) + 137 roadmap features_
+_Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
 
 ## undated
 
@@ -123,6 +123,15 @@ _Generated 2026-08-03 · 478 artifacts (newest first) + 137 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-04
+
+- **[2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review](.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md)** · `review` · _—_ · `2026-08-04`
+  > **Review mode**: standard **Files reviewed**: 38 changed paths (generated `.cg-docs/views/**` bodies excluded) **Find…
+- **[2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review](.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md)** · `review` · _—_ · `2026-08-04`
+  > **Review mode**: light (verification) **Prior review**: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workf…
+- **[Evidence capture must pass the bundled axe source at the audit call site](.cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md)** · `solution` · _—_ · `2026-08-04`
+  > The browser evidence producer loaded the bundled `axe-core` source and defined `runAxeAudit(page, axeSource)`, but th…
+
 ## 2026-08-03
 
 - **[2026-08-03-generic-markdown-reference-publishing-core-v2-review](.cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md)** · `review` · _—_ · `2026-08-03`
@@ -138,9 +147,9 @@ _Generated 2026-08-03 · 478 artifacts (newest first) + 137 roadmap features_
 
 ## 2026-08-02
 
-- **[Editorial Theme, Publishing Workflow, and Browser Evidence](.cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md)** · `plan` · _blocked_ · `2026-08-02`
+- **[Editorial Theme, Publishing Workflow, and Browser Evidence](.cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md)** · `plan` · _superseded_ · `2026-08-02`
   > Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose e…
-- **[Generic Markdown and Reference Publishing Core](.cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md)** · `plan` · _active_ · `2026-08-02`
+- **[Generic Markdown and Reference Publishing Core](.cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md)** · `plan` · _superseded_ · `2026-08-02`
   > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
 - **[Generic Markdown Publishing and Curated Artifact Themes](.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md)** · `plan` · _blocked_ · `2026-08-02`
   > Extend the completed Brainstorm and Plan artifact-view system with an additive, deterministic Markdown publishing pat…
@@ -1252,7 +1261,7 @@ _Generated 2026-08-03 · 478 artifacts (newest first) + 137 roadmap features_
   > End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]
 - **[Branch creation from /cg-plan](roadmap.json#branch-creation-from-plan)** · `feature` · _done_ · `—`
   > Branch creation from /cg-plan
-- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _done_ · `—`
+- **[Generic Markdown publishing skill and deterministic HTML views](roadmap.json#broader-artifact-publishing-formats-and-views)** · `feature` · _active_ · `—`
   > Generic Markdown publishing skill and deterministic HTML views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
