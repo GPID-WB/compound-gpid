@@ -301,7 +301,10 @@ def test_cleanup_rollback_never_overwrites_post_quarantine_collision(
     )
 
     def collide_after_quarantine(original: Path, _quarantine: Path) -> None:
-        original.write_text("concurrent-user-content\n", encoding="utf-8")
+        # Only collide on the stale file's path — the write path also
+        # quarantines existing files (e.g. CLAUDE.md) and must not collide.
+        if original == stale:
+            original.write_text("concurrent-user-content\n", encoding="utf-8")
 
     monkeypatch.setattr(
         gen,
