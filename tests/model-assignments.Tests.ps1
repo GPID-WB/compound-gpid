@@ -1,6 +1,8 @@
 # tests/model-assignments.Tests.ps1
 # Validates user-selected execution and advisory-only model guidance.
 
+Set-StrictMode -Version Latest
+
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 . "$PSScriptRoot/helpers.ps1"
 

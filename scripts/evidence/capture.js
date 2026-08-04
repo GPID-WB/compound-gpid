@@ -327,7 +327,8 @@ async function capture() {
   };
   const axeSource = fs.readFileSync(AXE_PATH, "utf-8");
 
-  for (const cell of CELLS) {
+  try {
+    for (const cell of CELLS) {
     const { documentType, theme } = cell;
     const hp = htmlPath(documentType, theme);
     const fileUrl = pathToFileURL(hp).href;
@@ -439,7 +440,9 @@ async function capture() {
     manifest.cells.push(cellEntry);
   }
 
-  await browser.close();
+  } finally {
+    await browser.close();
+  }
 
   // Write manifest
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n", "utf-8");

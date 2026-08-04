@@ -30,6 +30,7 @@ FIXTURES = {
 }
 
 THEMES = ["reference", "editorial"]
+FIXTURE_GENERATED_AT = datetime(2026, 8, 4, 2, 43, 19, tzinfo=timezone.utc)
 
 
 def render_all() -> list[Path]:
@@ -57,7 +58,7 @@ def render_all() -> list[Path]:
                 renderer_version=__version__,
                 theme_name=theme_name,
                 theme_version=get_theme(theme_name).contract_version,
-                generated_at=datetime.now(timezone.utc),
+                generated_at=FIXTURE_GENERATED_AT,
             )
 
             html_bytes = render_generic_document(

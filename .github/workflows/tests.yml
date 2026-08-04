@@ -19,6 +19,10 @@ jobs:
           node-version: "22"
       - name: Install Node test dependencies
         run: npm install
+      - name: Install Chromium for evidence capture
+        run: npx playwright install --with-deps chromium
+      - name: Capture browser evidence manifest
+        run: npm run capture
       - name: Run browser evidence tests
         run: npm test
 

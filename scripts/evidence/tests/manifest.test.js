@@ -173,6 +173,18 @@ describe("Schema 2 evidence manifest", () => {
     for (const cell of manifest.cells) {
       assert.match(cell.sourceSha256, shaRe, `${cell.documentType}/${cell.theme} source hash`);
       assert.match(cell.viewSha256, shaRe, `${cell.documentType}/${cell.theme} view hash`);
+      assert.match(
+        cell.printPreviewSha256,
+        shaRe,
+        `${cell.documentType}/${cell.theme} print preview hash`
+      );
+      for (const viewport of cell.viewports) {
+        assert.match(
+          viewport.screenshotSha256,
+          shaRe,
+          `${cell.documentType}/${cell.theme} ${viewport.width}x${viewport.height} screenshot hash`
+        );
+      }
     }
   });
 
@@ -196,6 +208,27 @@ describe("Schema 2 evidence manifest", () => {
           cell.viewSha256,
           actualView,
           `${cell.documentType}/${cell.theme} view hash mismatch`
+        );
+      }
+
+      const pdfPath = path.join(PROJECT_ROOT, cell.printPreviewArtifact);
+      assert.ok(fs.existsSync(pdfPath), `${cell.documentType}/${cell.theme} PDF must exist`);
+      assert.strictEqual(
+        cell.printPreviewSha256,
+        sha256(pdfPath),
+        `${cell.documentType}/${cell.theme} PDF hash mismatch`
+      );
+
+      for (const viewport of cell.viewports) {
+        const screenshotPath = path.join(PROJECT_ROOT, viewport.screenshot);
+        assert.ok(
+          fs.existsSync(screenshotPath),
+          `${cell.documentType}/${cell.theme} ${viewport.width}x${viewport.height} screenshot must exist`
+        );
+        assert.strictEqual(
+          viewport.screenshotSha256,
+          sha256(screenshotPath),
+          `${cell.documentType}/${cell.theme} ${viewport.width}x${viewport.height} screenshot hash mismatch`
         );
       }
     }
