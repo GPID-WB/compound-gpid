@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "current_backend": "native-brain-query",
+  "policy": {
+    "default_runtime": "native-brain-query",
+    "optional_backends_default_enabled": false,
+    "evaluation_only": true,
+    "no_savings_claim_without_measurement": true
+  },
+  "required_gates": [
+    "explicit_opt_in",
+    "privacy_review",
+    "offline_behavior",
+    "dependency_review",
+    "token_budget_comparison",
+    "deterministic_validation",
+    "rollback_plan"
+  ],
+  "backends": [
+    {
+      "id": "native-brain-query",
+      "name": "Native Knowledge Brain query",
+      "status": "current",
+      "kind": "local",
+      "default_enabled": true,
+      "requires_explicit_opt_in": false,
+      "network_required": false,
+      "dependencies": "stdlib-only",
+      "description": "Current cg-index query backend over generated local Brain artifacts."
+    },
+    {
+      "id": "local-sqlite-fts",
+      "name": "Local SQLite FTS index",
+      "status": "evaluate-only",
+      "kind": "local",
+      "default_enabled": false,
+      "requires_explicit_opt_in": true,
+      "network_required": false,
+      "dependencies": "stdlib sqlite3 only if implemented",
+      "gates": [
+        "explicit_opt_in",
+        "dependency_review",
+        "token_budget_comparison",
+        "deterministic_validation",
+        "rollback_plan"
+      ],
+      "description": "Potential local full-text index for Brain entities; not implemented in Phase 2.2."
+    },
+    {
+      "id": "local-embedding-index",
+      "name": "Local embedding index",
+      "status": "evaluate-only",
+      "kind": "local",
+      "default_enabled": false,
+      "requires_explicit_opt_in": true,
+      "network_required": false,
+      "dependencies": "optional local model package if future work approves it",
+      "gates": [
+        "explicit_opt_in",
+        "privacy_review",
+        "dependency_review",
+        "token_budget_comparison",
+        "deterministic_validation",
+        "rollback_plan"
+      ],
+      "description": "Potential local semantic retrieval candidate; no embedding model or dependency is added in Phase 2.2."
+    },
+    {
+      "id": "external-vector-service",
+      "name": "External vector retrieval service",
+      "status": "deferred",
+      "kind": "external",
+      "default_enabled": false,
+      "requires_explicit_opt_in": true,
+      "network_required": true,
+      "dependencies": "external service and credentials would require separate approval",
+      "gates": [
+        "explicit_opt_in",
+        "privacy_review",
+        "offline_behavior",
+        "dependency_review",
+        "token_budget_comparison",
+        "deterministic_validation",
+        "rollback_plan"
+      ],
+      "description": "External retrieval is deferred; no service, credentials, or network call is introduced in Phase 2.2."
+    }
+  ],
+  "non_goals": [
+    "runtime backend switching",
+    "vector database setup",
+    "embedding generation",
+    "external service integration",
+    "snapshot or external research mode"
+  ]
+}

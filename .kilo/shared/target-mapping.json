@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "description": "Maps canonical .github/ assets to native platform trees. Read by scripts/cg_generate_targets.py to emit platform-specific command, skill, and agent files.",
+  "targets": [
+    {
+      "id": "copilot",
+      "name": "GitHub Copilot",
+      "generatedTreePath": null,
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": true,
+        "requiresRootAdapter": false
+      },
+      "formats": {
+        "commandFormat": "github-prompt",
+        "skillFormat": "github-skill",
+        "agentFormat": "github-agent"
+      },
+      "outputPaths": {
+        "commands": ".github/prompts",
+        "skills": ".github/skills",
+        "agents": ".github/agents",
+        "instructions": ".github/instructions",
+        "shared": ".github/shared"
+      },
+      "installUnits": [
+        { "type": "directory", "source": ".github/prompts", "target": ".github/prompts", "strategy": "link-directory" },
+        { "type": "directory", "source": ".github/skills", "target": ".github/skills", "strategy": "link-directory" },
+        { "type": "directory", "source": ".github/agents", "target": ".github/agents", "strategy": "link-directory" },
+        { "type": "directory", "source": ".github/instructions", "target": ".github/instructions", "strategy": "link-directory" },
+        { "type": "directory", "source": ".github/shared", "target": ".github/shared", "strategy": "link-directory" },
+        { "type": "file", "source": ".github/copilot-instructions.template.md", "target": ".github/copilot-instructions.md", "strategy": "generated-copy" }
+      ]
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "generatedTreePath": ".claude",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": false,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "claude-command",
+        "skillFormat": "claude-skill",
+        "agentFormat": "claude-agent"
+      },
+      "outputPaths": {
+        "commands": ".claude/commands",
+        "skills": ".claude/skills",
+        "agents": ".claude/agents",
+        "instructions": ".claude/instructions",
+        "shared": ".claude/shared",
+        "rootAdapter": ".claude/CLAUDE.md"
+      },
+      "installUnits": [
+        { "type": "directory", "source": ".claude/commands", "target": ".claude/commands", "strategy": "link-directory" },
+        { "type": "directory", "source": ".claude/skills", "target": ".claude/skills", "strategy": "link-directory" },
+        { "type": "directory", "source": ".claude/agents", "target": ".claude/agents", "strategy": "link-directory" },
+        { "type": "directory", "source": ".claude/instructions", "target": ".claude/instructions", "strategy": "link-directory" },
+        { "type": "directory", "source": ".claude/shared", "target": ".claude/shared", "strategy": "link-directory" },
+         { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
+      ]
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "generatedTreePath": ".agents",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": false,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "codex-command",
+        "skillFormat": "codex-skill",
+        "agentFormat": "codex-subagent-toml",
+        "fallbackAgentFormat": "codex-skill"
+      },
+      "outputPaths": {
+        "commands": ".agents/commands",
+        "skills": ".agents/skills",
+        "agents": ".agents/subagents",
+        "instructions": ".agents/instructions",
+        "shared": ".agents/shared",
+        "rootAdapter": ".agents/AGENTS.md"
+      },
+      "installUnits": [
+        { "type": "directory", "source": ".agents/commands", "target": ".agents/commands", "strategy": "link-directory" },
+        { "type": "directory", "source": ".agents/skills", "target": ".agents/skills", "strategy": "link-directory" },
+        { "type": "directory", "source": ".agents/subagents", "target": ".agents/subagents", "strategy": "link-directory" },
+        { "type": "directory", "source": ".agents/instructions", "target": ".agents/instructions", "strategy": "link-directory" },
+        { "type": "directory", "source": ".agents/shared", "target": ".agents/shared", "strategy": "link-directory" },
+         { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
+      ]
+    },
+    {
+      "id": "opencode",
+      "name": "OpenCode",
+      "generatedTreePath": ".opencode",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": true,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "opencode-command",
+        "skillFormat": "opencode-skill",
+        "agentFormat": "opencode-agent"
+      },
+      "outputPaths": {
+        "commands": ".opencode/commands",
+        "skills": ".opencode/skills",
+        "agents": ".opencode/agents",
+        "instructions": ".opencode/instructions",
+        "shared": ".opencode/shared",
+        "rootAdapter": ".opencode/AGENTS.md",
+        "config": ".opencode/opencode.json"
+      },
+      "installUnits": [
+        { "type": "directory", "source": ".opencode/commands", "target": ".opencode/commands", "strategy": "link-directory" },
+        { "type": "directory", "source": ".opencode/skills", "target": ".opencode/skills", "strategy": "link-directory" },
+        { "type": "directory", "source": ".opencode/agents", "target": ".opencode/agents", "strategy": "link-directory" },
+        { "type": "directory", "source": ".opencode/instructions", "target": ".opencode/instructions", "strategy": "link-directory" },
+        { "type": "directory", "source": ".opencode/shared", "target": ".opencode/shared", "strategy": "link-directory" },
+        { "type": "file", "source": ".opencode/AGENTS.md", "target": ".opencode/AGENTS.md", "strategy": "managed-copy" },
+        {
+          "type": "file",
+          "source": ".opencode/opencode.json",
+          "target": ".opencode/opencode.json",
+          "strategy": "config-copy-or-snippet",
+          "manualSnippet": "Add these fields to your existing .opencode/opencode.json if they are not already present: {\"instructions\":[\".opencode/AGENTS.md\"],\"skills\":{\"paths\":[\".opencode/skills\"]}}"
+        }
+      ]
+    },
+    {
+      "id": "kilo",
+      "name": "Kilo",
+      "generatedTreePath": ".kilo",
+      "capabilities": {
+        "supportsNativeCommands": true,
+        "supportsNativeSkills": true,
+        "supportsNativeSubagents": true,
+        "supportsMultiVendorModels": true,
+        "requiresRootAdapter": true
+      },
+      "formats": {
+        "commandFormat": "kilo-command",
+        "skillFormat": "kilo-skill",
+        "agentFormat": "kilo-agent"
+      },
+      "outputPaths": {
+        "commands": ".kilo/command",
+        "skills": ".kilo/skill",
+        "agents": ".kilo/agent",
+        "instructions": ".kilo/instructions",
+        "shared": ".kilo/shared",
+        "rootAdapter": ".kilo/AGENTS.md",
+        "config": ".kilo/kilo.json"
+      },
+      "installUnits": [
+        { "type": "directory", "source": ".kilo/command", "target": ".kilo/command", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/skill", "target": ".kilo/skill", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/agent", "target": ".kilo/agent", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/instructions", "target": ".kilo/instructions", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/shared", "target": ".kilo/shared", "strategy": "link-directory" },
+        { "type": "file", "source": ".kilo/AGENTS.md", "target": ".kilo/AGENTS.md", "strategy": "managed-copy" },
+        {
+          "type": "file",
+          "source": ".kilo/kilo.json",
+          "target": ".kilo/kilo.json",
+          "strategy": "config-copy-or-snippet",
+          "manualSnippet": "Add these fields to your existing kilo.json if they are not already present: {\"instructions\":[\".kilo/AGENTS.md\"],\"skills\":{\"paths\":[\".kilo/skill\"]}}"
+        }
+      ]
+    }
+  ]
+}

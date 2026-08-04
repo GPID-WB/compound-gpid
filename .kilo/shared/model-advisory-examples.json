@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "kind": "bundled-examples",
+    "observedDate": "2026-07-31",
+    "verificationStatus": "static-bundle-not-runtime-verified",
+    "availabilityStatus": "availability-unverified",
+    "note": "Examples are plausible capability references only. The user's platform picker or configuration is authoritative."
+  },
+  "effortLabels": ["low", "medium", "high", "xhigh", "max"],
+  "stages": {
+    "planning": {
+      "capabilityProfile": ["repository-navigation", "decomposition", "dependency-awareness", "test-planning"],
+      "rationale": "Planning needs enough reasoning to expose dependencies and verification gaps before implementation starts.",
+      "strongOption": {"effort": "high", "exampleRefs": ["gpt-codex-strong"]},
+      "economicalOption": {"effort": "medium", "exampleRefs": ["general-reasoning-balanced"]},
+      "userControl": "Choose the available model and effort yourself; these are advisory examples only."
+    },
+    "implementation": {
+      "capabilityProfile": ["code-generation", "tool-use", "test-driven-iteration", "narrow-diff-discipline"],
+      "rationale": "Implementation favors dependable repository tool use and completion of the requested change before token savings.",
+      "strongOption": {"effort": "high", "exampleRefs": ["gpt-codex-strong"]},
+      "economicalOption": {"effort": "medium", "exampleRefs": ["general-reasoning-balanced"]},
+      "userControl": "Select the model and reasoning effort in the platform you are using; Compound GPID will not change them."
+    },
+    "review": {
+      "capabilityProfile": ["independent-critical-reasoning", "evidence-checking", "risk-classification", "adversarial-comparison"],
+      "rationale": "Review benefits from independent reasoning and, when the family is known, optional cross-family contrast.",
+      "strongOption": {"effort": "xhigh", "exampleRefs": ["general-reasoning-strong"]},
+      "economicalOption": {"effort": "high", "exampleRefs": ["cross-family-review"]},
+      "userControl": "The user decides whether to use a different family and which effort level is available; no cross-family switch is automatic."
+    },
+    "fix-triage": {
+      "capabilityProfile": ["finding-specific-diagnosis", "minimal-safe-fix", "regression-awareness", "status-tracking"],
+      "rationale": "Fix triage should scale reasoning to finding severity while keeping each change narrow and testable.",
+      "strongOption": {"effort": "high", "exampleRefs": ["gpt-codex-strong"]},
+      "economicalOption": {"effort": "medium", "exampleRefs": ["mechanical-bounded"]},
+      "userControl": "Choose the model and effort for the finding; this advice never retries or routes execution."
+    },
+    "compounding-documentation": {
+      "capabilityProfile": ["faithful-synthesis", "provenance-preservation", "concise-explanation", "safe-knowledge-capture"],
+      "rationale": "Compounding and documentation require faithful synthesis; straightforward records can use an economical option.",
+      "strongOption": {"effort": "medium", "exampleRefs": ["general-reasoning-balanced"]},
+      "economicalOption": {"effort": "low", "exampleRefs": ["mechanical-bounded"]},
+      "userControl": "The user chooses the available model and effort, and remains responsible for accepting the captured documentation."
+    }
+  },
+  "examples": [
+    {
+      "id": "gpt-codex-strong",
+      "name": "GPT-5.3-Codex",
+      "vendor": "OpenAI",
+      "family": "GPT-5-Codex",
+      "capabilityTags": ["code-generation", "tool-use", "repository-navigation"],
+      "platforms": ["GitHub Copilot", "Codex"],
+      "observedDate": "2026-07-31",
+      "availabilityStatus": "availability-unverified",
+      "verificationStatus": "bundled-example-not-runtime-verified"
+    },
+    {
+      "id": "general-reasoning-strong",
+      "name": "GPT-5.4",
+      "vendor": "OpenAI",
+      "family": "GPT-5",
+      "capabilityTags": ["critical-reasoning", "evidence-checking", "risk-classification"],
+      "platforms": ["GitHub Copilot", "Codex"],
+      "observedDate": "2026-07-31",
+      "availabilityStatus": "availability-unverified",
+      "verificationStatus": "bundled-example-not-runtime-verified"
+    },
+    {
+      "id": "general-reasoning-balanced",
+      "name": "Claude Sonnet 4.6",
+      "vendor": "Anthropic",
+      "family": "Claude",
+      "capabilityTags": ["reasoning", "synthesis", "tool-use"],
+      "platforms": ["GitHub Copilot", "Claude Code"],
+      "observedDate": "2026-07-31",
+      "availabilityStatus": "availability-unverified",
+      "verificationStatus": "bundled-example-not-runtime-verified"
+    },
+    {
+      "id": "cross-family-review",
+      "name": "Gemini 2.5 Pro",
+      "vendor": "Google",
+      "family": "Gemini",
+      "capabilityTags": ["independent-review", "critical-reasoning", "evidence-checking"],
+      "platforms": ["GitHub Copilot"],
+      "observedDate": "2026-07-31",
+      "availabilityStatus": "availability-unverified",
+      "verificationStatus": "bundled-example-not-runtime-verified"
+    },
+    {
+      "id": "mechanical-bounded",
+      "name": "Claude Haiku 4.5",
+      "vendor": "Anthropic",
+      "family": "Claude",
+      "capabilityTags": ["bounded-synthesis", "status-tracking", "short-documentation"],
+      "platforms": ["GitHub Copilot", "Claude Code"],
+      "observedDate": "2026-07-31",
+      "availabilityStatus": "availability-unverified",
+      "verificationStatus": "bundled-example-not-runtime-verified"
+    }
+  ]
+}
