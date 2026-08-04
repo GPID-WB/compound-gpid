@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+from artifact_views.editorial_theme import editorial_css
 from artifact_views.reference_theme import reference_css
 
 
@@ -16,7 +17,10 @@ class ThemeContract:
     stylesheet: str
 
 
-_THEMES = {"reference": ThemeContract("reference", 1, reference_css())}
+_THEMES = {
+    "reference": ThemeContract("reference", 1, reference_css()),
+    "editorial": ThemeContract("editorial", 1, editorial_css()),
+}
 _DEFAULTS = {
     "brainstorm": "reference",
     "plan": "reference",

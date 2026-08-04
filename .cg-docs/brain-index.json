@@ -1,5 +1,5 @@
 {
-  "edge_count": 264,
+  "edge_count": 266,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1097,6 +1097,18 @@
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md",
       "target": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+      "target": ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
       "target_missing": false
     },
     {
@@ -5640,7 +5652,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md",
       "slug": "2026-08-02-editorial-theme-publishing-workflow-evidence",
-      "status": "blocked",
+      "status": "superseded",
       "summary": "Port the approved editorial visual system from immutable source objects as a second presentation-only theme, expose explicit theme selection through the canonical publishing workflow on every supported agent platform, and produce reproducible automated and attested browser evidence for both themes.",
       "tags": [
         "editorial-theme",
@@ -5700,7 +5712,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
       "slug": "2026-08-02-generic-markdown-reference-publishing-core",
-      "status": "active",
+      "status": "superseded",
       "summary": "Build an independently releasable generic Markdown publisher around the existing `reference` presentation while preserving strict Brainstorm and Plan validation. Define and prove source routing, destination ownership, bounded resource handling, reproducible provenance and mode behavior, and non-clobbering filesystem publication before adding a second theme or agent workflow surface.",
       "tags": [
         "markdown",
@@ -8801,6 +8813,50 @@
       ]
     },
     {
+      "date": "2026-08-04",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review",
+      "status": "",
+      "summary": "**Review mode**: standard **Files reviewed**: 38 changed paths (generated `.cg-docs/views/**` bodies excluded) **Findings**: 17 (P0: 2, P1: 3, P2: 8, P3: 4)",
+      "tags": [],
+      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review",
+      "top_keywords": [
+        ".cg-docs/views/**",
+        "npm test",
+        "evidence_schema2.py",
+        "pre_render.py",
+        "review",
+        "validation",
+        "passed",
+        "consoleerrors",
+        "axeviolations",
+        "pathtofileurl"
+      ]
+    },
+    {
+      "date": "2026-08-04",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
+      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light (verification) **Prior review**: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md` **Files reviewed**: 38 changed paths; generated `.cg-docs/views/**` bodies excluded **Suppression policy**: P0/P1 and cross-file breakage always reported; P2/P3 suppressed only for blocks explicitly covered by fixed findings.",
+      "tags": [],
+      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review",
+      "top_keywords": [
+        ".cg-docs/views/**",
+        "tests.yml",
+        ".cg-docs/views/",
+        "evidence_schema2.py",
+        "package-lock.json",
+        "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+        "review",
+        "runaxeaudit",
+        "axesource",
+        "report"
+      ]
+    },
+    {
       "date": "2026-08-03",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
@@ -10607,6 +10663,35 @@
       ]
     },
     {
+      "date": "2026-08-04",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
+      "slug": "2026-08-04-evidence-capture-axe-audit-call-site-wiring",
+      "status": "",
+      "summary": "The browser evidence producer loaded the bundled `axe-core` source and defined `runAxeAudit(page, axeSource)`, but the capture loop called `runAxeAudit(page)` instead. The first cell therefore failed before producing an attested manifest.",
+      "tags": [
+        "browser-evidence",
+        "playwright",
+        "axe-core",
+        "call-site",
+        "regression-test",
+        "verify-pass"
+      ],
+      "title": "Evidence capture must pass the bundled axe source at the audit call site",
+      "top_keywords": [
+        "source",
+        "capture",
+        "site",
+        "bundled",
+        "evidence",
+        "axe",
+        "axe-core",
+        "must",
+        "audit",
+        "axesource"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -11965,7 +12050,7 @@
         "safe",
         "invoke-pester tests/ -passthru",
         "copilot-instructions.md",
-        "quiet\r\ninvoke",
+        "quiet\ninvoke",
         "invoke-pester"
       ]
     },
@@ -17011,7 +17096,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#broader-artifact-publishing-formats-and-views",
       "slug": "broader-artifact-publishing-formats-and-views",
-      "status": "done",
+      "status": "active",
       "summary": "Generic Markdown publishing skill and deterministic HTML views",
       "tags": [],
       "title": "Generic Markdown publishing skill and deterministic HTML views",
@@ -17579,13 +17664,13 @@
       ]
     }
   ],
-  "entity_count": 615,
-  "generated": "2026-08-03",
+  "entity_count": 618,
+  "generated": "2026-08-04",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 432,
+      "entity_count": 435,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -17859,6 +17944,8 @@
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
+        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -17903,6 +17990,7 @@
         ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
+        ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",

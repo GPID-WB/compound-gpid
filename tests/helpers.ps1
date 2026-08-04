@@ -27,8 +27,7 @@ function Get-ToolsList {
 # ---------------------------------------------------------------------------
 # Shared platform detection (for test files that dot-source this helper)
 # ---------------------------------------------------------------------------
-# Note: No Set-StrictMode in Pester context -- $IsWindows/$IsMacOS return $null
-# on PS 5.1 rather than throwing. Safe to use bare form here.
-# Production scripts (link.ps1, unlink.ps1) MUST use the Test-Path guarded form.
-$script:OnWindows = ($IsWindows -eq $true -or $env:OS -eq "Windows_NT")
-$script:OnMacOS   = ($IsMacOS   -eq $true)
+# Test-Path guards the PS 6+ automatic variables for PowerShell 5.1.
+$script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or
+    $env:OS -eq "Windows_NT")
+$script:OnMacOS = ((Test-Path variable:IsMacOS) -and $IsMacOS)

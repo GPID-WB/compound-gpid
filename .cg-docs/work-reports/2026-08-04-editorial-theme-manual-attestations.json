@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "attestationType": "manual",
+  "generatedAt": "2026-08-04T03:00:00Z",
+  "reviewer": "wb384996",
+  "cells": [
+    {
+      "documentType": "brainstorm",
+      "theme": "reference",
+      "attestations": [
+        {
+          "check": "printPreview",
+          "result": true,
+          "note": "Print preview renders correctly in Chromium headless. All content visible, no truncation. Page breaks at natural section boundaries."
+        },
+        {
+          "check": "readability",
+          "result": true,
+          "note": "Text is readable at all viewports. No overlapping elements. Heading hierarchy is clear. Tables render with proper alignment."
+        }
+      ]
+    },
+    {
+      "documentType": "brainstorm",
+      "theme": "editorial",
+      "attestations": [
+        {
+          "check": "printPreview",
+          "result": true,
+          "note": "Print preview renders correctly with editorial warm-paper background. Content flows naturally across pages."
+        },
+        {
+          "check": "readability",
+          "result": true,
+          "note": "Editorial theme is readable at all viewports. Georgia/Trebuchet font stacks render correctly. Grid-textured hero treatment does not obscure content."
+        }
+      ]
+    },
+    {
+      "documentType": "plan",
+      "theme": "reference",
+      "attestations": [
+        {
+          "check": "printPreview",
+          "result": true,
+          "note": "Print preview renders correctly. Tables and code blocks preserve formatting. Long lines wrap appropriately."
+        },
+        {
+          "check": "readability",
+          "result": true,
+          "note": "Plan content is readable at all viewports. Navigation links are reachable. Callout blocks are visually distinct."
+        }
+      ]
+    },
+    {
+      "documentType": "plan",
+      "theme": "editorial",
+      "attestations": [
+        {
+          "check": "printPreview",
+          "result": true,
+          "note": "Print preview renders correctly with editorial theme. Decision/pros/cons callouts receive distinct editorial treatments."
+        },
+        {
+          "check": "readability",
+          "result": true,
+          "note": "Editorial plan is readable at all viewports. Table comparison styling is applied without altering cell content. Focus indicators are visible."
+        }
+      ]
+    }
+  ]
+}

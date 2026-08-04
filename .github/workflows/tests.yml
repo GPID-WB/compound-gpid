@@ -7,6 +7,25 @@ on:
     branches: [ main ]
 
 jobs:
+  browser-evidence:
+    name: Browser evidence manifest tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Node test dependencies
+        run: npm install
+      - name: Install Chromium for evidence capture
+        run: npx playwright install --with-deps chromium
+      - name: Capture browser evidence manifest
+        run: npm run capture
+      - name: Run browser evidence tests
+        run: npm test
+
   native-targets:
     name: Native target Python gate on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

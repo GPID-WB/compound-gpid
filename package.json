@@ -1,0 +1,14 @@
+{
+  "name": "compound-gpid-evidence",
+  "private": true,
+  "description": "Development-only Playwright/Chromium/axe evidence producer for curated HTML themes. Not a runtime dependency.",
+  "devDependencies": {
+    "@playwright/test": "1.52.0",
+    "axe-core": "4.10.3",
+    "playwright": "1.52.0"
+  },
+  "scripts": {
+    "capture": "node scripts/evidence/capture.js",
+    "test": "node --test scripts/evidence/tests/*.test.js"
+  }
+}

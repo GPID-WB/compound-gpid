@@ -15,11 +15,26 @@
 # files (.agent.md) should declare a 'tools:' restriction, since they are
 # intentionally read-only reviewers.
 
+Set-StrictMode -Version Latest
+
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_ROOT '$env:CG_TEST_ROOT' does not exist" }
 . "$PSScriptRoot/helpers.ps1"
 
 # Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved here to avoid duplication across test files)
+
+# ---------------------------------------------------------------------------
+# cg-render-doc.prompt.md must exclude generated views from publishing
+# ---------------------------------------------------------------------------
+
+Describe "cg-render-doc.prompt.md - generated views routing" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-render-doc.prompt.md"
+    $content = Get-Content $promptFile -Raw
+
+    It "explicitly excludes .cg-docs/views/ generated outputs" {
+        ($content -match '\.cg-docs/views/') | Should -Be $true
+    }
+}
 
 # ---------------------------------------------------------------------------
 # cg-review.prompt.md must NOT have a tools: restriction
@@ -6410,9 +6425,9 @@ Describe "/cg-issues.prompt.md - confirmation and safety" {
 
     It "never calls gh issue close directly" {
         # Allow 'gh issue close' only in prohibition/documentation context (lines with not/never/do not)
-        $prohibited = ($content -split "`n") | Where-Object {
+        $prohibited = @($content -split "`n" | Where-Object {
             $_ -match 'gh issue close' -and $_ -notmatch '\bnot\b|\bnever\b|\bno\b'
-        }
+        })
         $prohibited.Count | Should -Be 0
     }
 
@@ -6559,17 +6574,17 @@ Describe "cg-commit-push-pr.prompt.md - github issues references" {
 
     It "does not call gh issue close directly" {
         # Allow 'gh issue close' only in prohibition/documentation context (lines with not/never/no)
-        $prohibited = ($content -split "`n") | Where-Object {
+        $prohibited = @($content -split "`n" | Where-Object {
             $_ -match 'gh issue close' -and $_ -notmatch '\bnot\b|\bnever\b|\bno\b'
-        }
+        })
         $prohibited.Count | Should -Be 0
     }
 
     It "does not claim full bidirectional sync (out of scope for v1)" {
         # Allow 'bidirectional sync' only in prohibition/documentation context
-        $prohibited = ($content -split "`n") | Where-Object {
+        $prohibited = @($content -split "`n" | Where-Object {
             $_ -match 'bidirectional.*sync|full.*sync.*issue|auto.*sync' -and $_ -notmatch '\bNo\b|\bnot\b|\bnever\b|\bdo not\b'
-        }
+        })
         $prohibited.Count | Should -Be 0
     }
 }
