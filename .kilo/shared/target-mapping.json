@@ -161,7 +161,7 @@
       "outputPaths": {
         "commands": ".kilo/commands",
         "skills": ".kilo/skills",
-        "agents": ".kilo/agent",
+        "agents": ".kilo/agents",
         "instructions": ".kilo/instructions",
         "shared": ".kilo/shared",
         "rootAdapter": ".kilo/AGENTS.md",
@@ -170,7 +170,7 @@
       "installUnits": [
         { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/skills", "target": ".kilo/skills", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/agent", "target": ".kilo/agent", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/agents", "target": ".kilo/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/instructions", "target": ".kilo/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".kilo/shared", "target": ".kilo/shared", "strategy": "link-directory" },
         { "type": "file", "source": ".kilo/AGENTS.md", "target": ".kilo/AGENTS.md", "strategy": "managed-copy" },

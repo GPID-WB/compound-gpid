@@ -13,7 +13,7 @@ Load skill files from `.kilo/skills/cg-skill-*/SKILL.md`.
 
 ## Agents
 
-Agent specs are under `.kilo/agent/`.
+Agent specs are under `.kilo/agents/`.
 
 ## Instructions And Contracts
 

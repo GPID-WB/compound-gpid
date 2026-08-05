@@ -7,123 +7,123 @@
       "path": ".kilo/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "09f64a431875d42f541b17ada9bfe8d88a6c7412a6bf82bdc97a99a250d7f04a",
+      "sha256": "e65f3937008cee56a21902e72af271d01ea2617cdd2dbf39f87141bb8dd88fdc",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-adversarial.md",
+      "path": ".kilo/agents/cg-adversarial.md",
       "source": ".github/agents/cg-adversarial.agent.md",
       "kind": "agent",
       "sha256": "68512ed01bb998d62ec7e8ae842d100e869926ecdc10b61cc24df6c7aec07d1b",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-architecture.md",
+      "path": ".kilo/agents/cg-architecture.md",
       "source": ".github/agents/cg-architecture.agent.md",
       "kind": "agent",
       "sha256": "9cc84a56a51c800ea0426ca37b99b59033121d3b868869b4b3a8cc4b63a0b8da",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-code-quality.md",
+      "path": ".kilo/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
       "sha256": "bbfc1b956d3c549aa49b5c9169780057a6e635fd4d88bb7687aec718be8525b7",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-data-quality.md",
+      "path": ".kilo/agents/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
       "sha256": "a4495a8d4f6a544bde8c470849df925cd78c3262c29d19492bf5d6f61d0a08b4",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-documentation.md",
+      "path": ".kilo/agents/cg-documentation.md",
       "source": ".github/agents/cg-documentation.agent.md",
       "kind": "agent",
       "sha256": "283f801c963e1370c276a35f015a1c812620d630e9202afbd8c335ac46e73564",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-fix-problems.md",
+      "path": ".kilo/agents/cg-fix-problems.md",
       "source": ".github/agents/cg-fix-problems.agent.md",
       "kind": "agent",
       "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-learnings-researcher.md",
+      "path": ".kilo/agents/cg-learnings-researcher.md",
       "source": ".github/agents/cg-learnings-researcher.agent.md",
       "kind": "agent",
       "sha256": "78b10d0b3f9f5cc097a57a594df484c01b731cd05c9fd0c9c9f4a4e2b304a900",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-performance.md",
+      "path": ".kilo/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
       "sha256": "ecb64ce3df67a0eccc2abf72f68b1baba0a0be391aecba67b2de72d452baf2dd",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-plan-critic.md",
+      "path": ".kilo/agents/cg-plan-critic.md",
       "source": ".github/agents/cg-plan-critic.agent.md",
       "kind": "agent",
       "sha256": "9e86cd3d985a0585022bd6f4117dc24d8710455aafd6fbf059dc4bd79367e19a",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-project-scanner.md",
+      "path": ".kilo/agents/cg-project-scanner.md",
       "source": ".github/agents/cg-project-scanner.agent.md",
       "kind": "agent",
       "sha256": "a4db2d2dfafdc37fc59bff21ea272fd8539ae3f746caab3b42950ffd71804338",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-release-scanner.md",
+      "path": ".kilo/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
       "sha256": "7ed8463290e76982775e50c939c73ba443172d934df067f54ca60826175e1522",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-reproducibility.md",
+      "path": ".kilo/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
       "sha256": "193983ade6f2dde0f23a69dc3a6517b0de8575a9fb3185914fb297752460b926",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-roadmap-view.md",
+      "path": ".kilo/agents/cg-roadmap-view.md",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "agent",
       "sha256": "dd68884f509cf56f7c6ea5ed12337b6c13e3dc938773869a3a869155ae11d24a",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-roadmap.md",
+      "path": ".kilo/agents/cg-roadmap.md",
       "source": ".github/agents/cg-roadmap.agent.md",
       "kind": "agent",
       "sha256": "0422efc4c913d3acbc1c33a15e992fc8cf14922b9d20dad4b8cd6fa5772e1ceb",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-testing.md",
+      "path": ".kilo/agents/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
       "sha256": "01fc4f7d0f6b035bf5d4b50fa2fd4418a02c079577f3400e7265b2c39075a3c9",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-version-control.md",
+      "path": ".kilo/agents/cg-version-control.md",
       "source": ".github/agents/cg-version-control.agent.md",
       "kind": "agent",
       "sha256": "433c6e985ede1f48ca0e2c671b57f96ca705a2fab1d8c576a93881dff924cf4a",
       "executable": false
     },
     {
-      "path": ".kilo/agent/cg-wiki.md",
+      "path": ".kilo/agents/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
       "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae",
@@ -413,7 +413,7 @@
       "path": ".kilo/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "c22e8279a17a2bc728f2cf0af3a948afaf34feaff2cd61eb9c91fa3de41a1d9f",
+      "sha256": "1cc166a7c438a8378ec40d819fbc8319b533530f92ac91946861f576cf6c3beb",
       "executable": false
     },
     {
