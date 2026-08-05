@@ -228,6 +228,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-release.md",
+      "source": ".github/prompts/cg-release.prompt.md",
+      "kind": "command",
+      "sha256": "0747f6db66c1a650a3bf94b02a051a27090e65c6302ba537a22c4e280543b005",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-render-doc.md",
       "source": ".github/prompts/cg-render-doc.prompt.md",
       "kind": "command",
@@ -238,7 +245,7 @@
       "path": ".opencode/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "8a20bed8788f15f96dcbb509c73d7bfeb006dc5daf871e7eb6a51705a50e609e",
+      "sha256": "29788de7ee628a8c36693d459aa40c83422c1491d7d7323047c03db6c04bac21",
       "executable": false
     },
     {

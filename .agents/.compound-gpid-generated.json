@@ -109,6 +109,13 @@
       "executable": false
     },
     {
+      "path": ".agents/commands/cg-release.md",
+      "source": ".github/prompts/cg-release.prompt.md",
+      "kind": "command",
+      "sha256": "11321d0812f31ec9545d9fe0b92e371bce3c03b6b5d9bd93ebdea22bf69eb486",
+      "executable": false
+    },
+    {
       "path": ".agents/commands/cg-render-doc.md",
       "source": ".github/prompts/cg-render-doc.prompt.md",
       "kind": "command",
@@ -119,7 +126,7 @@
       "path": ".agents/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "8a44d6e658f0763d55886a24dd8237d35fd28c279708d4389028c01af70f6cc2",
+      "sha256": "b995a4cf2835a17da8023cebba2f6f00b1de8e645b1ad526aaa528735b95a336",
       "executable": false
     },
     {

@@ -24,7 +24,7 @@ dispatched by prompts and should not be invoked directly.
 |---|---|
 | `cg-plan-critic` | `/cg-plan-review` |
 | `cg-project-scanner` | `/cg-setup` and project-analysis steps |
-| `cg-release-scanner` | Repository-root `/cg-release` |
+| `cg-release-scanner` | compound-gpid-only `/cg-release` |
 | `cg-fix-problems` | `/cg-fix-problems` |
 | `cg-roadmap-view` | `/cg-roadmap-view` |
 | `cg-wiki` | `/cg-wiki` |

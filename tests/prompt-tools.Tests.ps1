@@ -3483,7 +3483,7 @@ Describe "cg-release-scanner.agent.md - existence and structure" {
 }
 
 Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
-    $promptFile = Join-Path $repoRoot "cg-release.prompt.md"
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-release.prompt.md"
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "cg-release.prompt.md references @cg-release-scanner" {

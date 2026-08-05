@@ -228,6 +228,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/commands/cg-release.md",
+      "source": ".github/prompts/cg-release.prompt.md",
+      "kind": "command",
+      "sha256": "0c1890b4e8283be36b9f62e071ed49519e82715cf3e9be22e844d609c2707eaf",
+      "executable": false
+    },
+    {
       "path": ".kilo/commands/cg-render-doc.md",
       "source": ".github/prompts/cg-render-doc.prompt.md",
       "kind": "command",
@@ -238,7 +245,7 @@
       "path": ".kilo/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "fe7c06bb5cf2677e5a4c3e5feaaf3b55861f07791731dab43ac694b3cca90d78",
+      "sha256": "a9c88ef4f197daf596cfa34a062902bbde2394449399ae09229a788244a45efe",
       "executable": false
     },
     {
