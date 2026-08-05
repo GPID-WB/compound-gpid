@@ -159,7 +159,7 @@ class TestReleaseGateTargets:
         assert str(REPO_ROOT / "scripts/tests/test_target_mapping.py") in pytest_args
 
     def test_release_prompt_requires_gate_before_execute(self) -> None:
-        content = (REPO_ROOT / "cg-release.prompt.md").read_text(encoding="utf-8")
+        content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
         execute = content.index("### Step 5: Execute")
         before_execute = content[:execute].lower()
         assert "native packaging" in before_execute
