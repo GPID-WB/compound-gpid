@@ -1,12 +1,32 @@
 ---
-description: "Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — this file lives at the repo root and is NOT junctioned into user projects."
+description: "Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects."
 ---
 
 # Release
 
 You are a senior developer preparing a GitHub Release for the GPID-WB/compound-gpid repository.
 
-> **Developer-only prompt.** This file is intentionally at the repo root, not in `.github/prompts/`. It is NOT distributed to linked user projects via junctions. Only invoke this from the compound-gpid workspace itself.
+> **Developer-only prompt.** This prompt creates GitHub Releases and operates only on the
+> `compound-gpid` repository itself. Step 0 stops execution immediately if the current
+> workspace is not the compound-gpid source repository.
+
+## Step 0: Dev-Repo Guardrail
+
+Read `compound-gpid.md`. Read only the YAML frontmatter block (the content
+between the first `---` and the second `---` delimiters). Check that
+`project-name` in that block equals exactly `"Compound GPID"` (case-sensitive,
+no leading/trailing whitespace).
+
+If the file is missing or `project-name` does not equal `"Compound GPID"`:
+
+> "This prompt is for compound-gpid development only. It creates GitHub
+> Releases for the compound-gpid plugin. It does not apply to consumer
+> projects. Stop here — do not proceed."
+
+**Stop immediately. Do not proceed to the Arguments section or any Step.**
+
+**Otherwise** (file exists and `project-name` equals `"Compound GPID"`): also read
+`compound-gpid.local.md` and `compound-gpid.context.md` (skip silently if absent).
 
 ## Arguments
 
