@@ -711,3 +711,57 @@ Describe "link.sh - no bootstrap index offer at link time" {
         ($content -match 'cg-index --all') | Should -Be $false
     }
 }
+
+# ---------------------------------------------------------------------------
+# Kilo platform: global kilo.jsonc markdown_source permission for symlinks
+# ---------------------------------------------------------------------------
+# Kilo docs (https://kilo.ai/docs/customize/workflows) require that when
+# .kilo/commands/ is a symlink, the global ~/.config/kilo/kilo.jsonc must
+# whitelist the symlink target path via permission.markdown_source.
+# Without this, Kilo refuses to load external command files.
+# ---------------------------------------------------------------------------
+
+Describe "link.ps1 - kilo global kilo.jsonc markdown_source permission" {
+    Context "link.ps1 source code contains kilo.jsonc permission logic" {
+        It "link.ps1 references markdown_source permission for kilo symlinked commands [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'markdown_source'
+        }
+
+        It "link.ps1 references the global kilo config path [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'kilo\.jsonc'
+        }
+
+        It "link.ps1 updates global config when kilo platform is selected [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'permission.*markdown_source|markdown_source.*permission'
+        }
+    }
+
+    Context "link.sh source code contains kilo.jsonc permission logic" {
+        It "link.sh references markdown_source permission for kilo symlinked commands [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+            $content | Should -Match 'markdown_source'
+        }
+
+        It "link.sh references the global kilo config path [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+            $content | Should -Match 'kilo\.jsonc'
+        }
+    }
+
+    Context "unlink.ps1 cleans up markdown_source permission on kilo unlink" {
+        It "unlink.ps1 references markdown_source cleanup [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'markdown_source'
+        }
+    }
+
+    Context "unlink.sh cleans up markdown_source permission on kilo unlink" {
+        It "unlink.sh references markdown_source cleanup [reproduction test]" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.sh") -Raw -Encoding UTF8
+            $content | Should -Match 'markdown_source'
+        }
+    }
+}
