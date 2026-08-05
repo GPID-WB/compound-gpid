@@ -104,7 +104,7 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
                 "outputPaths": {
                     "commands": ".kilo/commands",
                     "skills": ".kilo/skills",
-                    "agents": ".kilo/agent",
+                    "agents": ".kilo/agents",
                     "instructions": ".kilo/instructions",
                     "shared": ".kilo/shared",
                     "rootAdapter": ".kilo/AGENTS.md",
@@ -364,7 +364,7 @@ class TestGeneratorWrites:
     def test_kilo_uses_role_only_no_exact_models(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "kilo"])
-        agent_files = list((root / ".kilo/agent").glob("*.md"))
+        agent_files = list((root / ".kilo/agents").glob("*.md"))
         assert len(agent_files) == 1
         content = agent_files[0].read_text()
         assert "mode: subagent" in content

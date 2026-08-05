@@ -110,6 +110,9 @@ class TestTargetMappingSchema:
         assert kilo["generatedTreePath"] == ".kilo"
         assert "config" in kilo["outputPaths"]
         assert kilo["outputPaths"]["config"] == ".kilo/kilo.json"
+        assert kilo["outputPaths"]["commands"] == ".kilo/commands"
+        assert kilo["outputPaths"]["skills"] == ".kilo/skills"
+        assert kilo["outputPaths"]["agents"] == ".kilo/agents"
         config_units = [u for u in kilo["installUnits"] if u["target"] == ".kilo/kilo.json"]
         assert len(config_units) == 1
         assert config_units[0]["strategy"] == "config-copy-or-snippet"

@@ -34,9 +34,11 @@ class TestKiloTreeStructure:
 
     def test_skills_dir_exists(self) -> None:
         assert (REPO_ROOT / ".kilo/skills").is_dir()
+        assert not (REPO_ROOT / ".kilo" / "skill").exists()
 
     def test_agents_dir_exists(self) -> None:
-        assert (REPO_ROOT / ".kilo/agent").is_dir()
+        assert (REPO_ROOT / ".kilo/agents").is_dir()
+        assert not (REPO_ROOT / ".kilo" / "agent").exists()
 
     def test_root_adapter_exists(self) -> None:
         assert (REPO_ROOT / ".kilo/AGENTS.md").is_file()
@@ -65,10 +67,10 @@ class TestKiloTreeStructure:
         agents = list((REPO_ROOT / ".github/agents").glob("*.agent.md"))
         for agent in agents:
             agent_name = agent.name.replace(".agent.md", ".md")
-            assert (REPO_ROOT / ".kilo/agent" / agent_name).exists(), f"Missing agent: {agent_name}"
+            assert (REPO_ROOT / ".kilo/agents" / agent_name).exists(), f"Missing agent: {agent_name}"
 
     def test_agents_are_kilo_discoverable(self) -> None:
-        agent_files = list((REPO_ROOT / ".kilo/agent").glob("*.md"))
+        agent_files = list((REPO_ROOT / ".kilo/agents").glob("*.md"))
         assert agent_files
         for agent_file in agent_files:
             content = agent_file.read_text(encoding="utf-8")
@@ -97,7 +99,7 @@ class TestKiloTreeStructure:
 class TestKiloModelInheritance:
     def test_commands_and_agent_files_do_not_assign_models(self) -> None:
         files = list((REPO_ROOT / ".kilo/commands").rglob("*.md"))
-        files += list((REPO_ROOT / ".kilo/agent").glob("*.md"))
+        files += list((REPO_ROOT / ".kilo/agents").glob("*.md"))
         assert files
         for path in files:
             assert "model:" not in path.read_text(encoding="utf-8"), path

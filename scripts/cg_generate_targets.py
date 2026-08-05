@@ -3,7 +3,7 @@
 
 Reads .github/ canonical assets (prompts, agents, skills, instructions, shared
 contracts) and .github/shared/target-mapping.json, then emits platform-specific
-native trees for Claude Code, Codex, and OpenCode.
+native trees for Claude Code, Codex, OpenCode, and Kilo.
 
 Usage:
     python3 scripts/cg_generate_targets.py [--root <path>] [--target <platform>] [--all] [--dry-run]
