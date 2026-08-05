@@ -435,6 +435,65 @@ PYEOF
 if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
 
+update_kilo_global_permission() {
+    local action="$1"
+    local kilo_config_dir="$HOME/.config/kilo"
+    local kilo_config_path="$kilo_config_dir/kilo.jsonc"
+    local commands_source="${COMPOUND_GPID_DIR//\\//}/.kilo/commands"
+    local permission_key="${commands_source}/*"
+
+    mkdir -p "$kilo_config_dir"
+
+    "$PYTHON_CMD" - "$kilo_config_path" "$permission_key" "$action" <<'PYEOF'
+import json
+import os
+import sys
+
+config_path, permission_key, action = sys.argv[1], sys.argv[2], sys.argv[3]
+
+config = {}
+if os.path.exists(config_path):
+    with open(config_path, "r", encoding="utf-8") as handle:
+        raw = handle.read()
+    if raw.strip():
+        try:
+            config = json.loads(raw)
+        except json.JSONDecodeError:
+            print("WARNING: Could not parse kilo.jsonc; will overwrite with valid JSON.", file=sys.stderr)
+            config = {}
+
+config.setdefault("permission", {})
+if not isinstance(config["permission"], dict):
+    config["permission"] = {}
+config["permission"].setdefault("markdown_source", {})
+if not isinstance(config["permission"]["markdown_source"], dict):
+    config["permission"]["markdown_source"] = {}
+
+if action == "remove":
+    if permission_key in config["permission"]["markdown_source"]:
+        del config["permission"]["markdown_source"][permission_key]
+        if not config["permission"]["markdown_source"]:
+            del config["permission"]["markdown_source"]
+        if not config["permission"]:
+            del config["permission"]
+        with open(config_path, "w", encoding="utf-8") as handle:
+            json.dump(config, handle, indent=2)
+            handle.write("\n")
+        print("REMOVED")
+    else:
+        print("NOT_FOUND")
+elif action == "add":
+    if config["permission"]["markdown_source"].get(permission_key) == "allow":
+        print("ALREADY_PRESENT")
+    else:
+        config["permission"]["markdown_source"][permission_key] = "allow"
+        with open(config_path, "w", encoding="utf-8") as handle:
+            json.dump(config, handle, indent=2)
+            handle.write("\n")
+        print("ADDED")
+PYEOF
+}
+
 printf '\n'
 if [ "${CG_SKIP_UPDATE:-}" = "1" ]; then
     print_gray "Skipping Compound GPID update (CG_SKIP_UPDATE=1)."
@@ -495,6 +554,16 @@ done < "$units_file"
 
 collect_existing_managed_entries >> "$entries_file"
 update_gitignore_block "$entries_file"
+
+case ",$PLATFORMS," in
+    *,kilo,*)
+        result="$(update_kilo_global_permission "add")"
+        case "$result" in
+            ADDED)           print_gray "Updated kilo.jsonc markdown_source permission" ;;
+            ALREADY_PRESENT) print_gray "kilo.jsonc markdown_source permission already present" ;;
+        esac
+        ;;
+esac
 
 printf '\n'
 print_gray "Platform availability checks:"

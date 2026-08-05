@@ -162,6 +162,56 @@ remove_empty_root() {
     fi
 }
 
+remove_kilo_global_permission() {
+    local kilo_config_dir="$HOME/.config/kilo"
+    local kilo_config_path="$kilo_config_dir/kilo.jsonc"
+    [ -f "$kilo_config_path" ] || return 0
+
+    local commands_source="${COMPOUND_GPID_DIR//\\//}/.kilo/commands"
+    local permission_key="${commands_source}/*"
+
+    "$PYTHON_CMD" - "$kilo_config_path" "$permission_key" <<'PYEOF'
+import json
+import os
+import sys
+
+config_path, permission_key = sys.argv[1], sys.argv[2]
+
+if not os.path.exists(config_path):
+    sys.exit(0)
+
+with open(config_path, "r", encoding="utf-8") as handle:
+    raw = handle.read()
+if not raw.strip():
+    sys.exit(0)
+
+try:
+    config = json.loads(raw)
+except json.JSONDecodeError:
+    sys.exit(0)
+
+permission = config.get("permission")
+if not isinstance(permission, dict):
+    sys.exit(0)
+markdown_source = permission.get("markdown_source")
+if not isinstance(markdown_source, dict):
+    sys.exit(0)
+if permission_key not in markdown_source:
+    sys.exit(0)
+
+del markdown_source[permission_key]
+if not markdown_source:
+    del permission["markdown_source"]
+if not permission:
+    del config["permission"]
+
+with open(config_path, "w", encoding="utf-8") as handle:
+    json.dump(config, handle, indent=2)
+    handle.write("\n")
+print("REMOVED")
+PYEOF
+}
+
 printf '\n'
 print_cyan "Compound GPID - Unlink"
 print_cyan "======================"
@@ -201,6 +251,11 @@ done < <(all_unit_targets)
 
 for root in .github .claude .agents .opencode .kilo .compound-gpid; do remove_empty_root "$root"; done
 remove_gitignore_block
+
+result="$(remove_kilo_global_permission)"
+case "$result" in
+    REMOVED) print_gray "Removed kilo.jsonc markdown_source permission" ;;
+esac
 
 printf '\n'
 if [ "$REMOVED_ANY" = true ]; then
