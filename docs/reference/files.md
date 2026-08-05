@@ -21,6 +21,7 @@ targets, and durable workflow artifacts.
 | `.claude/` | Generated Claude Code target |
 | `.agents/` | Generated Codex target |
 | `.opencode/` | Generated OpenCode target |
+| `.kilo/` | Generated Kilo target |
 
 Directory units are linked into consumer projects. Some strict root or JSON
 files are copied and tracked by the sidecar manifest. Project-owned roots and

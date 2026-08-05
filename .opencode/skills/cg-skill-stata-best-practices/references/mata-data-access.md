@@ -245,6 +245,7 @@ for (i=1; i<=100; i++) result[i] = mean(price_data)
 
 ```mata
 // Slow: one observation at a time
+sum = 0
 for (i=1; i<=st_nobs(); i++) sum = sum + st_data(i, var)
 
 // Fast: all at once

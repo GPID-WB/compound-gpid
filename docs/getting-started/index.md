@@ -63,11 +63,11 @@ Run from the project root:
 cg-link
 ```
 
-By default, this links managed install units for all four supported platforms.
+By default, this links managed install units for all five supported platforms.
 To narrow the install, provide a comma-separated platform list:
 
 ```bash
-cg-link --platforms copilot,opencode
+cg-link --platforms copilot,opencode,kilo
 ```
 
 Existing user-owned platform files are preserved. Compound GPID skips a

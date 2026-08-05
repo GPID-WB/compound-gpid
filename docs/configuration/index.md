@@ -56,11 +56,10 @@ Narrow the install only when needed:
 cg-link --platforms copilot
 cg-link --platforms claude-code,codex
 cg-link --platforms opencode
+cg-link --platforms kilo
 ```
 
-Canonical authoring lives in `.github/`. Committed `.claude/`, `.agents/`, and
-`.opencode/` trees are generated targets. Do not repair generated copies by
-editing them directly.
+Canonical authoring lives in `.github/`. Committed `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees are generated targets. Do not repair generated copies by editing them directly.
 
 ## Managed and user-owned content
 

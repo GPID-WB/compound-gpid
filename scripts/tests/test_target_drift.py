@@ -21,11 +21,12 @@ import cg_generate_targets as gen
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TARGET_SKILL_ROOTS = (".claude/skills", ".agents/skills", ".opencode/skills")
+TARGET_SKILL_ROOTS = (".claude/skills", ".agents/skills", ".opencode/skills", ".kilo/skills")
 OWNERSHIP_MANIFESTS = {
     ".claude/.compound-gpid-generated.json",
     ".agents/.compound-gpid-generated.json",
     ".opencode/.compound-gpid-generated.json",
+    ".kilo/.compound-gpid-generated.json",
 }
 
 
@@ -153,7 +154,7 @@ class TestNoDrift:
 
     def test_dirty_generated_files_fail_drift_gate(self) -> None:
         result = subprocess.run(
-            ["git", "diff", "--quiet", "HEAD", "--", ".claude", ".agents", ".opencode"],
+            ["git", "diff", "--quiet", "HEAD", "--", ".claude", ".agents", ".opencode", ".kilo"],
             cwd=str(REPO_ROOT), timeout=30, check=False,
         )
         assert result.returncode == 0, "Dirty generated target tree must fail drift"
@@ -185,7 +186,7 @@ class TestNoDrift:
     def test_generated_trees_are_not_stale(self) -> None:
         """Every non-ignored expected file should exist in committed outputs."""
         expected = _expected_paths(REPO_ROOT)
-        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
+        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
         expected_committed = {
             path
             for path in expected
@@ -203,7 +204,7 @@ class TestNoDrift:
     def test_no_orphaned_generated_files(self) -> None:
         """No committed generated file should exist outside generator output."""
         expected = _expected_paths(REPO_ROOT)
-        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
+        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
 
         orphaned = committed - expected
         if orphaned:
@@ -216,7 +217,7 @@ class TestNoDrift:
     def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
         """Committed generated files should match dry-run regenerated content."""
         expected = _expected_paths(REPO_ROOT)
-        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode"])
+        committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
         expected_committed = {
             path
             for path in expected

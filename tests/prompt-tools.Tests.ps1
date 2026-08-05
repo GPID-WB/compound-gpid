@@ -2901,7 +2901,7 @@ Describe "link.ps1 - success message guidance" {
 
     It "tells users how to limit platforms on future links" {
         ($content -match '--platforms copilot') | Should -Be $true
-        ($content -match '--platforms opencode') | Should -Be $true
+        ($content -match '--platforms kilo') | Should -Be $true
     }
 
     It "instructs users to restart their AI coding tool" {

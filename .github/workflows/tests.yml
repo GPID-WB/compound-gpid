@@ -60,6 +60,7 @@ jobs:
           scripts/tests/test_target_claude.py
           scripts/tests/test_target_codex.py
           scripts/tests/test_target_opencode.py
+          scripts/tests/test_target_kilo.py
           scripts/tests/test_target_documentation.py
           scripts/tests/test_model_advisory.py
           scripts/tests/test_audit_context.py

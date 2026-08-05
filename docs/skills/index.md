@@ -38,9 +38,7 @@ Canonical skill identity and purpose come from:
 .github/skills/cg-skill-*/SKILL.md
 ```
 
-The `.claude/skills/`, `.agents/skills/`, and `.opencode/skills/` trees are
-generated mirrors and must not be counted as additional skills. Edit canonical
-content only, regenerate target trees, and run drift checks before release.
+The `.claude/skills/`, `.agents/skills/`, `.opencode/skills/`, and `.kilo/skills/` trees are generated mirrors and must not be counted as additional skills. Edit canonical content only, regenerate target trees, and run drift checks before release.
 
 This catalog adds audience, goal category, and availability labels for public
 navigation. Site validation compares every cataloged source link with the

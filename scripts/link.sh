@@ -65,20 +65,20 @@ normalize_platforms() {
         platform="$(printf '%s' "$item" | tr '[:upper:]' '[:lower:]' | xargs)"
         [ -z "$platform" ] && continue
         if [ "$platform" = "all" ]; then
-            for platform in copilot claude-code codex opencode; do
+            for platform in copilot claude-code codex opencode kilo; do
                 case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
             done
             continue
         fi
         case "$platform" in
-            copilot|claude-code|codex|opencode)
-                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
+            copilot|claude-code|codex|opencode|kilo)
+                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected},$platform" ;; esac
                 ;;
             *) print_warn "Unknown platform '$platform' -- skipping" ;;
         esac
     done
     if [ -z "$selected" ]; then
-        print_error "No valid platforms selected. Supported platforms: copilot, claude-code, codex, opencode"
+        print_error "No valid platforms selected. Supported platforms: copilot, claude-code, codex, opencode, kilo"
         exit 1
     fi
     printf '%s\n' "$selected"
@@ -167,13 +167,23 @@ add_units_for_platform() {
                 'opencode|directory|.opencode/shared|.opencode/shared|link-directory|' \
                 'opencode|file|.opencode/AGENTS.md|.opencode/AGENTS.md|managed-copy|' \
                 'opencode|file|.opencode/opencode.json|.opencode/opencode.json|config-copy-or-snippet|Add instructions .opencode/AGENTS.md and skills.paths .opencode/skills to your existing opencode.json.' \
-            ;;
+                ;;
+        kilo)
+            printf '%s\n' \
+                'kilo|directory|.kilo/commands|.kilo/commands|link-directory|' \
+                'kilo|directory|.kilo/skills|.kilo/skills|link-directory|' \
+                'kilo|directory|.kilo/agents|.kilo/agents|link-directory|' \
+                'kilo|directory|.kilo/instructions|.kilo/instructions|link-directory|' \
+                'kilo|directory|.kilo/shared|.kilo/shared|link-directory|' \
+                'kilo|file|.kilo/AGENTS.md|.kilo/AGENTS.md|managed-copy|' \
+                'kilo|file|.kilo/kilo.json|.kilo/kilo.json|config-copy-or-snippet|Add instructions .kilo/AGENTS.md and skills.paths .kilo/skills to your existing kilo.json.' \
+                ;;
     esac
 }
 
 all_install_units() {
     local platform
-    for platform in copilot claude-code codex opencode; do
+    for platform in copilot claude-code codex opencode kilo; do
         add_units_for_platform "$platform"
     done
 }
@@ -315,7 +325,7 @@ if os.path.exists(path):
         content = handle.read()
 if content and not content.endswith("\n"):
     content += "\n"
-pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
 cleaned = re.sub(pattern, "", content).rstrip("\n")
 cleaned = re.sub(r"(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?", "", cleaned)
 cleaned = re.sub(r"(?m)^\.cg-docs/\r?\n?", "", cleaned).rstrip("\n")
@@ -383,6 +393,7 @@ legacy_targets = (
     ".claude/model-mapping.claude.json",
     ".agents/model-mapping.codex.json",
     ".opencode/model-mapping.opencode.json",
+    ".kilo/model-mapping.kilo.json",
 )
 
 with open(manifest_path, "r", encoding="utf-8") as handle:
@@ -494,6 +505,7 @@ for platform in "${check_platforms[@]}"; do
         claude-code) check_rel=".claude/commands/cg-plan.md" ;;
         codex) check_rel=".agents/commands/cg-plan.md" ;;
         opencode) check_rel=".opencode/commands/cg-plan.md" ;;
+        kilo) check_rel=".kilo/commands/cg-plan.md" ;;
         *) check_rel="" ;;
     esac
     if [ -n "$check_rel" ] && [ -e "$PROJECT_ROOT/$check_rel" ]; then
@@ -506,6 +518,6 @@ done
 printf '\n'
 print_green "Linked!"
 printf '\nCompound GPID assets are now available for: %s.\n' "$PLATFORMS"
-printf 'Use --platforms copilot for Copilot-only or --platforms opencode for OpenCode-only assets.\n\n'
+printf 'Use --platforms copilot for Copilot-only or --platforms kilo for Kilo-only assets.\n\n'
 print_yellow "IMPORTANT: Restart your AI coding tool so commands, skills, agents, and config reload."
 printf '\n'

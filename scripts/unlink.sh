@@ -47,7 +47,8 @@ all_unit_targets() {
         '.github/prompts|directory' '.github/skills|directory' '.github/agents|directory' '.github/instructions|directory' '.github/shared|directory' '.github/copilot-instructions.md|file' \
         '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/instructions|directory' '.claude/shared|directory' '.claude/CLAUDE.md|file' \
         '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/instructions|directory' '.agents/shared|directory' '.agents/AGENTS.md|file' \
-        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file'
+        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file' \
+        '.kilo/commands|directory' '.kilo/skills|directory' '.kilo/agents|directory' '.kilo/instructions|directory' '.kilo/shared|directory' '.kilo/AGENTS.md|file' '.kilo/kilo.json|file'
 }
 
 remove_directory_unit() {
@@ -133,7 +134,7 @@ import tempfile
 path = sys.argv[1]
 with open(path, "r", encoding="utf-8", errors="replace") as handle:
     content = handle.read()
-pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+    pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
 updated = re.sub(pattern, "", content).rstrip("\n")
 if updated == content.rstrip("\n"):
     sys.exit(0)
@@ -174,7 +175,7 @@ fi
 
 REMOVED_ANY=false
 
-for root in .github .claude .agents .opencode; do
+for root in .github .claude .agents .opencode .kilo; do
     path="$PROJECT_ROOT/$root"
     if [ -L "$path" ]; then
         link_target="$(readlink "$path")"
@@ -198,7 +199,7 @@ while IFS='|' read -r target_rel unit_type; do
     fi
 done < <(all_unit_targets)
 
-for root in .github .claude .agents .opencode .compound-gpid; do remove_empty_root "$root"; done
+for root in .github .claude .agents .opencode .kilo .compound-gpid; do remove_empty_root "$root"; done
 remove_gitignore_block
 
 printf '\n'

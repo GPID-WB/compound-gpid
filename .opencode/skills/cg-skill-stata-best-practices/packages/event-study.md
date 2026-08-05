@@ -205,12 +205,18 @@ eventstudyinteract depvar treatment_dummies [controls], ///
 gen rel_time = year - treatment_year
 replace rel_time = -999 if missing(treatment_year)
 
-// Create cohort x relative time dummies
+// Create cohort x relative time dummies (valid names: leads use lead<k>,
+// lags use lag<k> — Stata rejects hyphens in variable names)
 quietly: levelsof treatment_year if !missing(treatment_year), local(cohorts)
 foreach g of local cohorts {
     forvalues k = -5/10 {
         if `k' != -1 {  // Skip baseline
-            gen treat_`g'_`k' = (treatment_year == `g' & rel_time == `k')
+            if `k' < 0 {
+                gen treat_`g'_lead`=-`k'' = (treatment_year == `g' & rel_time == `k')
+            }
+            else {
+                gen treat_`g'_lag`k' = (treatment_year == `g' & rel_time == `k')
+            }
         }
     }
 }
@@ -228,7 +234,7 @@ estimates store sa_baseline
 ```stata
 event_plot sa_baseline, ///
     default_look ///
-    stub_lag(treat_#_) stub_lead(treat_#_) ///
+    stub_lag(treat_#_lag#) stub_lead(treat_#_lead#) ///
     together ///
     graph_opt(xtitle("Periods to Treatment") ///
               ytitle("Average Treatment Effect") ///
@@ -263,8 +269,14 @@ program define create_sa_dummies
     foreach g of local cohorts {
         forvalues k = `min_lead'/`max_lag' {
             if `k' != `baseline' {
-                quietly: gen treat_`g'_`k' = ///
-                    (`cohort_var' == `g' & `rel_time_var' == `k')
+                if `k' < 0 {
+                    quietly: gen treat_`g'_lead`=-`k'' = ///
+                        (`cohort_var' == `g' & `rel_time_var' == `k')
+                }
+                else {
+                    quietly: gen treat_`g'_lag`k' = ///
+                        (`cohort_var' == `g' & `rel_time_var' == `k')
+                }
             }
         }
     }
@@ -759,8 +771,8 @@ event_plot cs_never cs_notyet, ///
 
 ```stata
 event_plot twfe sun_abraham callaway_santanna imputation, ///
-    stub_lag(lag# treat_#_# Tp# tau#) ///
-    stub_lead(lead# treat_#_# Tm# pre#) ///
+    stub_lag(lag# treat_#_lag# Tp# tau#) ///
+    stub_lead(lead# treat_#_lead# Tm# pre#) ///
     plottype(scatter) ciplottype(rcap) ///
     together perturb(-0.35(0.175)0.35) ///
     graph_opt(xtitle("Periods to Treatment") ytitle("Treatment Effect") ///
@@ -907,7 +919,12 @@ quietly: levelsof treatment_year if !missing(treatment_year), local(cohorts)
 foreach g of local cohorts {
     forvalues k = -8/8 {
         if `k' != -1 {
-            gen treat_`g'_`k' = (treatment_year == `g' & rel_time_binned == `k')
+            if `k' < 0 {
+                gen treat_`g'_lead`=-`k'' = (treatment_year == `g' & rel_time_binned == `k')
+            }
+            else {
+                gen treat_`g'_lag`k' = (treatment_year == `g' & rel_time_binned == `k')
+            }
         }
     }
 }
@@ -920,7 +937,7 @@ estimates store sa
 
 // Step 7: Compare methods
 event_plot twfe cs_event sa, ///
-    stub_lag(lag# Tp# treat_#_) stub_lead(lead# Tm# treat_#_) ///
+    stub_lag(lag# Tp# treat_#_lag#) stub_lead(lead# Tm# treat_#_lead#) ///
     plottype(scatter) ciplottype(rcap) ///
     together perturb(-0.25(0.25)0.25) ///
     graph_opt(xtitle("Years to Minimum Wage Increase") ///

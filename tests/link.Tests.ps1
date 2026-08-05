@@ -565,7 +565,7 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
     }
 
     It "defaults to all supported platforms" {
-        $content | Should -Match 'copilot", "claude-code", "codex", "opencode'
+        $content | Should -Match 'copilot", "claude-code", "codex", "opencode", "kilo'
     }
 }
 

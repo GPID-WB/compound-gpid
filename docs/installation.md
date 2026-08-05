@@ -65,13 +65,13 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), and OpenCode (`.opencode/`). Directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms, pass `--platforms`:
 > ```powershell
 > cg-link --platforms copilot
-> cg-link --platforms opencode
-> cg-link --platforms copilot,claude-code,codex,opencode
+> cg-link --platforms kilo
+> cg-link --platforms copilot,claude-code,codex,opencode,kilo
 > ```
 > Default (`cg-link` with no flag) links all supported platforms. See [Context
 > Files](context-files.md) for details on generated native platform trees.
@@ -87,8 +87,8 @@ This links Compound GPID install units for all supported platforms by default: G
 >
 > The consumer `.compound-gpid/managed-files.json` is separate from the
 > `.compound-gpid-generated.json` manifests committed inside the upstream
-> `.claude/`, `.agents/`, and `.opencode/` trees. Consumers should not copy,
-> edit, or use generated-tree manifests to resolve installation ownership.
+> `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees. Consumers should not
+> copy, edit, or use generated-tree manifests to resolve installation ownership.
 
 ## Step 4 - Configure your project (once per project)
 
@@ -109,10 +109,10 @@ and creates three config files:
 
 > **Existing repos**: If your project already has code (R, Python, Stata, etc.), `/cg-setup` will dispatch `@cg-project-scanner` to scan the file tree first. The scanner infers language, project type, and a charter draft from existing signals — you only confirm or correct what it found. High-confidence detections are set silently; medium-confidence ones are pre-filled and shown for confirmation. You can skip the charter entirely and create `compound-gpid.md` later by re-running `/cg-setup`.
 
-> **Claude Code / Codex / OpenCode support**: Compound GPID generates native
-> platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical
-> `.github/` source. `cg-link` links them by default; pass `--platforms` to narrow
-> the target set. The legacy `adapters/` directory contains
+> **Claude Code / Codex / OpenCode / Kilo support**: Compound GPID generates native
+> platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`) from the
+> canonical `.github/` source. `cg-link` links them by default; pass `--platforms`
+> to narrow the target set. The legacy `adapters/` directory contains
 > opt-in source adapters that are superseded by the generated trees but remain
 > for backward compatibility.
 >
@@ -159,13 +159,13 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), and OpenCode (`.opencode/`). Directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms:
 > ```bash
 > cg-link --platforms copilot
-> cg-link --platforms opencode
-> cg-link --platforms copilot,claude-code,codex,opencode
+> cg-link --platforms kilo
+> cg-link --platforms copilot,claude-code,codex,opencode,kilo
 > ```
 > Default (`cg-link` with no flag) links all supported platforms.
 

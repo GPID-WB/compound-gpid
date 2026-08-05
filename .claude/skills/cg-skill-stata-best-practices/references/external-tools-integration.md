@@ -128,6 +128,7 @@ stata.run("do analysis.do")
 #### Mixed Python-Stata Workflow
 
 ```python
+import numpy as np
 import pandas as pd
 from pystata import stata
 

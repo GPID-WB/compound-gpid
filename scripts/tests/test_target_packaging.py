@@ -26,6 +26,7 @@ TARGET_SKILL_ROOTS = {
     "claude-code": ".claude/skills",
     "codex": ".agents/skills",
     "opencode": ".opencode/skills",
+    "kilo": ".kilo/skills",
 }
 
 

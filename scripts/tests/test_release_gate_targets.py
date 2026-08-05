@@ -91,7 +91,7 @@ class TestReleaseGateTargets:
             "test_target_path_safety.py", "test_target_packaging.py",
             "test_target_ownership.py", "test_target_closure.py",
             "test_target_determinism.py", "test_target_drift.py",
-            "test_target_claude.py", "test_target_codex.py", "test_target_opencode.py",
+            "test_target_claude.py", "test_target_codex.py", "test_target_opencode.py", "test_target_kilo.py",
             "test_target_documentation.py", "test_model_advisory.py", "test_audit_context.py",
         ):
             assert test_file in workflow
@@ -197,6 +197,7 @@ class TestReleaseGateTargets:
              "scripts/tests/test_target_claude.py",
              "scripts/tests/test_target_codex.py",
              "scripts/tests/test_target_opencode.py",
+             "scripts/tests/test_target_kilo.py",
              "scripts/tests/test_target_documentation.py",
              "scripts/tests/test_model_advisory.py",
              "scripts/tests/test_audit_context.py", "-q"],

@@ -55,7 +55,7 @@ function Resolve-CgLinkArguments {
 
 function Resolve-CgPlatforms {
     param([string]$PlatformsValue)
-    $supported = @("copilot", "claude-code", "codex", "opencode")
+    $supported = @("copilot", "claude-code", "codex", "opencode", "kilo")
     if ([string]::IsNullOrWhiteSpace($PlatformsValue)) { return $supported }
 
     $selected = New-Object System.Collections.ArrayList
@@ -218,7 +218,7 @@ function Update-CgGitignoreBlock {
     param([string[]]$Entries)
     $gitignorePath = Join-Path $ProjectRoot ".gitignore"
     $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
-    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
 
     $uniqueEntries = @($Entries | Where-Object { $_ } | Sort-Object -Unique)
     if ($uniqueEntries.Count -eq 0) { return }
@@ -275,7 +275,8 @@ function Remove-CgLegacyModelMappingFiles {
     $legacyTargets = @(
         ".claude/model-mapping.claude.json",
         ".agents/model-mapping.codex.json",
-        ".opencode/model-mapping.opencode.json"
+        ".opencode/model-mapping.opencode.json",
+        ".kilo/model-mapping.kilo.json"
     )
 
     foreach ($targetRel in $legacyTargets) {
@@ -399,6 +400,7 @@ $checks = @{
     "claude-code" = ".claude/commands/cg-plan.md"
     "codex" = ".agents/commands/cg-plan.md"
     "opencode" = ".opencode/commands/cg-plan.md"
+    "kilo" = ".kilo/commands/cg-plan.md"
 }
 foreach ($platform in $selectedPlatforms) {
     $rel = $checks[$platform]
@@ -413,7 +415,7 @@ Write-Host ""
 Write-Host "Linked!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Compound GPID assets are now available for: $($selectedPlatforms -join ', ')."
-Write-Host "Use --platforms copilot to install only Copilot assets, or --platforms opencode for OpenCode-only assets."
+Write-Host "Use --platforms copilot to install only Copilot assets, or --platforms kilo for Kilo-only assets."
 Write-Host ""
 Write-Host "IMPORTANT:" -ForegroundColor Yellow
 Write-Host "  Managed linked directories and copied files should not be edited directly." -ForegroundColor Yellow

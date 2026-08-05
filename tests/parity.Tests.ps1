@@ -122,7 +122,8 @@ Describe "link.ps1 <-> link.sh parity" {
         $legacyTargets = @(
             '.claude/model-mapping.claude.json',
             '.agents/model-mapping.codex.json',
-            '.opencode/model-mapping.opencode.json'
+            '.opencode/model-mapping.opencode.json',
+            '.kilo/model-mapping.kilo.json'
         )
         foreach ($target in $legacyTargets) {
             $escaped = [regex]::Escape($target)
