@@ -32,7 +32,7 @@ not slash commands.
 | Diagnose or repair PR checks | `/cg-verify-pr` |
 
 Developer-only commands include `/cg-devtag`, `/cg-review-repos`, and the
-repository-root `/cg-release` workflow. They are not normal consumer-project
+compound-gpid-only `/cg-release` workflow. They are not normal consumer-project
 steps.
 
 ## Shell commands

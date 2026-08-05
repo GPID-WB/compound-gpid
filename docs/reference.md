@@ -285,13 +285,14 @@ cleanup stay separate.
 ### Plugin Development (developer-only)
 
 > **Consumer project users**: The prompts below are for compound-gpid maintenance
-> only. `/cg-review-repos` appears in your autocomplete because it is distributed
-> via junctions, but it **will not run** outside the compound-gpid repo — Step 0
-> stops it immediately. Do not use these prompts in consumer projects.
+> only. `/cg-release` and `/cg-review-repos` appear in your autocomplete because
+> they are distributed via junctions, but they **will not run** outside the
+> compound-gpid repo — Step 0 stops them immediately. Do not use these prompts in
+> consumer projects.
 
 | Prompt | Purpose | Distribution |
 |--------|---------|-------------|
-| `/cg-release` | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Not distributed** — lives at the `compound-gpid` repo root only. |
+| `/cg-release` | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 | `/cg-review-repos [--full]` | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 
 ### Competitive Review System
