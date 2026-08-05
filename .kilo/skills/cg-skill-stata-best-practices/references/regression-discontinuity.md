@@ -285,6 +285,7 @@ rdplot outcome score, p(1) nbins(20 20) ///
 
 ```stata
 preserve
+    gen bin = .
     xtile bin_temp = score if score < 0, nq(15)
     replace bin = bin_temp if score < 0
     xtile bin_temp2 = score if score >= 0, nq(15)

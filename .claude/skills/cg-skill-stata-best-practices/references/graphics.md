@@ -302,9 +302,9 @@ marginsplot, yline(0, lpattern(dash))
 
 // Customization
 marginsplot, ///
-    recast(bar)                         // Bar plot
-    recast(line) recastci(rarea)        // Line + shaded CI
-    plot1opts(lcolor(navy) lwidth(medthick))
+    recast(bar) ///                         // Bar plot
+    recast(line) recastci(rarea) ///        // Line + shaded CI
+    plot1opts(lcolor(navy) lwidth(medthick)) ///
     ci1opts(fcolor(navy%15) lwidth(none))
 ```
 

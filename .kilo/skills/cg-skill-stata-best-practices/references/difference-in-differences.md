@@ -130,25 +130,32 @@ reghdfe outcome post_treatment, ///
 generate rel_time = year - treatment_year
 replace rel_time = -999 if missing(treatment_year)  // Never treated
 
-* Create event time dummies (omit -1 as base period)
-quietly: summarize rel_time
+* Create event time dummies (omit -1 as base period; exclude the -999 sentinel
+* when computing bounds so it is never turned into an invalid negative name)
+quietly: summarize rel_time if rel_time != -999
 local min = r(min)
 local max = r(max)
 forvalues k = `min'/`max' {
-    if `k' != -1 & `k' != -999 {
-        generate lead_lag_`k' = (rel_time == `k')
+    if `k' != -1 {
+        if `k' < 0 {
+            local lead = -`k'
+            generate lead`lead' = (rel_time == `k')
+        }
+        else {
+            generate lag`k' = (rel_time == `k')
+        }
     }
 }
 
 * Event study regression
-reghdfe outcome lead_lag_*, absorb(unit_id year) vce(cluster unit_id)
+reghdfe outcome lead* lag*, absorb(unit_id year) vce(cluster unit_id)
 
 * Plot event study coefficients
 preserve
 parmest, saving(event_study.dta, replace)
 use event_study.dta, clear
-keep if regexm(parm, "lead_lag")
-generate event_time = real(regexr(parm, "lead_lag_", ""))
+keep if regexm(parm, "^(lead|lag)")
+generate event_time = real(regexr(regexr(parm, "^lead", "-"), "^lag", ""))
 sort event_time
 twoway (scatter estimate event_time) ///
        (rcap min95 max95 event_time), ///
@@ -209,12 +216,13 @@ generate rel_time_binned = rel_time
 replace rel_time_binned = -5 if rel_time < -5 & rel_time != -999
 replace rel_time_binned = 5 if rel_time > 5
 
-forvalues k = -5/5 {
-    if `k' != -1 {
-        generate event_`k' = (rel_time_binned == `k')
-    }
+forvalues k = 5(-1)2 {
+    generate event_lead`k' = (rel_time_binned == -`k')
 }
-reghdfe outcome event_*, absorb(unit_id year) vce(cluster unit_id)
+forvalues k = 0/5 {
+    generate event_lag`k' = (rel_time_binned == `k')
+}
+reghdfe outcome event_lead* event_lag*, absorb(unit_id year) vce(cluster unit_id)
 ```
 
 ### Automated Event Study (csdid)
@@ -254,10 +262,10 @@ restore
 ### Formal Tests for Pre-Trends
 
 ```stata
-reghdfe outcome event_*, absorb(unit_id year) vce(cluster unit_id)
+reghdfe outcome event_lead* event_lag*, absorb(unit_id year) vce(cluster unit_id)
 
 * Joint test of pre-treatment leads
-test event_-5 event_-4 event_-3 event_-2
+test event_lead5 event_lead4 event_lead3 event_lead2
 ```
 
 ### Placebo Tests

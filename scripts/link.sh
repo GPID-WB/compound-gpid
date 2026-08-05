@@ -325,7 +325,7 @@ if os.path.exists(path):
         content = handle.read()
 if content and not content.endswith("\n"):
     content += "\n"
-    pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
 cleaned = re.sub(pattern, "", content).rstrip("\n")
 cleaned = re.sub(r"(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?", "", cleaned)
 cleaned = re.sub(r"(?m)^\.cg-docs/\r?\n?", "", cleaned).rstrip("\n")

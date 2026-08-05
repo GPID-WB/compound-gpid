@@ -210,7 +210,7 @@
       "path": ".kilo/commands/cg-issues.md",
       "source": ".github/prompts/cg-issues.prompt.md",
       "kind": "command",
-      "sha256": "ae6dd2392fbe35c009938f3edaa2736e7c53f4b6294e1f01161eded55608ab4a",
+      "sha256": "b360d507a82ad085e671869c12afaa4a7098c7b539422b34c6876ba443735a1e",
       "executable": false
     },
     {
@@ -315,7 +315,7 @@
       "path": ".kilo/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "0801f7b4172bbcfcbcf4043db2c0085087c1f5943933ca416d8c8ca8b5ea9b27",
+      "sha256": "a6ba92507879a6e764d9db2fec09cbefbee6f6d96e79470a834ef52c46c9d96a",
       "executable": false
     },
     {
@@ -966,7 +966,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/packages/did.md",
       "source": ".github/skills/cg-skill-stata-best-practices/packages/did.md",
       "kind": "skill-resource",
-      "sha256": "0a9f426e9eedfe56e91fe79e1dfb20230f89b26c4b9890a4b8fbb04fea7323be",
+      "sha256": "a1082bbdf4db17bb489163cff4c8e6bb6e232e6f3b95efcc7e98041a395f33af",
       "executable": false
     },
     {
@@ -980,7 +980,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/packages/event-study.md",
       "source": ".github/skills/cg-skill-stata-best-practices/packages/event-study.md",
       "kind": "skill-resource",
-      "sha256": "228216e6465d3959f2c8a9bbb73defc03c00e5cf316031d5ef9896969c7c49d4",
+      "sha256": "34a4a0423163b3bd0877137a428498c64580ca7d271624dfe905eeda2fbc7bd3",
       "executable": false
     },
     {
@@ -1134,14 +1134,14 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/references/difference-in-differences.md",
       "source": ".github/skills/cg-skill-stata-best-practices/references/difference-in-differences.md",
       "kind": "skill-resource",
-      "sha256": "908d04355543b01ea0e3bc0291e7ea180771718809ffa5603f50b393a0062c19",
+      "sha256": "cb3bbbff23ce10cb73ab4f7262ad0bc096a5ce1d49c70fc02eecc2da9b0dccc5",
       "executable": false
     },
     {
       "path": ".kilo/skills/cg-skill-stata-best-practices/references/external-tools-integration.md",
       "source": ".github/skills/cg-skill-stata-best-practices/references/external-tools-integration.md",
       "kind": "skill-resource",
-      "sha256": "a0086e29450f0af15a0fd9ce8f08bf26e8fe84756bd3582c599ec0f472372815",
+      "sha256": "cc646d1b988e2db48ef128f818a49c69572cfdeaadeb58bf223924ed8b11cff2",
       "executable": false
     },
     {
@@ -1155,7 +1155,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/references/graphics.md",
       "source": ".github/skills/cg-skill-stata-best-practices/references/graphics.md",
       "kind": "skill-resource",
-      "sha256": "0a60bb1fd62aa0422ef297cbdeb2a2f3181bf8a304ec91f233943eb079bb25c7",
+      "sha256": "aa055d05da1b592c5fe4a8125c30c360ae6731a6abc32d5b103450ee5c43df8b",
       "executable": false
     },
     {
@@ -1183,7 +1183,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-data-access.md",
       "source": ".github/skills/cg-skill-stata-best-practices/references/mata-data-access.md",
       "kind": "skill-resource",
-      "sha256": "d80c314e55f8a8a30fe22084a137b7c6b71efefd43d749a9fbe7a12ef389032d",
+      "sha256": "efc27a607bc3c72afc56f038f4a420306b5085805a3714d1b79c2fb52c432a91",
       "executable": false
     },
     {
@@ -1260,7 +1260,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/references/regression-discontinuity.md",
       "source": ".github/skills/cg-skill-stata-best-practices/references/regression-discontinuity.md",
       "kind": "skill-resource",
-      "sha256": "80e15de269f701ae1af57e425223ee1d314a35df6f59c5deb88eb0af708a1947",
+      "sha256": "d99eb0d29a556d1c450cc3c660fae5fe7b8fe8b2a85b5c6f94284b30a0d3e1c5",
       "executable": false
     },
     {

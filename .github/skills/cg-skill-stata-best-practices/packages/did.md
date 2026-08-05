@@ -340,7 +340,12 @@ levelsof treatment_year if treatment_year > 0, local(cohorts)
 foreach g of local cohorts {
     forvalues k = -5/10 {
         if `k' != -1 {
-            generate treat_`g'_`k' = (treatment_year == `g' & rel_time == `k')
+            if `k' < 0 {
+                generate treat_`g'_lead`=-`k'' = (treatment_year == `g' & rel_time == `k')
+            }
+            else {
+                generate treat_`g'_lag`k' = (treatment_year == `g' & rel_time == `k')
+            }
         }
     }
 }

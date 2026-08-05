@@ -60,6 +60,7 @@ model-advisory:
 > `model-advisory` is optional user preference data. It can select advisory
 > examples and effort language, but it never selects or changes the runtime model.
 
+```markdown
 # Compound GPID — Project Config
 
 This file configures Compound GPID for this project. It is gitignored and local to your machine.
