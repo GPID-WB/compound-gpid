@@ -48,7 +48,7 @@ all_unit_targets() {
         '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/instructions|directory' '.claude/shared|directory' '.claude/CLAUDE.md|file' \
         '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/instructions|directory' '.agents/shared|directory' '.agents/AGENTS.md|file' \
         '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file' \
-        '.kilo/command|directory' '.kilo/skill|directory' '.kilo/agent|directory' '.kilo/instructions|directory' '.kilo/shared|directory' '.kilo/AGENTS.md|file' '.kilo/kilo.json|file'
+        '.kilo/commands|directory' '.kilo/skills|directory' '.kilo/agents|directory' '.kilo/instructions|directory' '.kilo/shared|directory' '.kilo/AGENTS.md|file' '.kilo/kilo.json|file'
 }
 
 remove_directory_unit() {

@@ -400,7 +400,7 @@ $checks = @{
     "claude-code" = ".claude/commands/cg-plan.md"
     "codex" = ".agents/commands/cg-plan.md"
     "opencode" = ".opencode/commands/cg-plan.md"
-    "kilo" = ".kilo/command/cg-plan.md"
+    "kilo" = ".kilo/commands/cg-plan.md"
 }
 foreach ($platform in $selectedPlatforms) {
     $rel = $checks[$platform]

@@ -170,20 +170,20 @@ add_units_for_platform() {
                 ;;
         kilo)
             printf '%s\n' \
-                'kilo|directory|.kilo/command|.kilo/command|link-directory|' \
-                'kilo|directory|.kilo/skill|.kilo/skill|link-directory|' \
-                'kilo|directory|.kilo/agent|.kilo/agent|link-directory|' \
+                'kilo|directory|.kilo/commands|.kilo/commands|link-directory|' \
+                'kilo|directory|.kilo/skills|.kilo/skills|link-directory|' \
+                'kilo|directory|.kilo/agents|.kilo/agents|link-directory|' \
                 'kilo|directory|.kilo/instructions|.kilo/instructions|link-directory|' \
                 'kilo|directory|.kilo/shared|.kilo/shared|link-directory|' \
                 'kilo|file|.kilo/AGENTS.md|.kilo/AGENTS.md|managed-copy|' \
-                'kilo|file|.kilo/kilo.json|.kilo/kilo.json|config-copy-or-snippet|Add instructions .kilo/AGENTS.md and skills.paths .kilo/skill to your existing kilo.json.' \
+                'kilo|file|.kilo/kilo.json|.kilo/kilo.json|config-copy-or-snippet|Add instructions .kilo/AGENTS.md and skills.paths .kilo/skills to your existing kilo.json.' \
                 ;;
     esac
 }
 
 all_install_units() {
     local platform
-    for platform in copilot claude-code codex opencode; do
+    for platform in copilot claude-code codex opencode kilo; do
         add_units_for_platform "$platform"
     done
 }
@@ -505,7 +505,7 @@ for platform in "${check_platforms[@]}"; do
         claude-code) check_rel=".claude/commands/cg-plan.md" ;;
         codex) check_rel=".agents/commands/cg-plan.md" ;;
         opencode) check_rel=".opencode/commands/cg-plan.md" ;;
-        kilo) check_rel=".kilo/command/cg-plan.md" ;;
+        kilo) check_rel=".kilo/commands/cg-plan.md" ;;
         *) check_rel="" ;;
     esac
     if [ -n "$check_rel" ] && [ -e "$PROJECT_ROOT/$check_rel" ]; then
