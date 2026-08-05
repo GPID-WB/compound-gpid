@@ -133,6 +133,12 @@ function Remove-CgEmptyRoot {
     }
 }
 
+# NOTE: The Kilo markdown_source permission in the global kilo.jsonc is keyed on
+# the Compound GPID *installation* path, not the project. Multiple projects may
+# share one installation, so removing the permission on unlink would break Kilo
+# command loading for any other still-linked project. The permission is therefore
+# intentionally left in place on unlink; a stale allow entry is harmless.
+
 $Force = Resolve-CgUnlinkArguments -Args $RawArgs
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 

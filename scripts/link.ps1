@@ -391,6 +391,10 @@ if ($manifest.files.Count -gt 0) {
     [void]$installedEntries.Add(".compound-gpid/managed-files.json")
 }
 
+if ("kilo" -in $selectedPlatforms) {
+    Update-CgKiloGlobalPermission -CompoundGpidDir $CompoundGpidDir | Out-Null
+}
+
 Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))
 
 Write-Host ""
