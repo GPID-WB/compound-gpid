@@ -31,7 +31,7 @@ The mapping defines these target-local runtime and support roots:
 | Claude Code | `.claude/commands` | `.claude/skills` | `.claude/agents` | `.claude/instructions` | `.claude/shared` |
 | Codex | `.agents/commands` | `.agents/skills` | `.agents/subagents` | `.agents/instructions` | `.agents/shared` |
 | OpenCode | `.opencode/commands` | `.opencode/skills` | `.opencode/agents` | `.opencode/instructions` | `.opencode/shared` |
-| Kilo | `.kilo/commands` | `.kilo/skills` | `.kilo/agent` | `.kilo/instructions` | `.kilo/shared` |
+| Kilo | `.kilo/commands` | `.kilo/skills` | `.kilo/agents` | `.kilo/instructions` | `.kilo/shared` |
 
 Generation computes a deterministic isolated dependency closure across command
 support files, complete skill bundles, agents, instructions, and shared

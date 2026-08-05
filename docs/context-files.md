@@ -33,7 +33,7 @@ copied only when manifest-managed so user-owned config is preserved.
 | `.claude/` | Claude Code | `.claude/commands`, `.claude/skills`, `.claude/agents`, `.claude/instructions`, `.claude/shared`, `CLAUDE.md`, advisory resources | `python scripts/cg_generate_targets.py --target claude-code` |
 | `.agents/` | Codex | `.agents/commands`, `.agents/skills`, `.agents/subagents`, `.agents/instructions`, `.agents/shared`, `AGENTS.md`, advisory resources | `python scripts/cg_generate_targets.py --target codex` |
 | `.opencode/` | OpenCode | `.opencode/commands`, `.opencode/skills`, `.opencode/agents`, `.opencode/instructions`, `.opencode/shared`, `AGENTS.md`, config, advisory resources | `python scripts/cg_generate_targets.py --target opencode` |
-| `.kilo/` | Kilo | `.kilo/commands`, `.kilo/skills`, `.kilo/agent`, `.kilo/instructions`, `.kilo/shared`, `AGENTS.md`, `kilo.json`, advisory resources | `python scripts/cg_generate_targets.py --target kilo` |
+| `.kilo/` | Kilo | `.kilo/commands`, `.kilo/skills`, `.kilo/agents`, `.kilo/instructions`, `.kilo/shared`, `AGENTS.md`, `kilo.json`, advisory resources | `python scripts/cg_generate_targets.py --target kilo` |
 
 `cg-link` links all supported platforms by default. Use `--platforms` to narrow
 the install, for example `cg-link --platforms copilot` or
