@@ -719,49 +719,115 @@ Describe "link.sh - no bootstrap index offer at link time" {
 # .kilo/commands/ is a symlink, the global ~/.config/kilo/kilo.jsonc must
 # whitelist the symlink target path via permission.markdown_source.
 # Without this, Kilo refuses to load external command files.
+#
+# The add logic lives in helpers.ps1 (Update-CgKiloGlobalPermission) so it can
+# be unit-tested. link.ps1 invokes it; unlink intentionally does NOT remove the
+# permission because it is keyed on the shared installation, not the project.
 # ---------------------------------------------------------------------------
 
-Describe "link.ps1 - kilo global kilo.jsonc markdown_source permission" {
-    Context "link.ps1 source code contains kilo.jsonc permission logic" {
-        It "link.ps1 references markdown_source permission for kilo symlinked commands [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'markdown_source'
-        }
+# Source helpers.ps1 once for the behavioral Describe blocks below.
+$script:CgHelpersPath = Join-Path $PSScriptRoot "..\scripts\helpers.ps1"
+. $script:CgHelpersPath
 
-        It "link.ps1 references the global kilo config path [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'kilo\.jsonc'
-        }
-
-        It "link.ps1 updates global config when kilo platform is selected [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'permission.*markdown_source|markdown_source.*permission'
-        }
+Describe "link.ps1 - kilo global kilo.jsonc permission wiring" {
+    It "link.ps1 invokes Update-CgKiloGlobalPermission when kilo is selected [regression guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Update-CgKiloGlobalPermission'
     }
 
-    Context "link.sh source code contains kilo.jsonc permission logic" {
-        It "link.sh references markdown_source permission for kilo symlinked commands [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
-            $content | Should -Match 'markdown_source'
-        }
-
-        It "link.sh references the global kilo config path [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
-            $content | Should -Match 'kilo\.jsonc'
-        }
+    It "link.ps1 does not use the PS6-only -AsHashtable switch [PS 5.1 compatibility guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+        $content | Should -Not -Match 'ConvertFrom-Json\s+-AsHashtable'
     }
 
-    Context "unlink.ps1 cleans up markdown_source permission on kilo unlink" {
-        It "unlink.ps1 references markdown_source cleanup [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'markdown_source'
-        }
+    It "link.sh references markdown_source permission for kilo symlinked commands [regression guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+        $content | Should -Match 'markdown_source'
+        $content | Should -Match 'kilo\.jsonc'
     }
 
-    Context "unlink.sh cleans up markdown_source permission on kilo unlink" {
-        It "unlink.sh references markdown_source cleanup [reproduction test]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.sh") -Raw -Encoding UTF8
-            $content | Should -Match 'markdown_source'
-        }
+    It "unlink.ps1 does NOT remove the shared kilo permission [shared-install guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'intentionally left in place'
+        $content | Should -Not -Match 'Remove-CgKiloGlobalPermission'
+    }
+
+    It "unlink.sh does NOT remove the shared kilo permission [shared-install guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.sh") -Raw -Encoding UTF8
+        $content | Should -Match 'intentionally left in place'
+        $content | Should -Not -Match 'remove_kilo_global_permission'
+    }
+}
+
+Describe "helpers.ps1 - Update-CgKiloGlobalPermission behavior" {
+    $script:cgInstall = Join-Path $TestDrive "compound-gpid"
+    $script:cgCommands = Join-Path $script:cgInstall ".kilo\commands"
+    New-Item -ItemType Directory -Path $script:cgCommands -Force | Out-Null
+
+    It "adds the permission to a fresh config file" {
+        $cfg = Join-Path $TestDrive "fresh-kilo.jsonc"
+        $written = Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg
+        $written | Should -Be $true
+        $cfg | Should -Exist
+        $json = Get-Content $cfg -Raw | ConvertFrom-Json
+        ($json.permission.markdown_source.PSObject.Properties.Name) | Should -Not -BeNullOrEmpty
+    }
+
+    It "preserves unrelated settings when adding the permission" {
+        $cfg = Join-Path $TestDrive "preserve-kilo.jsonc"
+        Set-Content -Path $cfg -Value '{"$schema":"https://app.kilo.ai/config.json","theme":"dark","permission":{"bash":"allow"}}' -Encoding UTF8
+        Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg | Out-Null
+        $json = Get-Content $cfg -Raw | ConvertFrom-Json
+        $json.theme | Should -Be "dark"
+        $json.permission.bash | Should -Be "allow"
+        ($json.permission.markdown_source.PSObject.Properties.Name) | Should -Not -BeNullOrEmpty
+    }
+
+    It "is idempotent on repeated add (returns false, no double-write)" {
+        $cfg = Join-Path $TestDrive "idempotent-kilo.jsonc"
+        Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg | Out-Null
+        $second = Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg
+        $second | Should -Be $false
+        $json = Get-Content $cfg -Raw | ConvertFrom-Json
+        ($json.permission.markdown_source.PSObject.Properties | Measure-Object).Count | Should -Be 1
+    }
+
+    It "leaves the file unchanged when existing config is invalid JSON" {
+        $cfg = Join-Path $TestDrive "invalid-kilo.jsonc"
+        $original = '{not valid json'
+        Set-Content -Path $cfg -Value $original -NoNewline -Encoding UTF8
+        $written = Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg
+        $written | Should -Be $false
+        (Get-Content $cfg -Raw) | Should -Be $original
+    }
+
+    It "leaves the file unchanged when root is a JSON array (non-object)" {
+        $cfg = Join-Path $TestDrive "array-kilo.jsonc"
+        $original = '[]'
+        Set-Content -Path $cfg -Value $original -NoNewline -Encoding UTF8
+        $written = Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg
+        $written | Should -Be $false
+        (Get-Content $cfg -Raw) | Should -Be $original
+    }
+
+    It "prunes empty parent keys when removing the permission" {
+        $cfg = Join-Path $TestDrive "prune-kilo.jsonc"
+        Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg | Out-Null
+        $removed = Update-CgKiloGlobalPermission -CompoundGpidDir $script:cgInstall -KiloConfigPath $cfg -Remove
+        $removed | Should -Be $true
+        $json = Get-Content $cfg -Raw | ConvertFrom-Json
+        # permission key should be gone after pruning the only markdown_source entry
+        ($json.PSObject.Properties.Name -contains 'permission') | Should -Be $false
+    }
+}
+
+Describe "helpers.ps1 - ConvertTo-CgHashtable PS 5.1 compatibility" {
+    It "converts a PSCustomObject into a hashtable with ContainsKey support" {
+        $obj = [pscustomobject]@{ a = 1; nested = [pscustomobject]@{ b = 2 } } | ConvertTo-Json | ConvertFrom-Json
+        $ht = ConvertTo-CgHashtable $obj
+        ($ht -is [hashtable]) | Should -Be $true
+        $ht.ContainsKey('a') | Should -Be $true
+        ($ht.nested -is [hashtable]) | Should -Be $true
+        $ht.nested.ContainsKey('b') | Should -Be $true
     }
 }

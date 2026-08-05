@@ -459,8 +459,13 @@ if os.path.exists(config_path):
         try:
             config = json.loads(raw)
         except json.JSONDecodeError:
-            print("WARNING: Could not parse kilo.jsonc; will overwrite with valid JSON.", file=sys.stderr)
-            config = {}
+            print("ABORTED")
+            print("WARNING: Could not parse kilo.jsonc; leaving it unchanged.", file=sys.stderr)
+            sys.exit(0)
+        if not isinstance(config, dict):
+            print("ABORTED")
+            print("WARNING: kilo.jsonc root is not a JSON object; leaving it unchanged.", file=sys.stderr)
+            sys.exit(0)
 
 config.setdefault("permission", {})
 if not isinstance(config["permission"], dict):
@@ -561,6 +566,7 @@ case ",$PLATFORMS," in
         case "$result" in
             ADDED)           print_gray "Updated kilo.jsonc markdown_source permission" ;;
             ALREADY_PRESENT) print_gray "kilo.jsonc markdown_source permission already present" ;;
+            ABORTED)         print_warn "kilo.jsonc could not be parsed or is not a JSON object; left unchanged." ;;
         esac
         ;;
 esac

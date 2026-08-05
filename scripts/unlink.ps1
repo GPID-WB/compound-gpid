@@ -133,44 +133,11 @@ function Remove-CgEmptyRoot {
     }
 }
 
-function Remove-CgKiloGlobalPermission {
-    $kiloConfigDir = Join-Path $env:USERPROFILE ".config\kilo"
-    $kiloConfigPath = Join-Path $kiloConfigDir "kilo.jsonc"
-
-    if (-not (Test-Path $kiloConfigPath)) { return $false }
-
-    $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
-    $commandsSource = ConvertTo-CgSlashPath (Join-Path $CompoundGpidDir ".kilo\commands")
-    $permissionKey = "$commandsSource/*"
-
-    $raw = Get-Content $kiloConfigPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
-    if ([string]::IsNullOrWhiteSpace($raw)) { return $false }
-
-    try {
-        $config = $raw | ConvertFrom-Json -AsHashtable
-    } catch {
-        return $false
-    }
-
-    if (-not $config.ContainsKey("permission")) { return $false }
-    if (-not ($config["permission"] -is [hashtable])) { return $false }
-    if (-not $config["permission"].ContainsKey("markdown_source")) { return $false }
-    if (-not ($config["permission"]["markdown_source"] -is [hashtable])) { return $false }
-    if (-not $config["permission"]["markdown_source"].ContainsKey($permissionKey)) { return $false }
-
-    [void]$config["permission"]["markdown_source"].Remove($permissionKey)
-    if ($config["permission"]["markdown_source"].Count -eq 0) {
-        [void]$config["permission"].Remove("markdown_source")
-    }
-    if ($config["permission"].Count -eq 0) {
-        [void]$config.Remove("permission")
-    }
-
-    $json = $config | ConvertTo-Json -Depth 6
-    Set-Content -Path $kiloConfigPath -Value ($json + "`n") -Encoding UTF8
-    Write-Host "  Removed kilo.jsonc markdown_source permission" -ForegroundColor DarkGray
-    return $true
-}
+# NOTE: The Kilo markdown_source permission in the global kilo.jsonc is keyed on
+# the Compound GPID *installation* path, not the project. Multiple projects may
+# share one installation, so removing the permission on unlink would break Kilo
+# command loading for any other still-linked project. The permission is therefore
+# intentionally left in place on unlink; a stale allow entry is harmless.
 
 $Force = Resolve-CgUnlinkArguments -Args $RawArgs
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
@@ -229,7 +196,6 @@ if ($manifest.files.Count -gt 0) {
 
 foreach ($root in @($roots)) { Remove-CgEmptyRoot -RootName $root }
 Remove-CgGitignoreBlock
-Remove-CgKiloGlobalPermission | Out-Null
 
 Write-Host ""
 if ($removedAny) {
