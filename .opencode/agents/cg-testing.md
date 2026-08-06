@@ -58,7 +58,7 @@ For each file under review:
 
 For each finding:
 ```
-**[P0|P1|P2|P3]** `file:line` â€” <brief description>
+**[P0|P1|P2|P3]** `file:line` -- <brief description>
 **Issue**: <what's missing or wrong>
 **Fix**: <suggested test or correction>
 ```

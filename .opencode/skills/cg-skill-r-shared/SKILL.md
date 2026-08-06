@@ -1,7 +1,7 @@
----
+﻿---
 name: cg-skill-r-shared
 user-invokable: false
-description: "Base R style and error-handling rules universal to all R dialects. Load for assignment style, naming conventions, line length, TRUE/FALSE enforcement, and rlang/cli error handling patterns. Dialect-neutral — applies regardless of r-syntax setting."
+description: "Base R style and error-handling rules universal to all R dialects. Load for assignment style, naming conventions, line length, TRUE/FALSE enforcement, and rlang/cli error handling patterns. Dialect-neutral -- applies regardless of r-syntax setting."
 ---
 
 # Base R Style

@@ -1,6 +1,6 @@
----
+﻿---
 name: cg-skill-brain-query
-description: "Protocol for searching and consuming the project brain (BRAIN.md). Load when executing a 'Consult Brain' step in any major prompt. Covers: how to navigate the BRAIN.md topic index, drill into sub-files, extract and evaluate relevant takeaways and gotchas, prioritize by relevance, resolve contradictions between entries, detect and discard stale knowledge, and cite sources. Teaches the 'how' — each prompt's 'Consult Brain' step specifies the 'what' (search scope)."
+description: "Protocol for searching and consuming the project brain (BRAIN.md). Load when executing a 'Consult Brain' step in any major prompt. Covers: how to navigate the BRAIN.md topic index, drill into sub-files, extract and evaluate relevant takeaways and gotchas, prioritize by relevance, resolve contradictions between entries, detect and discard stale knowledge, and cite sources. Teaches the 'how' -- each prompt's 'Consult Brain' step specifies the 'what' (search scope)."
 ---
 
 # Brain Query Protocol

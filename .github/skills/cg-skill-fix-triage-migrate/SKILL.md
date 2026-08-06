@@ -1,6 +1,6 @@
----
+﻿---
 name: cg-skill-fix-triage-migrate
-description: Migration mode for /cg-fix-triage. Adds findings: tracking frontmatter to legacy review files. Does NOT apply fixes. Load only when invoked as /cg-fix-triage --migrate.
+description: "Migration mode for /cg-fix-triage. Adds findings: tracking frontmatter to legacy review files. Does NOT apply fixes. Load only when invoked as /cg-fix-triage --migrate."
 ---
 
 # Fix-Triage Migration Mode (`--migrate`)

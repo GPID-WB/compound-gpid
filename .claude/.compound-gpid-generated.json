@@ -21,28 +21,28 @@
       "path": ".claude/agents/cg-architecture.md",
       "source": ".github/agents/cg-architecture.agent.md",
       "kind": "agent",
-      "sha256": "25059f5ac08d075de2754a65eab6233052985efd36b44317562a332db57ae427",
+      "sha256": "9c65abaf81e68d71e39a38a406981232e0febea672ed0821a1678bf43225c7c7",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
-      "sha256": "467413d4f4df25401db64dc46d5784f5b5174e37f9c4f3ff73c14cadbf9f8277",
+      "sha256": "8f2e1082c3580a968de2afae2c553f5a73e85c5cd0d037f0f2db5be883f69df7",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
-      "sha256": "9f5af732dcb4166cf73d6e820068c91fc783c35d12ac2ac0e7b2cdbfc109f82e",
+      "sha256": "51b4d7c9b40abcaa1383f147488f6a5737070b504433a11e2e37a16b4e6a31d3",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-documentation.md",
       "source": ".github/agents/cg-documentation.agent.md",
       "kind": "agent",
-      "sha256": "9c146aed1759327a76778d588ec2224a2e7c198439964371d8e5d1a0cf301d4b",
+      "sha256": "91835afaa31aef11128a1c80d1eedb105a1c7162236bc77e0319c2b4040c813a",
       "executable": false
     },
     {
@@ -56,14 +56,14 @@
       "path": ".claude/agents/cg-learnings-researcher.md",
       "source": ".github/agents/cg-learnings-researcher.agent.md",
       "kind": "agent",
-      "sha256": "5538537f810eb2d43bd515f1461f33a0ffc194ec05a28d1843b2e77f59296142",
+      "sha256": "2ae774d653ac6511cf83c481c751d99d75daa5f3531b3fe764e46187c72e458e",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "8ff5eae41ac9eeacacf964a1c24a3be51e6f00a3e157a5021133e174fca7de6e",
+      "sha256": "cbc1fd1edb0465129d46a1f8968b08bc5410d117624d46ae613b7b0d4c8db3d4",
       "executable": false
     },
     {
@@ -91,7 +91,7 @@
       "path": ".claude/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "0aa513c65c587d07abfd5234a9f63f244fe34b2959889c49476a49aa6233aa7d",
+      "sha256": "818209c9393593020fde9025fbc8dcfa51ab2f90cb9d88b6dc18f2ce10a4cdf0",
       "executable": false
     },
     {
@@ -105,21 +105,21 @@
       "path": ".claude/agents/cg-roadmap.md",
       "source": ".github/agents/cg-roadmap.agent.md",
       "kind": "agent",
-      "sha256": "7bf080295d90f384e5137700aea58a45e33603a355d0fd071a7a3bc653d600d6",
+      "sha256": "b6f2ec97c67a4bd10b2a83a61275cd25c8d348850bad04c8240c817c2f9262b3",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
-      "sha256": "d7c6c2b4bc4b55c45a45bd80dd85953b6ad6d1c9251c140a887d0c8999c2e198",
+      "sha256": "5a58d78a83d9c8e4ee580a0bca78e11b9f1337e5240dd10f4e5b179a64773a9b",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-version-control.md",
       "source": ".github/agents/cg-version-control.agent.md",
       "kind": "agent",
-      "sha256": "23e9fc8fb5546cc4cf7b5b62216615bdde669ba0d0b16a496c99acd728f06f2c",
+      "sha256": "f33572a1a718bde0ba523fe959e7661e6537e451fa3d350d9ccdcf75e6d00de2",
       "executable": false
     },
     {
@@ -427,7 +427,7 @@
       "path": ".claude/skills/cg-skill-brain-query/SKILL.md",
       "source": ".github/skills/cg-skill-brain-query/SKILL.md",
       "kind": "skill",
-      "sha256": "ded9cca0a9a4e81df48982a5050dd30eb063dc4f1d89eeab70e6015adfc6d040",
+      "sha256": "283cdb86bc32777788e3e8d1710667a4101f18668adc7ef4f814d5a6f538366f",
       "executable": false
     },
     {
@@ -490,7 +490,7 @@
       "path": ".claude/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "source": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "kind": "skill",
-      "sha256": "7ad9c470f67e2b70b44b4dd7266407e474b4096e930eba19bb379ffc0483c29e",
+      "sha256": "f2f47e6cc5ae29ac769787f660fe04abc5ca902f623e4b597ede35829c479ec2",
       "executable": false
     },
     {
@@ -532,7 +532,7 @@
       "path": ".claude/skills/cg-skill-pester-safety/SKILL.md",
       "source": ".github/skills/cg-skill-pester-safety/SKILL.md",
       "kind": "skill",
-      "sha256": "56df599485fc609f471b5efd81a5aa72ba6aff0133708d9ea04bb868b193a92e",
+      "sha256": "a9320188a1b3e59dc8ab863cf87a090c8cea75458e73cd78053765c1be2a2e7e",
       "executable": false
     },
     {
@@ -546,7 +546,7 @@
       "path": ".claude/skills/cg-skill-python-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-python-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "337e44284163d155444ff3e7341c8b6bfcaaaafdbe12054483cb18e8b1c30237",
+      "sha256": "d84520e50c70901f6027a79d62496d9e049eb71a790af11283d9b82d24724178",
       "executable": false
     },
     {
@@ -707,7 +707,7 @@
       "path": ".claude/skills/cg-skill-r-shared/SKILL.md",
       "source": ".github/skills/cg-skill-r-shared/SKILL.md",
       "kind": "skill",
-      "sha256": "edc2047edee3cf7a53a4981f48cfc5fa0339b07b2071e6e3d6d842016ead5907",
+      "sha256": "9ca251633b8891324c8ffa55e5cbf73420b9f6c5cef157925544426bd9b48264",
       "executable": false
     },
     {
@@ -784,7 +784,7 @@
       "path": ".claude/skills/cg-skill-r-testing/SKILL.md",
       "source": ".github/skills/cg-skill-r-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "cf678b5034955db923d4549c79ff5106eb9491cc344eca63a59a150cc4bc860b",
+      "sha256": "93261497eb7b31ea845341919aaf623b9c24da0c3ec5243cde57de947b4f4f82",
       "executable": false
     },
     {
@@ -1827,7 +1827,7 @@
       "path": ".claude/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
-      "sha256": "f2a5c720f0c6c3bb7a9caccf053d83c4d5c60ac98003e0263966ae4cd13169e5",
+      "sha256": "40adc76ef046e90d8c203e3816d762ec5548cbcbfed5c6865cd1b81340e3b426",
       "executable": false
     }
   ]

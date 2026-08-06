@@ -1,6 +1,6 @@
----
+﻿---
 name: cg-skill-pester-safety
-description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code — this has happened 16+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, long-session context-overflow protection rules (never run Pester mid-stream in fix-triage; always -Quiet on large test files), and the execution_subagent rule (use execution_subagent instead of run_in_terminal for Pester in long sessions — even -Quiet -PassThru via run_in_terminal crashes)."
+description: "Pre-flight safety rules for Pester (PowerShell test runner) in this workspace. ALWAYS load before writing any Invoke-Pester terminal command. Running Pester incorrectly crashes VS Code -- this has happened 16+ times. Covers: forbidden patterns (directory runs, ExpandProperty TestResult pipelines, 2>&1 redirects), safe single-file patterns, safe PassThru patterns, long-session context-overflow protection rules (never run Pester mid-stream in fix-triage; always -Quiet on large test files), and the execution_subagent rule (use execution_subagent instead of run_in_terminal for Pester in long sessions -- even -Quiet -PassThru via run_in_terminal crashes)."
 ---
 
 # Pester Safety Rules for This Workspace

@@ -1,6 +1,6 @@
----
+﻿---
 name: cg-skill-windows-cmd-python-detection
-description: "Windows CMD launcher pattern for safe Python detection across python3/python/py candidates. Load when writing or reviewing any bin/*.cmd file that invokes a Python script. Covers: the mandatory 'where' pre-check guard, the for /f version-verification pattern, the Windows Store stub rejection logic, the parity rule (fix one cmd → audit all), and required test assertions. Prevents the stderr-leak NativeCommandError that occurs when python3 is absent from PATH."
+description: "Windows CMD launcher pattern for safe Python detection across python3/python/py candidates. Load when writing or reviewing any bin/*.cmd file that invokes a Python script. Covers: the mandatory 'where' pre-check guard, the for /f version-verification pattern, the Windows Store stub rejection logic, the parity rule (fix one cmd -> audit all), and required test assertions. Prevents the stderr-leak NativeCommandError that occurs when python3 is absent from PATH."
 ---
 
 # Windows CMD Python Detection

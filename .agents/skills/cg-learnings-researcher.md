@@ -79,12 +79,12 @@ Search these directories in order:
 ## Related Learnings
 
 ### Directly Relevant
-1. **[.cg-docs/solutions/category/file.md]** â€” <title>
+1. **[.cg-docs/solutions/category/file.md]** -- <title>
    **Relevance**: <why this applies>
    **Key takeaway**: <one-sentence summary>
 
 ### Potentially Related
-1. **[.cg-docs/brainstorms/file.md]** â€” <title>
+1. **[.cg-docs/brainstorms/file.md]** -- <title>
    **Relevance**: <why this might apply>
 
 ### Patterns to Follow
