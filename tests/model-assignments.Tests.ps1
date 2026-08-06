@@ -9,8 +9,8 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 Describe "Canonical prompt execution metadata" {
     $promptFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File)
 
-    It "contains exactly 25 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should -Be 25
+    It "contains exactly 26 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should -Be 26
     }
 
     foreach ($file in $promptFiles) {
@@ -51,7 +51,7 @@ Describe "Canonical agent execution metadata" {
 }
 
 Describe "Developer-only release prompt execution metadata" {
-    $releasePrompt = Join-Path $repoRoot "cg-release.prompt.md"
+    $releasePrompt = Join-Path $repoRoot ".github\prompts\cg-release.prompt.md"
 
     It "exists in the repository" {
         Test-Path $releasePrompt | Should -Be $true

@@ -838,7 +838,10 @@ The view mode is controlled by flags. No flags gives you the summary table; add 
 
 ## Plugin Development
 
-> The commands in this section are **developer-only**. They live at the `compound-gpid` repo root and are NOT distributed to linked user projects via junctions. Only use them when working inside the `compound-gpid` repository itself.
+> The commands in this section are **developer-only**. They are distributed to linked
+> user projects (they may appear in autocomplete), but Step 0 stops execution
+> immediately unless you are working inside the `compound-gpid` repository itself.
+> Only use them when working inside the `compound-gpid` repository.
 
 ### Token Optimization Validation
 

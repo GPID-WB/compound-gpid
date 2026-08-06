@@ -671,3 +671,117 @@ function Update-ManagedInstructionsFile {
     }
     return "up-to-date"
 }
+
+function ConvertTo-CgHashtable {
+    <#
+    .SYNOPSIS
+        Recursively converts a PSCustomObject graph (from ConvertFrom-Json) into
+        nested hashtables. Windows PowerShell 5.1 compatible - does not rely on
+        the -AsHashtable switch (PowerShell 6+ only).
+    .OUTPUTS
+        [hashtable] for objects, [object[]] for arrays, scalar values otherwise.
+    #>
+    param([Parameter()]$Object)
+
+    if ($null -eq $Object) { return $null }
+    if ($Object -is [System.Collections.IList] -and -not ($Object -is [string])) {
+        return @($Object | ForEach-Object { ConvertTo-CgHashtable $_ })
+    }
+    if ($Object -is [System.Management.Automation.PSCustomObject]) {
+        $ht = @{}
+        foreach ($prop in $Object.PSObject.Properties) {
+            $ht[$prop.Name] = ConvertTo-CgHashtable $prop.Value
+        }
+        return $ht
+    }
+    return $Object
+}
+
+function Update-CgKiloGlobalPermission {
+    <#
+    .SYNOPSIS
+        Adds (or removes) a markdown_source allow entry in the global Kilo config
+        so Kilo trusts symlinked .kilo/commands/ command files.
+    .DESCRIPTION
+        Kilo docs require permission.markdown_source whitelisting when
+        .kilo/commands/ is a symlink to an external directory. This function
+        preserves all existing config keys and is idempotent. On a parse error
+        or a non-object JSON root, it leaves the file unchanged rather than
+        destroying user settings.
+    .PARAMETER CompoundGpidDir
+        Path to the Compound GPID installation (parent of .kilo/).
+    .PARAMETER KiloConfigPath
+        Optional override for the config file path (used by tests). Defaults
+        to ~\.config\kilo\kilo.jsonc.
+    .PARAMETER Remove
+        Remove the permission entry instead of adding it.
+    .OUTPUTS
+        [bool] -- $true if the file was written, $false otherwise.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$CompoundGpidDir,
+        [string]$KiloConfigPath,
+        [switch]$Remove
+    )
+
+    if ([string]::IsNullOrWhiteSpace($KiloConfigPath)) {
+        $kiloConfigDir = Join-Path $env:USERPROFILE ".config\kilo"
+        $KiloConfigPath = Join-Path $kiloConfigDir "kilo.jsonc"
+    }
+    $kiloConfigDir = Split-Path $KiloConfigPath -Parent
+
+    $commandsSource = ConvertTo-CgSlashPath (Join-Path $CompoundGpidDir ".kilo\commands")
+    $permissionKey = "$commandsSource/*"
+
+    if (-not (Test-Path $kiloConfigDir)) {
+        New-Item -ItemType Directory -Path $kiloConfigDir -Force | Out-Null
+    }
+
+    $config = $null
+    if (Test-Path $KiloConfigPath) {
+        $raw = Get-Content $KiloConfigPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        if (-not [string]::IsNullOrWhiteSpace($raw)) {
+            try {
+                $parsed = $raw | ConvertFrom-Json
+            } catch {
+                Write-Warning "  Could not parse kilo.jsonc; leaving it unchanged. Add the markdown_source permission manually if needed."
+                return $false
+            }
+            $config = ConvertTo-CgHashtable $parsed
+            # Reject non-object roots (arrays, scalars) before any mutation.
+            if (-not ($config -is [hashtable])) {
+                Write-Warning "  kilo.jsonc root is not a JSON object; leaving it unchanged."
+                return $false
+            }
+        }
+    }
+    if ($null -eq $config) { $config = @{} }
+
+    if (-not $config.ContainsKey("permission")) { $config["permission"] = @{} }
+    if (-not ($config["permission"] -is [hashtable])) { $config["permission"] = @{} }
+    if (-not $config["permission"].ContainsKey("markdown_source")) { $config["permission"]["markdown_source"] = @{} }
+    if (-not ($config["permission"]["markdown_source"] -is [hashtable])) { $config["permission"]["markdown_source"] = @{} }
+
+    if ($Remove) {
+        if (-not $config["permission"]["markdown_source"].ContainsKey($permissionKey)) { return $false }
+        [void]$config["permission"]["markdown_source"].Remove($permissionKey)
+        if ($config["permission"]["markdown_source"].Count -eq 0) { [void]$config["permission"].Remove("markdown_source") }
+        if ($config["permission"].Count -eq 0) { [void]$config.Remove("permission") }
+        $json = $config | ConvertTo-Json -Depth 6
+        Set-Content -Path $KiloConfigPath -Value ($json + "`n") -Encoding UTF8
+        Write-Host "  Removed kilo.jsonc markdown_source permission" -ForegroundColor DarkGray
+        return $true
+    }
+
+    $existing = $config["permission"]["markdown_source"][$permissionKey]
+    if ($existing -eq "allow") {
+        Write-Host "  kilo.jsonc markdown_source permission already present" -ForegroundColor DarkGray
+        return $false
+    }
+
+    $config["permission"]["markdown_source"][$permissionKey] = "allow"
+    $json = $config | ConvertTo-Json -Depth 6
+    Set-Content -Path $KiloConfigPath -Value ($json + "`n") -Encoding UTF8
+    Write-Host "  Updated kilo.jsonc markdown_source permission for: $permissionKey" -ForegroundColor DarkGray
+    return $true
+}
