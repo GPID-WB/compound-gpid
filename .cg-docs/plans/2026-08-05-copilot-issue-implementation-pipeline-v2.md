@@ -69,14 +69,14 @@ This is **v2** (2026-08-05); it supersedes `2026-08-05-copilot-issue-implementat
 
 | Mechanism | Path / surface | Role | Class |
 |-----------|----------------|------|-------|
-| Issues manager | `.github/prompts/cg-issues.prompt.md` | status/backfill/link/adopt/setup; one-way roadmapâ†”issue linkage; no `gh issue close` | Verified |
+| Issues manager | `.github/prompts/cg-issues.prompt.md` | status/backfill/link/adopt/setup; one-way roadmap↔issue linkage; no `gh issue close` | Verified |
 | Roadmap writes | `@cg-roadmap` / `.github/agents/cg-roadmap.agent.md` | sole schema-aware `roadmap.json` mutator | Verified |
-| Plan â†’ work contract | `.github/shared/goal-execution.contract.md` | completion contract, verification surface, deviation policy | Verified |
-| Active-state pointer | `.github/shared/active-state.contract.md` â†’ `.cg-docs/active-state/current.json` | compact restart aid, not transactional execution DB | Verified |
+| Plan → work contract | `.github/shared/goal-execution.contract.md` | completion contract, verification surface, deviation policy | Verified |
+| Active-state pointer | `.github/shared/active-state.contract.md` → `.cg-docs/active-state/current.json` | compact restart aid, not transactional execution DB | Verified |
 | PR open | `/cg-commit-push-pr` | push + `gh pr create`; optional `Refs #` / `Closes #` | Verified |
 | CI fix loop | `/cg-verify-pr` | read check rollup, classify failures, optional auto-fix | Verified |
 | PR template checklist | `.github/PULL_REQUEST_TEMPLATE.md` | E2E, tests, parity, docs, security checklist | Verified |
-| Canonical tests | `tests/Run-Tests.ps1` â†’ `tests/last-run.json`; Pester **4.10.1** | only approved full-suite runner | Verified |
+| Canonical tests | `tests/Run-Tests.ps1` → `tests/last-run.json`; Pester **4.10.1** | only approved full-suite runner | Verified |
 | Roadmap schema tests | `tests/roadmap.Tests.ps1` | validates optional `githubIssues` + `features[].github` | Verified |
 | Prompt structure tests | `tests/prompt-tools.Tests.ps1` | guards `/cg-issues` safety patterns | Verified |
 | Prior integration plan | `.cg-docs/plans/2026-06-11-github-issues-integration.md` (completed) | established one-way linkage, confirmation gates, markers | Verified |
@@ -88,7 +88,7 @@ Workflow files (**Verified**):
 
 | Workflow file | Name | Triggers (summary) | Jobs (names as defined) |
 |---------------|------|--------------------|-------------------------|
-| `.github/workflows/tests.yml` | Pester tests | push `main`/`feat/**`/`fix/**`/`chore/**`; PR â†’ `main` | `Browser evidence manifest tests`; `Native target Python gate on ${{ matrix.os }}` (windows-2022, macos-14); `Pester on ${{ matrix.os }}` (windows-2022, macos-14); `Docs staleness check` (PR only, non-blocking warning) |
+| `.github/workflows/tests.yml` | Pester tests | push `main`/`feat/**`/`fix/**`/`chore/**`; PR → `main` | `Browser evidence manifest tests`; `Native target Python gate on ${{ matrix.os }}` (windows-2022, macos-14); `Pester on ${{ matrix.os }}` (windows-2022, macos-14); `Docs staleness check` (PR only, non-blocking warning) |
 | `.github/workflows/commit-lint.yml` | Conventional commits lint | PR opened/edited/synchronize/reopened | `PR title follows Conventional Commits` |
 | `.github/workflows/link-check.yml` | Link Check | path-filtered push/PR; weekly cron; `workflow_dispatch` | `link-check` |
 | `.github/workflows/pages.yml` | Deploy documentation site | docs paths on `main`; `workflow_dispatch` | `deploy` |
@@ -108,7 +108,7 @@ Workflow files (**Verified**):
 
 **Classic branch protection API** returned 404; protection is ruleset-based only (**Verified**).
 
-**Actions repo settings** (partial): Actions enabled; `allowed_actions: all`; `default_workflow_permissions: write`; `can_approve_pull_request_reviews: true` (**Verified**). Fine-grained â€œapprove Copilot-initiated workflow runsâ€ setting was **not** readable via the endpoints used; treat operator statement as **User-confirmed**.
+**Actions repo settings** (partial): Actions enabled; `allowed_actions: all`; `default_workflow_permissions: write`; `can_approve_pull_request_reviews: true` (**Verified**). Fine-grained “approve Copilot-initiated workflow runs” setting was **not** readable via the endpoints used; treat operator statement as **User-confirmed**.
 
 ### 1.4 Issue–roadmap linkage
 
@@ -118,7 +118,7 @@ Workflow files (**Verified**):
 | Issue body template is roadmap placeholder: milestone, feature ID, status (often `idea`), short description in fenced `text` block | Verified |
 | Label `cg:roadmap` exists and is applied to tracked issues | Verified |
 | ~44 open issues, all observed sample labeled `cg:roadmap` | Verified |
-| Worktree `roadmap.json` lacks `githubIssues` and all `features[].github` links â†’ **linkage drift** vs live issues | Verified |
+| Worktree `roadmap.json` lacks `githubIssues` and all `features[].github` links → **linkage drift** vs live issues | Verified |
 | Roadmap feature `github-issues-integration` still `status: idea` while integration plan is `completed` | Verified drift |
 | Many open issues are **not implementation-ready** (idea placeholders, no acceptance criteria / path bounds / verification commands) | Verified |
 | No `.github/ISSUE_TEMPLATE/` present | Verified |
@@ -137,7 +137,7 @@ Workflow files (**Verified**):
 | Field option IDs, project node ID, whether PRs become separate project items | **Unresolved** (token missing `read:project`) |
 | Issue #98 `projectItems: []` via issue JSON — may mean not on board **or** insufficient project scope in response | Unresolved |
 
-**Design preference (Inference, pending Stage 0A):** treat the **issueâ€™s** Project item as the canonical operational record; do not depend on PR project items unless Stage 0A proves PRs are the only reliable item.
+**Design preference (Inference, pending Stage 0A):** treat the **issue’s** Project item as the canonical operational record; do not depend on PR project items unless Stage 0A proves PRs are the only reliable item.
 
 ### 1.6 Copilot coding agent
 
@@ -153,8 +153,8 @@ Workflow files (**Verified**):
 
 1. No machine-verifiable **implementation-ready** contract on issues (only roadmap placeholders).
 2. No dispatcher, concurrency lock, or dry-run assignment path.
-  3. No Project sync beyond built-ins; custom lifecycle gaps unknown until Stage 0A field/workflow inspection with project scope.
-4. `roadmap.json` â†” GitHub issue linkage **drift** in this worktree.
+3. No Project sync beyond built-ins; custom lifecycle gaps unknown until Stage 0A field/workflow inspection with project scope.
+4. `roadmap.json` ↔ GitHub issue linkage **drift** in this worktree.
 5. No issue forms/templates for readiness.
 6. No security-separated automation identity for Project updates. **Correction**: requires two separate credentials (Copilot-assignment + Project-synchronization); no god-token.
 7. No recovery runbook for abandoned Copilot sessions / stale PRs / status drift.
@@ -169,7 +169,7 @@ Workflow files (**Verified**):
 | Strategic feature identity, grouping, milestone membership, feature status (`idea`/`planned`/`active`/`done`) | `roadmap.json` via `@cg-roadmap` | ROADMAP.md render; issue title/body summary | One-way links only; no automatic feature-status writes from Project/CI in v1 pipeline |
 | Stable issue linkage | `features[].github` in `roadmap.json` — **canonical persistent linkage** once present | `compound-gpid-tracked` issue body markers (recovery + duplicate-detection identifiers only); `cg:roadmap` label | `/cg-issues` three-tier duplicate checks; marker alone does not constitute linkage; repair via `link` |
 | Executable implementation contract | **GitHub issue body** (structured readiness block) once Ready | optional plan path under `.cg-docs/plans/` referenced by issue | Validator (Stage 2) is gate before dispatch; plan files remain design docs, not runtime locks |
-| Operational execution status | GitHub Project field **`Status`** on the **issue item** | issue labels (avoid duplicating Status); PR â€œopen/draftâ€ | Prefer built-in Project workflows; reconciliation job only for unambiguous drift (Stage 4) |
+| Operational execution status | GitHub Project field **`Status`** on the **issue item** | issue labels (avoid duplicating Status); PR “open/draft” | Prefer built-in Project workflows; reconciliation job only for unambiguous drift (Stage 4) |
 | Implementation evidence | PR + required CI check runs + human review notes | Copilot session UI; local `tests/last-run.json` on runner | Ruleset required checks; `/cg-verify-pr` for diagnosis only |
 | Batch / milestone progression | **Human decision** (chat + optional roadmap milestone status) | Project views filtered by milestone/date | **No** automatic milestone advancement; **no** `.github/active-milestone` file unless Stage 0A proves necessity |
 | Local agent restart during human `/cg-work` | `.cg-docs/active-state/current.json` | — | Out of band for Copilot cloud path; do not overload for cloud dispatch |
@@ -199,7 +199,7 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
 [Assign Copilot via supported API]──fail──► remain Ready + failure comment
         │ success
         ▼
-[Project Status â†’ In progress] (after assign success only)
+[Project Status → In progress] (after assign success only)
         │
         ▼
 [Copilot branch + PR linked to issue]
@@ -208,13 +208,13 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
 [Required CI on PR] + optional advisory review later
         │
         ▼
-[Project Status â†’ In review] (built-in PR-linked workflow and/or thin sync)
+[Project Status → In review] (built-in PR-linked workflow and/or thin sync)
         │
         ▼
 [Human inspects diff + CI + acceptance] ──reject──► close/abandon runbook
         │ merge
         ▼
-[Built-in PR merged / issue closed workflows â†’ Done]
+[Built-in PR merged / issue closed workflows → Done]
         │
         ▼
 [Human updates roadmap feature status when strategically done]
@@ -238,9 +238,9 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
 3. **Dispatcher** — `workflow_dispatch` with `issue_number` + `dry_run`; concurrency group size 1; revalidate immediately before assign; assign Copilot; only then set Status `In progress`; comment audit trail on issue.
 4. **Copilot execution** — unchanged vendor agent; human approves Copilot-triggered Actions during pilot; PR must reference issue.
 5. **CI gate** — existing required checks only; no new merge bot.
-6. **Project sync** — maximize built-ins (item added, PR linked, PR merged, item closed). Add metadata-only Actions **only** for missing transitions (e.g. Readyâ†’In progress after assign if not automatic).
+6. **Project sync** — maximize built-ins (item added, PR linked, PR merged, item closed). Add metadata-only Actions **only** for missing transitions (e.g. Ready→In progress after assign if not automatic).
 7. **Reconciliation** — scheduled or manual workflow: read issue+PR+Status; fix only **unambiguous** drift (e.g. merged+closed but Status not Done); comment and skip ambiguous cases.
-8. **Limited batching** — human-selected set â‰¤ N (start N=1, raise only after evidence); still one assign slot unless pilot proves safe.
+8. **Limited batching** — human-selected set ≤ N (start N=1, raise only after evidence); still one assign slot unless pilot proves safe.
 9. **Human milestone control** — batch boundaries and roadmap progression stay manual forever in this architecture.
 
 ### Status model recommendation
@@ -280,12 +280,12 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
      - **Objective verification**: commands that deterministically pass/fail
      - **Subjective ambiguity**: any acceptance criterion that requires human judgment rather than command output
      - **Security/control-plane risk**: whether the change touches workflows, secrets, rulesets, or repo settings
-     - **Estimated scope**: small (â‰¤3 files, <100 lines), medium, or large
+     - **Estimated scope**: small (≤3 files, <100 lines), medium, or large
      - **Recommendation**: recommended / acceptable / avoid, with rationale. Record issue #63's open/closed status as evidence so the R26 "including issue #63 if open" conditional is decidable; if #63 is open, include it among the ranked candidates (>=3).
   9. **Do not** select, modify, or assign any issue yet. Do not run `/cg-issues setup`. Do not repair roadmap linkage. Do not update any feature status. Stage 0A performs **no live GitHub mutations** of any kind (no assign, no label, no Project Status, no repository settings); `gh auth refresh` adding `read:project` is a local credential-scope change, not a repository mutation. The live Copilot assign trial is deferred to Stage 1 (Section 5.6 step 3).
 - **Test Scenarios**: N/A (read-only)
 - **Tests**: none
-- **Acceptance criteria**: written evidence report **resolves** the must-resolve-in-Stage-0A items in §1.5–1.6 (must-resolve: Project node ID + Status field/option IDs; each enabled built-in Project workflow's exact action incl. whether PRs get separate items; GITHUB_TOKEN default_workflow_permissions + workflows inheriting default write; assign-API *shape* from docs/schema; **may defer** only if each deferral names the consuming stage and blocks that stage until resolved; the assign-API shape is not deferrable -- resolved in Stage 0A from docs, live trial in Stage 1); pilot candidate ranking has â‰¥3 entries and includes issue #63 when open (with #63 open/closed status recorded as evidence); GITHUB_TOKEN audit identifies workflows inheriting default write permission; roadmap drift is verified against `origin/main`.
+- **Acceptance criteria**: written evidence report **resolves** the must-resolve-in-Stage-0A items in §1.5–1.6 (must-resolve: Project node ID + Status field/option IDs; each enabled built-in Project workflow's exact action incl. whether PRs get separate items; GITHUB_TOKEN default_workflow_permissions + workflows inheriting default write; assign-API *shape* from docs/schema; **may defer** only if each deferral names the consuming stage and blocks that stage until resolved; the assign-API shape is not deferrable -- resolved in Stage 0A from docs, live trial in Stage 1); pilot candidate ranking has ≥3 entries and includes issue #63 when open (with #63 open/closed status recorded as evidence); GITHUB_TOKEN audit identifies workflows inheriting default write permission; roadmap drift is verified against `origin/main`.
 
 ## Phase 2: Stage 0B — Optional pre-pilot repairs
 
@@ -328,14 +328,14 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
   - `scripts/tests/test_issue_readiness.py` fixtures
   - docs snippet in `docs/workflow.md` / troubleshooting
 - **Details**:
-  - Parse required sections; validate feature_id â†” marker; path allow/deny lists; verification commands non-empty; risk_class; blocked_stop.
+  - Parse required sections; validate feature_id ↔ marker; path allow/deny lists; verification commands non-empty; risk_class; blocked_stop.
   - Checks: no open PR with `Closes #N`/`Fixes #N` already; assignee not already Copilot; optional GitHub issue deps.
   - CLI: `cg-issue-ready --issue N --dry-run` (name flexible) exits non-zero on fail; prints machine-readable JSON summary.
   - **No automatic dispatch** in this stage.
   - Reuse sanitization lessons from `/cg-issues` (untrusted issue body = data).
 - **Test Scenarios**: fixture missing section; path traversal in allowed_paths; duplicate open PR; marker mismatch; happy path
 - **Tests**: pytest fixtures under `scripts/tests/`; **CI registration is explicit** — if Python, note the `native-targets` job runs pytest with **three** explicit file lists (`tests.yml` lines 49-67 target-mapping, 69-86 publisher/security, 88-97 backend-race) and does NOT auto-discover; add `scripts/tests/test_issue_readiness.py` to the appropriate list (e.g. the target-mapping list) or add a new pytest invocation in that job; if PowerShell, add the test name to `$testNames` in `tests/Run-Tests.ps1` and add a Pester entry to the `Pester on ${{ matrix.os }}` job in `tests.yml`
-- **Acceptance criteria**: validator green/red deterministic on fixtures; dry-run used on â‰¥1 real non-production issue or fixture clone; zero dispatch side effects; new test file visible in CI required-check run logs.
+- **Acceptance criteria**: validator green/red deterministic on fixtures; dry-run used on ≥1 real non-production issue or fixture clone; zero dispatch side effects; new test file visible in CI required-check run logs.
 
 ## Phase 5: Stage 3 — Single-issue manual dispatcher
 
@@ -347,7 +347,7 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
   - Inputs: `issue_number`, `dry_run` (default true).
   - Concurrency: `group: copilot-dispatch`, `cancel-in-progress: false`, effective parallelism 1.
   - Permissions: least privilege for assign API only; **no** `pull-requests: write` on untrusted code paths; **does not checkout PR head**.
-  - Steps: checkout **default branch only** (validator scripts) â†’ run readiness validator â†’ re-check assignee/PR â†’ if dry_run, exit 0 with report â†’ else assign Copilot â†’ on success comment + set Project Status `In progress` (if token allows) â†’ on failure comment and leave Ready.
+  - Steps: checkout **default branch only** (validator scripts) → run readiness validator → re-check assignee/PR → if dry_run, exit 0 with report → else assign Copilot → on success comment + set Project Status `In progress` (if token allows) → on failure comment and leave Ready.
   - Secrets: dedicated Copilot-assignment credential **not** available to `pull_request` workflows that execute PR code; separate from Project-synchronization credential.
   - Idempotency: second dispatch on already-assigned issue is no-op success with explanation.
 - **Test Scenarios**: dry-run; assign API 403; assign OK status update fail; duplicate dispatch
@@ -364,13 +364,13 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
   - Inventory built-in coverage from Stage 0A evidence; implement **only missing** transitions.
   - Metadata-only: Project GraphQL mutations; never checkout PR code; never run tests from PR.
   - Reconciliation rules (examples — finalize after Stage 0A):
-    - Issue closed+merged PR, Status â‰  Done â†’ set Done
-    - Status In progress, no assignee, no open PR for >SLA â†’ comment `stale-dispatch` for human (do not auto-Backlog without policy)
-    - Ambiguous (multiple open PRs) â†’ comment only
+    - Issue closed+merged PR, Status ≠ Done → set Done
+    - Status In progress, no assignee, no open PR for >SLA → comment `stale-dispatch` for human (do not auto-Backlog without policy)
+    - Ambiguous (multiple open PRs) → comment only
   - Prefer issue item; ignore or detach accidental PR items if they confuse rollup (**after evidence**).
 - **Test Scenarios**: fixture graph states; permission denied; partial update
 - **Tests**: mocked GraphQL; no production bulk mutate in CI
-- **Acceptance criteria**: documented transition matrix â€œbuilt-in vs customâ€; reconcile dry-run report; zero secret exposure to PR CI.
+- **Acceptance criteria**: documented transition matrix “built-in vs custom”; reconcile dry-run report; zero secret exposure to PR CI.
 
 ## Phase 7: Stage 5 — Review enhancement
 
@@ -418,7 +418,7 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
 | R8 | Single readiness mechanism (not overlapping form+labels+deps systems) | User objective |
 | R9 | Validator supports dry-run and blocks dispatch on failure | User objective |
 | R10 | Dispatcher is workflow_dispatch, issue-number input, dry-run default, concurrency 1 | User objective |
-| R11 | Status â†’ In progress only after successful Copilot assignment | User objective |
+| R11 | Status → In progress only after successful Copilot assignment | User objective |
 | R12 | Credential separation: assign/Project secrets never on untrusted PR execution workflows | User objective |
 | R28 | Separate credentials required: user-authenticated Copilot-assignment credential; GitHub App Project-synchronization credential. One god-token only if separation proven impossible | User objective |
 | R13 | Prefer built-in Project workflows; custom sync is metadata-only | User objective |
@@ -434,7 +434,7 @@ Smallest maintainable end state (architectural, not a build-everything mandate):
 | R23 | Roadmap drift findings must be verified against `origin/main`, not only the planning worktree | User objective |
 | R24 | `features[].github` is canonical persistent issue linkage; `compound-gpid-tracked` markers are recovery/duplicate-detection only | User objective |
 | R25 | Stage 0A must audit repository-level default `GITHUB_TOKEN` permissions and identify workflows inheriting default write | User objective |
-| R26 | Stage 0A must rank â‰¥3 pilot candidates (including issue #63 if open) with required files, verification, ambiguity, risk, scope, recommendation | User objective |
+| R26 | Stage 0A must rank ≥3 pilot candidates (including issue #63 if open) with required files, verification, ambiguity, risk, scope, recommendation | User objective |
 | R27 | Pilot success requires all required checks green, non-required failures documented, no admin/ruleset bypass | User objective |
 
 ## Implementation Steps
@@ -461,13 +461,13 @@ Implementation steps are the Phase 1–8 stage entries above. Requirement mappin
 | # | Criterion |
 |---|-----------|
 | 1 | Linked (or linkable) to a real `feature_id` via marker |
-| 2 | **Low risk**: touches â‰¤ few files; no secrets; no auth; no release packaging |
+| 2 | **Low risk**: touches ≤ few files; no secrets; no auth; no release packaging |
 | 3 | **Objectively verifiable** with existing commands (Pester and/or pytest already in CI) |
 | 4 | **Prohibited paths** include at least: `.github/workflows/**`, secrets, `roadmap.json` schema breaks, `tests/Run-Tests.ps1` safety model, branch rulesets |
 | 5 | Not already assigned; no open implementation PR |
 | 6 | Description rewritten from idea placeholder into full readiness contract |
 | 7 | Preferred domains: docs typo/clarity in `docs/**`, pure test assertion fix, isolated script help text — **not** prompt permission model, not Pester runner, not link/unlink junction semantics unless already expert-owned |
-| 8 | Avoid issues whose acceptance requires subjective â€œfeels betterâ€ UX only |
+| 8 | Avoid issues whose acceptance requires subjective “feels better” UX only |
 
 ### 5.2 Anti-selection
 
@@ -558,9 +558,9 @@ Record **actual** transitions in evidence pack even if they differ.
 1. Select/create issue; rewrite contract; set Project Status **Ready** (UI).
 2. Ensure issue on Project CompoundGPID-progress.
 3. Manually assign **Copilot** coding agent (UI).
-4. When Copilot requests Actions approval â†’ **approve** (do not disable the requirement).
+4. When Copilot requests Actions approval → **approve** (do not disable the requirement).
 5. Watch for branch + PR; ensure PR body references `Closes #N` or `Refs #N` per intent.
-   5b. If PR body does **not** contain `Closes #N` or `Refs #N`, edit the PR body to add the appropriate reference before merge. Without it, the built-in "Pull request merged" workflow will not close the issue and Statusâ†’Done will not trigger automatically.
+   5b. If PR body does **not** contain `Closes #N` or `Refs #N`, edit the PR body to add the appropriate reference before merge. Without it, the built-in "Pull request merged" workflow will not close the issue and Status→Done will not trigger automatically.
 6. Wait for required checks:
    - Native target Python gate on macos-14
    - Native target Python gate on windows-2022
@@ -587,7 +587,7 @@ Record **actual** transitions in evidence pack even if they differ.
 | E5 | Check rollup JSON (`gh pr checks` / `statusCheckRollup`) |
 | E6 | Actions approval events (timestamps) |
 | E7 | Project Status timeline (screenshots or API after scope fix) |
-| E8 | Wall-clock: assign â†’ PR â†’ green CI â†’ merge |
+| E8 | Wall-clock: assign → PR → green CI → merge |
 | E9 | Failures/retries/human nudges |
 | E10 | Whether PR and issue are separate Project items |
 
@@ -650,12 +650,12 @@ Record **actual** transitions in evidence pack even if they differ.
 
 | Scenario | Detection | Recovery | Auto-retry? |
 |----------|-----------|----------|-------------|
-| Duplicate dispatch | assignee already Copilot or open agent PR | no-op; comment â€œalready dispatchedâ€ | no |
+| Duplicate dispatch | assignee already Copilot or open agent PR | no-op; comment “already dispatched” | no |
 | Assign API fails | non-2xx | remain Ready; comment error class | no (human) |
 | Assign OK, Status update fails | assign success + Project error | keep assignee; comment `status-drift`; reconcile later | optional single Status retry **only after re-reading Status** and confirming it is still `Backlog`/`Ready` (not already `In review`/`Done`); never overwrites a Status a built-in workflow already advanced; otherwise skip and rely on reconcile-later |
 | PR never appears | timer exceeded | human unassign; Ready; document | no |
 | Multiple PRs close same issue | the issue's `timelineEvents` cross-references (GitHub PR search has no `linked:issue` qualifier) | human choose survivor; close extras | no |
-| PR closed without merge | PR state closed unmerged | Status â†’ Ready or Backlog per human; unassign | no |
+| PR closed without merge | PR state closed unmerged | Status → Ready or Backlog per human; unassign | no |
 | PR stale after other merge | conflicts / required checks fail behind main | human rebase request or close | no |
 | Issue closed manually | issue state | Status Done via built-in or reconcile; cancel Copilot work | no |
 | Project Status drifts | reconcile report | unambiguous auto-fix; else comment | limited |
@@ -693,7 +693,7 @@ Prefer **observable comments + human action** over hidden retry loops.
 2. **Automation identity**: separate credentials: user-authenticated Copilot-assignment + GitHub App Project-synchronization (after Stage 0A API proof). One god-token only if separation proven impossible.
 3. **Readiness representation**: issue form fields vs structured Markdown + single `cg:ready` label (pick one primary).
 4. **Whether Project write is required in Stage 3** or human continues to set In progress during early automation.
-5. **SLA for â€œPR never appearsâ€** (suggested default 24h — confirm).
+5. **SLA for “PR never appears”** (suggested default 24h — confirm).
 6. **Whether merged PR should ever auto-update `roadmap.json` feature status** (default **no**; confirm remains no).
 7. **Org policy**: who may run `workflow_dispatch` dispatch (maintainer only via environment protection). Secret storage: dispatch/Project credentials live as environment-protected secrets (environment-available-only-after-approval; no PR workflow may reference the environment; protection is an additional gate, not the sole isolation boundary).
 8. **Charter focus tradeoff**: schedule this work vs Token Efficiency priority.
@@ -714,7 +714,7 @@ Do **not** build until evidence justifies:
 - Disabling Copilot Actions approval
 - Automatic `roadmap.json` status writes from Project/CI
 - New Project Status values without observed recovery need
-- Bidirectional issueâ†”roadmap state sync
+- Bidirectional issue↔roadmap state sync
 - Survey-data regression fixtures
 - Merge bots / auto-merge
 - Multi-issue speculative planning agents
@@ -745,9 +745,9 @@ Do **not** build until evidence justifies:
 |------|------------|
 | Copilot assign API differs from assumptions | Stage 0A verification + manual pilot before coding dispatcher |
 | Project built-ins already move Status — custom sync races | Stage 0A inventory first; implement only gaps |
-| Roadmap â†” issue drift confuses feature_id | Stage 0A drift audit against `origin/main` + Stage 0B `/cg-issues setup` + link repair before pilot |
+| Roadmap ↔ issue drift confuses feature_id | Stage 0A drift audit against `origin/main` + Stage 0B `/cg-issues setup` + link repair before pilot |
 | Secret leakage via PR CI | hard separation matrix; static tests |
-| Pilot issue too vague â†’ false negative on Copilot quality | rewrite to full contract; path allowlists |
+| Pilot issue too vague → false negative on Copilot quality | rewrite to full contract; path allowlists |
 | Zero-approval merges bad PR | mandatory human path review; keep required CI strict |
 | Scope creep to full autonomous factory | Section 10 + deviation-policy `ask` |
 | Pester misuse in new tests | cg-skill-pester-safety + Run-Tests registration |
@@ -820,4 +820,4 @@ A durable master plan documents verified current-state findings, sources of trut
 
 ## Next action (only)
 
-**Prepare and execute Stage 0A read-only verification** (evidence report, roadmap drift against `origin/main`, GITHUB_TOKEN audit, pilot candidate ranking including issue #63), Stage 0B requires explicit human approval after reviewing the Stage 0A evidence report; Stage 1 requires another explicit human approval after Stage 0B. Do not implement dispatcher/validator workflows until pilot evidence is filed and a human go/no-go is recorded.
+**Gate: Stage 0B (pre-pilot preparation) is prepared in PR #128 and blocked on human merge and readiness.** Stage 0A read-only verification is complete (evidence report filed). Remaining gates in order: (1) merge PR #128 into `main`; (2) manually move issue #127 Project Status from `Backlog` to `Ready` and check the final `Ready for Copilot` box; (3) return for explicit human approval before the Stage 1 manual Copilot assignment. Do not implement dispatcher/validator workflows until pilot evidence is filed and a human go/no-go is recorded.

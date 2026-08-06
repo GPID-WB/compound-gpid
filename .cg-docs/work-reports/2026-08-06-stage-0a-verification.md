@@ -151,7 +151,7 @@ Documented default semantics (GitHub docs + 2025-11-06 changelog):
 | Pull request merged | Set Status of the **merged PR item** to `Done` |
 | Pull request linked to issue | Set the **issue's** Status to `In progress` when a linked PR exists |
 | Item added to project | Set Status of a newly added item to a configured value |
-| Auto-add to project | Add matching items (issues **and** PRs) on create/update (filterable `is: issue|pr`) |
+| Auto-add to project | Add matching items (issues **and** PRs) on create/update (filterable `is: issue\|pr`) |
 | Auto-add sub-issues | Add child issues when created/updated |
 | Auto-close issue | Close issue when its linked PR is merged (standard linkage path) |
 
