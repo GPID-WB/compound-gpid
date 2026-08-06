@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="artifact-source" content=".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md">
-<meta name="artifact-source-sha256" content="8b504d922b8c742a63991d8944846d95eb8daea7ba04f8ce18c8c3cb2e1a8446">
+<meta name="artifact-source-sha256" content="73751c1dc977ec77b2785186c38c21848cb19991942995910e0bcefad7aac154">
 <meta name="publication-provenance-schema" content="2">
 <meta name="publication-output" content=".cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.html">
 <meta name="publication-theme" content="reference">
@@ -93,7 +93,7 @@ blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid
   h1, h2, h3, h4 { break-after: avoid; }
   .provenance { margin-top: 1rem; }
 }</style>
-<script id="artifact-provenance" type="application/json">{"documentType":"plan","generatedAt":"2026-08-06T18:40:16Z","outputPath":".cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.html","provenanceSchemaVersion":2,"rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md","sourceSha256":"8b504d922b8c742a63991d8944846d95eb8daea7ba04f8ce18c8c3cb2e1a8446","themeName":"reference","themeVersion":1}</script>
+<script id="artifact-provenance" type="application/json">{"documentType":"plan","generatedAt":"2026-08-06T18:52:51Z","outputPath":".cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.html","provenanceSchemaVersion":2,"rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md","sourceSha256":"73751c1dc977ec77b2785186c38c21848cb19991942995910e0bcefad7aac154","themeName":"reference","themeVersion":1}</script>
 </head>
 <body data-artifact-kind="plan">
 <a class="skip-link" href="#main-content">Skip to artifact content</a>
@@ -136,7 +136,7 @@ blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid
 <div class="source-block" id="render-owner-0044" data-source-block="block-0044" data-source-lines="87-87"><p>Workflow files (<strong>Verified</strong>):</p></div>
 <div class="source-block" id="render-owner-0046" data-source-block="block-0046" data-source-lines="89-94"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Workflow File</th><th scope="col">Name</th><th scope="col">Triggers (Summary)</th><th scope="col">Jobs (Names As Defined)</th></tr></thead><tbody><tr><td><code>.github/workflows/tests.yml</code></td><td>Pester tests</td><td>push <code>main</code>/<code>feat/**</code>/<code>fix/**</code>/<code>chore/**</code>; PR → <code>main</code></td><td><code>Browser evidence manifest tests</code>; <code>Native target Python gate on ${{ matrix.os }}</code> (windows-2022, macos-14); <code>Pester on ${{ matrix.os }}</code> (windows-2022, macos-14); <code>Docs staleness check</code> (PR only, non-blocking warning)</td></tr><tr><td><code>.github/workflows/commit-lint.yml</code></td><td>Conventional commits lint</td><td>PR opened/edited/synchronize/reopened</td><td><code>PR title follows Conventional Commits</code></td></tr><tr><td><code>.github/workflows/link-check.yml</code></td><td>Link Check</td><td>path-filtered push/PR; weekly cron; <code>workflow_dispatch</code></td><td><code>link-check</code></td></tr><tr><td><code>.github/workflows/pages.yml</code></td><td>Deploy documentation site</td><td>docs paths on <code>main</code>; <code>workflow_dispatch</code></td><td><code>deploy</code></td></tr></tbody></table></div></div>
 <div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="96-96"><p><strong>Branch ruleset</strong> <code>Protect main</code> (id <code>16657602</code>, enforcement active, target default branch) (<strong>Verified</strong> via API):</p></div>
-<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="98-105"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Rule</th><th scope="col">Parameters</th></tr></thead><tbody><tr><td>deletion restricted</td><td>yes</td></tr><tr><td>non<em>fast</em>forward (force-push blocked)</td><td>yes</td></tr><tr><td>pull_request required</td><td><code>required_approving_review_count: 0</code>; <code>required_review_thread_resolution: true</code>; merge methods merge+rebase; no code-owner requirement</td></tr><tr><td>required<em>status</em>checks</td><td><code>strict_required_status_checks_policy: true</code> (branch must be up to date)</td></tr><tr><td>Required check contexts</td><td><code>Native target Python gate on macos-14</code>; <code>Native target Python gate on windows-2022</code>; <code>PR title follows Conventional Commits</code>; <code>Pester on macos-14</code>; <code>Pester on windows-2022</code></td></tr><tr><td>Bypass</td><td><code>RepositoryRole</code> actor<em>id `5`, mode `always`; planning user `current</em>user<em>can</em>bypass: always`</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="98-105"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Rule</th><th scope="col">Parameters</th></tr></thead><tbody><tr><td>deletion restricted</td><td>yes</td></tr><tr><td><code>non_fast_forward</code> (force-push blocked)</td><td>yes</td></tr><tr><td>pull_request required</td><td><code>required_approving_review_count: 0</code>; <code>required_review_thread_resolution: true</code>; merge methods merge+rebase; no code-owner requirement</td></tr><tr><td>required<em>status</em>checks</td><td><code>strict_required_status_checks_policy: true</code> (branch must be up to date)</td></tr><tr><td>Required check contexts</td><td><code>Native target Python gate on macos-14</code>; <code>Native target Python gate on windows-2022</code>; <code>PR title follows Conventional Commits</code>; <code>Pester on macos-14</code>; <code>Pester on windows-2022</code></td></tr><tr><td>Bypass</td><td><code>RepositoryRole</code> <code>actor_id</code> <code>5</code>, mode <code>always</code>; planning user <code>current_user_can_bypass: always</code></td></tr></tbody></table></div></div>
 <div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="107-107"><p><strong>Not required by ruleset</strong> (still may run): Browser evidence, Docs staleness, Link Check, Pages (<strong>Verified</strong>).</p></div>
 <div class="source-block" id="render-owner-0054" data-source-block="block-0054" data-source-lines="109-109"><p><strong>Classic branch protection API</strong> returned 404; protection is ruleset-based only (<strong>Verified</strong>).</p></div>
 <div class="source-block" id="render-owner-0056" data-source-block="block-0056" data-source-lines="111-111"><p><strong>Actions repo settings</strong> (partial): Actions enabled; <code>allowed_actions: all</code>; <code>default_workflow_permissions: write</code>; <code>can_approve_pull_request_reviews: true</code> (<strong>Verified</strong>). Fine-grained “approve Copilot-initiated workflow runs” setting was <strong>not</strong> readable via the endpoints used; treat operator statement as <strong>User-confirmed</strong>.</p></div>
@@ -406,8 +406,8 @@ low
 2. Ensure issue on Project CompoundGPID-progress.
 3. Manually assign **Copilot** coding agent (UI).
 4. When Copilot requests Actions approval → **approve** (do not disable the requirement).
-5. Watch for branch + PR; ensure PR body references `Closes #N` or `Refs #N` per intent.
-   5b. If PR body does **not** contain `Closes #N` or `Refs #N`, edit the PR body to add the appropriate reference before merge. Without it, the built-in &quot;Pull request merged&quot; workflow will not close the issue and Status→Done will not trigger automatically.
+5. Watch for branch + PR; ensure the PR body carries the correct GitHub keyword: a **merge-completing** pilot PR must use `Closes #N` (or `Fixes #N` / `Resolves #N`) so the issue auto-closes; use `Refs #N` only for draft, partial, or uncertain completion (a `Refs #N`-only PR does not close the issue).
+   5b. If the PR body lacks the required keyword, edit it before merge: add `Closes #N` / `Fixes #N` / `Resolves #N` when the merge should complete the issue, or `Refs #N` if completion is uncertain. Note that a `Refs #N`-only merge will not close the issue, and the built-in &quot;Pull request merged&quot; workflow updates the merged **PR item** rather than the issue item — so the issue `Status → Done` will not trigger automatically without a closing keyword.
 6. Wait for required checks:
    - Native target Python gate on macos-14
    - Native target Python gate on windows-2022
@@ -485,12 +485,12 @@ low
     <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
     <dl>
       <dt>Source</dt><dd>.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md</dd>
-      <dt>Source SHA-256</dt><dd><code>8b504d922b8c742a63991d8944846d95eb8daea7ba04f8ce18c8c3cb2e1a8446</code></dd>
+      <dt>Source SHA-256</dt><dd><code>73751c1dc977ec77b2785186c38c21848cb19991942995910e0bcefad7aac154</code></dd>
       <dt>Output</dt><dd>.cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.html</dd>
       <dt>Document type</dt><dd>plan</dd>
       <dt>Renderer</dt><dd>0.1.0</dd>
       <dt>Theme</dt><dd>reference v1</dd>
-      <dt>Generated UTC</dt><dd>2026-08-06T18:40:16Z</dd>
+      <dt>Generated UTC</dt><dd>2026-08-06T18:52:51Z</dd>
     </dl>
   </div>
 </footer>

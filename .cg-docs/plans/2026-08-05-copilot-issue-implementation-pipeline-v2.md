@@ -98,11 +98,11 @@ Workflow files (**Verified**):
 | Rule | Parameters |
 |------|------------|
 | deletion restricted | yes |
-| non_fast_forward (force-push blocked) | yes |
+| `non_fast_forward` (force-push blocked) | yes |
 | pull_request required | `required_approving_review_count: 0`; `required_review_thread_resolution: true`; merge methods merge+rebase; no code-owner requirement |
 | required_status_checks | `strict_required_status_checks_policy: true` (branch must be up to date) |
 | Required check contexts | `Native target Python gate on macos-14`; `Native target Python gate on windows-2022`; `PR title follows Conventional Commits`; `Pester on macos-14`; `Pester on windows-2022` |
-| Bypass | `RepositoryRole` actor_id `5`, mode `always`; planning user `current_user_can_bypass: always` |
+| Bypass | `RepositoryRole` `actor_id` `5`, mode `always`; planning user `current_user_can_bypass: always` |
 
 **Not required by ruleset** (still may run): Browser evidence, Docs staleness, Link Check, Pages (**Verified**).
 
@@ -559,8 +559,8 @@ Record **actual** transitions in evidence pack even if they differ.
 2. Ensure issue on Project CompoundGPID-progress.
 3. Manually assign **Copilot** coding agent (UI).
 4. When Copilot requests Actions approval → **approve** (do not disable the requirement).
-5. Watch for branch + PR; ensure PR body references `Closes #N` or `Refs #N` per intent.
-   5b. If PR body does **not** contain `Closes #N` or `Refs #N`, edit the PR body to add the appropriate reference before merge. Without it, the built-in "Pull request merged" workflow will not close the issue and Status→Done will not trigger automatically.
+5. Watch for branch + PR; ensure the PR body carries the correct GitHub keyword: a **merge-completing** pilot PR must use `Closes #N` (or `Fixes #N` / `Resolves #N`) so the issue auto-closes; use `Refs #N` only for draft, partial, or uncertain completion (a `Refs #N`-only PR does not close the issue).
+   5b. If the PR body lacks the required keyword, edit it before merge: add `Closes #N` / `Fixes #N` / `Resolves #N` when the merge should complete the issue, or `Refs #N` if completion is uncertain. Note that a `Refs #N`-only merge will not close the issue, and the built-in "Pull request merged" workflow updates the merged **PR item** rather than the issue item — so the issue `Status → Done` will not trigger automatically without a closing keyword.
 6. Wait for required checks:
    - Native target Python gate on macos-14
    - Native target Python gate on windows-2022
