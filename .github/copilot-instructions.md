@@ -112,6 +112,32 @@ You are working in a data science project maintained by the DECDG team at the Wo
 - Keep scripts under 300 lines. Split larger files by responsibility.
 - Use consistent project structure (see `cg-skill-r-technical`, `cg-skill-r-analytical`, `cg-skill-python-best-practices`, or `cg-skill-stata-best-practices` skills).
 
+### Agent & Skill File Standards
+
+When creating or editing `.kilo/agents/*.md` or `.kilo/skills/*/SKILL.md` files:
+
+- **Always double-quote `description` values in YAML frontmatter**, even when the
+  content contains no special characters. Unquoted values break when edited later
+  to include colons, brackets, or other YAML-significant characters.
+  ```yaml
+  # ✅ Correct
+  description: "Reviews code for quality and best practices."
+  # ❌ Wrong — will break if description later gains a colon
+  description: Reviews code for quality and best practices.
+  ```
+- **Use ASCII-only characters in frontmatter**: no em-dashes (`—`), en-dashes (`–`),
+  or curly quotes. Use `--` for dashes, `->` for arrows, straight quotes only.
+- **Use ASCII-only in body content where possible**: mojibake (`â€"`, `â†'`) is
+  caused by UTF-8/Windows-1252 round-trips during cross-platform editing. Prefer
+  `--`, `->`, and straight quotes. If Unicode is intentional, ensure the file is
+  saved as UTF-8 without BOM.
+- **Validate before committing**: check that YAML frontmatter parses cleanly. The
+  Kilo `config_validation` system reports "Failed to parse frontmatter" errors that
+  cascade — one bad file can cause all files in a directory to fail loading.
+
+See `.cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md` for the
+full diagnosis of how these issues caused 17 agent files and 1 skill file to fail.
+
 ## Testing Requirements
 
 - All functions must have corresponding tests.

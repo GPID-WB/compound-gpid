@@ -21,28 +21,28 @@
       "path": ".kilo/agents/cg-architecture.md",
       "source": ".github/agents/cg-architecture.agent.md",
       "kind": "agent",
-      "sha256": "9cc84a56a51c800ea0426ca37b99b59033121d3b868869b4b3a8cc4b63a0b8da",
+      "sha256": "73617effd68bbf5af001302addaeff0ab1fb0b06838beca5b6c5c0c0f1f74ab7",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
-      "sha256": "bbfc1b956d3c549aa49b5c9169780057a6e635fd4d88bb7687aec718be8525b7",
+      "sha256": "d0aee94db4768d665a4173b1e9e9ab4be3882306c86ca27448926821b75a0d9d",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
-      "sha256": "a4495a8d4f6a544bde8c470849df925cd78c3262c29d19492bf5d6f61d0a08b4",
+      "sha256": "5aa128679829ea565b9c9a6372d53188bd870eec3da460102620de17db2c225d",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-documentation.md",
       "source": ".github/agents/cg-documentation.agent.md",
       "kind": "agent",
-      "sha256": "283f801c963e1370c276a35f015a1c812620d630e9202afbd8c335ac46e73564",
+      "sha256": "c052709e85a661c6b9a48593e916b8edc36ea677389b19b3bc7a4ba534c8488d",
       "executable": false
     },
     {
@@ -56,14 +56,14 @@
       "path": ".kilo/agents/cg-learnings-researcher.md",
       "source": ".github/agents/cg-learnings-researcher.agent.md",
       "kind": "agent",
-      "sha256": "78b10d0b3f9f5cc097a57a594df484c01b731cd05c9fd0c9c9f4a4e2b304a900",
+      "sha256": "2e84f7c778766bd7e0e3aaa7af0238555c2ddc86e6d60373ff5232cd2149e053",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "ecb64ce3df67a0eccc2abf72f68b1baba0a0be391aecba67b2de72d452baf2dd",
+      "sha256": "07bd6983bdb93b99eff383155486d17bf59ed7573e861017e88a2a94eb1e950c",
       "executable": false
     },
     {
@@ -91,7 +91,7 @@
       "path": ".kilo/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "193983ade6f2dde0f23a69dc3a6517b0de8575a9fb3185914fb297752460b926",
+      "sha256": "c09d14809f953bd411100696303f295b1caab03a5ca1c0d093279ac28de0f7b4",
       "executable": false
     },
     {
@@ -105,21 +105,21 @@
       "path": ".kilo/agents/cg-roadmap.md",
       "source": ".github/agents/cg-roadmap.agent.md",
       "kind": "agent",
-      "sha256": "0422efc4c913d3acbc1c33a15e992fc8cf14922b9d20dad4b8cd6fa5772e1ceb",
+      "sha256": "eb04f62ce56f733a2119ebc36fa9fd4dca1105d67db27ede4b32850623493a81",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
-      "sha256": "01fc4f7d0f6b035bf5d4b50fa2fd4418a02c079577f3400e7265b2c39075a3c9",
+      "sha256": "414cdf9fd303c45b10cb10ef09f7ff959ea3553af60e8f7bac66a5c53586b159",
       "executable": false
     },
     {
       "path": ".kilo/agents/cg-version-control.md",
       "source": ".github/agents/cg-version-control.agent.md",
       "kind": "agent",
-      "sha256": "433c6e985ede1f48ca0e2c671b57f96ca705a2fab1d8c576a93881dff924cf4a",
+      "sha256": "68966d1a45a5e39626c30143f432b5138d12be427f61569b1933abcf193b9cec",
       "executable": false
     },
     {
@@ -434,7 +434,7 @@
       "path": ".kilo/skills/cg-skill-brain-query/SKILL.md",
       "source": ".github/skills/cg-skill-brain-query/SKILL.md",
       "kind": "skill",
-      "sha256": "ded9cca0a9a4e81df48982a5050dd30eb063dc4f1d89eeab70e6015adfc6d040",
+      "sha256": "283cdb86bc32777788e3e8d1710667a4101f18668adc7ef4f814d5a6f538366f",
       "executable": false
     },
     {
@@ -497,7 +497,7 @@
       "path": ".kilo/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "source": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "kind": "skill",
-      "sha256": "7ad9c470f67e2b70b44b4dd7266407e474b4096e930eba19bb379ffc0483c29e",
+      "sha256": "f2f47e6cc5ae29ac769787f660fe04abc5ca902f623e4b597ede35829c479ec2",
       "executable": false
     },
     {
@@ -539,7 +539,7 @@
       "path": ".kilo/skills/cg-skill-pester-safety/SKILL.md",
       "source": ".github/skills/cg-skill-pester-safety/SKILL.md",
       "kind": "skill",
-      "sha256": "56df599485fc609f471b5efd81a5aa72ba6aff0133708d9ea04bb868b193a92e",
+      "sha256": "a9320188a1b3e59dc8ab863cf87a090c8cea75458e73cd78053765c1be2a2e7e",
       "executable": false
     },
     {
@@ -553,7 +553,7 @@
       "path": ".kilo/skills/cg-skill-python-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-python-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "337e44284163d155444ff3e7341c8b6bfcaaaafdbe12054483cb18e8b1c30237",
+      "sha256": "d84520e50c70901f6027a79d62496d9e049eb71a790af11283d9b82d24724178",
       "executable": false
     },
     {
@@ -714,7 +714,7 @@
       "path": ".kilo/skills/cg-skill-r-shared/SKILL.md",
       "source": ".github/skills/cg-skill-r-shared/SKILL.md",
       "kind": "skill",
-      "sha256": "edc2047edee3cf7a53a4981f48cfc5fa0339b07b2071e6e3d6d842016ead5907",
+      "sha256": "9ca251633b8891324c8ffa55e5cbf73420b9f6c5cef157925544426bd9b48264",
       "executable": false
     },
     {
@@ -791,7 +791,7 @@
       "path": ".kilo/skills/cg-skill-r-testing/SKILL.md",
       "source": ".github/skills/cg-skill-r-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "cf678b5034955db923d4549c79ff5106eb9491cc344eca63a59a150cc4bc860b",
+      "sha256": "93261497eb7b31ea845341919aaf623b9c24da0c3ec5243cde57de947b4f4f82",
       "executable": false
     },
     {
@@ -1834,7 +1834,7 @@
       "path": ".kilo/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
-      "sha256": "53251ad9c615a8aa287ea19f3bca4cb0a772a43b1759bc54504150147bb9e953",
+      "sha256": "5d835e1fa7908da7682b479bb68d03e652326954e4846f2952871785c9e9881c",
       "executable": false
     }
   ]
