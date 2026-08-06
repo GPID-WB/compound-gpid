@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-06T11:50:00Z",
+  "updatedAt": "2026-08-06T11:35:00Z",
   "workflow": "/cg-work",
   "status": "handoff",
   "branch": "issues-implementation-pipeline",
@@ -19,13 +19,14 @@
     {"id": "V9", "status": "pending", "artifact": "final plan handoff"}
   ],
   "unresolvedDecisions": [
-    {"id": "D1", "summary": "Stage 0B pre-pilot repairs require explicit human approval after reviewing the Stage 0A evidence report", "blocking": true}
+    {"id": "D2", "summary": "Human: commit+push Stage 0B changes, open/merge PR to main, set issue #127 Project Status to Ready, then return for explicit approval before Stage 1 assignment", "blocking": true}
   ],
   "artifactRefs": [
     {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "completed-phase-1"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-2-stage-0b"},
     {"kind": "stage-0a-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0a-verification.md", "status": "completed"},
-    {"kind": "review", "path": "PENDING", "status": "not-started"}
+    {"kind": "stage-0b-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0b-evidence.md", "status": "completed"},
+    {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "ready-3-of-4"}
   ],
-  "nextCommand": "/cg-work phase2"
+  "nextCommand": "/cg-work phase3"
 }
