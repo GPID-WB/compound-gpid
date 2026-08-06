@@ -49,6 +49,7 @@ if (-not $gitSha) { $gitSha = "unknown" }
 # cleanup. Running them last prevents cleanup races with other test files.
 $testNames = @(
     'charter',
+    'local-config',  # compound-gpid.local.md is committed/version-controlled (regression guard)
     'helpers',
     'roadmap',
     'prompt-tools',
