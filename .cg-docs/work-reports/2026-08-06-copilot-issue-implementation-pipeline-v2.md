@@ -89,3 +89,26 @@ run: 1
 - Run status: **completed** (Phase 1 finished; plan remains `status: active` /
   `completed-phases: [1]`, paused before Stage 0B, which requires explicit human
   approval).
+
+---
+
+## Run 2 — Stage 0B: Approved pre-pilot repairs (2026-08-06)
+
+- Invocation: `phase2 review:auto`; scope Phase 2 only. Selected pilot: issue
+  #127 (`artifact-html-opt-in-default`).
+- Step 1 preflight completed; Step 2 human approval gate **approved** by the
+  user; Steps 3–5 executed as approved.
+- Completed:
+  - Added feature `artifact-html-opt-in-default` to milestone `workflow-maturity`
+    (status `planned`, `plan: null`, `github` linkage to #127) via @cg-roadmap.
+  - Applied minimal approved issue #127 edits (linkage placeholders filled; 3 of
+    4 `Ready for Copilot` boxes checked; Project-Status box left unchecked).
+  - Verified read-only: #127 on CompoundGPID-progress / Status `Backlog` /
+    unassigned / no linked PR; targeted roadmap validation passed (0 failures).
+  - Confirmed exact implementation closure for Stage 1 (config-resolution-only;
+    generated targets to be regenerated, never hand-edited).
+- Deviations: none (all changes within the approved Step 2 gate).
+- Phase 2 status: **NOT completed** — this run stops at the required handoff.
+  Human must commit/push, merge the Stage 0B PR, and set issue #127 Project
+  Status to `Ready` before Phase 3 (Stage 1).
+- `completed-phases` unchanged (`[1]`); `current-phase` remains `2`.
