@@ -63,7 +63,7 @@ model-advisory:
 ```markdown
 # Compound GPID — Project Config
 
-This file configures Compound GPID for this project. It is gitignored and local to your machine.
+This file configures Compound GPID for this project. It is version-controlled and shared across the team.
 
 ## Language: <language>
 ## Project Type: <project-type>

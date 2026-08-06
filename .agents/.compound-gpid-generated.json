@@ -154,7 +154,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "113ebc7f2ea131400996dfdfbca9bcc8995048fd2cf6ba5ae76512602a2008a5",
+      "sha256": "a179f92b7f027cf92333a11cd9e872d4dc8dc4cfd0d329ccb612f6b48f2f8640",
       "executable": false
     },
     {
@@ -203,7 +203,7 @@
       "path": ".agents/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "a6ba92507879a6e764d9db2fec09cbefbee6f6d96e79470a834ef52c46c9d96a",
+      "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
       "executable": false
     },
     {

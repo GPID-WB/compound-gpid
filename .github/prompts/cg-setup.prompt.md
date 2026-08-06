@@ -94,14 +94,12 @@ If `compound-gpid.context.md` does not exist: > "Folder descriptions cannot be s
 
 Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md`, create the listed directories and `.gitkeep` files if they do not already exist.
 
-#### A5.5. Update `.gitignore`
+#### A5.5. Keep `compound-gpid.local.md` version-controlled
 
-Check if `.gitignore` exists (create if not). Append if not already present:
-
-```gitignore
-# Compound GPID local config (user-specific, never commit)
-compound-gpid.local.md
-```
+`compound-gpid.local.md` is team-shared configuration (language, project-type, review-depth, and any
+shared `## Notes` such as safety rules). Check `.gitignore` and remove any uncommented
+`compound-gpid.local.md` rule if present. Do NOT add it to `.gitignore` — commit the file so every
+worktree, clone, and team member receives it without manual copying.
 
 #### A5.6. Update `.Rbuildignore` (R packages only)
 
