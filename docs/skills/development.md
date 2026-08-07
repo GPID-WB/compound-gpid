@@ -13,6 +13,7 @@ and environment-specific maintenance.
 | `cg-skill-project-scanner` | Repository signal catalog and confidence rules for project detection | Used by setup automation to infer language, framework, type, and charter signals | Internal | [Canonical source](https://github.com/GPID-WB/compound-gpid/blob/main/.github/skills/cg-skill-project-scanner/SKILL.md) |
 | `cg-skill-pester-safety` | Safe Pester execution rules, forbidden crash patterns, and canonical runner usage | Before any Pester command in this Compound GPID workspace | Internal and environment-specific | [Canonical source](https://github.com/GPID-WB/compound-gpid/blob/main/.github/skills/cg-skill-pester-safety/SKILL.md) |
 | `cg-skill-windows-cmd-python-detection` | Safe `python3`/`python`/`py` probing, Windows Store stub rejection, parity, and tests | Maintaining a `bin/*.cmd` launcher that invokes Python | Internal and Windows-specific | [Canonical source](https://github.com/GPID-WB/compound-gpid/blob/main/.github/skills/cg-skill-windows-cmd-python-detection/SKILL.md) |
+| `cg-skill-yaml-frontmatter-lint` | Validates YAML frontmatter in agent/skill files: quoted descriptions, ASCII-only, no BOM, required fields | Creating or editing `.kilo/agents/*.md` or `.kilo/skills/*/SKILL.md`; diagnosing Kilo parse failures | Broad; lint-conditional | [Canonical source](https://github.com/GPID-WB/compound-gpid/blob/main/.github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md) |
 
 ## Reproducibility coverage
 
