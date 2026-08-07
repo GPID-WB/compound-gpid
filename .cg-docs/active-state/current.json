@@ -1,32 +1,44 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-06T18:30:00Z",
+  "updatedAt": "2026-08-07T17:08:00Z",
   "workflow": "/cg-work",
-  "status": "blocked",
-  "branch": "issues-implementation-pipeline",
+  "status": "handoff",
+  "branch": "issue-implementation-pipeline-from-phase-3",
   "plan": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
   "executionReport": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md",
-  "currentPhase": 2,
+  "currentPhase": 4,
   "evidenceStatus": [
     {"id": "V1", "status": "passed", "artifact": "cg-render-artifact --validate-only exit 0 + plan sections"},
     {"id": "V2", "status": "passed", "artifact": "plan section 1 classification; ruleset/check re-verified via API"},
     {"id": "V3", "status": "passed", "artifact": "plan section 2 sources of truth"},
     {"id": "V4", "status": "passed", "artifact": "plan section 4 stages 0A-6 boundaries"},
     {"id": "V5", "status": "passed", "artifact": "plan section 5 pilot spec"},
-    {"id": "V6", "status": "passed", "artifact": "plan section 6 security matrix; docs token model"},
+    {"id": "V6", "status": "passed", "artifact": "plan section 6 security matrix"},
     {"id": "V7", "status": "passed", "artifact": "plan section 7 recovery/idempotency"},
-    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5)"},
-    {"id": "V9", "status": "pending", "artifact": "final plan handoff"}
+    {"id": "E1", "status": "passed", "artifact": "issue #127 closed completed + body snapshot (API)"},
+    {"id": "E2", "status": "passed", "artifact": "assignee Copilot + randrescastaneda (API); model config operator-confirmed"},
+    {"id": "E3", "status": "passed", "artifact": "branch copilot/make-html-publication-opt-in-default (API)"},
+    {"id": "E4", "status": "passed", "artifact": "PR #131 merged, 17 files (API)"},
+    {"id": "E5", "status": "passed", "artifact": "statusCheckRollup; required green after title fix (API)"},
+    {"id": "E6", "status": "passed", "artifact": "Actions approval gate inferred from run create->start gap (API proxy; exact click not API-exposed)"},
+    {"id": "E7", "status": "passed", "artifact": "Project Status timeline -> Done (API timestamps + final value)"},
+    {"id": "E8", "status": "passed", "artifact": "wall-clock assign 12:00:01Z -> PR 12:00:07Z -> merge 13:49:54Z (API)"},
+    {"id": "E9", "status": "passed", "artifact": "CC lint title-only failures x3; fixed after human rename (API)"},
+    {"id": "E10", "status": "passed", "artifact": "PR #131 NOT a separate Project item (GraphQL)"},
+    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5) - only at whole-plan final"}
   ],
   "unresolvedDecisions": [
-    {"id": "D2", "summary": "Human: commit+push Stage 0B changes, open/merge PR to main, set issue #127 Project Status to Ready, then return for explicit approval before Stage 1 assignment", "blocking": true}
+    {"id": "D4", "summary": "Human: confirm whether to advance roadmap feature artifact-html-opt-in-default from `planned` (not auto-advanced)", "blocking": false},
+    {"id": "D5", "summary": "Human: confirm exact configuration of the 'approve Copilot-initiated workflow runs' toggle in the settings pane (operator UI; no API surface)", "blocking": false}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-2-stage-0b"},
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active-completed-phases-1-2-3"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-3-stage-1-closeout"},
+    {"kind": "stage-1-evidence", "path": ".cg-docs/work-reports/2026-08-07-copilot-pilot-evidence.md", "status": "completed-GO"},
     {"kind": "stage-0a-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0a-verification.md", "status": "completed"},
     {"kind": "stage-0b-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0b-evidence.md", "status": "completed"},
-    {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "ready-3-of-4"}
+    {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "closed-completed-Done"},
+    {"kind": "github-pr", "path": "https://github.com/GPID-WB/compound-gpid/pull/131", "status": "merged"}
   ],
-  "nextCommand": null
+  "nextCommand": "commit and push the Stage 1 closeout changes, then open the closeout PR; after merge, resume with /cg-work phase4"
 }
