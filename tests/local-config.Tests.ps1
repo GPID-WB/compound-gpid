@@ -14,12 +14,14 @@
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 $localMd  = Join-Path $repoRoot "compound-gpid.local.md"
-$gitignorePath = Join-Path $repoRoot ".gitignore"
-$gitignoreContent = if (Test-Path $gitignorePath) { Get-Content $gitignorePath -Raw -Encoding UTF8 } else { "" }
 
 Describe "compound-gpid.local.md - version-controlled team config" {
     It "is NOT excluded by an uncommented .gitignore rule" {
-        ($gitignoreContent -notmatch '(?m)^compound-gpid\.local\.md\s*$') | Should -Be $true
+        # Use git ignore semantics, not a literal pattern match: this catches
+        # /compound-gpid.local.md, **/compound-gpid.local.md, *.local.md, etc.
+        $ignoreMatch = & git -C $repoRoot check-ignore --no-index -v -- "compound-gpid.local.md" 2>$null
+        $isIgnoredByGitignore = ($LASTEXITCODE -eq 0) -and ($ignoreMatch -match '\.gitignore:')
+        $isIgnoredByGitignore | Should -Be $false
     }
 
     It "exists at the repository root" {
