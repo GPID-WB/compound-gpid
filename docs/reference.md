@@ -116,11 +116,11 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |
 | `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |
 | `cg-render-artifact <source>` | Project root | Validate and explicitly render one Brainstorm or Plan, even when automatic HTML is disabled. |
-| `cg-render-artifact --automatic <source>` | Project root | Always validate; write HTML only when `artifact-html` is enabled or absent. |
+| `cg-render-artifact --automatic <source>` | Project root | Always validate; write HTML only when `artifact-html: true` is configured. |
 | `cg-render-artifact --validate-only <source>` | Project root | Validate one canonical artifact without writing HTML. |
 | `cg-render-artifact --check <source>` | Project root | Print `current` and exit code 0 only for an exact current view; print `missing` or `stale` and exit code 1 otherwise. Input/usage errors return exit code 2. |
 | `cg-publish-markdown <source>` | Project root | Publish one project-contained generic Markdown file to the mirrored `.cg-docs/views/documents/` path. |
-| `cg-publish-markdown --automatic <source>` | Project root | Validate generic Markdown and publish only when `artifact-html` is enabled or absent. |
+| `cg-publish-markdown --automatic <source>` | Project root | Validate generic Markdown and publish only when `artifact-html: true` is configured. |
 | `cg-publish-markdown --validate-only [--theme reference] <source>` | Project root | Validate generic source, output identity, local resources, and theme without inspecting or writing output. |
 | `cg-publish-markdown --check [--theme reference] <source>` | Project root | Reproduce expected schema-2 bytes; return exit code 0 for `current`, 1 for `missing`/`stale`, and 2 for invalid input. |
 | `cg-publish-markdown --output <documents-view.html> <source>` | Project root | Publish to one portable relative destination under `.cg-docs/views/documents/`. |
@@ -553,7 +553,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
 | `review-depth` | `"light"`, `"standard"`, `"thorough"` | Legacy depth default for `/cg-review`; `thorough` maps to the `full` route. Explicit routed modes can be passed at invocation time. |
-| `artifact-html` | `true`, `false` | Automatic Brainstorm/Plan HTML writes. Missing or invalid values default enabled (invalid values warn). Validation, explicit render, and `--check` remain available when false. |
+| `artifact-html` | `true`, `false` | Explicit opt-in for automatic Brainstorm/Plan and generic Markdown HTML writes. Missing or invalid values default disabled (invalid values warn). Validation, explicit render, and `--check` remain available. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
 ### `compound-gpid.context.md`

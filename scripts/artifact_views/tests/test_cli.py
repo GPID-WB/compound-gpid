@@ -17,14 +17,20 @@ SOURCE_RELATIVE = Path(".cg-docs/plans/example.md")
 VIEW_RELATIVE = Path(".cg-docs/views/plans/example.html")
 
 
-def _project(tmp_path: Path, *, config: str = "") -> Path:
+def _project(
+    tmp_path: Path,
+    *,
+    config: str = "",
+    include_local_config: bool = True,
+) -> Path:
     root = tmp_path / "repo"
     root.mkdir()
     (root / "compound-gpid.md").write_text("# Project\n", encoding="utf-8")
-    (root / "compound-gpid.local.md").write_text(
-        f"---\n{config}---\n# Local\n",
-        encoding="utf-8",
-    )
+    if include_local_config:
+        (root / "compound-gpid.local.md").write_text(
+            f"---\n{config}---\n# Local\n",
+            encoding="utf-8",
+        )
     source = root / SOURCE_RELATIVE
     source.parent.mkdir(parents=True)
     shutil.copyfile(FIXTURES / "strict_plan.md", source)
@@ -138,11 +144,11 @@ def test_cli_runs_from_charterless_project_without_hidden_root(
     assert (root / VIEW_RELATIVE).is_file()
 
 
-def test_automatic_enabled_validates_and_writes(
+def test_automatic_opt_in_validates_and_writes(
     tmp_path: Path,
     capsys: pytest.CaptureFixture,
 ) -> None:
-    root = _project(tmp_path)
+    root = _project(tmp_path, config="artifact-html: true\n")
 
     result, stdout, _ = _run(
         root,
@@ -153,6 +159,38 @@ def test_automatic_enabled_validates_and_writes(
     assert result == 0
     assert stdout == f"{VIEW_RELATIVE.as_posix()}\n"
     assert (root / VIEW_RELATIVE).is_file()
+
+
+@pytest.mark.parametrize(
+    ("config", "include_local_config"),
+    (
+        ("", False),
+        ("language: python\n", True),
+    ),
+    ids=("missing-config", "missing-field"),
+)
+def test_automatic_without_opt_in_validates_and_does_not_write(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+    config: str,
+    include_local_config: bool,
+) -> None:
+    root = _project(
+        tmp_path,
+        config=config,
+        include_local_config=include_local_config,
+    )
+
+    result, stdout, stderr = _run(
+        root,
+        ["--automatic", str(SOURCE_RELATIVE)],
+        capsys,
+    )
+
+    assert result == 0
+    assert stdout == f"HTML disabled; validated {SOURCE_RELATIVE.as_posix()}\n"
+    assert stderr == ""
+    assert not (root / VIEW_RELATIVE).exists()
 
 
 def test_automatic_opt_out_still_validates_and_does_not_write(
@@ -182,6 +220,31 @@ def test_automatic_opt_out_still_validates_and_does_not_write(
     assert result == 1
     assert "Required section" in stderr
     assert not (root / VIEW_RELATIVE).exists()
+
+
+def test_automatic_disabled_preserves_existing_view(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    root = _project(tmp_path, config="artifact-html: true\n")
+    assert _run(root, [str(SOURCE_RELATIVE)], capsys)[0] == 0
+    view = root / VIEW_RELATIVE
+    before = view.read_bytes()
+    (root / "compound-gpid.local.md").write_text(
+        "---\nartifact-html: false\n---\n",
+        encoding="utf-8",
+    )
+
+    result, stdout, stderr = _run(
+        root,
+        ["--automatic", str(SOURCE_RELATIVE)],
+        capsys,
+    )
+
+    assert result == 0
+    assert stdout == f"HTML disabled; validated {SOURCE_RELATIVE.as_posix()}\n"
+    assert stderr == ""
+    assert view.read_bytes() == before
 
 
 def test_explicit_render_ignores_automatic_opt_out(
@@ -265,7 +328,7 @@ def test_check_reports_tampered_view_stale(
     assert stdout == f"stale {VIEW_RELATIVE.as_posix()}\n"
 
 
-def test_invalid_config_warns_and_defaults_automatic_html_enabled(
+def test_invalid_config_warns_and_defaults_automatic_html_disabled(
     tmp_path: Path,
     capsys: pytest.CaptureFixture,
 ) -> None:
@@ -278,9 +341,10 @@ def test_invalid_config_warns_and_defaults_automatic_html_enabled(
     )
 
     assert result == 0
-    assert stdout == f"{VIEW_RELATIVE.as_posix()}\n"
+    assert stdout == f"HTML disabled; validated {SOURCE_RELATIVE.as_posix()}\n"
     assert "invalid artifact-html" in stderr.lower()
-    assert (root / VIEW_RELATIVE).is_file()
+    assert "defaulting disabled" in stderr.lower()
+    assert not (root / VIEW_RELATIVE).exists()
 
 
 @pytest.mark.parametrize(

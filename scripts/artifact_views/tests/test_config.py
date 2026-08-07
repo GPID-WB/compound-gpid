@@ -9,6 +9,67 @@ import pytest
 from artifact_views import config  # pylint: disable=import-error
 
 
+def test_missing_config_defaults_to_disabled(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+
+    result = config.load_artifact_view_config(root)
+
+    assert result.automatic_html is False
+    assert result.warning is None
+
+
+def test_missing_artifact_html_field_defaults_to_disabled(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "compound-gpid.local.md").write_text(
+        "---\nlanguage: python\n---\n",
+        encoding="utf-8",
+    )
+
+    result = config.load_artifact_view_config(root)
+
+    assert result.automatic_html is False
+    assert result.warning is None
+
+
+def test_explicit_true_enables_automatic_html(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "compound-gpid.local.md").write_text(
+        "---\nartifact-html: true\n---\n",
+        encoding="utf-8",
+    )
+
+    result = config.load_artifact_view_config(root)
+
+    assert result.automatic_html is True
+    assert result.warning is None
+
+
+@pytest.mark.parametrize(
+    "value",
+    ("sometimes", "null", "~"),
+    ids=("text", "null", "tilde"),
+)
+def test_invalid_artifact_html_defaults_to_disabled_with_warning(
+    tmp_path: Path,
+    value: str,
+) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "compound-gpid.local.md").write_text(
+        f"---\nartifact-html: {value}\n---\n",
+        encoding="utf-8",
+    )
+
+    result = config.load_artifact_view_config(root)
+
+    assert result.automatic_html is False
+    assert result.warning is not None
+    assert "defaulting disabled" in result.warning.lower()
+
+
 def test_config_uses_bounded_secure_read(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
