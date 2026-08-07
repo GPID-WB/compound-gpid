@@ -72,7 +72,7 @@ async function validateSkillsCatalog() {
     return [...content.matchAll(/^\| `cg-skill-[a-z-]+` \|/gm)].length;
   }));
   if (missing.length || unknown.length || catalog.size !== canonical.size
-    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,8,7") {
+    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,9,7") {
     throw new Error(`Skills catalog drift. Missing: ${missing.join(", ") || "none"}. Unknown: ${unknown.join(", ") || "none"}.`);
   }
   for (const skill of canonical) await access(path.join(canonicalRoot, skill, "SKILL.md"), constants.R_OK);

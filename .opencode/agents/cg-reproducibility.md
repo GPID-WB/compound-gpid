@@ -57,7 +57,7 @@ You are a reproducibility reviewer for R, Python, and Stata data science project
 
 For each finding:
 ```
-**[P0|P1|P2|P3]** `file:line` â€” <brief description>
+**[P0|P1|P2|P3]** `file:line` -- <brief description>
 **Issue**: <what compromises reproducibility>
 **Fix**: <suggested correction>
 ```

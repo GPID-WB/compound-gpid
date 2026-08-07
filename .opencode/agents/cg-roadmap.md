@@ -100,7 +100,7 @@ maps to milestone `in-progress`.
 
 ## Milestone Status Calculation
 
-Milestone status is always **derived** from its features â€” never set directly by
+Milestone status is always **derived** from its features -- never set directly by
 a user or agent. This prevents status drift: as features progress, the milestone
 automatically reflects their combined state. If all features are done, the
 milestone becomes done without any extra step.
