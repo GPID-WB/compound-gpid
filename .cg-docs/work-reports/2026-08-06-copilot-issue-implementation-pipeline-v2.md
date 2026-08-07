@@ -142,19 +142,21 @@ run: 1
     `artifact-provenance` JSON `sourceSha256` (parity confirmed; generated view
     regenerated via the canonical renderer only when the canonical source
     changed).
-  - Full JSON parsing/validation of
-    `.cg-docs/active-state/current.json`: parsed with
-    `python -c "import json; json.load(open(...))"` → `JSON PARSE: OK`,
-    `schemaVersion: compound-gpid-active-state-v1`, required fields present
-    (`schemaVersion`, `updatedAt`, `workflow`, `status`, `artifactRefs`,
-    `nextCommand`), exit 0.
+  - JSON parse and required-field check of
+    `.cg-docs/active-state/current.json`: the file was parsed successfully
+    (`python -c "import json; json.load(open(...))"` → `JSON PARSE: OK`,
+    exit 0), and the following fields were present: `schemaVersion`,
+    `updatedAt`, `workflow`, `status`, `artifactRefs`, `nextCommand`. This was a
+    parse plus required-field presence check; no JSON-schema validator ran.
 - **Live verification performed** (all via authenticated `gh` API / GraphQL on
   2026-08-07):
   - Issue #127 closed `completed` at `2026-08-07T13:49:56Z`; Project Status
     `Done` (option `98236657`); assignees `Copilot`, `randrescastaneda`.
-  - PR #131 `MERGED` at `2026-08-07T13:49:54Z` by `randrescastaneda`; merge
-    commit `fc4ed30027f702c4adffd7e742f8be416da39576` (verified two-parent);
-    17 changed files; `autoMergeRequest: null`; branch
+  - PR #131 `MERGED` at `2026-08-07T13:49:54Z` by `randrescastaneda` (API) with
+    merge commit OID `fc4ed30027f702c4adffd7e742f8be416da39576` (API) whose
+    two-parent structure was locally verified with `git cat-file`
+    (parents: main tip `cbc598b` + PR head `73f948b`);
+    17 changed files (API); `autoMergeRequest: null`; branch
     `copilot/make-html-publication-opt-in-default`; author
     `app/copilot-swe-agent`.
   - Required checks all green; CC lint green after human title fix at
@@ -163,11 +165,14 @@ run: 1
     project); issue item is canonical (E10 verified).
 - **Executed steps**: Step 1 (verify live state) and closeout deliverables
   (evidence pack, plan metadata, execution report, active-state, plan view).
-- **Deviation policy**: `ask` (plan value). One descriptive deviation/note: the
-  plan frontmatter `completed-phases: [1]` lagged reality (Phase 2 human gate +
-  Phase 3 had already completed in the live repo); this run sets
-  `completed-phases: [1, 2, 3]` and `current-phase: 4` from verified live
-  evidence, not from re-running either phase.
+- **State reconciliation (no deviation)**: per the execution contract, phase
+  metadata must be updated after a phase completes. The plan frontmatter had
+  lagged live reality (`completed-phases: [1]`, `current-phase: 2` while Phase
+  2's human gate and Phase 3 had already completed in the live repo); this run
+  reconciles the metadata to the verified values `completed-phases: [1, 2, 3]`
+  and `current-phase: 4`. This is contract-required state reconciliation, not a
+  deviation; **no phases were re-run**. Deviation policy remains `ask` with no
+  deviations taken.
 - **Accepted exceptions**: none. **Evidence mix**: Stage 1 evidence combines
   API-verified fields, operator-confirmed conclusions, agent-reported
   execution results (e.g. the focused-test output), and documented
@@ -177,11 +182,15 @@ run: 1
 - **Precision limitations (documented, not exceptions)**:
   - Copilot model config (GPT-5.6 Luna, X-High reasoning): operator-confirmed
     UI setting; no public API surface.
-  - Actions-approval exact click timestamp: no API event endpoint; inferred
-    from run `created_at`→`run_started_at` gap (12:06–12:40Z). The approval
-    safeguard itself is operator-confirmed enabled; `can_approve_pull_request_reviews`
-    is NOT treated as evidence for it (different capability). Behavioral
-    support: run create→start delay + human `triggering_actor`.
+  - Actions approval evidence: the ~34 minute `created_at`→`run_started_at`
+    run delay (12:06–12:40Z) is described as **consistent with** an approval
+    wait and used only as a **proxy**; it is not claimed to prove that approval
+    caused the delay. `triggering_actor` identifies who **triggered the run
+    start**, not who approved. The exact approval time and approver are
+    **not retrievable** via the API (no approval-event endpoint); no value
+    invented. The approval safeguard itself is operator-confirmed enabled;
+    `can_approve_pull_request_reviews` is NOT treated as evidence for it
+    (different capability).
   - Intermediate Project Status option values (Ready/In progress/In review)
     are operator-confirmed from event timestamps; final `Done` is API-verified.
   - Live repo-level `default_workflow_permissions` is now `read`; per the

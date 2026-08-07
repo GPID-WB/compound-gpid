@@ -56,8 +56,9 @@ generated view, per `/cg-work` permissions.
 | PR | #131 — `feat(artifact-views): make automatic HTML publication opt-in by default` | API-verified |
 | PR author | `app/copilot-swe-agent` (Copilot) | API-verified |
 | PR state | `MERGED`; merged by `randrescastaneda` | API-verified |
-| Merge commit | `fc4ed30027f702c4adffd7e742f8be416da39576` | API-verified (two-parent merge; matches known fact) |
-| Changed files | **17** (`additions: 257`, `deletions: 59`) | API-verified |
+| Merge commit OID | `fc4ed30027f702c4adffd7e742f8be416da39576` | API-verified (`mergeCommit.oid`) |
+| Two-parent merge structure | merge commit has two parents (main tip `cbc598b` + PR head `73f948b`) | Locally verified via `git cat-file` |
+| Changed files | **17** (`additions: 257`, `deletions: 59`) | API-verified (`changedFiles` + files list) |
 | Project item | Issue #127 on CompoundGPID-progress; **Status = Done** (`98236657`) | API-verified (GraphQL) |
 
 All four `Ready` boxes checked include ``Project Status has been changed from
@@ -157,18 +158,18 @@ assignment.
 ### E6 — Actions approval events (timestamps)
 - **Approval-safeguard status**: **operator-confirmed**, supported by behavioral
   API evidence.
-- **Exact approval timestamp**: **not retrievable** — no API approval-event
-  endpoint exists; no value invented.
+- **Exact approval timestamp and approver**: **not retrievable** — no API
+  approval-event endpoint exists; no value invented.
 - Runs were **created** by `Copilot` (`actor`) between **12:06:17Z–12:09:18Z**
-  but **started** only at **12:40:05Z–12:40:06Z** with
-  `triggering_actor: randrescastaneda` (example run `31176801451`). The ~34
-  minute created→started gap is the Actions-approval waiting window for
-  Copilot-initiated runs, with the human as the triggering actor.
-- The exact click/approval moment is inferred to lie within 12:06–12:40Z using
-  run `created_at` → `run_started_at`.
+  but **started** only at **12:40:05Z–12:40:06Z** (example run
+  `31176801451`). The ~34 minute `created_at` → `run_started_at` gap is
+  **consistent with** an Actions-approval wait and is used **only as a proxy**;
+  it is not claimed to prove that approval caused the delay.
+- `triggering_actor: randrescastaneda` identifies who **triggered the run
+  start**; it does not identify an approver.
 - The "approve Copilot-initiated workflow runs" safeguard is
-  **operator-confirmed enabled**, with the observed run create→start delay and
-  human `triggering_actor` as supporting behavioral evidence. The
+  **operator-confirmed enabled**, with the observed run create→start delay used
+  as supporting (non-conclusive) behavioral evidence. The
   `can_approve_pull_request_reviews` API setting is **not used as evidence**
   here because it concerns a different capability (approving pull-request
   reviews via the API), not Copilot-initiated workflow-run approval.
@@ -203,7 +204,7 @@ assignment.
 |--------|-----------------|
 | Copilot assigned | 2026-08-07T12:00:01Z |
 | PR #131 created | 2026-08-07T12:00:07Z |
-| Actions approval granted (inferred) | ~12:06–12:40Z (run start 12:40:05Z) |
+| Actions approval (proxy) | ~12:06–12:40Z — run delay consistent with an approval wait; not proof of approval |
 | All non-title required checks green | 12:40:11Z–12:42:32Z |
 | CC lint green (after title fix) | 13:08:27Z / 13:09:55Z |
 | Focused verification reported | 2026-08-07T13:39:12Z |
@@ -214,8 +215,9 @@ assignment.
 | Branch deleted | 2026-08-07T13:50:02Z |
 
 - Assign → PR: **6 seconds** (12:00:01 → 12:00:07).
-- PR → merge: **~1 h 49 m** including the ~34 min Actions-approval wait, the
-  Conventional-Commits title fix, focused verification, and human approval.
+- PR → merge: **~1 h 49 m** including the ~34 min run delay (consistent with,
+  but not proof of, an approval wait), the Conventional-Commits title fix,
+  focused verification, and human approval.
 
 ### E9 — Failures / retries / human nudges
 - **Class**: API-verified (rollup + PR timeline + comments)
@@ -270,9 +272,9 @@ during this closeout.
 | Issue #127 closed as completed; Project Status `Done` | `state_reason: completed`; GraphQL Status `Done` | API-verified |
 | Copilot config GPT-5.6 Luna, X-High reasoning | recorded as configured | **Operator-confirmed** (not API-recoverable) |
 | Branch `copilot/make-html-publication-opt-in-default` | PR #131 head ref | API-verified |
-| PR #131 merged normally into `main` | `MERGED`, two-parent merge commit, base `main` | API-verified |
-| Merge commit `fc4ed30027f702c4adffd7e742f8be416da39576` | `mergeCommit.oid` + `git cat-file` (two parents: main tip + PR head) | API-verified |
-| Exactly 17 changed files | `changedFiles: 17` + files list | API-verified |
+| PR #131 merged normally into `main` | `MERGED` state and base `main` (API); two-parent structure locally verified via `git cat-file` | API-verified (state/base) + local git verification (parentage) |
+| Merge commit OID `fc4ed30027f702c4adffd7e742f8be416da39576` | OID from `mergeCommit.oid` (API); parentage (main tip + PR head) locally verified via `git cat-file` | OID API-verified; parentage locally verified |
+| Exactly 17 changed files | `changedFiles: 17` + files list (API) | API-verified |
 | Human approved the four generated manifest updates as target-generation closure | **Operator-confirmed decision**; the API verifies the existence and content of the comment record (`randrescastaneda`, 13:37:20Z, approving exactly the four `.compound-gpid-generated.json` updates, SHA-256-only) | Operator-confirmed decision; API-verified comment record |
 | Focused verification `58 passed in 0.70s` | **Copilot-reported result accepted by the operator**; the API verifies the comment record (Copilot, 13:39:12Z, quoting the exact command result) — not independent execution of the command | Agent-reported, operator-accepted; API-verified comment record |
 | All required and triggered final checks passed | Rollup: all required green; non-required (browser, docs staleness, link-check) SUCCESS | API-verified |
@@ -290,10 +292,10 @@ during this closeout.
 |---|-----------|--------|----------|
 | 1 | All **required** checks green on the PR before merge | **PASS** | Five ruleset-required checks SUCCESS; CC lint green after title fix before merge (13:09:55Z < 13:49:54Z) |
 | 2 | Every triggered **non-required** failure inspected and documented | **PASS** | Non-required (browser evidence, docs staleness, link-check) all SUCCESS — nothing failed to inspect; the only red check (CC lint) is required and documented (title fix) |
-| 3 | **No** administrator or ruleset bypass used | **PASS** | **Operator-confirmed, supported by API evidence**: merge is a normal two-parent merge under the active `Protect main` ruleset with required checks green; no `.github/workflows/**`/settings/secret files changed; `autoMergeRequest: null`. "No bypass used" is an operator-confirmed conclusion — the API evidence supports but does not by itself prove it |
+| 3 | **No** administrator or ruleset bypass used | **PASS** | **Operator-confirmed, supported by API evidence**: merge is a normal merge under the active `Protect main` ruleset with required checks green; the two-parent structure was locally verified via `git cat-file`; no `.github/workflows/**`/settings/secret files changed; `autoMergeRequest: null`. "No bypass used" is an operator-confirmed conclusion — the API evidence supports but does not by itself prove it |
 | 4 | No prohibited path modifications | **PASS** | 13 files are within the issue's explicitly listed allowed paths, and the four generated `.compound-gpid-generated.json` manifests were authorized by the documented human target-generation-closure decision (operator comment 13:37:20Z) before the PR was marked ready; none under prohibited paths (workflows, prompts/agents/skills, roadmap.json, Run-Tests.ps1, secrets, settings) |
 | 5 | Acceptance criteria satisfied | **PASS** | Operator-approved target-generation closure + focused suite result `58 passed in 0.70s` (agent-reported, operator-accepted; API verifies the comment record, not independent execution) + docs/contracts updated consistently; human path review/approval recorded |
-| 6 | Secrets unchanged; approval setting still enabled | **PASS** (with note) | **Operator-confirmed, supported by API evidence**: no secret files changed; run create→start delay + human `triggering_actor` is behavioral evidence of the approval gate. **Note**: live `default_workflow_permissions` now reports `read` — an intentional pre-pilot change (see notes below), not unexplained drift |
+| 6 | Secrets unchanged; approval setting still enabled | **PASS** (with note) | **Operator-confirmed, supported by API evidence**: no secret files changed; the run create→start delay is used only as a proxy consistent with an approval wait, and `triggering_actor` identifies who triggered the run start (not an approver). **Note**: live `default_workflow_permissions` now reports `read` — an intentional pre-pilot change (see notes below), not unexplained drift |
 | 7 | Evidence pack filed | **PASS** | **Branch-local closeout artifact**: this evidence pack is complete on this branch; it becomes canonically filed on `main` when the Stage 1 closeout PR (PR #132 — this PR, not the pilot implementation PR #131) merges |
 
 ### Accepted-observation notes
