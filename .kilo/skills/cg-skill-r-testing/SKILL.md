@@ -1,4 +1,4 @@
-﻿---
+---
 name: cg-skill-r-testing
 user-invokable: false
 description: "Best practices for testing R code with testthat 3+. Use when writing, reviewing, debugging, or improving tests in .R or .Rmd files -- including test_that(), describe()/it(), expect_*() calls, test fixtures, mocking, and snapshot tests. Covers test structure, core expectations, design principles, test data construction (data.table for data.table-collapse projects, tibble for tidyverse projects), collapse for statistical assertions in both dialects, fixtures, mocking with local_mocked_bindings(), snapshots, and BDD-style testing. Load alongside cg-skill-r-technical for plumber/httr2 API testing and cg-skill-r-analytical for welfare/survey testing patterns."

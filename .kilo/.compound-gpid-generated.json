@@ -434,7 +434,7 @@
       "path": ".kilo/skills/cg-skill-brain-query/SKILL.md",
       "source": ".github/skills/cg-skill-brain-query/SKILL.md",
       "kind": "skill",
-      "sha256": "283cdb86bc32777788e3e8d1710667a4101f18668adc7ef4f814d5a6f538366f",
+      "sha256": "a4a8c4b407e62523905794f19b193bc77f52ce32cefed0c1df59e5fed0cf0edd",
       "executable": false
     },
     {
@@ -497,7 +497,7 @@
       "path": ".kilo/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "source": ".github/skills/cg-skill-fix-triage-migrate/SKILL.md",
       "kind": "skill",
-      "sha256": "f2f47e6cc5ae29ac769787f660fe04abc5ca902f623e4b597ede35829c479ec2",
+      "sha256": "af540dfc87cb657c540039725d94b91f919b0b8f4c00c849ccf8e3a0d00389c0",
       "executable": false
     },
     {
@@ -539,7 +539,7 @@
       "path": ".kilo/skills/cg-skill-pester-safety/SKILL.md",
       "source": ".github/skills/cg-skill-pester-safety/SKILL.md",
       "kind": "skill",
-      "sha256": "a9320188a1b3e59dc8ab863cf87a090c8cea75458e73cd78053765c1be2a2e7e",
+      "sha256": "c142e92c789932a56e178a51d4cf47180dc6bc28f89016c865cf2294617efa27",
       "executable": false
     },
     {
@@ -553,7 +553,7 @@
       "path": ".kilo/skills/cg-skill-python-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-python-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "d84520e50c70901f6027a79d62496d9e049eb71a790af11283d9b82d24724178",
+      "sha256": "abfe8fc0fefb4274c5843fb6d7393ff4011495b263cc88baf6c30f147510bca3",
       "executable": false
     },
     {
@@ -714,7 +714,7 @@
       "path": ".kilo/skills/cg-skill-r-shared/SKILL.md",
       "source": ".github/skills/cg-skill-r-shared/SKILL.md",
       "kind": "skill",
-      "sha256": "9ca251633b8891324c8ffa55e5cbf73420b9f6c5cef157925544426bd9b48264",
+      "sha256": "d053c19cb411030998ccb76194b37f58cec7fb1bc6b3b925ed67ba9fdb153484",
       "executable": false
     },
     {
@@ -791,7 +791,7 @@
       "path": ".kilo/skills/cg-skill-r-testing/SKILL.md",
       "source": ".github/skills/cg-skill-r-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "93261497eb7b31ea845341919aaf623b9c24da0c3ec5243cde57de947b4f4f82",
+      "sha256": "a043b6d7e88c6a2c24dbd5ad2e07477c4f1dfb7b36e4175d6f677f7f3fdb9eb1",
       "executable": false
     },
     {
@@ -1834,7 +1834,21 @@
       "path": ".kilo/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
-      "sha256": "5d835e1fa7908da7682b479bb68d03e652326954e4846f2952871785c9e9881c",
+      "sha256": "6076ff1fa18a16adbd627d5e0faf4cc8b0e54643de1e01011ef07c5d8d1062f7",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
+      "kind": "skill-resource",
+      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
+      "kind": "skill",
+      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9",
       "executable": false
     }
   ]
