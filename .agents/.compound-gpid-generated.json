@@ -154,7 +154,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "a179f92b7f027cf92333a11cd9e872d4dc8dc4cfd0d329ccb612f6b48f2f8640",
+      "sha256": "8e135de08da5dc965eda6f2f0f00031b06ebf551ce12d1e8124130142f87db59",
       "executable": false
     },
     {

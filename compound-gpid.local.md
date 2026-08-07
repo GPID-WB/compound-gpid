@@ -20,10 +20,10 @@ This file configures Compound GPID for this project. It is version-controlled an
 
 1. **Never run the full test suite as a directory**: `Invoke-Pester tests/` crashes VS Code. Always specify individual files.
 2. **Never pipeline `-PassThru` output through `Select-Object -ExpandProperty TestResult`**: this pattern freezes VS Code reliably.
-3. **Safe pattern** (single file): `Invoke-Pester tests/roadmap.Tests.ps1 -Output Minimal`
+3. **Safe pattern** (single file): `Invoke-Pester tests/roadmap.Tests.ps1 -Quiet`
 4. **Safe pattern** (PassThru if needed): assign first, then inspect — do NOT pipeline directly:
    ```powershell
-   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Output None
+   $r = Invoke-Pester tests/roadmap.Tests.ps1 -PassThru -Quiet
    $r | Select-Object TotalCount, PassedCount, FailedCount
    ```
 

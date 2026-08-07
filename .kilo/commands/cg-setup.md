@@ -14,7 +14,8 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may create `compound-gpid.context.md` in the project root.
 - You may create `roadmap.json` in the project root.
 - You may create new files and directories under `.cg-docs/`.
-- You may append lines to `.gitignore` and `.Rbuildignore`.
+- You may append lines to `.Rbuildignore`.
+- You may remove an uncommented `compound-gpid.local.md` rule from `.gitignore`; no other `.gitignore` change is permitted.
 - You must not modify any other existing file.
 - You must not create files outside the project root or `.cg-docs/`.
 
