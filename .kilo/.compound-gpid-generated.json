@@ -273,7 +273,7 @@
       "path": ".kilo/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "7f0351ca7b25ca26264d68da0cb64434fa48f3b4591e6495087eb0c8a5456e96",
+      "sha256": "e7cd521be443eacb32211a90addd76ea09a390209dca05224f1ade50f60ed02e",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".kilo/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "a6ba92507879a6e764d9db2fec09cbefbee6f6d96e79470a834ef52c46c9d96a",
+      "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
       "executable": false
     },
     {

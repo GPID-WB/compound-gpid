@@ -14,7 +14,8 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may create `compound-gpid.context.md` in the project root.
 - You may create `roadmap.json` in the project root.
 - You may create new files and directories under `.cg-docs/`.
-- You may append lines to `.gitignore` and `.Rbuildignore`.
+- You may append lines to `.Rbuildignore`.
+- You may remove an uncommented `compound-gpid.local.md` rule from `.gitignore`; no other `.gitignore` change is permitted.
 - You must not modify any other existing file.
 - You must not create files outside the project root or `.cg-docs/`.
 
@@ -94,14 +95,12 @@ If `compound-gpid.context.md` does not exist: > "Folder descriptions cannot be s
 
 Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md`, create the listed directories and `.gitkeep` files if they do not already exist.
 
-#### A5.5. Update `.gitignore`
+#### A5.5. Keep `compound-gpid.local.md` version-controlled
 
-Check if `.gitignore` exists (create if not). Append if not already present:
-
-```gitignore
-# Compound GPID local config (user-specific, never commit)
-compound-gpid.local.md
-```
+`compound-gpid.local.md` is team-shared configuration (language, project-type, review-depth, and any
+shared `## Notes` such as safety rules). Check `.gitignore` and remove any uncommented
+`compound-gpid.local.md` rule if present. Do NOT add it to `.gitignore` — commit the file so every
+worktree, clone, and team member receives it without manual copying.
 
 #### A5.6. Update `.Rbuildignore` (R packages only)
 

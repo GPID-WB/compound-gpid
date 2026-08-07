@@ -273,7 +273,7 @@
       "path": ".opencode/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "df0072a7148c31cef591b4701b94df9f7667cd98ef71e218c8be0dc3ad19f495",
+      "sha256": "aca2eaa87ca48f4210cbd6863e44579c93d8bad1423ee04003ca9079891b23ee",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".opencode/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "a6ba92507879a6e764d9db2fec09cbefbee6f6d96e79470a834ef52c46c9d96a",
+      "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
       "executable": false
     },
     {

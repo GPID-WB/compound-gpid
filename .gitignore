@@ -1,6 +1,7 @@
-# Compound GPID local config (user-specific, never committed)
-compound-gpid.local.md
 # NOTE: compound-gpid.context.md is intentionally not listed here — it is shared institutional knowledge and must be committed.
+# NOTE: compound-gpid.local.md is intentionally NOT listed here either — it is team-shared config
+# (language, project-type, review-depth, shared ## Notes safety rules) and must be committed so every
+# worktree, clone, and team member receives it without manual copying. Do NOT re-add it to .gitignore.
 
 # .cg-docs/ and all subdirectories are institutional knowledge — do NOT add to .gitignore
 # (brainstorms, plans, reviews, solutions, competitive-reviews/ — all must be version-controlled)

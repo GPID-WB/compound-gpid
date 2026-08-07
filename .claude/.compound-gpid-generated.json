@@ -273,7 +273,7 @@
       "path": ".claude/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "1c8eb76b277f6297ab147d1aaf14f63ea0d2cb31681b87c7bb7bbb3127d91909",
+      "sha256": "f1b5fbc5712a707bb7940e64432cadac84cbd0b75ea9930466c15d03a698fb2f",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".claude/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "a6ba92507879a6e764d9db2fec09cbefbee6f6d96e79470a834ef52c46c9d96a",
+      "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
       "executable": false
     },
     {

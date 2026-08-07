@@ -7,7 +7,7 @@ targets, and durable workflow artifacts.
 
 | Path | Ownership | Purpose |
 |---|---|---|
-| `compound-gpid.local.md` | User; gitignored | Personal language, dialect, project-type, and review settings |
+| `compound-gpid.local.md` | Team; committed | Shared language, dialect, project-type, and review settings (plus shared `## Notes`); must stay out of `.gitignore`
 | `compound-gpid.md` | Team; committed | Optional short project charter |
 | `compound-gpid.context.md` | Team; committed | Optional tactical project context |
 | `roadmap.json` | Team; committed | Milestones, features, plan links, and optional issue metadata |

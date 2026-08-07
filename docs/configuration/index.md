@@ -6,7 +6,8 @@ can commit only the appropriate information.
 
 ## User configuration
 
-`compound-gpid.local.md` is personal and gitignored. Its YAML frontmatter
+`compound-gpid.local.md` is committed team-shared configuration (keep it out of `.gitignore` so every
+worktree, clone, and team member receives it without manual copying). Its YAML frontmatter
 contains the supported setup fields:
 
 | Field | Values | Purpose |
@@ -43,7 +44,8 @@ content includes data-source caveats, domain vocabulary, workspace structure,
 variable notes, and recurring gotchas. Keep plans, reviews, and solved problems
 in `.cg-docs/` rather than duplicating them here.
 
-Do not commit `compound-gpid.local.md`. Do not place credentials, private data,
+Do keep `compound-gpid.local.md` version-controlled (committed, not in `.gitignore`).
+Do not place credentials, private data,
 or raw secrets in any context file.
 
 ## Platform selection
