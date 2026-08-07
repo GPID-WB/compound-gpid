@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-07T17:08:00Z",
+  "updatedAt": "2026-08-07T19:24:00Z",
   "workflow": "/cg-work",
   "status": "handoff",
   "branch": "issue-implementation-pipeline-from-phase-3",
@@ -25,7 +25,8 @@
     {"id": "E8", "status": "passed", "artifact": "wall-clock assign 12:00:01Z -> PR 12:00:07Z -> merge 13:49:54Z (API)"},
     {"id": "E9", "status": "passed", "artifact": "CC lint title-only failures x3; fixed after human rename (API)"},
     {"id": "E10", "status": "passed", "artifact": "PR #131 NOT a separate Project item (GraphQL)"},
-    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5) - only at whole-plan final"}
+    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5) - only at whole-plan final"},
+    {"id": "V9", "status": "superseded", "artifact": "Stage 0B approval gate (PR #128 merged) and Stage 1 approval gate (PR #131 merged) completed; superseded by Stage 1 closeout"}
   ],
   "unresolvedDecisions": [
     {"id": "D4", "summary": "Human: confirm whether to advance roadmap feature artifact-html-opt-in-default from `planned` (not auto-advanced)", "blocking": false},
@@ -40,5 +41,5 @@
     {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "closed-completed-Done"},
     {"kind": "github-pr", "path": "https://github.com/GPID-WB/compound-gpid/pull/131", "status": "merged"}
   ],
-  "nextCommand": "commit and push the Stage 1 closeout changes, then open the closeout PR; after merge, resume with /cg-work phase4"
+  "nextCommand": "after PR #132 (Stage 1 closeout) is reviewed and merged, run /cg-work phase4"
 }
