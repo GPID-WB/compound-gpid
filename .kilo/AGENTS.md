@@ -9,7 +9,7 @@ It maps Compound GPID `/cg-*` commands to native Kilo paths.
 
 ## Skills
 
-Load skill files from `.kilo/skills/cg-skill-*/SKILL.md`.
+Load skill files from `.kilo/skills/*/SKILL.md`.
 
 ## Agents
 

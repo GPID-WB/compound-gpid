@@ -61,7 +61,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -472,6 +472,53 @@ def _validate_output_namespace(
 # Canonical asset scanning
 # ---------------------------------------------------------------------------
 
+def _load_module_registry(root: Path) -> Optional[dict]:
+    """Return parsed module-registry.json, or None when absent or unreadable."""
+    path = root / ".github/shared/module-registry.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
+    """Return skill directory names owned by a registered module.
+
+    Returns None when the module registry is absent (caller falls back to the
+    legacy ``cg-skill-*`` glob). When the registry is present, every existing
+    skill directory under ``.github/skills/`` is matched against registry
+    ``ownedAssets`` patterns; only directories owned by a declared module are
+    returned.
+    """
+    registry = _load_module_registry(root)
+    if registry is None:
+        return None
+    try:
+        import cg_validate_modules as module_validator
+    except ImportError:
+        return None
+    skills_dir = root / ".github/skills"
+    names: set[str] = set()
+    if not skills_dir.is_dir():
+        return names
+    for entry in sorted(skills_dir.iterdir()):
+        if not entry.is_dir() or entry.is_symlink():
+            continue
+        candidate = f".github/skills/{entry.name}/SKILL.md"
+        if any(
+            isinstance(pattern, str)
+            and module_validator._glob_match(pattern, candidate)
+            for module in registry.get("modules", [])
+            if isinstance(module, dict)
+            for pattern in module.get("ownedAssets", [])
+        ):
+            names.add(entry.name)
+    return names
+
+
 def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
@@ -511,6 +558,12 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 continue
             if category == "shared" and path.name.startswith("."):
                 continue
+            if category == "shared" and path.name == "module-registry.json":
+                # The module registry is canonical-source tooling data whose
+                # body contains glob patterns (e.g. ".github/skills/cg-skill-r-*/")
+                # that the runtime-dependency rewriter would misread. It is not a
+                # per-platform runtime shared asset.
+                continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
@@ -539,7 +592,29 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 "filename": path.name,
             })
 
-    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+    owned_skill_names = _registry_owned_skill_dir_names(root)
+    if owned_skill_names is None:
+        print(
+            "[deprecation] module-registry.json not found; falling back to "
+            "cg-skill-* glob-based skill discovery",
+            file=sys.stderr,
+        )
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name.startswith("cg-skill-")
+        ]
+        canonical_skill_roots = tuple(sorted(
+            (root / ".github/skills").glob("cg-skill-*")
+        ))
+    else:
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name in owned_skill_names
+        ]
+        canonical_skill_roots = tuple(sorted(
+            root / ".github/skills" / name for name in sorted(owned_skill_names)
+        ))
+
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -1374,7 +1449,7 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
 
 
 def _emit_config(target: dict[str, Any]) -> str:

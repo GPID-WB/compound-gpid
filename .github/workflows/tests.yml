@@ -64,7 +64,14 @@ jobs:
           scripts/tests/test_target_documentation.py
           scripts/tests/test_model_advisory.py
           scripts/tests/test_audit_context.py
+          scripts/tests/test_module_registry.py
           -q
+
+      - name: Run module registry and cross-suite gate
+        run: >-
+          python scripts/cg_validate_modules.py --check-dependencies
+          && python scripts/cg_validate_modules.py --check-cross-suite
+          && python scripts/cg_validate_modules.py --check-ownership
 
       - name: Run generic publisher and security Python gate
         run: >-

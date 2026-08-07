@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "description": "Central module registry for Compound GPID — declares every canonical asset's owning module across three layers (kernel, capability packs, suites), plus dependency edges. Schema: a 'module' has id, layer (kernel|capability|suite), displayName, description, dependsOn (module ids in lower layers only), ownedAssets (glob patterns under .github/; trailing '/' means the directory and everything below it), and an optional 'ambiguous' list (each entry {asset, note}) flagging ownership decisions that must be resolved by a maintainer.",
+  "modules": [
+    {
+      "id": "kernel",
+      "layer": "kernel",
+      "displayName": "Kernel",
+      "description": "Lifecycle contracts, context loading, active state, Brain integration, model/review routing, canonical generation, installation, release, and architecture validation.",
+      "dependsOn": [],
+      "ownedAssets": [
+        ".github/shared/*.contract.md",
+        ".github/shared/module-registry.json",
+        ".github/shared/target-mapping.json",
+        ".github/shared/model-advisory-examples.json",
+        ".github/shared/retrieval-backends.json",
+        ".github/shared/snapshot-research-modes.json",
+        ".github/skills/cg-skill-brain-query/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-language-r",
+      "layer": "capability",
+      "displayName": "R language support",
+      "description": "Reusable R implementation knowledge and the R instruction file.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-r-*/",
+        ".github/instructions/r.instructions.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-language-python",
+      "layer": "capability",
+      "displayName": "Python language support",
+      "description": "Reusable Python implementation knowledge and the Python instruction file.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-python-best-practices/",
+        ".github/instructions/python.instructions.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-language-stata",
+      "layer": "capability",
+      "displayName": "Stata language support",
+      "description": "Reusable Stata implementation knowledge and the Stata instruction file.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-stata-*/",
+        ".github/instructions/stata.instructions.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-language-powershell",
+      "layer": "capability",
+      "displayName": "PowerShell language support",
+      "description": "Windows cmd/PowerShell launcher knowledge and the PowerShell instruction file.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-windows-cmd-python-detection/",
+        ".github/instructions/powershell.instructions.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-pester-safety",
+      "layer": "capability",
+      "displayName": "Pester safety",
+      "description": "Pre-flight safety rules for running Pester without crashing VS Code.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-pester-safety/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-git-workflow",
+      "layer": "capability",
+      "displayName": "Git workflow",
+      "description": "Branching strategy, commit messages, PR templates, and .gitignore patterns.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-git-workflow/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-render-doc",
+      "layer": "capability",
+      "displayName": "Document rendering",
+      "description": "Rendering workflow artifacts and Markdown documents to curated HTML.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-render-doc/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-wb-report-writing",
+      "layer": "capability",
+      "displayName": "World Bank report writing",
+      "description": "Institutional report-writing skill. Shared by both the technical and research suites.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-wb-report-writing/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "suite-cg",
+      "layer": "suite",
+      "displayName": "Technical suite",
+      "description": "The /cg-* command orchestration surface: workflow prompts, specialized agents, and workflow-support skills.",
+      "dependsOn": [
+        "kernel",
+        "cap-language-r",
+        "cap-language-python",
+        "cap-language-stata",
+        "cap-language-powershell",
+        "cap-pester-safety",
+        "cap-git-workflow",
+        "cap-render-doc",
+        "cap-wb-report-writing"
+      ],
+      "ownedAssets": [
+        ".github/prompts/cg-*.prompt.md",
+        ".github/prompts/resume-templates.md",
+        ".github/prompts/setup-templates.md",
+        ".github/agents/cg-*.agent.md",
+        ".github/skills/cg-skill-brainstorming/",
+        ".github/skills/cg-skill-compound-docs/",
+        ".github/skills/cg-skill-fix-triage-migrate/",
+        ".github/skills/cg-skill-project-scanner/",
+        ".github/skills/cg-skill-setup/",
+        ".github/skills/cg-skill-wiki/",
+        ".github/skills/cg-skill-yaml-frontmatter-lint/"
+      ],
+      "ambiguous": []
+    }
+  ]
+}

@@ -163,7 +163,7 @@ class TestNoDrift:
         """Every generated skill bundle must have the complete canonical file set."""
         canonical_root = REPO_ROOT / ".github/skills"
         mismatches: list[str] = []
-        for canonical in sorted(canonical_root.glob("cg-skill-*")):
+        for canonical in sorted(canonical_root.glob("*")):
             canonical_files = {
                 path.relative_to(canonical).as_posix()
                 for path in canonical.rglob("*")
