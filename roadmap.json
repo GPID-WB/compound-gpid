@@ -342,6 +342,12 @@
           "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until `external asset provenance and controlled intake` is implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "modular-compound-gpid-architecture-for-technical-and-research-suites",
+          "title": "Modular Compound GPID architecture for technical and research suites",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
