@@ -1,7 +1,8 @@
 # Artifact View Contract
 
 This contract governs versioned Brainstorm and Plan Markdown plus their optional
-self-contained HTML views.
+self-contained HTML views. Automatic HTML publication is opt-in: only
+`artifact-html: true` enables it.
 
 ## Authority
 
@@ -19,8 +20,10 @@ After canonical Markdown is saved and its path is verified:
 - Normal emitter flow runs `cg-render-artifact --automatic <source>`.
 - A one-run `--no-html` flag runs
   `cg-render-artifact --validate-only <source>` instead.
-- `artifact-html: false` suppresses automatic HTML writes only. It never
-  suppresses validation, explicit rendering, validation-only, or stale checks.
+- Missing configuration, a missing `artifact-html` field, `artifact-html: false`,
+  and invalid values suppress automatic HTML writes. Invalid values warn. These
+  cases never suppress validation, explicit rendering, validation-only, or stale
+  checks.
 - Explicit rendering uses `cg-render-artifact <source>`.
 - Freshness uses `cg-render-artifact --check <source>`.
 
