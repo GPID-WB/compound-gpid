@@ -148,8 +148,9 @@ run: 1
     exit 0), and the following fields were present: `schemaVersion`,
     `updatedAt`, `workflow`, `status`, `artifactRefs`, `nextCommand`. This was a
     parse plus required-field presence check; no JSON-schema validator ran.
-- **Live verification performed** (all via authenticated `gh` API / GraphQL on
-  2026-08-07):
+- **Live verification performed** (primary source: authenticated `gh` API /
+  GraphQL on 2026-08-07; the merge-parent structure was additionally verified
+  locally with `git cat-file`):
   - Issue #127 closed `completed` at `2026-08-07T13:49:56Z`; Project Status
     `Done` (option `98236657`); assignees `Copilot`, `randrescastaneda`.
   - PR #131 `MERGED` at `2026-08-07T13:49:54Z` by `randrescastaneda` (API) with
@@ -182,7 +183,7 @@ run: 1
 - **Precision limitations (documented, not exceptions)**:
   - Copilot model config (GPT-5.6 Luna, X-High reasoning): operator-confirmed
     UI setting; no public API surface.
-  - Actions approval evidence: the ~34 minute `created_at`→`run_started_at`
+  - Actions approval evidence: the ~34-minute `created_at`→`run_started_at`
     run delay (12:06–12:40Z) is described as **consistent with** an approval
     wait and used only as a **proxy**; it is not claimed to prove that approval
     caused the delay. `triggering_actor` identifies who **triggered the run

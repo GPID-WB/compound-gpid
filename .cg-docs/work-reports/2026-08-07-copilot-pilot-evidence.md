@@ -162,7 +162,7 @@ assignment.
   approval-event endpoint exists; no value invented.
 - Runs were **created** by `Copilot` (`actor`) between **12:06:17Z–12:09:18Z**
   but **started** only at **12:40:05Z–12:40:06Z** (example run
-  `31176801451`). The ~34 minute `created_at` → `run_started_at` gap is
+  `31176801451`). The ~34-minute `created_at` → `run_started_at` gap is
   **consistent with** an Actions-approval wait and is used **only as a proxy**;
   it is not claimed to prove that approval caused the delay.
 - `triggering_actor: randrescastaneda` identifies who **triggered the run
