@@ -199,15 +199,16 @@ Normal `/cg-brainstorm` and `/cg-plan` saves run
 | Command | Result |
 |---|---|
 | `cg-render-artifact <source>` | Validate and explicitly render, even under project opt-out |
-| `cg-render-artifact --automatic <source>` | Always validate; write HTML when automatic generation is enabled |
+| `cg-render-artifact --automatic <source>` | Always validate; write HTML only when `artifact-html: true` is configured |
 | `cg-render-artifact --validate-only <source>` | Validate without writing HTML |
 | `cg-render-artifact --check <source>` | Report the expected view as `missing`, `stale`, or `current` |
 
-Set `artifact-html: false` in `compound-gpid.local.md` to suppress automatic
-HTML writes for the project. Use `--no-html` on an emitter for a one-run skip.
-These settings never disable validation; explicit render and check modes remain
-available. `/cg-work` validates every versioned Plan before roadmap, report, or
-implementation mutation.
+Set `artifact-html: true` in `compound-gpid.local.md` to enable automatic HTML
+writes for the project. Missing configuration, a missing field, or `false`
+suppresses them; invalid values warn and suppress them as well. Use `--no-html`
+on an emitter for a one-run skip. These settings never disable validation;
+explicit render and check modes remain available. `/cg-work` validates every
+versioned Plan before roadmap, report, or implementation mutation.
 
 Each view visibly and machine-readably embeds its source path, exact pinned-byte
 SHA-256, artifact schema version, renderer version, and UTC generation time.
@@ -264,7 +265,7 @@ are rejected.
 | Command | Result |
 |---|---|
 | `cg-publish-markdown <source>` | Validate and publish with the registered `reference` theme |
-| `cg-publish-markdown --automatic <source>` | Validate; publish only when `artifact-html` is enabled |
+| `cg-publish-markdown --automatic <source>` | Validate; publish only when `artifact-html: true` is configured |
 | `cg-publish-markdown --validate-only <source>` | Validate source, paths, resources, and theme without inspecting output |
 | `cg-publish-markdown --check <source>` | Reproduce exact expected bytes and report `missing`, `stale`, or `current` |
 | `cg-publish-markdown --theme reference <source>` | Select the only registered theme explicitly |

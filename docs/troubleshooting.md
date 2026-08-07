@@ -61,9 +61,10 @@ recovery, run:
 cg-render-artifact .cg-docs/plans/YYYY-MM-DD-example.md
 ```
 
-The explicit command works even when `artifact-html: false`. A validation,
-security, path, or write failure leaves canonical Markdown and any prior valid
-view unchanged and prints the exact expected view path plus the same recovery
+The explicit command works regardless of the automatic HTML setting, including
+when configuration is missing or `artifact-html: false`. A validation, security,
+path, or write failure leaves canonical Markdown and any prior valid view
+unchanged and prints the exact expected view path plus the same recovery
 command. Do not edit the HTML to repair it.
 
 If the command is not found, restart the terminal after installation. If Python

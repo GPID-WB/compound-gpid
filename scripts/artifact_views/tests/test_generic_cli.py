@@ -18,14 +18,26 @@ OUTPUT = Path(".cg-docs/views/documents/docs/guide.html")
 FIXED_TIME = datetime(2026, 8, 3, 12, 0, tzinfo=timezone.utc)
 
 
-def _project(tmp_path: Path, *, automatic: bool = True) -> Path:
+def _project(
+    tmp_path: Path,
+    *,
+    automatic: bool = True,
+    config: str | None = None,
+    include_local_config: bool = True,
+) -> Path:
     root = tmp_path / "repo"
     root.mkdir()
     (root / "compound-gpid.md").write_text("# Project\n", encoding="utf-8")
-    (root / "compound-gpid.local.md").write_text(
-        f"---\nartifact-html: {str(automatic).lower()}\n---\n",
-        encoding="utf-8",
-    )
+    if include_local_config:
+        config_text = (
+            f"artifact-html: {str(automatic).lower()}\n"
+            if config is None
+            else config
+        )
+        (root / "compound-gpid.local.md").write_text(
+            f"---\n{config_text}---\n",
+            encoding="utf-8",
+        )
     source = root / SOURCE
     source.parent.mkdir(parents=True)
     source.write_text("# Guide\n\n## Section\n\nBounded content.\n", encoding="utf-8")
@@ -65,6 +77,46 @@ def test_generic_render_writes_owned_schema_2_view(
     assert provenance["documentType"] == "generic-markdown"
     assert provenance["themeName"] == "reference"
     assert provenance["themeVersion"] == 1
+
+
+def test_generic_automatic_opt_in_publishes(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    root = _project(tmp_path, automatic=True)
+
+    result, stdout, stderr = _run(root, ["--automatic", str(SOURCE)], capsys)
+
+    assert result == 0
+    assert stdout == f"{OUTPUT.as_posix()}\n"
+    assert stderr == ""
+    assert (root / OUTPUT).is_file()
+
+
+@pytest.mark.parametrize(
+    "project_kwargs",
+    (
+        {"include_local_config": False},
+        {"config": "language: python\n"},
+    ),
+    ids=("missing-config", "missing-field"),
+)
+def test_generic_automatic_without_opt_in_validates_and_preserves_output(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture,
+    project_kwargs: dict[str, object],
+) -> None:
+    root = _project(tmp_path, **project_kwargs)
+    output = root / OUTPUT
+    output.parent.mkdir(parents=True)
+    output.write_bytes(b"existing view")
+
+    result, stdout, stderr = _run(root, ["--automatic", str(SOURCE)], capsys)
+
+    assert result == 0
+    assert stdout == f"HTML disabled; validated {SOURCE.as_posix()}\n"
+    assert stderr == ""
+    assert output.read_bytes() == b"existing view"
 
 
 def test_validate_only_and_disabled_automatic_do_not_inspect_or_write_output(

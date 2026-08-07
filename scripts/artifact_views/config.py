@@ -22,8 +22,8 @@ class ArtifactViewConfig:
 def load_artifact_view_config(project_root: Path) -> ArtifactViewConfig:
     """Read ``artifact-html`` from project-local frontmatter.
 
-    Missing configuration enables automatic HTML. Invalid values warn and also
-    default enabled so configuration drift cannot silently disable generation.
+    Automatic HTML is disabled unless ``artifact-html: true`` is explicitly
+    configured. Invalid values warn and default disabled.
 
     Args:
         project_root: Project root containing ``compound-gpid.local.md``.
@@ -43,19 +43,19 @@ def load_artifact_view_config(project_root: Path) -> ArtifactViewConfig:
             max_bytes=_MAX_CONFIG_BYTES,
         ).decode("utf-8", errors="strict")
     except FileNotFoundError:
-        return ArtifactViewConfig(True)
+        return ArtifactViewConfig(False)
     except UnicodeDecodeError as error:
         return ArtifactViewConfig(
-            True,
-            f"Invalid artifact-html configuration; defaulting enabled: {error}",
+            False,
+            f"Invalid artifact-html configuration; defaulting disabled: {error}",
         )
     frontmatter, _ = parse_frontmatter_with_body(content)
-    value = frontmatter.get("artifact-html")
-    if value is None:
-        return ArtifactViewConfig(True)
+    if "artifact-html" not in frontmatter:
+        return ArtifactViewConfig(False)
+    value = frontmatter["artifact-html"]
     if type(value) is bool:
         return ArtifactViewConfig(value)
     return ArtifactViewConfig(
-        True,
-        f"Invalid artifact-html value {value!r}; defaulting enabled.",
+        False,
+        f"Invalid artifact-html value {value!r}; defaulting disabled.",
     )
