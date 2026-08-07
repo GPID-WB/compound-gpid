@@ -1,29 +1,32 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-03T20:05:00Z",
+  "updatedAt": "2026-08-06T18:30:00Z",
   "workflow": "/cg-work",
-  "status": "completed",
-  "branch": "feat/curated-artifact-themes",
-  "plan": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
-  "currentPhase": null,
+  "status": "blocked",
+  "branch": "issues-implementation-pipeline",
+  "plan": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md",
+  "currentPhase": 2,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "145 focused pytest tests"},
-    {"id": "V2", "status": "passed", "artifact": "45 focused pytest tests"},
-    {"id": "V3", "status": "passed", "artifact": "78 focused pytest tests"},
-    {"id": "V4", "status": "passed", "artifact": "138 focused pytest tests"},
-    {"id": "V5", "status": "passed", "artifact": "tests/last-run.json exact filtered install/bash-scripts records"},
-    {"id": "V6", "status": "passed", "artifact": "184 focused pytest tests and docs site check"},
-    {"id": "V7", "status": "passed", "artifact": "1336 pytest tests, 38 skips, and 5 subtests"},
-    {"id": "V8", "status": "passed", "artifact": "tests/last-run.json unfiltered 2343/2343"},
-    {"id": "V9", "status": "passed", "artifact": "workspace diagnostics and current Plan view"}
+    {"id": "V1", "status": "passed", "artifact": "cg-render-artifact --validate-only exit 0 + plan sections"},
+    {"id": "V2", "status": "passed", "artifact": "plan section 1 classification; ruleset/check re-verified via API"},
+    {"id": "V3", "status": "passed", "artifact": "plan section 2 sources of truth"},
+    {"id": "V4", "status": "passed", "artifact": "plan section 4 stages 0A-6 boundaries"},
+    {"id": "V5", "status": "passed", "artifact": "plan section 5 pilot spec"},
+    {"id": "V6", "status": "passed", "artifact": "plan section 6 security matrix; docs token model"},
+    {"id": "V7", "status": "passed", "artifact": "plan section 7 recovery/idempotency"},
+    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5)"},
+    {"id": "V9", "status": "pending", "artifact": "final plan handoff"}
   ],
-  "unresolvedDecisions": [],
+  "unresolvedDecisions": [
+    {"id": "D2", "summary": "Human: commit+push Stage 0B changes, open/merge PR to main, set issue #127 Project Status to Ready, then return for explicit approval before Stage 1 assignment", "blocking": true}
+  ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md", "status": "completed"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-03-generic-markdown-reference-publishing-core-v2.md", "status": "completed"},
-    {"kind": "pester", "path": "tests/last-run.json", "status": "passed-unfiltered"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md", "status": "fixed"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-2-stage-0b"},
+    {"kind": "stage-0a-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0a-verification.md", "status": "completed"},
+    {"kind": "stage-0b-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0b-evidence.md", "status": "completed"},
+    {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "ready-3-of-4"}
   ],
-  "nextCommand": "/cg-review"
+  "nextCommand": null
 }

@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md">
+<meta name="artifact-source-sha256" content="77a70f18bae64d68bf81f6325758b3b0a4200158eb0b046a2b54425d8b82c910">
+<meta name="publication-provenance-schema" content="2">
+<meta name="publication-output" content=".cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline.html">
+<meta name="publication-theme" content="reference">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Controlled GitHub Copilot issue-implementation pipeline · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"documentType":"plan","generatedAt":"2026-08-06T18:40:17Z","outputPath":".cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline.html","provenanceSchemaVersion":2,"rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md","sourceSha256":"77a70f18bae64d68bf81f6325758b3b0a4200158eb0b046a2b54425d8b82c910","themeName":"reference","themeVersion":1}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Controlled GitHub Copilot issue-implementation pipeline</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-08-05-copilot-issue-implementation-pipeline.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#implementation-steps">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Stage 0A — Read-only verification</li><li><strong>Phase 2</strong> · Stage 0B — Optional pre-pilot repairs</li><li><strong>Phase 3</strong> · Stage 1 — Manual pilot (smallest safe)</li><li><strong>Phase 4</strong> · Stage 2 — Readiness contract and validator</li><li><strong>Phase 5</strong> · Stage 3 — Single-issue manual dispatcher</li><li><strong>Phase 6</strong> · Stage 4 — Project synchronization and reconciliation</li><li><strong>Phase 7</strong> · Stage 5 — Review enhancement</li><li><strong>Phase 8</strong> · Stage 6 — Limited batching</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1, 2</li><li><strong>R2</strong> → steps 1</li><li><strong>R3</strong> → steps 1, 2</li><li><strong>R4</strong> → steps 3</li><li><strong>R5</strong> → steps 3</li><li><strong>R6</strong> → steps 3</li><li><strong>R7</strong> → steps 3, 4</li><li><strong>R8</strong> → steps 4</li><li><strong>R9</strong> → steps 4</li><li><strong>R10</strong> → steps 5</li><li><strong>R11</strong> → steps 5</li><li><strong>R12</strong> → steps 5</li><li><strong>R28</strong> → steps 5</li><li><strong>R13</strong> → steps 6</li><li><strong>R14</strong> → steps 1</li><li><strong>R15</strong> → steps 3</li><li><strong>R16</strong> → steps 1, 2, 4</li><li><strong>R17</strong> → steps 5</li><li><strong>R18</strong> → steps 6</li><li><strong>R19</strong> → steps 7</li><li><strong>R20</strong> → steps 8</li><li><strong>R21</strong> → steps 3</li><li><strong>R22</strong> → steps 4, 5</li><li><strong>R23</strong> → steps 1</li><li><strong>R24</strong> → steps 1</li><li><strong>R25</strong> → steps 1</li><li><strong>R26</strong> → steps 1</li><li><strong>R27</strong> → steps 3</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="15-15"><h1 id="plan-controlled-github-copilot-issue-implementation-pipeline">Plan: Controlled GitHub Copilot issue-implementation pipeline</h1></div>
+<div class="source-block" id="render-owner-0004" data-source-block="block-0004" data-source-lines="17-20"><blockquote><p><strong>ARCHIVED — SUPERSEDED BY v2</strong>
+This is the historical v1 plan (2026-08-05). It has been superseded by
+<code>2026-08-05-copilot-issue-implementation-pipeline-v2.md</code> (v2).
+<strong>Do not execute from this plan.</strong> Use v2 for all execution, phase gates, and handoff.</p></blockquote></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="22-22"><p>phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="24-24"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="26-26"><p>Design a staged, human-controlled pipeline that selects only implementation-ready GitHub issues, delegates them one-at-a-time to the GitHub Copilot coding agent, lets Copilot open traceable PRs, relies on existing repository CI as the merge gate, keeps GitHub Project <code>Status</code> synchronized without inventing competing sources of truth, and defers automation until a smallest safe manual pilot produces evidence.</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="28-28"><p>Completing this master plan authorizes <strong>documentation of the architecture and Stage 0A/0B preparation only</strong>. It does <strong>not</strong> authorize implementing Stages 2–6, creating workflows/tokens/apps/labels/templates, or changing GitHub settings.</p></div>
+<div class="source-block source-heading" id="render-owner-0014" data-source-block="block-0014" data-source-lines="30-30"><h2 id="context">Context</h2></div>
+<div class="source-block source-heading" id="render-owner-0016" data-source-block="block-0016" data-source-lines="32-32"><h3 id="charter-alignment">Charter alignment</h3></div>
+<div class="source-block" id="render-owner-0018" data-source-block="block-0018" data-source-lines="34-36"><ul><li><strong>Product</strong>: Compound GPID is an AI-assisted development workflow/plugin (prompts, agents, skills, adapters, scripts, docs) — not a survey-data analytical application.</li><li><strong>Current charter focus</strong> (Token Efficiency Core System) does not block this work, but this plan is <strong>outside</strong> that focus. Treat it as Workflow Maturity / self-hosting operational infrastructure.</li><li><strong>Constraints that bind this design</strong>: never commit secrets; fail loudly; conventional commits + feature branches; P0 security findings block merge; preserve deterministic validation and Pester safety.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0020" data-source-block="block-0020" data-source-lines="38-38"><h3 id="classification-legend-section-1">Classification legend (Section 1)</h3></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="40-45"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Tag</th><th scope="col">Meaning</th></tr></thead><tbody><tr><td><strong>Verified</strong></td><td>Observed in this repository or via authenticated <code>gh</code>/API during planning (2026-08-05)</td></tr><tr><td><strong>User-confirmed</strong></td><td>Stated by the operator for this planning session; not re-derived from API</td></tr><tr><td><strong>Inference</strong></td><td>Reasonable design inference from verified facts; must be re-checked before coding</td></tr><tr><td><strong>Unresolved</strong></td><td>Capability, permission, field ID, or API behavior not verified; Stage 0A must resolve</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0024" data-source-block="block-0024" data-source-lines="47-47"><h3 id="planning-environment-notes">Planning environment notes</h3></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="49-52"><ul><li>Planning branch: <code>issues-implementation-pipeline</code> (worktree).</li><li><code>compound-gpid.local.md</code> was missing in the worktree during planning.</li><li>Local <code>gh</code> token scopes observed: <code>gist</code>, <code>read:org</code>, <code>repo</code>, <code>workflow</code>. <strong>Missing</strong> <code>read:project</code> / <code>project</code> — Project GraphQL/list failed with scope error (<strong>Verified</strong>).</li><li><code>roadmap.json</code> has <strong>no</strong> top-level <code>githubIssues</code> block and <strong>zero</strong> <code>features[].github</code> links in the worktree snapshot, while GitHub has many open <code>cg:roadmap</code> issues with hidden markers (<strong>Verified</strong> drift).</li></ul></div>
+<div class="source-block" id="render-owner-0028" data-source-block="block-0028" data-source-lines="54-54"><hr></div>
+<div class="source-block source-heading" id="render-owner-0030" data-source-block="block-0030" data-source-lines="56-56"><h2 id="section-1-current-state-findings">Section 1 — Current-state findings</h2></div>
+<div class="source-block source-heading" id="render-owner-0032" data-source-block="block-0032" data-source-lines="58-58"><h3 id="1-1-repository-identity-and-role">1.1 Repository identity and role</h3></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="60-64"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Finding</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Public repo <code>GPID-WB/compound-gpid</code>; default branch <code>main</code>; viewer permission ADMIN for planning account</td><td>Verified</td></tr><tr><td>Distributes <code>.github/</code> prompts/agents/skills/instructions, multi-platform adapters (<code>.kilo/</code>, <code>.agents/</code>, <code>.opencode/</code>, <code>.claude/</code>), <code>scripts/</code>, <code>bin/</code>, <code>tests/</code>, <code>.cg-docs/</code></td><td>Verified</td></tr><tr><td>Not a conventional analytical app; validation is plugin/tooling oriented (Pester, Python gates, link/parity/packaging)</td><td>Verified</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0036" data-source-block="block-0036" data-source-lines="66-66"><h3 id="1-2-existing-workflow-mechanisms-to-reuse">1.2 Existing workflow mechanisms to reuse</h3></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="68-81"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Mechanism</th><th scope="col">Path / Surface</th><th scope="col">Role</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Issues manager</td><td><code>.github/prompts/cg-issues.prompt.md</code></td><td>status/backfill/link/adopt/setup; one-way roadmap↔issue linkage; no <code>gh issue close</code></td><td>Verified</td></tr><tr><td>Roadmap writes</td><td><code>@cg-roadmap</code> / <code>.github/agents/cg-roadmap.agent.md</code></td><td>sole schema-aware <code>roadmap.json</code> mutator</td><td>Verified</td></tr><tr><td>Plan → work contract</td><td><code>.github/shared/goal-execution.contract.md</code></td><td>completion contract, verification surface, deviation policy</td><td>Verified</td></tr><tr><td>Active-state pointer</td><td><code>.github/shared/active-state.contract.md</code> → <code>.cg-docs/active-state/current.json</code></td><td>compact restart aid, not transactional execution DB</td><td>Verified</td></tr><tr><td>PR open</td><td><code>/cg-commit-push-pr</code></td><td>push + <code>gh pr create</code>; optional <code>Refs #</code> / <code>Closes #</code></td><td>Verified</td></tr><tr><td>CI fix loop</td><td><code>/cg-verify-pr</code></td><td>read check rollup, classify failures, optional auto-fix</td><td>Verified</td></tr><tr><td>PR template checklist</td><td><code>.github/PULL_REQUEST_TEMPLATE.md</code></td><td>E2E, tests, parity, docs, security checklist</td><td>Verified</td></tr><tr><td>Canonical tests</td><td><code>tests/Run-Tests.ps1</code> → <code>tests/last-run.json</code>; Pester <strong>4.10.1</strong></td><td>only approved full-suite runner</td><td>Verified</td></tr><tr><td>Roadmap schema tests</td><td><code>tests/roadmap.Tests.ps1</code></td><td>validates optional <code>githubIssues</code> + <code>features[].github</code></td><td>Verified</td></tr><tr><td>Prompt structure tests</td><td><code>tests/prompt-tools.Tests.ps1</code></td><td>guards <code>/cg-issues</code> safety patterns</td><td>Verified</td></tr><tr><td>Prior integration plan</td><td><code>.cg-docs/plans/2026-06-11-github-issues-integration.md</code> (completed)</td><td>established one-way linkage, confirmation gates, markers</td><td>Verified</td></tr><tr><td>Security lesson</td><td><code>.cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md</code></td><td>argv-safe <code>gh</code>, realpath plan paths, <code>--body-file</code></td><td>Verified</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="83-83"><h3 id="1-3-ci-and-validation-surfaces">1.3 CI and validation surfaces</h3></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="85-85"><p>Workflow files (<strong>Verified</strong>):</p></div>
+<div class="source-block" id="render-owner-0044" data-source-block="block-0044" data-source-lines="87-92"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Workflow File</th><th scope="col">Name</th><th scope="col">Triggers (Summary)</th><th scope="col">Jobs (Names As Defined)</th></tr></thead><tbody><tr><td><code>.github/workflows/tests.yml</code></td><td>Pester tests</td><td>push <code>main</code>/<code>feat/**</code>/<code>fix/**</code>/<code>chore/**</code>; PR → <code>main</code></td><td><code>Browser evidence manifest tests</code>; <code>Native target Python gate on ${{ matrix.os }}</code> (windows-2022, macos-14); <code>Pester on ${{ matrix.os }}</code> (windows-2022, macos-14); <code>Docs staleness check</code> (PR only, non-blocking warning)</td></tr><tr><td><code>.github/workflows/commit-lint.yml</code></td><td>Conventional commits lint</td><td>PR opened/edited/synchronize/reopened</td><td><code>PR title follows Conventional Commits</code></td></tr><tr><td><code>.github/workflows/link-check.yml</code></td><td>Link Check</td><td>path-filtered push/PR; weekly cron; <code>workflow_dispatch</code></td><td><code>link-check</code></td></tr><tr><td><code>.github/workflows/pages.yml</code></td><td>Deploy documentation site</td><td>docs paths on <code>main</code>; <code>workflow_dispatch</code></td><td><code>deploy</code></td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0046" data-source-block="block-0046" data-source-lines="94-94"><p><strong>Branch ruleset</strong> <code>Protect main</code> (id <code>16657602</code>, enforcement active, target default branch) (<strong>Verified</strong> via API):</p></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="96-103"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Rule</th><th scope="col">Parameters</th></tr></thead><tbody><tr><td>deletion restricted</td><td>yes</td></tr><tr><td>non<em>fast</em>forward (force-push blocked)</td><td>yes</td></tr><tr><td>pull_request required</td><td><code>required_approving_review_count: 0</code>; <code>required_review_thread_resolution: true</code>; merge methods merge+rebase; no code-owner requirement</td></tr><tr><td>required<em>status</em>checks</td><td><code>strict_required_status_checks_policy: true</code> (branch must be up to date)</td></tr><tr><td>Required check contexts</td><td><code>Native target Python gate on macos-14</code>; <code>Native target Python gate on windows-2022</code>; <code>PR title follows Conventional Commits</code>; <code>Pester on macos-14</code>; <code>Pester on windows-2022</code></td></tr><tr><td>Bypass</td><td><code>RepositoryRole</code> actor<em>id `5`, mode `always`; planning user `current</em>user<em>can</em>bypass: always`</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0050" data-source-block="block-0050" data-source-lines="105-105"><p><strong>Not required by ruleset</strong> (still may run): Browser evidence, Docs staleness, Link Check, Pages (<strong>Verified</strong>).</p></div>
+<div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="107-107"><p><strong>Classic branch protection API</strong> returned 404; protection is ruleset-based only (<strong>Verified</strong>).</p></div>
+<div class="source-block" id="render-owner-0054" data-source-block="block-0054" data-source-lines="109-109"><p><strong>Actions repo settings</strong> (partial): Actions enabled; <code>allowed_actions: all</code>; <code>default_workflow_permissions: write</code>; <code>can_approve_pull_request_reviews: true</code> (<strong>Verified</strong>). Fine-grained “approve Copilot-initiated workflow runs” setting was <strong>not</strong> readable via the endpoints used; treat operator statement as <strong>User-confirmed</strong>.</p></div>
+<div class="source-block source-heading" id="render-owner-0056" data-source-block="block-0056" data-source-lines="111-111"><h3 id="1-4-issue-roadmap-linkage">1.4 Issue–roadmap linkage</h3></div>
+<div class="source-block" id="render-owner-0058" data-source-block="block-0058" data-source-lines="113-124"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Finding</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Hidden body marker pattern: <code>&lt;!-- compound-gpid-tracked: &lt;feature-id&gt; --&gt;</code></td><td>Verified (e.g. issue #98, #84)</td></tr><tr><td>Issue body template is roadmap placeholder: milestone, feature ID, status (often <code>idea</code>), short description in fenced <code>text</code> block</td><td>Verified</td></tr><tr><td>Label <code>cg:roadmap</code> exists and is applied to tracked issues</td><td>Verified</td></tr><tr><td>~44 open issues, all observed sample labeled <code>cg:roadmap</code></td><td>Verified</td></tr><tr><td>Worktree <code>roadmap.json</code> lacks <code>githubIssues</code> and all <code>features[].github</code> links → <strong>linkage drift</strong> vs live issues</td><td>Verified</td></tr><tr><td>Roadmap feature <code>github-issues-integration</code> still <code>status: idea</code> while integration plan is <code>completed</code></td><td>Verified drift</td></tr><tr><td>Many open issues are <strong>not implementation-ready</strong> (idea placeholders, no acceptance criteria / path bounds / verification commands)</td><td>Verified</td></tr><tr><td>No <code>.github/ISSUE_TEMPLATE/</code> present</td><td>Verified</td></tr><tr><td><code>/cg-issues</code> never closes issues; closure only via PR keywords</td><td>Verified</td></tr><tr><td>No bidirectional sync of assignees/labels/comments into <code>roadmap.json</code> (intentional v1)</td><td>Verified</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0060" data-source-block="block-0060" data-source-lines="126-126"><h3 id="1-5-github-project-compoundgpid-progress">1.5 GitHub Project (CompoundGPID-progress)</h3></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="128-136"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Finding</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Org project: GPID-WB/Projects/1, name CompoundGPID-progress</td><td>User-confirmed</td></tr><tr><td>Field name exactly <code>Status</code> with options: <code>Backlog</code>, <code>Ready</code>, <code>In progress</code>, <code>In review</code>, <code>Done</code></td><td>User-confirmed</td></tr><tr><td>Other fields: Sub-issues progress, Priority, Size, Estimate, Start date, Target date</td><td>User-confirmed</td></tr><tr><td>Enabled built-in workflows: Auto-add sub-issues; Auto-add to project; Auto-close issue; Item added to project; Item closed; Pull request linked to issue; Pull request merged</td><td>User-confirmed</td></tr><tr><td>Disabled: Auto-archive; Code changes requested; Code review approved; Item reopened</td><td>User-confirmed</td></tr><tr><td>Field option IDs, project node ID, whether PRs become separate project items</td><td><strong>Unresolved</strong> (token missing <code>read:project</code>)</td></tr><tr><td>Issue #98 <code>projectItems: []</code> via issue JSON — may mean not on board <strong>or</strong> insufficient project scope in response</td><td>Unresolved</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0064" data-source-block="block-0064" data-source-lines="138-138"><p><strong>Design preference (Inference, pending Stage 0A):</strong> treat the <strong>issue’s</strong> Project item as the canonical operational record; do not depend on PR project items unless Stage 0A proves PRs are the only reliable item.</p></div>
+<div class="source-block source-heading" id="render-owner-0066" data-source-block="block-0066" data-source-lines="140-140"><h3 id="1-6-copilot-coding-agent">1.6 Copilot coding agent</h3></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="142-148"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Finding</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Copilot cloud agent enabled; appears as issue assignee; Actions approval for Copilot-initiated runs remains enabled</td><td>User-confirmed</td></tr><tr><td>Do not disable Actions approval during pilot</td><td>User-confirmed constraint</td></tr><tr><td><code>mentionableUsers(query:&quot;copilot&quot;)</code> returned empty; assignable users list is humans only</td><td>Verified (API surface incomplete for bots)</td></tr><tr><td>Exact assign API (REST vs GraphQL), bot login, required permissions, session/branch naming</td><td><strong>Unresolved</strong> — Stage 0A must capture from GitHub docs + one manual UI/API trial</td></tr><tr><td>Org installations observed (non-exhaustive): codecov, claude, devin-ai-integration, chatgpt-codex-connector, coderabbitai</td><td>Verified (not proof of Copilot agent install shape)</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0070" data-source-block="block-0070" data-source-lines="150-150"><h3 id="1-7-gaps-current">1.7 Gaps (current)</h3></div>
+<div class="source-block" id="render-owner-0072" data-source-block="block-0072" data-source-lines="152-159"><ol><li>No machine-verifiable <strong>implementation-ready</strong> contract on issues (only roadmap placeholders).</li><li>No dispatcher, concurrency lock, or dry-run assignment path.</li><li>No Project sync beyond built-ins; custom lifecycle gaps unknown until Stage 0A field/workflow inspection with project scope.</li><li><code>roadmap.json</code> ↔ GitHub issue linkage <strong>drift</strong> in this worktree.</li><li>No issue forms/templates for readiness.</li><li>No security-separated automation identity for Project updates. <strong>Correction</strong>: requires two separate credentials (Copilot-assignment + Project-synchronization); no god-token.</li><li>No recovery runbook for abandoned Copilot sessions / stale PRs / status drift.</li><li>Zero-approval main protection is intentional for single maintainer, but <strong>human merge inspection remains mandatory</strong> (User-confirmed + Verified ruleset).</li></ol></div>
+<div class="source-block" id="render-owner-0074" data-source-block="block-0074" data-source-lines="161-161"><hr></div>
+<div class="source-block source-heading" id="render-owner-0076" data-source-block="block-0076" data-source-lines="163-163"><h2 id="section-2-sources-of-truth">Section 2 — Sources of truth</h2></div>
+<div class="source-block" id="render-owner-0078" data-source-block="block-0078" data-source-lines="165-173"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">State Type</th><th scope="col">Canonical Owner</th><th scope="col">Non-Canonical / Derived</th><th scope="col">Drift Prevention</th></tr></thead><tbody><tr><td>Strategic feature identity, grouping, milestone membership, feature status (<code>idea</code>/<code>planned</code>/<code>active</code>/<code>done</code>)</td><td><code>roadmap.json</code> via <code>@cg-roadmap</code></td><td>ROADMAP.md render; issue title/body summary</td><td>One-way links only; no automatic feature-status writes from Project/CI in v1 pipeline</td></tr><tr><td>Stable issue linkage</td><td><code>features[].github</code> in <code>roadmap.json</code> — <strong>canonical persistent linkage</strong> once present</td><td><code>compound-gpid-tracked</code> issue body markers (recovery + duplicate-detection identifiers only); <code>cg:roadmap</code> label</td><td><code>/cg-issues</code> three-tier duplicate checks; marker alone does not constitute linkage; repair via <code>link</code></td></tr><tr><td>Executable implementation contract</td><td><strong>GitHub issue body</strong> (structured readiness block) once Ready</td><td>optional plan path under <code>.cg-docs/plans/</code> referenced by issue</td><td>Validator (Stage 2) is gate before dispatch; plan files remain design docs, not runtime locks</td></tr><tr><td>Operational execution status</td><td>GitHub Project field <strong>`Status`</strong> on the <strong>issue item</strong></td><td>issue labels (avoid duplicating Status); PR “open/draft”</td><td>Prefer built-in Project workflows; reconciliation job only for unambiguous drift (Stage 4)</td></tr><tr><td>Implementation evidence</td><td>PR + required CI check runs + human review notes</td><td>Copilot session UI; local <code>tests/last-run.json</code> on runner</td><td>Ruleset required checks; <code>/cg-verify-pr</code> for diagnosis only</td></tr><tr><td>Batch / milestone progression</td><td><strong>Human decision</strong> (chat + optional roadmap milestone status)</td><td>Project views filtered by milestone/date</td><td><strong>No</strong> automatic milestone advancement; <strong>no</strong> <code>.github/active-milestone</code> file unless Stage 0A proves necessity</td></tr><tr><td>Local agent restart during human <code>/cg-work</code></td><td><code>.cg-docs/active-state/current.json</code></td><td>—</td><td>Out of band for Copilot cloud path; do not overload for cloud dispatch</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0080" data-source-block="block-0080" data-source-lines="175-175"><h3 id="explicit-anti-patterns">Explicit anti-patterns</h3></div>
+<div class="source-block" id="render-owner-0082" data-source-block="block-0082" data-source-lines="177-179"><ul><li>Do <strong>not</strong> make <code>roadmap.json</code> a transactional execution-status database (In progress / In review mirrors).</li><li>Do <strong>not</strong> invent parallel state in labels + Project Status + roadmap feature status for the same fact.</li><li>Do <strong>not</strong> treat PR merge alone as roadmap <code>done</code> without human roadmap update (existing one-way philosophy).</li></ul></div>
+<div class="source-block" id="render-owner-0084" data-source-block="block-0084" data-source-lines="181-181"><hr></div>
+<div class="source-block source-heading" id="render-owner-0086" data-source-block="block-0086" data-source-lines="183-183"><h2 id="section-3-long-term-target-architecture">Section 3 — Long-term target architecture</h2></div>
+<div class="source-block" id="render-owner-0088" data-source-block="block-0088" data-source-lines="185-185"><p>Smallest maintainable end state (architectural, not a build-everything mandate):</p></div>
+<div class="source-block" id="render-owner-0090" data-source-block="block-0090" data-source-lines="187-219"><pre><code class="language-text">[Human marks issue Ready]
+        │
+        ▼
+[Readiness validator]──fail──► report; no assign
+        │ pass
+        ▼
+[Dispatcher: single slot]──dry-run──► report only
+        │ live
+        ▼
+[Assign Copilot via supported API]──fail──► remain Ready + failure comment
+        │ success
+        ▼
+[Project Status → In progress] (after assign success only)
+        │
+        ▼
+[Copilot branch + PR linked to issue]
+        │
+        ▼
+[Required CI on PR] + optional advisory review later
+        │
+        ▼
+[Project Status → In review] (built-in PR-linked workflow and/or thin sync)
+        │
+        ▼
+[Human inspects diff + CI + acceptance] ──reject──► close/abandon runbook
+        │ merge
+        ▼
+[Built-in PR merged / issue closed workflows → Done]
+        │
+        ▼
+[Human updates roadmap feature status when strategically done]</code></pre></div>
+<div class="source-block source-heading" id="render-owner-0092" data-source-block="block-0092" data-source-lines="221-221"><h3 id="components">Components</h3></div>
+<div class="source-block" id="render-owner-0094" data-source-block="block-0094" data-source-lines="223-242"><figure class="raw-source"><figcaption>Raw source · ordered_list · lines 223–242</figcaption><pre><code>1. **Readiness contract** — structured Markdown sections in the issue (or issue form fields mapping to the same schema). Minimum fields:
+   - `feature_id` (matches marker)
+   - `outcome`
+   - `acceptance_criteria` (checklist)
+   - `scope` / `non_goals`
+   - `verification_commands` (must include safe Pester/Python patterns where applicable)
+   - `allowed_paths` / `prohibited_paths`
+   - `dependencies_blockers`
+   - `risk_class` (`low|medium|high`)
+   - `human_review_notes`
+   - `blocked_stop`
+   - `ready_confirmation` (explicit human token / label)
+2. **Readiness gate** — deterministic parser + checks: schema present; feature_id marker consistent; no open implementation PR for same issue; no active Copilot assignee; dependencies open/closed per GitHub native deps if used; prohibited paths non-empty for control-plane safety; dry-run report.
+3. **Dispatcher** — `workflow_dispatch` with `issue_number` + `dry_run`; concurrency group size 1; revalidate immediately before assign; assign Copilot; only then set Status `In progress`; comment audit trail on issue.
+4. **Copilot execution** — unchanged vendor agent; human approves Copilot-triggered Actions during pilot; PR must reference issue.
+5. **CI gate** — existing required checks only; no new merge bot.
+6. **Project sync** — maximize built-ins (item added, PR linked, PR merged, item closed). Add metadata-only Actions **only** for missing transitions (e.g. Ready→In progress after assign if not automatic).
+7. **Reconciliation** — scheduled or manual workflow: read issue+PR+Status; fix only **unambiguous** drift (e.g. merged+closed but Status not Done); comment and skip ambiguous cases.
+8. **Limited batching** — human-selected set ≤ N (start N=1, raise only after evidence); still one assign slot unless pilot proves safe.
+9. **Human milestone control** — batch boundaries and roadmap progression stay manual forever in this architecture.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0096" data-source-block="block-0096" data-source-lines="244-244"><h3 id="status-model-recommendation">Status model recommendation</h3></div>
+<div class="source-block" id="render-owner-0098" data-source-block="block-0098" data-source-lines="246-246"><p><strong>Keep existing Status options.</strong> Mapping:</p></div>
+<div class="source-block" id="render-owner-0100" data-source-block="block-0100" data-source-lines="248-254"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Status</th><th scope="col">Meaning In This Pipeline</th></tr></thead><tbody><tr><td>Backlog</td><td>Not ready; placeholder OK</td></tr><tr><td>Ready</td><td>Human attested implementation-ready; validator green</td></tr><tr><td>In progress</td><td>Successfully assigned to Copilot (or human actively coding)</td></tr><tr><td>In review</td><td>PR open / awaiting human merge decision</td></tr><tr><td>Done</td><td>Issue closed completed (prefer via merge path)</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0102" data-source-block="block-0102" data-source-lines="256-256"><p><strong>Do not add</strong> <code>Dispatching</code> / <code>Blocked</code> / <code>Needs triage</code> unless pilot shows recovery pain that labels + issue comments cannot solve more cheaply (<strong>Inference</strong>). Prefer label <code>cg:dispatch-failed</code> (optional, later) over new Status values.</p></div>
+<div class="source-block" id="render-owner-0104" data-source-block="block-0104" data-source-lines="258-258"><hr></div>
+<div class="source-block source-heading" id="render-owner-0106" data-source-block="block-0106" data-source-lines="260-260"><h2 id="section-4-staged-implementation">Section 4 — Staged implementation</h2></div>
+<div class="source-block source-heading" id="render-owner-0108" data-source-block="block-0108" data-source-lines="262-262"><h2 id="phase-1-stage-0a-read-only-verification">Phase 1: Stage 0A — Read-only verification</h2></div>
+<div class="source-block source-heading" id="render-owner-0110" data-source-block="block-0110" data-source-lines="264-264"><h3 id="1-read-only-verification-of-github-and-repository-state">1. Read-only verification of GitHub and repository state</h3></div>
+<div class="source-block" id="render-owner-0112" data-source-block="block-0112" data-source-lines="266-286"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 266–286</figcaption><pre><code>- **Requirements**: R1, R2, R3, R14, R16, R23, R24, R25, R26
+- **Files**: one evidence report under `.cg-docs/work-reports/YYYY-MM-DD-stage-0a-verification.md`; **no** workflow files, issue edits, roadmap writes, Project field mutations, label changes, settings changes, or workflow modifications in this stage
+- **Details**:
+  1. Refresh `gh auth` with `read:project` (and later `project` only on a dedicated automation identity — not the PR CI token).
+  2. Record Project node ID, Status field ID, option IDs for Backlog/Ready/In progress/In review/Done.
+  3. Inspect each enabled Project workflow&#x27;s exact action (especially **Pull request linked to issue** and **Pull request merged**): does it move issue item Status? Do PRs get separate items?
+  4. Confirm Copilot assignee identity (login/node) via UI + supported API; document assign mutation and required permission.
+  5. Confirm &quot;approve workflows from Copilot&quot; remains enabled; screenshot or settings path in evidence log.
+  6. **Roadmap drift audit**: verify linkage drift against `origin/main`, not only the planning worktree. Run `git fetch origin &amp;&amp; git show origin/main:roadmap.json` and compare against live GitHub issues. Record all discrepancies between `features[].github` links in `origin/main` and issue body markers.
+  7. **GITHUB_TOKEN default permission audit**: read repository Actions settings (`gh api repos/{owner}/{repo}/actions/permissions/workflow`). Record the current `default_workflow_permissions` value. List every workflow file inheriting the default write permission (i.e. workflows that do **not** declare explicit `permissions:` at workflow or job level). Assess whether the default can later be changed to read-only without breaking existing workflows. Record in evidence report.
+  8. Rank at least three potential pilot issues against Section 5 criteria. For each candidate, report:
+     - **Required files**: which files the issue would need Copilot to modify
+     - **Objective verification**: commands that deterministically pass/fail
+     - **Subjective ambiguity**: any acceptance criterion that requires human judgment rather than command output
+     - **Security/control-plane risk**: whether the change touches workflows, secrets, rulesets, or repo settings
+     - **Estimated scope**: small (≤3 files, &lt;100 lines), medium, or large
+     - **Recommendation**: recommended / acceptable / avoid, with rationale
+  9. **Do not** select, modify, or assign any issue yet. Do not run `/cg-issues setup`. Do not repair roadmap linkage. Do not update any feature status.
+- **Test Scenarios**: N/A (read-only)
+- **Tests**: none
+- **Acceptance criteria**: written evidence report answers all Unresolved items in §1.5–1.6 or explicitly defers with owner; pilot candidate ranking has ≥3 entries; GITHUB_TOKEN audit identifies workflows inheriting default write permission; roadmap drift is verified against `origin/main`.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0114" data-source-block="block-0114" data-source-lines="288-288"><h2 id="phase-2-stage-0b-optional-pre-pilot-repairs">Phase 2: Stage 0B — Optional pre-pilot repairs</h2></div>
+<div class="source-block source-heading" id="render-owner-0116" data-source-block="block-0116" data-source-lines="290-290"><h3 id="2-pre-pilot-repairs-requiring-explicit-human-approval">2. Pre-pilot repairs requiring explicit human approval</h3></div>
+<div class="source-block" id="render-owner-0118" data-source-block="block-0118" data-source-lines="292-304"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 292–304</figcaption><pre><code>- **Requirements**: R1, R3, R16
+- **Files**: issue edits (via `gh`), roadmap writes (via `@cg-roadmap`), label changes — all require explicit human approval before execution
+- **Details**:
+  1. Present Stage 0A evidence report and drift findings to the human.
+  2. For each proposed repair, wait for explicit human approval before executing:
+     - **Issue linkage repair**: if Stage 0A found open issues with body markers but no `features[].github` link in `origin/main:roadmap.json`, propose running `/cg-issues setup` + selective `link` to restore canonical linkage. **Ownership clarification**: `features[].github` is the canonical persistent issue linkage once present; `compound-gpid-tracked` body markers are recovery and duplicate-detection identifiers used by `/cg-issues` three-tier duplicate prevention. The marker alone does not constitute linkage.
+     - **Roadmap status repair**: if Stage 0A found features whose plan is `completed` but feature status is still `idea` (e.g. `github-issues-integration`), propose status update via `@cg-roadmap`.
+     - **Pilot issue selection**: after human reviews the ranking from Stage 0A step 8, select one issue for the pilot. Rewrite its body from idea placeholder into full readiness contract per Section 5.4.
+  3. Do **not** auto-execute any repair. Each mutation requires the human to approve individually.
+  4. After repairs, verify the selected pilot issue is on Project CompoundGPID-progress and has Status set to **Ready** (human does this in UI).
+- **Test Scenarios**: N/A (human-gated)
+- **Tests**: none
+- **Acceptance criteria**: all approved repairs executed; pilot issue selected and rewritten; human confirmed readiness; no mutations without explicit approval.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0120" data-source-block="block-0120" data-source-lines="306-306"><h2 id="phase-3-stage-1-manual-pilot-smallest-safe">Phase 3: Stage 1 — Manual pilot (smallest safe)</h2></div>
+<div class="source-block source-heading" id="render-owner-0122" data-source-block="block-0122" data-source-lines="308-308"><h3 id="3-execute-one-manual-end-to-end-pilot">3. Execute one manual end-to-end pilot</h3></div>
+<div class="source-block" id="render-owner-0124" data-source-block="block-0124" data-source-lines="310-315"><ul><li><strong>Requirements</strong>: R4, R5, R6, R7, R15, R21, R27</li><li><strong>Files</strong>: only the chosen pilot issue body + its PR; optional evidence note <code>.cg-docs/work-reports/YYYY-MM-DD-copilot-pilot-evidence.md</code> (when executing, not now)</li><li><strong>Details</strong>: Follow Section 5 exactly. No dispatcher workflow. No new secrets. Keep Actions approval on. Human merges or rejects.</li><li><strong>Test Scenarios</strong>: happy path merge; optional deliberate reject path if safe second trial later</li><li><strong>Tests</strong>: pilot issue&#x27;s verification commands + required CI on PR</li><li><strong>Acceptance criteria</strong>: evidence pack complete (branch name, session, PR URL, check rollup, Status transitions observed, time-to-PR, failures, non-required check failures documented); go/no-go recorded for Stage 2.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0126" data-source-block="block-0126" data-source-lines="317-317"><h2 id="phase-4-stage-2-readiness-contract-and-validator">Phase 4: Stage 2 — Readiness contract and validator</h2></div>
+<div class="source-block source-heading" id="render-owner-0128" data-source-block="block-0128" data-source-lines="319-319"><h3 id="4-formalize-readiness-schema-deterministic-validator">4. Formalize readiness schema + deterministic validator</h3></div>
+<div class="source-block" id="render-owner-0130" data-source-block="block-0130" data-source-lines="321-336"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 321–336</figcaption><pre><code>- **Requirements**: R7, R8, R9, R16, R22
+- **Files** (proposed when implementing):
+  - `.github/ISSUE_TEMPLATE/impl-ready.yml` **or** documented Markdown contract + label `cg:ready` (choose one primary mechanism after pilot — prefer **single** system)
+  - `scripts/issues/readiness.py` (or PowerShell) parser/validator
+  - `scripts/issues/__init__.py` (Python package marker)
+  - `scripts/tests/test_issue_readiness.py` fixtures
+  - docs snippet in `docs/workflow.md` / troubleshooting
+- **Details**:
+  - Parse required sections; validate feature_id ↔ marker; path allow/deny lists; verification commands non-empty; risk_class; blocked_stop.
+  - Checks: no open PR with `Closes #N`/`Fixes #N` already; assignee not already Copilot; optional GitHub issue deps.
+  - CLI: `cg-issue-ready --issue N --dry-run` (name flexible) exits non-zero on fail; prints machine-readable JSON summary.
+  - **No automatic dispatch** in this stage.
+  - Reuse sanitization lessons from `/cg-issues` (untrusted issue body = data).
+- **Test Scenarios**: fixture missing section; path traversal in allowed_paths; duplicate open PR; marker mismatch; happy path
+- **Tests**: pytest fixtures under `scripts/tests/`; **CI registration is explicit** — if Python, add the new test file to the `Native target Python gate` job&#x27;s explicit file list in `.github/workflows/tests.yml` (lines ~50–67); if PowerShell, add the test name to `$testNames` in `tests/Run-Tests.ps1` and add a Pester entry to the `Pester on ${{ matrix.os }}` job in `tests.yml`
+- **Acceptance criteria**: validator green/red deterministic on fixtures; dry-run used on ≥1 real non-production issue or fixture clone; zero dispatch side effects; new test file visible in CI required-check run logs.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0132" data-source-block="block-0132" data-source-lines="338-338"><h2 id="phase-5-stage-3-single-issue-manual-dispatcher">Phase 5: Stage 3 — Single-issue manual dispatcher</h2></div>
+<div class="source-block source-heading" id="render-owner-0134" data-source-block="block-0134" data-source-lines="340-340"><h3 id="5-workflow-dispatch-assigner-with-dry-run-and-one-slot">5. <code>workflow_dispatch</code> assigner with dry-run and one slot</h3></div>
+<div class="source-block" id="render-owner-0136" data-source-block="block-0136" data-source-lines="342-353"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 342–353</figcaption><pre><code>- **Requirements**: R10, R11, R12, R28, R17, R22
+- **Files** (proposed): `.github/workflows/copilot-dispatch.yml`; optional `scripts/issues/dispatch.py`
+- **Details**:
+  - Inputs: `issue_number`, `dry_run` (default true).
+  - Concurrency: `group: copilot-dispatch`, `cancel-in-progress: false`, effective parallelism 1.
+  - Permissions: least privilege for assign API only; **no** `pull-requests: write` on untrusted code paths; **does not checkout PR head**.
+  - Steps: checkout **default branch only** (validator scripts) → run readiness validator → re-check assignee/PR → if dry_run, exit 0 with report → else assign Copilot → on success comment + set Project Status `In progress` (if token allows) → on failure comment and leave Ready.
+  - Secrets: dedicated Copilot-assignment credential **not** available to `pull_request` workflows that execute PR code; separate from Project-synchronization credential.
+  - Idempotency: second dispatch on already-assigned issue is no-op success with explanation.
+- **Test Scenarios**: dry-run; assign API 403; assign OK status update fail; duplicate dispatch
+- **Tests**: unit tests with mocked HTTP; workflow `workflow_dispatch` dry-run on a throwaway issue
+- **Acceptance criteria**: live assign succeeds once under human watch; Status In progress only after assign success; secrets not readable from PR workflows (`github` token permission review checklist signed).</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0138" data-source-block="block-0138" data-source-lines="355-355"><h2 id="phase-6-stage-4-project-synchronization-and-reconciliation">Phase 6: Stage 4 — Project synchronization and reconciliation</h2></div>
+<div class="source-block source-heading" id="render-owner-0140" data-source-block="block-0140" data-source-lines="357-357"><h3 id="6-fill-lifecycle-gaps-without-duplicating-built-ins">6. Fill lifecycle gaps without duplicating built-ins</h3></div>
+<div class="source-block" id="render-owner-0142" data-source-block="block-0142" data-source-lines="359-371"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 359–371</figcaption><pre><code>- **Requirements**: R13, R18
+- **Files** (proposed): `.github/workflows/project-reconcile.yml` (manual + optional low-frequency schedule)
+- **Details**:
+  - Inventory built-in coverage from Stage 0A evidence; implement **only missing** transitions.
+  - Metadata-only: Project GraphQL mutations; never checkout PR code; never run tests from PR.
+  - Reconciliation rules (examples — finalize after Stage 0A):
+    - Issue closed+merged PR, Status ≠ Done → set Done
+    - Status In progress, no assignee, no open PR for &gt;SLA → comment `stale-dispatch` for human (do not auto-Backlog without policy)
+    - Ambiguous (multiple open PRs) → comment only
+  - Prefer issue item; ignore or detach accidental PR items if they confuse rollup (**after evidence**).
+- **Test Scenarios**: fixture graph states; permission denied; partial update
+- **Tests**: mocked GraphQL; no production bulk mutate in CI
+- **Acceptance criteria**: documented transition matrix “built-in vs custom”; reconcile dry-run report; zero secret exposure to PR CI.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0144" data-source-block="block-0144" data-source-lines="373-373"><h2 id="phase-7-stage-5-review-enhancement">Phase 7: Stage 5 — Review enhancement</h2></div>
+<div class="source-block source-heading" id="render-owner-0146" data-source-block="block-0146" data-source-lines="375-375"><h3 id="7-advisory-review-and-acceptance-reporting">7. Advisory review and acceptance reporting</h3></div>
+<div class="source-block" id="render-owner-0148" data-source-block="block-0148" data-source-lines="377-386"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 377–386</figcaption><pre><code>- **Requirements**: R19
+- **Files** (proposed): optional PR workflow `copilot-review-advisory.yml` **or** prompt `/cg-review` checklist extension; issue comment template for acceptance criteria evaluation
+- **Details**:
+  - Advisory only — cannot replace required CI, human merge, or issue acceptance criteria.
+  - Report each acceptance criterion pass/fail/unknown with evidence links.
+  - Metrics log (manual spreadsheet or `.cg-docs/` note): rework rounds, CI fail rate, review minutes, false-ready rate.
+  - Do **not** add survey-data regression fixtures.
+- **Test Scenarios**: criteria checklist renders; unknown criteria flagged
+- **Tests**: snapshot of report formatter if scripted
+- **Acceptance criteria**: one pilot PR uses checklist; metrics template exists; no merge gating on advisory bot.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0150" data-source-block="block-0150" data-source-lines="388-388"><h2 id="phase-8-stage-6-limited-batching">Phase 8: Stage 6 — Limited batching</h2></div>
+<div class="source-block source-heading" id="render-owner-0152" data-source-block="block-0152" data-source-lines="390-390"><h3 id="8-human-selected-batch-with-numeric-cap">8. Human-selected batch with numeric cap</h3></div>
+<div class="source-block" id="render-owner-0154" data-source-block="block-0154" data-source-lines="392-401"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 392–401</figcaption><pre><code>- **Requirements**: R20
+- **Files**: dispatcher input `issue_numbers` (capped) **or** separate batch prompt; docs only until Stage 3 stable
+- **Details**:
+  - Cap N=2 or 3 only after Stage 3–5 evidence; default remains 1.
+  - No cron autonomous dispatch; no predictive file-overlap engine.
+  - Stopping rules: any P0 CI flake storm; &gt;50% pilot fail; secret/permission incident; human overload.
+  - Still no automatic roadmap/milestone advancement.
+- **Test Scenarios**: cap enforcement; partial batch failure isolation
+- **Tests**: unit test on cap parser
+- **Acceptance criteria**: written go/no-go from metrics; if no-go, remain single-issue forever until revisit.</code></pre></figure></div>
+<div class="source-block" id="render-owner-0156" data-source-block="block-0156" data-source-lines="403-403"><hr></div>
+<div class="source-block source-heading" id="render-owner-0158" data-source-block="block-0158" data-source-lines="405-405"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0160" data-source-block="block-0160" data-source-lines="407-436"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Stage 0A is read-only verification; no control-plane implementation</td><td>User objective</td></tr><tr><td>R2</td><td>Unresolved GitHub capabilities marked until verified</td><td>Quality requirements</td></tr><tr><td>R3</td><td>Pilot is single-issue, manual assign, human merge</td><td>User objective</td></tr><tr><td>R4</td><td>Keep Copilot Actions approval enabled during pilot</td><td>User-confirmed</td></tr><tr><td>R5</td><td>Pilot issue must be objectively verifiable and avoid sensitive control-plane paths</td><td>User objective</td></tr><tr><td>R6</td><td>Record evidence and failure modes before further automation</td><td>User objective</td></tr><tr><td>R7</td><td>Dispatchable issues carry machine-verifiable execution contract</td><td>User objective</td></tr><tr><td>R8</td><td>Single readiness mechanism (not overlapping form+labels+deps systems)</td><td>User objective</td></tr><tr><td>R9</td><td>Validator supports dry-run and blocks dispatch on failure</td><td>User objective</td></tr><tr><td>R10</td><td>Dispatcher is workflow_dispatch, issue-number input, dry-run default, concurrency 1</td><td>User objective</td></tr><tr><td>R11</td><td>Status → In progress only after successful Copilot assignment</td><td>User objective</td></tr><tr><td>R12</td><td>Credential separation: assign/Project secrets never on untrusted PR execution workflows</td><td>User objective</td></tr><tr><td>R28</td><td>Separate credentials required: user-authenticated Copilot-assignment credential; GitHub App Project-synchronization credential. One god-token only if separation proven impossible</td><td>User objective</td></tr><tr><td>R13</td><td>Prefer built-in Project workflows; custom sync is metadata-only</td><td>User objective</td></tr><tr><td>R14</td><td>Existing required CI checks remain the merge gate</td><td>Verified ruleset</td></tr><tr><td>R15</td><td>Zero required approvals retained; human still inspects every PR</td><td>User-confirmed + Verified</td></tr><tr><td>R16</td><td>roadmap.json stays strategic; not transactional execution DB</td><td>User constraints + prior plan</td></tr><tr><td>R17</td><td>Idempotent dispatch and explicit failure comments</td><td>User objective</td></tr><tr><td>R18</td><td>Reconciliation handles unambiguous drift only; human for ambiguous</td><td>User objective</td></tr><tr><td>R19</td><td>Advisory review never replaces CI/human/acceptance</td><td>User objective</td></tr><tr><td>R20</td><td>Limited batching only after evidence; no auto milestone progression</td><td>User objective</td></tr><tr><td>R21</td><td>Preserve Pester safety and <code>tests/Run-Tests.ps1</code> as canonical runner</td><td>Verified repo rules</td></tr><tr><td>R22</td><td>Reuse <code>/cg-issues</code> marker and argv-safe gh patterns</td><td>Verified prior work</td></tr><tr><td>R23</td><td>Roadmap drift findings must be verified against <code>origin/main</code>, not only the planning worktree</td><td>User objective</td></tr><tr><td>R24</td><td><code>features[].github</code> is canonical persistent issue linkage; <code>compound-gpid-tracked</code> markers are recovery/duplicate-detection only</td><td>User objective</td></tr><tr><td>R25</td><td>Stage 0A must audit repository-level default <code>GITHUB_TOKEN</code> permissions and identify workflows inheriting default write</td><td>User objective</td></tr><tr><td>R26</td><td>Stage 0A must rank ≥3 pilot candidates (including issue #63 if open) with required files, verification, ambiguity, risk, scope, recommendation</td><td>User objective</td></tr><tr><td>R27</td><td>Pilot success requires all required checks green, non-required failures documented, no admin/ruleset bypass</td><td>User objective</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0162" data-source-block="block-0162" data-source-lines="438-438"><h2 id="implementation-steps">Implementation Steps</h2></div>
+<div class="source-block" id="render-owner-0164" data-source-block="block-0164" data-source-lines="440-440"><p>Implementation steps are the Phase 1–8 stage entries above. Requirement mapping:</p></div>
+<div class="source-block" id="render-owner-0166" data-source-block="block-0166" data-source-lines="442-451"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Step</th><th scope="col">Requirements</th></tr></thead><tbody><tr><td>1 Stage 0A verification</td><td>R1, R2, R3, R14, R16, R23, R24, R25, R26</td></tr><tr><td>2 Stage 0B repairs</td><td>R1, R3, R16, R24</td></tr><tr><td>3 Stage 1 pilot</td><td>R4–R7, R15, R21, R27</td></tr><tr><td>4 Stage 2 readiness</td><td>R8–R10, R16, R22</td></tr><tr><td>5 Stage 3 dispatch</td><td>R11–R12, R28, R17, R22</td></tr><tr><td>6 Stage 4 project sync</td><td>R13, R18</td></tr><tr><td>7 Stage 5 review</td><td>R19</td></tr><tr><td>8 Stage 6 batching</td><td>R20</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0168" data-source-block="block-0168" data-source-lines="453-453"><hr></div>
+<div class="source-block source-heading" id="render-owner-0170" data-source-block="block-0170" data-source-lines="455-455"><h2 id="section-5-smallest-safe-pilot">Section 5 — Smallest safe pilot</h2></div>
+<div class="source-block source-heading" id="render-owner-0172" data-source-block="block-0172" data-source-lines="457-457"><h3 id="5-1-selection-criteria-all-required">5.1 Selection criteria (all required)</h3></div>
+<div class="source-block" id="render-owner-0174" data-source-block="block-0174" data-source-lines="459-468"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">#</th><th scope="col">Criterion</th></tr></thead><tbody><tr><td>1</td><td>Linked (or linkable) to a real <code>feature_id</code> via marker</td></tr><tr><td>2</td><td><strong>Low risk</strong>: touches ≤ few files; no secrets; no auth; no release packaging</td></tr><tr><td>3</td><td><strong>Objectively verifiable</strong> with existing commands (Pester and/or pytest already in CI)</td></tr><tr><td>4</td><td><strong>Prohibited paths</strong> include at least: <code>.github/workflows/**</code>, secrets, <code>roadmap.json</code> schema breaks, <code>tests/Run-Tests.ps1</code> safety model, branch rulesets</td></tr><tr><td>5</td><td>Not already assigned; no open implementation PR</td></tr><tr><td>6</td><td>Description rewritten from idea placeholder into full readiness contract</td></tr><tr><td>7</td><td>Preferred domains: docs typo/clarity in <code>docs/**</code>, pure test assertion fix, isolated script help text — <strong>not</strong> prompt permission model, not Pester runner, not link/unlink junction semantics unless already expert-owned</td></tr><tr><td>8</td><td>Avoid issues whose acceptance requires subjective “feels better” UX only</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0176" data-source-block="block-0176" data-source-lines="470-470"><h3 id="5-2-anti-selection">5.2 Anti-selection</h3></div>
+<div class="source-block" id="render-owner-0178" data-source-block="block-0178" data-source-lines="472-472"><p>Do <strong>not</strong> pilot: anything under <code>.github/workflows/</code>, credential docs with live values, multi-platform generator ownership changes, roadmap schema migrations, large skill rewrites, or issues still <code>Status: idea</code> without rewrite.</p></div>
+<div class="source-block source-heading" id="render-owner-0180" data-source-block="block-0180" data-source-lines="474-474"><h3 id="5-3-recommended-pilot-shape-template-pick-concrete-issue-in-stage-0b">5.3 Recommended pilot shape (template — pick concrete issue in Stage 0B)</h3></div>
+<div class="source-block" id="render-owner-0182" data-source-block="block-0182" data-source-lines="476-476"><p>Because live issues are mostly idea placeholders (<strong>Verified</strong>), the pilot issue should be <strong>rewritten</strong> (or a new narrow issue opened and linked) rather than assigned as-is.</p></div>
+<div class="source-block" id="render-owner-0184" data-source-block="block-0184" data-source-lines="478-478"><p><strong>Example shape</strong> (illustrative, not a selected number):</p></div>
+<div class="source-block" id="render-owner-0186" data-source-block="block-0186" data-source-lines="480-488"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 480–488</figcaption><pre><code>- **Outcome**: Documentation page X states the five required status check names exactly as the ruleset.
+- **Allowed paths**: `docs/**/*.md`, optionally `README.md`
+- **Prohibited paths**: `.github/**`, `scripts/**`, `tests/**`, `roadmap.json`, `bin/**`, adapter trees
+- **Verification**:
+  - `rg &quot;Native target Python gate on windows-2022&quot; docs/`
+  - `rg &quot;PR title follows Conventional Commits&quot; docs/`
+  - Link-check not required for pilot merge if docs-only and ruleset does not require it
+- **Risk**: low
+- **Blocked-stop**: any change outside allowed paths; any workflow edit; failing required checks</code></pre></figure></div>
+<div class="source-block" id="render-owner-0188" data-source-block="block-0188" data-source-lines="490-490"><p>Final issue number is chosen in Stage 0B after scanning open issues for the closest match <strong>or</strong> creating one deliberate pilot issue.</p></div>
+<div class="source-block source-heading" id="render-owner-0190" data-source-block="block-0190" data-source-lines="492-492"><h3 id="5-4-rewrite-checklist-issue-body">5.4 Rewrite checklist (issue body)</h3></div>
+<div class="source-block" id="render-owner-0192" data-source-block="block-0192" data-source-lines="494-540"><pre><code class="language-markdown">&lt;!-- compound-gpid-tracked: &lt;feature-id&gt; --&gt;
+
+## Ready for Copilot
+- [x] Human attests implementation-ready on &lt;date&gt;
+
+## Outcome
+...
+
+## Acceptance criteria
+- [ ] ...
+
+## Scope
+...
+
+## Non-goals
+...
+
+## Verification commands
+```text
+# exact commands
+```
+
+## Allowed paths
+- `docs/foo.md`
+
+## Prohibited paths
+- `.github/workflows/**`
+- `roadmap.json`
+- `tests/Run-Tests.ps1`
+- ...
+
+## Dependencies / blockers
+None
+
+## Risk class
+low
+
+## Human review instructions
+- Confirm diff touches only allowed paths
+- Confirm acceptance criteria
+- Merge manually; do not squash-skip PR title conventions
+
+## Blocked-stop
+- Copilot edits prohibited paths
+- Required CI red after fix attempts exhausted</code></pre></div>
+<div class="source-block source-heading" id="render-owner-0194" data-source-block="block-0194" data-source-lines="542-542"><h3 id="5-5-expected-project-transitions-observe-do-not-force-fit">5.5 Expected Project transitions (observe; do not force-fit)</h3></div>
+<div class="source-block" id="render-owner-0196" data-source-block="block-0196" data-source-lines="544-550"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Moment</th><th scope="col">Expected Status (Hypothesis)</th><th scope="col">Class</th></tr></thead><tbody><tr><td>Before pilot</td><td>Backlog or Ready</td><td>User-confirmed model</td></tr><tr><td>Human finished rewrite + Ready</td><td>Ready</td><td>Human</td></tr><tr><td>After assign Copilot</td><td>In progress</td><td>Hypothesis — verify if manual set needed</td></tr><tr><td>PR opened + linked</td><td>In review (or stays In progress)</td><td><strong>Unresolved</strong> until built-in workflow inspected</td></tr><tr><td>PR merged + issue closed</td><td>Done</td><td>Hypothesis via built-ins</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0198" data-source-block="block-0198" data-source-lines="552-552"><p>Record <strong>actual</strong> transitions in evidence pack even if they differ.</p></div>
+<div class="source-block source-heading" id="render-owner-0200" data-source-block="block-0200" data-source-lines="554-554"><h3 id="5-6-exact-human-actions">5.6 Exact human actions</h3></div>
+<div class="source-block" id="render-owner-0202" data-source-block="block-0202" data-source-lines="556-571"><figure class="raw-source"><figcaption>Raw source · ordered_list · lines 556–571</figcaption><pre><code>1. Select/create issue; rewrite contract; set Project Status **Ready** (UI).
+2. Ensure issue on Project CompoundGPID-progress.
+3. Manually assign **Copilot** coding agent (UI).
+4. When Copilot requests Actions approval → **approve** (do not disable the requirement).
+5. Watch for branch + PR; ensure PR body references `Closes #N` or `Refs #N` per intent.
+   5b. If PR body does **not** contain `Closes #N` or `Refs #N`, edit the PR body to add the appropriate reference before merge. Without it, the built-in &quot;Pull request merged&quot; workflow will not close the issue and Status→Done will not trigger automatically.
+6. Wait for required checks:
+   - Native target Python gate on macos-14
+   - Native target Python gate on windows-2022
+   - PR title follows Conventional Commits
+   - Pester on macos-14
+   - Pester on windows-2022
+7. Human path review + PR template checklist.
+8. Merge manually or close without merge; document why.
+9. Confirm Project Status and issue state; note any drift.
+10. **Do not** auto-advance roadmap milestone; optionally `@cg-roadmap` status update if strategically complete.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0204" data-source-block="block-0204" data-source-lines="573-573"><h3 id="5-7-expected-copilot-actions">5.7 Expected Copilot actions</h3></div>
+<div class="source-block" id="render-owner-0206" data-source-block="block-0206" data-source-lines="575-575"><ul><li>Accept assignment; open working branch; push commits; open PR linked to issue; trigger Actions (subject to approval).</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0208" data-source-block="block-0208" data-source-lines="577-577"><h3 id="5-8-evidence-to-collect">5.8 Evidence to collect</h3></div>
+<div class="source-block" id="render-owner-0210" data-source-block="block-0210" data-source-lines="579-590"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Evidence</th></tr></thead><tbody><tr><td>E1</td><td>Issue URL + final body snapshot</td></tr><tr><td>E2</td><td>Assignee identity string</td></tr><tr><td>E3</td><td>Branch name pattern</td></tr><tr><td>E4</td><td>PR URL + files changed</td></tr><tr><td>E5</td><td>Check rollup JSON (<code>gh pr checks</code> / <code>statusCheckRollup</code>)</td></tr><tr><td>E6</td><td>Actions approval events (timestamps)</td></tr><tr><td>E7</td><td>Project Status timeline (screenshots or API after scope fix)</td></tr><tr><td>E8</td><td>Wall-clock: assign → PR → green CI → merge</td></tr><tr><td>E9</td><td>Failures/retries/human nudges</td></tr><tr><td>E10</td><td>Whether PR and issue are separate Project items</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0212" data-source-block="block-0212" data-source-lines="592-592"><h3 id="5-9-success-criteria">5.9 Success criteria</h3></div>
+<div class="source-block" id="render-owner-0214" data-source-block="block-0214" data-source-lines="594-600"><ul><li>All <strong>required</strong> checks green on the PR before merge.</li><li>Every triggered <strong>non-required</strong> check failure inspected and documented in the evidence pack (failure class, whether transient, whether Copilot-related).</li><li><strong>No</strong> administrator or ruleset bypass used during the pilot — the pilot must succeed (or fail) under the same constraints as any normal contributor.</li><li>No prohibited path modifications.</li><li>Acceptance criteria satisfied.</li><li>Secrets unchanged; approval setting still enabled.</li><li>Evidence pack filed.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0216" data-source-block="block-0216" data-source-lines="602-602"><h3 id="5-10-failure-criteria">5.10 Failure criteria</h3></div>
+<div class="source-block" id="render-owner-0218" data-source-block="block-0218" data-source-lines="604-608"><ul><li>Copilot cannot be assigned via available UI/API.</li><li>PR never appears within agreed wait window (document window in Stage 0A, e.g. 24h).</li><li>Edits outside allowlist.</li><li>CI red for non-transient reasons tied to agent quality.</li><li>Status model unusable without constant manual correction (<strong>triggers Stage 4 design change</strong>, not silent new Status spam).</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0220" data-source-block="block-0220" data-source-lines="610-610"><h3 id="5-11-rollback-cleanup">5.11 Rollback / cleanup</h3></div>
+<div class="source-block" id="render-owner-0222" data-source-block="block-0222" data-source-lines="612-612"><ul><li>Unassign Copilot; close PR without merge; delete branch if safe; set Status back to Ready or Backlog; comment <code>pilot-aborted</code> with reason; leave roadmap feature status unchanged unless issue was disposable.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0224" data-source-block="block-0224" data-source-lines="614-614"><h3 id="5-12-decisions-deferred-until-after-pilot">5.12 Decisions deferred until after pilot</h3></div>
+<div class="source-block" id="render-owner-0226" data-source-block="block-0226" data-source-lines="616-622"><ul><li>Exact assign API and automation identity (separate Copilot-assignment + Project-synchronization credentials).</li><li>Whether Project built-ins already cover In review/Done.</li><li>Whether issue form vs Markdown contract wins.</li><li>Whether any new Status option is justified.</li><li>Concurrency &gt;1.</li><li>Any roadmap writebacks from merge events.</li><li>Advisory Copilot review enablement.</li></ul></div>
+<div class="source-block" id="render-owner-0228" data-source-block="block-0228" data-source-lines="624-624"><hr></div>
+<div class="source-block source-heading" id="render-owner-0230" data-source-block="block-0230" data-source-lines="626-626"><h2 id="section-6-security-and-permissions-matrix">Section 6 — Security and permissions matrix</h2></div>
+<div class="source-block" id="render-owner-0232" data-source-block="block-0232" data-source-lines="628-636"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">IDentity / Workflow</th><th scope="col">Trigger</th><th scope="col">Required Permissions (Target)</th><th scope="col">Credential Type</th><th scope="col">Checkout</th><th scope="col">Execute Untrusted Pr Code</th><th scope="col">Secrets Available</th><th scope="col">Project Access</th><th scope="col">Failure Behavior</th></tr></thead><tbody><tr><td>Human operator</td><td>UI / local <code>gh</code></td><td>repo + project as needed</td><td>User OAuth/PAT</td><td>local</td><td>no</td><td>user env only</td><td>yes</td><td>human fixes</td></tr><tr><td>PR CI <code>tests.yml</code> / <code>commit-lint.yml</code></td><td><code>pull_request</code> / push</td><td><code>contents: read</code> (tests); <code>pull-requests: read</code> (lint)</td><td><code>GITHUB_TOKEN</code></td><td>PR head (yes)</td><td><strong>yes</strong> (tests)</td><td><strong>none</strong> for dispatch/Project</td><td><strong>no</strong></td><td>fail check</td></tr><tr><td>Link-check / pages</td><td>path/schedule</td><td>contents read; pages write on deploy</td><td><code>GITHUB_TOKEN</code></td><td>default/PR</td><td>limited</td><td>none dispatch</td><td>no</td><td>fail/warn</td></tr><tr><td>Stage 3 dispatch</td><td><code>workflow_dispatch</code></td><td>issues: write; contents: read (default branch scripts only)</td><td><strong>Dedicated</strong> Copilot-assignment credential (user-authenticated or narrow GitHub App)</td><td><strong>default branch only</strong></td><td><strong>no</strong></td><td><code>COPILOT_ASSIGN_TOKEN</code> (name TBD); must <strong>not</strong> be available to PR-executing workflows</td><td><strong>no</strong> (separate credential)</td><td>comment + exit non-zero; leave Ready</td></tr><tr><td>Stage 4 reconcile</td><td><code>workflow_dispatch</code> / rare schedule</td><td>project write; issues: read; pull_requests: read</td><td><strong>Dedicated</strong> GitHub App Project-synchronization credential</td><td>none or default branch metadata scripts</td><td><strong>no</strong></td><td><code>PROJECT_SYNC_TOKEN</code> (name TBD); must <strong>not</strong> be available to PR-executing workflows</td><td>yes</td><td>alert comment; no loop storm</td></tr><tr><td>Copilot agent</td><td>issue assign</td><td>vendor-managed</td><td>Copilot cloud identity</td><td>its branch</td><td>its environment</td><td>vendor</td><td>n/a</td><td>human recovery</td></tr><tr><td>Future advisory review</td><td><code>pull_request</code></td><td>contents read, PRs read</td><td><code>GITHUB_TOKEN</code></td><td>PR head</td><td>yes (read)</td><td><strong>no</strong> dispatch secrets</td><td>no</td><td>advisory comment only</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0234" data-source-block="block-0234" data-source-lines="638-638"><h3 id="hard-rules">Hard rules</h3></div>
+<div class="source-block" id="render-owner-0236" data-source-block="block-0236" data-source-lines="640-643"><ol><li><strong>Never</strong> pass dispatch/Project secrets to workflows that check out and execute PR code.</li><li><strong>Never</strong> use a single god-token for CI + dispatch + Project. The plan requires separate credentials: a <strong>user-authenticated Copilot-assignment credential</strong> for Stage 3 dispatch and a <strong>GitHub App Project-synchronization credential</strong> for Stage 4 reconcile. Propose one combined credential only if Stage 0A capability verification proves separation impossible with current GitHub token models.</li><li>Prefer GitHub App installation tokens with narrow permissions over classic PATs when Stage 0A confirms support for Copilot assign + Project mutations (<strong>Unresolved</strong> exact matrix).</li><li>Public repo: assume issue/PR bodies are untrusted input (injection lesson already documented).</li></ol></div>
+<div class="source-block" id="render-owner-0238" data-source-block="block-0238" data-source-lines="645-645"><hr></div>
+<div class="source-block source-heading" id="render-owner-0240" data-source-block="block-0240" data-source-lines="647-647"><h2 id="section-7-recovery-and-idempotency">Section 7 — Recovery and idempotency</h2></div>
+<div class="source-block" id="render-owner-0242" data-source-block="block-0242" data-source-lines="649-663"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Scenario</th><th scope="col">Detection</th><th scope="col">Recovery</th><th scope="col">Auto-Retry?</th></tr></thead><tbody><tr><td>Duplicate dispatch</td><td>assignee already Copilot or open agent PR</td><td>no-op; comment “already dispatched”</td><td>no</td></tr><tr><td>Assign API fails</td><td>non-2xx</td><td>remain Ready; comment error class</td><td>no (human)</td></tr><tr><td>Assign OK, Status update fails</td><td>assign success + Project error</td><td>keep assignee; comment <code>status-drift</code>; reconcile later</td><td>one cautious Status retry optional</td></tr><tr><td>PR never appears</td><td>timer exceeded</td><td>human unassign; Ready; document</td><td>no</td></tr><tr><td>Multiple PRs close same issue</td><td><code>gh pr list --search linked:issue</code></td><td>human choose survivor; close extras</td><td>no</td></tr><tr><td>PR closed without merge</td><td>PR state closed unmerged</td><td>Status → Ready or Backlog per human; unassign</td><td>no</td></tr><tr><td>PR stale after other merge</td><td>conflicts / required checks fail behind main</td><td>human rebase request or close</td><td>no</td></tr><tr><td>Issue closed manually</td><td>issue state</td><td>Status Done via built-in or reconcile; cancel Copilot work</td><td>no</td></tr><tr><td>Project Status drifts</td><td>reconcile report</td><td>unambiguous auto-fix; else comment</td><td>limited</td></tr><tr><td>Reconcile workflow fails</td><td>Actions failure</td><td>alert maintainer; do not cascade</td><td>no</td></tr><tr><td>Credential expired</td><td>401/403</td><td>disable dispatch via environment protection; human rotate</td><td>no</td></tr><tr><td>Copilot edits prohibited paths</td><td>path filter on PR</td><td>request changes / close PR; tighten validator</td><td>no</td></tr><tr><td>Human merges with failing non-required checks</td><td>rollup</td><td>allowed if intentional; note in evidence</td><td>n/a</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0244" data-source-block="block-0244" data-source-lines="665-665"><p>Prefer <strong>observable comments + human action</strong> over hidden retry loops.</p></div>
+<div class="source-block" id="render-owner-0246" data-source-block="block-0246" data-source-lines="667-667"><hr></div>
+<div class="source-block source-heading" id="render-owner-0248" data-source-block="block-0248" data-source-lines="669-669"><h2 id="section-8-tests-and-acceptance-criteria-for-automation">Section 8 — Tests and acceptance criteria for automation</h2></div>
+<div class="source-block" id="render-owner-0250" data-source-block="block-0250" data-source-lines="671-682"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Component</th><th scope="col">Test Approach</th><th scope="col">Acceptance</th></tr></thead><tbody><tr><td>Readiness parser</td><td>Fixture issue bodies (good/bad) in <code>scripts/tests/</code> or <code>tests/</code></td><td>100% fixture pass; no network</td></tr><tr><td>Dry-run dispatch</td><td>Mock assign API; assert zero mutate calls when dry_run</td><td>enforced</td></tr><tr><td>API failure simulation</td><td>403/404/500 mocks</td><td>non-zero exit + comment payload shaped</td></tr><tr><td>Idempotency</td><td>second dispatch fixture</td><td>no double comment spam (or single idempotent comment)</td></tr><tr><td>Permission review</td><td>workflow YAML review test: PR workflows lack dispatch secret env</td><td>static test</td></tr><tr><td>Project field lookup</td><td>unit test with recorded GraphQL fixtures (redact IDs in public if needed)</td><td>stable option name mapping</td></tr><tr><td>Status transition</td><td>table-driven allowed transitions</td><td>reject illegal jumps in helper</td></tr><tr><td>Duplicate PR / deps</td><td>fixtures</td><td>block dispatch</td></tr><tr><td>Secret exposure</td><td><code>rg</code>/actionlint-style check that <code>pull_request</code> jobs do not reference dispatch secrets</td><td>CI gate when workflows exist</td></tr><tr><td>E2E</td><td><strong>one</strong> controlled issue on a fork or dedicated pilot issue; dry-run then live under human watch</td><td>checklist signed</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0252" data-source-block="block-0252" data-source-lines="684-684"><p><strong>Local runner rules</strong>: any new Pester file must be registered in <code>tests/Run-Tests.ps1</code> <code>$testNames</code>; agents must use safe runner patterns (never <code>Invoke-Pester tests/</code>).</p></div>
+<div class="source-block" id="render-owner-0254" data-source-block="block-0254" data-source-lines="686-686"><hr></div>
+<div class="source-block source-heading" id="render-owner-0256" data-source-block="block-0256" data-source-lines="688-688"><h2 id="section-9-decisions-requiring-human-confirmation">Section 9 — Decisions requiring human confirmation</h2></div>
+<div class="source-block" id="render-owner-0258" data-source-block="block-0258" data-source-lines="690-697"><ol><li><strong>Pilot issue identity</strong>: rewrite existing open issue vs open a disposable pilot issue.</li><li><strong>Automation identity</strong>: separate credentials: user-authenticated Copilot-assignment + GitHub App Project-synchronization (after Stage 0A API proof). One god-token only if separation proven impossible.</li><li><strong>Readiness representation</strong>: issue form fields vs structured Markdown + single <code>cg:ready</code> label (pick one primary).</li><li><strong>Whether Project write is required in Stage 3</strong> or human continues to set In progress during early automation.</li><li><strong>SLA for “PR never appears”</strong> (suggested default 24h — confirm).</li><li><strong>Whether merged PR should ever auto-update `roadmap.json` feature status</strong> (default <strong>no</strong>; confirm remains no).</li><li><strong>Org policy</strong>: who may run <code>workflow_dispatch</code> dispatch (maintainer only via environment protection).</li><li><strong>Charter focus tradeoff</strong>: schedule this work vs Token Efficiency priority.</li></ol></div>
+<div class="source-block" id="render-owner-0260" data-source-block="block-0260" data-source-lines="699-699"><p>Ordinary choices already answered by the repo (required check names, Pester runner, one-way issues linkage, zero approvals, no auto milestone) are <strong>not</strong> re-listed.</p></div>
+<div class="source-block" id="render-owner-0262" data-source-block="block-0262" data-source-lines="701-701"><hr></div>
+<div class="source-block source-heading" id="render-owner-0264" data-source-block="block-0264" data-source-lines="703-703"><h2 id="section-10-explicitly-deferred-machinery">Section 10 — Explicitly deferred machinery</h2></div>
+<div class="source-block" id="render-owner-0266" data-source-block="block-0266" data-source-lines="705-705"><p>Do <strong>not</strong> build until evidence justifies:</p></div>
+<div class="source-block" id="render-owner-0268" data-source-block="block-0268" data-source-lines="707-718"><ul><li>Scheduled / cron autonomous dispatch</li><li>Automatic milestone or batch progression</li><li>Unlimited concurrency or predictive file-overlap gates</li><li><code>.github/active-milestone</code> or duplicate active-batch files</li><li>Custom implementer agents replacing Copilot cloud agent</li><li>Disabling Copilot Actions approval</li><li>Automatic <code>roadmap.json</code> status writes from Project/CI</li><li>New Project Status values without observed recovery need</li><li>Bidirectional issue↔roadmap state sync</li><li>Survey-data regression fixtures</li><li>Merge bots / auto-merge</li><li>Multi-issue speculative planning agents</li></ul></div>
+<div class="source-block" id="render-owner-0270" data-source-block="block-0270" data-source-lines="720-720"><hr></div>
+<div class="source-block source-heading" id="render-owner-0272" data-source-block="block-0272" data-source-lines="722-722"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0274" data-source-block="block-0274" data-source-lines="724-729"><ul><li><strong>Now (this plan)</strong>: artifact validation only (<code>cg-render-artifact</code>).</li><li><strong>Stage 0A</strong>: manual evidence; GITHUB_TOKEN audit; roadmap drift verified against <code>origin/main</code>.</li><li><strong>Stage 0B</strong>: human-approved repairs only.</li><li><strong>Stage 1</strong>: required CI on pilot PR; non-required failures documented.</li><li><strong>Stage 2+</strong>: pytest fixtures for readiness/dispatch helpers; Pester prompt/schema tests if prompts change; register new Pester files in <code>Run-Tests.ps1</code>.</li><li><strong>Never</strong>: full-suite <code>Invoke-Pester tests/</code> directory form; never expose dispatch secrets to PR-executing jobs.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0276" data-source-block="block-0276" data-source-lines="731-731"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0278" data-source-block="block-0278" data-source-lines="733-738"><ul><li><input type="checkbox" disabled> Stage 0A evidence report path agreed</li><li><input type="checkbox" disabled> Stage 0B repair approvals documented</li><li><input type="checkbox" disabled> After Stage 2: document readiness contract in <code>docs/workflow.md</code> + troubleshooting</li><li><input type="checkbox" disabled> After Stage 3: document dispatch inputs, dry-run, permissions</li><li><input type="checkbox" disabled> After Stage 4: transition matrix built-in vs custom</li><li><input type="checkbox" disabled> CONTRIBUTING / PR template only if human checklist gains Copilot-specific items</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0280" data-source-block="block-0280" data-source-lines="740-740"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0282" data-source-block="block-0282" data-source-lines="742-752"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Risk</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>Copilot assign API differs from assumptions</td><td>Stage 0A verification + manual pilot before coding dispatcher</td></tr><tr><td>Project built-ins already move Status — custom sync races</td><td>Stage 0A inventory first; implement only gaps</td></tr><tr><td>Roadmap ↔ issue drift confuses feature_id</td><td>Stage 0A drift audit against <code>origin/main</code> + Stage 0B <code>/cg-issues setup</code> + link repair before pilot</td></tr><tr><td>Secret leakage via PR CI</td><td>hard separation matrix; static tests</td></tr><tr><td>Pilot issue too vague → false negative on Copilot quality</td><td>rewrite to full contract; path allowlists</td></tr><tr><td>Zero-approval merges bad PR</td><td>mandatory human path review; keep required CI strict</td></tr><tr><td>Scope creep to full autonomous factory</td><td>Section 10 + deviation-policy <code>ask</code></td></tr><tr><td>Pester misuse in new tests</td><td>cg-skill-pester-safety + Run-Tests registration</td></tr><tr><td>Public issue body injection</td><td>treat as untrusted; argv-safe; fence data</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0284" data-source-block="block-0284" data-source-lines="754-754"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0286" data-source-block="block-0286" data-source-lines="756-761"><ul><li>Implementing Stages 2–6 in this planning session</li><li>Creating workflows, apps, tokens, labels, templates now</li><li>Changing GitHub org/repo settings now</li><li>Mutating <code>roadmap.json</code> as part of saving this plan</li><li>Replacing Copilot with in-house coding agents</li><li>Token-efficiency charter deliverables</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0288" data-source-block="block-0288" data-source-lines="763-763"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0290" data-source-block="block-0290" data-source-lines="765-765"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0292" data-source-block="block-0292" data-source-lines="767-767"><p>A durable master plan documents verified current-state findings, sources of truth, long-term architecture, and staged implementation (0–6) for a controlled Copilot issue-implementation pipeline on <code>GPID-WB/compound-gpid</code>, with Stage 1 (smallest safe manual pilot) as the only authorized next action — no automation implemented by completing this plan alone.</p></div>
+<div class="source-block source-heading" id="render-owner-0294" data-source-block="block-0294" data-source-lines="769-769"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0296" data-source-block="block-0296" data-source-lines="771-781"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Plan file exists under <code>.cg-docs/plans/</code> with required frontmatter and all 10 architecture sections</td><td><code>.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md</code></td><td>yes</td></tr><tr><td>V2</td><td>1</td><td>Section 1 classifies claims as verified / inference / unresolved; cites exact workflow job names and ruleset checks</td><td>Plan §1</td><td>yes</td></tr><tr><td>V3</td><td>1</td><td>Sources-of-truth table assigns one owner per state type; no competing transactional DB on <code>roadmap.json</code> by default</td><td>Plan §2</td><td>yes</td></tr><tr><td>V4</td><td>1</td><td>Stages 0A–6 are independently implementable; Stage 0A is read-only; Stage 0B is human-gated; Stage 1 is manual-only</td><td>Plan §4</td><td>yes</td></tr><tr><td>V5</td><td>1</td><td>Smallest safe pilot specifies selection criteria, allowed/forbidden paths, verification commands, human actions, success/fail/rollback</td><td>Plan §5</td><td>yes</td></tr><tr><td>V6</td><td>1</td><td>Security matrix covers dispatch vs Project update vs PR CI credentials and no secret exposure to untrusted PR code</td><td>Plan §6</td><td>yes</td></tr><tr><td>V7</td><td>1</td><td>Recovery/idempotency covers duplicate dispatch, orphan assignment, missing PR, status drift, credential failure</td><td>Plan §7</td><td>yes</td></tr><tr><td>V8</td><td>final</td><td>Plan passes artifact validation (<code>cg-render-artifact</code>)</td><td>CLI exit 0</td><td>yes</td></tr><tr><td>V9</td><td>final</td><td>Next action is explicitly prepare and run smallest safe manual pilot only</td><td>Plan handoff</td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0298" data-source-block="block-0298" data-source-lines="783-783"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0300" data-source-block="block-0300" data-source-lines="785-792"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>final</td><td>No implementation outside the plan artifact</td><td>Diff only under <code>.cg-docs/plans/</code></td></tr><tr><td>C2</td><td>1</td><td>Do not invent GitHub API/permission/field-ID claims</td><td>Unverified items marked unresolved</td></tr><tr><td>C3</td><td>1</td><td>Preserve Pester runner safety and existing required checks</td><td>Named checks match ruleset</td></tr><tr><td>C4</td><td>1</td><td>Human retains merge and milestone control</td><td>No auto-merge / auto-milestone advancement</td></tr><tr><td>C5</td><td>1</td><td>Existing Project Status options preferred</td><td>§3 recommendation</td></tr><tr><td>C6</td><td>1</td><td>Reuse built-in Project workflows before custom Actions</td><td>§1 + §4 Stage 4</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0302" data-source-block="block-0302" data-source-lines="794-794"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0304" data-source-block="block-0304" data-source-lines="796-797"><ul><li><strong>Allowed</strong>: This plan artifact; later Stage 0A evidence notes when executing; optional roadmap link via <code>@cg-roadmap</code> after user asks.</li><li><strong>Out of scope</strong>: See Out of Scope section; Stages 2–6 implementation; GitHub settings mutation during planning.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0306" data-source-block="block-0306" data-source-lines="799-799"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0308" data-source-block="block-0308" data-source-lines="801-805"><ol><li>Prefer simpler mechanism when governance is equivalent.</li><li>Defer automation until pilot evidence justifies it.</li><li>On deviation (<code>ask</code>): pause for human decision; record impact.</li><li>Unresolved external capabilities stay marked until Stage 0A verifies them.</li><li>Do not treat completion of this master plan as authorization for Stages 2–6.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0310" data-source-block="block-0310" data-source-lines="807-807"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0312" data-source-block="block-0312" data-source-lines="809-813"><ul><li>Cannot write/validate plan artifact under <code>.cg-docs/plans/</code>.</li><li>User rejects contract with no alternative.</li><li>Implementation of automation requested under planning-only authority without a new explicit decision.</li><li>Required verification cannot be run for later stages through safe runners.</li><li>Protected boundary must be crossed (secrets in PR CI, disable approval, auto-merge).</li></ul></div>
+<div class="source-block" id="render-owner-0314" data-source-block="block-0314" data-source-lines="815-815"><hr></div>
+<div class="source-block source-heading" id="render-owner-0316" data-source-block="block-0316" data-source-lines="817-817"><h2 id="next-action-only">Next action (only)</h2></div>
+<div class="source-block" id="render-owner-0318" data-source-block="block-0318" data-source-lines="819-821"><p><strong>Superseded — see v2.</strong> This v1 plan is historical and archived. Use <code>2026-08-05-copilot-issue-implementation-pipeline-v2.md</code> (v2) for all execution, phase gates, and handoff.</p></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md</dd>
+      <dt>Source SHA-256</dt><dd><code>77a70f18bae64d68bf81f6325758b3b0a4200158eb0b046a2b54425d8b82c910</code></dd>
+      <dt>Output</dt><dd>.cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline.html</dd>
+      <dt>Document type</dt><dd>plan</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Theme</dt><dd>reference v1</dd>
+      <dt>Generated UTC</dt><dd>2026-08-06T18:40:17Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>
