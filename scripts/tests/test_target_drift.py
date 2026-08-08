@@ -328,20 +328,28 @@ class TestCrCgParity:
         # Register CR assets in the module registry so discovery includes them.
         registry_path = fixture / ".github/shared/module-registry.json"
         registry = json.loads(registry_path.read_text(encoding="utf-8"))
-        registry["modules"].append({
-            "id": "suite-cr",
-            "layer": "suite",
-            "displayName": "Research suite",
-            "description": "cr-* orchestration",
-            "dependsOn": ["kernel", "cap-language-r"],
-            "ownedAssets": [
-                ".github/prompts/cr-*.prompt.md",
-                ".github/agents/cr-*.agent.md",
-                ".github/skills/cr-skill-identification/",
-                ".github/instructions/latex.instructions.md",
-            ],
-            "ambiguous": [],
-        })
+        existing = {m.get("id") for m in registry["modules"]}
+        if "suite-cr" not in existing:
+            registry["modules"].append({
+                "id": "suite-cr",
+                "layer": "suite",
+                "displayName": "Research suite",
+                "description": "cr-* orchestration",
+                "dependsOn": ["kernel", "cap-language-r"],
+                "ownedAssets": [
+                    ".github/prompts/cr-*.prompt.md",
+                    ".github/agents/cr-*.agent.md",
+                    ".github/skills/cr-skill-identification/",
+                    ".github/instructions/latex.instructions.md",
+                ],
+                "ambiguous": [],
+            })
+        else:
+            # Real registry already owns suite-cr; ensure the synthetic skill is
+            # discoverable for the isolated parity proof.
+            suite_cr = next(m for m in registry["modules"] if m.get("id") == "suite-cr")
+            if ".github/skills/cr-skill-identification/" not in suite_cr.get("ownedAssets", []):
+                suite_cr["ownedAssets"].append(".github/skills/cr-skill-identification/")
         registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
         assets = gen.scan_canonical_assets(fixture)
         mapping = gen.load_target_mapping(fixture)
