@@ -31,6 +31,12 @@ status: active
 - 2026-08-07: Step 13, task-oriented modular guide published + cross-linked (V14).
 - 2026-08-07: Step 14, charter updated after Phases 1-4 verified (approved).
 - 2026-08-07: Phase 3, Phase 4, Phase 5 complete.
+- 2026-08-07: review:auto architecture route dispatched (8 agents). Findings
+  addressed: P1 cross-suite name-form coupling (review agents/roadmap/compound-docs
+  moved to capability/kernel), capability-id suffix race, YAML comment handling,
+  validator perf (cross-suite ~4.9s -> ~0.36s), schema missing-field checks,
+  docs/config-table parity. Final gates: 551 Python tests passed; 2488 Pester
+  tests passed (full run).
 
 ## Deviations
 
