@@ -153,7 +153,8 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
         raw = handle.read()
 
     # Rule 3: no BOM
-    if len(raw) >= 3 and raw[0] == 0xEF and raw[1] == 0xBB and raw[2] == 0xBF:
+    had_bom = len(raw) >= 3 and raw[0] == 0xEF and raw[1] == 0xBB and raw[2] == 0xBF
+    if had_bom:
         violations.append(Violation(rel, 1, "R3-no-bom",
                                    "File starts with UTF-8 BOM (EF BB BF). Remove the BOM."))
 
@@ -230,7 +231,7 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
                                             "Mojibake detected (UTF-8/Windows-1252 round-trip artifact)."))
 
     new_text = None
-    if fix and was_fixed:
+    if fix and (was_fixed or had_bom):
         new_frontmatter = "\n".join(fixed_lines)
         body_text = text[fm_match.end():]
         eol = _detect_line_ending(raw)
@@ -238,7 +239,9 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
         rebuilt = f"---{eol}{new_frontmatter.replace(chr(13), '')}{eol}---{body_text}"
         if eol == "\r\n":
             rebuilt = rebuilt.replace("\r\n", "\n").replace("\n", "\r\n")
-        if rebuilt != text:
+        # 'rebuilt' is built from the BOM-stripped 'text', so writing it also
+        # removes a BOM even when no other fix applied (BOM-only violation).
+        if rebuilt != text or had_bom:
             new_text = rebuilt
 
     return violations, new_text

@@ -1862,7 +1862,7 @@
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
-      "sha256": "d6058ed46c79beb71b1ef5d601be4455555c0bffb483d82a3669b2861a90980e",
+      "sha256": "db5ea893b840ff9eb23bb66879635acbfad81f9098956a035f639fab88183d7c",
       "executable": false
     }
   ]
