@@ -5,21 +5,21 @@
         "File Permissions",
         "Process"
       ],
-      "module": "research"
+      "module": null
     },
     "cr-compound": {
       "headings": [
         "File Permissions",
         "Process"
       ],
-      "module": "research"
+      "module": null
     },
     "cr-plan": {
       "headings": [
         "File Permissions",
         "Process"
       ],
-      "module": "research"
+      "module": null
     },
     "cr-review": {
       "headings": [
@@ -27,41 +27,37 @@
         "Process",
         "Review Findings"
       ],
-      "module": "research"
+      "module": null
     },
     "cr-work": {
       "headings": [
         "File Permissions",
         "Process"
       ],
-      "module": "research"
+      "module": null
     }
   },
   "agents": {
     "cr-academic-writing": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-econometric-reasoning": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-identification-audit": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-mathematical-verification": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
@@ -69,49 +65,42 @@
     "cr-measurement-integrity": [
       "date",
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-ml-methodology": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-provenance-audit": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-publication-output": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-replication-package": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-research-integrity": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
     ],
     "cr-specification-analysis": [
       "description",
-      "model",
       "module",
       "tools",
       "user-invocable"
@@ -149,7 +138,12 @@
       "module",
       "name"
     ],
-    "cr-skill-publication-output": [],
+    "cr-skill-publication-output": [
+      "description",
+      "modelsummary/fixest",
+      "module",
+      "name"
+    ],
     "cr-skill-replication-standards": [
       "description",
       "module",
@@ -180,7 +174,11 @@
       "module",
       "name"
     ],
-    "cr-skill-symbolic-verification": [],
+    "cr-skill-symbolic-verification": [
+      "description",
+      "module",
+      "name"
+    ],
     "cr-skill-theory-data-dialogue": [
       "description",
       "module",
@@ -235,28 +233,13 @@
     ]
   },
   "instructions": {
-    "latex": [
-      "Anti-Patterns",
-      "BibTeX / BibLaTeX",
-      "Cross-Reference Conventions",
-      "Equation Environments",
-      "Notation Conventions",
-      "Required Packages",
-      "Variable Mapping Table"
-    ],
-    "math": [
-      "Equation Numbering",
-      "Required File Structure",
-      "Required Frontmatter",
-      "Sign and Reparametrization Conventions",
-      "Variable Mapping Table (mandatory)",
-      "Verification Checklist"
-    ]
+    "latex": [],
+    "math": []
   },
   "counts": {
     "prompts": 5,
     "agents": 11,
     "skills": 15,
-    "instructions": 2
+    "instructions": 0
   }
 }

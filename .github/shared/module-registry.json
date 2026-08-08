@@ -141,6 +141,63 @@
         ".github/skills/cg-skill-yaml-frontmatter-lint/"
       ],
       "ambiguous": []
+    },
+    {
+      "id": "cap-research-output",
+      "layer": "capability",
+      "displayName": "Research output and replication",
+      "description": "Publication-quality output, replication package, and research EDA implementation knowledge shared across suites.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cr-skill-publication-output/",
+        ".github/skills/cr-skill-replication-standards/",
+        ".github/skills/cr-skill-research-eda/"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-language-research",
+      "layer": "capability",
+      "displayName": "Research language support",
+      "description": "LaTeX and math instruction files for research-domain writing.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/instructions/latex.instructions.md",
+        ".github/instructions/math.instructions.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "suite-cr",
+      "layer": "suite",
+      "displayName": "Research suite",
+      "description": "The /cr-* command orchestration surface: research prompts, domain-specific research agents, and domain research skills.",
+      "dependsOn": [
+        "kernel",
+        "cap-language-r",
+        "cap-language-python",
+        "cap-language-stata",
+        "cap-language-powershell",
+        "cap-research-output",
+        "cap-language-research"
+      ],
+      "ownedAssets": [
+        ".github/prompts/cr-*.prompt.md",
+        ".github/agents/cr-*.agent.md",
+        ".github/skills/cr-skill-academic-writing/",
+        ".github/skills/cr-skill-evidence-provenance/",
+        ".github/skills/cr-skill-identification-strategies/",
+        ".github/skills/cr-skill-mathematical-derivation/",
+        ".github/skills/cr-skill-measurement/",
+        ".github/skills/cr-skill-ml-economics/",
+        ".github/skills/cr-skill-research-integrity/",
+        ".github/skills/cr-skill-research-scoping/",
+        ".github/skills/cr-skill-research-workflow/",
+        ".github/skills/cr-skill-structural-econometrics/",
+        ".github/skills/cr-skill-symbolic-verification/",
+        ".github/skills/cr-skill-theory-data-dialogue/"
+      ],
+      "ambiguous": []
     }
   ]
 }

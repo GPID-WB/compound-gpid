@@ -25,6 +25,21 @@ Use the narrowest artifact, section, snippet, or structured field that can answe
 | 3 | Targeted tactical context | Relevant headings/snippets from `compound-gpid.context.md`; roadmap feature/milestone records relevant to the current plan, feature, or status update | State why the specific section or record is needed. Prefer heading search or structured JSON parsing. |
 | 4 | Justified full expansion | Full `compound-gpid.context.md`, full `roadmap.json`, full `.cg-docs/BRAIN-log.md`, full `BRAIN-NN.md`, or full `brain-index.json` | Only when the workflow explicitly requires whole-file semantics. State the reason and the expected decision the full read supports. |
 
+## Module-Suite Context Budget (AI-agent compliance)
+
+Before loading a skill or instruction file, check whether its owning module's suite
+is declared active in `compound-gpid.local.md`'s `suites:` field. If not active,
+skip it. For example, with `suites: [cg]` only, files owned by the research suite
+(`cr-*` prompts, agents, skills, and the research instruction files) are not loaded
+into routine sessions; the same applies to the technical suite when it is inactive.
+
+- Active suites plus their transitive dependencies plus kernel form the loadable set.
+- Generator-level filtering (a code-enforced, testable mechanism) is the enforceable
+  layer; this instruction-level rule is a compliance guideline for AI agents and is
+  NOT programmatically verifiable by automated tests. Do not claim automated
+  verification of this instruction.
+- When `suites:` is absent, the default is `[cg]` (backward compatible).
+
 ## Artifact Rules
 
 - `.cg-docs/BRAIN.md` is the small agent-facing meta-index and may be read by Brain query flows.

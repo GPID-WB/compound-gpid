@@ -519,11 +519,40 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     return names
 
 
-def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
+def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str]]) -> Optional[set[str]]:
+    """Return owned-asset glob patterns loadable under the active suites.
+
+    When ``active_suites`` is None (no context-budget filtering requested),
+    returns None so the generator scans all registry-owned assets. Otherwise
+    derives the loadable module set via cg_context_budget and returns the
+    union of their owned-asset globs.
+    """
+    if active_suites is None:
+        return None
+    try:
+        import cg_context_budget as context
+    except ImportError:
+        return None
+    registry = _load_module_registry(root)
+    if registry is None:
+        return None
+    loadable = context.loadable_modules(registry, list(active_suites))
+    ids = {module["id"] for module in loadable}
+    return set(context.loadable_asset_globs(registry, ids))
+
+
+def scan_canonical_assets(
+    root: Path,
+    active_suites: Optional[Sequence[str]] = None,
+) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
     Returns dict with keys: prompts, agents, skills, instructions.
     Each value is a list of dicts with: path, relative_path, frontmatter, body.
+
+    When ``active_suites`` is provided, only assets owned by loadable modules
+    (active suites + their transitive dependencies + kernel) are returned; all
+    other assets are excluded from the scan (context-budget enforcement).
     """
     assets: dict[str, list[dict[str, Any]]] = {
         "prompts": [],
@@ -533,6 +562,20 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         "prompt_support": [],
         "shared": [],
     }
+
+    loadable_globs = _loadable_owned_asset_globs(root, active_suites)
+
+    def _is_loadable(rel_path: str) -> bool:
+        if loadable_globs is None:
+            return True
+        try:
+            import cg_validate_modules as module_validator
+        except ImportError:
+            return True
+        return any(
+            module_validator._glob_match(pattern, rel_path)  # pylint: disable=protected-access
+            for pattern in loadable_globs
+        )
 
     required_roots = {
         "prompts": root / ".github/prompts",
@@ -584,6 +627,8 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                             fm["description"] = raw_description[1:-1].replace("''", "'")
                         break
             rel = str(path.relative_to(root)).replace("\\", "/")
+            if not _is_loadable(rel):
+                continue
             assets[category].append({
                 "path": str(path),
                 "relative_path": rel,
@@ -612,7 +657,9 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
             if Path(skill["path"]).parent.name in owned_skill_names
         ]
         canonical_skill_roots = tuple(sorted(
-            root / ".github/skills" / name for name in sorted(owned_skill_names)
+            root / ".github/skills" / name
+            for name in sorted(owned_skill_names)
+            if _is_loadable(f".github/skills/{name}/SKILL.md")
         ))
 
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
@@ -635,7 +682,7 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         _validate_bundle_markdown_references(skill["bundle_files"])
 
     for category in required_roots:
-        if not assets[category]:
+        if not assets[category] and active_suites is None:
             raise ValueError(f"Required canonical {category} inventory is empty")
 
     return assets
@@ -1497,6 +1544,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode, kilo)")
     parser.add_argument("--all", action="store_true", help="Generate all non-copilot targets")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be written without writing")
+    parser.add_argument("--active-suites", default=None, metavar="SUITES",
+                        help="Comma-separated active suite names (e.g. 'cg' or 'cg,cr') to enforce the context budget; "
+                             "omitted means no context-budget filtering")
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
@@ -1524,8 +1574,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("Error: must specify --target <platform> or --all", file=sys.stderr)
         return 1
 
+    active_suites: Optional[list[str]] = None
+    if args.active_suites:
+        active_suites = [item.strip() for item in args.active_suites.split(",") if item.strip()]
+
     try:
-        assets = scan_canonical_assets(root)
+        assets = scan_canonical_assets(root, active_suites=active_suites)
         generation_plan = build_generation_plan(root, target_mapping, assets)
     except (ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
