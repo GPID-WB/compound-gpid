@@ -77,14 +77,14 @@
       "path": ".opencode/agents/cg-project-scanner.md",
       "source": ".github/agents/cg-project-scanner.agent.md",
       "kind": "agent",
-      "sha256": "a4db2d2dfafdc37fc59bff21ea272fd8539ae3f746caab3b42950ffd71804338",
+      "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6",
       "executable": false
     },
     {
       "path": ".opencode/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "7ed8463290e76982775e50c939c73ba443172d934df067f54ca60826175e1522",
+      "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1",
       "executable": false
     },
     {
@@ -98,7 +98,7 @@
       "path": ".opencode/agents/cg-roadmap-view.md",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "agent",
-      "sha256": "dd68884f509cf56f7c6ea5ed12337b6c13e3dc938773869a3a869155ae11d24a",
+      "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e",
       "executable": false
     },
     {
@@ -1841,14 +1841,28 @@
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed",
+      "sha256": "4ce65d6fa6e23f1f187944f34b26cb4c385b9cac357a69226b2742704189245b",
       "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "kind": "skill-resource",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081",
+      "executable": true
     },
     {
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9",
+      "sha256": "2162f93c5bd3e814f15b2e73a50386eb35e2301993e3515908e6b5b8eb36850f",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "kind": "skill-resource",
+      "sha256": "9ab7f17f6ca035d0bec22cf4f04a27dba23fc90dab13f1980db88274b910460b",
       "executable": false
     }
   ]

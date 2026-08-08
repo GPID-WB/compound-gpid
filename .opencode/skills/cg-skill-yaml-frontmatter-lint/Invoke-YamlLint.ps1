@@ -3,8 +3,8 @@
     Validates YAML frontmatter in .kilo/agents/*.md and .kilo/skills/*/SKILL.md files.
 .DESCRIPTION
     Checks agent and skill markdown files for YAML frontmatter conformance:
-    - Rule 1: description values must be double-quoted
-    - Rule 2: frontmatter must be ASCII-only (U+0000–U+007F)
+    - Rule 1: description must be quoted or a parse-safe scalar
+    - Rule 2: frontmatter must be ASCII-only (U+0000-U+007F)
     - Rule 3: no UTF-8 BOM
     - Rule 4: required fields present (description, mode for agents; name, description for skills)
     - Rule 5: body content has no mojibake patterns
@@ -26,6 +26,19 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# This is the Windows (PowerShell) entry point. On macOS/Linux the bash
+# companion Invoke-YamlLint.sh runs the same rules without requiring pwsh.
+$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
+if (-not $onWindows) {
+    Write-Error @"
+Invoke-YamlLint.ps1 is the Windows entry point for the YAML frontmatter validator.
+On macOS/Linux, use the bash companion instead:
+  ./Invoke-YamlLint.sh
+Both entries run the same five rules and report identical results.
+"@
+    exit 1
+}
+
 $script:violations = @()
 
 function Add-Violation {
@@ -36,6 +49,19 @@ function Add-Violation {
         Rule    = $Rule
         Message = $Message
     }
+}
+
+function Test-DescriptionValid {
+    # Rule 1: accept any description form that is valid, parse-safe YAML.
+    # Mirrors cg_generate_targets._yaml_scalar's unquoted-emit policy so the
+    # linter accepts the valid YAML the generator emits and only flags values
+    # that actually break parsing (colon-space, leading indicators, reserved).
+    param([string]$Value)
+    if ([string]::IsNullOrEmpty($Value)) { return $false }
+    if ($Value -match '^".*"$' -or $Value -match "^'.*'$") { return $true }
+    if ($Value -match '^[>|]') { return $true }
+    if ($Value -match '^[A-Za-z0-9][A-Za-z0-9._ /-]*$' -and $Value.ToLower() -notin @('null','true','false','yes','no','on','off')) { return $true }
+    return $false
 }
 
 function Test-AgentFile {
@@ -70,11 +96,11 @@ function Test-AgentFile {
         }
     }
 
-    # Rule 1: description must be quoted
+    # Rule 1: description must be quoted or a parse-safe scalar
     $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
     if ($descMatch.Success) {
         $descValue = $descMatch.Groups[1].Value.Trim()
-        if (-not ($descValue -match '^".*"$')) {
+        if (-not (Test-DescriptionValid $descValue)) {
             $lineNum = ($frontmatter.Substring(0, $descMatch.Groups[1].Index) -split '\r?\n').Count
             Add-Violation $relativePath ($fmStart + $lineNum - 1) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
         }
@@ -133,11 +159,11 @@ function Test-SkillFile {
         }
     }
 
-    # Rule 1: description must be quoted
+    # Rule 1: description must be quoted or a parse-safe scalar
     $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
     if ($descMatch.Success) {
         $descValue = $descMatch.Groups[1].Value.Trim()
-        if (-not ($descValue -match '^".*"$')) {
+        if (-not (Test-DescriptionValid $descValue)) {
             $lineNum = ($frontmatter.Substring(0, $descMatch.Groups[1].Index) -split '\r?\n').Count
             Add-Violation $relativePath ($fmStart + $lineNum - 1) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
         }
