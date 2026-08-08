@@ -112,3 +112,127 @@ run: 1
   Human must commit/push, merge the Stage 0B PR, and set issue #127 Project
   Status to `Ready` before Phase 3 (Stage 1).
 - `completed-phases` unchanged (`[1]`); `current-phase` remains `2`.
+
+---
+
+## Run 3 — Stage 1 (Phase 3): Manual pilot closeout (2026-08-07)
+
+- Invocation: `phase3 review:auto`; scope Phase 3 only — do NOT repeat the
+  assignment, modify issue #127 or PR #131, implement Stage 2, or introduce
+  automation.
+- **Precondition gate**: Phase 2 (Stage 0B) ran and stopped at its required
+  handoff. The human completed that gate in the live repo: PR #128 merged into
+  `main` at `2026-08-07T11:38:17Z` and issue #127 Project Status was set to
+  `Ready` (verified live; issue body shows all four `Ready for Copilot` boxes
+  checked). Phase 3 (the manual pilot) then completed in the live repo via
+  issue #127 / PR #131. This run records the verified closeout.
+- **Artifact validation preflight** (run before any write on 2026-08-07):
+  `cg-render-artifact --validate-only
+  .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`
+  → output `Validated .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`, exit 0.
+- **Final validation records** (re-run and recorded 2026-08-07, after all
+  Phase 3 closeout edits):
+  - `cg-render-artifact --validate-only .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`
+    → output `Validated .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`, exit 0.
+  - `cg-render-artifact --check .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`
+    → `current .cg-docs/views/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.html`, exit 0.
+  - Generated-view source/provenance parity: plan source SHA-256
+    `7475eec2228b9339f9dddae4dd8002ae519a7bb43cfd5b06dd06682b17d97057` matches
+    the view's `<meta name="artifact-source-sha256">` and the
+    `artifact-provenance` JSON `sourceSha256` (parity confirmed; generated view
+    regenerated via the canonical renderer only when the canonical source
+    changed).
+  - JSON parse and required-field check of
+    `.cg-docs/active-state/current.json`: the file was parsed successfully
+    (`python -c "import json; json.load(open(...))"` → `JSON PARSE: OK`,
+    exit 0), and the following fields were present: `schemaVersion`,
+    `updatedAt`, `workflow`, `status`, `artifactRefs`, `nextCommand`. This was a
+    parse plus required-field presence check; no JSON-schema validator ran.
+- **Live verification performed** (primary source: authenticated `gh` API /
+  GraphQL on 2026-08-07; the merge-parent structure was additionally verified
+  locally with `git cat-file`):
+  - Issue #127 closed `completed` at `2026-08-07T13:49:56Z`; Project Status
+    `Done` (option `98236657`); assignees `Copilot`, `randrescastaneda`.
+  - PR #131 `MERGED` at `2026-08-07T13:49:54Z` by `randrescastaneda` (API) with
+    merge commit OID `fc4ed30027f702c4adffd7e742f8be416da39576` (API) whose
+    two-parent structure was locally verified with `git cat-file`
+    (parents: main tip `cbc598b` + PR head `73f948b`);
+    17 changed files (API); `autoMergeRequest: null`; branch
+    `copilot/make-html-publication-opt-in-default`; author
+    `app/copilot-swe-agent`.
+  - Required checks all green; CC lint green after human title fix at
+    `13:07:43Z`; non-required checks SUCCESS.
+  - Project item: PR #131 is NOT a separate project item (zero PR items on
+    project); issue item is canonical (E10 verified).
+- **Executed steps**: Step 1 (verify live state) and closeout deliverables
+  (evidence pack, plan metadata, execution report, active-state, plan view).
+- **State reconciliation (no deviation)**: per the execution contract, phase
+  metadata must be updated after a phase completes. The plan frontmatter had
+  lagged live reality (`completed-phases: [1]`, `current-phase: 2` while Phase
+  2's human gate and Phase 3 had already completed in the live repo); this run
+  reconciles the metadata to the verified values `completed-phases: [1, 2, 3]`
+  and `current-phase: 4`. This is contract-required state reconciliation, not a
+  deviation; **no phases were re-run**. Deviation policy remains `ask` with no
+  deviations taken.
+- **Accepted exceptions**: none. **Evidence mix**: Stage 1 evidence combines
+  API-verified fields, operator-confirmed conclusions, agent-reported
+  execution results (e.g. the focused-test output), and documented
+  not-retrievable values. The GO verdict is based on this documented
+  combination with no blocking gap — not on API-verified evidence alone.
+  Precision limitations documented instead (see below).
+- **Precision limitations (documented, not exceptions)**:
+  - Copilot model config (GPT-5.6 Luna, X-High reasoning): operator-confirmed
+    UI setting; no public API surface.
+  - Actions approval evidence: the ~34-minute `created_at`→`run_started_at`
+    run delay (12:06–12:40Z) is described as **consistent with** an approval
+    wait and used only as a **proxy**; it is not claimed to prove that approval
+    caused the delay. `triggering_actor` identifies who **triggered the run
+    start**, not who approved. The exact approval time and approver are
+    **not retrievable** via the API (no approval-event endpoint); no value
+    invented. The approval safeguard itself is operator-confirmed enabled;
+    `can_approve_pull_request_reviews` is NOT treated as evidence for it
+    (different capability).
+  - Intermediate Project Status option values (Ready/In progress/In review)
+    are operator-confirmed from event timestamps; final `Done` is API-verified.
+  - Live repo-level `default_workflow_permissions` is now `read`; per the
+    continuity handoff this is an **intentional pre-pilot change**
+    (operator-confirmed) — exact timestamp/actor not retrievable, but **not
+    unexplained drift**, so it is **not** a Stage 2 residual decision.
+  - "No administrator/ruleset bypass" and "secrets unchanged" are
+    **operator-confirmed conclusions** supported by API evidence (file list,
+    ruleset timestamps, `autoMergeRequest: null`), not facts proven solely by
+    the API or changed-file list.
+- **Evidence table (Phase 3 / §5.8)**: E1–E10 all recorded in
+  `.cg-docs/work-reports/2026-08-07-copilot-pilot-evidence.md`,
+  cross-classified API-verified / operator-confirmed / not-retrievable. E4
+  distinguishes the 13 explicitly listed allowed-path files from the four
+  `.compound-gpid-generated.json` manifests subsequently authorized by the
+  human target-generation-closure decision.
+- **Stage 1 success criteria (§5.9)**: all 7 PASS.
+- **Failure criteria (§5.10)**: none observed.
+- **Stage 2 go/no-go**: **GO** recorded in the evidence pack.
+- **Operational lesson (carried to dispatcher stage)**: Copilot's initial PR
+  title failed the Conventional Commits required check and required one human
+  rename before green. Not a Stage 2 blocker, but must be addressed (explicit
+  conventional-title instruction or dispatcher-side guard) before unattended
+  dispatch.
+- **Filing status**: evidence pack + this Run 3 section are created in the
+  current branch (`issue-implementation-pipeline-from-phase-3`) and become
+  canonically filed when the Stage 1 closeout PR — PR #132, distinct from the
+  already-merged pilot implementation PR #131 — merges into `main`.
+- **Roadmap**: no feature in `roadmap.json` carries this plan's `plan` path, so
+  no roadmap status dispatch/update is performed (per /cg-work permissions and
+  Step 3.7 no-match fallback; feature `artifact-html-opt-in-default` remains
+  `status: planned` — a human decision, not auto-advanced).
+- **Phase 3 status**: **completed** — plan remains `status: active`,
+  `completed-phases: [1, 2, 3]`, `current-phase: 4` (paused before Stage 2).
+- **Next action (metadata handoff)**: PR #132 (Stage 1 closeout) is open for
+  review; after it is reviewed and merged, resume with `/cg-work phase4`.
+- **V9 traceability (superseded)**: plan Verification-Surface row V9 ("final
+  plan handoff — Stage 0B/1 require explicit human approval") is superseded by
+  this closeout: both Stage 0B and Stage 1 approvals were obtained and the
+  pilot completed. V9 is recorded explicitly in `current.json`
+  `evidenceStatus` with `status: superseded` (Stage 0B gate = PR #128 merged;
+  Stage 1 gate = PR #131 merged). V8 remains `pending` for the final
+  plan-status completion at whole-plan close.
+
