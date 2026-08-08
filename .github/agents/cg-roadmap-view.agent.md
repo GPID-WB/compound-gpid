@@ -1,5 +1,5 @@
 ---
-description: "Read-only roadmap renderer. Dispatched by /cg-roadmap-view and other prompts for contextual roadmap display. Never modifies files. Developer-only — not invoked directly by users."
+description: "Read-only roadmap renderer. Dispatched by /cg-roadmap-view and other prompts for contextual roadmap display. Never modifies files. Developer-only -- not invoked directly by users."
 tools: ['read']
 user-invocable: false
 ---

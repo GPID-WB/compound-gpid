@@ -1,14 +1,6 @@
 ---
 name: cg-skill-stata-best-practices
-description: >
-  Comprehensive Stata best-practices reference for writing correct .do files.
-  Covers universal coding principles (compound quotes, macro expansion traps,
-  stored results, survey subpopulations, clustering), data management,
-  econometrics, causal inference, graphics, Mata programming, reproducibility
-  tools (repkit: repado, reprun, reproot, lint, repscan), and 21 community
-  packages (reghdfe, estout, did, rdrobust, etc.). Covers syntax, options,
-  gotchas, and idiomatic patterns. ALWAYS load this skill when writing,
-  reviewing, or debugging any Stata code.
+description: "Comprehensive Stata best-practices reference for writing correct .do files. Covers universal coding principles (compound quotes, macro expansion traps, stored results, survey subpopulations, clustering), data management, econometrics, causal inference, graphics, Mata programming, reproducibility tools (repkit: repado, reprun, reproot, lint, repscan), and 21 community packages (reghdfe, estout, did, rdrobust, etc.). Covers syntax, options, gotchas, and idiomatic patterns. ALWAYS load this skill when writing, reviewing, or debugging any Stata code."
 ---
 
 # Stata Best-Practices Skill

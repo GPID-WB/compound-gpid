@@ -371,14 +371,14 @@
       "path": ".agents/skills/cg-project-scanner.md",
       "source": ".github/agents/cg-project-scanner.agent.md",
       "kind": "fallback-agent",
-      "sha256": "499f305ace5725dbf0450a6e8bfbff20030ba04f9dfe411290914ffc5a1d4b46",
+      "sha256": "039e39e0e46b31ec8efef4e4e11eeeb19ea6823e8a2c5854c0fe8129d4faabd8",
       "executable": false
     },
     {
       "path": ".agents/skills/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "fallback-agent",
-      "sha256": "3aaa01430fb1a00c53f0276f589ff3771354c0097b30deba7912f954f8bc3e73",
+      "sha256": "356fd0acc3518c04f055b0fda65150c9f452044627c1219cf96d19cd880d52b4",
       "executable": false
     },
     {
@@ -392,7 +392,7 @@
       "path": ".agents/skills/cg-roadmap-view.md",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "fallback-agent",
-      "sha256": "19edcf0f08c8d076b018aee9c6bca532f6ac5f39622d5d04c78c2c4943fe960a",
+      "sha256": "1701fd524302413273a7b25df5ff6aa9987b69abf04864b309e0fb65d15cf512",
       "executable": false
     },
     {
@@ -903,7 +903,7 @@
       "path": ".agents/skills/cg-skill-stata-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-stata-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab",
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591",
       "executable": false
     },
     {
@@ -1323,7 +1323,7 @@
       "path": ".agents/skills/cg-skill-stata-testing/SKILL.md",
       "source": ".github/skills/cg-skill-stata-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24",
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f",
       "executable": false
     },
     {
@@ -1813,14 +1813,28 @@
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed",
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "kind": "skill-resource",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081",
       "executable": false
     },
     {
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9",
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "kind": "skill-resource",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
       "executable": false
     },
     {
@@ -1911,14 +1925,14 @@
       "path": ".agents/subagents/cg-project-scanner.toml",
       "source": ".github/agents/cg-project-scanner.agent.md",
       "kind": "agent",
-      "sha256": "1ae9ea70583d03d80e04e95740db1e5890916fdf474e9003336b31b1716901cf",
+      "sha256": "8530d737be3df72922445086f0657f80e19c5ee69271b7929b44aa4f3292dada",
       "executable": false
     },
     {
       "path": ".agents/subagents/cg-release-scanner.toml",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "9ea8c0e1e662deec8df612459332eba452954dab9f30ed5533538ada4203df18",
+      "sha256": "d7d478c7ab7406ec2bf0e4721ad4cef871f640bfa719404d611316e8369cb2af",
       "executable": false
     },
     {
@@ -1932,7 +1946,7 @@
       "path": ".agents/subagents/cg-roadmap-view.toml",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "agent",
-      "sha256": "bf9fd515d0742349e715364d190dc81687917c94a0b67ac57073fd3775cbcc32",
+      "sha256": "7944a03ab24a81e5e3dd2112e1a7bfa800f73545c7ae6f2ec3e84b42cd981876",
       "executable": false
     },
     {
