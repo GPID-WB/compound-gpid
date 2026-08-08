@@ -5,7 +5,7 @@ and file structure. Use the focused [Commands](reference/commands.md),
 [Agents](reference/agents.md), [Skills](skills/index.md), and
 [Files and Artifacts](reference/files.md) pages for quicker navigation.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Modular Guide](modular-guide.md) for choosing between the technical (`/cg-*`) and research (`/cr-*`) suites, capability packs, module preferences, and extension rules. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
 Compound GPID generates native platform trees for Claude Code, Codex, OpenCode, and Kilo from the canonical `.github/` source. The trees are committed,
 release-validated, and distributed through merge-safe per-platform install units.
