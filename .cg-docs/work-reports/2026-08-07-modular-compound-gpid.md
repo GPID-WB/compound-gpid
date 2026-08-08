@@ -26,7 +26,11 @@ status: active
 - 2026-08-07: Step 8, CR content imported capability-by-capability (5 prompts, 11 agents, 15 skills, 2 instructions); model: stripped per authorization; registry gains suite-cr, cap-research-output, cap-language-research; cross-suite gate green (V9).
 - 2026-08-07: Step 11, context-budget enforcement: cg_context_budget.py + generator --active-suites filter + instruction-level contract rule (V12, C5). CG-only generation = 1071 files (unchanged from pre-CR baseline).
 - 2026-08-07: Step 12, cg_migrate_config.py idempotent config migration; compound-gpid.local.md now suites: [cg, cr] (V13).
-- 2026-08-07: Phase 3 and Phase 4 (steps 7-8, 11-12) complete.
+- 2026-08-07: Step 9, mixed /cr-work path proof — dependency resolution through kernel + capability packs only (V10 artifact).
+- 2026-08-07: Step 10, compatibility matrix documented (V11 artifact).
+- 2026-08-07: Step 13, task-oriented modular guide published + cross-linked (V14).
+- 2026-08-07: Step 14, charter updated after Phases 1-4 verified (approved).
+- 2026-08-07: Phase 3, Phase 4, Phase 5 complete.
 
 ## Deviations
 
@@ -53,28 +57,33 @@ status: active
 | V7 | passed | `pytest scripts/tests/test_target_drift.py` + release gate `test_drift_test_would_pass` — 336s pass after checkpoint commit |
 | V8 | passed | main assets migrated to declared ownership; 0 ambiguous; drift + characterization green |
 | V9 | passed | `python scripts/cg_validate_modules.py --check-cross-suite` — exit 0 after CR import |
-| V10 | pending | integration-test artifact in `.cg-docs/work-reports/` |
-| V11 | pending | `.cg-docs/compatibility-matrix.md` |
+| V10 | passed | `.cg-docs/work-reports/2026-08-07-mixed-cr-work-path-proof.md` |
+| V11 | passed | `.cg-docs/compatibility-matrix.md` |
 | V12 | passed | `pytest scripts/tests/test_context_budget.py` — 9 passed; generator CG-only excludes CR |
 | V13 | passed | `pytest scripts/tests/test_config_migration.py` — 5 passed |
-| V14 | pending | `docs/modular-guide.md` |
+| V14 | passed | `docs/modular-guide.md` exists, covers 5 topics, cross-linked; `test_target_documentation.py` green |
 
 ## Constraints Check
 
 | ID | Status | Result |
 |----|--------|--------|
-| C1 | pending | `Invoke-Pester tests/prompt-tools.Tests.ps1 -Quiet` |
-| C2 | pending | registry validator: no `packages/` source tree |
-| C3 | pending | `pytest scripts/tests/test_target_drift.py` |
-| C4 | pending | `git diff --stat` confirms selective import |
-| C5 | pending | context-budget test baseline comparison |
-| C6 | pending | Step 11 acceptance criteria |
-| C7 | pending | `Invoke-Pester tests/install.Tests.ps1 -Quiet` |
+| C1 | passed | `Invoke-Pester tests/prompt-tools.Tests.ps1` via safe runner — passed |
+| C2 | passed | registry validator: no `packages/` source tree (check_no_physical_relocation) |
+| C3 | passed | `pytest scripts/tests/test_target_drift.py` — 16 passed (368s) |
+| C4 | passed | `git diff --stat` confirmed selective CR import (no wholesale merge) |
+| C5 | passed | context-budget: CG-only generation = 1071 files, unchanged from pre-CR |
+| C6 | passed | instruction-level context-budget limitation documented in contract |
+| C7 | passed | `Invoke-Pester tests/install.Tests.ps1` via safe runner — passed |
 
 ## Remaining Uncertainty
 
-- (filled incrementally)
+- Real-repo context audit flags always-on instruction tokens > 6000 after the
+  CR import (both suites' instructions are now canonical in this mixed repo).
+  This is mitigated by generator-level suite filtering; instruction-level
+  enforcement is a documented AI-compliance rule, not programmatically checked.
+- Real-platform CLI smoke remains environment-dependent (deterministic isolated
+  closure is the supported proof and passes).
 
 ## Final Status
 
-`pending`
+`completed`
