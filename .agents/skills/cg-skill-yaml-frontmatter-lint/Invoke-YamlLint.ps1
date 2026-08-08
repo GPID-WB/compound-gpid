@@ -62,7 +62,7 @@ function Test-DescriptionValid {
     # description; see Test-SkillFile.
     param([string]$Value)
     if ([string]::IsNullOrEmpty($Value)) { return $false }
-    if ($Value -match '^".*"$' -or $Value -match "^'.*'$") { return $true }
+    if ($Value -match '^"(?:\\.|[^"\\])*"$' -or $Value -match "^'(?:''|[^'])*'$") { return $true }
     if ($Value -match '^[>|](?:[1-9][-+]?|[-+][1-9]?)?$') { return $true }
     if ($Value -match '^[A-Za-z0-9][A-Za-z0-9._ /-]*$' -and $Value.ToLower() -notin @('null','true','false','yes','no','on','off')) { return $true }
     return $false
@@ -100,13 +100,21 @@ function Test-AgentFile {
         }
     }
 
-    # Rule 1: agent description may be double-quoted or a parse-safe scalar
-    $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
-    if ($descMatch.Success) {
-        $descValue = $descMatch.Groups[1].Value.Trim()
-        if (-not (Test-DescriptionValid $descValue)) {
-            $lineNum = ($frontmatter.Substring(0, $descMatch.Groups[1].Index) -split '\r?\n').Count
-            Add-Violation $relativePath ($fmStart + $lineNum - 1) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
+    # Rule 1: agent description may be double-quoted or a parse-safe scalar.
+    # Line-scoped: a bare 'description:' with no value is reported, and the
+    # value never absorbs the next line.
+    $descIdx = -1
+    for ($di = 0; $di -lt $fmLines.Count; $di++) {
+        if ($fmLines[$di].TrimStart().StartsWith('description:')) { $descIdx = $di; break }
+    }
+    if ($descIdx -ge 0) {
+        $colonIdx = $fmLines[$descIdx].IndexOf(':')
+        $descValue = if ($colonIdx -ge 0) { $fmLines[$descIdx].Substring($colonIdx + 1).Trim() } else { '' }
+        if ([string]::IsNullOrEmpty($descValue)) {
+            Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' 'description value is empty (expected a double-quoted or parse-safe scalar).'
+        }
+        elseif (-not (Test-DescriptionValid $descValue)) {
+            Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
         }
     }
 
@@ -163,13 +171,21 @@ function Test-SkillFile {
         }
     }
 
-    # Rule 1: skill file descriptions must be double-quoted (repo guideline)
-    $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
-    if ($descMatch.Success) {
-        $descValue = $descMatch.Groups[1].Value.Trim()
-        if ($descValue -notmatch '^".*"$') {
-            $lineNum = ($frontmatter.Substring(0, $descMatch.Groups[1].Index) -split '\r?\n').Count
-            Add-Violation $relativePath ($fmStart + $lineNum - 1) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
+    # Rule 1: skill file descriptions must be double-quoted (repo guideline).
+    # Line-scoped: a bare 'description:' with no value is reported, and the
+    # value never absorbs the next line.
+    $descIdx = -1
+    for ($di = 0; $di -lt $fmLines.Count; $di++) {
+        if ($fmLines[$di].TrimStart().StartsWith('description:')) { $descIdx = $di; break }
+    }
+    if ($descIdx -ge 0) {
+        $colonIdx = $fmLines[$descIdx].IndexOf(':')
+        $descValue = if ($colonIdx -ge 0) { $fmLines[$descIdx].Substring($colonIdx + 1).Trim() } else { '' }
+        if ([string]::IsNullOrEmpty($descValue)) {
+            Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' 'description value is empty (expected a double-quoted string for skill files).'
+        }
+        elseif ($descValue -notmatch '^"(?:\\.|[^"\\])*"$') {
+            Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
         }
     }
 

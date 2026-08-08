@@ -1813,7 +1813,7 @@
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "53aba4e98910c1a78d3542ce5db3639edb5edefaafcfd89b0d71d9845a6ab6df",
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3",
       "executable": false
     },
     {
@@ -1834,7 +1834,7 @@
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
-      "sha256": "db5ea893b840ff9eb23bb66879635acbfad81f9098956a035f639fab88183d7c",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
       "executable": false
     },
     {

@@ -32,8 +32,8 @@ DESCRIPTION_RE = re.compile(r"(?m)^description:\s*(.+)$")
 FIELD_DESC_RE = re.compile(r"(?m)^description:")
 FIELD_MODE_RE = re.compile(r"(?m)^mode:")
 FIELD_NAME_RE = re.compile(r"(?m)^name:")
-QUOTED_RE = re.compile(r'^".*"$')
-SINGLE_QUOTED_RE = re.compile(r"^'.*'$")
+QUOTED_RE = re.compile(r'^"(?:\\.|[^"\\])*"$')
+SINGLE_QUOTED_RE = re.compile(r"^'(?:''|[^'])*'$")
 # Valid YAML block-scalar headers: '>' or '|' plus optional indentation
 # indicator ([1-9]) and/or chomping indicator (-/+) in either order, e.g. '>',
 # '|-', '>2', '>2-', '>+2'. Rejects malformed forms such as '>invalid'.
@@ -193,22 +193,27 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
 
     # Rule 1: skill files must be double-quoted (repo guideline); agent files
     # accept any parse-safe scalar (matching the tree generator's output).
-    desc_match = DESCRIPTION_RE.search(frontmatter)
-    if desc_match:
-        value = desc_match.group(1).strip()
-        if is_agent:
-            ok = _description_ok(value)
+    # Match line-scoped so a bare 'description:' with no value is detected (and
+    # cannot absorb the next line), and reject malformed quoted values (e.g. an
+    # unescaped embedded quote).
+    desc_idx = _frontmatter_line_index(fm_lines, "description")
+    if desc_idx is not None:
+        desc_line = fm_lines[desc_idx]
+        value = desc_line.split(":", 1)[1].strip() if ":" in desc_line else ""
+        if not value:
+            violations.append(Violation(rel, fm_start + desc_idx, "R1-quoted-description",
+                                        "description value is empty (expected a double-quoted or parse-safe scalar)."))
         else:
-            ok = QUOTED_RE.match(value) is not None
-        if not ok:
-            line_num = len(frontmatter[:desc_match.start(1)].split("\n"))
-            preview = value[:60]
-            violations.append(Violation(rel, line_num, "R1-quoted-description",
-                                        f"description value is not double-quoted: {preview}..."))
-            if fix and is_agent and not BLOCK_SCALAR_RE.match(value):
-                fm_index = _frontmatter_line_index(fm_lines, "description")
-                if fm_index is not None:
-                    fixed_lines[fm_index] = _quote_unquoted_line(fm_lines[fm_index])
+            if is_agent:
+                ok = _description_ok(value)
+            else:
+                ok = QUOTED_RE.match(value) is not None
+            if not ok:
+                preview = value[:60]
+                violations.append(Violation(rel, fm_start + desc_idx, "R1-quoted-description",
+                                            f"description value is not double-quoted: {preview}..."))
+                if fix and is_agent and not BLOCK_SCALAR_RE.match(value):
+                    fixed_lines[desc_idx] = _quote_unquoted_line(fm_lines[desc_idx])
                     was_fixed = True
 
     # Rule 4: required fields
