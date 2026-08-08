@@ -1,16 +1,7 @@
 ---
 name: cg-skill-stata-testing
 user-invokable: false
-description: >
-  Testing and reproducibility best practices for Stata. Covers inline
-  assertions (assert, capture, exit codes), data validation patterns
-  (isid, duplicates, misstable), econometric result verification (reldif,
-  _b[], test), reprun/repkit reproducibility workflows, test scaffolding
-  (foreach loops, preserve/restore), and testing anti-patterns with fixes.
-  Load when writing, reviewing, or debugging assertion blocks, data validation,
-  result verification, test scaffolding, or reproducibility checks in .do/.ado files.
-  Use alongside cg-skill-stata-best-practices for coding principles and
-  package reference.
+description: "Testing and reproducibility best practices for Stata. Covers inline assertions (assert, capture, exit codes), data validation patterns (isid, duplicates, misstable), econometric result verification (reldif, _b[], test), reprun/repkit reproducibility workflows, test scaffolding (foreach loops, preserve/restore), and testing anti-patterns with fixes. Load when writing, reviewing, or debugging assertion blocks, data validation, result verification, test scaffolding, or reproducibility checks in .do/.ado files. Use alongside cg-skill-stata-best-practices for coding principles and package reference."
 ---
 
 # Stata Testing & Reproducibility Skill

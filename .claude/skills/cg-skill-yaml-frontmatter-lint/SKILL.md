@@ -12,30 +12,45 @@ all `.kilo/agents/*.md` and `.kilo/skills/*/SKILL.md` files must pass these chec
 
 ### Rule 1: Parse-Safe Descriptions (MANDATORY)
 
-A `description:` value must use a form that cannot silently misparse. Accepted:
+A `description:` value must use a form that cannot silently misparse.
 
-- double-quoted (`"..."`) -- preferred, and required when the text contains a
-  colon, `#`, or other YAML-significant characters
+**Skill files** (`.kilo/skills/*/SKILL.md`) — the description MUST be a
+double-quoted string, per the repository coding guidelines:
+
+```yaml
+# Required for skill files
+description: "Reviews code for quality and best practices."
+```
+
+**Agent files** (`.kilo/agents/*.md`) — double-quoted is preferred; any
+parse-safe scalar is accepted:
+
+- double-quoted (`"..."`) -- required when the text contains a colon, `#`, or
+  other YAML-significant characters
 - single-quoted (`'...'`)
-- a block scalar (`>` or `|`)
+- a block scalar with a valid header (`>`, `|`, `>-`, `|+`, `>2-`, ...)
 - a safe unquoted plain scalar: alphanumeric plus spaces, `.`, `/`, `-`, `_`;
   not a YAML reserved word (`true`/`false`/`null`/`yes`/`no`/`on`/`off`)
 
 ```yaml
-# Preferred
+# Agent: preferred
 description: "Reviews code for quality and best practices."
-# Also valid (safe plain scalar)
+# Agent: also valid (safe plain scalar, emitted by the tree generator)
 description: Reviews code for quality and best practices
-# WRONG -- colon-space breaks parsing
+# WRONG (any file): colon-space, or a malformed block-scalar header, breaks parsing
 description: Migration mode for /cg-fix-triage. Adds findings: tracking
+description: >invalid
 ```
 
-**Why**: An unquoted value containing colon-space (`: `) makes YAML treat the
-text after the colon as a new mapping key, silently corrupting or failing the
-frontmatter -- this was the direct cause of the original
-cg-skill-fix-triage-migrate parse failure. The accepted set mirrors the
-platform-tree generator's own scalar policy, so generated trees pass by
-construction and the linter never false-positives on valid generated output.
+**Why**: An unquoted value containing a colon followed by a space makes YAML
+treat the text after the colon as a new mapping key, silently corrupting or
+failing the frontmatter -- this was the direct cause of the original
+cg-skill-fix-triage-migrate parse failure. Skill files enforce double quotes
+per the repository coding guidelines. Agent files accept any parse-safe scalar
+because the platform-tree generator emits unquoted simple scalars for them; the
+accepted set mirrors `cg_generate_targets._yaml_scalar`'s policy so generated
+trees pass by construction and the linter never false-positives on valid
+generated output.
 
 ### Rule 2: ASCII-Only Frontmatter (MANDATORY)
 
@@ -56,7 +71,7 @@ parser may fail on BOM-prefixed files.
 ### Rule 4: Required Fields
 
 **Agent files** (`.kilo/agents/*.md`):
-- `description` (required) — double-quoted string
+- `description` (required) — double-quoted or parse-safe scalar (see Rule 1)
 - `mode` (required) — one of `subagent`, `primary`, `all`
 
 **Skill files** (`.kilo/skills/*/SKILL.md`):
@@ -103,8 +118,10 @@ numbers.
 ### Options
 
 - `-Path <dir>` -- check a specific platform tree instead of the default `.kilo/`
-- `-Fix` -- automatically fix Rule 1 (quote unsafe unquoted descriptions) and
-  Rule 2 (replace non-ASCII frontmatter). Other rules require manual fixes.
+- `-Fix` -- auto-fix Rule 1 (quote unsafe unquoted agent descriptions) and
+  Rule 2 (replace non-ASCII frontmatter) via the Python validator
+  (`validate_yaml_frontmatter.py`). The PowerShell entry is validation-only;
+  passing `-Fix` there prints a notice and does not modify files.
 
 ## When to Load This Skill
 

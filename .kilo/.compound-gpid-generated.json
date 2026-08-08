@@ -931,7 +931,7 @@
       "path": ".kilo/skills/cg-skill-stata-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-stata-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab",
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591",
       "executable": false
     },
     {
@@ -1351,7 +1351,7 @@
       "path": ".kilo/skills/cg-skill-stata-testing/SKILL.md",
       "source": ".github/skills/cg-skill-stata-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24",
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f",
       "executable": false
     },
     {
@@ -1841,7 +1841,7 @@
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "4ce65d6fa6e23f1f187944f34b26cb4c385b9cac357a69226b2742704189245b",
+      "sha256": "53aba4e98910c1a78d3542ce5db3639edb5edefaafcfd89b0d71d9845a6ab6df",
       "executable": false
     },
     {
@@ -1855,14 +1855,14 @@
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "265fb749c8c2e52175646d3868f0b45ceb858ec8a7814951d8d89b9c0d0ce21f",
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386",
       "executable": false
     },
     {
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
-      "sha256": "9ab7f17f6ca035d0bec22cf4f04a27dba23fc90dab13f1980db88274b910460b",
+      "sha256": "d6058ed46c79beb71b1ef5d601be4455555c0bffb483d82a3669b2861a90980e",
       "executable": false
     }
   ]

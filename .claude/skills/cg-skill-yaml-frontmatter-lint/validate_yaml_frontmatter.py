@@ -34,10 +34,14 @@ FIELD_MODE_RE = re.compile(r"(?m)^mode:")
 FIELD_NAME_RE = re.compile(r"(?m)^name:")
 QUOTED_RE = re.compile(r'^".*"$')
 SINGLE_QUOTED_RE = re.compile(r"^'.*'$")
-BLOCK_SCALAR_RE = re.compile(r"^[>|]")
+# Valid YAML block-scalar headers: '>' or '|' plus optional indentation
+# indicator ([1-9]) and/or chomping indicator (-/+) in either order, e.g. '>',
+# '|-', '>2', '>2-', '>+2'. Rejects malformed forms such as '>invalid'.
+BLOCK_SCALAR_RE = re.compile(r"^[>|](?:[1-9][-+]?|[-+][1-9]?)?$")
 # Mirrors cg_generate_targets._yaml_scalar's unquoted-emit policy so the
-# linter accepts exactly the valid YAML the generator emits unquoted and only
-# flags genuinely parse-breaking values (e.g. unquoted colon-space).
+# linter accepts exactly the valid YAML the generator emits unquoted (agent
+# files) and only flags genuinely parse-breaking values (e.g. unquoted
+# colon-space). Skill files require a double-quoted description (Rule 1).
 SAFE_PLAIN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._ /-]*$")
 RESERVED_WORDS = {"null", "true", "false", "yes", "no", "on", "off"}
 NON_ASCII_RE = re.compile(r"[^\x00-\x7f]")
@@ -98,6 +102,15 @@ def _detect_line_ending(raw: bytes) -> str:
     return "\n"
 
 
+def _write_preserve_lf(file_path: str, text: str) -> None:
+    # open(..., newline="") prevents \n -> os.linesep translation so -Fix
+    # preserves LF on Windows/macOS. Unlike Path.write_text(data, newline=),
+    # this open() form works on Python 3.8+ (newline was not added to
+    # write_text until 3.10).
+    with open(file_path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(text)
+
+
 def _quote_description(value: str) -> str:
     escaped = value.replace("\\", "\\\\").replace('"', '\\"')
     return f'"{escaped}"'
@@ -111,13 +124,14 @@ def _ascii_fix(line: str) -> str:
 
 
 def _description_ok(value: str) -> bool:
-    """Rule 1: accept any description form that is valid, parse-safe YAML.
+    """Rule 1 (agent files): accept any description form that is valid YAML.
 
-    Accepts double-quoted, single-quoted, block-scalar (>/|), and safe plain
-    scalars (the unquoted forms the generator emits). Rejects empty values and
-    unquoted values containing YAML-significant characters that break parsing
-    (colon-space, leading indicators, reserved words) -- the actual cause of
-    the original fix-triage-migrate parse failure.
+    Accepts double-quoted, single-quoted, a valid block-scalar header (>/|),
+    and safe plain scalars (the unquoted forms the generator emits). Rejects
+    empty values and unquoted values containing YAML-significant characters
+    that break parsing (colon-space, leading indicators, reserved words).
+    Skill files ('.kilo/skills/*/SKILL.md') instead require a double-quoted
+    description per the repository coding guidelines.
     """
     if not value:
         return False
@@ -176,16 +190,21 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
                     fixed_lines[i] = replaced
                     was_fixed = True
 
-    # Rule 1: description must be quoted or a parse-safe scalar
+    # Rule 1: skill files must be double-quoted (repo guideline); agent files
+    # accept any parse-safe scalar (matching the tree generator's output).
     desc_match = DESCRIPTION_RE.search(frontmatter)
     if desc_match:
         value = desc_match.group(1).strip()
-        if not _description_ok(value):
+        if is_agent:
+            ok = _description_ok(value)
+        else:
+            ok = QUOTED_RE.match(value) is not None
+        if not ok:
             line_num = len(frontmatter[:desc_match.start(1)].split("\n"))
             preview = value[:60]
             violations.append(Violation(rel, line_num, "R1-quoted-description",
                                         f"description value is not double-quoted: {preview}..."))
-            if fix and not BLOCK_SCALAR_RE.match(value):
+            if fix and is_agent and not BLOCK_SCALAR_RE.match(value):
                 fm_index = _frontmatter_line_index(fm_lines, "description")
                 if fm_index is not None:
                     fixed_lines[fm_index] = _quote_unquoted_line(fm_lines[fm_index])
@@ -293,12 +312,12 @@ def main(argv: list[str] | None = None) -> int:
         violations, new_text = _check_file(file_path, path, is_agent=True, fix=fix)
         all_violations.extend(violations)
         if new_text is not None:
-            Path(file_path).write_text(new_text, encoding="utf-8", newline="")
+            _write_preserve_lf(file_path, new_text)
     for file_path in skills:
         violations, new_text = _check_file(file_path, path, is_agent=False, fix=fix)
         all_violations.extend(violations)
         if new_text is not None:
-            Path(file_path).write_text(new_text, encoding="utf-8", newline="")
+            _write_preserve_lf(file_path, new_text)
 
     if not all_violations:
         print(paint("green", f"All {total} files passed validation."))

@@ -622,6 +622,20 @@ Describe "bash-scripts - .gitattributes enforces LF for bash files" {
         $content | Should -Match "\*\.sh.*eol=lf"
     }
 
+    It ".gitattributes keeps generated .sh copies (outside scripts/) LF" {
+        $found = 0
+        foreach ($tree in @(".github", ".kilo", ".claude", ".agents", ".opencode")) {
+            $dir = Join-Path $repoRoot $tree
+            if (-not (Test-Path $dir)) { continue }
+            foreach ($f in Get-ChildItem $dir -Recurse -Filter "*.sh" -File) {
+                $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
+                ($bytes -contains [byte]13) | Should -Be $false
+                $found++
+            }
+        }
+        $found | Should -BeGreaterThan 0
+    }
+
     It ".gitattributes sets eol=lf for bin/cg-* wrappers" {
         $content | Should -Match "bin/cg-\*.*eol=lf"
     }

@@ -11,8 +11,10 @@
 .PARAMETER Path
     Root directory to scan. Defaults to ".kilo"
 .PARAMETER Fix
-    Automatically fix Rule 1 (quote unquoted descriptions) and Rule 2 (ASCII frontmatter).
-    Other rules require manual fixes.
+    Reserved for parity with validate_yaml_frontmatter.py. Auto-correction is NOT
+    implemented in this PowerShell entry: if -Fix is passed, a notice is printed and
+    validation continues. Apply fixes manually, or use the Python validator
+    (validate_yaml_frontmatter.py -Fix, or bash Invoke-YamlLint.sh -Fix on macOS/Linux).
 .EXAMPLE
     .\Invoke-YamlLint.ps1
     .\Invoke-YamlLint.ps1 -Path "C:\project\.kilo" -Fix
@@ -52,14 +54,16 @@ function Add-Violation {
 }
 
 function Test-DescriptionValid {
-    # Rule 1: accept any description form that is valid, parse-safe YAML.
+    # Rule 1 (agent files): accept any description form that is valid YAML.
     # Mirrors cg_generate_targets._yaml_scalar's unquoted-emit policy so the
     # linter accepts the valid YAML the generator emits and only flags values
     # that actually break parsing (colon-space, leading indicators, reserved).
+    # Skill files (.kilo/skills/*/SKILL.md) instead require a double-quoted
+    # description; see Test-SkillFile.
     param([string]$Value)
     if ([string]::IsNullOrEmpty($Value)) { return $false }
     if ($Value -match '^".*"$' -or $Value -match "^'.*'$") { return $true }
-    if ($Value -match '^[>|]') { return $true }
+    if ($Value -match '^[>|](?:[1-9][-+]?|[-+][1-9]?)?$') { return $true }
     if ($Value -match '^[A-Za-z0-9][A-Za-z0-9._ /-]*$' -and $Value.ToLower() -notin @('null','true','false','yes','no','on','off')) { return $true }
     return $false
 }
@@ -96,7 +100,7 @@ function Test-AgentFile {
         }
     }
 
-    # Rule 1: description must be quoted or a parse-safe scalar
+    # Rule 1: agent description may be double-quoted or a parse-safe scalar
     $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
     if ($descMatch.Success) {
         $descValue = $descMatch.Groups[1].Value.Trim()
@@ -159,11 +163,11 @@ function Test-SkillFile {
         }
     }
 
-    # Rule 1: description must be quoted or a parse-safe scalar
+    # Rule 1: skill file descriptions must be double-quoted (repo guideline)
     $descMatch = [regex]::Match($frontmatter, '(?m)^description:\s*(.+)$')
     if ($descMatch.Success) {
         $descValue = $descMatch.Groups[1].Value.Trim()
-        if (-not (Test-DescriptionValid $descValue)) {
+        if ($descValue -notmatch '^".*"$') {
             $lineNum = ($frontmatter.Substring(0, $descMatch.Groups[1].Index) -split '\r?\n').Count
             Add-Violation $relativePath ($fmStart + $lineNum - 1) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
         }
@@ -195,6 +199,16 @@ $resolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue
 if (-not $resolvedPath) {
     Write-Error "Path not found: $Path"
     exit 1
+}
+
+if ($Fix) {
+    Write-Host @"
+
+WARNING: -Fix (auto-fix) is not implemented in the PowerShell entry; this
+validator reports violations only. To auto-fix Rule 1/Rule 2, use the Python
+validator:  python validate_yaml_frontmatter.py -Path "$Path" -Fix
+(or on macOS/Linux: bash Invoke-YamlLint.sh -Path "$Path" -Fix)
+"@ -ForegroundColor Yellow
 }
 
 $agentFiles = @()
