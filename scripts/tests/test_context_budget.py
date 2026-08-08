@@ -13,6 +13,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 import cg_context_budget as budget
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -83,6 +85,15 @@ class TestActiveSuites:
 
     def test_read_active_suites_explicit(self) -> None:
         assert budget.read_active_suites(_local_config(["cg", "cr"])) == ["cg", "cr"]
+
+    def test_read_active_suites_quoted_yaml_list(self) -> None:
+        text = "---\nlanguage: both\nsuites: [\"cg\", \"cr\"]\nreview-depth: thorough\n---\n# config\n"
+        assert budget.read_active_suites(text) == ["cg", "cr"]
+
+    def test_unresolved_suite_name_fails_loudly(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, _minimal_registry())
+        with pytest.raises(ValueError, match="unknown active suite"):
+            budget.loadable_modules(registry, ["cgx"])
 
     def test_loadable_modules_cg_only(self, tmp_path: Path) -> None:
         registry = budget.load_registry(tmp_path, _minimal_registry())

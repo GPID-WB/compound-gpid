@@ -525,17 +525,24 @@ def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str
     When ``active_suites`` is None (no context-budget filtering requested),
     returns None so the generator scans all registry-owned assets. Otherwise
     derives the loadable module set via cg_context_budget and returns the
-    union of their owned-asset globs.
+    union of their owned-asset globs. A missing registry or unknown suite name
+    with filtering requested raises so the operator cannot silently produce an
+    unenforced or empty tree.
     """
     if active_suites is None:
         return None
     try:
         import cg_context_budget as context
-    except ImportError:
-        return None
+    except ImportError as exc:
+        raise ValueError(
+            "cg_context_budget.py is required when --active-suites is used"
+        ) from exc
     registry = _load_module_registry(root)
     if registry is None:
-        return None
+        raise ValueError(
+            "--active-suites requires module-registry.json at .github/shared; "
+            "refusing to generate an unfiltered or empty tree"
+        )
     loadable = context.loadable_modules(registry, list(active_suites))
     ids = {module["id"] for module in loadable}
     return set(context.loadable_asset_globs(registry, ids))
@@ -948,18 +955,6 @@ def _yaml_scalar(value: Any) -> str:
     }:
         return text
     return json.dumps(text, ensure_ascii=False)
-
-
-def _with_opencode_arguments(body: str) -> str:
-    """Append OpenCode slash-command arguments to a command template body."""
-    return (
-        f"{body.rstrip()}\n\n"
-        "## OpenCode Invocation Arguments\n\n"
-        "User-provided slash-command arguments:\n\n"
-        "```text\n"
-        "$ARGUMENTS\n"
-        "```\n"
-    )
 
 
 def _with_arguments_block(body: str, target_id: str) -> str:

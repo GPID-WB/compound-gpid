@@ -40,6 +40,8 @@ def read_active_suites(config_text: str) -> list[str]:
     """Extract the ``suites:`` field from a compound-gpid.local.md frontmatter.
 
     Absent or invalid values default to ``["cg"]`` (backward compatible).
+    Supports inline flow lists including quoted elements (e.g.
+    ``suites: ["cg", "cr"]``).
     """
     if not config_text.lstrip("\ufeff\r\n").startswith("---"):
         return ["cg"]
@@ -50,11 +52,37 @@ def read_active_suites(config_text: str) -> list[str]:
     for line in block.splitlines():
         if line.startswith("suites:"):
             raw = line.partition(":")[2].strip()
-            cleaned = raw.strip("[]\"' ").replace(" ", "")
-            values = [v for v in cleaned.split(",") if v]
+            cleaned = raw.strip("[]")
+            # Split on commas then strip quotes and whitespace per element,
+            # matching both [cg, cr] and ["cg", "cr"].
+            values = [v.strip().strip("\"' ").replace(" ", "") for v in cleaned.split(",") if v.strip()]
+            values = [v for v in values if v]
             if values:
                 return values
     return ["cg"]
+
+
+def resolve_active_suite_ids(registry: dict, active_suites: list[str]) -> set[str]:
+    """Map user-facing suite names (e.g. ``cg``, ``cr``) to module ids.
+
+    A suite module matches when its id equals the requested name or ends with
+    ``-<name>`` (e.g. ``suite-cg`` matches ``cg``). Names that resolve to no
+    suite module are dropped (callers may warn).
+    """
+    suite_ids = {
+        m.get("id")
+        for m in registry.get("modules", [])
+        if isinstance(m, dict) and m.get("layer") == "suite"
+    }
+    resolved: set[str] = set()
+    for requested in active_suites:
+        if requested in suite_ids:
+            resolved.add(requested)
+            continue
+        for sid in suite_ids:
+            if sid.endswith(f"-{requested}"):
+                resolved.add(sid)
+    return resolved
 
 
 def load_registry(root: Path, registry: Optional[dict] = None) -> dict:
@@ -85,29 +113,21 @@ def transitive_dependencies(registry: dict, module_id: str) -> set[str]:
 
 
 def _resolve_active_suite_ids(registry: dict, active_suites: list[str]) -> set[str]:
-    """Map user-facing suite names (e.g. ``cg``, ``cr``) to module ids.
-
-    A suite module matches when its id equals the requested name or ends with
-    ``-<name>`` (e.g. ``suite-cg`` matches ``cg``).
-    """
-    suite_ids = {
-        m.get("id")
-        for m in registry.get("modules", [])
-        if isinstance(m, dict) and m.get("layer") == "suite"
-    }
-    resolved: set[str] = set()
-    for requested in active_suites:
-        if requested in suite_ids:
-            resolved.add(requested)
-            continue
-        for sid in suite_ids:
-            if sid.endswith(f"-{requested}"):
-                resolved.add(sid)
-    return resolved
+    """Back-compat wrapper: map user-facing suite names to module ids."""
+    return resolve_active_suite_ids(registry, active_suites)
 
 
 def loadable_modules(registry: dict, active_suites: list[str]) -> list[dict]:
     """Modules whose assets are loadable for the active suite configuration."""
+    all_ids = {m.get("id") for m in registry.get("modules", []) if isinstance(m, dict)}
+    unknown_suites = [s for s in active_suites if s not in all_ids and not any(
+        sid.endswith(f"-{s}") for sid in all_ids
+    )]
+    if unknown_suites:
+        raise ValueError(
+            "unknown active suite name(s), refusing to generate an empty tree: "
+            + ", ".join(sorted(unknown_suites))
+        )
     active = _resolve_active_suite_ids(registry, active_suites)
     # Kernel is always loadable.
     kernel_ids = {

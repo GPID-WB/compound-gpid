@@ -37,17 +37,19 @@ import json
 import re
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 VALID_LAYERS = {"kernel", "capability", "suite"}
-LAYER_RANK = {"kernel": 0, "capability": 1, "suite": 2}
 
 # Reuses the generator's canonical runtime dependency regex (Phase 2, Step 4).
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
     r"[^\s`'\"<>)/][^\s`'\"<>)]*"
 )
+# Name-form references: @agent and <prefix>-skill-<name> (namespace-agnostic).
+AGENT_REF_PATTERN = re.compile(r"@(?:cg|cr)-[a-z0-9-]+")
+SKILL_REF_PATTERN = re.compile(r"(?<![A-Za-z0-9_.-])(?:cg|cr)-skill-[a-z0-9-]+")
 
 # Lower layers each layer may depend on, per R4 (Active-Suite Dependency Rules).
 _ALLOWED_DEPENDENCY_LAYERS = {
@@ -320,32 +322,6 @@ def _first_cycle(adjacency: Dict[str, List[str]]) -> Optional[List[str]]:
 # ---------------------------------------------------------------------------
 
 
-def resolve_ownership(registry: dict) -> Dict[str, List[str]]:
-    """Map each registry-declared asset glob to owning module ids."""
-    asset_to_owners: Dict[str, List[str]] = {}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for asset in module.get("ownedAssets", []):
-            if not isinstance(asset, str):
-                continue
-            asset_to_owners.setdefault(asset, []).append(mid)
-    return asset_to_owners
-
-
-def _assets_from_owned_glob(glob_: str) -> List[str]:
-    """Return the set of canonical asset paths a registry glob pattern denotes.
-
-    Because patterns describe the Item Distribution of canonical assets, the
-    validator cannot expand arbitrary globs without a repository; the registry
-    validator instead checks that each pattern matches at least one canonical
-    asset (see check_owned_assets_exist). This helper still allows exact
-    directory patterns to be validated against the canonical inventory.
-    """
-    return []
-
-
 def check_owned_assets_exist(registry: dict, assets: Iterable[str]) -> List[str]:
     """Verify every declared owned-assets pattern matches a canonical asset."""
     errors: List[str] = []
@@ -511,11 +487,49 @@ def _transitive_dependency_closure(registry: dict, module_id: str) -> set[str]:
     return closure
 
 
+def _resolve_name_reference(registry: dict, root: Path, name: str) -> Optional[str]:
+    """Map a bare agent or skill name to its canonical asset path, if owned.
+
+    Accepts ``@cg-<name>`` / ``@cr-<name>`` agent references and
+    ``<prefix>-skill-<name>`` skill references. Returns the canonical repo
+    path (e.g. ``.github/agents/cg-roadmap.agent.md``) or None.
+    """
+    assets = canonical_assets(root)
+    if name.startswith("@"):
+        agent_name = name[1:]
+        candidate = f".github/agents/{agent_name}.agent.md"
+        return candidate if candidate in assets else None
+    if "-skill-" in name:
+        candidate = f".github/skills/{name}/SKILL.md"
+        return candidate if candidate in assets else None
+    return None
+
+
+def _strip_fenced_code(text: str) -> str:
+    """Remove closed or unterminated Markdown fenced code blocks."""
+    output: list[str] = []
+    fence_character: Optional[str] = None
+    fence_length = 0
+    for line in text.splitlines(keepends=True):
+        match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        if fence_character is None:
+            if match:
+                fence_character = match.group(1)[0]
+                fence_length = len(match.group(1))
+            else:
+                output.append(line)
+        elif match and match.group(1)[0] == fence_character and len(match.group(1)) >= fence_length:
+            fence_character = None
+            fence_length = 0
+    return "".join(output)
+
+
 def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, List[str]]:
-    """Scan one module's owned canonical asset bodies for .github/ references.
+    """Scan one module's owned canonical asset bodies for references.
 
     Returns {referenced_path: [owning_module_ids...]} for each reference that
-    resolves to a known canonical asset.
+    resolves to a known canonical asset. Detects explicit ``.github/...`` path
+    references; the caller decides which suffix forms are load-bearing.
     """
     module = _module_by_id(registry, module_id)
     if module is None:
@@ -535,7 +549,7 @@ def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, 
                 # declarations, not runtime references.
                 continue
             try:
-                content = path.read_text(encoding="utf-8")
+                content = _strip_fenced_code(path.read_text(encoding="utf-8"))
             except (OSError, UnicodeDecodeError):
                 continue
             for match in CANONICAL_RUNTIME_PATH_PATTERN.finditer(content):
@@ -543,6 +557,44 @@ def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, 
                 owner = _resolve_asset_owner(registry, reference)
                 if owner:
                     referenced.setdefault(reference, []).append(owner)
+    return referenced
+
+
+def _module_name_references(
+    root: Path, registry: dict, module_id: str
+) -> Dict[str, List[str]]:
+    """Scan for name-form references (@agent and <prefix>-skill-<name>).
+
+    Used by the cross-suite gate to catch couplings that path-form scanning
+    misses (e.g. a cr-* prompt dispatching @cg-* agents by bare name).
+    """
+    module = _module_by_id(registry, module_id)
+    if module is None:
+        return {}
+    referenced: Dict[str, List[str]] = {}
+    name_patterns = (AGENT_REF_PATTERN, SKILL_REF_PATTERN)
+    for pattern in module.get("ownedAssets", []):
+        if not isinstance(pattern, str):
+            continue
+        for canonical in canonical_assets(root):
+            if not _glob_match(pattern, canonical):
+                continue
+            path = root / canonical
+            if not path.exists():
+                continue
+            if canonical.endswith("module-registry.json"):
+                continue
+            try:
+                content = _strip_fenced_code(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError):
+                continue
+            for name_re in name_patterns:
+                for name_match in name_re.finditer(content):
+                    reference = _resolve_name_reference(registry, root, name_match.group(0))
+                    if reference:
+                        owner = _resolve_asset_owner(registry, reference)
+                        if owner:
+                            referenced.setdefault(reference, []).append(owner)
     return referenced
 
 
@@ -568,7 +620,9 @@ def check_cross_suite_references(root: Path) -> List[str]:
     )
     for suite_id in suites:
         closure = _transitive_dependency_closure(registry, suite_id)
-        refs = _module_references(root, registry, suite_id)
+        refs = dict(_module_references(root, registry, suite_id))
+        for reference, owners in _module_name_references(root, registry, suite_id).items():
+            refs.setdefault(reference, []).extend(owners)
         for target, owners in sorted(refs.items()):
             owner = sorted(set(owners))[0] if owners else None
             if owner is None:

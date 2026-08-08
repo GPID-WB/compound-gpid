@@ -301,6 +301,41 @@ class TestDependencyClosure:
         # deps remain valid. Unknown-asset references are not resolvable.
         assert all("nope" not in error for error in errors)
 
+    def test_name_form_agent_dispatch_cross_suite_is_detected(self, tmp_path: Path) -> None:
+        self._two_suite_repo(tmp_path)
+        _create_file(
+            tmp_path,
+            ".github/agents/cr-qualitative.agent.md",
+            "---\ndescription: cr qualitative\n---\nDispatch @cg-adversarial for review.\n",
+        )
+        _create_file(tmp_path, ".github/agents/cg-adversarial.agent.md", "---\ndescription: adversarial\n---\nbody\n")
+        registry, _ = validator.load_registry(tmp_path)
+        assert registry is not None
+        # cg-adversarial is owned by technical suite.
+        for module in registry["modules"]:
+            if module["id"] == "suite-cg":
+                module["ownedAssets"].append(".github/agents/cg-adversarial.agent.md")
+        _registry(tmp_path, registry)
+        errors = validator.check_cross_suite_references(tmp_path)
+        assert any("cross-suite" in error and "cg-adversarial" in error for error in errors)
+
+    def test_name_form_skill_load_cross_suite_is_detected(self, tmp_path: Path) -> None:
+        self._two_suite_repo(tmp_path)
+        _create_file(
+            tmp_path,
+            ".github/agents/cr-qualitative.agent.md",
+            "---\ndescription: cr qualitative\n---\nLoad `cg-skill-compound-docs` for capture.\n",
+        )
+        _create_file(tmp_path, ".github/skills/cg-skill-compound-docs/SKILL.md", "c\n")
+        registry, _ = validator.load_registry(tmp_path)
+        assert registry is not None
+        for module in registry["modules"]:
+            if module["id"] == "suite-cg":
+                module["ownedAssets"].append(".github/skills/cg-skill-compound-docs/")
+        _registry(tmp_path, registry)
+        errors = validator.check_cross_suite_references(tmp_path)
+        assert any("cross-suite" in error and "cg-skill-compound-docs" in error for error in errors)
+
 
 class TestOwnershipReport:
     def test_report_lists_every_asset_with_module(self, tmp_path: Path, capsys) -> None:

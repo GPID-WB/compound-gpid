@@ -8,8 +8,9 @@ Usage:
     python3 scripts/cg_migrate_config.py [--root <path>] [--check]
 
 Exit codes:
-    0  Success (migrated, no-op, or check passed).
-    1  Error (file missing and not check, or write failed).
+    0  Success (migrated, no-op, or check found up-to-date config).
+    1  Check mode found migration is needed.
+    2  Error (config file missing, or write failed).
 """
 from __future__ import annotations
 
@@ -68,15 +69,14 @@ def migrate_local_config(path: Path) -> MigrationResult:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:
         return MigrationResult(changed=False, error=f"could not read config: {exc}")
-    if bounds := _frontmatter_bounds(text):
-        if not _has_suites(text[bounds[0]:bounds[1]]):
-            new_text, _ = migrate_file_text(text)
-            try:
-                path.write_text(new_text, encoding="utf-8")
-            except OSError as exc:
-                return MigrationResult(changed=False, error=f"could not write config: {exc}")
-            return MigrationResult(changed=True)
-    return MigrationResult(changed=False)
+    new_text, changed = migrate_file_text(text)
+    if not changed:
+        return MigrationResult(changed=False)
+    try:
+        path.write_text(new_text, encoding="utf-8")
+    except OSError as exc:
+        return MigrationResult(changed=False, error=f"could not write config: {exc}")
+    return MigrationResult(changed=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -89,14 +89,14 @@ def main(argv: list[str] | None = None) -> int:
     path = root / LOCAL_CONFIG_PATH
     if not path.exists():
         print(f"Error: {LOCAL_CONFIG_PATH} not found at {root}", file=sys.stderr)
-        return 2 if not args.check else 0
+        return 2
 
     text = path.read_text(encoding="utf-8")
     bounds = _frontmatter_bounds(text)
     needs = bounds is not None and not _has_suites(text[bounds[0]:bounds[1]])
     if args.check:
         print("migration-needed" if needs else "up-to-date")
-        return 0 if not needs else 0
+        return 1 if needs else 0
 
     result = migrate_local_config(path)
     print("migrated" if result.changed else "no-op" if not result.error else "error")

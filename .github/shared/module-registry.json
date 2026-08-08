@@ -6,7 +6,7 @@
       "id": "kernel",
       "layer": "kernel",
       "displayName": "Kernel",
-      "description": "Lifecycle contracts, context loading, active state, Brain integration, model/review routing, canonical generation, installation, release, and architecture validation.",
+      "description": "Lifecycle contracts, context loading, active state, Brain/roadmap integration, model/review routing, canonical generation, installation, release, and architecture validation.",
       "dependsOn": [],
       "ownedAssets": [
         ".github/shared/*.contract.md",
@@ -15,7 +15,9 @@
         ".github/shared/model-advisory-examples.json",
         ".github/shared/retrieval-backends.json",
         ".github/shared/snapshot-research-modes.json",
-        ".github/skills/cg-skill-brain-query/"
+        ".github/skills/cg-skill-brain-query/",
+        ".github/agents/cg-roadmap.agent.md",
+        ".github/agents/cg-roadmap-view.agent.md"
       ],
       "ambiguous": []
     },
@@ -112,10 +114,41 @@
       "ambiguous": []
     },
     {
+      "id": "cap-review-agents",
+      "layer": "capability",
+      "displayName": "Generic review agents",
+      "description": "Specialized review agents (code quality, testing, architecture, performance, data quality, documentation, reproducibility, version control, adversarial, learnings) shared by both suites. Loaded by /cg-review and /cr-review dispatch.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/agents/cg-adversarial.agent.md",
+        ".github/agents/cg-architecture.agent.md",
+        ".github/agents/cg-code-quality.agent.md",
+        ".github/agents/cg-data-quality.agent.md",
+        ".github/agents/cg-documentation.agent.md",
+        ".github/agents/cg-learnings-researcher.agent.md",
+        ".github/agents/cg-performance.agent.md",
+        ".github/agents/cg-reproducibility.agent.md",
+        ".github/agents/cg-testing.agent.md",
+        ".github/agents/cg-version-control.agent.md"
+      ],
+      "ambiguous": []
+    },
+    {
+      "id": "cap-compound-docs",
+      "layer": "capability",
+      "displayName": "Knowledge capture",
+      "description": "Compound documentation / knowledge-capture conventions shared by /cg-compound and /cr-compound.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/skills/cg-skill-compound-docs/"
+      ],
+      "ambiguous": []
+    },
+    {
       "id": "suite-cg",
       "layer": "suite",
       "displayName": "Technical suite",
-      "description": "The /cg-* command orchestration surface: workflow prompts, specialized agents, and workflow-support skills.",
+      "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills.",
       "dependsOn": [
         "kernel",
         "cap-language-r",
@@ -125,15 +158,20 @@
         "cap-pester-safety",
         "cap-git-workflow",
         "cap-render-doc",
-        "cap-wb-report-writing"
+        "cap-wb-report-writing",
+        "cap-review-agents",
+        "cap-compound-docs"
       ],
       "ownedAssets": [
         ".github/prompts/cg-*.prompt.md",
         ".github/prompts/resume-templates.md",
         ".github/prompts/setup-templates.md",
-        ".github/agents/cg-*.agent.md",
+        ".github/agents/cg-fix-problems.agent.md",
+        ".github/agents/cg-plan-critic.agent.md",
+        ".github/agents/cg-project-scanner.agent.md",
+        ".github/agents/cg-release-scanner.agent.md",
+        ".github/agents/cg-wiki.agent.md",
         ".github/skills/cg-skill-brainstorming/",
-        ".github/skills/cg-skill-compound-docs/",
         ".github/skills/cg-skill-fix-triage-migrate/",
         ".github/skills/cg-skill-project-scanner/",
         ".github/skills/cg-skill-setup/",
@@ -159,11 +197,13 @@
       "id": "cap-language-research",
       "layer": "capability",
       "displayName": "Research language support",
-      "description": "LaTeX and math instruction files for research-domain writing.",
+      "description": "LaTeX and math instruction files plus the mathematical-derivation and symbolic-verification skills for research-domain writing and verification.",
       "dependsOn": ["kernel"],
       "ownedAssets": [
         ".github/instructions/latex.instructions.md",
-        ".github/instructions/math.instructions.md"
+        ".github/instructions/math.instructions.md",
+        ".github/skills/cr-skill-mathematical-derivation/",
+        ".github/skills/cr-skill-symbolic-verification/"
       ],
       "ambiguous": []
     },
@@ -179,7 +219,9 @@
         "cap-language-stata",
         "cap-language-powershell",
         "cap-research-output",
-        "cap-language-research"
+        "cap-language-research",
+        "cap-review-agents",
+        "cap-compound-docs"
       ],
       "ownedAssets": [
         ".github/prompts/cr-*.prompt.md",
@@ -187,14 +229,12 @@
         ".github/skills/cr-skill-academic-writing/",
         ".github/skills/cr-skill-evidence-provenance/",
         ".github/skills/cr-skill-identification-strategies/",
-        ".github/skills/cr-skill-mathematical-derivation/",
         ".github/skills/cr-skill-measurement/",
         ".github/skills/cr-skill-ml-economics/",
         ".github/skills/cr-skill-research-integrity/",
         ".github/skills/cr-skill-research-scoping/",
         ".github/skills/cr-skill-research-workflow/",
         ".github/skills/cr-skill-structural-econometrics/",
-        ".github/skills/cr-skill-symbolic-verification/",
         ".github/skills/cr-skill-theory-data-dialogue/"
       ],
       "ambiguous": []
