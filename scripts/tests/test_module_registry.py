@@ -336,6 +336,40 @@ class TestDependencyClosure:
         errors = validator.check_cross_suite_references(tmp_path)
         assert any("cross-suite" in error and "cg-skill-compound-docs" in error for error in errors)
 
+    def test_name_form_unknown_agent_and_skill_are_not_flagged(self, tmp_path: Path) -> None:
+        self._two_suite_repo(tmp_path)
+        _create_file(
+            tmp_path,
+            ".github/agents/cr-qualitative.agent.md",
+            "---\ndescription: cr qualitative\n---\nDispatch @cg-bogus and load `cg-skill-does-not-exist`.\n",
+        )
+        errors = validator.check_cross_suite_references(tmp_path)
+        unresolved = validator.check_unresolved_dependencies(tmp_path)
+        # Unknown names resolve to no canonical asset and must not produce
+        # false cross-suite or closure errors.
+        assert all("bogus" not in error and "does-not-exist" not in error for error in errors)
+        assert all("bogus" not in error and "does-not-exist" not in error for error in unresolved)
+
+
+class TestC2NoPhysicalRelocation:
+    def _repo_with_packages(self, tmp_path: Path) -> Path:
+        _minimal_assets(tmp_path)
+        (tmp_path / "packages/kernel").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "packages/kernel/file.txt").write_text("x\n", encoding="utf-8")
+        _registry(tmp_path, _default_registry())
+        return tmp_path
+
+    def test_packages_tree_violates_c2(self, tmp_path: Path) -> None:
+        self._repo_with_packages(tmp_path)
+        errors = validator.check_ownership(tmp_path)
+        assert any("C2" in error or "physical package relocation" in error for error in errors)
+
+    def test_no_packages_has_no_c2_error(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _registry(tmp_path, _default_registry())
+        errors = validator.check_ownership(tmp_path)
+        assert not any("C2" in error for error in errors)
+
 
 class TestOwnershipReport:
     def test_report_lists_every_asset_with_module(self, tmp_path: Path, capsys) -> None:

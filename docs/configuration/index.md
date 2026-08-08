@@ -16,6 +16,7 @@ contains the supported setup fields:
 | `r-syntax` | `data.table-collapse` or `tidyverse` | Selects the R manipulation dialect; `collapse` remains available for weighted statistics |
 | `project-type` | `package`, `analysis`, `dashboard`, `api`, `tool`, or `other` | Provides project-structure context |
 | `review-depth` | `light`, `standard`, or `thorough` | Sets the legacy default; `thorough` maps to `full` review |
+| `suites` | `[cg]` (default/absent), `[cr]`, `[cg, cr]` | Active suites for the modular architecture; selects which workflow prompts/skills load into routine sessions |
 | `artifact-html` | `true` or `false` | Explicitly enables automatic Brainstorm/Plan and generic Markdown HTML writes; validation remains mandatory |
 | `cg-schema-version` | Date-prefixed schema identifier | Managed by updates; do not edit manually |
 

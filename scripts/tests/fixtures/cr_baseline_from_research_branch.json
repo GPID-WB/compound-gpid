@@ -1,4 +1,5 @@
 {
+  "sourceRef": "origin/feat/compound-research-v2@e04b99c11568a47679d80dc2050aac7326709d47",
   "prompts": {
     "cr-brainstorm": {
       "headings": [
@@ -140,7 +141,6 @@
     ],
     "cr-skill-publication-output": [
       "description",
-      "modelsummary/fixest",
       "module",
       "name"
     ],
@@ -233,13 +233,28 @@
     ]
   },
   "instructions": {
-    "latex": [],
-    "math": []
+    "latex": [
+      "Anti-Patterns",
+      "BibTeX / BibLaTeX",
+      "Cross-Reference Conventions",
+      "Equation Environments",
+      "Notation Conventions",
+      "Required Packages",
+      "Variable Mapping Table"
+    ],
+    "math": [
+      "Equation Numbering",
+      "Required File Structure",
+      "Required Frontmatter",
+      "Sign and Reparametrization Conventions",
+      "Variable Mapping Table (mandatory)",
+      "Verification Checklist"
+    ]
   },
   "counts": {
     "prompts": 5,
     "agents": 11,
     "skills": 15,
-    "instructions": 0
+    "instructions": 2
   }
 }

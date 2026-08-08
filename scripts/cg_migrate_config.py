@@ -9,8 +9,8 @@ Usage:
 
 Exit codes:
     0  Success (migrated, no-op, or check found up-to-date config).
-    1  Check mode found migration is needed.
-    2  Error (config file missing, or write failed).
+    1  Check mode found migration is needed, or a write/read failure occurred.
+    2  Config file is missing.
 """
 from __future__ import annotations
 

@@ -25,7 +25,11 @@ def _frontmatter_keys(text: str) -> list[str]:
         block = text.lstrip("\ufeff\r\n").split("---", 2)[1]
     except IndexError:
         return []
-    return sorted(line.split(":", 1)[0].strip() for line in block.splitlines() if ":" in line)
+    return sorted(
+        line.split(":", 1)[0].strip()
+        for line in block.splitlines()
+        if ":" in line and not line.startswith((" ", "\t"))
+    )
 
 
 def _headings(text: str) -> list[str]:
@@ -106,12 +110,28 @@ class TestCrBaseline:
             assert "description" in keys, agent.name
             assert "tools" in keys, agent.name
 
+    def test_cr_instruction_headings_preserved(self) -> None:
+        fixture = _load_fixture()
+        for name, expected_headings in fixture.get("instructions", {}).items():
+            path = REPO_ROOT / ".github/instructions" / f"{name}.instructions.md"
+            if not path.exists():
+                continue
+            headings = _headings(path.read_text(encoding="utf-8"))
+            assert set(expected_headings) <= set(headings), (
+                f"{name}.instructions.md missing baseline headings: "
+                f"{sorted(set(expected_headings) - set(headings))}"
+            )
+
     def test_cr_asset_count_matches_fixture_when_imported(self) -> None:
         fixture = _load_fixture()
         actual_prompts = len(list((REPO_ROOT / ".github/prompts").glob("cr-*.prompt.md")))
         actual_agents = len(list((REPO_ROOT / ".github/agents").glob("cr-*.agent.md")))
         actual_skills = len(_skill_dir_names())
-        actual_instructions = len(list((REPO_ROOT / ".github/instructions").glob("cr-*.instructions.md")))
+        # Research instructions are the LaTeX and math files (not cr-* prefixed).
+        research_instructions = [
+            name for name in ("latex", "math")
+            if (REPO_ROOT / ".github/instructions" / f"{name}.instructions.md").exists()
+        ]
         if actual_prompts == 0 and actual_agents == 0 and actual_skills == 0:
             return  # CR not yet imported — baseline is a forward pin
         assert actual_prompts >= len(fixture["prompts"]), (
@@ -122,4 +142,8 @@ class TestCrBaseline:
         )
         assert actual_skills >= len(fixture["skills"]), (
             f"Only {actual_skills} cr-skills imported; expected at least {len(fixture['skills'])}"
+        )
+        assert len(research_instructions) >= len(fixture.get("instructions", {})), (
+            f"Only {len(research_instructions)} research instructions present; "
+            f"expected at least {len(fixture.get('instructions', {}))}"
         )

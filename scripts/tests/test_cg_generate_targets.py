@@ -543,6 +543,54 @@ class TestNamespaceAgnosticSkills:
             assert (root / tree / "cr-skill-identification" / "SKILL.md").exists(), tree
 
 
+class TestContextBudgetFailFast:
+    """--active-suites must fail loudly on misconfiguration (P2) instead of
+    silently generating an unfiltered or empty tree."""
+
+    def _registry(self, root: Path) -> None:
+        _write(root / ".github/shared/module-registry.json", json.dumps({
+            "schemaVersion": 1,
+            "description": "test",
+            "modules": [
+                {
+                    "id": "kernel",
+                    "layer": "kernel",
+                    "displayName": "Kernel",
+                    "description": "k",
+                    "dependsOn": [],
+                    "ownedAssets": [".github/shared/*.contract.md", ".github/prompts/cg-*.prompt.md"],
+                },
+                {
+                    "id": "suite-cg",
+                    "layer": "suite",
+                    "displayName": "CG",
+                    "description": "cg",
+                    "dependsOn": ["kernel"],
+                    "ownedAssets": [".github/prompts/cg-*.prompt.md", ".github/agents/cg-*.agent.md", ".github/skills/cg-skill-r-*/", ".github/instructions/r.instructions.md"],
+                },
+            ],
+        }))
+
+    def test_unknown_suite_fails_and_writes_nothing(self, tmp_path: Path, capsys) -> None:
+        root = _make_fixture_repo(tmp_path)
+        self._registry(root)
+        exit_code = gen.main(["--root", str(root), "--all", "--active-suites", "cgx"])
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "unknown active suite" in captured.err
+        assert not (root / ".claude").exists()
+        assert not (root / ".kilo").exists()
+
+    def test_missing_registry_with_active_suites_fails(self, tmp_path: Path, capsys) -> None:
+        root = _make_fixture_repo(tmp_path)
+        assert not (root / ".github/shared/module-registry.json").exists()
+        exit_code = gen.main(["--root", str(root), "--all", "--active-suites", "cg"])
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "requires module-registry.json" in captured.err
+        assert not (root / ".claude").exists()
+
+
 class TestOwnershipManifest:
     """Tests for ownership manifest commit/write path (P2.3)."""
 

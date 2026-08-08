@@ -16,7 +16,7 @@ status: active
 ## Completed Steps And Phases
 
 - 2026-08-07: Step 1, module-registry schema + validator + unit tests (18 tests).
-- 2026-08-07: Step 2, full canonical asset inventory + classification (84 assets; 0 unowned; 0 multi-owned) + ownership report mode.
+- 2026-08-07: Step 2, full canonical asset inventory + classification (117 assets (84 CG + 33 CR); 0 unowned; 0 multi-owned) + ownership report mode.
 - 2026-08-07: Step 3, namespace-agnostic generator discovery + adapter template + audit SKILL_REF_RE/brain-query paths + test updates (82 generator tests, ns tests).
 - 2026-08-07: Step 4, dependency-closure + cross-suite reference checker + CI gate (V4/V9).
 - 2026-08-07: Step 5, CG characterization manifest fixture + CR forward baseline from research branch (V5/V6).
@@ -49,7 +49,7 @@ status: active
 | ID | Status | Artifact |
 |----|--------|----------|
 | V1 | passed | `pytest scripts/tests/test_module_registry.py` — 22 passed |
-| V2 | passed | `python scripts/cg_validate_modules.py --check-ownership` — exit 0, 84 assets owned |
+| V2 | passed | `python scripts/cg_validate_modules.py --check-ownership` — exit 0, 117 assets owned |
 | V3 | passed | `pytest scripts/tests/test_cg_generate_targets.py -k namespace` — 4 passed |
 | V4 | passed | `python scripts/cg_validate_modules.py --check-dependencies` — exit 0 |
 | V5 | passed | `pytest scripts/tests/test_cg_characterization.py` — 3 passed |

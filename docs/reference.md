@@ -553,6 +553,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
 | `review-depth` | `"light"`, `"standard"`, `"thorough"` | Legacy depth default for `/cg-review`; `thorough` maps to the `full` route. Explicit routed modes can be passed at invocation time. |
+| `suites` | `[cg]` (default/absent), `[cr]`, `[cg, cr]` | Active suite configuration for the modular architecture. Selects which workflow prompts/skills are loaded into routine sessions; the generator context-budget filter and `cg_migrate_config.py` use this field. |
 | `artifact-html` | `true`, `false` | Explicit opt-in for automatic Brainstorm/Plan and generic Markdown HTML writes. Missing or invalid values default disabled (invalid values warn). Validation, explicit render, and `--check` remain available. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 

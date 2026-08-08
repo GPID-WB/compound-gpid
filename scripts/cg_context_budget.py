@@ -36,12 +36,26 @@ MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 LOCAL_CONFIG_PATH = "compound-gpid.local.md"
 
 
+def _strip_yaml_comment(value: str) -> str:
+    """Strip a trailing YAML ``# comment`` outside of quotes."""
+    in_single = in_double = False
+    for index, char in enumerate(value):
+        if char == "'" and not in_double:
+            in_single = not in_single
+        elif char == '"' and not in_single:
+            in_double = not in_double
+        elif char == "#" and not in_single and not in_double:
+            return value[:index].rstrip()
+    return value
+
+
 def read_active_suites(config_text: str) -> list[str]:
     """Extract the ``suites:`` field from a compound-gpid.local.md frontmatter.
 
     Absent or invalid values default to ``["cg"]`` (backward compatible).
-    Supports inline flow lists including quoted elements (e.g.
-    ``suites: ["cg", "cr"]``).
+    Supports inline flow lists (``suites: [cg, cr]``, including quoted
+    elements and trailing comments) and block sequences (``suites:\n  - cg\n
+    - cr``), skipping comment/blank lines inside a block.
     """
     if not config_text.lstrip("\ufeff\r\n").startswith("---"):
         return ["cg"]
@@ -49,13 +63,33 @@ def read_active_suites(config_text: str) -> list[str]:
         block = config_text.lstrip("\ufeff\r\n").split("---", 2)[1]
     except IndexError:
         return ["cg"]
-    for line in block.splitlines():
+    lines = block.splitlines()
+    for index, line in enumerate(lines):
         if line.startswith("suites:"):
             raw = line.partition(":")[2].strip()
-            cleaned = raw.strip("[]")
-            # Split on commas then strip quotes and whitespace per element,
-            # matching both [cg, cr] and ["cg", "cr"].
-            values = [v.strip().strip("\"' ").replace(" ", "") for v in cleaned.split(",") if v.strip()]
+            raw = _strip_yaml_comment(raw)
+            if raw:
+                # Inline flow list.
+                cleaned = raw.strip("[]")
+                values = [
+                    v.strip().strip("\"' ")
+                    for v in cleaned.split(",")
+                    if v.strip() and not v.strip().startswith("#")
+                ]
+            else:
+                # Block sequence following the header; skip comments/blank lines.
+                values = []
+                for following in lines[index + 1:]:
+                    stripped = following.strip()
+                    if not stripped:
+                        continue
+                    if stripped.startswith("#"):
+                        continue
+                    if not stripped.startswith("-"):
+                        break
+                    item = _strip_yaml_comment(stripped[1:].strip().strip("\"' "))
+                    if item:
+                        values.append(item)
             values = [v for v in values if v]
             if values:
                 return values
@@ -66,8 +100,9 @@ def resolve_active_suite_ids(registry: dict, active_suites: list[str]) -> set[st
     """Map user-facing suite names (e.g. ``cg``, ``cr``) to module ids.
 
     A suite module matches when its id equals the requested name or ends with
-    ``-<name>`` (e.g. ``suite-cg`` matches ``cg``). Names that resolve to no
-    suite module are dropped (callers may warn).
+    ``-<name>`` (e.g. ``suite-cg`` matches ``cg``). Resolves against
+    suite-layer modules only, so capability-pack id suffixes (``r`` →
+    ``cap-language-r``) are never silently treated as suites.
     """
     suite_ids = {
         m.get("id")
@@ -119,16 +154,22 @@ def _resolve_active_suite_ids(registry: dict, active_suites: list[str]) -> set[s
 
 def loadable_modules(registry: dict, active_suites: list[str]) -> list[dict]:
     """Modules whose assets are loadable for the active suite configuration."""
-    all_ids = {m.get("id") for m in registry.get("modules", []) if isinstance(m, dict)}
-    unknown_suites = [s for s in active_suites if s not in all_ids and not any(
-        sid.endswith(f"-{s}") for sid in all_ids
-    )]
+    suite_ids = {
+        m.get("id")
+        for m in registry.get("modules", [])
+        if isinstance(m, dict) and m.get("layer") == "suite"
+    }
+    resolved = resolve_active_suite_ids(registry, active_suites)
+    unknown_suites = [
+        name for name in active_suites
+        if name not in suite_ids
+        and not any(sid.endswith(f"-{name}") for sid in suite_ids)
+    ]
     if unknown_suites:
         raise ValueError(
             "unknown active suite name(s), refusing to generate an empty tree: "
             + ", ".join(sorted(unknown_suites))
         )
-    active = _resolve_active_suite_ids(registry, active_suites)
     # Kernel is always loadable.
     kernel_ids = {
         m.get("id")
@@ -136,7 +177,7 @@ def loadable_modules(registry: dict, active_suites: list[str]) -> list[dict]:
         if isinstance(m, dict) and m.get("layer") == "kernel"
     }
     loadable_ids: set[str] = set(kernel_ids)
-    for suite in active:
+    for suite in resolved:
         loadable_ids |= transitive_dependencies(registry, suite)
     return [m for m in registry.get("modules", []) if isinstance(m, dict) and m.get("id") in loadable_ids]
 
@@ -186,6 +227,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 1
     except json.JSONDecodeError as exc:
         print(f"Error: {MODULE_REGISTRY_PATH} is malformed JSON: {exc}", file=sys.stderr)
+        return 1
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
         return 1
 
     config_path = root / args.config

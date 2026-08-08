@@ -9,6 +9,7 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import shutil
@@ -40,9 +41,10 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
         pytest.fail(f"Generator failed while building structured plan: {exc}")
 
 
-def _expected_paths(root: Path) -> set[str]:
+@functools.lru_cache(maxsize=8)
+def _expected_paths(root: Path) -> frozenset[str]:
     plan = _build_structured_plan(root)
-    return {entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS
+    return frozenset({entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS)
 
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:

@@ -82,3 +82,24 @@ class TestMigration:
         result = migration.migrate_local_config(missing)
         assert result.changed is False
         assert result.error is not None
+
+
+class TestMigrationCli:
+    def test_check_reports_needed_with_exit_1(self, tmp_path: Path, capsys) -> None:
+        _write(tmp_path, LEGACY_CONFIG)
+        assert migration.main(["--root", str(tmp_path), "--check"]) == 1
+        assert "migration-needed" in capsys.readouterr().out
+
+    def test_check_reports_up_to_date_with_exit_0(self, tmp_path: Path, capsys) -> None:
+        _write(tmp_path, MODERN_CONFIG)
+        assert migration.main(["--root", str(tmp_path), "--check"]) == 0
+        assert "up-to-date" in capsys.readouterr().out
+
+    def test_missing_file_returns_exit_2(self, tmp_path: Path, capsys) -> None:
+        assert migration.main(["--root", str(tmp_path), "--check"]) == 2
+        assert "not found" in capsys.readouterr().err
+
+    def test_no_frontmatter_config_is_noop(self, tmp_path: Path) -> None:
+        path = _write(tmp_path, "# Just a body with no frontmatter\n")
+        result = migration.migrate_local_config(path)
+        assert result.changed is False

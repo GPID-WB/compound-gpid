@@ -7,6 +7,7 @@ native trees for Claude Code, Codex, OpenCode, and Kilo.
 
 Usage:
     python3 scripts/cg_generate_targets.py [--root <path>] [--target <platform>] [--all] [--dry-run]
+    python3 scripts/cg_generate_targets.py [--root <path>] --all [--active-suites <comma-separated-suite-names>]
 
 Exit codes:
     0  Success.

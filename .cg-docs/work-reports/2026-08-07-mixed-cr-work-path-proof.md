@@ -27,7 +27,7 @@ suite's domain skills and shared capability packs:
 | `cr-skill-research-integrity` | `suite-cr` | suite | P0 silent-error catalog |
 | `cr-skill-research-scoping` | `suite-cr` | suite | normative-decision taxonomy |
 | `cr-skill-evidence-provenance` | `suite-cr` | suite | evidence provenance protocol |
-| `cr-skill-mathematical-derivation` | `suite-cr` | suite | derivation conventions |
+| `cr-skill-mathematical-derivation` | `cap-language-research` | capability | derivation conventions |
 | `cr-skill-measurement` | `suite-cr` | suite | measurement/classification |
 | `cr-skill-publication-output` | `cap-research-output` | capability | regression/LateX output primitives |
 | `cr-skill-replication-standards` | `cap-research-output` | capability | reproducibility/replication |
@@ -43,14 +43,21 @@ suite's domain skills and shared capability packs:
   (capability pack).
 - Reproducibility mode loads `cr-skill-replication-standards` ↔
   `cap-research-output` (capability pack).
-- Implementation mode resolves R style through `.github/instructions/r.instructions.md`
-  ↔ `cap-language-r` (capability pack) and `cr-skill-mathematical-derivation` (suite).
+- Implementation mode resolves derivation conventions through
+  `cr-skill-mathematical-derivation` ↔ `cap-language-research` (capability pack).
 - Context staging resolves through `.github/shared/context-loading.contract.md`
   ↔ `kernel`.
 
-None of the resolved references point to `.github/prompts/cg-*`,
-`.github/agents/cg-*`, or any asset owned by `suite-cg`. The technical suite is
-not on this path.
+Note: `/.github/instructions/r.instructions.md` is a capability-pack asset
+(`cap-language-r`) that applies in research implementation mode via the platform
+auto-applying language instruction files; it is not directly referenced by the
+`/cr-work` prompt body itself.
+
+None of the resolved owned-asset references resolve to `.github/prompts/cg-*`,
+`.github/agents/cg-*`, or any asset owned by `suite-cg`. The technical suite's
+assets are not on this path (though `/cr-work` behaviorally defers to `/cg-work`
+conventions for plan loading and phase parsing, which is a documentation-level
+delegation, not an owned-asset dependency).
 
 ## Enforcement
 
@@ -64,5 +71,6 @@ same CR assets emit to all five platform trees.
 ## Result
 
 The mixed `/cr-work` path resolves entirely through kernel and capability packs
-plus the research suite's own domain skills. No direct technical-suite
-dependency exists: **proof complete**.
+plus the research suite's own domain skills. No owned-asset reference resolves
+to `suite-cg`: the cross-suite gate confirms no direct technical-suite
+dependency — **proof complete**.

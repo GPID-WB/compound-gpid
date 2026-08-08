@@ -90,10 +90,38 @@ class TestActiveSuites:
         text = "---\nlanguage: both\nsuites: [\"cg\", \"cr\"]\nreview-depth: thorough\n---\n# config\n"
         assert budget.read_active_suites(text) == ["cg", "cr"]
 
+    def test_read_active_suites_block_style(self) -> None:
+        text = "---\nlanguage: both\nsuites:\n  - cg\n  - cr\nreview-depth: thorough\n---\n# config\n"
+        assert budget.read_active_suites(text) == ["cg", "cr"]
+
     def test_unresolved_suite_name_fails_loudly(self, tmp_path: Path) -> None:
         registry = budget.load_registry(tmp_path, _minimal_registry())
         with pytest.raises(ValueError, match="unknown active suite"):
             budget.loadable_modules(registry, ["cgx"])
+
+    def test_capability_id_suffix_is_not_treated_as_suite(self, tmp_path: Path) -> None:
+        """P1: capability id suffixes (r, research, output, docs) must fail
+        loudly, not silently produce a kernel-only tree."""
+        registry = budget.load_registry(tmp_path, _minimal_registry(CR_SUITE))
+        for bogus in ("r", "research", "output", "docs"):
+            with pytest.raises(ValueError, match="unknown active suite"):
+                budget.loadable_modules(registry, [bogus])
+
+    def test_block_style_suite_list_with_comment(self) -> None:
+        text = "---\nlanguage: both\nsuites:\n# note\n  - cg\n  - cr\nreview-depth: thorough\n---\n# config\n"
+        assert budget.read_active_suites(text) == ["cg", "cr"]
+
+    def test_inline_suite_list_with_trailing_comment(self) -> None:
+        text = "---\nlanguage: both\nsuites: [cg, cr]  # both\nreview-depth: thorough\n---\n# config\n"
+        assert budget.read_active_suites(text) == ["cg", "cr"]
+
+    def test_filtered_manifest_wires_modules_and_globs(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, _minimal_registry(CR_SUITE))
+        manifest = budget.filtered_manifest(registry, ["cg"])
+        assert manifest["activeSuites"] == ["cg"]
+        assert "suite-cg" in manifest["loadableModules"]
+        assert "suite-cr" not in manifest["loadableModules"]
+        assert any("cg-*.prompt.md" in glob for glob in manifest["loadableAssetGlobs"])
 
     def test_loadable_modules_cg_only(self, tmp_path: Path) -> None:
         registry = budget.load_registry(tmp_path, _minimal_registry())

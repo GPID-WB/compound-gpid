@@ -36,7 +36,7 @@ This plan implements the decision in
 Compound GPID currently combines product infrastructure, reusable technical
 knowledge, and user-facing technical workflows under the `cg-*` namespace. The
 `origin/feat/compound-research-v2` branch adds a research suite under `cr-*`
-(5 prompts, 11 agents, 14 skills, 2 new instruction domains — 305 files changed
+(5 prompts, 11 agents, 15 skills, 2 new instruction domains — 305 files changed
 vs main). The branch demonstrates valuable research behavior but exposes
 incomplete architectural boundaries: the canonical target generator
 discovers skills through a hard-coded `.github/skills/cg-skill-*` glob
@@ -544,12 +544,12 @@ The Token Efficiency roadmap milestone is unaffected and can resume after Phase
 
 ## Documentation Checklist
 
-- [ ] `docs/modular-guide.md` — task-oriented suite selection, composition, preferences, extension, migration (Step 13)
-- [ ] `.cg-docs/compatibility-matrix.md` — CG-only/CR-only/mixed/legacy/drift/context-budget matrix (Step 10)
-- [ ] `docs/reference.md` — cross-link to modular guide
-- [ ] `docs/skills/index.md` — cross-link to modular guide
-- [ ] `.github/shared/module-registry.json` — documented schema (in-file comment)
-- [ ] `compound-gpid.md` — Key Deliverables + Current Focus (Step 14, deferred)
+- [x] `docs/modular-guide.md` — task-oriented suite selection, composition, preferences, extension, migration (Step 13)
+- [x] `.cg-docs/compatibility-matrix.md` — CG-only/CR-only/mixed/legacy/drift/context-budget matrix (Step 10)
+- [x] `docs/reference.md` — cross-link to modular guide
+- [x] `docs/skills/index.md` — cross-link to modular guide
+- [x] `.github/shared/module-registry.json` — documented schema (in-file description)
+- [x] `compound-gpid.md` — Key Deliverables + Current Focus (Step 14, completed)
 
 ## Risks & Mitigations
 

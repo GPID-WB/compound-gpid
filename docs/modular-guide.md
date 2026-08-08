@@ -16,7 +16,7 @@ single-suite package.
 |---|---|---|
 | Develop code, fix bugs, manage infrastructure, or run a technical workflow | `/cg-work`, `/cg-plan`, `/cg-review`, `/cg-fixbug`, … | Technical (`cg`) |
 | Run a research workflow: scoping, identification, measurement, econometrics, replication, publication output | `/cr-work`, `/cr-plan`, `/cr-review`, `/cr-compound`, … | Research (`cr`) |
-| Mixed: research that implements code, tests, and reproduces | `/cr-work` (it loads R/Python/Stata skills automatically) | Research — composes technical capabilities |
+| Mixed: research that implements code, tests, and reproduces | `/cr-work` (research conventions apply automatically in implementation mode) | Research — composes technical capabilities |
 
 Concise rule of thumb: **`/cg-*` drives the technical loop; `/cr-*` drives the
 research loop.** A research task often *uses* technical capabilities (language
@@ -34,7 +34,8 @@ or both suites:
   replication standards, research EDA).
 - **Research language support** — `cap-language-research` (LaTeX/math).
 - **Other shared capability packs** — Pester safety, git workflow, document
-  rendering, World Bank report writing.
+  rendering, World Bank report writing, generic review agents (`cap-review-agents`),
+  and knowledge capture (`cap-compound-docs`).
 
 You do not need to name dependencies. Loading `/cr-work` in a project with
 `suites: [cg, cr]` automatically pulls the research suite, kernel, and every
@@ -60,9 +61,11 @@ suites: [cg, cr]
 ```
 
 Generator-level enforcement: `python scripts/cg_generate_targets.py --all --active-suites cg`
-emits only CG + shared assets (1071 files in main), while `--active-suites cg,cr`
-emits the full 1214-file tree. The context loader (`.kilo/shared/context-loading.contract.md`)
-follows the same rule at instruction level.
+emits only CG + shared assets (1071 generated-platform-tree files in this repo,
+equal to the pre-modular CG baseline), while `--active-suites cg,cr` emits the full
+1214-file tree. The context loader (`.github/shared/context-loading.contract.md`,
+canonical source; copied to each platform tree) follows the same rule at
+instruction level.
 
 ## Migration from the legacy single-suite package
 
@@ -91,5 +94,6 @@ Adding a capability pack or a future suite is data in `.github/shared/module-reg
 5. Regenerate: `python scripts/cg_generate_targets.py --all`, then run the drift
    gate (`pytest scripts/tests/test_target_drift.py`).
 
-> See [Reference](reference.md) for command contracts and the module-registry
-> schema. See [Skills](skills/index.md) for the skill catalog.
+> See [Reference](reference.md) for command contracts and configuration fields;
+> the module-registry schema is documented in `.github/shared/module-registry.json`.
+> See [Skills](skills/index.md) for the skill catalog.

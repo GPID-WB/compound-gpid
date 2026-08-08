@@ -15,8 +15,8 @@ Usage:
 
 Exit codes:
     0  All selected checks pass.
-    1  Validation failed.
-    2  Missing or invalid project root / registry.
+    1  Validation failed (including missing/malformed registry).
+    2  Missing or invalid project root.
 
 Requirements: Python 3.8+, stdlib only.
 """
@@ -33,6 +33,7 @@ if sys.version_info < (3, 8):
     sys.exit(1)
 
 import argparse
+import functools
 import json
 import re
 from fnmatch import fnmatchcase
@@ -97,8 +98,13 @@ def _canonical_categories(root: Path) -> Dict[str, List[str]]:
     return assets
 
 
+@functools.lru_cache(maxsize=16)
 def canonical_assets(root: Path) -> List[str]:
-    """Return every canonical asset path (POSIX, repo-relative), sorted."""
+    """Return every canonical asset path (POSIX, repo-relative), sorted.
+
+    Memoized: the inventory is re-scanned repeatedly by the reference scanners;
+    the tree is effectively immutable within a validation run.
+    """
     collected = set()
     for paths in _canonical_categories(root).values():
         collected.update(paths)
@@ -205,22 +211,20 @@ def validate_registry_schema(registry: dict) -> List[str]:
         if layer not in VALID_LAYERS:
             errors.append(f"{prefix}: layer must be one of {sorted(VALID_LAYERS)}, got {layer!r}")
 
-        for field in ("displayName", "description"):
+        for field in ("displayName", "description", "dependsOn", "ownedAssets"):
             if field not in module:
                 errors.append(f"{prefix}: missing required field '{field}'")
-            elif not isinstance(module[field], str):
-                errors.append(f"{prefix}.{field}: must be a string")
 
         depends_on = module.get("dependsOn", [])
-        if not isinstance(depends_on, list):
+        if "dependsOn" in module and not isinstance(depends_on, list):
             errors.append(f"{prefix}.dependsOn: must be an array")
-        else:
+        elif "dependsOn" in module:
             for dep_index, dep in enumerate(depends_on):
                 if not isinstance(dep, str) or not dep:
                     errors.append(f"{prefix}.dependsOn[{dep_index}]: must be a non-empty string")
 
         owned_assets = module.get("ownedAssets", [])
-        if not isinstance(owned_assets, list):
+        if "ownedAssets" in module and not isinstance(owned_assets, list):
             errors.append(f"{prefix}.ownedAssets: must be an array")
         else:
             for asset_index, asset in enumerate(owned_assets):
@@ -472,6 +476,14 @@ def _resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
     return None
 
 
+def _owner_map(registry: dict, assets: Iterable[str]) -> Dict[str, Optional[str]]:
+    """Build asset -> owning module (single-owner) once, for O(1) lookups."""
+    mapping: Dict[str, Optional[str]] = {}
+    for asset in assets:
+        mapping[asset] = _resolve_asset_owner(registry, asset)
+    return mapping
+
+
 def _transitive_dependency_closure(registry: dict, module_id: str) -> set[str]:
     """Full recursive dependency closure for a module (dependsOn + theirs)."""
     closure: set[str] = set()
@@ -487,21 +499,25 @@ def _transitive_dependency_closure(registry: dict, module_id: str) -> set[str]:
     return closure
 
 
-def _resolve_name_reference(registry: dict, root: Path, name: str) -> Optional[str]:
+def _resolve_name_reference(
+    registry: dict,
+    name: str,
+    assets: Optional[Iterable[str]] = None,
+) -> Optional[str]:
     """Map a bare agent or skill name to its canonical asset path, if owned.
 
     Accepts ``@cg-<name>`` / ``@cr-<name>`` agent references and
     ``<prefix>-skill-<name>`` skill references. Returns the canonical repo
     path (e.g. ``.github/agents/cg-roadmap.agent.md``) or None.
     """
-    assets = canonical_assets(root)
+    asset_set = set(assets) if assets is not None else set(canonical_assets("."))
     if name.startswith("@"):
         agent_name = name[1:]
         candidate = f".github/agents/{agent_name}.agent.md"
-        return candidate if candidate in assets else None
+        return candidate if candidate in asset_set else None
     if "-skill-" in name:
         candidate = f".github/skills/{name}/SKILL.md"
-        return candidate if candidate in assets else None
+        return candidate if candidate in asset_set else None
     return None
 
 
@@ -524,7 +540,13 @@ def _strip_fenced_code(text: str) -> str:
     return "".join(output)
 
 
-def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, List[str]]:
+def _module_references(
+    root: Path,
+    registry: dict,
+    module_id: str,
+    owners: Optional[Dict[str, Optional[str]]] = None,
+    assets: Optional[Iterable[str]] = None,
+) -> Dict[str, List[str]]:
     """Scan one module's owned canonical asset bodies for references.
 
     Returns {referenced_path: [owning_module_ids...]} for each reference that
@@ -534,11 +556,14 @@ def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, 
     module = _module_by_id(registry, module_id)
     if module is None:
         return {}
+    if owners is None or assets is None:
+        assets = canonical_assets(root)
+        owners = _owner_map(registry, assets)
     referenced: Dict[str, List[str]] = {}
     for pattern in module.get("ownedAssets", []):
         if not isinstance(pattern, str):
             continue
-        for canonical in canonical_assets(root):
+        for canonical in assets:
             if not _glob_match(pattern, canonical):
                 continue
             path = root / canonical
@@ -554,14 +579,18 @@ def _module_references(root: Path, registry: dict, module_id: str) -> Dict[str, 
                 continue
             for match in CANONICAL_RUNTIME_PATH_PATTERN.finditer(content):
                 reference = ".github/" + match.group(0).removeprefix(".github/").rstrip(".,;:")
-                owner = _resolve_asset_owner(registry, reference)
+                owner = owners.get(reference)
                 if owner:
                     referenced.setdefault(reference, []).append(owner)
     return referenced
 
 
 def _module_name_references(
-    root: Path, registry: dict, module_id: str
+    root: Path,
+    registry: dict,
+    module_id: str,
+    owners: Optional[Dict[str, Optional[str]]] = None,
+    assets: Optional[Iterable[str]] = None,
 ) -> Dict[str, List[str]]:
     """Scan for name-form references (@agent and <prefix>-skill-<name>).
 
@@ -571,12 +600,16 @@ def _module_name_references(
     module = _module_by_id(registry, module_id)
     if module is None:
         return {}
+    if owners is None or assets is None:
+        assets = canonical_assets(root)
+        owners = _owner_map(registry, assets)
+    asset_set = set(assets)
     referenced: Dict[str, List[str]] = {}
     name_patterns = (AGENT_REF_PATTERN, SKILL_REF_PATTERN)
     for pattern in module.get("ownedAssets", []):
         if not isinstance(pattern, str):
             continue
-        for canonical in canonical_assets(root):
+        for canonical in assets:
             if not _glob_match(pattern, canonical):
                 continue
             path = root / canonical
@@ -590,9 +623,9 @@ def _module_name_references(
                 continue
             for name_re in name_patterns:
                 for name_match in name_re.finditer(content):
-                    reference = _resolve_name_reference(registry, root, name_match.group(0))
+                    reference = _resolve_name_reference(registry, name_match.group(0), asset_set)
                     if reference:
-                        owner = _resolve_asset_owner(registry, reference)
+                        owner = owners.get(reference)
                         if owner:
                             referenced.setdefault(reference, []).append(owner)
     return referenced
@@ -618,13 +651,15 @@ def check_cross_suite_references(root: Path) -> List[str]:
         for module in registry.get("modules", [])
         if isinstance(module, dict) and module.get("layer") == "suite"
     )
+    assets = list(canonical_assets(root))
+    owner_map = _owner_map(registry, assets)
     for suite_id in suites:
         closure = _transitive_dependency_closure(registry, suite_id)
-        refs = dict(_module_references(root, registry, suite_id))
-        for reference, owners in _module_name_references(root, registry, suite_id).items():
-            refs.setdefault(reference, []).extend(owners)
-        for target, owners in sorted(refs.items()):
-            owner = sorted(set(owners))[0] if owners else None
+        refs = dict(_module_references(root, registry, suite_id, owner_map, assets))
+        for reference, ref_owners in _module_name_references(root, registry, suite_id, owner_map, assets).items():
+            refs.setdefault(reference, []).extend(ref_owners)
+        for target, ref_owners in sorted(refs.items()):
+            owner = sorted(set(ref_owners))[0] if ref_owners else None
             if owner is None:
                 continue
             owner_module = _module_by_id(registry, owner)
@@ -795,7 +830,7 @@ def main(
     if args.report:
         for line in _ownership_report(root, registry):
             print(line)
-        errors = check_ownership(root) + check_dependencies(root)
+        errors = check_ownership(root) + check_dependencies(root) + check_cross_suite(root)
     else:
         selected = [
             name for name, flag in (
