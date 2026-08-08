@@ -67,13 +67,13 @@ status: active
 
 | ID | Status | Result |
 |----|--------|--------|
-| C1 | passed | `Invoke-Pester tests/prompt-tools.Tests.ps1` via safe runner — passed |
+| C1 | passed | Full Pester suite via safe runner — 2488 passed, 0 failed (includes prompt-tools) |
 | C2 | passed | registry validator: no `packages/` source tree (check_no_physical_relocation) |
 | C3 | passed | `pytest scripts/tests/test_target_drift.py` — 16 passed (368s) |
 | C4 | passed | `git diff --stat` confirmed selective CR import (no wholesale merge) |
 | C5 | passed | context-budget: CG-only generation = 1071 files, unchanged from pre-CR |
 | C6 | passed | instruction-level context-budget limitation documented in contract |
-| C7 | passed | `Invoke-Pester tests/install.Tests.ps1` via safe runner — passed |
+| C7 | passed | Full Pester suite — install.Tests.ps1 green |
 
 ## Remaining Uncertainty
 
