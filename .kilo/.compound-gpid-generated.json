@@ -1849,13 +1849,13 @@
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
       "kind": "skill-resource",
       "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081",
-      "executable": true
+      "executable": false
     },
     {
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "2162f93c5bd3e814f15b2e73a50386eb35e2301993e3515908e6b5b8eb36850f",
+      "sha256": "265fb749c8c2e52175646d3868f0b45ceb858ec8a7814951d8d89b9c0d0ce21f",
       "executable": false
     },
     {

@@ -618,8 +618,8 @@ Describe "bash-scripts - .gitattributes enforces LF for bash files" {
         Test-Path $gitattributes | Should -Be $true
     }
 
-    It ".gitattributes sets eol=lf for scripts/*.sh" {
-        $content | Should -Match "scripts/\*\.sh.*eol=lf"
+    It ".gitattributes sets eol=lf for *.sh files" {
+        $content | Should -Match "\*\.sh.*eol=lf"
     }
 
     It ".gitattributes sets eol=lf for bin/cg-* wrappers" {

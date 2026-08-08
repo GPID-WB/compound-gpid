@@ -84,8 +84,8 @@ PowerShell). Both entries run the same five rules and report identical results.
 
 ```bash
 # macOS / Linux (bash; also works in Git Bash on Windows)
-./Invoke-YamlLint.sh
-./Invoke-YamlLint.sh -Path .kilo -Fix
+bash Invoke-YamlLint.sh
+bash Invoke-YamlLint.sh -Path .kilo -Fix
 ```
 ```powershell
 # Windows (PowerShell)
@@ -111,8 +111,8 @@ numbers.
 - **Creating** a new agent or skill file — validate before committing
 - **Editing** an existing agent or skill file — validate after editing
 - **"Failed to parse agent"** errors from Kilo — run the linter to find the cause
-- **Pre-commit hook** — run `Invoke-YamlLint.sh` (macOS/Linux) or
-  `Invoke-YamlLint.ps1` (Windows) before committing `.kilo/` changes
+- **Pre-commit hook** — run `bash Invoke-YamlLint.sh` (macOS/Linux) or
+  `.\Invoke-YamlLint.ps1` (Windows) before committing `.kilo/` changes
 
 ## Quick Manual Check
 
