@@ -81,7 +81,7 @@ REQUIRED_CAPABILITY_FIELDS = {"supportsNativeCommands", "supportsNativeSkills", 
 REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
 REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents", "instructions", "shared"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
-VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
+VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "copy-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
 TARGET_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 WINDOWS_RESERVED_NAMES = {
     "con", "prn", "aux", "nul",
@@ -270,7 +270,7 @@ def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
                 errors.append(f"{unit_prefix}.{field}: must be a string")
             elif field in unit:
                 errors.extend(_validate_repo_relative_path(f"{unit_prefix}.{field}", unit[field]))
-        expected_type = "directory" if strategy == "link-directory" else "file"
+        expected_type = "directory" if strategy in ("link-directory", "copy-directory") else "file"
         if strategy in VALID_INSTALL_UNIT_STRATEGIES and unit_type in VALID_INSTALL_UNIT_TYPES and unit_type != expected_type:
             errors.append(f"{unit_prefix}: strategy '{strategy}' requires type '{expected_type}', not '{unit_type}'")
         if "manualSnippet" in unit and not isinstance(unit["manualSnippet"], str):
