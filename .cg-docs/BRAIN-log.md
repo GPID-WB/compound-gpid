@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
+_Generated 2026-08-10 · 490 artifacts (newest first) + 142 roadmap features_
 
 ## undated
 
@@ -123,6 +123,34 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-10
+
+- **[2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2](.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md)** · `review` · _—_ · `2026-08-10`
+  > **Review mode**: light (verification) **Prior review**: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workf…
+- **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
+  > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
+
+## 2026-08-07
+
+- **[Modular Compound GPID architecture for technical and research suites](.cg-docs/plans/2026-08-07-modular-compound-gpid.md)** · `plan` · _completed_ · `2026-08-07`
+  > Introduce a validated three-layer module registry (kernel, capability packs, suites) over the existing canonical `.gi…
+
+## 2026-08-06
+
+- **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
+  > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Kilo agent/skill parsing failures — JSON Schema validation bug + YAML/encoding issues](.cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md)** · `solution` · _—_ · `2026-08-06`
+  > Both VS Code and Positron report parsing failures for all agent and skill files: - **VS Code** (v7.4.20, Windows): "F…
+
+## 2026-08-05
+
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md)** · `plan` · _active_ · `2026-08-05`
+  > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _active_ · `2026-08-05`
+  > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
+- **[Kilo platform missing markdown_source permission for symlinked commands](.cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md)** · `solution` · _—_ · `2026-08-05`
+  > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
+
 ## 2026-08-04
 
 - **[2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review](.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md)** · `review` · _—_ · `2026-08-04`
@@ -179,6 +207,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Add a deterministic, schema-aware rendering system that keeps Brainstorm and Plan Markdown authoritative while produc…
 - **[Implement Dual-Audience Workflow Artifact Views \(Revised\)](.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md)** · `plan` · _completed_ · `2026-07-31`
   > Add mandatory, deterministic validation for Brainstorm and Plan Markdown and an optional schema-aware renderer that p…
+- **[Modular Compound GPID architecture for technical and research suites](.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md)** · `brainstorm` · _decided_ · `2026-07-31`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 
 ## 2026-07-30
 
@@ -1227,6 +1257,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Update custom agents for model and tool governance
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
+- **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
+  > Make automatic artifact HTML publication opt-in by default
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
 - **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
@@ -1297,12 +1329,16 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Command default behaviors (auto-branch, phases, autofix, context enrichment)
 - **[Compound workflow contract and .cg-docs/workflows/ schema](roadmap.json#compound-workflow-contract)** · `feature` · _idea_ · `—`
   > Compound workflow contract and .cg-docs/workflows/ schema
+- **[Context-budget enforcement design](roadmap.json#context-budget-enforcement-design)** · `feature` · _planned_ · `—`
+  > Context-budget enforcement design
 - **[Conversation audit trail across workflow stages](roadmap.json#conversation-audit-trail)** · `feature` · _idea_ · `—`
   > Conversation audit trail across workflow stages
 - **[Copilot CLI execution with worktrees \(Model C\)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
   > Copilot CLI execution with worktrees (Model C)
 - **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
   > copilot-instructions.md restructuring (blocked on hooks evaluation)
+- **[CR asset classification mapping](roadmap.json#cr-asset-classification-mapping)** · `feature` · _planned_ · `—`
+  > CR asset classification mapping
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
@@ -1347,6 +1383,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
   > Define model tiers and escalation rules
+- **[Modular Compound GPID architecture for technical and research suites](roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites)** · `feature` · _done_ · `—`
+  > Modular Compound GPID architecture for technical and research suites
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
   > Multi-folder workspace awareness in copilot-instructions.md and prompts
 - **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
@@ -1459,6 +1497,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Audit current context and model usage
 - **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
   > Benchmark before and after
+- **[Token Efficiency vs modular priority resolution](roadmap.json#token-efficiency-vs-modular-priority-resolution)** · `feature` · _planned_ · `—`
+  > Token Efficiency vs modular priority resolution
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
 - **[User-selected execution with advisory model and effort routing](roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing)** · `feature` · _done_ · `—`

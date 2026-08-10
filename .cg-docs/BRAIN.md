@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-04 · 618 entities · 4 topics · 266 edges_
+_Generated 2026-08-10 · 632 entities · 4 topics · 268 edges_
 
 ## How to Use
 
@@ -13,8 +13,8 @@ _Generated 2026-08-04 · 618 entities · 4 topics · 266 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 435 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Workflow Maturity Objective / Knowledge Brain Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective) | 137 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 442 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 142 | BRAIN-02.md |
 | 3 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
 | 4 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
 
@@ -22,21 +22,21 @@ _Generated 2026-08-04 · 618 entities · 4 topics · 266 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 49 |
-| feature | 137 |
-| plan | 96 |
-| review | 143 |
-| solution | 179 |
+| brainstorm | 50 |
+| feature | 142 |
+| plan | 99 |
+| review | 144 |
+| solution | 183 |
 | strategy | 14 |
 
-_39 entities not assigned to any topic_
+_41 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 62 |
+| decided_from | 63 |
 | implements | 23 |
 | references | 56 |
 | reviews | 73 |
-| verifies | 52 |
+| verifies | 53 |

@@ -1,5 +1,5 @@
 {
-  "edge_count": 266,
+  "edge_count": 268,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -371,6 +371,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
       "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
+      "target": ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
       "target_missing": false
     },
     {
@@ -1103,6 +1109,12 @@
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
       "target": ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
       "target_missing": false
     },
     {
@@ -2958,6 +2970,37 @@
         "brainstorm",
         "cg-plan",
         "cg-work"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+      "slug": "2026-07-31-modular-compound-gpid-architecture",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "architecture",
+        "modularity",
+        "compound-research",
+        "technical-suite",
+        "capability-packs",
+        "routing",
+        "packaging",
+        "migration"
+      ],
+      "title": "Modular Compound GPID architecture for technical and research suites",
+      "top_keywords": [
+        ".github/",
+        "shared",
+        "cg-*",
+        "suites",
+        "architecture",
+        "approach",
+        "cr-*",
+        "/cg-*",
+        "research",
+        "modular"
       ]
     },
     {
@@ -5796,6 +5839,102 @@
         "phase",
         "filteredfiles",
         "--check"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2",
+      "status": "active",
+      "summary": "phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers",
+      "tags": [
+        "github",
+        "copilot",
+        "issues",
+        "project",
+        "ci",
+        "dispatch",
+        "security",
+        "workflow-maturity",
+        "automation"
+      ],
+      "title": "Controlled GitHub Copilot issue-implementation pipeline",
+      "top_keywords": [
+        "roadmap.json",
+        "section",
+        "stage",
+        "workflow_dispatch",
+        "project status",
+        "phase",
+        "features[].github",
+        "test scenarios",
+        "project",
+        "cg-issues"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline",
+      "status": "active",
+      "summary": "> **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08-05-copilot-issue-implementation-pipeline-v2.md` (v2). > **Do not execute from this plan.** Use v2 for all execution, phase gates, and handoff.",
+      "tags": [
+        "github",
+        "copilot",
+        "issues",
+        "project",
+        "ci",
+        "dispatch",
+        "security",
+        "workflow-maturity",
+        "automation"
+      ],
+      "title": "Controlled GitHub Copilot issue-implementation pipeline",
+      "top_keywords": [
+        "roadmap.json",
+        "section",
+        "stage",
+        "workflow_dispatch",
+        "phase",
+        "features[].github",
+        "test scenarios",
+        "project status",
+        "cg-issues",
+        "@cg-roadmap"
+      ]
+    },
+    {
+      "date": "2026-08-07",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
+      "slug": "2026-08-07-modular-compound-gpid",
+      "status": "completed",
+      "summary": "Introduce a validated three-layer module registry (kernel, capability packs, suites) over the existing canonical `.github/` tree so that every canonical asset has one declared owner, the dependency graph is acyclic and cross-suite-safe, and the research suite (`cr-*`) is imported by capability without direct technical-suite coupling — all while preserving generated-target parity across Copilot, Claude Code, Codex, OpenCode, and Kilo and the stable `/cg-*` user surface.",
+      "tags": [
+        "architecture",
+        "modularity",
+        "compound-research",
+        "technical-suite",
+        "capability-packs",
+        "registry",
+        "packaging",
+        "migration",
+        "dependency-validation"
+      ],
+      "title": "Modular Compound GPID architecture for technical and research suites",
+      "top_keywords": [
+        "cg-skill-*",
+        "test scenarios",
+        "cg_validate_modules.py",
+        "cg-*",
+        "test_target_drift.py",
+        "compound-gpid.local.md",
+        ".github/",
+        "cr-*",
+        "/cr-work",
+        "pytest scripts/tests/test_target_drift.py"
       ]
     },
     {
@@ -8835,6 +8974,28 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
+      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2",
+      "status": "",
+      "summary": "**Review mode**: light (verification) **Prior review**: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md` **Files reviewed**: 2 changed paths (`scripts/evidence/tests/manifest.test.js`; `.cg-docs/reviews/2026-08-03-...-review.md` frontmatter statuses) **Suppression policy**: P0/P1 and cross-file breakage always reported; P2/P3 suppressed only for blocks explicitly listed as `fixed` in the prior review.",
+      "tags": [],
+      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2",
+      "top_keywords": [
+        "cg-code-quality",
+        "sha256",
+        "npm test",
+        "@cg-testing",
+        "evidence-schema2.json",
+        "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+        "fixed",
+        "review",
+        "passed",
+        "reviews"
+      ]
+    },
+    {
       "date": "2026-08-04",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
@@ -10682,13 +10843,105 @@
         "source",
         "capture",
         "site",
-        "bundled",
         "evidence",
+        "bundled",
         "axe",
         "axe-core",
         "must",
         "audit",
         "axesource"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
+      "slug": "2026-08-05-kilo-markdown-source-permission",
+      "status": "",
+      "summary": "After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid installation, but Kilo refuses to load the external command files. The `/cg-*` commands do not appear in Kilo's command picker because the global `~/.config/kilo/kilo.jsonc` lacks the required `markdown_source` permission.",
+      "tags": [
+        "kilo",
+        "symlink",
+        "permissions",
+        "global-config",
+        "kilo.jsonc",
+        "markdown_source",
+        "platform-support"
+      ],
+      "title": "Kilo platform missing markdown_source permission for symlinked commands",
+      "top_keywords": [
+        "markdown_source",
+        "link.ps1",
+        "link.sh",
+        "~/.config/kilo/kilo.jsonc",
+        "cg-link",
+        "kilo.jsonc",
+        "kilo",
+        "unlink.ps1",
+        "unlink.sh",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
+      "slug": "2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees",
+      "status": "",
+      "summary": "`compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the file between computers for Compound GPID skills and agents to function correctly, and each copy could drift from the team's canonical settings.",
+      "tags": [
+        "gitignore",
+        "compound-gpid.local.md",
+        "version-control",
+        "worktree",
+        "team-config",
+        "pester"
+      ],
+      "title": "compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones",
+      "top_keywords": [
+        "compound-gpid.local.md",
+        ".gitignore",
+        "compound-gpid.context.md",
+        "cg-setup.prompt.md",
+        "test",
+        "## notes",
+        "tests/run-tests.ps1",
+        "$testnames",
+        "compound-gpid",
+        "local"
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md",
+      "slug": "2026-08-06-kilo-agent-skill-parsing-failures",
+      "status": "",
+      "summary": "Both VS Code and Positron report parsing failures for all agent and skill files: - **VS Code** (v7.4.20, Windows): \"Failed to parse agent errors for\" all 17 agent files in `.kilo/agents/` — listed uniformly, not individually - **Positron** (macOS): \"Failed to parse skill /.../cg-skill-fix-triage-migrate/SKILL.md with UnknownError\"",
+      "tags": [
+        "kilo",
+        "agents",
+        "skills",
+        "yaml",
+        "frontmatter",
+        "parsing",
+        "json-schema",
+        "config-validation",
+        "encoding",
+        "mojibake"
+      ],
+      "title": "Kilo agent/skill parsing failures — JSON Schema validation bug + YAML/encoding issues",
+      "top_keywords": [
+        "description",
+        "config_validation",
+        "cg-learnings-researcher.md",
+        "â€\"",
+        "--",
+        "kilo",
+        "cg-project-scanner.md",
+        "cg-release-scanner.md",
+        "cg-roadmap-view.md",
+        "skill.md"
       ]
     },
     {
@@ -14342,6 +14595,37 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
+      "slug": "2026-08-10-evidence-manifest-tests-require-referenced-files",
+      "status": "",
+      "summary": "The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes matched actual file content, but each check was guarded by `if (fs.existsSync(...))`: When a manifest referenced a **missing** source, view, or print-preview PDF, the guard made the hash assertion a no-op and the test passed. The symptom was a manifest that \"looked valid\" while its referenced evidence artifacts were absent — so corrupted or partial evidence could pass validation. A capture failure could therefore emit (or accept) a manifest that appeared green. A secondary symptom: the guard was dead code after the sibling hash test was hardened, and...",
+      "tags": [
+        "browser-evidence",
+        "manifest",
+        "playwright",
+        "sha256",
+        "silent-skip",
+        "test-hardening",
+        "fail-loudly",
+        "existence-check"
+      ],
+      "title": "Evidence manifest tests must require referenced files to exist and be non-empty before hashing",
+      "top_keywords": [
+        "manifest",
+        "if (fs.existssync(...))",
+        "evidence",
+        "referenced",
+        "non-empty",
+        "tests",
+        "must",
+        "sha256",
+        "exist",
+        "require"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -15730,6 +16014,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites",
+      "slug": "modular-compound-gpid-architecture-for-technical-and-research-suites",
+      "status": "done",
+      "summary": "Modular Compound GPID architecture for technical and research suites",
+      "tags": [],
+      "title": "Modular Compound GPID architecture for technical and research suites",
+      "top_keywords": [
+        "modular compound",
+        "architecture research\nobjective",
+        "architecture",
+        "research",
+        "modular",
+        "compound",
+        "gpid",
+        "technical",
+        "suites",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brainstorm-plan-id-traceability",
       "slug": "brainstorm-plan-id-traceability",
       "status": "idea",
@@ -16588,6 +16894,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#artifact-html-opt-in-default",
+      "slug": "artifact-html-opt-in-default",
+      "status": "planned",
+      "summary": "Make automatic artifact HTML publication opt-in by default",
+      "tags": [],
+      "title": "Make automatic artifact HTML publication opt-in by default",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "automatic",
+        "artifact",
+        "html",
+        "publication",
+        "opt-in",
+        "default",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -17111,6 +17439,72 @@
         "html",
         "views",
         "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-asset-classification-mapping",
+      "slug": "cr-asset-classification-mapping",
+      "status": "planned",
+      "summary": "CR asset classification mapping",
+      "tags": [],
+      "title": "CR asset classification mapping",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "asset",
+        "classification",
+        "mapping",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing",
+        "objective",
+        "catch-all"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#context-budget-enforcement-design",
+      "slug": "context-budget-enforcement-design",
+      "status": "planned",
+      "summary": "Context-budget enforcement design",
+      "tags": [],
+      "title": "Context-budget enforcement design",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "context-budget",
+        "enforcement",
+        "design",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing",
+        "objective",
+        "catch-all"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#token-efficiency-vs-modular-priority-resolution",
+      "slug": "token-efficiency-vs-modular-priority-resolution",
+      "status": "planned",
+      "summary": "Token Efficiency vs modular priority resolution",
+      "tags": [],
+      "title": "Token Efficiency vs modular priority resolution",
+      "top_keywords": [
+        "token efficiency",
+        "ongoing ideas\nobjective",
+        "token",
+        "efficiency",
+        "modular",
+        "priority",
+        "resolution",
+        "milestone",
+        "ideas",
+        "feature"
       ]
     },
     {
@@ -17664,13 +18058,13 @@
       ]
     }
   ],
-  "entity_count": 618,
-  "generated": "2026-08-04",
+  "entity_count": 632,
+  "generated": "2026-08-10",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 435,
+      "entity_count": 442,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -17718,6 +18112,7 @@
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
+        ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -17815,6 +18210,8 @@
         ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
         ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
+        ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+        ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -17945,6 +18342,7 @@
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
+        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
@@ -17991,6 +18389,8 @@
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
+        ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
+        ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -18093,6 +18493,7 @@
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
         ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -18117,7 +18518,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 137,
+      "entity_count": 142,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -18168,6 +18569,7 @@
         "roadmap.json#canonical-to-native-packaging-foundation",
         "roadmap.json#attribution-documentation",
         "roadmap.json#github-actions-supply-chain-hardening-pilot",
+        "roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites",
         "roadmap.json#brainstorm-plan-id-traceability",
         "roadmap.json#inline-self-review-brainstorm-plan",
         "roadmap.json#verification-before-completion-cg-work",
@@ -18207,6 +18609,7 @@
         "roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html",
         "roadmap.json#workflow-completion-report-and-html-dossier",
         "roadmap.json#automatic-post-pr-verification-handoff",
+        "roadmap.json#artifact-html-opt-in-default",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -18231,6 +18634,9 @@
         "roadmap.json#runtime-model-catalog-introspection-across-platforms",
         "roadmap.json#historical-html-backfill-for-existing-compound-gpid-artifacts",
         "roadmap.json#broader-artifact-publishing-formats-and-views",
+        "roadmap.json#cr-asset-classification-mapping",
+        "roadmap.json#context-budget-enforcement-design",
+        "roadmap.json#token-efficiency-vs-modular-priority-resolution",
         "roadmap.json#token-audit-context-model",
         "roadmap.json#model-tier-definitions",
         "roadmap.json#model-policy-tests",
@@ -18260,10 +18666,10 @@
       "keywords": [
         "architecture research\nobjective",
         "workflow maturity\nobjective",
-        "knowledge brain\nobjective"
+        "ongoing ideas\nobjective"
       ],
-      "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Knowledge Brain\nObjective",
-      "slug": "architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective"
+      "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Ongoing Ideas\nObjective",
+      "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
     },
     {
       "entity_count": 4,
