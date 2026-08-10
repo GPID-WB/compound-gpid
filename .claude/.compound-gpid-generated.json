@@ -77,14 +77,14 @@
       "path": ".claude/agents/cg-project-scanner.md",
       "source": ".github/agents/cg-project-scanner.agent.md",
       "kind": "agent",
-      "sha256": "3efd513a7e6b422510c156c558a53977a18ef14280482b80def643ddd5ee662c",
+      "sha256": "9e5b13f0c9e1e18be0dae955803af75fae3ec5caf45dde3a973ac9d4b0f6e24f",
       "executable": false
     },
     {
       "path": ".claude/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "36d769546b0f7b39228f078868ca5bd4dfd6dc01319d9f9b4eaa140d53a1e5aa",
+      "sha256": "943333dbbe4ea32e245b9fac9eaef85e4e24cd5552ff5cbac23556b94f15297f",
       "executable": false
     },
     {
@@ -98,7 +98,7 @@
       "path": ".claude/agents/cg-roadmap-view.md",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "agent",
-      "sha256": "6d94d771db46b1f4b0f5fb613e1e5854843c886a76e91977cb1fcfc3a47ee419",
+      "sha256": "47cc6dcdbb4262e985406d62c7de5f0118278df5f40909bd552ad7d6929ce8fa",
       "executable": false
     },
     {
@@ -924,7 +924,7 @@
       "path": ".claude/skills/cg-skill-stata-best-practices/SKILL.md",
       "source": ".github/skills/cg-skill-stata-best-practices/SKILL.md",
       "kind": "skill",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab",
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591",
       "executable": false
     },
     {
@@ -1344,7 +1344,7 @@
       "path": ".claude/skills/cg-skill-stata-testing/SKILL.md",
       "source": ".github/skills/cg-skill-stata-testing/SKILL.md",
       "kind": "skill",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24",
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f",
       "executable": false
     },
     {
@@ -1834,14 +1834,28 @@
       "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed",
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "kind": "skill-resource",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081",
       "executable": false
     },
     {
       "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9",
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "kind": "skill-resource",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
       "executable": false
     }
   ]
