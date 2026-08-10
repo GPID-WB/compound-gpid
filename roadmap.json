@@ -911,7 +911,7 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "in-progress",
+      "status": "planned",
       "features": [
         {
           "id": "token-audit-context-model",

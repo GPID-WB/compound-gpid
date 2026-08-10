@@ -23,7 +23,7 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-data-quality.md",
-      "sha256": "51b4d7c9b40abcaa1383f147488f6a5737070b504433a11e2e37a16b4e6a31d3"
+      "sha256": "cf67283e7488c6ffdaf0013874c02edfb610a1170921ffb6d53495018f16698a"
     },
     {
       "kind": "agent",
@@ -43,7 +43,7 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-performance.md",
-      "sha256": "cbc1fd1edb0465129d46a1f8968b08bc5410d117624d46ae613b7b0d4c8db3d4"
+      "sha256": "2577a9b64c80612346be9b96711b2cc6d90635438604153c440cb72ebf911017"
     },
     {
       "kind": "agent",
@@ -63,7 +63,7 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-reproducibility.md",
-      "sha256": "818209c9393593020fde9025fbc8dcfa51ab2f90cb9d88b6dc18f2ce10a4cdf0"
+      "sha256": "edae0d94ea712acaff34deda5613da86a5bfdb7382abb408ecefc966fbd3421e"
     },
     {
       "kind": "agent",
@@ -78,7 +78,7 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-testing.md",
-      "sha256": "5a58d78a83d9c8e4ee580a0bca78e11b9f1337e5240dd10f4e5b179a64773a9b"
+      "sha256": "d899d760268638c3c90f13f8a0d015a833d48133934f25556f403c37d9f1b702"
     },
     {
       "kind": "agent",
@@ -93,57 +93,57 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cr-academic-writing.md",
-      "sha256": "7f3090505bf2abbc04e8f40d4fdd0fbac4d4d582ec28cb980e7dd44fc91b852a"
+      "sha256": "c8934019d5899188e041351cba5be66c7f427ba5ee8bafffc3641a52bf3e88a7"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-econometric-reasoning.md",
-      "sha256": "c24c2ac6afbf3a3c390eaf8602911dfbc69a9aef200568921702e550367f26d5"
+      "sha256": "e89388fec7a10e3007184993f6f31fd1adea644d18587ec8a329a9d7fb1d48f5"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-identification-audit.md",
-      "sha256": "57f62b6d65bc9635c524a04564feab0bc394e77324f16fc89f333fa65add01eb"
+      "sha256": "da3ef00fe40ac72e4c7bc35c17648681a6e9600220f75b5009df54c2aa19751e"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-mathematical-verification.md",
-      "sha256": "404d9475ef06ad6b4eb32564e4dec2eab7d28a084d09c97267c99960b10d4a81"
+      "sha256": "65b6feb11ba23270f88283c5a67192b99e9dbf7aa6b9fee2ead7c204007c6b13"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-measurement-integrity.md",
-      "sha256": "e401e9142fe12657f212fed9f52c95e4a15837e93a451e3d749413f13c6eddfd"
+      "sha256": "5fc8f188dba59ebdbd5dee39dc65276fa906a963e5bf9daf14c9c5eca3480643"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-ml-methodology.md",
-      "sha256": "b161cc389029586ec11c376c7ef71a874e00689890475bedd407cae792d8d66a"
+      "sha256": "f369028208235d3f0354ba968b09db1a7bb50d4e687065abf262d17ab1bf5e9a"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-provenance-audit.md",
-      "sha256": "a7b431c2a85797e21ab4dd999a749f98ed5f123713a4a1fc0c10c77799ddf35f"
+      "sha256": "19e4914ecbb1141f151b78b025733300d515542e59996466aa4e0d11c91b0a46"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-publication-output.md",
-      "sha256": "730a88546cd6ec7bff6ead83f77bcdce2146fd9a36d88fe08c76aa946701c52b"
+      "sha256": "51f452d49bfea153687d1a83947310ef8ed16f6dcb40141aba2bc09d16b755fa"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-replication-package.md",
-      "sha256": "0838850ff06a1d6a5150d9bbc43791527882b04273f3a71f929ea642c71325f4"
+      "sha256": "979dc120883fd808c01ba0a957772e2b46fd2a2c4527ed81b542d0724f81eacf"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-research-integrity.md",
-      "sha256": "4850100a9a415e9e0d7afe8753667e903140e07717bf6d5ddf6672942617dfc0"
+      "sha256": "ed38dadce067e929d4b96bfdafa5c269c6db3c51de2caa68bf0112200c4e6e03"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cr-specification-analysis.md",
-      "sha256": "9486b54d30849f1b7f99f2d0963174ad926d2e86606ced0a9dd0a475e13da470"
+      "sha256": "7e821c1d5e6c3f7c146125e83c635eabd72cb5e2d0ac0f0e65f321c18afcc5a2"
     },
     {
       "kind": "command",
@@ -248,7 +248,7 @@
     {
       "kind": "command",
       "path": ".claude/commands/cg-setup.md",
-      "sha256": "f1b5fbc5712a707bb7940e64432cadac84cbd0b75ea9930466c15d03a698fb2f"
+      "sha256": "cc80922a60f0c9d7fbf0bfd3fce74e43f79ec847b06f62e0146dc66666bd59fc"
     },
     {
       "kind": "command",
@@ -278,7 +278,7 @@
     {
       "kind": "command",
       "path": ".claude/commands/cr-brainstorm.md",
-      "sha256": "b7478da6ce3a329db6d2b9baa1769b133815be8735e74b8528a44b1917eaf2f5"
+      "sha256": "db8dad1f63acef29d759ad10fe2550e4bd46fb5fa885605b7500149e323b8704"
     },
     {
       "kind": "command",
@@ -288,17 +288,17 @@
     {
       "kind": "command",
       "path": ".claude/commands/cr-plan.md",
-      "sha256": "91ed6267a307b692fe104b0be3882753ae58a0d210f81ade8cdfdfc153c45262"
+      "sha256": "8427b9c1fac268df68c70c7a60473886673c75030e0fafe1e876b9bfd2f00d0c"
     },
     {
       "kind": "command",
       "path": ".claude/commands/cr-review.md",
-      "sha256": "f825628e8c28a1b0df89202eb1f33c25f50f7974b823f9225246f755dd976782"
+      "sha256": "5bec88a0c3ebc07950f8188aec043149ed53e0ccf67b6537ae41736ac69bdc35"
     },
     {
       "kind": "command",
       "path": ".claude/commands/cr-work.md",
-      "sha256": "215786442bddabc6703a45e932caca77aa44b649491745db2fc48f7d74081303"
+      "sha256": "cfdbad15f493a28568109af89c13cce4d2516f0cb7759baf90fdd9fb51482ba6"
     },
     {
       "kind": "prompt-support",
@@ -388,7 +388,7 @@
     {
       "kind": "shared",
       "path": ".claude/shared/target-mapping.json",
-      "sha256": "1cc166a7c438a8378ec40d819fbc8319b533530f92ac91946861f576cf6c3beb"
+      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
     },
     {
       "kind": "skill",
@@ -743,7 +743,7 @@
     {
       "kind": "skill",
       "path": ".claude/skills/cg-skill-setup/SKILL.md",
-      "sha256": "63183fb122299c830ab821cb30e0ddd51c20f6ea708c7d364e42ffa8d526e71a"
+      "sha256": "1bbec9265db189709327b2d24088e26a9bfb558a02ba840430599073268bf070"
     },
     {
       "kind": "skill",
@@ -1600,7 +1600,7 @@
     {
       "kind": "command",
       "path": ".agents/commands/cg-setup.md",
-      "sha256": "8e135de08da5dc965eda6f2f0f00031b06ebf551ce12d1e8124130142f87db59"
+      "sha256": "ea460051540ff92da330a0408302d03bb5b4e97a3d461dcf3fe774ef66a905be"
     },
     {
       "kind": "command",
@@ -1630,7 +1630,7 @@
     {
       "kind": "command",
       "path": ".agents/commands/cr-brainstorm.md",
-      "sha256": "f74ddee15442800994b0df7ce224a021530827a9f8252e925456caa9a4255104"
+      "sha256": "b801d1902eb79522806aa23e98fd69f0af7043595e4c29d5e0133764a6b79417"
     },
     {
       "kind": "command",
@@ -1640,17 +1640,17 @@
     {
       "kind": "command",
       "path": ".agents/commands/cr-plan.md",
-      "sha256": "39a422fee77b53a107b460565697ad183009627e22dbeb55c51f60a05c19ca85"
+      "sha256": "a23c3440732aeb4ce3d52b3f4e79a8937e08d2778a1cf66152637b7fb5b8eefa"
     },
     {
       "kind": "command",
       "path": ".agents/commands/cr-review.md",
-      "sha256": "2666d4eefa116ab00664e2c4243946499163bc9ae35138e610d3f2f9f2eee61b"
+      "sha256": "69e1454fe13e221bca985c40f902d86a892ea4afe790385a867052d7629273e1"
     },
     {
       "kind": "command",
       "path": ".agents/commands/cr-work.md",
-      "sha256": "c9cf5624cbe1fa8d206d04d4d2328d114e2c07bf783dd113e7dbbed6f0bf56a1"
+      "sha256": "36141d1540c48f8df58edb8aa2ab36f12f54d73b0f8f96aa54cc7735253e6bef"
     },
     {
       "kind": "prompt-support",
@@ -1740,7 +1740,7 @@
     {
       "kind": "shared",
       "path": ".agents/shared/target-mapping.json",
-      "sha256": "1cc166a7c438a8378ec40d819fbc8319b533530f92ac91946861f576cf6c3beb"
+      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
     },
     {
       "kind": "fallback-agent",
@@ -1760,7 +1760,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-data-quality.md",
-      "sha256": "9db91a2e2976c53f8f457260a7904ba9aed684bde9bc5df740c7ecbf0257357c"
+      "sha256": "ddcc02245a5e1c8c89eee794a533928ae33991bdf957442d293616853a708b58"
     },
     {
       "kind": "fallback-agent",
@@ -1780,7 +1780,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-performance.md",
-      "sha256": "90514ad2686d43aa4d307ddfbd4c1174635303e0fb1f2bb87bc541176911b71a"
+      "sha256": "47aba1022e4adb5923c79a8b76aa080d0d81783e1394bb7fa1a52fec8313d9d1"
     },
     {
       "kind": "fallback-agent",
@@ -1800,7 +1800,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-reproducibility.md",
-      "sha256": "209303fdf01bf6f642146578a67fd41727307dbb230421436dcb89dda07fef4d"
+      "sha256": "9e9af79b70f481763cf104ff336fee989ba23964f829a146e97a1b8e0a081845"
     },
     {
       "kind": "fallback-agent",
@@ -2165,7 +2165,7 @@
     {
       "kind": "skill",
       "path": ".agents/skills/cg-skill-setup/SKILL.md",
-      "sha256": "9606ad0ed4827cd0f3af825c4b5f19b63258608848b1ca07cbff8064bfa0a8ad"
+      "sha256": "f96d2818252df7313ee61fc1d3a32b575d8654c80b206bd5d21a87eca04ed8f1"
     },
     {
       "kind": "skill",
@@ -2840,7 +2840,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-testing.md",
-      "sha256": "3a6e0c49c5020b8b3bc93f45972a031846bfbb271243574b9c97f9b54c56f815"
+      "sha256": "7f88d67d341404350bf7d9b931fb8dd9734f72e4b07d296ec535c6e9fb1c5e15"
     },
     {
       "kind": "fallback-agent",
@@ -2855,52 +2855,52 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-academic-writing.md",
-      "sha256": "1d177cdc9e78bc792a483eec8f3c5858f4fbded24b16ca30a6ddf6b635047f77"
+      "sha256": "37c614bce664f3834d005d1b5dc5df8b656ec0d0f263862c2b5870792f036c7c"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-econometric-reasoning.md",
-      "sha256": "2b9e7b8eaf56679e571540fdfce5f1142419b7c09ec5a8ce09abd1d22dae3320"
+      "sha256": "cd039500d907af69f0c0491728300f45a3f355f66e92eea0cd19520bb423501f"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-identification-audit.md",
-      "sha256": "bef0bad15697d747220a507992ac3b7863c08b545cd71b2d5733bf06ccbbe889"
+      "sha256": "682891105e1df666404da7628afa293892b82f98d801c3a7a11327e19bdf66f8"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-mathematical-verification.md",
-      "sha256": "73c25764e84bb453e4d0239f2d81f6eb60812a36e3292820bf130d199c993070"
+      "sha256": "3066eb0acce021261d4254f78139439150531160c68dbb3072d6aa1506b0caf2"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-measurement-integrity.md",
-      "sha256": "a6c76170963a36a8866109d3065715dc1a5cd7167ac6f4950eaf9bc076225123"
+      "sha256": "1f214d35444e234f9fd8d355975e050f2ae80459ab5e7db70df17481d4df6722"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-ml-methodology.md",
-      "sha256": "d5b309fa06d6cd2eb4fe20dd861684e1ae87bfb557ab39cdbf58a42edc99ec19"
+      "sha256": "a219345969c387c924865319c4c0af22b78a418ad8d03aa07f3cec87ff7c9442"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-provenance-audit.md",
-      "sha256": "64aecec308043351d449e56b503ab35fc1602b7062009d1d834542990e9290f0"
+      "sha256": "83408dfc20f9b3f03c2110f4f4abe2e152ec7df8634aa5bd528afe60389beb20"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-publication-output.md",
-      "sha256": "b24cef84262725394956c428034e11f082c0c3e3065325c673e27a32d3ff4e89"
+      "sha256": "51e15ebfe5d10d0bcdd64cf421c5e59624f5ea6a13b19abca52088d3a09e940d"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-replication-package.md",
-      "sha256": "7a2d47b648e4a22b8606189f6bb39d6c001de34bac381609b4f1873c0faef270"
+      "sha256": "0725d89ef6c010af694c2e500babdaebee0a8272628b617801c9577a5e9bd1d4"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-research-integrity.md",
-      "sha256": "e541bf622a7e538c2cb89de1f4fd26097855b6b349cccffccac8a72f15a2c9bd"
+      "sha256": "c768d65a2b590380d4f583876886f2d49815a5051adc66c24b272494a9acd134"
     },
     {
       "kind": "skill",
@@ -2980,7 +2980,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cr-specification-analysis.md",
-      "sha256": "c57cd5be33782a2d7b73d59c1dff4a60c773978f98aa46d4c5a94c4a7f9782f5"
+      "sha256": "6fcdf55d2a671bef785cb7abb95ce16c8752cc955203c818d7b4dbca8928d168"
     },
     {
       "kind": "agent",
@@ -3000,7 +3000,7 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-data-quality.toml",
-      "sha256": "7eb23fd344fc8b5550201849454301e58a13a85cde2d885494eea8405c88bba5"
+      "sha256": "c479f761f18f883be10046e860a08bcb7ca2c7f8a2619c47f5165ac74a7eecd9"
     },
     {
       "kind": "agent",
@@ -3020,7 +3020,7 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-performance.toml",
-      "sha256": "1abb1c13fdaeaa5000269db72a249ffad80b2c12454c5f4536c24b42b03f87e1"
+      "sha256": "1e1b0a718344852d21f7fc00cd25ef55edf82fc7635e78de09d9404724f0aa83"
     },
     {
       "kind": "agent",
@@ -3040,7 +3040,7 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-reproducibility.toml",
-      "sha256": "8cf7717ed7531a78df17c3de9189de405fc140f7b7013be6c1bd11743ecbfd2b"
+      "sha256": "3b1c0c5df1584653af071a509888dfbcd29552666ce507363bde4d7d31f1a8b1"
     },
     {
       "kind": "agent",
@@ -3055,7 +3055,7 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-testing.toml",
-      "sha256": "cdbc7e8566b1f81a9fb04b1bd285f7060feb1c3ac93941fe219464b72d84fa8e"
+      "sha256": "483cfbfc8adf47a9c7bff7e5e2cd2a807fa3c0aa4334815bf0a336a55a0823a3"
     },
     {
       "kind": "agent",
@@ -3070,57 +3070,57 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-academic-writing.toml",
-      "sha256": "cab480a748f553bfd4f45d06c2d582d8f935d018d0ea23e49e3dce4aef90fbc8"
+      "sha256": "52149713c5f0ffebae9ec6fededc1ad1e4f8f3c223d15372e58a6aba2c35d49e"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-econometric-reasoning.toml",
-      "sha256": "2002e7f5a13d788bd351af83683f6ea7adbb7fc496c2be82b441df30fe2dc8af"
+      "sha256": "214f3bbe4c589d6a34e9ded1a753d6b445c7a5687f09e50e4cac92159a2b2bc9"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-identification-audit.toml",
-      "sha256": "fcf677fb606f26336de07fa6937587d3eb53feb7f50af2e945ed2e336b984af2"
+      "sha256": "a970b7de38f445560bfb8f30940631dca0e85ab7d09ffccd5d4396fe9002ab79"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-mathematical-verification.toml",
-      "sha256": "5c1e1baa2faad2ebf893ff03b473e76b0c7f3f7987419a570874aa7794808a1c"
+      "sha256": "f76718257034424a36f36a36b36a7205a02d676b56cad671806d655f8537bc8b"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-measurement-integrity.toml",
-      "sha256": "ebb82817236a4f7b872011cf7e3f01acdd0aa5181ee0d8e556580b4ce378d8f8"
+      "sha256": "ba29d255250519e90ec65dfc1e06b8e330b4ad44d6219a5f217fb60ba15cea87"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-ml-methodology.toml",
-      "sha256": "81a7857a88943348255d2a7338a0213a9264cc4337158ab1b7d4f9eb0ab47f96"
+      "sha256": "f792bdb8aba76b48eca980bef667f1295518b7f530f8562701953e3d812297b7"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-provenance-audit.toml",
-      "sha256": "f46d9128e270595cb502621d02d7ef6900201cdab2b87e6832520db3490e85e2"
+      "sha256": "725403543835bd7a78f23e1f5084e0524b0fdc699d9740ac5d0002d729495dda"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-publication-output.toml",
-      "sha256": "c55a3be71aae76a0dc441a1869422859737ed0152ebff742196fa2004db1fa43"
+      "sha256": "52625e79cd175b3d80f12731c9ce06aea5801b207b0d5218951751b9a13aea67"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-replication-package.toml",
-      "sha256": "acb0d6dd47c17409daf7b52038f2e5d59aa6527beb336040d1757c6a7c7b0770"
+      "sha256": "a721ab627733f9459356cfad7b0caf054dda626245da7c4c47f4729b38e4c543"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-research-integrity.toml",
-      "sha256": "fc71449d8dde36e28c399ccbf1727550f28d389696a9b486dfdddcc6f9cbe40c"
+      "sha256": "2f37e72bd94561b8a1eaa9fc0d97934acefcc4390de34c24b326f3fbbc5d0b96"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cr-specification-analysis.toml",
-      "sha256": "a215cfd8c625b2b52185b3c65646954c2f1081d1158e62d4dee9eb4ca9c0337a"
+      "sha256": "654da0c7d27237d7ea745f241a14e2871fd369fd25d659d8b0884bf100957ed1"
     }
   ],
   "kilo": [
@@ -3147,7 +3147,7 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-data-quality.md",
-      "sha256": "5aa128679829ea565b9c9a6372d53188bd870eec3da460102620de17db2c225d"
+      "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
     },
     {
       "kind": "agent",
@@ -3167,7 +3167,7 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-performance.md",
-      "sha256": "07bd6983bdb93b99eff383155486d17bf59ed7573e861017e88a2a94eb1e950c"
+      "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
     },
     {
       "kind": "agent",
@@ -3187,7 +3187,7 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-reproducibility.md",
-      "sha256": "c09d14809f953bd411100696303f295b1caab03a5ca1c0d093279ac28de0f7b4"
+      "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
     },
     {
       "kind": "agent",
@@ -3202,7 +3202,7 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-testing.md",
-      "sha256": "414cdf9fd303c45b10cb10ef09f7ff959ea3553af60e8f7bac66a5c53586b159"
+      "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
     },
     {
       "kind": "agent",
@@ -3217,57 +3217,57 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-academic-writing.md",
-      "sha256": "3123400040af3ff531162395aed1ec67b030e845bd0a08cd34ba4d6688f17df1"
+      "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-econometric-reasoning.md",
-      "sha256": "ca43ee53267edb9e1d15a0db6564d6ad1db21c6cc3f74992d30bcc49a1dfe614"
+      "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-identification-audit.md",
-      "sha256": "3fd88ea3f990799d204dfdca731df2c5c3a3d2e913ca54500100d486e004103c"
+      "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-mathematical-verification.md",
-      "sha256": "37df9b5645dfbd13e2a119f82725e17198519981e4762a84ced86ebcdf78056d"
+      "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-measurement-integrity.md",
-      "sha256": "8487636722ca40b65169dda00e8c050b89479297d924ecc1a4507a78facea8fe"
+      "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-ml-methodology.md",
-      "sha256": "ed4ea4f91e1438776323b9d26e79f9d664fd2d61a743a4c0f5de4f9e95ed1242"
+      "sha256": "bb9320be07c9ccf8463476d19198663b375f4bd4e3b55d4c8c68e31ec3bb2d75"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-provenance-audit.md",
-      "sha256": "1654af31360f22edeca27be4beef6ec7045e4c8bfdedb61576782bfdb77f19ea"
+      "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-publication-output.md",
-      "sha256": "942cf187ffa822a5073b0d5d05ce82f010780a5816016c52a9bf959bb430e058"
+      "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-replication-package.md",
-      "sha256": "a255537b4608484c1992c5329dafe22a18e38693e26835db98209a550f213a37"
+      "sha256": "5f64cdd82c95707058fa7debf3e59a8bfeedd38965e2849486b54d34719f22e7"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-research-integrity.md",
-      "sha256": "cedba873628c76460dc07549a31b857f63dd4fbf7863e98d6116a7ba25513959"
+      "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cr-specification-analysis.md",
-      "sha256": "092de4704468088587e2260f910916ba60d56541a08e72c3dff0378c99301b33"
+      "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
     },
     {
       "kind": "command",
@@ -3372,7 +3372,7 @@
     {
       "kind": "command",
       "path": ".kilo/commands/cg-setup.md",
-      "sha256": "e7cd521be443eacb32211a90addd76ea09a390209dca05224f1ade50f60ed02e"
+      "sha256": "2ad6f67d8babd0163578cd069bbd26b7167bdf512f9a501e36934a06eeff759c"
     },
     {
       "kind": "command",
@@ -3402,7 +3402,7 @@
     {
       "kind": "command",
       "path": ".kilo/commands/cr-brainstorm.md",
-      "sha256": "394369127d5a94b2a6f4223213576bacac96d9b10c3db26b8d866e84ea8bfb0b"
+      "sha256": "dcee2a61f4bc0ccb26d88f80f5d8010f08c337ec738b19cdb09d57cba1bd1858"
     },
     {
       "kind": "command",
@@ -3412,17 +3412,17 @@
     {
       "kind": "command",
       "path": ".kilo/commands/cr-plan.md",
-      "sha256": "27c9732e6fe96a997c14dc01f69f3c88166b236b5d86bf06d01dd1940eea8afd"
+      "sha256": "0d7271a293034cbd7a0e1cfc8cb4220f4cf71439a4b808255ddb813d97b20d1a"
     },
     {
       "kind": "command",
       "path": ".kilo/commands/cr-review.md",
-      "sha256": "918faa80d9875730c9b8d15fbe1d7acd12554bd8a41bd5ef2a81d4b904445712"
+      "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45"
     },
     {
       "kind": "command",
       "path": ".kilo/commands/cr-work.md",
-      "sha256": "601286eb668c316d4cd5fa8d2de80d3ba9be93dc5dc3f8dba0e6b3f1c28b1919"
+      "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553"
     },
     {
       "kind": "prompt-support",
@@ -3517,7 +3517,7 @@
     {
       "kind": "shared",
       "path": ".kilo/shared/target-mapping.json",
-      "sha256": "1cc166a7c438a8378ec40d819fbc8319b533530f92ac91946861f576cf6c3beb"
+      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
     },
     {
       "kind": "skill",
@@ -3872,7 +3872,7 @@
     {
       "kind": "skill",
       "path": ".kilo/skills/cg-skill-setup/SKILL.md",
-      "sha256": "00281b612d08da394785ff64b607a29bd49feb8b805ea3f03bdc25403960d3f2"
+      "sha256": "b9460054c80cff28c70ff2989e5fb47439cbcea9ecdda31eee1e990c6a4841e6"
     },
     {
       "kind": "skill",
@@ -4644,7 +4644,7 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-data-quality.md",
-      "sha256": "5aa128679829ea565b9c9a6372d53188bd870eec3da460102620de17db2c225d"
+      "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
     },
     {
       "kind": "agent",
@@ -4664,7 +4664,7 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-performance.md",
-      "sha256": "07bd6983bdb93b99eff383155486d17bf59ed7573e861017e88a2a94eb1e950c"
+      "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
     },
     {
       "kind": "agent",
@@ -4684,7 +4684,7 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-reproducibility.md",
-      "sha256": "c09d14809f953bd411100696303f295b1caab03a5ca1c0d093279ac28de0f7b4"
+      "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
     },
     {
       "kind": "agent",
@@ -4699,7 +4699,7 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-testing.md",
-      "sha256": "414cdf9fd303c45b10cb10ef09f7ff959ea3553af60e8f7bac66a5c53586b159"
+      "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
     },
     {
       "kind": "agent",
@@ -4714,57 +4714,57 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-academic-writing.md",
-      "sha256": "3123400040af3ff531162395aed1ec67b030e845bd0a08cd34ba4d6688f17df1"
+      "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-econometric-reasoning.md",
-      "sha256": "ca43ee53267edb9e1d15a0db6564d6ad1db21c6cc3f74992d30bcc49a1dfe614"
+      "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-identification-audit.md",
-      "sha256": "3fd88ea3f990799d204dfdca731df2c5c3a3d2e913ca54500100d486e004103c"
+      "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-mathematical-verification.md",
-      "sha256": "37df9b5645dfbd13e2a119f82725e17198519981e4762a84ced86ebcdf78056d"
+      "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-measurement-integrity.md",
-      "sha256": "8487636722ca40b65169dda00e8c050b89479297d924ecc1a4507a78facea8fe"
+      "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-ml-methodology.md",
-      "sha256": "ed4ea4f91e1438776323b9d26e79f9d664fd2d61a743a4c0f5de4f9e95ed1242"
+      "sha256": "bb9320be07c9ccf8463476d19198663b375f4bd4e3b55d4c8c68e31ec3bb2d75"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-provenance-audit.md",
-      "sha256": "1654af31360f22edeca27be4beef6ec7045e4c8bfdedb61576782bfdb77f19ea"
+      "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-publication-output.md",
-      "sha256": "942cf187ffa822a5073b0d5d05ce82f010780a5816016c52a9bf959bb430e058"
+      "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-replication-package.md",
-      "sha256": "a255537b4608484c1992c5329dafe22a18e38693e26835db98209a550f213a37"
+      "sha256": "5f64cdd82c95707058fa7debf3e59a8bfeedd38965e2849486b54d34719f22e7"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-research-integrity.md",
-      "sha256": "cedba873628c76460dc07549a31b857f63dd4fbf7863e98d6116a7ba25513959"
+      "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cr-specification-analysis.md",
-      "sha256": "092de4704468088587e2260f910916ba60d56541a08e72c3dff0378c99301b33"
+      "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
     },
     {
       "kind": "command",
@@ -4869,7 +4869,7 @@
     {
       "kind": "command",
       "path": ".opencode/commands/cg-setup.md",
-      "sha256": "aca2eaa87ca48f4210cbd6863e44579c93d8bad1423ee04003ca9079891b23ee"
+      "sha256": "77beaaa280a7af9aa0d5a90e09b35e6de6dd1abfc3bee48c21aafab6592d69d4"
     },
     {
       "kind": "command",
@@ -4899,7 +4899,7 @@
     {
       "kind": "command",
       "path": ".opencode/commands/cr-brainstorm.md",
-      "sha256": "42c1f7f553bb1a7910e54e819cdbbfa3cbf0b8abe537e7970cb56307672dfded"
+      "sha256": "afe4367010877af979706d051a8002c92dc3f8feaed7fcec1e0077042b4de525"
     },
     {
       "kind": "command",
@@ -4909,17 +4909,17 @@
     {
       "kind": "command",
       "path": ".opencode/commands/cr-plan.md",
-      "sha256": "426cf7152242c7e7714a647ca77b032f137da6f3501adbde6727bca314fba555"
+      "sha256": "4a674981f18e3c6c12071d6f1a0e80a4dfbb4a9f1ca3285c61d9f5c2d2f25e7d"
     },
     {
       "kind": "command",
       "path": ".opencode/commands/cr-review.md",
-      "sha256": "9480845fec7554427fc5776a3fd20b8e0f07cbd99251034ea05bc9938d5e4969"
+      "sha256": "a4e985cdcd3d586b73c52fd48b7c6120865593e4dea92821d8851442bfb7c150"
     },
     {
       "kind": "command",
       "path": ".opencode/commands/cr-work.md",
-      "sha256": "9d354de21ae78adfedb6927b8164c1ff6349871348dd8846a7a71f536ebae9d2"
+      "sha256": "6dc81546d3580f293901a17aa46dfa8a91615856ae5460301fb06079ebad96a9"
     },
     {
       "kind": "prompt-support",
@@ -5014,7 +5014,7 @@
     {
       "kind": "shared",
       "path": ".opencode/shared/target-mapping.json",
-      "sha256": "1cc166a7c438a8378ec40d819fbc8319b533530f92ac91946861f576cf6c3beb"
+      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
     },
     {
       "kind": "skill",
@@ -5369,7 +5369,7 @@
     {
       "kind": "skill",
       "path": ".opencode/skills/cg-skill-setup/SKILL.md",
-      "sha256": "937c0689fbe387f598b512a4885b78d3ef9653b735123c44e6f81449864955da"
+      "sha256": "a553a0f894232a248ff246b7b171c8784bd1e90da102da780801e725f46524fd"
     },
     {
       "kind": "skill",
