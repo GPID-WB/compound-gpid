@@ -1,11 +1,25 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-04_
+_Generated 2026-08-10_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 32 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 40 entities
 
+- **[Write-permission mode flags must be parsed before any tool dispatch, not deferred to a later step](.cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt's File Permissions block declared: > `--propose` mode: READ-only — no file creation, modification, git commi…
+- **[Common-word regex false positives in security and behavioral test assertions](.cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md)** · `solution` · _—_ · `2026-05-15`
+  > After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivial…
+- **[Injection scan required for every agent that reads user-adjacent files, including 'internal' cg-docs/ solution files](.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md)** · `solution` · _—_ · `2026-05-15`
+  > `@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wi…
+- **[Append-only insertion prevents silent corruption in AI-written shared files](.cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md)** · `solution` · _—_ · `2026-05-18`
+  > `/cg-compound` Step 5 was instructed to enrich `compound-gpid.context.md` by inserting "directly into the correct sec…
+- **[Three-layer test-correctness protocol prevents circular tests in /cg-fixbug](.cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md)** · `solution` · _—_ · `2026-06-03`
+  > A `/cg-fixbug` session could produce a "passing" test that provides zero regression protection. The test was written …
+- **[Token optimization needs benchmark guardrails, not one-off audits](.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md)** · `solution` · _—_ · `2026-06-08`
+  > Phases 2-5 reduced token and model-cost risk by removing ordinary-workflow premium defaults, making `/cg-review` and …
+- **[External validation must not be marked passed from static evidence](.cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md)** · `solution` · _—_ · `2026-06-09`
+  > The Phase 7 release checklist correctly separated Codex-side checks from manual VS Code/PowerShell validation, but on…
 - **[Token optimization release candidates need end-to-end validation evidence](.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md)** · `solution` · _—_ · `2026-06-09`
   > Phases 2-6 reduced token and model-cost risk across ordinary model-picker prompts, `/cg-review`, `/cg-work`, Knowledg…
 - **[Release checklist statuses must be anchored to audit-run timestamps](.cg-docs/solutions/testing-patterns/2026-06-10-release-checklist-statuses-must-be-anchored-to-audit-timestamps.md)** · `solution` · _—_ · `2026-06-10`
@@ -42,6 +56,8 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 32 entiti
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
 - **[Advisory inheritance audits need explicit keys and cross-platform legacy cleanup](.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md)** · `solution` · _—_ · `2026-07-31`
   > The user-selected model migration removed execution assignments and replaced them with advisory-only stage guidance. …
+- **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
+  > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -76,7 +92,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 32 entiti
 _Keywords: `architecture research
 objective` · `workflow maturity
 objective` · `knowledge brain
-objective`_ · 137 entities
+objective`_ · 138 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -254,6 +270,8 @@ objective`_ · 137 entities
   > Workflow completion report and human-readable HTML dossier
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
+- **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
+  > Make automatic artifact HTML publication opt-in by default
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`

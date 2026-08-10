@@ -236,3 +236,145 @@ run: 1
   Stage 1 gate = PR #131 merged). V8 remains `pending` for the final
   plan-status completion at whole-plan close.
 
+---
+
+## Run 4 — Stage 2 (Phase 4): Readiness contract and validator (2026-08-07)
+
+- Invocation: `phase4 review:auto`; scope Phase 4 only — implement the Stage 2
+  readiness contract and deterministic validator. Do NOT implement the Stage 3
+  dispatcher, and do NOT start Phase 5.
+- **Precondition gate**: working tree clean; `origin/main` = local `main` =
+  `54b9b19979c7d201c3c79a4dc4a38950f23247c5` (PR #132 merge); plan frontmatter
+  `completed-phases: [1, 2, 3]`, `current-phase: 4`; Stage 1 closed with **GO**
+  (Run 3); Stage 2 not started. All preconditions passed.
+- **Artifact validation preflight** (run before any write): `cg-render-artifact
+  --validate-only .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md`
+  → `Validated ...`, exit 0.
+- **Fixed design decisions** (from the invocation): the primary readiness
+  mechanism is the structured Markdown issue contract proven by issue #127. No
+  GitHub issue form, no `cg:ready` label, no dispatcher, no automatic Copilot
+  assignment, no automatic Project-status mutations, no scheduled workflows, and
+  no new credentials/secrets were added. The two authoritative readiness signals
+  are (1) the issue's Project Status is `Ready` and (2) the structured contract
+  is complete and valid.
+- **Language choice**: implemented in Python. No blocking incompatibility found.
+  The validator is **stdlib-only** (`argparse`, `json`, `re`, `subprocess`,
+  `dataclasses`, `pathlib`); CI installs only `pytest`, so third-party libraries
+  (loguru/pydantic/etc.) are intentionally not used, matching the existing
+  `scripts/` tooling.
+- **Implemented files**:
+  - `scripts/issues/__init__.py` — package marker.
+  - `scripts/issues/readiness.py` — validator: fence-aware section parser,
+    contract rules R001–R018, state rules R019–R021, read-only `GhCliClient`
+    (argv-safe `gh`), offline `FixtureClient`, orchestrator, JSON/human
+    renderers, and `main()` CLI.
+  - `scripts/issue_readiness.py` — thin CLI shim (mirrors `render_artifact.py`).
+  - `scripts/tests/fixtures/ready_issue.json` + `ready_issue_body.md` —
+    non-production fixture (a Ready #127-style contract clone).
+  - `scripts/tests/test_issue_readiness.py` — 103 deterministic tests with
+    inline fixtures and mocked GitHub responses; no live GitHub in unit tests.
+  - `docs/copilot-readiness.md` — canonical contract spec, CLI usage, JSON
+    result, exit codes, and validation-vs-dispatch distinction.
+  - `.github/workflows/tests.yml` — **one line** added to the `native-targets`
+    job's first (required) pytest list. This is the only GitHub Actions change;
+    no new workflow, permissions, triggers, secrets, concurrency, or dispatch.
+- **Canonical contract**: 13 required `## ` sections (exact heading text derived
+  from #127: `Roadmap linkage`, `Ready for Copilot`, `Outcome`, `Acceptance
+  criteria`, `Scope`, `Non-goals`, `Expected allowed paths`, `Prohibited paths`,
+  `Verification commands`, `Dependencies / blockers`, `Risk class`, `Human review
+  instructions`, `Blocked-stop conditions`) plus the hidden
+  `<!-- compound-gpid-tracked: <id> -->` marker and the `**Feature ID:** \`<id>\``
+  declaration, which must match the marker. Parsing is deterministic and
+  fence-aware; validation does not depend on AI judgment.
+- **Deterministic validator**: treats the issue body as untrusted data; rejects
+  missing/duplicate sections; validates feature-id ↔ marker; rejects absolute
+  paths, `../` traversal, UNC/drive paths, backslashes, empty segments, and
+  unbalanced globs; requires non-empty acceptance criteria and verification
+  commands; validates risk class `low|medium|high`; validates blocked-stop and
+  readiness confirmation; verifies Project Status is `Ready`; detects an open
+  implementation PR via `Fixes #N`/`Closes #N`/`Resolves #N`; detects an existing
+  Copilot assignee; handles dependencies deterministically; and performs **no**
+  issue/Project/PR/assignment/label/comment mutation.
+- **CLI**: `python scripts/issue_readiness.py --issue N --dry-run [--json]` or
+  `--fixture PATH --dry-run [--json]`. Exit codes: `0` ready, `2` not-ready
+  (validation), `3` config error, `4` api/network error — validation failure is
+  distinguished from API/network/configuration failure. `--dry-run` is the
+  canonical and only mode (the validator never mutates).
+- **Bug found and fixed during live dry-run**: the Project Status GraphQL query
+  used `project { name }`; `ProjectV2` exposes `title`, not `name` ("Field 'name'
+  doesn't exist on type 'ProjectV2'"). Fixed to `project { title }`; GraphQL
+  query/schema errors were reclassified from `api_error` to `config_error`
+  (exit 3), since they are client-side, not GitHub server/network failures.
+- **Validation results** (executed checks):
+  - Focused readiness tests: `python -m pytest scripts/tests/test_issue_readiness.py -q`
+    → **103 passed**, exit 0.
+  - Exact CI-registered invocation (native-targets first pytest list, now
+    including `test_issue_readiness.py`): **441 passed, 11 skipped**, exit 0
+    (~6 min local; the 11 skips are pre-existing target tests, unrelated).
+  - Dry-run evidence (fixture): `--fixture .../ready_issue.json --dry-run --json`
+    → **READY**, exit 0, all 21 rules pass.
+  - Dry-run evidence (live, read-only): `--issue 127 --dry-run` → **NOT READY**,
+    exit 2; #127's contract is valid but state rules fail (R019 `Done`≠`Ready`,
+    R021 Copilot already assigned); open closing PRs = 0 (#131 is merged/closed).
+  - Markdown/docs: `docs/copilot-readiness.md` is well-formed; no external links
+    added (link-check unaffected). Pester suite not affected by these changes
+    (no `.ps1`/prompt/agent/install file touched); no Pester test pins the
+    pytest list (verified by grep).
+- **Review-driven hardening** (`review:auto`, resolved route `standard` with a
+  security/path-safety emphasis; `@cg-adversarial`, `@cg-testing`,
+  `@cg-architecture`, `@cg-code-quality`, `@cg-version-control`,
+  `@cg-documentation` dispatched read-only; `@cg-data-quality`,
+  `@cg-reproducibility`, `@cg-performance` assessed out of scope — no
+  data/numerics, lockfiles, or perf-critical paths in this read-only validator):
+  applied P1/security/correctness fixes before stopping — path validation now
+  rejects surrounding-whitespace/control-char bypasses and Windows drive
+  prefixes (`c:foo`); bare `*`/`**`/`.` are rejected as **allowed** paths
+  (overbroad scope) while remaining valid as **prohibited** paths; uncaught
+  `json.JSONDecodeError`/`FileNotFoundError` now map to exit 4/3 (not a
+  traceback); `gh` subprocess decodes UTF-8 explicitly (Windows console safe);
+  `argparse` usage errors exit 3 (not 2, which collided with `EXIT_NOT_READY`);
+  `## Risk class` now requires an exact-class line (no false-ready from prose
+  like "low confidence"); Project Status is read from the canonical project
+  only (no cross-project fallback); `blocked by` ignores explicit negation;
+  ATX trailing hashes are stripped. Added the missing P1 tests (R001/R002
+  failure modes, GraphQL error/fallback/None, malformed-JSON, CLI config-error
+  exit, missing-fixture, empty sections, `~~~` fences, `projectStatus` None).
+  Deferred (out of Phase 4 scope): splitting the monolithic module, a
+  declarative rule registry, and a `Protocol` client interface — these are
+  maintainability improvements, not correctness gates, and a Stage 3 dispatcher
+  can reuse `validate_readiness` without them.
+- **No live GitHub mutations**: the validator is read-only by construction; the
+  live #127 dry-run issued only `gh issue view`, `gh pr list --state open`,
+  `gh repo view --json`, and `gh api graphql` (a read query). No issue edit,
+  comment, label, assign, Project-field write, or PR mutation occurred. Issue
+  #127 was not modified. Unit tests use mocked responses and touch no live
+  state.
+- **Stage 3 not started**: no `.github/workflows/copilot-dispatch.yml`, no
+  `scripts/issues/dispatch.py`, no assignment logic, no Project-status mutation
+  workflow, no scheduled workflow, and no new credential/secret were created.
+  Stage 2 delivers the gate only; dispatch is explicitly deferred to Phase 5.
+- **Phase 4 acceptance criteria** (plan): validator green/red deterministic on
+  fixtures (✓); dry-run used on a non-production fixture (✓); zero dispatch
+  side effects (✓); new test file registered in a required CI check (✓). All
+  pass.
+- **State reconciliation (no deviation)**: per the goal-execution contract,
+  Phase 4 completion requires updating phase metadata. Appended `4` to
+  `completed-phases: [1, 2, 3, 4]` and set `current-phase: 5` (crash-safe order:
+  `completed-phases` written before `current-phase`). No phases were skipped or
+  re-run. Deviation policy remains `ask` with no deviations taken.
+- **Roadmap**: no feature in `roadmap.json` carries this plan's `plan` path, so
+  no roadmap status dispatch/update is performed (per `/cg-work` Step 3.7
+  no-match fallback). `roadmap.json` feature status was **not** updated
+  automatically.
+- **Evidence table**: Phase 4 adds no new plan Verification-Surface rows. V8
+  (final artifact validation) and V9 (final plan handoff) remain `pending` —
+  they are `final` rows checked at whole-plan completion (Phases 5–8 remain).
+- **Accepted exceptions**: none.
+- **Final status**: Run 4 **completed** — Stage 2 implemented and verified. Plan
+  remains `status: active`, `completed-phases: [1, 2, 3, 4]`, `current-phase: 5`
+  (paused before Stage 3 dispatcher). **No commit/push/PR or Phase 5 was
+  started.**
+- **Next action**: review, commit, push, and merge the Stage 2 implementation;
+  then run `/cg-work phase5` (Stage 3 dispatcher). Do not run Phase 5 before the
+  Stage 2 PR is merged into `main`.
+

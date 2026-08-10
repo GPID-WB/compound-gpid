@@ -217,7 +217,7 @@
       "path": ".agents/instructions/python.instructions.md",
       "source": ".github/instructions/python.instructions.md",
       "kind": "instruction",
-      "sha256": "53f3c773ef04d394b726e7ada5a680d45d4b4eaf0ef369c5f2905cb0fbf1f32c",
+      "sha256": "7bb30c2f7f1145b2f3049dd385f6fc294212ab714a8f47bc074821e2a2f1461c",
       "executable": false
     },
     {
