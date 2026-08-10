@@ -168,11 +168,11 @@
         "config": ".kilo/kilo.json"
       },
       "installUnits": [
-        { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/skills", "target": ".kilo/skills", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/agents", "target": ".kilo/agents", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/instructions", "target": ".kilo/instructions", "strategy": "link-directory" },
-        { "type": "directory", "source": ".kilo/shared", "target": ".kilo/shared", "strategy": "link-directory" },
+        { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "copy-directory" },
+        { "type": "directory", "source": ".kilo/skills", "target": ".kilo/skills", "strategy": "copy-directory" },
+        { "type": "directory", "source": ".kilo/agents", "target": ".kilo/agents", "strategy": "copy-directory" },
+        { "type": "directory", "source": ".kilo/instructions", "target": ".kilo/instructions", "strategy": "copy-directory" },
+        { "type": "directory", "source": ".kilo/shared", "target": ".kilo/shared", "strategy": "copy-directory" },
         { "type": "file", "source": ".kilo/AGENTS.md", "target": ".kilo/AGENTS.md", "strategy": "managed-copy" },
         {
           "type": "file",
