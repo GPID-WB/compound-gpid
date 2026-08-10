@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 
-from .contract import EXIT_API, EXIT_CONFIG, EXIT_NOT_READY, ReadinessResult
+from .contract import EXIT_API, EXIT_CONFIG, EXIT_NOT_READY, EXIT_READY, ReadinessResult
 
 
 def result_to_dict(result: ReadinessResult) -> dict:
@@ -23,7 +23,7 @@ def result_to_dict(result: ReadinessResult) -> dict:
         {"id": rule.id, "name": rule.name, "detail": rule.detail}
         for rule in result.rules if not rule.passed
     ]
-    if result.exit_code == 0:
+    if result.exit_code == EXIT_READY:
         summary = "READY"
     elif result.exit_code == EXIT_NOT_READY:
         summary = f"NOT READY — {len(failed)} rule(s) failed"

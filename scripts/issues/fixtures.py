@@ -12,7 +12,17 @@ from .contract import ConfigError
 
 
 class FixtureClient:
-    """Offline client whose JSON shape mirrors the ``gh`` wire format."""
+    """Offline client whose JSON shape mirrors the ``gh`` wire format.
+
+    Args:
+        fixture_path: Path to a JSON fixture file containing issue data and
+            optionally ``bodyFile``, ``openClosingPRs``, and
+            ``projectStatus`` fields.
+
+    Raises:
+        ConfigError: When the fixture cannot be loaded, contains malformed
+            data, or ``bodyFile`` escapes the fixture directory.
+    """
 
     def __init__(self, fixture_path: str) -> None:
         try:
@@ -28,8 +38,19 @@ class FixtureClient:
         body_file = data.get("bodyFile")
         if body_file is not None:
             body_file = _fixture_string(body_file, "bodyFile", allow_none=False)
+            base = path.parent.resolve()
             try:
-                body = (path.parent / body_file).read_text(encoding="utf-8")
+                target = (base / body_file).resolve()
+            except (ValueError, OSError) as error:
+                raise ConfigError(
+                    f"fixture bodyFile {body_file} is invalid: {error}"
+                ) from error
+            if not target.is_relative_to(base):
+                raise ConfigError(
+                    f"fixture bodyFile {body_file} escapes the fixture directory"
+                )
+            try:
+                body = target.read_text(encoding="utf-8")
             except (OSError, UnicodeError, ValueError, RecursionError) as error:
                 raise ConfigError(f"cannot load fixture bodyFile {body_file}: {error}") from error
 

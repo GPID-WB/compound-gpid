@@ -8,7 +8,6 @@ continue to work unchanged.
 """
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 from typing import Optional, Sequence, TextIO
@@ -40,6 +39,7 @@ from .contract import (
     CHECKBOX_RE,
     CLOSE_KEYWORDS,
     CODE_SPAN_RE,
+    COPILOT_LOGINS,
     EXIT_API,
     EXIT_CONFIG,
     EXIT_NOT_READY,
@@ -82,6 +82,7 @@ from .contract_rules import (
     validate_contract,
 )
 from .gh_client import _PROJECT_STATUS_QUERY
+from .gh_process import _classify_graphql_errors
 from .orchestration import READY_STATUS, _error_result, validate_readiness
 from .render import render_human, render_json, result_to_dict
 
@@ -123,18 +124,69 @@ def main(
     )
 
 
+# noqa: E501 -- intentionally one entry per line for readability
 __all__ = [
-    "ApiError", "ConfigError", "ReadinessError", "RuleResult", "ReadinessResult",
-    "IssueRecord", "PRRecord", "GhCliClient", "FixtureClient",
-    "EXIT_READY", "EXIT_NOT_READY", "EXIT_CONFIG", "EXIT_API", "EXIT_REASONS",
-    "READY_STATUS", "PROJECT_TITLE", "GH_TIMEOUT_SECONDS", "PR_LIST_LIMIT",
-    "MARKER_RE", "FEATURE_ID_LINE_RE", "FEATURE_ID_FORMAT_RE", "RISK_CLASSES",
-    "REQUIRED_SECTIONS", "SECTION_HEADER_RE", "CHECKBOX_RE", "UNCHECKED_BOX_RE",
-    "LIST_ITEM_RE", "CODE_SPAN_RE", "CLOSE_KEYWORDS", "strip_bom",
-    "parse_sections", "find_marker", "find_feature_id", "validate_path_entry",
-    "pr_closes_issue", "is_copilot_assignee", "copilot_assignees",
-    "validate_contract", "validate_readiness", "result_to_dict", "render_json",
-    "render_human", "build_parser", "main",
+    "ApiError",
+    "CHECKBOX_RE",
+    "CLOSE_KEYWORDS",
+    "CODE_SPAN_RE",
+    "COPILOT_LOGINS",
+    "ConfigError",
+    "EXIT_API",
+    "EXIT_CONFIG",
+    "EXIT_NOT_READY",
+    "EXIT_READY",
+    "EXIT_REASONS",
+    "FEATURE_ID_FORMAT_RE",
+    "FEATURE_ID_LINE_RE",
+    "FixtureClient",
+    "GH_TIMEOUT_SECONDS",
+    "GhCliClient",
+    "IssueRecord",
+    "LIST_ITEM_RE",
+    "MARKER_RE",
+    "PR_LIST_LIMIT",
+    "PRRecord",
+    "PROJECT_TITLE",
+    "ReadinessError",
+    "ReadinessResult",
+    "REQUIRED_SECTIONS",
+    "RISK_CLASSES",
+    "RuleResult",
+    "SECTION_HEADER_RE",
+    "UNCHECKED_BOX_RE",
+    "_ReadinessArgumentParser",
+    "_brackets_unbalanced",
+    "_classify_gh_error",
+    "_classify_graphql_errors",
+    "_default_run_gh",
+    "_emit",
+    "_error_result",
+    "_extract_checkboxes",
+    "_extract_path_entries",
+    "_extract_risk_class",
+    "_has_blocking_dependency",
+    "_is_overbroad_allowed_path",
+    "_iter_fence_state",
+    "_non_fence_lines",
+    "_section_detail",
+    "_section_nonempty",
+    "_verification_commands_nonempty",
+    "build_parser",
+    "copilot_assignees",
+    "find_feature_id",
+    "find_marker",
+    "is_copilot_assignee",
+    "main",
+    "parse_sections",
+    "pr_closes_issue",
+    "render_human",
+    "render_json",
+    "result_to_dict",
+    "strip_bom",
+    "validate_contract",
+    "validate_path_entry",
+    "validate_readiness",
 ]
 
 

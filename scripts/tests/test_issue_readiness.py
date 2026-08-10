@@ -625,7 +625,7 @@ def test_existing_open_implementation_pr_fails() -> None:
 
 
 def test_copilot_already_assigned_fails() -> None:
-    result = validate_readiness(9001, FakeClient(assignees=["Copilot", "randrescastaneda"]))
+    result = validate_readiness(9001, FakeClient(assignees=["copilot-swe-agent[bot]", "randrescastaneda"]))
 
     assert "R021" in _failed_ids(result)
     assert result.exit_code == EXIT_NOT_READY
@@ -1258,7 +1258,7 @@ def test_gh_cli_malformed_repo_view_raises_api_error() -> None:
 def test_gh_cli_pr_list_uses_exact_documented_argv() -> None:
     expected = [
         "pr", "list", "--state", "open", "--json",
-        "number,title,body,url,headRefName,author", "--limit", "1000",
+        "number,title,body,url,headRefName,author", "--limit", str(PR_LIST_LIMIT),
     ]
     closing_pr = {
         "number": 42,
@@ -1309,7 +1309,7 @@ def test_default_run_gh_is_argv_safe(monkeypatch) -> None:
         captured["kwargs"] = kwargs
         return subprocess.CompletedProcess(args=["gh", *args], returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    monkeypatch.setattr("issues.gh_process.subprocess.run", fake_run)
     result = _default_run_gh(["issue", "view", "1"])
 
     assert captured["args"] == ["gh", "issue", "view", "1"]
@@ -1322,7 +1322,7 @@ def test_default_run_gh_missing_cli_raises_config(monkeypatch) -> None:
     def fake_run(args, **kwargs):
         raise FileNotFoundError()
 
-    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    monkeypatch.setattr("issues.gh_process.subprocess.run", fake_run)
     with pytest.raises(ConfigError):
         _default_run_gh(["issue", "view", "1"])
 
@@ -1331,7 +1331,7 @@ def test_default_run_gh_timeout_raises_api(monkeypatch) -> None:
     def fake_run(args, **kwargs):
         raise subprocess.TimeoutExpired(cmd=["gh", *args], timeout=60)
 
-    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    monkeypatch.setattr("issues.gh_process.subprocess.run", fake_run)
     with pytest.raises(ApiError):
         _default_run_gh(["issue", "view", "1"])
 
@@ -1340,7 +1340,7 @@ def test_default_run_gh_undecodable_output_raises_api(monkeypatch) -> None:
     def fake_run(args, **kwargs):
         raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
 
-    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    monkeypatch.setattr("issues.gh_process.subprocess.run", fake_run)
     with pytest.raises(ApiError):
         _default_run_gh(["issue", "view", "1"])
 
@@ -1349,7 +1349,7 @@ def test_default_run_gh_execution_os_error_raises_config(monkeypatch) -> None:
     def fake_run(args, **kwargs):
         raise PermissionError("permission denied")
 
-    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    monkeypatch.setattr("issues.gh_process.subprocess.run", fake_run)
     with pytest.raises(ConfigError):
         _default_run_gh(["issue", "view", "1"])
 
@@ -1435,9 +1435,13 @@ def test_pr_closes_issue(body: str, n: int, closes: bool) -> None:
 @pytest.mark.parametrize(
     "login, expected",
     [
-        ("Copilot", True),
-        ("copilot", True),
-        ("copilot-swe-agent", True),
+        ("Copilot", False),
+        ("copilot", False),
+        ("copilot-swe-agent", False),
+        ("copilot-swe-agent[bot]", True),
+        ("github-copilot[bot]", False),
+        ("copilot-x", False),
+        ("copilotbot", False),
         ("randrescastaneda", False),
         ("", False),
         ("NotCopilot", False),
@@ -1448,7 +1452,7 @@ def test_is_copilot_assignee(login: str, expected: bool) -> None:
 
 
 def test_copilot_assignees_filters_only_copilot() -> None:
-    assert copilot_assignees(["Copilot", "randrescastaneda"]) == ["Copilot"]
+    assert copilot_assignees(["copilot-swe-agent[bot]", "randrescastaneda"]) == ["copilot-swe-agent[bot]"]
     assert copilot_assignees(["randrescastaneda"]) == []
 
 
@@ -1484,6 +1488,124 @@ def test_bom_is_stripped() -> None:
     result = validate_contract("\ufeff" + GOOD_BODY)
     by_id = {rule.id: rule for rule in result}
     assert by_id["R001"].passed is True
+
+
+def test_fixture_bodyfile_traversal_raises_config(tmp_path) -> None:
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(
+        json.dumps({
+            "issue": {"number": 7, "body": ""},
+            "bodyFile": "../../../etc/passwd",
+        }),
+        encoding="utf-8",
+    )
+    with pytest.raises(ConfigError, match="escapes"):
+        FixtureClient(str(fixture))
+
+
+def test_fixture_bodyfile_absolute_path_raises_config(tmp_path) -> None:
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(
+        json.dumps({
+            "issue": {"number": 7, "body": ""},
+            "bodyFile": "/etc/passwd",
+        }),
+        encoding="utf-8",
+    )
+    with pytest.raises(ConfigError, match="escapes"):
+        FixtureClient(str(fixture))
+
+
+def test_fixture_bodyfile_valid_in_directory(tmp_path) -> None:
+    body_file = tmp_path / "body.md"
+    body_file.write_text("hello", encoding="utf-8")
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(
+        json.dumps({
+            "issue": {"number": 7, "body": ""},
+            "bodyFile": "body.md",
+        }),
+        encoding="utf-8",
+    )
+    client = FixtureClient(str(fixture))
+    assert client.get_issue(7).body == "hello"
+
+
+def test_graphql_rate_limit_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="transient"):
+        _classify_graphql_errors([{"message": "API rate limit exceeded"}])
+
+
+def test_graphql_timeout_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="transient"):
+        _classify_graphql_errors([{"message": "timeout"}])
+
+
+def test_graphql_server_error_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="server error"):
+        _classify_graphql_errors([{"message": "Internal error occurred"}])
+
+
+def test_graphql_config_error_preserved() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ConfigError, match="GraphQL error"):
+        _classify_graphql_errors([{"message": "Field 'x' missing"}])
+
+
+def test_graphql_none_errors_noop() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    _classify_graphql_errors(None)
+
+
+def test_project_status_pagination_fail_closed() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": {"title": "Other"}, "fieldValueByName": {"name": "x"}}],
+            "pageInfo": {"hasNextPage": True},
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    with pytest.raises(ApiError, match="truncated"):
+        client.get_project_status(1)
+
+
+def test_project_status_target_found_on_page() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [
+                {"project": {"title": "CompoundGPID-progress"},
+                 "fieldValueByName": {"name": "Ready"}},
+            ],
+            "pageInfo": {"hasNextPage": True},
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    assert client.get_project_status(1) == "Ready"
+
+
+def test_r019_detail_conditional_ready() -> None:
+    result = validate_readiness(9001, FakeClient())
+    by_id = {rule.id: rule for rule in result.rules}
+    assert by_id["R019"].passed is True
+    assert by_id["R019"].detail == "Project Status is 'Ready'"
+
+
+def test_r019_detail_conditional_not_ready() -> None:
+    result = validate_readiness(9001, FakeClient(status="Backlog"))
+    by_id = {rule.id: rule for rule in result.rules}
+    assert by_id["R019"].passed is False
+    assert "expected" in by_id["R019"].detail
 
 
 def test_result_to_dict_has_stable_keys() -> None:

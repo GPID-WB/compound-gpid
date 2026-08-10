@@ -9,7 +9,7 @@ from typing import Any, Optional
 from .client_models import IssueRecord, PRRecord
 from .client_utils import expect_mapping, normalize_objects, require_int, require_string
 from .contract import ApiError, ConfigError, pr_closes_issue
-from .gh_process import _classify_gh_error, _default_run_gh
+from .gh_process import _classify_gh_error, _classify_graphql_errors, _default_run_gh
 
 
 PROJECT_TITLE = "CompoundGPID-progress"
@@ -99,14 +99,15 @@ class GhCliClient:
     def get_project_status(self, issue_number: int) -> Optional[str]:
         """Read the canonical Project Status, preserving deliberate absence."""
         owner, name = self._repo_owner_name()
-        query = _PROJECT_STATUS_QUERY.format(number=issue_number)
         out = self._gh([
-            "api", "graphql", "-f", f"query={query}",
-            "-F", f"owner={owner}", "-F", f"name={name}",
+            "api", "graphql",
+            "-f", f"query={_PROJECT_STATUS_QUERY}",
+            "-F", f"owner={owner}",
+            "-F", f"name={name}",
+            "-F", f"number={issue_number}",
         ])
         data = expect_mapping(self._parse_json(out, "graphql"), "graphql", ApiError)
-        if data.get("errors"):
-            raise ConfigError(f"GitHub GraphQL error: {data['errors']}")
+        _classify_graphql_errors(data.get("errors"))
         if "data" not in data:
             raise ApiError("malformed graphql response from gh: missing data")
         graphql_data = expect_mapping(data["data"], "graphql.data", ApiError)
@@ -133,6 +134,7 @@ class GhCliClient:
         nodes = project_items["nodes"]
         if not isinstance(nodes, list):
             raise ApiError("malformed graphql response from gh: projectItems.nodes is not a list")
+        found_target = False
         for node in nodes:
             node = expect_mapping(node, "graphql.projectItems.nodes item", ApiError)
             if "project" not in node:
@@ -150,6 +152,7 @@ class GhCliClient:
                 raise ApiError("malformed graphql response from gh: project.title is not a string")
             if title != PROJECT_TITLE:
                 continue
+            found_target = True
             if "fieldValueByName" not in node:
                 raise ApiError("malformed graphql response from gh: missing fieldValueByName")
             field_value = node["fieldValueByName"]
@@ -161,6 +164,16 @@ class GhCliClient:
             if not isinstance(field_value["name"], str):
                 raise ApiError("malformed graphql response from gh: status name is not a string")
             return field_value["name"]
+        page_info = project_items.get("pageInfo")
+        has_next_page = (
+            isinstance(page_info, Mapping)
+            and page_info.get("hasNextPage", False)
+        )
+        if has_next_page and not found_target:
+            raise ApiError(
+                "projectItems page is full and CompoundGPID-progress was not found; "
+                "refusing a potentially truncated project-status scan"
+            )
         return None
 
     def _repo_owner_name(self) -> tuple[str, str]:
@@ -181,17 +194,18 @@ class GhCliClient:
         return self._repo
 
 
-_PROJECT_STATUS_QUERY = """query ReadinessStatus($owner: String!, $name: String!) {{
-  repository(owner: $owner, name: $name) {{
-    issue(number: {number}) {{
-      projectItems(first: 20) {{
-        nodes {{
-          project {{ title }}
-          fieldValueByName(name: "Status") {{
-            ... on ProjectV2ItemFieldSingleSelectValue {{ name }}
-          }}
-        }}
-      }}
-    }}
-  }}
-}}"""
+_PROJECT_STATUS_QUERY = """query ReadinessStatus($owner: String!, $name: String!, $number: Int!) {
+  repository(owner: $owner, name: $name) {
+    issue(number: $number) {
+      projectItems(first: 50) {
+        nodes {
+          project { title }
+          fieldValueByName(name: "Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+        }
+        pageInfo { hasNextPage }
+      }
+    }
+  }
+}"""

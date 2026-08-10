@@ -496,8 +496,15 @@ Final issue number is chosen in Stage 0B after scanning open issues for the clos
 ````markdown
 <!-- compound-gpid-tracked: <feature-id> -->
 
+## Roadmap linkage
+- **Feature ID:** `<feature-id>`
+- **Roadmap milestone:** `<milestone>`
+
 ## Ready for Copilot
 - [x] Human attests implementation-ready on <date>
+- [x] Roadmap feature has been created and linked to this issue
+- [x] Exact allowed-path closure has been confirmed
+- [x] Project Status has been changed from `Backlog` to `Ready`
 
 ## Outcome
 ...
@@ -511,12 +518,7 @@ Final issue number is chosen in Stage 0B after scanning open issues for the clos
 ## Non-goals
 ...
 
-## Verification commands
-```text
-# exact commands
-```
-
-## Allowed paths
+## Expected allowed paths
 - `docs/foo.md`
 
 ## Prohibited paths
@@ -524,6 +526,11 @@ Final issue number is chosen in Stage 0B after scanning open issues for the clos
 - `roadmap.json`
 - `tests/Run-Tests.ps1`
 - ...
+
+## Verification commands
+```text
+# exact commands
+```
 
 ## Dependencies / blockers
 None
@@ -536,7 +543,7 @@ low
 - Confirm acceptance criteria
 - Merge manually; do not squash-skip PR title conventions
 
-## Blocked-stop
+## Blocked-stop conditions
 - Copilot edits prohibited paths
 - Required CI red after fix attempts exhausted
 ````

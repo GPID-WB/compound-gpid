@@ -76,7 +76,8 @@ def validate_readiness(
     state_rules = [
         RuleResult(
             "R019", "project-status-ready", status == READY_STATUS,
-            f"Project Status is {status!r}, expected {READY_STATUS!r}",
+            f"Project Status is {READY_STATUS!r}" if status == READY_STATUS
+            else f"Project Status is {status!r}, expected {READY_STATUS!r}",
         ),
         RuleResult(
             "R020", "no-open-closing-pr", len(prs) == 0,
