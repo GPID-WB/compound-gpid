@@ -73,13 +73,13 @@
         "type": { "type": "string", "enum": ["directory", "file"] },
         "source": { "$ref": "#/definitions/repoPath" },
         "target": { "$ref": "#/definitions/repoPath" },
-        "strategy": { "type": "string", "enum": ["link-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"] },
+        "strategy": { "type": "string", "enum": ["link-directory", "copy-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"] },
         "manualSnippet": { "type": "string" }
       },
       "additionalProperties": false,
       "allOf": [
         {
-          "if": { "properties": { "strategy": { "const": "link-directory" } } },
+          "if": { "properties": { "strategy": { "enum": ["link-directory", "copy-directory"] } } },
           "then": { "properties": { "type": { "const": "directory" } } },
           "else": { "properties": { "type": { "const": "file" } } }
         }

@@ -250,7 +250,7 @@ install_directory_unit() {
     parent="$(dirname "$target_path")"
     mkdir -p "$parent"
     if [ "$strategy" = "copy-directory" ]; then
-        cp -R "$source_path/" "$target_path/"
+        cp -R "$source_path/." "$target_path/"
         print_gray "$target_rel - copied"
     else
         ln -s "$source_path" "$target_path"
