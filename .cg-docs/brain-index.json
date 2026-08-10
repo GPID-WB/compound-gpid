@@ -1,5 +1,5 @@
 {
-  "edge_count": 269,
+  "edge_count": 268,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1107,24 +1107,6 @@
     },
     {
       "edge_type": "verifies",
-      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
-      "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-      "target_missing": false
-    },
-    {
-      "edge_type": "verifies",
-      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-3.md",
-      "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-      "target_missing": false
-    },
-    {
-      "edge_type": "verifies",
-      "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4.md",
-      "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-      "target_missing": false
-    },
-    {
-      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
       "target_missing": false
@@ -1139,6 +1121,18 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "target": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
       "target_missing": false
     },
     {
@@ -5840,9 +5834,9 @@
         "section",
         "stage",
         "workflow_dispatch",
-        "project status",
         "phase",
         "features[].github",
+        "project status",
         "test scenarios",
         "project",
         "cg-issues"
@@ -5853,7 +5847,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
       "slug": "2026-08-05-copilot-issue-implementation-pipeline",
-      "status": "active",
+      "status": "superseded",
       "summary": "> **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08-05-copilot-issue-implementation-pipeline-v2.md` (v2). > **Do not execute from this plan.** Use v2 for all execution, phase gates, and handoff.",
       "tags": [
         "github",
@@ -8917,72 +8911,6 @@
       ]
     },
     {
-      "date": "2026-08-07",
-      "entity_type": "review",
-      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
-      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2",
-      "status": "",
-      "summary": "**Review mode**: light (verify pass, mode:verify) **Files reviewed**: 10 changed paths (generated `.cg-docs/views/**` bodies excluded) **Findings**: 17 (P0: 0, P1: 0, P2: 1, P3: 16)",
-      "tags": [],
-      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2",
-      "top_keywords": [
-        "readiness.py",
-        "test_issue_readiness.py",
-        "scripts/tests/test_issue_readiness.py",
-        "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-        "fixed",
-        "err",
-        "render_human",
-        "bodyfile",
-        "exit_config",
-        ".cg-docs/views/**"
-      ]
-    },
-    {
-      "date": "2026-08-08",
-      "entity_type": "review",
-      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-3.md",
-      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-3",
-      "status": "",
-      "summary": "**Review mode**: light (verify pass, mode:verify) — fix-convergence pass after fix-triage. **Files reviewed**: 10 changed paths (generated `.cg-docs/views/**` bodies excluded) **Findings**: 4 (P0: 0, P1: 0, P2: 0, P3: 4)",
-      "tags": [],
-      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-3",
-      "top_keywords": [
-        "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-        "fixed",
-        ".cg-docs/views/**",
-        "dir()",
-        "test_issue_readiness.py",
-        "readiness.py",
-        "review",
-        "open",
-        "mode",
-        "passed"
-      ]
-    },
-    {
-      "date": "2026-08-10",
-      "entity_type": "review",
-      "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4.md",
-      "slug": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4",
-      "status": "",
-      "summary": "**Review mode**: light (verify pass, mode:verify) — convergence pass after two fix-triage cycles. **Files reviewed**: 10 changed paths (generated `.cg-docs/views/**` bodies excluded) **Findings**: 6 (P0: 0, P1: 0, P2: 1, P3: 5)",
-      "tags": [],
-      "title": "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4",
-      "top_keywords": [
-        "docs/copilot-readiness.md",
-        "fixed",
-        "apierror",
-        "_parse_json",
-        "copilot-readiness.md",
-        "2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-        "valueerror",
-        "attributeerror",
-        "find_feature_id",
-        "headref"
-      ]
-    },
-    {
       "date": "2026-08-04",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
@@ -9046,6 +8974,50 @@
         "2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
         "secure_fs.py",
         "security"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "status": "",
+      "summary": "This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review was CodeRabbit review `4899491383` on the Stage 2 implementation at reviewed HEAD `6fce720bf24a6e817b4f87cef274d16599915ab5`. It reported 12 actionable comments. The inline thread IDs were `3751952996`, `3751952998`, `3751953013`, `3751953015`, `3751953021`, `3751953029`, `3751953035`, `3751953040`, `3751953049`, `3751953060`, `3751953085`, and `3751953088`.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "top_keywords": [
+        "readiness",
+        "apierror",
+        "gate",
+        "node scripts/check-docs-site.js",
+        "readiness.py",
+        "review",
+        "evidence",
+        "implementation",
+        "phase",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "status": "",
+      "summary": "This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not review or claim results for the unrelated editorial-theme plan. The reviewed PR remains unmerged and Phase 5 was not started.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "top_keywords": [
+        "verification",
+        "readiness",
+        "review",
+        "final",
+        "results",
+        "cg-render-artifact",
+        "stage",
+        "validator",
+        "corrections",
+        "scope"
       ]
     },
     {
@@ -10949,16 +10921,16 @@
       ],
       "title": "Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash",
       "top_keywords": [
-        "get_project_status",
-        "attributeerror",
         "apierror",
+        "attributeerror",
+        "get_project_status",
         "json",
         "api-error",
         "valueerror",
         "typeerror",
         "gh",
         ".get(...)",
-        "_parse_json"
+        "exit"
       ]
     },
     {
@@ -17986,13 +17958,13 @@
       ]
     }
   ],
-  "entity_count": 629,
+  "entity_count": 628,
   "generated": "2026-08-10",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 444,
+      "entity_count": 441,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -18269,9 +18241,6 @@
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
-        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
-        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-3.md",
-        ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",

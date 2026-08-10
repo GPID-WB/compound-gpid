@@ -781,7 +781,7 @@ A durable master plan documents verified current-state findings, sources of trut
 | V6 | 1 | Security matrix covers dispatch vs Project update vs PR CI credentials and no secret exposure to untrusted PR code | Plan §6 | yes |
 | V7 | 1 | Recovery/idempotency covers duplicate dispatch, orphan assignment, missing PR, status drift, credential failure | Plan §7 | yes |
 | V8 | final | Plan passes artifact validation (`cg-render-artifact`) | CLI exit 0 | yes |
-| V9 | final | Next action is Stage 0A read-only verification; Stage 0B and Stage 1 require separate explicit human approvals | Plan handoff | yes |
+| V9 | final | Historical Stage 0A handoff gate superseded by completed Stage 0B and Stage 1 gates; current handoff is PR #135 review/merge before Phase 5 | Plan handoff | yes |
 
 ### Constraints
 
@@ -820,4 +820,4 @@ A durable master plan documents verified current-state findings, sources of trut
 
 ## Next action (only)
 
-**Gate: Stage 0B (pre-pilot preparation) is prepared in PR #128 and blocked on human merge and readiness.** Stage 0A read-only verification is complete (evidence report filed). Remaining gates in order: (1) merge PR #128 into `main`; (2) manually move issue #127 Project Status from `Backlog` to `Ready` and check the final `Ready for Copilot` box; (3) return for explicit human approval before the Stage 1 manual Copilot assignment. Do not implement dispatcher/validator workflows until pilot evidence is filed and a human go/no-go is recorded.
+review and merge PR #135, then run `/cg-work phase5`; Phase 5 must not run before this PR is merged.

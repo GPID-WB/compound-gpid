@@ -61,4 +61,4 @@ Document the convention in `docs/copilot-readiness.md`:
 - [Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)
 - [Typed-invalid gh CLI JSON payloads must map to the API-error exit code](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)
 - Contract documentation: `docs/copilot-readiness.md` (fixture paragraph)
-- Review: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-4.md`
+- Review: `.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md`

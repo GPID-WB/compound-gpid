@@ -4,12 +4,8 @@ _Generated 2026-08-10_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 40 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 38 entities
 
-- **[Write-permission mode flags must be parsed before any tool dispatch, not deferred to a later step](.cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md)** · `solution` · _—_ · `2026-05-14`
-  > A prompt's File Permissions block declared: > `--propose` mode: READ-only — no file creation, modification, git commi…
-- **[Common-word regex false positives in security and behavioral test assertions](.cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md)** · `solution` · _—_ · `2026-05-15`
-  > After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivial…
 - **[Injection scan required for every agent that reads user-adjacent files, including 'internal' cg-docs/ solution files](.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md)** · `solution` · _—_ · `2026-05-15`
   > `@cg-wiki` in `update` mode reads a solution file at `solution-path` and uses its content to synthesize updates to wi…
 - **[Append-only insertion prevents silent corruption in AI-written shared files](.cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md)** · `solution` · _—_ · `2026-05-18`
