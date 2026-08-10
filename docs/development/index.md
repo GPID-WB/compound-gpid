@@ -21,6 +21,17 @@ self-review checklist.
 
 ## Run tests safely
 
+Before target tests, validate the modular registry:
+
+```bash
+python scripts/cg_validate_modules.py --check-ownership --check-dependencies --check-cross-suite
+python scripts/cg_generate_targets.py --all --dry-run
+python -m pytest scripts/tests -q
+```
+
+These gates cover one-owner inventory, acyclic layer dependencies, cross-suite
+isolation, CG/CR characterization, context budgets, and all five runtime targets.
+
 This repository requires Pester 4.10.1. Never run `Invoke-Pester tests/`
 directly and never pipe `-PassThru` output into `Select-Object
 -ExpandProperty TestResult`.
@@ -63,3 +74,4 @@ workflow also checks repository documentation.
 - [Competitive Reviews](../competitive-reviews.md)
 - [Documentation Migration](../about/documentation-audit.md)
 - [Complete Reference](../reference.md)
+- [Modular Guide](../modular-guide.md)

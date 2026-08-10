@@ -1,5 +1,5 @@
 {
-  "edge_count": 268,
+  "edge_count": 302,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -195,6 +195,24 @@
     },
     {
       "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-14-compound-research-phase4-skills.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md",
       "target": ".cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md",
       "target_missing": false
@@ -213,6 +231,12 @@
     },
     {
       "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
       "target": ".cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md",
       "target_missing": false
@@ -221,6 +245,30 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
       "target": ".cg-docs/brainstorms/2026-05-20-team-brain-batch-d.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-22-compound-research-phase6-writing-publication.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md",
+      "target": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
       "target_missing": false
     },
     {
@@ -327,6 +375,36 @@
     },
     {
       "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+      "target": ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
       "target_missing": false
@@ -341,6 +419,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views.md",
       "target": ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "target": ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
       "target_missing": false
     },
     {
@@ -747,6 +831,30 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-14-compound-research-phase1-phase2-review.md",
+      "target": "2026-05-14-compound-research-phase1-phase2.md",
+      "target_missing": true
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-review.md",
+      "target": ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-thorough-review.md",
+      "target": ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-14-compound-research-phase4-skills-review.md",
+      "target": ".cg-docs/plans/2026-05-14-compound-research-phase4-skills.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-05-15-auto-generated-project-wiki-review.md",
       "target": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md",
       "target_missing": false
@@ -798,6 +906,18 @@
       "source": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
       "target": ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
       "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review-2.md",
+      "target": ".cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review.md",
+      "target": "2026-05-20-compound-research-phase5-ml-economics",
+      "target_missing": true
     },
     {
       "edge_type": "reviews",
@@ -858,6 +978,48 @@
       "source": ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
       "target": "2026-05-20-team-brain-batch-d",
       "target_missing": true
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review-2.md",
+      "target": "2026-05-22-compound-research-phase6-writing-publication",
+      "target_missing": true
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review-2.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review-2.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review-2.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review.md",
+      "target": ".cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md",
+      "target_missing": false
     },
     {
       "edge_type": "reviews",
@@ -1097,6 +1259,24 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
       "target": ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md",
+      "target": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+      "target": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
+      "target": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
       "target_missing": false
     },
     {
@@ -1467,6 +1647,12 @@
     },
     {
       "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
+      "target": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
       "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target_missing": false
@@ -1601,6 +1787,24 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
       "target": "roadmap.json#canonical-to-native-packaging-foundation",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "target": "roadmap.json#cr-evidence-provenance-spine",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "target": "roadmap.json#cr-measurement-classification-archetype",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "target": "roadmap.json#cr-scoping-and-normative-gates",
       "target_missing": false
     },
     {
@@ -2475,6 +2679,37 @@
     {
       "date": "2026-05-13",
       "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
+      "slug": "2026-05-13-compound-research-extension",
+      "status": "decided",
+      "summary": "The existing `compound-gpid` plugin gives data science teams a structured AI-assisted workflow (Brainstorm → Plan → Work → Review → Compound) for engineering tasks: code, tests, data pipelines, infrastructure. It enforces statistical correctness, reproducibility, and knowledge capture for poverty-statistics work at the World Bank.",
+      "tags": [
+        "architecture",
+        "research",
+        "econometrics",
+        "ml",
+        "structural-modeling",
+        "academic-writing",
+        "modular-skills",
+        "framework-extension"
+      ],
+      "title": "Compound Research — extension of compound-gpid for economics & econometrics research",
+      "top_keywords": [
+        "/cr-review",
+        "research",
+        "copilot-instructions.md",
+        "compound-gpid.local.md",
+        "phase",
+        "/cr-work",
+        "engineering",
+        "cg-link",
+        "cg-skill-r-analytical",
+        "@cg-reproducibility"
+      ]
+    },
+    {
+      "date": "2026-05-13",
+      "entity_type": "brainstorm",
       "path": ".cg-docs/brainstorms/2026-05-13-pr-verification-strategy-cross-platform.md",
       "slug": "2026-05-13-pr-verification-strategy-cross-platform",
       "status": "decided",
@@ -2914,6 +3149,67 @@
       ]
     },
     {
+      "date": "2026-07-29",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
+      "slug": "2026-07-29-cr-module-migration-to-v1",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "git-workflow",
+        "migration",
+        "compound-research",
+        "v1-integration",
+        "branch-strategy"
+      ],
+      "title": "Compound Research module migration from v0.10 branch to v1.0 main",
+      "top_keywords": [
+        "phase",
+        "integration",
+        "/cr-work",
+        "python.instructions.md",
+        "r.instructions.md",
+        "stata.instructions.md",
+        "copilot-instructions.template.md",
+        "copilot-instructions.md",
+        "approach",
+        "origin/main"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md",
+      "slug": "2026-07-30-cr-responsible-research-partner-measurement",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "measurement",
+        "composite-indicators",
+        "clustering",
+        "provenance",
+        "evidence-synthesis",
+        "research-integrity",
+        "lifecycle",
+        "method-packs"
+      ],
+      "title": "CR as a responsible research partner for policy-relevant measurement work",
+      "top_keywords": [
+        "measurement",
+        "phase",
+        "normative-decisions.md",
+        "compound-gpid.md",
+        "approach",
+        "/cr-brainstorm",
+        "/cr-plan",
+        "next steps",
+        "provenance",
+        "evidence"
+      ]
+    },
+    {
       "date": "2026-07-30",
       "entity_type": "brainstorm",
       "path": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
@@ -3031,6 +3327,34 @@
         "broader-artifact-publishing-formats-and-views",
         "/cg-compound",
         "one initiative"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
+      "slug": "2026-08-02-cr-work-gpt-5-6-luna",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "cr-work",
+        "model-governance",
+        "gpt-5-6-luna",
+        "native-targets"
+      ],
+      "title": "Use GPT-5.6 Luna for /cr-work",
+      "top_keywords": [
+        "/cr-work",
+        "research-execution",
+        "gpt-5.6 luna",
+        "approach",
+        "cr-work",
+        "claude sonnet",
+        "gpt-5",
+        "luna",
+        "assignment",
+        "role"
       ]
     },
     {
@@ -4515,6 +4839,87 @@
       ]
     },
     {
+      "date": "2026-05-14",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md",
+      "slug": "2026-05-14-compound-research-phase1-phase2",
+      "status": "completed",
+      "summary": "Build the foundation for compound-research: a module-tagging system that lets projects opt into engineering, research, or both; and the core `/cr-*` prompt scaffolding that mirrors the existing `/cg-*` workflow loop with a research task-type classifier. At the end of this plan, a user can enable the research module, run `/cr-brainstorm`, and get a research-aware brainstorming session with task-type classification — though the specialized agents and skills (Phases 3–7) won't exist yet.",
+      "tags": [
+        "compound-research",
+        "module-system",
+        "research-workflow",
+        "architecture",
+        "cr-prompts"
+      ],
+      "title": "Compound Research — Phase 1 (Module System) & Phase 2 (Research Workflow Scaffolding)",
+      "top_keywords": [
+        "modules:",
+        "compound-gpid.local.md",
+        "research",
+        "module:",
+        "prompt-tools.tests.ps1",
+        "test scenarios",
+        "engineering",
+        "skill.md",
+        "cr-prompts.tests.ps1",
+        "helpers.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md",
+      "slug": "2026-05-14-compound-research-phase3-agents",
+      "status": "completed",
+      "summary": "Create the four core research agents (`@cr-research-integrity`, `@cr-mathematical-verification`, `@cr-identification-audit`, `@cr-econometric-reasoning`) and wire them into the existing `/cr-review` orchestration so that research reviews dispatch real agents instead of showing \"Phase 3 — not yet available\" placeholders.",
+      "tags": [
+        "compound-research",
+        "agents",
+        "research-integrity",
+        "mathematical-verification",
+        "identification-audit",
+        "econometric-reasoning"
+      ],
+      "title": "Compound Research — Phase 3: Core Research Agents",
+      "top_keywords": [
+        "/cr-review",
+        "cr-skill-research-integrity",
+        "claude opus",
+        "@cr-econometric-reasoning",
+        "docs/model-guide.md",
+        "test scenarios",
+        "model-assignments.tests.ps1",
+        "module: research",
+        "agent",
+        "@cr-research-integrity"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-14-compound-research-phase4-skills.md",
+      "slug": "2026-05-14-compound-research-phase4-skills",
+      "status": "completed",
+      "summary": "Create the six domain-knowledge skills and two instruction files that give the research module its econometric depth. After this phase, `/cr-brainstorm` and `/cr-work` can load concrete skill content for Theory/Modeling, Specification Analysis, EDA, and Implementation (structural) task types — replacing the current \"Phase 4, not yet available\" placeholders in the `/cr-*` prompts.",
+      "tags": [
+        "[compound-research, skills, structural-econometrics, mathematical-derivation,"
+      ],
+      "title": "Compound Research — Phase 4: Structural Econometrics Skills",
+      "top_keywords": [
+        "skill.md",
+        "cr-brainstorm.prompt.md",
+        "module: research",
+        "cr-review.prompt.md",
+        "cr-skill-mathematical-derivation",
+        "test scenarios",
+        "cr-prompts.tests.ps1",
+        "cr-skill-symbolic-verification",
+        "cr-skill-identification-strategies",
+        "math.instructions.md"
+      ]
+    },
+    {
       "date": "2026-05-15",
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md",
@@ -4633,6 +5038,30 @@
     {
       "date": "2026-05-20",
       "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md",
+      "slug": "2026-05-20-compound-research-phase5-ml-economics",
+      "status": "complete",
+      "summary": "Create the ML domain-knowledge skill and two new research agents that give the research module ML/Prediction and Specification Analysis capabilities. After this phase, `/cr-brainstorm` and `/cr-work` can load concrete skill content for ML/Prediction and Implementation (ML) task types, and `/cr-review` can dispatch `@cr-ml-methodology` and `@cr-specification-analysis` — replacing the current \"Phase 5, not yet available\" placeholders.",
+      "tags": [
+        "[compound-research, skills, ml-economics, machine-learning, agents,"
+      ],
+      "title": "Compound Research — Phase 5: ML in Economics",
+      "top_keywords": [
+        "cr-review.prompt.md",
+        "cr-skill-ml-economics",
+        "cr-brainstorm.prompt.md",
+        "@cr-ml-methodology",
+        "@cr-specification-analysis",
+        "cr-skill-ml-methodology",
+        "module: research",
+        "cr-prompts.tests.ps1",
+        "specification analysis",
+        "test scenarios"
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "entity_type": "plan",
       "path": ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
       "slug": "2026-05-20-knowledge-brain-read-path-batch-c",
       "status": "completed",
@@ -4686,6 +5115,122 @@
         "/cg-compound",
         "brain",
         "team"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-22-compound-research-phase6-writing-publication.md",
+      "slug": "2026-05-22-compound-research-phase6-writing-publication",
+      "status": "completed",
+      "summary": "Build the writing and publication layer of compound-research: two domain skills (`cr-skill-academic-writing`, `cr-skill-publication-output`) and one review agent (`@cr-academic-writing`) that enable AI-assisted academic writing and publication-quality output production for economics research papers. Remove all \"Phase 6 — not yet available\" annotations from existing prompt files.",
+      "tags": [
+        "compound-research",
+        "academic-writing",
+        "publication-output",
+        "skills",
+        "agents",
+        "phase-6"
+      ],
+      "title": "Phase 6: Writing & Publication Output",
+      "top_keywords": [
+        "cr-skill-academic-writing",
+        "cr-review.prompt.md",
+        "copilot-instructions.md",
+        "cr-prompts.tests.ps1",
+        "cr-skill-publication-output",
+        "cr-brainstorm.prompt.md",
+        "cr-academic-writing.agent.md",
+        "@cr-academic-writing",
+        "module: research",
+        "test scenarios"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md",
+      "slug": "2026-05-22-compound-research-phase7-reproducibility-replication",
+      "status": "completed",
+      "summary": "Create the `cr-skill-replication-standards` skill and `@cr-replication-package` agent so that the Reproducibility task type (the 8th in the research taxonomy) is fully functional — from brainstorm skill routing through work execution to review dispatch. This bridges the engineering-level reproducibility already provided by `@cg-reproducibility` (seeds, lockfiles, paths) with journal-submission-grade replication-package auditing (AEA/AER standards, 5-year READMEs, data documentation, runtime estimates, archive completeness).",
+      "tags": [
+        "research",
+        "reproducibility",
+        "replication",
+        "agent",
+        "skill",
+        "compound-research"
+      ],
+      "title": "Compound Research Phase 7: Reproducibility & Replication Package",
+      "top_keywords": [
+        "cr-skill-replication-standards",
+        "@cr-replication-package",
+        "cr-brainstorm.prompt.md",
+        "cr-work.prompt.md",
+        "cr-review.prompt.md",
+        "test scenarios",
+        "copilot-instructions.md",
+        "description",
+        "@cg-reproducibility",
+        "docs/reference.md"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md",
+      "slug": "2026-05-22-compound-research-phase8-integration-docs",
+      "status": "completed",
+      "summary": "Final integration pass for the compound-research milestone: update the project charter's Current Focus (research module is now complete), add compound-research to the README, add a Research Workflow section to `docs/workflow.md`, update `docs/manual.md` to reference the research docs, and run a full test pass to confirm everything is green before the branch is ready for merge.",
+      "tags": [
+        "research",
+        "documentation",
+        "integration",
+        "compound-research",
+        "charter",
+        "README",
+        "polish"
+      ],
+      "title": "Compound Research Phase 8: Integration Polish & Documentation",
+      "top_keywords": [
+        "compound-gpid.md",
+        "/cr-*",
+        "workflow.md",
+        "docs/workflow.md",
+        "docs/manual.md",
+        "current focus",
+        "research workflow",
+        "readme.md",
+        "manual.md",
+        "research"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md",
+      "slug": "2026-05-22-compound-research-phase9-publication-output-agent",
+      "status": "completed",
+      "summary": "Create a dedicated `@cr-publication-output` review agent scoped to output-producing code (regression tables, descriptive statistics tables, figures, and `ggsave`/`save_kable` calls). This agent is the companion to the existing `cr-skill-publication-output` skill, replacing the thin \"Check 6 only\" pass-through that `@cr-academic-writing` currently performs for Tables/Figures tasks. Update `/cr-review` dispatch routing to send Tables/Figures tasks to the new agent, and add skill loading in `/cr-work` for Tables/Figures tasks.",
+      "tags": [
+        "compound-research",
+        "publication-output",
+        "tables-figures",
+        "agent",
+        "phase-9"
+      ],
+      "title": "Phase 9: Dedicated Tables/Figures Agent",
+      "top_keywords": [
+        "@cr-academic-writing",
+        "cr-skill-publication-output",
+        "cr-prompts.tests.ps1",
+        "copilot-instructions.md",
+        "@cr-publication-output",
+        "/cr-work",
+        "test scenarios",
+        "cr-publication-output.agent.md",
+        "/cr-review",
+        "cr-skill-research-workflow"
       ]
     },
     {
@@ -5599,6 +6144,155 @@
       ]
     },
     {
+      "date": "2026-07-29",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+      "slug": "2026-07-29-cr-module-migration-to-v1",
+      "status": "completed",
+      "summary": "Port the Compound Research (CR) module — 9 agents, 12 skills, 5 prompts, 2 instruction files, and associated .cg-docs artifacts — from the stale `compound-research` branch (v0.10.2) onto a fresh branch from `origin/main` (v1.0.3), then integrate CR with all v1.0 systems (brain, review routing, model catalog, context-loading contracts, active-state, and multi-target generation).",
+      "tags": [
+        "migration",
+        "compound-research",
+        "v1-integration",
+        "git-workflow",
+        "codex-adapter"
+      ],
+      "title": "Compound Research module migration to v1.0",
+      "top_keywords": [
+        "skill.md",
+        "phase",
+        "test scenarios",
+        "prompt-tools.tests.ps1",
+        "research",
+        "cr-prompts.tests.ps1",
+        "cg_generate_targets.py",
+        "commit",
+        "commit phase",
+        "cg-review.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+      "slug": "2026-07-30-cr-evidence-provenance-spine",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module an **evidence and provenance spine** so that every substantive claim in a research output is traceable to a **verified, in-repo source**, and fabricated or uncited claims are blocked as **P0**. This is Phase 1 of the CR expansion from a journal-paper econometrics assistant into a responsible partner for the full research lifecycle of policy-relevant measurement work.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "provenance",
+        "evidence",
+        "anti-hallucination",
+        "citations",
+        "p0"
+      ],
+      "title": "CR Evidence & Provenance Spine (Responsible Research Partner — Phase 1)",
+      "top_keywords": [
+        "cr-prompts.tests.ps1",
+        "copilot-instructions.md",
+        "@cr-provenance-audit",
+        "test scenarios",
+        "cr-skill-evidence-provenance",
+        "model-catalog.json",
+        "describe",
+        "/cr-work",
+        "module: research",
+        "/cr-review"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+      "slug": "2026-07-30-cr-measurement-classification-archetype",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module a first-class **Measurement/Classification** research archetype — the **9th research task type** — so that composite-indicator, clustering, and threshold-classification work (the core of policy-relevant measurement) is held to the same integrity bar as structural econometrics.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "measurement",
+        "classification",
+        "composite-indicators",
+        "comparability",
+        "vintages",
+        "p0"
+      ],
+      "title": "CR Measurement/Classification Archetype + Comparability Controls (Responsible Research Partner — Phase 2)",
+      "top_keywords": [
+        "/cr-work",
+        "cr-prompts.tests.ps1",
+        "@cr-measurement-integrity",
+        "copilot-instructions.md",
+        "/cr-review",
+        "model-assignments.tests.ps1",
+        "test scenarios",
+        "weighting-sensitivity.yaml",
+        "cluster-validity.yaml",
+        "cr-skill-measurement"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+      "slug": "2026-07-30-cr-method-pack-retrofit",
+      "status": "completed",
+      "summary": "Refactor CR's existing method-specific flows (structural econometrics, ML) into interchangeable **method packs** running under a single **responsible research lifecycle**, and converge `/cr-review` dispatch onto that model — so the responsible-AI backbone built in Phases 1–3 (evidence/provenance, measurement integrity, normative gates) is applied **structurally and uniformly** rather than duplicated per method.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "refactor",
+        "method-packs",
+        "lifecycle",
+        "orchestration",
+        "backward-compatibility"
+      ],
+      "title": "CR Method-Pack Retrofit + Lifecycle Orchestration (Responsible Research Partner — Phase 4)",
+      "top_keywords": [
+        "/cr-review",
+        "copilot-instructions.md",
+        "/cr-work",
+        "describe",
+        "tests/last-run.json",
+        "test scenarios",
+        "lifecycle",
+        "/cr-brainstorm",
+        "phase",
+        "reference.md"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates",
+      "status": "completed",
+      "summary": "Give the Compound Research (CR) module a **scoping front-end** and a **normative-decision gate backbone**, so that consequential value-laden methodological choices are made **visible, contestable, and recorded** — never smuggled in behind a technical result.",
+      "tags": [
+        "compound-research",
+        "responsible-ai",
+        "scoping",
+        "normative-decisions",
+        "value-transparency",
+        "gates",
+        "p0"
+      ],
+      "title": "CR Scoping Front-End + Normative-Decision Gates (Responsible Research Partner — Phase 3)",
+      "top_keywords": [
+        "/cr-work",
+        "/cr-brainstorm",
+        "/cr-plan",
+        "applies_to",
+        "test scenarios",
+        "normative-decisions.md",
+        "cr-skill-research-scoping",
+        "describe",
+        "tests/last-run.json",
+        "phase"
+      ]
+    },
+    {
       "date": "2026-07-30",
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
@@ -5688,6 +6382,35 @@
         "tests/prompt-tools.tests.ps1",
         "tests/last-run.json",
         "run-tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "slug": "2026-08-02-cr-work-gpt-5-6-luna-plan",
+      "status": "completed",
+      "summary": "Assign `GPT-5.6 Luna` to the Compound Research `/cr-work` command and carry that assignment through the canonical model catalog, audit tooling, native target projections, documentation, and focused tests without changing any other agent or model assignment.",
+      "tags": [
+        "compound-research",
+        "cr-work",
+        "model-governance",
+        "native-targets",
+        "generator",
+        "testing"
+      ],
+      "title": "Use GPT-5.6 Luna for /cr-work",
+      "top_keywords": [
+        "/cr-work",
+        "research-execution",
+        "gpt-5.6 luna",
+        ".github/prompts/cr-work.prompt.md",
+        "docs/reference.md",
+        "cr-work.prompt.md",
+        "test scenarios",
+        ".github/shared/model-catalog.json",
+        "docs/model-guide.md",
+        "/cr-review"
       ]
     },
     {
@@ -7412,6 +8135,94 @@
       ]
     },
     {
+      "date": "2026-05-14",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-14-compound-research-phase1-phase2-review.md",
+      "slug": "2026-05-14-compound-research-phase1-phase2-review",
+      "status": "fixed",
+      "summary": "**Plan**: [2026-05-14-compound-research-phase1-phase2.md](../plans/2026-05-14-compound-research-phase1-phase2.md) **Review date**: 2026-05-14 **Depth**: standard (8 agents) **Commits reviewed**: `26355c9..1ec4054` (pushed to `origin/compound-research`)",
+      "tags": [],
+      "title": "2026-05-14-compound-research-phase1-phase2-review",
+      "top_keywords": [
+        "cr-work.prompt.md",
+        "modules:",
+        "link.sh",
+        "tests",
+        "skill.md",
+        "ps1",
+        "compound-gpid.context.md",
+        "modules",
+        "scripts",
+        "cr-prompts.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-review.md",
+      "slug": "2026-05-14-compound-research-phase3-agents-review",
+      "status": "",
+      "summary": "**Review depth**: standard **Files reviewed**: 9 **Findings**: 23 (P0: 0, P1: 7, P2: 11, P3: 5)",
+      "tags": [],
+      "title": "2026-05-14-compound-research-phase3-agents-review",
+      "top_keywords": [
+        ".github/prompts/cr-review.prompt.md",
+        "cr-review.prompt.md",
+        "@cr-econometric-reasoning",
+        "tests/cr-prompts.tests.ps1",
+        "@cr-identification-audit",
+        ".github/agents/cr-research-integrity.agent.md",
+        ".github/agents/cr-econometric-reasoning.agent.md",
+        "/cr-fix-triage",
+        "manifest.json",
+        "cr-prompts.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-thorough-review.md",
+      "slug": "2026-05-14-compound-research-phase3-agents-thorough-review",
+      "status": "",
+      "summary": "**Scope**: `.github/agents/cr-*.agent.md` (4 new), `.github/prompts/cr-review.prompt.md` (modified), `docs/model-guide.md` (modified), `tests/cr-prompts.Tests.ps1` (new), `tests/model-assignments.Tests.ps1` (modified), `.cg-docs/plans/`, `.cg-docs/reviews/`",
+      "tags": [],
+      "title": "2026-05-14-compound-research-phase3-agents-thorough-review",
+      "top_keywords": [
+        ".github/prompts/cr-review.prompt.md",
+        ".github/agents/cr-research-integrity.agent.md",
+        "cr-review.prompt.md",
+        "tests/cr-prompts.tests.ps1",
+        "compound-gpid.local.md",
+        "cr-research-integrity.agent.md",
+        "cr-prompts.tests.ps1",
+        ".github/agents/cr-mathematical-verification.agent.md",
+        "manifest.json",
+        "@cr-mathematical-verification"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-14-compound-research-phase4-skills-review.md",
+      "slug": "2026-05-14-compound-research-phase4-skills-review",
+      "status": "",
+      "summary": "**Review depth**: thorough **Branch**: compound-research (`c9e377b`) **Files reviewed**: 109 (focused on 14 Phase 4 files) **Agents**: 10 (all 8 standard + @cg-learnings-researcher + @cg-adversarial) **Total findings**: 43 (P0: 3, P1: 10, P2: 24, P3: 10) **Clean agents**: @cg-code-quality, @cg-version-control",
+      "tags": [],
+      "title": "2026-05-14-compound-research-phase4-skills-review",
+      "top_keywords": [
+        "tests",
+        "skill",
+        "agent",
+        "skill.md",
+        "cr-skill-structural-econometrics",
+        "cr-prompts",
+        "ps1",
+        "cr-skill-research-eda",
+        "cr-mathematical-verification.agent.md",
+        "tests/cr-prompts.tests.ps1"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-05-15-auto-generated-project-wiki-review.md",
@@ -7453,6 +8264,28 @@
         ".github/",
         "pages[].order",
         "cg-wiki"
+      ]
+    },
+    {
+      "date": "2026-05-15",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-15-compound-research-fix-commit-review.md",
+      "slug": "2026-05-15-compound-research-fix-commit-review",
+      "status": "",
+      "summary": "**Date**: 2026-05-15 **Branch**: `compound-research` **Commit**: `73e9c62` — fix(compound-research): apply phase 4 thorough review findings **Depth**: standard (8 agents) **Note**: Documentation agent returned pre-fix false positives (read the review report rather than file state); all verified as already fixed. All 27 findings below are confirmed genuine.",
+      "tags": [],
+      "title": "2026-05-15-compound-research-fix-commit-review",
+      "top_keywords": [
+        "tests",
+        "cr-prompts",
+        "ps1",
+        "cr-prompts.tests.ps1",
+        "skill",
+        "@cr-research-integrity",
+        "cr-mathematical-verification.agent.md",
+        "agent",
+        "cg-performance",
+        "skill.md"
       ]
     },
     {
@@ -7698,6 +8531,50 @@
       ]
     },
     {
+      "date": "2026-05-21",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review-2.md",
+      "slug": "2026-05-20-compound-research-phase5-ml-economics-review-2",
+      "status": "",
+      "summary": "**Review depth**: standard **Commit reviewed**: `edf342b` — feat(compound-research): apply Phase 5 ML-economics review fixes **Files reviewed**: 9 **Findings**: 12 (P0: 0, P1: 2, P2: 7, P3: 3)",
+      "tags": [],
+      "title": "2026-05-20-compound-research-phase5-ml-economics-review-2",
+      "top_keywords": [
+        "skill.md",
+        "flag",
+        "fix",
+        "cg-setup",
+        "beforeall",
+        "cv.glmnet",
+        "m=1",
+        "cr-ml-methodology.agent.md",
+        "cr-prompts.tests.ps1",
+        "model-assignments.tests.ps1"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review.md",
+      "slug": "2026-05-20-compound-research-phase5-ml-economics-review",
+      "status": "",
+      "summary": "**Plan**: `2026-05-20-compound-research-phase5-ml-economics.md` **Commit**: `4fda41d` — `feat(compound-research): phase 5 — ML in economics skill, agents, and wiring` **Scope**: `cr-skill-ml-economics/SKILL.md`, `cr-ml-methodology.agent.md`, `cr-specification-analysis.agent.md`, prompt wiring, tests",
+      "tags": [],
+      "title": "2026-05-20-compound-research-phase5-ml-economics-review",
+      "top_keywords": [
+        "cr-specification-analysis",
+        ".github/skills/cr-skill-ml-economics/skill.md",
+        "cr-ml-methodology.agent.md",
+        "skill.md",
+        ".github/agents/cr-ml-methodology.agent.md",
+        ".github/agents/cr-specification-analysis.agent.md",
+        "missing",
+        "cg-adversarial",
+        "cr-specification-analysis.agent.md",
+        "[cg-adversarial]"
+      ]
+    },
+    {
       "date": "2026-05-20",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
@@ -7893,6 +8770,204 @@
         "privacy.py",
         "config.py",
         "privacy"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review-2.md",
+      "slug": "2026-05-22-compound-research-phase6-writing-publication-review-2",
+      "status": "triaged",
+      "summary": "**Scope**: Phase 6 review-triage changes (2nd pass standard review) **Changed files**: 8 files (7 modified, 1 untracked) - `.github/agents/cr-academic-writing.agent.md` - `.github/skills/cr-skill-publication-output/SKILL.md` - `.github/prompts/cr-review.prompt.md` - `.github/prompts/cr-brainstorm.prompt.md` - `docs/reference.md` - `.github/copilot-instructions.md` - `roadmap.json` - `tests/cr-prompts.Tests.ps1` - `.cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review.md` (untracked)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase6-writing-publication-review-2",
+      "top_keywords": [
+        ".github/skills/cr-skill-publication-output/skill.md",
+        "tests/cr-prompts.tests.ps1",
+        "review criteria",
+        "cr-skill-publication-output",
+        "ggsave()",
+        "missing",
+        "roadmap.json",
+        "skill.md",
+        "cr-prompts.tests.ps1",
+        "section"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review.md",
+      "slug": "2026-05-22-compound-research-phase6-writing-publication-review",
+      "status": "triaged",
+      "summary": "**Date**: 2026-05-22 **Branch**: `compound-research` **Commits reviewed**: `2b54b1e` (Phase 6 implementation), `de52a7c` (roadmap update) **Depth**: thorough (all 8 standard agents + @cg-learnings-researcher + @cg-adversarial)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase6-writing-publication-review",
+      "top_keywords": [
+        "cr-skill-publication-output",
+        "cr-academic-writing.agent.md",
+        "cr-prompts.tests.ps1",
+        "cr-academic-writing",
+        ".github/agents/cr-academic-writing.agent.md",
+        "tests/cr-prompts.tests.ps1",
+        "cr-review.prompt.md",
+        "cr-brainstorm.prompt.md",
+        "phase",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review-2.md",
+      "slug": "2026-05-22-compound-research-phase7-reproducibility-replication-review-2",
+      "status": "",
+      "summary": "Second review pass (standard depth) run after thorough review fixes were applied. All 12 findings from the first review confirmed resolved.",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase7-reproducibility-replication-review-2",
+      "top_keywords": [
+        "tests",
+        "docs/reference.md",
+        "tests/cr-prompts.tests.ps1",
+        "cr-review.prompt.md",
+        "describe",
+        "forbidden patterns",
+        "reference.md",
+        "cr-prompts.tests.ps1",
+        "cr-replication-package.agent.md",
+        "agent"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review.md",
+      "slug": "2026-05-22-compound-research-phase7-reproducibility-replication-review",
+      "status": "",
+      "summary": "**Review depth**: thorough **Files reviewed**: 12 (3 new, 9 modified — Phase 7 uncommitted changes) **Agents dispatched**: cg-code-quality, cg-testing, cg-architecture, cg-documentation, cg-version-control, cg-reproducibility, cg-adversarial, cg-learnings-researcher **Findings**: 12 (P0: 2, P1: 2, P2: 6, P3: 2)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase7-reproducibility-replication-review",
+      "top_keywords": [
+        "cr-replication-package.agent.md",
+        "seeds.md",
+        ".github/agents/cr-replication-package.agent.md",
+        ".renviron",
+        "cr-replication-package",
+        "cr-academic-writing",
+        "cr-ml-methodology.agent.md",
+        ".cg-docs/research/",
+        "model-guide.md",
+        "data documentation"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review-2.md",
+      "slug": "2026-05-22-compound-research-phase8-integration-docs-review-2",
+      "status": "",
+      "summary": "**Review depth**: standard (no `compound-gpid.local.md` — defaulted) **Commit**: `4212f5f` — `fix(compound-research): address Phase 8 review findings` **Files reviewed**: 7 (`scripts/update.sh`, `docs/workflow.md`, `compound-gpid.md`, `README.md`, `docs/context-files.md`, `.cg-docs/DIGEST.md`, `.cg-docs/reviews/…-review.md`) **Auto-escalation**: `scripts/` directory → `@cg-data-quality` always added (already in standard) **Findings**: 9 (P0: 1, P1: 2, P2: 3, P3: 3)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase8-integration-docs-review-2",
+      "top_keywords": [
+        "update.sh",
+        "link.sh",
+        "extract_fm_value",
+        "valid_modules",
+        "scripts/update.sh",
+        "fix",
+        "cg-fix-triage",
+        "generate_copilot_instructions",
+        "resolved",
+        "''"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review.md",
+      "slug": "2026-05-22-compound-research-phase8-integration-docs-review",
+      "status": "",
+      "summary": "**Commit**: `c3b4d02` — `docs(compound-research): Phase 8 integration polish & documentation` **Files reviewed**: 9 (README.md, compound-gpid.md, docs/context-files.md, docs/manual.md, docs/workflow.md, roadmap.json, .cg-docs/plans/…phase8…md, .cg-docs/solutions/testing-patterns/…skill-agent-sync.md, .cg-docs/DIGEST.md) **Depth**: Thorough — all 8 standard agents + `@cg-learnings-researcher` + `@cg-adversarial` **Tests at commit**: 2,341 / 2,341 passing",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase8-integration-docs-review",
+      "top_keywords": [
+        "cr-review.prompt.md",
+        "workflow.md",
+        "docs/workflow.md",
+        "workflow",
+        "@cg-adversarial",
+        "@cg-architecture",
+        "@cr-mathematical-verification",
+        "@cg-performance",
+        "@cr-specification-analysis",
+        "compound-gpid.md"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review-2.md",
+      "slug": "2026-05-22-compound-research-phase9-publication-output-agent-review-2",
+      "status": "",
+      "summary": "**Review depth**: standard **Files reviewed**: 10 (commit `5068fe2` — Phase 9 review findings applied) **Findings**: 13 (P0: 0, P1: 0, P2: 2, P3: 11)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase9-publication-output-agent-review-2",
+      "top_keywords": [
+        "describe",
+        "tests/cr-prompts.tests.ps1",
+        "cr-prompts.tests.ps1",
+        "$fm",
+        "$frontmatter",
+        "model-assignments.tests.ps1",
+        "cr-review.prompt.md",
+        "get-frontmatter",
+        "completed-date",
+        "foreach"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review.md",
+      "slug": "2026-05-22-compound-research-phase9-publication-output-agent-review",
+      "status": "",
+      "summary": "**Review depth**: thorough **Files reviewed**: 10 (Phase 9 commit `bffb918` — `.github/agents/cr-publication-output.agent.md` + 9 modified files) **Agents dispatched**: cg-code-quality, cg-testing, cg-documentation, cg-version-control, cg-reproducibility, cg-performance, cg-architecture, cg-data-quality, cg-learnings-researcher, cg-adversarial **Findings**: 30 (P0: 0, P1: 4, P2: 18, P3: 8)",
+      "tags": [],
+      "title": "2026-05-22-compound-research-phase9-publication-output-agent-review",
+      "top_keywords": [
+        "cr-publication-output.agent.md",
+        "ggsave()",
+        "modelsummary()",
+        "ggplot()",
+        "set.seed()",
+        "cr-prompts.tests.ps1",
+        "cr-review.prompt.md",
+        "cr-skill-publication-output",
+        "@cr-publication-output",
+        "[cr-publication-output]"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-05-22-install-stale-function-migration-review.md",
+      "slug": "2026-05-22-install-stale-function-migration-review",
+      "status": "open",
+      "summary": "**Commit**: `91d4a8c` — `fix(install): strip stale cg-* function defs from shell profile on upgrade` **Branch**: `compound-research` **Files**: `scripts/install.sh` (+44 lines Step 4a), `tests/bash-scripts.Tests.ps1` (+60 lines migration test)",
+      "tags": [],
+      "title": "2026-05-22-install-stale-function-migration-review",
+      "top_keywords": [
+        "install.sh",
+        "install",
+        "tests",
+        "ps1",
+        "bash-scripts",
+        "bash-scripts.tests.ps1",
+        "cg-testing",
+        "profile",
+        "bash-scripts.tests.ps1:181-231",
+        "fix"
       ]
     },
     {
@@ -8927,6 +10002,94 @@
         "test_target_ownership.py",
         "verification",
         "passed"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md",
+      "slug": "2026-07-29-cr-module-migration-to-v1-review-2",
+      "status": "",
+      "summary": "**Review mode**: architecture **Files reviewed**: 42 **Findings**: 6 (P0: 0, P1: 2, P2: 4, P3: 0)",
+      "tags": [],
+      "title": "2026-07-29-cr-module-migration-to-v1-review-2",
+      "top_keywords": [
+        "research",
+        "cg-work",
+        "/cg-work",
+        "/cr-review",
+        "fix",
+        "prompt-tools",
+        "review:research",
+        "cg-review",
+        "cg-work.prompt.md",
+        "cg-review.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-07-29",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review.md",
+      "slug": "2026-07-29-cr-module-migration-to-v1-review",
+      "status": "complete",
+      "summary": "75 files committed in `feat(cr): port compound-research intellectual content from v0.10 branch` (commit `144066f`): 9 CR agents, 5 CR prompts, 12 CR skills, 2 instruction files, 1 new test file (`tests/cr-prompts.Tests.ps1`), 43 `.cg-docs/` artifacts.",
+      "tags": [],
+      "title": "2026-07-29-cr-module-migration-to-v1-review",
+      "top_keywords": [
+        "cg-testing",
+        "cg-code-quality",
+        "model-catalog.json",
+        "phase",
+        "commit",
+        "fixed",
+        "gpt-5.4",
+        "model-assignments.tests.ps1",
+        "cg-review.prompt.md",
+        "agent"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates-review-2",
+      "status": "",
+      "summary": "**Review mode**: full (composite coverage with research agents per shared routing contract) **Files reviewed**: 643 **Findings**: 9 (P0: 0, P1: 4, P2: 5, P3: 0)",
+      "tags": [],
+      "title": "2026-07-30-cr-scoping-normative-gates-review-2",
+      "top_keywords": [
+        "cg-review",
+        "/cg-review",
+        "/cg-review full",
+        "cg-fix-triage",
+        "/cg-fix-triage",
+        "/cr-review",
+        "tests/last-run.json",
+        "last-run.json",
+        "cr-compound.prompt.md",
+        "research"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
+      "slug": "2026-07-30-cr-scoping-normative-gates-review",
+      "status": "",
+      "summary": "**Review mode**: research **Files reviewed**: 28 **Findings**: 5 (P0: 0, P1: 4, P2: 1, P3: 0)",
+      "tags": [],
+      "title": "2026-07-30-cr-scoping-normative-gates-review",
+      "top_keywords": [
+        "research scoping",
+        "research",
+        "fix",
+        "cg-fix-triage",
+        "cr-replication-package",
+        "/cr-work",
+        "cr-work.prompt.md",
+        "cg-work",
+        "reference.md",
+        "review"
       ]
     },
     {
@@ -10002,6 +11165,67 @@
       ]
     },
     {
+      "date": "2026-05-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-14-empty-file-bypasses-graceful-skip-produces-false-negative.md",
+      "slug": "2026-05-14-empty-file-bypasses-graceful-skip-produces-false-negative",
+      "status": "",
+      "summary": "Scan agents in this project use a graceful-skip pattern: The gap: graceful-skip is triggered by **absence** (`no files found`), but a zero-byte `.tex` or `.md` file satisfies the \"file found\" condition. The agent: 1. Detects the file in Step 1 → proceeds (no graceful skip) 2. Builds a variable mapping table in Step 2 → table is empty (no content) 3. Runs verification checks in Step 3 → nothing to check 4. Returns \"No discrepancies found\" or silently passes This was found in `@cr-mathematical-verification` (P0.4) and similar gaps in `@cr-identification-audit` (P2.12) and `@cr-econometric-reasoning` (P2.13) in the 2026-05-14 thorough review. **Impact**:...",
+      "tags": [
+        "agent-design",
+        "input-validation",
+        "graceful-skip",
+        "empty-file",
+        "false-negative",
+        "cr-mathematical-verification",
+        "cr-identification-audit",
+        "scan-agent",
+        "zero-byte"
+      ],
+      "title": "Zero-byte/near-empty files bypass graceful-skip guards and produce false-negative clean results in scan agents",
+      "top_keywords": [
+        "graceful-skip",
+        "zero-byte",
+        "2026-04-15-prompt-step-silent-skip-antipattern-fallback-required.md",
+        "2026-04-29-two-phase-injection-guard-for-agent-file-reads.md",
+        "no files found",
+        ".tex",
+        "@cr-mathematical-verification",
+        "@cr-identification-audit",
+        "@cr-econometric-reasoning",
+        "near-empty"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-14-python-regex-raw-string-double-backslash-excludes-letters.md",
+      "slug": "2026-05-14-python-regex-raw-string-double-backslash-excludes-letters",
+      "status": "",
+      "summary": "`extract_fm_value` in `scripts/link.sh` silently returned `''` (empty string) for any YAML frontmatter value containing the letters `r` or `n` — including `research`, `r-syntax`, `project-name`, etc. The symptom was `modules: research` being read back as the default value `engineering` instead of `research`. The test: The function appeared to work for simple values like `\"r\"`, `\"standard\"`, `\"analysis\"` — none of which happen to contain `r` or `n` in positions that trigger the exclusion clearly — masking the bug through the entire Phase 1+2 development cycle.",
+      "tags": [
+        "python",
+        "regex",
+        "raw-string",
+        "backslash",
+        "character-class",
+        "frontmatter-parser"
+      ],
+      "title": "Python regex raw-string double-backslash silently excludes literal letters",
+      "top_keywords": [
+        "\\r",
+        "\\n",
+        "\\\\r",
+        "link.sh",
+        "double-backslash",
+        "regex",
+        "python",
+        "raw-string",
+        "update.sh",
+        "research"
+      ]
+    },
+    {
       "date": "2026-05-15",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-always-waits-for-confirmation.md",
@@ -10344,6 +11568,36 @@
     {
       "date": "2026-05-20",
       "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite.md",
+      "slug": "2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite",
+      "status": "",
+      "summary": "A structural econometrics skill document stated: > \"At a maximum, the Hessian of the log-likelihood must be **negative-definite**.\" A convergence guard in the same document checked that the Hessian was **positive-definite**. These two statements were in direct contradiction. Researchers following the prose would reject valid MLE solutions (or accept saddle points), producing wrong standard errors with no error message.",
+      "tags": [
+        "structural-econometrics",
+        "MLE",
+        "Hessian",
+        "optim",
+        "convergence-guard",
+        "research-correctness",
+        "sign-convention"
+      ],
+      "title": "optim() returns Hessian of negative log-likelihood — must be positive-definite at solution",
+      "top_keywords": [
+        "hessian",
+        "result$hessian",
+        "positive-definite",
+        "solution",
+        "optim",
+        "optim()",
+        "negative",
+        "log-likelihood",
+        "must",
+        "result"
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md",
       "slug": "2026-05-20-python-path-startswith-bypass-use-relative-to",
       "status": "",
@@ -10369,6 +11623,36 @@
         "startswith()",
         "\"/home/user/.cg-docs\"",
         "relative_to()"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md",
+      "slug": "2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax",
+      "status": "",
+      "summary": "`scripts/link.sh` (and later `scripts/helpers.sh`) contained an error-trap pattern that appeared reasonable but was syntactically broken: **Symptom at runtime**: `bash: syntax error near unexpected token '}'` — the closing `}` of the outer function is unexpected. Or the error-trap body is silently treated as heredoc content, meaning `python3` exits non-zero with no handler. **Critical masking**: The tests for these scripts only checked file content (regex pattern matching against the source text), never executed the function. Additionally, `bash -n` (syntax-check mode) did NOT report this as a syntax error in bash 3.2.57 (macOS default shell as of Ventura/Sonoma) — `bash -n scripts/link.sh`...",
+      "tags": [
+        "bash",
+        "heredoc",
+        "compound-command",
+        "syntax-error",
+        "error-trap",
+        "bash-3.2",
+        "macos"
+      ],
+      "title": "Bash heredoc with multi-line || { } compound command body is invalid syntax",
+      "top_keywords": [
+        "heredoc",
+        "|| {",
+        "bash -n",
+        "bash",
+        "helpers.sh",
+        "content",
+        "python3",
+        "python",
+        "scripts/helpers.sh",
+        "|| { }"
       ]
     },
     {
@@ -11064,6 +12348,36 @@
       ]
     },
     {
+      "date": "2026-07-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/build-errors/2026-07-29-cr-agent-model-strings-must-use-gpt-catalog-compliant.md",
+      "slug": "2026-07-29-cr-agent-model-strings-must-use-gpt-catalog-compliant",
+      "status": "",
+      "summary": "When the Compound Research (CR) module was ported from the `compound-research` v0.10.2 branch onto `feat/compound-research-v2` (based on v1.0.3 main), all 9 CR agent files carried model strings from the old branch: Two violations: 1. **`(copilot)` suffix**: Not present in `model-catalog.json` or any v1.0 agent. The suffix is unrecognized by model-routing logic and may cause silent fallback to a default model. 2. **`Claude Opus 4.6`**: Has `policyStatus: user-selected-only` in the catalog. Models with this status must not be hard-coded in agent frontmatter — they may only be used when explicitly selected by the user interactively. Hard-coding them in an agent file...",
+      "tags": [
+        "model-catalog",
+        "agent-frontmatter",
+        "claude-opus",
+        "gpt",
+        "policy",
+        "cr-module",
+        "model-governance"
+      ],
+      "title": "CR agent model strings must use GPT-5.4 — Claude Opus violates catalog policy",
+      "top_keywords": [
+        "claude opus",
+        "model-catalog.json",
+        "claude sonnet",
+        "policy",
+        "(copilot)",
+        "policystatus: user-selected-only",
+        "gpt-5.4",
+        ".github/shared/model-catalog.json",
+        "model",
+        "agent"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/data-quality/2026-03-17-null-welfare-silently-biases-poverty-rate.md",
@@ -11273,6 +12587,98 @@
         "count if dup_flag > 0",
         "tag",
         "display"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md",
+      "slug": "2026-05-14-yaml-frontmatter-allowlist-validation-pattern",
+      "status": "",
+      "summary": "`scripts/helpers.ps1` and `scripts/link.sh` both extracted `modules:` from `compound-gpid.local.md` and passed any string silently downstream. An invalid value like `modules: banana` would fall through to template substitution, producing `**Modules**: banana` in the generated `copilot-instructions.md` with no error. Similarly, YAML list notation (`modules: [engineering, research]` or block sequence) would either parse to a bracketed string `[engineering, research]` or fall through to the default `engineering`, with no indication that the format was wrong.",
+      "tags": [
+        "yaml",
+        "frontmatter",
+        "validation",
+        "allowlist",
+        "modules",
+        "configuration",
+        "powershell",
+        "python"
+      ],
+      "title": "YAML frontmatter allowlist validation pattern for module/config fields",
+      "top_keywords": [
+        "compound-gpid.local.md",
+        "yaml",
+        "allowlist",
+        "validation",
+        "helpers.ps1",
+        "link.sh",
+        "frontmatter",
+        "engineering",
+        "notation",
+        "scripts"
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md",
+      "slug": "2026-05-20-welfare-column-three-step-guard-existence-na-positivity",
+      "status": "",
+      "summary": "A welfare validation guard in a research EDA skill read: This has two silent failure modes: 1. **NA values silently bypass the guard**: `all(NA > 0)` returns `NA`, not `FALSE`. `stopifnot(NA)` throws \"is not TRUE\" — a cryptic error with no information about which observations have missing welfare. 2. **Absent or renamed column passes vacuously**: GPID welfare variables are context-specific (`welfare_ppp11`, `welfare_ppp17`, `pcexp`, `hhincome`, etc.). When the actual column is named `welfare_ppp17` and the guard checks `df$welfare`, R returns `NULL`. `all(NULL > 0)` evaluates to `TRUE` — the guard passes with zero checking done.",
+      "tags": [
+        "welfare",
+        "GPID",
+        "data-validation",
+        "guard",
+        "NA-handling",
+        "poverty-measurement",
+        "FGT",
+        "stopifnot"
+      ],
+      "title": "Welfare column guard must check existence, NA, and positivity in order",
+      "top_keywords": [
+        "welfare",
+        "column",
+        "existence",
+        "guard",
+        "welfare_ppp17",
+        "null",
+        "na",
+        "positivity",
+        "pcexp",
+        "hhincome"
+      ]
+    },
+    {
+      "date": "2026-05-21",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-05-21-mice-m1-is-single-imputation-not-multiple.md",
+      "slug": "2026-05-21-mice-m1-is-single-imputation-not-multiple",
+      "status": "",
+      "summary": "`cr-skill-ml-economics/SKILL.md` documented the preferred missing-data strategy for MAR data as \"**Multiple imputation inside each CV fold**\" and showed: Two problems: 1. `m=1` is **single** imputation. Calling it \"multiple imputation\" misleads practitioners into thinking it has the statistical properties of multiple imputation (variance accounting, Rubin's rules). 2. The comment \"impute test fold using the same mice object\" was a stub — no working code was provided. Applying `complete()` to the training `mids` object on test data silently fails or produces wrong output.",
+      "tags": [
+        "mice",
+        "imputation",
+        "single-imputation",
+        "multiple-imputation",
+        "ml-pipeline",
+        "cv-fold",
+        "data-leakage"
+      ],
+      "title": "mice(m=1) is single imputation for ML prediction — not multiple imputation",
+      "top_keywords": [
+        "mice",
+        "imputation",
+        "m=1",
+        "fold",
+        "test",
+        "single",
+        "prediction",
+        "object",
+        "leakage",
+        "prevents"
       ]
     },
     {
@@ -13590,6 +14996,70 @@
     {
       "date": "2026-05-14",
       "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-14-depth-restricted-mode-bypasses-domain-agents-need-forced-dispatch-exception.md",
+      "slug": "2026-05-14-depth-restricted-mode-bypasses-domain-agents-need-forced-dispatch-exception",
+      "status": "",
+      "summary": "`/cg-review mode:verify` was designed to terminate the fix-review cycle: it runs a `light` depth pass (only `@cg-code-quality` and `@cg-testing`), suppresses expected P2/P3 re-findings, and reports convergence. The bypass gap: **mode:verify's light-depth restriction completely omits all `cr-*` research agents**. A researcher who has an open P0 research-integrity finding can: 1. Edit the review report frontmatter to mark the finding `fixed` 2. Run `/cg-review mode:verify` 3. Receive a clean \"no new issues\" pass from the two code-quality agents 4. Merge No `@cr-research-integrity` check ever ran. The P0 silent research error remains in the codebase but the review system reports convergence. This was...",
+      "tags": [
+        "prompt-design",
+        "cg-review",
+        "mode-verify",
+        "domain-agents",
+        "cr-research-integrity",
+        "bypass",
+        "depth-restriction",
+        "review-convergence",
+        "security"
+      ],
+      "title": "Depth-restricted review modes silently bypass domain-specific agents — add forced-dispatch exception for open P0s",
+      "top_keywords": [
+        "fixed",
+        "open",
+        "bypass",
+        "2026-04-23-verify-mode-suppression-must-be-anchored-to-fixed-finding-scope.md",
+        "2026-05-06-cross-prompt-user-journey-must-be-validated-end-to-end.md",
+        "cg-review",
+        "/cg-review mode:verify",
+        "cr-*",
+        "@cr-research-integrity",
+        "[cr-*]"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-14-dispatch-table-must-cover-all-taxonomy-entries.md",
+      "slug": "2026-05-14-dispatch-table-must-cover-all-taxonomy-entries",
+      "status": "",
+      "summary": "`cr-review.prompt.md` Step 3 contained a dispatch table routing task types to research agents: `cr-skill-research-workflow` defines **8** task types. The table covers **6**. Missing: `EDA` and `Implementation`. When the task type is `EDA` or `Implementation`, the agent falls through to: > \"Task type cannot be determined → dispatch `@cr-econometric-reasoning` by default\" This dispatches a structural econometrics reviewer to EDA and implementation work — no findings on theory or model structure, but also no `@cg-performance` or `@cg-data-quality` which are the natural agents for those task types. Found as **P2.11** in the 2026-05-14 thorough review of Compound Research Phase 3.",
+      "tags": [
+        "prompt-design",
+        "dispatch-table",
+        "taxonomy",
+        "task-type",
+        "cr-review",
+        "completeness-check",
+        "enumeration",
+        "default-fallback",
+        "agent-dispatch"
+      ],
+      "title": "Dispatch table driven by a taxonomy must cover all taxonomy entries — missing rows fall through to wrong default",
+      "top_keywords": [
+        "taxonomy",
+        "dispatch",
+        "table",
+        "entries",
+        "must",
+        "cover",
+        "cr-review.prompt.md",
+        "2026-04-08-cross-cutting-enumeration-propagation-audit.md",
+        "2026-04-17-exact-count-assertion-prevents-silent-regression-when-test-name-states-count.md",
+        "2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "solution",
       "path": ".cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md",
       "slug": "2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output",
       "status": "",
@@ -13831,6 +15301,35 @@
     {
       "date": "2026-05-20",
       "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-20-agent-step-carveout-must-not-contradict-global-deferral-policy.md",
+      "slug": "2026-05-20-agent-step-carveout-must-not-contradict-global-deferral-policy",
+      "status": "",
+      "summary": "`cr-econometric-reasoning.agent.md` Step 4a contained: > \"If you detect a code-math mismatch, **do NOT emit P0 here**. Cross-reference > @cr-research-integrity.\" The same agent's deferral policy section stated: > \"P0 findings must be emitted **directly**, regardless of which step detects them.\" With the carve-out in place, a code-math mismatch found in Step 4a would be deferred to `@cr-research-integrity` — which the model cannot dispatch. The P0 would never surface.",
+      "tags": [
+        "agent-design",
+        "P0-deferral",
+        "compound-research",
+        "research-integrity",
+        "cr-agents",
+        "deferral-policy"
+      ],
+      "title": "Agent step carve-outs must not contradict the global P0 deferral policy",
+      "top_keywords": [
+        "cr-econometric-reasoning.agent.md",
+        "@cr-research-integrity",
+        "should be",
+        "agent",
+        "deferral",
+        "policy",
+        "global",
+        "must",
+        "carve-outs",
+        "contradict"
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "entity_type": "solution",
       "path": ".cg-docs/solutions/testing-patterns/2026-05-20-boundary-stop-test-must-place-config-above-stop-marker.md",
       "slug": "2026-05-20-boundary-stop-test-must-place-config-above-stop-marker",
       "status": "",
@@ -13856,6 +15355,225 @@
         "stop",
         "marker",
         "test"
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-20-pester-hoist-file-reads-to-context-scope.md",
+      "slug": "2026-05-20-pester-hoist-file-reads-to-context-scope",
+      "status": "",
+      "summary": "Tests for a single file repeated the file read inside every `It` block: A Context block with 10 `It` tests performs 10 file reads for the same file. In `cr-prompts.Tests.ps1`, this anti-pattern appeared across 7–8 Context blocks — meaning ~70 redundant disk reads per test run.",
+      "tags": [
+        "pester",
+        "performance",
+        "file-reads",
+        "context-scope",
+        "hoisting",
+        "test-organization",
+        "Get-Content",
+        "Get-Frontmatter"
+      ],
+      "title": "Hoist Get-Content/Get-Frontmatter to Context scope — not inside It blocks",
+      "top_keywords": [
+        "context",
+        "get-content",
+        "should be",
+        "get-frontmatter",
+        "cr-prompts.tests.ps1",
+        "$content",
+        "$fm",
+        "should not",
+        "hoist",
+        "pester"
+      ]
+    },
+    {
+      "date": "2026-05-21",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-21-agent-flag-as-format-drift-whole-file-audit.md",
+      "slug": "2026-05-21-agent-flag-as-format-drift-whole-file-audit",
+      "status": "",
+      "summary": "After a Phase 5 review of `cr-ml-methodology.agent.md` and `cr-specification-analysis.agent.md`, a second standard review found that 7 of 8 \"Flag as\" directives in `cr-ml-methodology.agent.md` still used the **old** format: Check 8 (newly added in the Phase 5 pass) and the output template both used the **new** priority-first format: The result: when the agent reasons check-by-check, it follows the proximal \"Flag as\" instruction — so Checks 1–7 produce old-format findings, Check 8 produces new-format findings. Compiled review reports are inconsistent and potentially unparseable by `/cg-fix-triage`. The same pattern appeared in `cr-specification-analysis.agent.md`: Check 1 had been updated to new format (during a prior...",
+      "tags": [
+        "agent",
+        "flag-as",
+        "format-drift",
+        "incremental-additions",
+        "audit",
+        "cr-agents"
+      ],
+      "title": "Agent 'Flag as' format drift — incremental check additions leave old-format directives",
+      "top_keywords": [
+        "cr-ml-methodology.agent.md",
+        "cr-specification-analysis.agent.md",
+        "agent",
+        "directives",
+        "old-format",
+        "do not run checks 1–",
+        "format",
+        "flag",
+        "drift",
+        "incremental"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-22-multi-task-type-agent-needs-execution-mode-guard.md",
+      "slug": "2026-05-22-multi-task-type-agent-needs-execution-mode-guard",
+      "status": "",
+      "summary": "`cr-academic-writing.agent.md` was updated to run for both Writing and Tables/Figures task types. The dispatch table in `cr-review.prompt.md` was correctly updated: However, the agent's Review Protocol was not updated to skip Writing-specific checks when the task type is Tables/Figures. Checks 1–5 (Section Structure, Abstract Quality, Equation Exposition, Notation Consistency, Citation Completeness) and Check 7 (Argument Flow) are all Writing-specific. When dispatched for a T/F task, they would run against figure captions and table code files, producing: - Spurious findings: \"Results section precedes methodology\" on a `.tex` figure file - Incorrect P2 flags: Abstract quality check on a table note block -...",
+      "tags": [
+        "agent-design",
+        "dispatch",
+        "task-type",
+        "mode-guard",
+        "cr-academic-writing",
+        "writing",
+        "tables-figures",
+        "spurious-findings",
+        "review-protocol"
+      ],
+      "title": "Agent dispatched for multiple task types needs an explicit execution mode guard",
+      "top_keywords": [
+        "cr-academic-writing.agent.md",
+        "review protocol",
+        "agent",
+        "task",
+        "guard",
+        "dispatched",
+        "types",
+        "explicit",
+        "multiple",
+        "execution"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-22-pester-hoist-expensive-computation-to-outer-scope.md",
+      "slug": "2026-05-22-pester-hoist-expensive-computation-to-outer-scope",
+      "status": "",
+      "summary": "The 2026-05-20 solution established that `Get-Content`/`Get-Frontmatter` should be hoisted to `Context`/`Describe` scope — not inside `It` blocks. However, the principle was not applied to **derived values computed from the content**: `[regex]::Match()` section extractions and similar string operations still appeared inside `It` blocks.",
+      "tags": [
+        "pester",
+        "performance",
+        "hoisting",
+        "regex",
+        "section-extraction",
+        "foreach-scope",
+        "context-scope",
+        "describe-scope",
+        "Get-Frontmatter",
+        "regex-match"
+      ],
+      "title": "Hoist all expensive computation (regex, transforms) to outer scope — not just file reads",
+      "top_keywords": [
+        "foreach",
+        "describe",
+        "get-frontmatter",
+        "get-content",
+        "context",
+        "inside",
+        "hoist",
+        "regex",
+        "match",
+        "anti-pattern"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-22-review-criteria-must-be-in-correct-domain-section.md",
+      "slug": "2026-05-22-review-criteria-must-be-in-correct-domain-section",
+      "status": "",
+      "summary": "`cr-skill-publication-output/SKILL.md` was updated with Review Criteria callout boxes in Sections 5 and 6 (for use by `@cr-academic-writing` Check 6 delegation). During the update, the `ggsave()` criterion landed in Section 6 (Table-Note Discipline): `ggsave()` is a **figure output function** — it belongs in Section 5 (Figure-Caption Discipline). A reviewer applying Check 6 and reading Section 6 would encounter a figure criterion inside a table-note checklist, causing: 1. Misclassified findings: `ggsave` issues flagged as table-note violations 2. Missed criteria: reviewers following Section 5 would not see the `ggsave` check 3. Confusion for humans reading the skill as a reference",
+      "tags": [
+        "agent-design",
+        "skill-design",
+        "review-criteria",
+        "section-placement",
+        "ggsave",
+        "figure-caption",
+        "table-note",
+        "cr-skill-publication-output",
+        "content-organization"
+      ],
+      "title": "Review criteria bullets must be placed in the domain section they belong to, not the adjacent section",
+      "top_keywords": [
+        "ggsave()",
+        "@cr-academic-writing",
+        "note discipline",
+        "ggsave",
+        "section",
+        "width",
+        "height",
+        "units",
+        "* p < 0.10...",
+        "> **review criteria**"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync.md",
+      "slug": "2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync",
+      "status": "",
+      "summary": "`cr-replication-package.agent.md` Check 6 (Path Portability) was updated to flag parent-traversal paths (`../`) as P1 violations. The corresponding `cr-skill-replication-standards/SKILL.md` Section 6 Forbidden Patterns table was not updated in the same commit. Result: the skill taught researchers that `../` paths were acceptable; the agent flagged them as P1. A researcher reading the skill file and correcting their code would have no reason to remove `../` paths — then the agent would flag them anyway. The mismatch survived the **thorough** review pass (which caught 12 other findings) and was only caught in the subsequent **standard** review.",
+      "tags": [
+        "agents",
+        "skills",
+        "skill-agent-contract",
+        "forbidden-patterns",
+        "check-list",
+        "path-portability",
+        "synchronization",
+        "P1-mismatch"
+      ],
+      "title": "Skill/agent forbidden-pattern tables must be kept in sync",
+      "top_keywords": [
+        "forbidden patterns",
+        "../",
+        "skill",
+        "agent",
+        "cr-skill-replication-standards/skill.md",
+        "skill.md",
+        "must",
+        "tables",
+        "forbidden-pattern",
+        "sync"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-05-22-test-reimplements-logic-with-correct-code-masks-bug.md",
+      "slug": "2026-05-22-test-reimplements-logic-with-correct-code-masks-bug",
+      "status": "",
+      "summary": "`bash-scripts.Tests.ps1` had a test for the modules-substitution logic in `update.sh` that consistently passed — even though `update.sh`'s Python regex was broken and silently returned empty string for any config value containing the letters `r` or `n` (including `research`, `r-syntax`, `standard`, `project-name`). The P0 regex bug in `update.sh` survived a complete Phase 1–8 development and review cycle undetected because the test gave a green signal for the very code path that was broken.",
+      "tags": [
+        "testing",
+        "false-positive",
+        "reimplementation",
+        "integration-test",
+        "bash",
+        "pester",
+        "python",
+        "regex"
+      ],
+      "title": "Test that reimplements logic with correct code masks bugs in the actual code",
+      "top_keywords": [
+        "update.sh",
+        "actual",
+        "helpers.sh",
+        "generate_copilot_instructions",
+        "test",
+        "correct",
+        "pattern",
+        "excludes",
+        "letter",
+        "reimplementation"
       ]
     },
     {
@@ -14567,6 +16285,95 @@
       ]
     },
     {
+      "date": "2026-07-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md",
+      "slug": "2026-07-29-get-toolslist-over-tools-regex",
+      "status": "",
+      "summary": "Agent frontmatter files declare a `tools:` array. Tests often assert the presence or absence of specific tools using a line-regex: Two failure modes: 1. **Multi-line YAML fails silently**: If any agent is reformatted to multi-line YAML: ```yaml tools: - 'read' - 'search' ``` then `tools:.*'read'` produces a false negative — the test fails even though the tool is present. 2. **Over-broad notmatch**: `($fm -notmatch \"'write'\")` matches on the literal string `'write'` anywhere in the frontmatter — including in the `description:` field or a comment. Could produce false negatives if a description happens to mention \"overwrite\" or similar text.",
+      "tags": [
+        "pester",
+        "yaml",
+        "tools-array",
+        "frontmatter",
+        "regex",
+        "helper"
+      ],
+      "title": "Use Get-ToolsList helper over regex for YAML tools-array assertions",
+      "top_keywords": [
+        "get-toolslist",
+        "yaml",
+        "regex",
+        "helper",
+        "tools-array",
+        "tools:",
+        "tests/helpers.ps1",
+        "use get",
+        "assertions",
+        "over"
+      ]
+    },
+    {
+      "date": "2026-07-29",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md",
+      "slug": "2026-07-29-pester-context-scope-frontmatter-guard",
+      "status": "",
+      "summary": "In Pester 4 test files that loop over agent/prompt files and parse frontmatter inside a `Context` block, `Get-Frontmatter` is often called before the file-existence `It` assertion: If the file at `$path` is absent, `Get-Content` inside `Get-Frontmatter` throws a **terminating exception at Context scope**. In Pester 4, a Context-scope exception surfaces as a `RuntimeException` and causes all `It` blocks in that Context to be skipped entirely — they never appear as failures in the output. The existence check that should have caught the problem is silently swallowed.",
+      "tags": [
+        "pester",
+        "frontmatter",
+        "context-scope",
+        "test-quality",
+        "agent-files",
+        "yaml"
+      ],
+      "title": "Guard Get-Frontmatter at Context scope to prevent silent test-block crashes",
+      "top_keywords": [
+        "get-frontmatter",
+        "context",
+        "model-assignments.tests.ps1",
+        "get-content",
+        "guard get",
+        "guard",
+        "scope",
+        "crashes",
+        "prevent",
+        "silent"
+      ]
+    },
+    {
+      "date": "2026-07-30",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md",
+      "slug": "2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers",
+      "status": "",
+      "summary": "The research-route rollout left three different review entry points out of sync: - `.github/shared/review-routing.contract.md` defined `research` as a first-class route - `.github/prompts/cg-work.prompt.md` still rejected `review:research` and documented only `light|standard|data-risk|architecture|full` - `.github/prompts/cr-review.prompt.md` described its own reduced shared `cg-*` dispatch surface instead of consuming the canonical shared route first That meant the same review policy behaved differently depending on where it was invoked. A user could not explicitly request `review:research` from `/cg-work`, and mixed `research` plus `security-risk` changes could silently lose CR methodology coverage if routing collapsed to `full` alone. The defect surfaced during `/cg-review` and `/cg-fix-triage` on the CR-module migration work...",
+      "tags": [
+        "review-routing",
+        "cross-file-contract",
+        "cg-work",
+        "cr-review",
+        "prompt-tools",
+        "research-mode",
+        "additive-coverage",
+        "contract-drift"
+      ],
+      "title": "Review routing contract changes must update all entry points and coverage layers",
+      "top_keywords": [
+        "research",
+        "cg-work",
+        "/cg-work",
+        "security-risk",
+        "review:research",
+        "cg-*",
+        "/cr-review",
+        "standard",
+        "/cg-review",
+        ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md"
+      ]
+    },
+    {
       "date": "2026-07-31",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
@@ -14592,6 +16399,67 @@
         "audits",
         "link.sh",
         "link.ps1"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
+      "slug": "2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence",
+      "status": "",
+      "summary": "A full `/cg-review` pass over the Compound Research branch exposed two coupled contract defects in saved artifacts: - `/cr-review` still instructed the agent to write legacy review frontmatter with `status: open` and `findings: N`, then hand users off to `/cg-fix-triage` as if the report were machine-selectable by finding ID. - CR phase work reports cited `tests/last-run.json` as durable proof for earlier validation events, even though `tests/last-run.json` is intentionally mutable and overwritten by later test runs. The branch looked locally healthy because the prose still read sensibly and the latest runner artifact was green. But the workflow contracts were wrong in...",
+      "tags": [
+        "review-artifacts",
+        "fix-triage",
+        "frontmatter",
+        "findings-map",
+        "validation-evidence",
+        "last-run-json",
+        "provenance",
+        "prompt-tests",
+        "cross-file-contract"
+      ],
+      "title": "Review artifacts must use machine-readable finding maps and stable validation evidence",
+      "top_keywords": [
+        "tests/last-run.json",
+        "cg-fix-triage",
+        "/cg-fix-triage",
+        "last-run.json",
+        "open",
+        "/cr-review",
+        "findings:",
+        "evidence",
+        "fixed",
+        "skipped"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
+      "slug": "2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits",
+      "status": "",
+      "summary": "`/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The immediate temptation was to edit only the prompt frontmatter or to reuse an existing shared role. That was unsafe for two reasons: 1. The model-governance system projects canonical `.github/` metadata into target-specific native trees for Codex, Claude Code, and OpenCode. A prompt frontmatter-only change would leave generated targets, docs, and audits out of sync. 2. The repository already had pre-existing missing catalog assignments for other CR prompts. A repository-wide expectation of \"zero missing assignments\" would fail before and after the change, hiding whether...",
+      "tags": [
+        "model-governance",
+        "cr-work",
+        "native-targets",
+        "audit-baseline",
+        "regression-tests",
+        "target-mapping"
+      ],
+      "title": "Single-command model overrides need dedicated roles and baseline-aware audits",
+      "top_keywords": [
+        "/cr-work",
+        "gpt-5.6 luna",
+        "baseline-aware",
+        "not-tested",
+        ".github/",
+        "model",
+        "dedicated",
+        "roles",
+        "single-command",
+        "overrides"
       ]
     },
     {
@@ -14782,6 +16650,28 @@
     {
       "date": "2026-05-14",
       "entity_type": "strategy",
+      "path": ".cg-docs/strategy/2026-05-14-compound-research-roadmap.md",
+      "slug": "2026-05-14-compound-research-roadmap",
+      "status": "",
+      "summary": "The compound-research brainstorm (2026-05-13) produced a comprehensive Deep-scope design for extending compound-gpid with a research module for economics and econometrics research. The brainstorm selected Approach 3 (Plugin Module System — same repo, lazy-loaded modules) and outlined 8 implementation phases covering: module system foundation, research workflow scaffolding, core research agents, structural econometrics skills, ML in economics, writing & publication output, reproducibility & replication, and integration polish.",
+      "tags": [],
+      "title": "Compound Research roadmap structuring",
+      "top_keywords": [
+        "compound research",
+        "workflow maturity",
+        "current focus",
+        "session",
+        "skills enhancement",
+        "research",
+        "compound",
+        "roadmap",
+        "structuring",
+        "charter-history.md"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
       "slug": "2026-05-14-ongoing-ideas-milestone",
       "status": "",
@@ -14931,6 +16821,160 @@
         "native packaging foundation",
         "world bank",
         "architecture research"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-evidence-provenance-spine",
+      "slug": "cr-evidence-provenance-spine",
+      "status": "done",
+      "summary": "CR evidence and provenance spine with repo-local corpus default",
+      "tags": [],
+      "title": "CR evidence and provenance spine with repo-local corpus default",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "evidence",
+        "provenance",
+        "spine",
+        "repo-local",
+        "corpus",
+        "default",
+        "research",
+        "responsible"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-measurement-classification-archetype",
+      "slug": "cr-measurement-classification-archetype",
+      "status": "done",
+      "summary": "CR Measurement/Classification research archetype",
+      "tags": [],
+      "title": "CR Measurement/Classification research archetype",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "measurement",
+        "classification",
+        "archetype",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-measurement-comparability-controls",
+      "slug": "cr-measurement-comparability-controls",
+      "status": "done",
+      "summary": "P0 comparability controls for measurement and indicator work",
+      "tags": [],
+      "title": "P0 comparability controls for measurement and indicator work",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "measurement",
+        "comparability",
+        "controls",
+        "indicator",
+        "work",
+        "research",
+        "responsible",
+        "partner"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-scoping-and-normative-gates",
+      "slug": "cr-scoping-and-normative-gates",
+      "status": "done",
+      "summary": "Research scoping and normative-decision gates",
+      "tags": [],
+      "title": "Research scoping and normative-decision gates",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "scoping",
+        "normative-decision",
+        "gates",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-responsible-lifecycle-method-packs",
+      "slug": "cr-responsible-lifecycle-method-packs",
+      "status": "done",
+      "summary": "Responsible lifecycle and method-pack retrofit",
+      "tags": [],
+      "title": "Responsible lifecycle and method-pack retrofit",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "responsible",
+        "lifecycle",
+        "method-pack",
+        "retrofit",
+        "research",
+        "partner",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-second-measurement-use-case-validation",
+      "slug": "cr-second-measurement-use-case-validation",
+      "status": "idea",
+      "summary": "Validate the Measurement archetype with a second use case",
+      "tags": [],
+      "title": "Validate the Measurement archetype with a second use case",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "measurement",
+        "validate",
+        "archetype",
+        "second",
+        "case",
+        "research",
+        "responsible",
+        "partner"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-team-evidence-library",
+      "slug": "cr-team-evidence-library",
+      "status": "idea",
+      "summary": "Team-level evidence library",
+      "tags": [],
+      "title": "Team-level evidence library",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "team-level",
+        "evidence",
+        "library",
+        "research",
+        "responsible",
+        "partner",
+        "feature",
+        "milestone"
       ]
     },
     {
@@ -18058,13 +20102,13 @@
       ]
     }
   ],
-  "entity_count": 632,
+  "entity_count": 701,
   "generated": "2026-08-10",
   "schema_version": "0.2.0",
-  "topic_count": 4,
+  "topic_count": 5,
   "topics": [
     {
-      "entity_count": 442,
+      "entity_count": 500,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -18095,6 +20139,7 @@
         ".cg-docs/brainstorms/2026-05-05-phased-plan-and-execution.md",
         ".cg-docs/brainstorms/2026-05-06-roadmap-visualization.md",
         ".cg-docs/brainstorms/2026-05-07-python-utility-layer-cg-index.md",
+        ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md",
         ".cg-docs/brainstorms/2026-05-13-pr-verification-strategy-cross-platform.md",
         ".cg-docs/brainstorms/2026-05-14-commit-push-pr-and-verify-pr-commands.md",
         ".cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md",
@@ -18110,9 +20155,11 @@
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
         ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
+        ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
         ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+        ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -18164,12 +20211,20 @@
         ".cg-docs/plans/2026-05-07-python-utility-layer-cg-index.md",
         ".cg-docs/plans/2026-05-13-pr-verification-pipeline.md",
         ".cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md",
+        ".cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md",
+        ".cg-docs/plans/2026-05-14-compound-research-phase3-agents.md",
+        ".cg-docs/plans/2026-05-14-compound-research-phase4-skills.md",
         ".cg-docs/plans/2026-05-15-auto-generated-project-wiki.md",
         ".cg-docs/plans/2026-05-18-command-default-behaviors.md",
         ".cg-docs/plans/2026-05-19-knowledge-brain-engine-batch-a.md",
         ".cg-docs/plans/2026-05-19-knowledge-brain-triggers-batch-b.md",
+        ".cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md",
         ".cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md",
         ".cg-docs/plans/2026-05-20-team-brain-batch-d.md",
+        ".cg-docs/plans/2026-05-22-compound-research-phase6-writing-publication.md",
+        ".cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md",
+        ".cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md",
+        ".cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md",
         ".cg-docs/plans/2026-06-01-test-correctness-assessment.md",
         ".cg-docs/plans/2026-06-04-context-model-audit-phase1.md",
         ".cg-docs/plans/2026-06-05-cg-review-token-cost-phase3.md",
@@ -18202,9 +20257,15 @@
         ".cg-docs/plans/2026-07-23-wb-report-writing-prwp.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-technical-methodology.md",
         ".cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md",
+        ".cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md",
+        ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md",
+        ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md",
+        ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md",
+        ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md",
         ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md",
         ".cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views.md",
+        ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
         ".cg-docs/plans/2026-08-02-editorial-theme-publishing-workflow-evidence.md",
         ".cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md",
         ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
@@ -18278,8 +20339,13 @@
         ".cg-docs/reviews/2026-05-13-pr-verification-pipeline-verify-review.md",
         ".cg-docs/reviews/2026-05-14-commit-push-pr-and-verify-pr-review.md",
         ".cg-docs/reviews/2026-05-14-commit-push-pr-and-verify-pr-verify-review.md",
+        ".cg-docs/reviews/2026-05-14-compound-research-phase1-phase2-review.md",
+        ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-review.md",
+        ".cg-docs/reviews/2026-05-14-compound-research-phase3-agents-thorough-review.md",
+        ".cg-docs/reviews/2026-05-14-compound-research-phase4-skills-review.md",
         ".cg-docs/reviews/2026-05-15-auto-generated-project-wiki-review.md",
         ".cg-docs/reviews/2026-05-15-auto-generated-project-wiki-verify-review.md",
+        ".cg-docs/reviews/2026-05-15-compound-research-fix-commit-review.md",
         ".cg-docs/reviews/2026-05-18-command-default-behaviors-review.md",
         ".cg-docs/reviews/2026-05-18-command-default-behaviors-verify-review.md",
         ".cg-docs/reviews/2026-05-18-iswindows-ps51-bugfix-review.md",
@@ -18291,6 +20357,8 @@
         ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md",
         ".cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-verify-review.md",
         ".cg-docs/reviews/2026-05-19-wiki-silent-skip-fix-review.md",
+        ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review-2.md",
+        ".cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review.md",
         ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-review.md",
         ".cg-docs/reviews/2026-05-20-knowledge-brain-read-path-batch-c-verify-review.md",
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-review-2.md",
@@ -18299,6 +20367,13 @@
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-2.md",
         ".cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review-3.md",
         ".cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review-2.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review-2.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review-2.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review-2.md",
+        ".cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-review.md",
         ".cg-docs/reviews/2026-06-01-test-correctness-assessment-verify-review.md",
         ".cg-docs/reviews/2026-06-05-cg-review-token-cost-phase3-review.md",
@@ -18341,10 +20416,15 @@
         ".cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-review.md",
         ".cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md",
+        ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md",
+        ".cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review.md",
+        ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md",
+        ".cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
+        ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -18368,6 +20448,8 @@
         ".cg-docs/solutions/bugs/2026-05-12-link-read-host-empty-string-throws-psargumentexception.md",
         ".cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md",
         ".cg-docs/solutions/bugs/2026-05-13-link-ps1-runs-on-macos-verification-fails.md",
+        ".cg-docs/solutions/bugs/2026-05-14-empty-file-bypasses-graceful-skip-produces-false-negative.md",
+        ".cg-docs/solutions/bugs/2026-05-14-python-regex-raw-string-double-backslash-excludes-letters.md",
         ".cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-always-waits-for-confirmation.md",
         ".cg-docs/solutions/bugs/2026-05-15-cg-commit-push-pr-gh-only-tool-detection.md",
         ".cg-docs/solutions/bugs/2026-05-15-cg-wiki-no-user-facing-init-path-for-existing-projects.md",
@@ -18377,6 +20459,7 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md",
         ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
         ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
         ".cg-docs/solutions/bugs/2026-06-10-cg-brain-init-cmd-python3-stderr-leak.md",
@@ -18395,12 +20478,17 @@
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
         ".cg-docs/solutions/build-errors/2026-03-19-invoke-restmethod-bare-catch-swallows-non-404-errors.md",
+        ".cg-docs/solutions/build-errors/2026-07-29-cr-agent-model-strings-must-use-gpt-catalog-compliant.md",
         ".cg-docs/solutions/data-quality/2026-03-17-null-welfare-silently-biases-poverty-rate.md",
+        ".cg-docs/solutions/data-quality/2026-03-18-collapse-na-rm-global-option-welfare-risk.md",
         ".cg-docs/solutions/data-quality/2026-03-18-survey-mean-se-singleton-psu-divide-by-zero.md",
         ".cg-docs/solutions/data-quality/2026-03-18-zero-negative-welfare-inflates-fgt-beyond-1.md",
         ".cg-docs/solutions/data-quality/2026-03-19-api-response-null-fields-corrupt-output-contract.md",
         ".cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md",
+        ".cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md",
+        ".cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
+        ".cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md",
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
         ".cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md",
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
@@ -18466,12 +20554,20 @@
         ".cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md",
         ".cg-docs/solutions/testing-patterns/2026-05-14-classification-step-must-exhaustively-cover-enum-values.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-14-depth-restricted-mode-bypasses-domain-agents-need-forced-dispatch-exception.md",
         ".cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md",
         ".cg-docs/solutions/testing-patterns/2026-05-14-sibling-prompt-symmetry-guard-audit.md",
         ".cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md",
         ".cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         ".cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md",
         ".cg-docs/solutions/testing-patterns/2026-05-18-append-only-insertion-for-ai-written-shared-files.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-20-agent-step-carveout-must-not-contradict-global-deferral-policy.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-20-boundary-stop-test-must-place-config-above-stop-marker.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-20-pester-hoist-file-reads-to-context-scope.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-22-multi-task-type-agent-needs-execution-mode-guard.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-22-pester-hoist-expensive-computation-to-outer-scope.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-22-test-reimplements-logic-with-correct-code-masks-bug.md",
         ".cg-docs/solutions/testing-patterns/2026-06-03-three-layer-test-correctness-protocol-prevents-circular-tests-in-fixbug.md",
         ".cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md",
         ".cg-docs/solutions/testing-patterns/2026-06-09-external-validation-must-not-be-marked-passed.md",
@@ -18492,7 +20588,12 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md",
         ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
         ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
@@ -18501,6 +20602,7 @@
         ".cg-docs/strategy/2026-04-28-post-context-layer-refocus.md",
         ".cg-docs/strategy/2026-04-29-onboarding-milestone-expansion.md",
         ".cg-docs/strategy/2026-05-05-workflow-maturity.md",
+        ".cg-docs/strategy/2026-05-14-compound-research-roadmap.md",
         ".cg-docs/strategy/2026-05-14-ongoing-ideas-milestone.md",
         ".cg-docs/strategy/2026-05-19-knowledge-brain.md",
         ".cg-docs/strategy/2026-05-28-mid-project-eight-ideas.md",
@@ -18511,11 +20613,11 @@
       ],
       "keywords": [
         "roadmap.json",
-        "cg-work",
+        "test scenarios",
         "prompt-tools.tests.ps1"
       ],
-      "label": "Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1",
-      "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
+      "label": "Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1",
+      "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
       "entity_count": 142,
@@ -18670,6 +20772,25 @@
       ],
       "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Ongoing Ideas\nObjective",
       "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
+    },
+    {
+      "entity_count": 7,
+      "entity_paths": [
+        "roadmap.json#cr-evidence-provenance-spine",
+        "roadmap.json#cr-measurement-classification-archetype",
+        "roadmap.json#cr-measurement-comparability-controls",
+        "roadmap.json#cr-scoping-and-normative-gates",
+        "roadmap.json#cr-responsible-lifecycle-method-packs",
+        "roadmap.json#cr-second-measurement-use-case-validation",
+        "roadmap.json#cr-team-evidence-library"
+      ],
+      "keywords": [
+        "expand compound research",
+        "responsible research partner\nobjective",
+        "measurement"
+      ],
+      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
+      "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
     },
     {
       "entity_count": 4,

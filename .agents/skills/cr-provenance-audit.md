@@ -1,6 +1,6 @@
 # Agent: cr-provenance-audit
 
-> "Audits evidence provenance and citation traceability for research
+> Audits evidence provenance and citation traceability for research outputs. Flags unverifiable citations and uncited substantive claims using P0 integrity criteria from the CR workflow.
 
 # Provenance Audit Agent
 

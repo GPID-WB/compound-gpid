@@ -1,6 +1,6 @@
 # Agent: cr-replication-package
 
-> "Audits replication package completeness for journal submission:
+> Audits replication package completeness for journal submission: archive structure (AEA convention), README required sections, dependency lockfiles, seed registry against manifest.json, data documentation (codebook + PII checklist), path portability (no absolute paths), sensitive-data handling, and file inventory. Loaded by /cr-review for Reproducibility tasks.
 
 # Replication Package Agent
 

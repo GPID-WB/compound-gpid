@@ -1,6 +1,6 @@
 # Agent: cr-measurement-integrity
 
-> "Audits measurement and classification integrity for composite
+> Audits measurement and classification integrity for composite indicators, clustering, thresholding, and cross-vintage comparability. Flags undisclosed weighting, unstable rankings, comparability breaks, and unsupported cluster claims.
 
 # Measurement Integrity Audit Agent
 

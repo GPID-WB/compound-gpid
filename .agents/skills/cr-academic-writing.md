@@ -1,6 +1,6 @@
 # Agent: cr-academic-writing
 
-> "Reviews academic writing quality in economics research: journal
+> Reviews academic writing quality in economics research: journal style compliance, section structure, argument flow, equation exposition, notation consistency, and citation completeness. Loaded by /cr-review for Writing tasks.
 
 # Academic Writing Review Agent
 

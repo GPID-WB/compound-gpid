@@ -1,5 +1,5 @@
 ---
-description: "\"Detects P0 silent research errors: code-math mismatch,"
+description: "Detects P0 silent research errors: code-math mismatch, specification searching, identification theater, unseeded randomness, asymptotic-assumption violations, wrong SE clustering, and untested distributional assumptions. Loaded by /cr-review."
 ---
 
 # Research Integrity Agent

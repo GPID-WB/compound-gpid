@@ -120,3 +120,4 @@ the canonical runner rule as Rule 8 and the `execution_subagent` rule as Rule 9.
 - `.cg-docs/reviews/2026-04-17-structural-pester-crash-prevention-v2-review.md` — implementation review
 - `tests/Run-Tests.ps1` — canonical runner implementation
 - `tests/run-tests-runner.Tests.ps1` — tests for the runner itself
+- `.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md` — follow-on rule: `tests/last-run.json` is safe as a bounded latest-run summary, not as immutable historical evidence in committed reports

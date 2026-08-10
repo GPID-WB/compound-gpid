@@ -1,5 +1,5 @@
 ---
-description: "\"Audits ML methodology in economics research: train/test/validation"
+description: "Audits ML methodology in economics research: train/test/validation split correctness, regularization rationale, hyperparameter search transparency, cross-validation done right (panel-aware, time-series-aware), data leakage detection, and economic interpretation of ML output. Loaded by /cr-review for ML/Prediction tasks."
 mode: subagent
 ---
 

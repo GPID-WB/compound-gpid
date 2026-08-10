@@ -1,6 +1,6 @@
 # Agent: cr-identification-audit
 
-> "Audits identification strategies (IV, RDD, DiD, control function)
+> Audits identification strategies (IV, RDD, DiD, control function) against empirical diagnostics. Flags claimed strategies without matching first-stage F-stats, McCrary tests, parallel-trends checks, or overidentification tests. Loaded by /cr-review conditionally for tasks claiming identification.
 
 # Identification Audit Agent
 

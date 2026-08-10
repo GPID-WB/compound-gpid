@@ -433,7 +433,8 @@ Describe "cg-setup.prompt.md - wiki scaffold integration" {
     }
 
     It "handles @cg-wiki dispatch failure gracefully" {
-        ($content -match '/cg-wiki rebuild') | Should -Be $true
+        ($content -match '/cg-wiki init') | Should -Be $true
+        ($content -match '/cg-wiki rebuild') | Should -Be $false
     }
 
     It "contains Mode B wiki offer (B1.1.6)" {

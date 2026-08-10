@@ -1,5 +1,5 @@
 ---
-description: "\"Research brainstorm — clarify fuzzy research requirements. Classifies"
+description: "Research brainstorm — clarify fuzzy research requirements. Classifies task type (theory, EDA, implementation, ML, writing, etc.) and guides methodology decisions. Use for economics and econometrics research tasks."
 ---
 
 # Research Brainstorm

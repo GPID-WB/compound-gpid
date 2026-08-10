@@ -1,6 +1,6 @@
 # Agent: cr-econometric-reasoning
 
-> "Reviews structural econometric model logic: economic theory
+> Reviews structural econometric model logic: economic theory consistency, functional form appropriateness, distributional assumptions, estimation strategy selection (MLE vs GMM vs Bayesian), and assumption-data consistency. Loaded by /cr-review for Theory/Modeling tasks.
 
 # Econometric Reasoning Agent
 

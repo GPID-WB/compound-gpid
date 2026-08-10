@@ -1,6 +1,6 @@
 # Agent: cr-mathematical-verification
 
-> "Symbolic verification of code against mathematical derivations.
+> Symbolic verification of code against mathematical derivations. Compares variable mappings, functional forms, gradient computations, and moment conditions between LaTeX/markdown derivations and implementation code. Loaded by /cr-review for Theory/Modeling and Implementation tasks.
 
 # Mathematical Verification Agent
 

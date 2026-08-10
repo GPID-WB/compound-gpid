@@ -25,6 +25,7 @@ Thumbs.db
 .vscode/*
 !.vscode/tasks.json
 !.vscode/settings.json
+.posit/
 .idea/
 .tmp/
 

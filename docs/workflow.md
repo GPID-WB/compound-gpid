@@ -8,6 +8,28 @@ this page when you need the full contract.
 
 ---
 
+## Modular Suites
+
+Compound GPID has two independent workflow suites over a shared kernel and
+capability layer:
+
+| Task | Suite | Entry points |
+|---|---|---|
+| Technical delivery, infrastructure, bugs, and code review | `cg` | `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound` |
+| Research scoping, methods, evidence, replication, and publication | `cr` | `/cr-brainstorm`, `/cr-plan`, `/cr-work`, `/cr-review`, `/cr-compound` |
+
+Select them with `suites: [cg]`, `suites: [cr]`, or `suites: [cg, cr]` in
+`compound-gpid.local.md`. Missing `suites:` defaults to `[cg]`. Research tasks
+reuse shared language, review, and output capabilities but do not route through
+the technical command suite. See the [Modular Guide](modular-guide.md) for the
+registry, dependency, context-budget, and extension contracts.
+
+The research loop follows `Scope -> Evidence -> Theory -> Method -> Execute ->
+Verify -> Communicate -> Maintain`; `/cr-review` is its task-aware review entry
+point.
+
+---
+
 ## The Loop
 
 ```
@@ -19,13 +41,13 @@ Resume (re-entry at any stage)
 Roadmap View (read-only snapshot at any stage)
 ```
 
-All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** — invoke a prompt, answer its questions when asked, and let it run to completion.
+The diagram shows the technical `/cg-*` loop. Research projects use the parallel
+`/cr-*` loop above. **Prompts are not interactive commands** — invoke a prompt,
+answer its questions when asked, and let it run to completion.
 
-> **Codex / Claude Code note**: The plugin is designed for GitHub Copilot. When
-> this repository is maintained from Codex or Claude Code, root `AGENTS.md`
-> provides a compatibility adapter that maps `/cg-*` requests to the matching
-> `.github/prompts/cg-*.prompt.md` file. That adapter is not part of Copilot's
-> runtime behavior.
+> **Native target note**: `.github/` is canonical for GitHub Copilot. Generated
+> `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees provide native command,
+> skill, agent, instruction, and shared-contract layouts for the other hosts.
 
 > **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
 > project's charter to understand objective, deliverables, constraints, and current focus.
@@ -43,10 +65,10 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When to use**:
 - The first time you use Compound GPID in a new project
-- When you want to update language preferences, project type, or review depth
+- When you want to update language preferences, project type, review depth, or active suites
 - When re-entering an existing project that has no `compound-gpid.md` or `compound-gpid.local.md`
 
-**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`). The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
+**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, review depth, and `suites:` selection. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`) plus research artifact directories when `cr` is active. The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
 
 Mode A (first run or no config) opens with a **pre-flight health check** that silently verifies all four managed directories (`.github/prompts/`, `.github/skills/`, `.github/agents/`, `.github/instructions/`) are accessible. If any are missing the prompt stops immediately with a `cg-link` remediation message. Then `@cg-project-scanner` scans the file tree and infers language, project type, and charter-draft content from signals like `renv.lock`, `pyproject.toml`, `.do` files, and `README.md`. High-confidence detections are applied silently; medium-confidence ones are pre-filled and shown for confirmation; only genuinely unknown fields are asked. The scanner draft is displayed in a fenced code block with three options: approve as-is, walk through section by section, or start from scratch.
 

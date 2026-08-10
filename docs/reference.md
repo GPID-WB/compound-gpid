@@ -190,6 +190,25 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-devtag` | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
 | `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
 
+### Research Suite Commands
+
+These commands are owned by `suite-cr` and are available when `suites:` in
+`compound-gpid.local.md` includes `cr`. The research suite composes shared
+language, review, knowledge, and publication capabilities without depending on
+the technical command suite.
+
+| Prompt | Purpose |
+|--------|---------|
+| `/cr-brainstorm` | Scope a research question, classify the task, inventory evidence, and surface normative decisions for human approval. |
+| `/cr-plan` | Create a phased research plan with integrity, provenance, method, verification, and communication gates. |
+| `/cr-work [phaseX]` | Execute a research plan while maintaining evidence, specification, seed, derivation, and implementation records. |
+| `/cr-review` | Classify the research task and conditionally dispatch research integrity, provenance, method, measurement, writing, output, and replication reviewers. |
+| `/cr-compound` | Capture a verified research lesson and rebuild the project Brain without treating generated views as authority. |
+
+The research lifecycle is `Scope -> Evidence -> Theory -> Method -> Execute ->
+Verify -> Communicate -> Maintain`. Use `/cr-review`, not `/cg-review`, for
+research-domain agent routing.
+
 ### `cg-index --brain` — Diagnostic Warnings
 
 `cg-index --brain` writes scan-pass warnings to stderr during execution:
@@ -356,6 +375,25 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) |
 
 > Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+
+### Research Review Agents
+
+Research agents are owned by `suite-cr` and dispatched conditionally by
+`/cr-review`. They are not imported into `/cg-review`.
+
+| Agent | Focus |
+|-------|-------|
+| `cr-research-integrity` | P0 silent research errors and integrity gates |
+| `cr-provenance-audit` | Claim-evidence traceability and citation provenance |
+| `cr-mathematical-verification` | Derivation-to-code consistency |
+| `cr-identification-audit` | Identification strategy and required diagnostics |
+| `cr-econometric-reasoning` | Structural and econometric model logic |
+| `cr-ml-methodology` | Validation design, leakage, inference, and interpretation |
+| `cr-specification-analysis` | Theory-data implications and specification discipline |
+| `cr-measurement-integrity` | Indicator, threshold, clustering, and comparability integrity |
+| `cr-academic-writing` | Economics-paper structure, notation, and citations |
+| `cr-publication-output` | Publication tables, figures, notes, and deterministic output |
+| `cr-replication-package` | Replication archive completeness, safety, and portability |
 
 > ℹ️ For stage capability guidance and user-controlled effort selection, see [Model Guide](model-guide.md).
 

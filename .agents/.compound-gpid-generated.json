@@ -154,7 +154,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "8e135de08da5dc965eda6f2f0f00031b06ebf551ce12d1e8124130142f87db59",
+      "sha256": "ea460051540ff92da330a0408302d03bb5b4e97a3d461dcf3fe774ef66a905be",
       "executable": false
     },
     {
@@ -196,7 +196,7 @@
       "path": ".agents/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "f74ddee15442800994b0df7ce224a021530827a9f8252e925456caa9a4255104",
+      "sha256": "b801d1902eb79522806aa23e98fd69f0af7043595e4c29d5e0133764a6b79417",
       "executable": false
     },
     {
@@ -210,21 +210,21 @@
       "path": ".agents/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "39a422fee77b53a107b460565697ad183009627e22dbeb55c51f60a05c19ca85",
+      "sha256": "a23c3440732aeb4ce3d52b3f4e79a8937e08d2778a1cf66152637b7fb5b8eefa",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "2666d4eefa116ab00664e2c4243946499163bc9ae35138e610d3f2f9f2eee61b",
+      "sha256": "69e1454fe13e221bca985c40f902d86a892ea4afe790385a867052d7629273e1",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "c9cf5624cbe1fa8d206d04d4d2328d114e2c07bf783dd113e7dbbed6f0bf56a1",
+      "sha256": "36141d1540c48f8df58edb8aa2ab36f12f54d73b0f8f96aa54cc7735253e6bef",
       "executable": false
     },
     {
@@ -378,7 +378,7 @@
       "path": ".agents/skills/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "fallback-agent",
-      "sha256": "9db91a2e2976c53f8f457260a7904ba9aed684bde9bc5df740c7ecbf0257357c",
+      "sha256": "ddcc02245a5e1c8c89eee794a533928ae33991bdf957442d293616853a708b58",
       "executable": false
     },
     {
@@ -406,7 +406,7 @@
       "path": ".agents/skills/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "fallback-agent",
-      "sha256": "90514ad2686d43aa4d307ddfbd4c1174635303e0fb1f2bb87bc541176911b71a",
+      "sha256": "47aba1022e4adb5923c79a8b76aa080d0d81783e1394bb7fa1a52fec8313d9d1",
       "executable": false
     },
     {
@@ -434,7 +434,7 @@
       "path": ".agents/skills/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "fallback-agent",
-      "sha256": "209303fdf01bf6f642146578a67fd41727307dbb230421436dcb89dda07fef4d",
+      "sha256": "9e9af79b70f481763cf104ff336fee989ba23964f829a146e97a1b8e0a081845",
       "executable": false
     },
     {
@@ -945,7 +945,7 @@
       "path": ".agents/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "9606ad0ed4827cd0f3af825c4b5f19b63258608848b1ca07cbff8064bfa0a8ad",
+      "sha256": "f96d2818252df7313ee61fc1d3a32b575d8654c80b206bd5d21a87eca04ed8f1",
       "executable": false
     },
     {
@@ -1890,7 +1890,7 @@
       "path": ".agents/skills/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "fallback-agent",
-      "sha256": "3a6e0c49c5020b8b3bc93f45972a031846bfbb271243574b9c97f9b54c56f815",
+      "sha256": "7f88d67d341404350bf7d9b931fb8dd9734f72e4b07d296ec535c6e9fb1c5e15",
       "executable": false
     },
     {
@@ -1911,70 +1911,70 @@
       "path": ".agents/skills/cr-academic-writing.md",
       "source": ".github/agents/cr-academic-writing.agent.md",
       "kind": "fallback-agent",
-      "sha256": "1d177cdc9e78bc792a483eec8f3c5858f4fbded24b16ca30a6ddf6b635047f77",
+      "sha256": "37c614bce664f3834d005d1b5dc5df8b656ec0d0f263862c2b5870792f036c7c",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-econometric-reasoning.md",
       "source": ".github/agents/cr-econometric-reasoning.agent.md",
       "kind": "fallback-agent",
-      "sha256": "2b9e7b8eaf56679e571540fdfce5f1142419b7c09ec5a8ce09abd1d22dae3320",
+      "sha256": "cd039500d907af69f0c0491728300f45a3f355f66e92eea0cd19520bb423501f",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-identification-audit.md",
       "source": ".github/agents/cr-identification-audit.agent.md",
       "kind": "fallback-agent",
-      "sha256": "bef0bad15697d747220a507992ac3b7863c08b545cd71b2d5733bf06ccbbe889",
+      "sha256": "682891105e1df666404da7628afa293892b82f98d801c3a7a11327e19bdf66f8",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-mathematical-verification.md",
       "source": ".github/agents/cr-mathematical-verification.agent.md",
       "kind": "fallback-agent",
-      "sha256": "73c25764e84bb453e4d0239f2d81f6eb60812a36e3292820bf130d199c993070",
+      "sha256": "3066eb0acce021261d4254f78139439150531160c68dbb3072d6aa1506b0caf2",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-measurement-integrity.md",
       "source": ".github/agents/cr-measurement-integrity.agent.md",
       "kind": "fallback-agent",
-      "sha256": "a6c76170963a36a8866109d3065715dc1a5cd7167ac6f4950eaf9bc076225123",
+      "sha256": "1f214d35444e234f9fd8d355975e050f2ae80459ab5e7db70df17481d4df6722",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-ml-methodology.md",
       "source": ".github/agents/cr-ml-methodology.agent.md",
       "kind": "fallback-agent",
-      "sha256": "d5b309fa06d6cd2eb4fe20dd861684e1ae87bfb557ab39cdbf58a42edc99ec19",
+      "sha256": "a219345969c387c924865319c4c0af22b78a418ad8d03aa07f3cec87ff7c9442",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-provenance-audit.md",
       "source": ".github/agents/cr-provenance-audit.agent.md",
       "kind": "fallback-agent",
-      "sha256": "64aecec308043351d449e56b503ab35fc1602b7062009d1d834542990e9290f0",
+      "sha256": "83408dfc20f9b3f03c2110f4f4abe2e152ec7df8634aa5bd528afe60389beb20",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-publication-output.md",
       "source": ".github/agents/cr-publication-output.agent.md",
       "kind": "fallback-agent",
-      "sha256": "b24cef84262725394956c428034e11f082c0c3e3065325c673e27a32d3ff4e89",
+      "sha256": "51e15ebfe5d10d0bcdd64cf421c5e59624f5ea6a13b19abca52088d3a09e940d",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-replication-package.md",
       "source": ".github/agents/cr-replication-package.agent.md",
       "kind": "fallback-agent",
-      "sha256": "7a2d47b648e4a22b8606189f6bb39d6c001de34bac381609b4f1873c0faef270",
+      "sha256": "0725d89ef6c010af694c2e500babdaebee0a8272628b617801c9577a5e9bd1d4",
       "executable": false
     },
     {
       "path": ".agents/skills/cr-research-integrity.md",
       "source": ".github/agents/cr-research-integrity.agent.md",
       "kind": "fallback-agent",
-      "sha256": "e541bf622a7e538c2cb89de1f4fd26097855b6b349cccffccac8a72f15a2c9bd",
+      "sha256": "c768d65a2b590380d4f583876886f2d49815a5051adc66c24b272494a9acd134",
       "executable": false
     },
     {
@@ -2086,7 +2086,7 @@
       "path": ".agents/skills/cr-specification-analysis.md",
       "source": ".github/agents/cr-specification-analysis.agent.md",
       "kind": "fallback-agent",
-      "sha256": "c57cd5be33782a2d7b73d59c1dff4a60c773978f98aa46d4c5a94c4a7f9782f5",
+      "sha256": "6fcdf55d2a671bef785cb7abb95ce16c8752cc955203c818d7b4dbca8928d168",
       "executable": false
     },
     {
@@ -2114,7 +2114,7 @@
       "path": ".agents/subagents/cg-data-quality.toml",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
-      "sha256": "7eb23fd344fc8b5550201849454301e58a13a85cde2d885494eea8405c88bba5",
+      "sha256": "c479f761f18f883be10046e860a08bcb7ca2c7f8a2619c47f5165ac74a7eecd9",
       "executable": false
     },
     {
@@ -2142,7 +2142,7 @@
       "path": ".agents/subagents/cg-performance.toml",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "1abb1c13fdaeaa5000269db72a249ffad80b2c12454c5f4536c24b42b03f87e1",
+      "sha256": "1e1b0a718344852d21f7fc00cd25ef55edf82fc7635e78de09d9404724f0aa83",
       "executable": false
     },
     {
@@ -2170,7 +2170,7 @@
       "path": ".agents/subagents/cg-reproducibility.toml",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "8cf7717ed7531a78df17c3de9189de405fc140f7b7013be6c1bd11743ecbfd2b",
+      "sha256": "3b1c0c5df1584653af071a509888dfbcd29552666ce507363bde4d7d31f1a8b1",
       "executable": false
     },
     {
@@ -2191,7 +2191,7 @@
       "path": ".agents/subagents/cg-testing.toml",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
-      "sha256": "cdbc7e8566b1f81a9fb04b1bd285f7060feb1c3ac93941fe219464b72d84fa8e",
+      "sha256": "483cfbfc8adf47a9c7bff7e5e2cd2a807fa3c0aa4334815bf0a336a55a0823a3",
       "executable": false
     },
     {
@@ -2212,77 +2212,77 @@
       "path": ".agents/subagents/cr-academic-writing.toml",
       "source": ".github/agents/cr-academic-writing.agent.md",
       "kind": "agent",
-      "sha256": "cab480a748f553bfd4f45d06c2d582d8f935d018d0ea23e49e3dce4aef90fbc8",
+      "sha256": "52149713c5f0ffebae9ec6fededc1ad1e4f8f3c223d15372e58a6aba2c35d49e",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-econometric-reasoning.toml",
       "source": ".github/agents/cr-econometric-reasoning.agent.md",
       "kind": "agent",
-      "sha256": "2002e7f5a13d788bd351af83683f6ea7adbb7fc496c2be82b441df30fe2dc8af",
+      "sha256": "214f3bbe4c589d6a34e9ded1a753d6b445c7a5687f09e50e4cac92159a2b2bc9",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-identification-audit.toml",
       "source": ".github/agents/cr-identification-audit.agent.md",
       "kind": "agent",
-      "sha256": "fcf677fb606f26336de07fa6937587d3eb53feb7f50af2e945ed2e336b984af2",
+      "sha256": "a970b7de38f445560bfb8f30940631dca0e85ab7d09ffccd5d4396fe9002ab79",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-mathematical-verification.toml",
       "source": ".github/agents/cr-mathematical-verification.agent.md",
       "kind": "agent",
-      "sha256": "5c1e1baa2faad2ebf893ff03b473e76b0c7f3f7987419a570874aa7794808a1c",
+      "sha256": "f76718257034424a36f36a36b36a7205a02d676b56cad671806d655f8537bc8b",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-measurement-integrity.toml",
       "source": ".github/agents/cr-measurement-integrity.agent.md",
       "kind": "agent",
-      "sha256": "ebb82817236a4f7b872011cf7e3f01acdd0aa5181ee0d8e556580b4ce378d8f8",
+      "sha256": "ba29d255250519e90ec65dfc1e06b8e330b4ad44d6219a5f217fb60ba15cea87",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-ml-methodology.toml",
       "source": ".github/agents/cr-ml-methodology.agent.md",
       "kind": "agent",
-      "sha256": "81a7857a88943348255d2a7338a0213a9264cc4337158ab1b7d4f9eb0ab47f96",
+      "sha256": "f792bdb8aba76b48eca980bef667f1295518b7f530f8562701953e3d812297b7",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-provenance-audit.toml",
       "source": ".github/agents/cr-provenance-audit.agent.md",
       "kind": "agent",
-      "sha256": "f46d9128e270595cb502621d02d7ef6900201cdab2b87e6832520db3490e85e2",
+      "sha256": "725403543835bd7a78f23e1f5084e0524b0fdc699d9740ac5d0002d729495dda",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-publication-output.toml",
       "source": ".github/agents/cr-publication-output.agent.md",
       "kind": "agent",
-      "sha256": "c55a3be71aae76a0dc441a1869422859737ed0152ebff742196fa2004db1fa43",
+      "sha256": "52625e79cd175b3d80f12731c9ce06aea5801b207b0d5218951751b9a13aea67",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-replication-package.toml",
       "source": ".github/agents/cr-replication-package.agent.md",
       "kind": "agent",
-      "sha256": "acb0d6dd47c17409daf7b52038f2e5d59aa6527beb336040d1757c6a7c7b0770",
+      "sha256": "a721ab627733f9459356cfad7b0caf054dda626245da7c4c47f4729b38e4c543",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-research-integrity.toml",
       "source": ".github/agents/cr-research-integrity.agent.md",
       "kind": "agent",
-      "sha256": "fc71449d8dde36e28c399ccbf1727550f28d389696a9b486dfdddcc6f9cbe40c",
+      "sha256": "2f37e72bd94561b8a1eaa9fc0d97934acefcc4390de34c24b326f3fbbc5d0b96",
       "executable": false
     },
     {
       "path": ".agents/subagents/cr-specification-analysis.toml",
       "source": ".github/agents/cr-specification-analysis.agent.md",
       "kind": "agent",
-      "sha256": "a215cfd8c625b2b52185b3c65646954c2f1081d1158e62d4dee9eb4ca9c0337a",
+      "sha256": "654da0c7d27237d7ea745f241a14e2871fd369fd25d659d8b0884bf100957ed1",
       "executable": false
     }
   ]

@@ -93,6 +93,13 @@ Check if `compound-gpid.local.md` already exists in the project root.
 > 2. **Standard** — All 8 review agents. Best for most work. *(recommended)*
 > 3. **Thorough** — All 8 agents + cross-referencing past learnings. Best for major features and refactors.
 
+**Question 3.5: Active Suites**
+
+> Which workflow suites should this project activate?
+> 1. **Technical only** — `suites: [cg]` *(default)*
+> 2. **Research only** — `suites: [cr]`
+> 3. **Technical + research** — `suites: [cg, cr]`
+
 ### Step 3: Write Config
 
 Create `compound-gpid.local.md` in the project root with the following format:
@@ -100,6 +107,7 @@ Create `compound-gpid.local.md` in the project root with the following format:
 ```markdown
 ---
 language: "<r|python|stata|both|all|other>"
+suites: [<cg|cr|cg, cr>]
 r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
@@ -109,7 +117,7 @@ cg-schema-version: ""
 
 # Compound GPID — Project Config
 
-This file configures Compound GPID for this project. It is gitignored and local to your machine.
+This file configures Compound GPID for this project. It is version-controlled and shared across the team.
 
 ## Language: <language>
 ## Project Type: <project-type>
@@ -134,14 +142,10 @@ After writing the local config, optionally create a committed project charter.
 - Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 - If the user skips all charter questions, do not create the file.
 
-### Step 4: Update .gitignore
+### Step 4: Protect shared configuration
 
-Check if `compound-gpid.local.md` is in `.gitignore`. If not, add it:
-
-```gitignore
-# Compound GPID local config
-compound-gpid.local.md
-```
+Ensure `compound-gpid.local.md` is not ignored. It declares team-wide language,
+suite, and review defaults and must remain version-controlled.
 
 ### Step 5: Create .cg-docs/ Structure
 
@@ -167,6 +171,10 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
     └── git-workflows/
         └── .gitkeep
 ```
+
+If the research suite is enabled (`suites:` includes `cr`), also create the
+research directories under `.cg-docs/research/` (for example,
+`derivations/`, `specifications/`, and implementation artifacts).
 
 ### Step 6: Confirm
 

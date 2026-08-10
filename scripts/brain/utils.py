@@ -109,6 +109,30 @@ def _parse_inline_list(raw: str) -> Optional[List[Any]]:
     return items
 
 
+def _strip_inline_yaml_comment(raw: str) -> str:
+    """Strip an inline YAML comment while preserving quoted ``#`` characters."""
+    quote: Optional[str] = None
+    escaped = False
+    for index, char in enumerate(raw):
+        if quote == '"':
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if quote == "'":
+            if char == quote:
+                quote = None
+            continue
+        if char in ('"', "'"):
+            quote = char
+        elif char == "#" and index > 0 and raw[index - 1].isspace():
+            return raw[:index].rstrip()
+    return raw.rstrip()
+
+
 # ---------------------------------------------------------------------------
 # Frontmatter parser (regex-based, best-effort, no PyYAML dependency)
 # ---------------------------------------------------------------------------
@@ -151,11 +175,32 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
     current_key: Optional[str] = None
     current_list: Optional[List[str]] = None
+    current_scalar_key: Optional[str] = None
+    current_scalar_lines: Optional[List[str]] = None
+
+    def flush_scalar() -> None:
+        nonlocal current_scalar_key, current_scalar_lines
+        if current_scalar_key is None or current_scalar_lines is None:
+            return
+        result[current_scalar_key] = _coerce(" ".join(current_scalar_lines).strip())
+        current_scalar_key = None
+        current_scalar_lines = None
 
     for line in block.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
+
+        if (
+            current_scalar_key is not None
+            and current_scalar_lines is not None
+            and line[:1].isspace()
+            and ":" not in stripped.partition(" #")[0]
+        ):
+            current_scalar_lines.append(stripped)
+            continue
+
+        flush_scalar()
 
         # Continuation of a block list (  - item)
         if stripped.startswith("- ") and current_key is not None and current_list is not None:
@@ -175,9 +220,8 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
         key, _, raw_value = stripped.partition(":")
         key = key.strip()
         raw_value = raw_value.strip()
-        # Strip inline YAML comments (e.g. "status: active # deprecated" → "active")
-        if " #" in raw_value:
-            raw_value = raw_value.split(" #")[0].rstrip()
+        # Strip inline YAML comments without touching quoted values.
+        raw_value = _strip_inline_yaml_comment(raw_value)
 
         if not raw_value:
             # Possibly a block-list key (next lines start with "- ")
@@ -197,10 +241,15 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
             result[key] = inline
         else:
             result[key] = _coerce(raw_value)
+            if raw_value.startswith(('"', "'")) and not raw_value.endswith(raw_value[0]):
+                current_scalar_key = key
+                current_scalar_lines = [raw_value]
 
     # Flush trailing block list
     if current_list is not None and current_key is not None and current_list:
         result[current_key] = current_list
+
+    flush_scalar()
 
     return result
 

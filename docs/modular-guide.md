@@ -37,8 +37,8 @@ or both suites:
   rendering, World Bank report writing, generic review agents (`cap-review-agents`),
   and knowledge capture (`cap-compound-docs`).
 
-You do not need to name dependencies. Loading `/cr-work` in a project with
-`suites: [cg, cr]` automatically pulls the research suite, kernel, and every
+You do not need to name dependencies. Loading `/cr-work` in a project whose
+`suites:` includes `cr` automatically pulls the research suite, kernel, and every
 capability it depends on. Skills like `cr-skill-publication-output` and
 `r.instructions.md` are available without you referencing module ids.
 
@@ -61,9 +61,10 @@ suites: [cg, cr]
 ```
 
 Generator-level enforcement: `python scripts/cg_generate_targets.py --all --active-suites cg`
-emits only CG + shared assets (1071 generated-platform-tree files in this repo,
-equal to the pre-modular CG baseline), while `--active-suites cg,cr` emits the full
-1214-file tree. The context loader (`.github/shared/context-loading.contract.md`,
+emits only CG plus shared assets, while `--active-suites cg,cr` emits both suites
+and their dependency closure. Characterization and drift tests enforce the
+expected inventory without documentation depending on brittle file counts. The
+context loader (`.github/shared/context-loading.contract.md`,
 canonical source; copied to each platform tree) follows the same rule at
 instruction level.
 
@@ -93,6 +94,10 @@ Adding a capability pack or a future suite is data in `.github/shared/module-reg
    directly).
 5. Regenerate: `python scripts/cg_generate_targets.py --all`, then run the drift
    gate (`pytest scripts/tests/test_target_drift.py`).
+
+The generated targets are `.claude/`, `.agents/`, `.opencode/`, and `.kilo/`;
+GitHub Copilot uses the canonical `.github/` source directly. Never edit a
+generated target to change module behavior.
 
 > See [Reference](reference.md) for command contracts and configuration fields;
 > the module-registry schema is documented in `.github/shared/module-registry.json`.

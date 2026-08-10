@@ -49,6 +49,30 @@ Do keep `compound-gpid.local.md` version-controlled (committed, not in `.gitigno
 Do not place credentials, private data,
 or raw secrets in any context file.
 
+## Modular architecture
+
+`.github/shared/module-registry.json` assigns every canonical prompt, agent,
+skill, instruction, and shared contract to exactly one module. Modules form
+three layers:
+
+| Layer | Responsibility |
+|---|---|
+| Kernel | Lifecycle contracts, context loading, target mapping, and core infrastructure |
+| Capability packs | Reusable language, testing, rendering, review, knowledge, and research-output support |
+| Suites | Independent user-facing command surfaces: technical `suite-cg` and research `suite-cr` |
+
+Active suites plus their transitive capability dependencies and the kernel form
+the loadable set. Suites never depend directly on one another. Research work may
+reuse technical capability packs without importing the `/cg-*` command suite.
+
+Validate registry ownership and boundaries with:
+
+```bash
+python scripts/cg_validate_modules.py --check-ownership --check-dependencies --check-cross-suite
+```
+
+See the [Modular Guide](../modular-guide.md).
+
 ## Platform selection
 
 The normal command links all supported platforms:

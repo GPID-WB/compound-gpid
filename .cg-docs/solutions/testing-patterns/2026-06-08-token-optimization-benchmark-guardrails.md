@@ -121,3 +121,4 @@ routing:
 - `.cg-docs/solutions/testing-patterns/2026-06-15-inherited-model-picker-drift-equivalence.md` - inherited model-picker prompts need semantic equivalence in model-guide drift checks
 - `.cg-docs/solutions/testing-patterns/2026-06-16-reviewed-warning-classifications-close-token-work.md` - reviewed warning classifications convert audit warnings into closure evidence without hiding real failures
 - `.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md` - workflow telemetry needs source-aware path and tool extraction when the legacy reference matrix is intentionally narrower
+- `.cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md` - explicit `review:research` and composite routing coverage show how review-routing guardrails must stay synchronized across prompts and contracts

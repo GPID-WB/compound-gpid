@@ -2,6 +2,63 @@
   "schemaVersion": "compound-gpid-roadmap-v1",
   "milestones": [
     {
+      "id": "responsible-research-partner",
+      "title": "Responsible Research Partner",
+      "objective": "Expand Compound Research from a journal-paper econometrics assistant into a responsible, provenance-aware partner for the full lifecycle of policy-relevant measurement and economic research.",
+      "status": "in-progress",
+      "features": [
+        {
+          "id": "cr-evidence-provenance-spine",
+          "title": "CR evidence and provenance spine with repo-local corpus default",
+          "description": "Add structured source manifests, claim-to-evidence matrices, verification status, original-document authority, citation auditing, and opt-in external research without hallucinated sources or locators.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md"
+        },
+        {
+          "id": "cr-measurement-classification-archetype",
+          "title": "CR Measurement/Classification research archetype",
+          "description": "Add a ninth research archetype covering composite indicators, clustering, threshold mapping, weighting sensitivity, cluster validity, and established measurement methodology.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-measurement-comparability-controls",
+          "title": "P0 comparability controls for measurement and indicator work",
+          "description": "Enforce comparability across countries or other units and over time, including vintage versioning, ranking stability, coverage artifacts, spurious cluster checks, and attribution of changes to data versus method.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-scoping-and-normative-gates",
+          "title": "Research scoping and normative-decision gates",
+          "description": "Make scoping a first-class artifact and require human approval of value-laden specifications at brainstorm and plan gates, with re-escalation when new normative choices arise during work.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md"
+        },
+        {
+          "id": "cr-responsible-lifecycle-method-packs",
+          "title": "Responsible lifecycle and method-pack retrofit",
+          "description": "Converge toward Scope, Evidence, Theory, Method, Execute, Verify, Communicate, Maintain, while preserving backward compatibility for structural-econometrics and ML workflows.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md"
+        },
+        {
+          "id": "cr-second-measurement-use-case-validation",
+          "title": "Validate the Measurement archetype with a second use case",
+          "description": "Test whether the Measurement/Classification archetype generalizes beyond the Beyond GDP classification exemplar before broad implementation.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-team-evidence-library",
+          "title": "Team-level evidence library",
+          "description": "Explore a separately governed, searchable institutional asset where verified sources and claim-evidence records compound across research projects.",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
       "id": "quality-loop",
       "title": "Quality Loop",
       "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R.",
@@ -854,7 +911,7 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "token-audit-context-model",

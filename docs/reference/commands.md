@@ -6,6 +6,9 @@ not slash commands.
 
 ## Workflow prompts
 
+The technical suite owns `/cg-*`. The research suite owns `/cr-*`; those
+commands are available when `suites:` includes `cr`.
+
 | Goal | Command |
 |---|---|
 | Configure a project | `/cg-setup` |
@@ -30,6 +33,16 @@ not slash commands.
 | Link optional GitHub Issues | `/cg-issues` |
 | Commit, push, and open a PR | `/cg-commit-push-pr` |
 | Diagnose or repair PR checks | `/cg-verify-pr` |
+
+## Research workflow prompts
+
+| Goal | Command |
+|---|---|
+| Scope a research question and surface normative choices | `/cr-brainstorm` |
+| Create a research plan with evidence and integrity gates | `/cr-plan` |
+| Execute a research plan or phase | `/cr-work [phaseX]` |
+| Run task-aware research and engineering review | `/cr-review` |
+| Capture a verified research lesson | `/cr-compound` |
 
 Developer-only commands include `/cg-devtag`, `/cg-review-repos`, and the
 compound-gpid-only `/cg-release` workflow. They are not normal consumer-project
@@ -64,3 +77,4 @@ They do not replace required validation commands.
 See [Complete Reference](../reference.md) for flags, models, output schemas,
 warnings, routing, configuration fields, and command behavior. See
 [Workflow Overview](../workflows/index.md) to choose a command by situation.
+See the [Modular Guide](../modular-guide.md) for suite activation and boundaries.
