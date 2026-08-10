@@ -170,11 +170,11 @@ add_units_for_platform() {
                 ;;
         kilo)
             printf '%s\n' \
-                'kilo|directory|.kilo/commands|.kilo/commands|link-directory|' \
-                'kilo|directory|.kilo/skills|.kilo/skills|link-directory|' \
-                'kilo|directory|.kilo/agents|.kilo/agents|link-directory|' \
-                'kilo|directory|.kilo/instructions|.kilo/instructions|link-directory|' \
-                'kilo|directory|.kilo/shared|.kilo/shared|link-directory|' \
+                'kilo|directory|.kilo/commands|.kilo/commands|copy-directory|' \
+                'kilo|directory|.kilo/skills|.kilo/skills|copy-directory|' \
+                'kilo|directory|.kilo/agents|.kilo/agents|copy-directory|' \
+                'kilo|directory|.kilo/instructions|.kilo/instructions|copy-directory|' \
+                'kilo|directory|.kilo/shared|.kilo/shared|copy-directory|' \
                 'kilo|file|.kilo/AGENTS.md|.kilo/AGENTS.md|managed-copy|' \
                 'kilo|file|.kilo/kilo.json|.kilo/kilo.json|config-copy-or-snippet|Add instructions .kilo/AGENTS.md and skills.paths .kilo/skills to your existing kilo.json.' \
                 ;;
@@ -214,33 +214,48 @@ ensure_root_directory() {
 }
 
 install_directory_unit() {
-    local source_rel="$1" target_rel="$2" source_path target_path existing_target parent
+    local source_rel="$1" target_rel="$2" strategy="$3" source_path target_path existing_target parent
     source_path="$COMPOUND_GPID_DIR/$source_rel"
     target_path="$PROJECT_ROOT/$target_rel"
     if [ -L "$target_path" ]; then
         existing_target="$(readlink "$target_path")"
         if [[ "$existing_target" == *compound-gpid* ]]; then
-            print_gray "$target_rel - already linked"
-            return 0
+            if [ "$strategy" = "copy-directory" ]; then
+                print_yellow "  $target_rel - migrating legacy symlink to copy-directory"
+                rm -f "$target_path"
+            else
+                print_gray "$target_rel - already linked"
+                return 0
+            fi
+        else
+            print_warn "$target_rel is a symlink pointing to: $existing_target"
+            if [ "$FORCE" -eq 0 ]; then
+                printf '  Relink %s to Compound GPID instead? [y/N] ' "$target_rel"
+                read -r answer </dev/tty
+                case "$answer" in [Yy]*) ;; *) print_yellow "  $target_rel - skipped"; return 1 ;; esac
+            fi
+            rm -f "$target_path"
         fi
-        print_warn "$target_rel is a symlink pointing to: $existing_target"
-        if [ "$FORCE" -eq 0 ]; then
-            printf '  Relink %s to Compound GPID instead? [y/N] ' "$target_rel"
-            read -r answer </dev/tty
-            case "$answer" in [Yy]*) ;; *) print_yellow "  $target_rel - skipped"; return 1 ;; esac
-        fi
-        rm -f "$target_path"
     elif [ -d "$target_path" ]; then
-        print_warn "$target_rel is a real directory; skipping this unit."
-        return 1
+        if [ "$strategy" = "copy-directory" ]; then
+            print_gray "$target_rel - already a real directory (will update)"
+        else
+            print_warn "$target_rel is a real directory; skipping this unit."
+            return 1
+        fi
     elif [ -e "$target_path" ]; then
         print_warn "$target_rel exists as a file; skipping this unit."
         return 1
     fi
     parent="$(dirname "$target_path")"
     mkdir -p "$parent"
-    ln -s "$source_path" "$target_path"
-    print_gray "$target_rel - linked"
+    if [ "$strategy" = "copy-directory" ]; then
+        cp -R "$source_path/" "$target_path/"
+        print_gray "$target_rel - copied"
+    else
+        ln -s "$source_path" "$target_path"
+        print_gray "$target_rel - linked"
+    fi
     return 0
 }
 
@@ -546,7 +561,7 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
     root_name="${target_rel%%/*}"
     ensure_root_directory "$root_name" || continue
     if [ "$unit_type" = "directory" ]; then
-        if install_directory_unit "$source_rel" "$target_rel"; then printf '%s\n' "$target_rel" >> "$entries_file"; fi
+        if install_directory_unit "$source_rel" "$target_rel" "$strategy"; then printf '%s\n' "$target_rel" >> "$entries_file"; fi
     else
         output="$(install_file_unit "$source_rel" "$target_rel" "$strategy" "$snippet")"
         case "$output" in
