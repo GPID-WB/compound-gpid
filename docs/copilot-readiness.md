@@ -15,9 +15,9 @@ validation and dispatch.
 ## Canonical readiness contract
 
 The contract is a GitHub issue body written in Markdown. Section headings are
-matched **exactly** (case-sensitive, `## ` level); fenced code blocks are
+matched **exactly** (case-sensitive, `##` level); fenced code blocks are
 ignored when locating sections, the tracked marker, and the feature id, so
-examples written inside ` ``` ` fences are never mistaken for real contract
+examples written inside triple-backtick fences are never mistaken for real contract
 data. The issue body is treated as **untrusted data** throughout. Fences are
 expected to be balanced within each section: a fence opened in one section and
 closed in a later one (or left unclosed) is not part of the proven contract and
@@ -29,7 +29,7 @@ A ready issue must contain all of the following, in any order:
 
 A hidden HTML comment as the first marker in the body:
 
-```
+```text
 <!-- compound-gpid-tracked: <feature-id> -->
 ```
 
@@ -60,7 +60,7 @@ guidance`, `## Required tests`) are allowed but not required.
 
 ### Path entries
 
-Path entries are the backtick code spans on `- ` (or `* `) list items inside
+Path entries are the backtick code spans on `-` (or `*`) list items inside
 `## Expected allowed paths` and `## Prohibited paths`. List items without a code
 span are treated as prose and ignored, so a section may mix path entries with
 descriptive bullets.
@@ -173,9 +173,10 @@ A result is **ready** only when every rule passes.
 `R020` (`no-open-closing-pr`) detects closing PRs by scanning open pull requests
 for a closing keyword (`closes #N`, etc.) in the PR body. Detection is
 body-keyword-only: a PR that closes the issue via the GitHub linking UI without
-such a phrase in its body is not counted. The scan pages through open PRs
-(`--page N`, 100 per page) and terminates as soon as a page is shorter than the
-page size.
+such a phrase in its body is not counted. It makes one documented
+`gh pr list --state open --limit 1000` request. If that request returns exactly
+the configured limit, validation fails closed with exit 4 because the result may
+be truncated.
 
 ## JSON result
 
@@ -245,7 +246,7 @@ the actual assignment.
 
 ## Testing
 
-Deterministic tests live in `scripts/tests/test_issue_readiness.py` (~127
+Deterministic tests live in `scripts/tests/test_issue_readiness.py` (158
 tests) and use inline fixtures plus mocked GitHub responses; no test depends on
 live GitHub state. The test is registered in the required `Native target Python
 gate` pytest list in `.github/workflows/tests.yml`, which pins Python 3.11, so it

@@ -3,8 +3,8 @@
     "number": 9001,
     "title": "Example implementation-ready issue (synthetic fixture)",
     "state": "OPEN",
-    "assignees": ["example-maintainer"],
-    "labels": ["cg:roadmap"]
+    "assignees": [{"login": "example-maintainer"}],
+    "labels": [{"name": "cg:roadmap"}]
   },
   "projectStatus": "Ready",
   "openClosingPRs": [],

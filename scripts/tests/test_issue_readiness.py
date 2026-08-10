@@ -8,6 +8,7 @@ from __future__ import annotations
 import io
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,10 +23,18 @@ from issues.readiness import (
     FixtureClient,
     GhCliClient,
     IssueRecord,
+    PR_LIST_LIMIT,
     PRRecord,
     RuleResult,
     _classify_gh_error,
     _default_run_gh,
+    _brackets_unbalanced,
+    _extract_checkboxes,
+    _extract_path_entries,
+    _extract_risk_class,
+    _has_blocking_dependency,
+    _PROJECT_STATUS_QUERY,
+    _verification_commands_nonempty,
     _is_overbroad_allowed_path,
     copilot_assignees,
     is_copilot_assignee,
@@ -326,6 +335,15 @@ def test_missing_allowed_paths_fails() -> None:
     result = validate_readiness(9001, FakeClient(body=body))
 
     assert "R010" in _failed_ids(result)
+    assert result.exit_code == EXIT_NOT_READY
+
+
+def test_empty_roadmap_linkage_fails_required_contract() -> None:
+    body = replace_section_body(GOOD_BODY, "Roadmap linkage", "")
+    result = validate_readiness(9001, FakeClient(body=body))
+
+    assert "R004" in _failed_ids(result)
+    assert "Roadmap linkage" in _rule(result, "R004").detail
     assert result.exit_code == EXIT_NOT_READY
 
 
@@ -729,6 +747,35 @@ def test_cli_missing_fixture_exit_config() -> None:
     assert rc == EXIT_CONFIG
 
 
+def test_cli_empty_fixture_path_exit_config() -> None:
+    buf = io.StringIO()
+    rc = main(["--fixture", "", "--dry-run", "--json"], out=buf)
+
+    assert rc == EXIT_CONFIG
+    assert json.loads(buf.getvalue())["exitCode"] == EXIT_CONFIG
+
+
+def test_legacy_readiness_module_is_directly_executable() -> None:
+    completed = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "scripts" / "issues" / "readiness.py"),
+         "--fixture", str(FIXTURE_JSON), "--dry-run", "--json"],
+        cwd=REPO_ROOT, capture_output=True, text=True,
+    )
+
+    assert completed.returncode == EXIT_READY, completed.stderr
+    assert json.loads(completed.stdout)["ready"] is True
+
+
+def test_readiness_facade_preserves_historical_helpers() -> None:
+    assert _extract_checkboxes(["- [x] ready"]) == [True]
+    assert _extract_path_entries(["- `scripts/example.py`"]) == ["scripts/example.py"]
+    assert _extract_risk_class(["`low`"]) == "low"
+    assert _has_blocking_dependency(["None currently known."]) == (False, "")
+    assert _verification_commands_nonempty(["```bash", "pytest", "```"])
+    assert _brackets_unbalanced("[path") is True
+    assert "query ReadinessStatus" in _PROJECT_STATUS_QUERY
+
+
 def test_cli_requires_a_source() -> None:
     with pytest.raises(SystemExit) as exc:
         main([], out=io.StringIO(), err=io.StringIO())
@@ -779,6 +826,30 @@ def test_cli_fixture_invalid_json_exit_config(tmp_path) -> None:
     assert rc == EXIT_CONFIG
 
 
+def test_cli_fixture_invalid_body_file_path_exit_config(tmp_path) -> None:
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(
+        json.dumps({
+            "issue": {"number": 7, "body": ""},
+            "bodyFile": "\x00",
+        }),
+        encoding="utf-8",
+    )
+
+    rc = main(["--fixture", str(fixture), "--dry-run"], out=io.StringIO())
+
+    assert rc == EXIT_CONFIG
+
+
+def test_cli_fixture_deeply_nested_json_exit_config(tmp_path) -> None:
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text("[" * 3000 + "0" + "]" * 3000, encoding="utf-8")
+
+    rc = main(["--fixture", str(fixture), "--dry-run"], out=io.StringIO())
+
+    assert rc == EXIT_CONFIG
+
+
 def test_cli_fixture_missing_body_file_exit_config(tmp_path) -> None:
     fixture = tmp_path / "fixture.json"
     fixture.write_text(
@@ -787,6 +858,63 @@ def test_cli_fixture_missing_body_file_exit_config(tmp_path) -> None:
     )
     rc = main(["--fixture", str(fixture), "--dry-run"], out=io.StringIO())
     assert rc == EXIT_CONFIG
+
+
+def test_fixture_client_normalizes_gh_wire_format() -> None:
+    client = FixtureClient(str(FIXTURE_JSON))
+    issue = client.get_issue(9001)
+
+    assert issue.assignees == ["example-maintainer"]
+    assert issue.labels == ["cg:roadmap"]
+
+
+@pytest.mark.parametrize(
+    "issue_overrides",
+    [
+        {"assignees": ["example-maintainer"]},
+        {"labels": ["cg:roadmap"]},
+        {"assignees": [{"login": 42}]},
+        {"labels": [{"name": None}]},
+    ],
+)
+def test_fixture_client_rejects_malformed_assignee_or_label_shapes(
+    tmp_path, issue_overrides: dict,
+) -> None:
+    issue = {
+        "number": 9001,
+        "title": "Fixture",
+        "body": "",
+        "state": "OPEN",
+        "assignees": [{"login": "example-maintainer"}],
+        "labels": [{"name": "cg:roadmap"}],
+    }
+    issue.update(issue_overrides)
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(
+        json.dumps({"issue": issue, "projectStatus": "Ready"}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigError):
+        FixtureClient(str(fixture))
+
+
+def test_fixture_client_rejects_malformed_pr_shape(tmp_path) -> None:
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(json.dumps({
+        "issue": {
+            "number": 9001, "title": "Fixture", "body": "", "state": "OPEN",
+            "assignees": [], "labels": [],
+        },
+        "openClosingPRs": [{
+            "number": 42, "title": "PR", "body": "", "url": "u",
+            "headRef": "wrong-key", "author": {"login": "human"},
+        }],
+        "projectStatus": "Ready",
+    }), encoding="utf-8")
+
+    with pytest.raises(ConfigError, match="headRefName"):
+        FixtureClient(str(fixture))
 
 
 # ---------------------------------------------------------------------------
@@ -929,6 +1057,92 @@ def test_gh_project_status_none_when_not_in_any_project() -> None:
     assert client.get_project_status(1) is None
 
 
+def test_gh_project_status_absent_issue_returns_none() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": None}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    assert client.get_project_status(1) is None
+
+
+def test_gh_project_status_non_mapping_graphql_payload_raises_api_error() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json=[1, 2],
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    with pytest.raises(ApiError, match="expected object"):
+        client.get_project_status(1)
+
+
+def test_gh_project_status_missing_nested_payload_raises_api_error() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": {}}}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    with pytest.raises(ApiError, match="nodes is not a list"):
+        client.get_project_status(1)
+
+
+def test_gh_project_status_non_mapping_node_raises_api_error() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": ["bad"]}}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    with pytest.raises(ApiError, match="nodes item"):
+        client.get_project_status(1)
+
+
+def test_gh_project_status_absent_project_value_returns_none() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": [
+            {"project": None},
+        ]}}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    assert client.get_project_status(1) is None
+
+
+def test_gh_project_status_malformed_field_value_raises_api_error() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": [
+            {"project": {"title": "CompoundGPID-progress"}, "fieldValueByName": "bad"},
+        ]}}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+
+    with pytest.raises(ApiError, match="fieldValueByName"):
+        client.get_project_status(1)
+
+
 def test_gh_cli_malformed_json_raises_api_error() -> None:
     def runner(args):
         return subprocess.CompletedProcess(args=["gh", *args], returncode=0, stdout="not json", stderr="")
@@ -936,6 +1150,17 @@ def test_gh_cli_malformed_json_raises_api_error() -> None:
     client = GhCliClient(runner=runner)
     with pytest.raises(ApiError):
         client.get_issue(127)
+
+
+def test_gh_cli_deeply_nested_json_raises_api_error() -> None:
+    def runner(args):
+        return subprocess.CompletedProcess(
+            args=["gh", *args], returncode=0,
+            stdout="[" * 3000 + "0" + "]" * 3000, stderr="",
+        )
+
+    with pytest.raises(ApiError):
+        GhCliClient(runner=runner).get_issue(127)
 
 
 def test_gh_cli_typed_invalid_issue_payload_raises_api_error() -> None:
@@ -956,6 +1181,31 @@ def test_gh_cli_typed_invalid_repo_payload_raises_api_error() -> None:
     client = GhCliClient(runner=runner)
     with pytest.raises(ApiError):
         client.get_project_status(127)
+
+
+def test_gh_cli_invalid_name_with_owner_type_raises_api_error() -> None:
+    def runner(args):
+        if args[:2] == ["repo", "view"]:
+            payload = json.dumps({"nameWithOwner": 42})
+        else:
+            payload = "{}"
+        return subprocess.CompletedProcess(
+            args=["gh", *args], returncode=0, stdout=payload, stderr=""
+        )
+
+    with pytest.raises(ApiError, match="nameWithOwner is not a string"):
+        GhCliClient(runner=runner).get_project_status(127)
+
+
+def test_gh_cli_valid_name_without_owner_separator_is_config_error() -> None:
+    def runner(args):
+        payload = json.dumps({"nameWithOwner": "repo-only"})
+        return subprocess.CompletedProcess(
+            args=["gh", *args], returncode=0, stdout=payload, stderr=""
+        )
+
+    with pytest.raises(ConfigError, match="could not determine repository"):
+        GhCliClient(runner=runner).get_project_status(127)
 
 
 def test_gh_cli_typed_invalid_pr_payload_raises_api_error() -> None:
@@ -1005,33 +1255,50 @@ def test_gh_cli_malformed_repo_view_raises_api_error() -> None:
         client.get_project_status(127)
 
 
-def test_gh_cli_paginates_open_prs() -> None:
-    first_page = [
-        {"number": n, "title": f"P{n}", "body": "", "url": "u",
-         "headRefName": "b", "author": {"login": "human"}}
-        for n in range(1, 101)
+def test_gh_cli_pr_list_uses_exact_documented_argv() -> None:
+    expected = [
+        "pr", "list", "--state", "open", "--json",
+        "number,title,body,url,headRefName,author", "--limit", "1000",
     ]
-    page_args: list[list[str]] = []
+    closing_pr = {
+        "number": 42,
+        "title": "Implementation",
+        "body": "Closes #127",
+        "url": "https://github.com/GPID-WB/compound-gpid/pull/42",
+        "headRefName": "feature/readiness",
+        "author": {"login": "octocat"},
+    }
 
     def runner(args):
-        page_args.append(list(args))
-        if args[:2] == ["pr", "list"]:
-            if "--page" in args:
-                pg = int(args[args.index("--page") + 1])
-                if pg == 1:
-                    return subprocess.CompletedProcess(
-                        args=["gh", *args], returncode=0,
-                        stdout=json.dumps(first_page), stderr="",
-                    )
-            return subprocess.CompletedProcess(args=["gh", *args], returncode=0, stdout="[]", stderr="")
-        return subprocess.CompletedProcess(args=["gh", *args], returncode=0, stdout="{}", stderr="")
+        assert args == expected, f"unexpected gh argv: {args!r}"
+        assert "--page" not in args
+        return subprocess.CompletedProcess(
+            args=["gh", *args], returncode=0,
+            stdout=json.dumps([closing_pr]), stderr="",
+        )
 
     client = GhCliClient(runner=runner)
-    assert client.get_open_closing_prs(127) == []
-    seen_pages = [
-        int(a[a.index("--page") + 1]) for a in page_args if "--page" in a
+    prs = client.get_open_closing_prs(127)
+
+    assert [pr.number for pr in prs] == [42]
+    assert prs[0].head_ref == "feature/readiness"
+
+
+def test_gh_cli_pr_list_limit_fails_closed() -> None:
+    items = [
+        {"number": n, "title": f"P{n}", "body": "", "url": "u",
+         "headRefName": "b", "author": {"login": "human"}}
+        for n in range(PR_LIST_LIMIT)
     ]
-    assert set(seen_pages) == {1, 2}
+
+    def runner(args):
+        return subprocess.CompletedProcess(
+            args=["gh", *args], returncode=0,
+            stdout=json.dumps(items), stderr="",
+        )
+
+    with pytest.raises(ApiError, match="potentially truncated"):
+        GhCliClient(runner=runner).get_open_closing_prs(127)
 
 
 def test_default_run_gh_is_argv_safe(monkeypatch) -> None:
@@ -1066,6 +1333,24 @@ def test_default_run_gh_timeout_raises_api(monkeypatch) -> None:
 
     monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
     with pytest.raises(ApiError):
+        _default_run_gh(["issue", "view", "1"])
+
+
+def test_default_run_gh_undecodable_output_raises_api(monkeypatch) -> None:
+    def fake_run(args, **kwargs):
+        raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+
+    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    with pytest.raises(ApiError):
+        _default_run_gh(["issue", "view", "1"])
+
+
+def test_default_run_gh_execution_os_error_raises_config(monkeypatch) -> None:
+    def fake_run(args, **kwargs):
+        raise PermissionError("permission denied")
+
+    monkeypatch.setattr("issues.readiness.subprocess.run", fake_run)
+    with pytest.raises(ConfigError):
         _default_run_gh(["issue", "view", "1"])
 
 
