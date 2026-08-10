@@ -24,14 +24,18 @@ applyTo: "**/*.py"
 
 ## Testing with pytest
 
-- Place tests in `tests/` directory at the project root.
+- Place pytest tests for repository scripts and utilities in `scripts/tests/`.
+  The root `tests/` directory is the repository's Pester suite; use a root
+  `tests/` Python layout only when a Python package explicitly owns that layout.
 - Name test files `test_<module>.py` matching source files.
 - Name test functions `test_<behavior>()` — descriptive, not generic.
 - Use `pytest.fixture` for reusable test setup.
 - Use `pytest.mark.parametrize` for testing multiple inputs.
 - Use `pytest.raises` for expected exceptions.
 - Use `tmp_path` fixture for file-based tests.
-- Keep test data inline or in `tests/fixtures/`.
+- Keep test data inline or in the matching fixture directory: use
+  `scripts/tests/fixtures/` for script-level pytest tests and `tests/fixtures/`
+  for a root-level Python package.
 - Run tests with `pytest -v` or `pytest --tb=short`.
 
 ## Type Hints
