@@ -53,6 +53,7 @@
         { "id": "retrieval-backends", "title": "Retrieval Backends", "file": "retrieval-backends.md", "description": "Evaluation registry; native Brain query remains the active backend." },
         { "id": "snapshot-external-research", "title": "Research Modes", "file": "snapshot-external-research.md", "description": "Evaluation registry; local workflow remains the active mode." },
         { "id": "workflow", "title": "Detailed Workflow Manual", "file": "workflow.md", "description": "Complete prompt behavior, scenarios, and workflow contracts." },
+        { "id": "modular-guide", "title": "Modular Guide", "file": "modular-guide.md", "description": "Task-oriented suite selection, capability composition, and module extension for the modular plugin." },
         { "id": "manual", "title": "Compatibility Manual Index", "file": "manual.md", "description": "Legacy Markdown table of contents retained for inbound links." }
       ]
     },

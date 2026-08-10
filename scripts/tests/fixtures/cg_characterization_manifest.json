@@ -53,12 +53,12 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-project-scanner.md",
-      "sha256": "3efd513a7e6b422510c156c558a53977a18ef14280482b80def643ddd5ee662c"
+      "sha256": "9e5b13f0c9e1e18be0dae955803af75fae3ec5caf45dde3a973ac9d4b0f6e24f"
     },
     {
       "kind": "agent",
       "path": ".claude/agents/cg-release-scanner.md",
-      "sha256": "36d769546b0f7b39228f078868ca5bd4dfd6dc01319d9f9b4eaa140d53a1e5aa"
+      "sha256": "943333dbbe4ea32e245b9fac9eaef85e4e24cd5552ff5cbac23556b94f15297f"
     },
     {
       "kind": "agent",
@@ -68,7 +68,7 @@
     {
       "kind": "agent",
       "path": ".claude/agents/cg-roadmap-view.md",
-      "sha256": "6d94d771db46b1f4b0f5fb613e1e5854843c886a76e91977cb1fcfc3a47ee419"
+      "sha256": "47cc6dcdbb4262e985406d62c7de5f0118278df5f40909bd552ad7d6929ce8fa"
     },
     {
       "kind": "agent",
@@ -748,7 +748,7 @@
     {
       "kind": "skill",
       "path": ".claude/skills/cg-skill-stata-best-practices/SKILL.md",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab"
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
     },
     {
       "kind": "skill-resource",
@@ -1048,7 +1048,7 @@
     {
       "kind": "skill",
       "path": ".claude/skills/cg-skill-stata-testing/SKILL.md",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24"
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
     },
     {
       "kind": "skill-resource",
@@ -1398,12 +1398,22 @@
     {
       "kind": "skill-resource",
       "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed"
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
     },
     {
       "kind": "skill",
       "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9"
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".claude/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
     },
     {
       "kind": "skill",
@@ -1780,12 +1790,12 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-project-scanner.md",
-      "sha256": "499f305ace5725dbf0450a6e8bfbff20030ba04f9dfe411290914ffc5a1d4b46"
+      "sha256": "039e39e0e46b31ec8efef4e4e11eeeb19ea6823e8a2c5854c0fe8129d4faabd8"
     },
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-release-scanner.md",
-      "sha256": "3aaa01430fb1a00c53f0276f589ff3771354c0097b30deba7912f954f8bc3e73"
+      "sha256": "356fd0acc3518c04f055b0fda65150c9f452044627c1219cf96d19cd880d52b4"
     },
     {
       "kind": "fallback-agent",
@@ -1795,7 +1805,7 @@
     {
       "kind": "fallback-agent",
       "path": ".agents/skills/cg-roadmap-view.md",
-      "sha256": "19edcf0f08c8d076b018aee9c6bca532f6ac5f39622d5d04c78c2c4943fe960a"
+      "sha256": "1701fd524302413273a7b25df5ff6aa9987b69abf04864b309e0fb65d15cf512"
     },
     {
       "kind": "fallback-agent",
@@ -2160,7 +2170,7 @@
     {
       "kind": "skill",
       "path": ".agents/skills/cg-skill-stata-best-practices/SKILL.md",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab"
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
     },
     {
       "kind": "skill-resource",
@@ -2460,7 +2470,7 @@
     {
       "kind": "skill",
       "path": ".agents/skills/cg-skill-stata-testing/SKILL.md",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24"
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
     },
     {
       "kind": "skill-resource",
@@ -2810,12 +2820,22 @@
     {
       "kind": "skill-resource",
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed"
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
     },
     {
       "kind": "skill",
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9"
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
     },
     {
       "kind": "fallback-agent",
@@ -3010,12 +3030,12 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-project-scanner.toml",
-      "sha256": "1ae9ea70583d03d80e04e95740db1e5890916fdf474e9003336b31b1716901cf"
+      "sha256": "8530d737be3df72922445086f0657f80e19c5ee69271b7929b44aa4f3292dada"
     },
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-release-scanner.toml",
-      "sha256": "9ea8c0e1e662deec8df612459332eba452954dab9f30ed5533538ada4203df18"
+      "sha256": "d7d478c7ab7406ec2bf0e4721ad4cef871f640bfa719404d611316e8369cb2af"
     },
     {
       "kind": "agent",
@@ -3025,7 +3045,7 @@
     {
       "kind": "agent",
       "path": ".agents/subagents/cg-roadmap-view.toml",
-      "sha256": "bf9fd515d0742349e715364d190dc81687917c94a0b67ac57073fd3775cbcc32"
+      "sha256": "7944a03ab24a81e5e3dd2112e1a7bfa800f73545c7ae6f2ec3e84b42cd981876"
     },
     {
       "kind": "agent",
@@ -3157,12 +3177,12 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-project-scanner.md",
-      "sha256": "a4db2d2dfafdc37fc59bff21ea272fd8539ae3f746caab3b42950ffd71804338"
+      "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
     },
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-release-scanner.md",
-      "sha256": "7ed8463290e76982775e50c939c73ba443172d934df067f54ca60826175e1522"
+      "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
     },
     {
       "kind": "agent",
@@ -3172,7 +3192,7 @@
     {
       "kind": "agent",
       "path": ".kilo/agents/cg-roadmap-view.md",
-      "sha256": "dd68884f509cf56f7c6ea5ed12337b6c13e3dc938773869a3a869155ae11d24a"
+      "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e"
     },
     {
       "kind": "agent",
@@ -3857,7 +3877,7 @@
     {
       "kind": "skill",
       "path": ".kilo/skills/cg-skill-stata-best-practices/SKILL.md",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab"
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
     },
     {
       "kind": "skill-resource",
@@ -4157,7 +4177,7 @@
     {
       "kind": "skill",
       "path": ".kilo/skills/cg-skill-stata-testing/SKILL.md",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24"
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
     },
     {
       "kind": "skill-resource",
@@ -4507,12 +4527,22 @@
     {
       "kind": "skill-resource",
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed"
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
     },
     {
       "kind": "skill",
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9"
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
     },
     {
       "kind": "skill",
@@ -4644,12 +4674,12 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-project-scanner.md",
-      "sha256": "a4db2d2dfafdc37fc59bff21ea272fd8539ae3f746caab3b42950ffd71804338"
+      "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
     },
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-release-scanner.md",
-      "sha256": "7ed8463290e76982775e50c939c73ba443172d934df067f54ca60826175e1522"
+      "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
     },
     {
       "kind": "agent",
@@ -4659,7 +4689,7 @@
     {
       "kind": "agent",
       "path": ".opencode/agents/cg-roadmap-view.md",
-      "sha256": "dd68884f509cf56f7c6ea5ed12337b6c13e3dc938773869a3a869155ae11d24a"
+      "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e"
     },
     {
       "kind": "agent",
@@ -5344,7 +5374,7 @@
     {
       "kind": "skill",
       "path": ".opencode/skills/cg-skill-stata-best-practices/SKILL.md",
-      "sha256": "dde72f83149b42e0f3906c6ad43f72082f83076e1873b57a3d9e2b06dbef67ab"
+      "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
     },
     {
       "kind": "skill-resource",
@@ -5644,7 +5674,7 @@
     {
       "kind": "skill",
       "path": ".opencode/skills/cg-skill-stata-testing/SKILL.md",
-      "sha256": "6d55de939bc61dd53ec7bb63b432d05b3f6332f56e26eac67f78b7ea8423cc24"
+      "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
     },
     {
       "kind": "skill-resource",
@@ -5994,12 +6024,22 @@
     {
       "kind": "skill-resource",
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
-      "sha256": "25db46d0880b81c364f8a9fd5d1c7fe3c621f8060b12d018b613822ad5f298ed"
+      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+      "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
     },
     {
       "kind": "skill",
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
-      "sha256": "ad294490a0e2e74f24956ac2bdbc13e3ccb56ae763b6167ac3d0ade5ade2eff9"
+      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
+    },
+    {
+      "kind": "skill-resource",
+      "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
     },
     {
       "kind": "skill",
