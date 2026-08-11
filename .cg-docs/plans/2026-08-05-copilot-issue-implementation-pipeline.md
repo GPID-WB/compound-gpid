@@ -1,7 +1,7 @@
 ---
 date: 2026-08-05
 title: "Controlled GitHub Copilot issue-implementation pipeline"
-status: active
+status: superseded
 scope: "Deep"
 brainstorm: null
 language: "both"

@@ -64,6 +64,7 @@ jobs:
           scripts/tests/test_target_documentation.py
           scripts/tests/test_model_advisory.py
           scripts/tests/test_audit_context.py
+          scripts/tests/test_issue_readiness.py
           -q
 
       - name: Run generic publisher and security Python gate

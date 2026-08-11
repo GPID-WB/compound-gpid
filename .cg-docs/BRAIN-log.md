@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
+_Generated 2026-08-10 · 490 artifacts (newest first) + 138 roadmap features_
 
 ## undated
 
@@ -122,6 +122,33 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-08-10
+
+- **[2026-08-05-copilot-issue-implementation-pipeline-v2-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md)** · `review` · _—_ · `2026-08-10`
+  > This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review w…
+- **[2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md)** · `review` · _—_ · `2026-08-10`
+  > This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not …
+- **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
+  > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
+- **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
+  > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
+
+## 2026-08-06
+
+- **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
+  > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Kilo agent/skill parsing failures — JSON Schema validation bug + YAML/encoding issues](.cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md)** · `solution` · _—_ · `2026-08-06`
+  > Both VS Code and Positron report parsing failures for all agent and skill files: - **VS Code** (v7.4.20, Windows): "F…
+
+## 2026-08-05
+
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md)** · `plan` · _active_ · `2026-08-05`
+  > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _superseded_ · `2026-08-05`
+  > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
+- **[Kilo platform missing markdown_source permission for symlinked commands](.cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md)** · `solution` · _—_ · `2026-08-05`
+  > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
 
 ## 2026-08-04
 
@@ -1227,6 +1254,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Update custom agents for model and tool governance
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
+- **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
+  > Make automatic artifact HTML publication opt-in by default
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
 - **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`

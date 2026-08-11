@@ -24,14 +24,18 @@ applyTo: "**/*.py"
 
 ## Testing with pytest
 
-- Place tests in `tests/` directory at the project root.
+- Place pytest tests for repository scripts and utilities in `scripts/tests/`.
+  The root `tests/` directory is the repository's Pester suite; use a root
+  `tests/` Python layout only when a Python package explicitly owns that layout.
 - Name test files `test_<module>.py` matching source files.
 - Name test functions `test_<behavior>()` — descriptive, not generic.
 - Use `pytest.fixture` for reusable test setup.
 - Use `pytest.mark.parametrize` for testing multiple inputs.
 - Use `pytest.raises` for expected exceptions.
 - Use `tmp_path` fixture for file-based tests.
-- Keep test data inline or in `tests/fixtures/`.
+- Keep test data inline or in the matching fixture directory: use
+  `scripts/tests/fixtures/` for script-level pytest tests and `tests/fixtures/`
+  for a root-level Python package.
 - Run tests with `pytest -v` or `pytest --tb=short`.
 
 ## Type Hints
@@ -87,6 +91,9 @@ project-name/
 - Create custom exceptions for domain-specific errors.
 - Use `logging` module instead of `print()` for diagnostic output.
 - Provide informative error messages with context.
+- **For CLI tools with a documented exit-code contract, guard response *shape*, not just JSON syntax**: `json.loads()` guards `JSONDecodeError` only. Valid-JSON payloads with wrong types (e.g., `"number": "abc"`, an array where an object is expected, `nodes` not a list of dicts) raise uncaught `ValueError`/`TypeError`/`AttributeError` during field extraction, producing a raw traceback and exit 1 that a consumer branching on exit codes cannot distinguish from a crash. Wrap each extraction block in `try/except (ValueError, TypeError, AttributeError)` and re-raise as the documented API error, keeping deliberate absent paths (return a default/`None`, not an error). Add one regression test per remote call site feeding a wrong-shape payload. See `.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md`.
+- **Offline fixtures that mimic an external CLI must mirror the CLI's wire format verbatim**: do not hand-craft "nicer" keys (e.g., `headRef` instead of gh's `headRefName`); divergent keys silently lose data when real CLI output is copied into the fixture, and an empty fixture array hides the drift because no test exercises the path. Align fixture-client parsing key-for-key with the production client (including nested shapes such as author `{"login": ...}`) and document the convention. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
+
 
 ## Style
 

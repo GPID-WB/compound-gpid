@@ -1,5 +1,5 @@
 {
-  "edge_count": 266,
+  "edge_count": 268,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1121,6 +1121,18 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "target": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
       "target_missing": false
     },
     {
@@ -5799,6 +5811,70 @@
       ]
     },
     {
+      "date": "2026-08-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2",
+      "status": "active",
+      "summary": "phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers",
+      "tags": [
+        "github",
+        "copilot",
+        "issues",
+        "project",
+        "ci",
+        "dispatch",
+        "security",
+        "workflow-maturity",
+        "automation"
+      ],
+      "title": "Controlled GitHub Copilot issue-implementation pipeline",
+      "top_keywords": [
+        "roadmap.json",
+        "section",
+        "stage",
+        "workflow_dispatch",
+        "phase",
+        "features[].github",
+        "project status",
+        "test scenarios",
+        "project",
+        "cg-issues"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline",
+      "status": "superseded",
+      "summary": "> **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08-05-copilot-issue-implementation-pipeline-v2.md` (v2). > **Do not execute from this plan.** Use v2 for all execution, phase gates, and handoff.",
+      "tags": [
+        "github",
+        "copilot",
+        "issues",
+        "project",
+        "ci",
+        "dispatch",
+        "security",
+        "workflow-maturity",
+        "automation"
+      ],
+      "title": "Controlled GitHub Copilot issue-implementation pipeline",
+      "top_keywords": [
+        "roadmap.json",
+        "section",
+        "stage",
+        "workflow_dispatch",
+        "phase",
+        "features[].github",
+        "test scenarios",
+        "project status",
+        "cg-issues",
+        "@cg-roadmap"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -8901,6 +8977,50 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "status": "",
+      "summary": "This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review was CodeRabbit review `4899491383` on the Stage 2 implementation at reviewed HEAD `6fce720bf24a6e817b4f87cef274d16599915ab5`. It reported 12 actionable comments. The inline thread IDs were `3751952996`, `3751952998`, `3751953013`, `3751953015`, `3751953021`, `3751953029`, `3751953035`, `3751953040`, `3751953049`, `3751953060`, `3751953085`, and `3751953088`.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "top_keywords": [
+        "readiness",
+        "apierror",
+        "gate",
+        "node scripts/check-docs-site.js",
+        "readiness.py",
+        "review",
+        "evidence",
+        "implementation",
+        "phase",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "status": "",
+      "summary": "This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not review or claim results for the unrelated editorial-theme plan. The reviewed PR remains unmerged and Phase 5 was not started.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "top_keywords": [
+        "verification",
+        "readiness",
+        "review",
+        "final",
+        "results",
+        "cg-render-artifact",
+        "stage",
+        "validator",
+        "corrections",
+        "scope"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -10689,6 +10809,128 @@
         "must",
         "audit",
         "axesource"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
+      "slug": "2026-08-05-kilo-markdown-source-permission",
+      "status": "",
+      "summary": "After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid installation, but Kilo refuses to load the external command files. The `/cg-*` commands do not appear in Kilo's command picker because the global `~/.config/kilo/kilo.jsonc` lacks the required `markdown_source` permission.",
+      "tags": [
+        "kilo",
+        "symlink",
+        "permissions",
+        "global-config",
+        "kilo.jsonc",
+        "markdown_source",
+        "platform-support"
+      ],
+      "title": "Kilo platform missing markdown_source permission for symlinked commands",
+      "top_keywords": [
+        "markdown_source",
+        "link.ps1",
+        "link.sh",
+        "~/.config/kilo/kilo.jsonc",
+        "cg-link",
+        "kilo.jsonc",
+        "kilo",
+        "unlink.ps1",
+        "unlink.sh",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
+      "slug": "2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees",
+      "status": "",
+      "summary": "`compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the file between computers for Compound GPID skills and agents to function correctly, and each copy could drift from the team's canonical settings.",
+      "tags": [
+        "gitignore",
+        "compound-gpid.local.md",
+        "version-control",
+        "worktree",
+        "team-config",
+        "pester"
+      ],
+      "title": "compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones",
+      "top_keywords": [
+        "compound-gpid.local.md",
+        ".gitignore",
+        "compound-gpid.context.md",
+        "cg-setup.prompt.md",
+        "test",
+        "## notes",
+        "tests/run-tests.ps1",
+        "$testnames",
+        "compound-gpid",
+        "local"
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md",
+      "slug": "2026-08-06-kilo-agent-skill-parsing-failures",
+      "status": "",
+      "summary": "Both VS Code and Positron report parsing failures for all agent and skill files: - **VS Code** (v7.4.20, Windows): \"Failed to parse agent errors for\" all 17 agent files in `.kilo/agents/` — listed uniformly, not individually - **Positron** (macOS): \"Failed to parse skill /.../cg-skill-fix-triage-migrate/SKILL.md with UnknownError\"",
+      "tags": [
+        "kilo",
+        "agents",
+        "skills",
+        "yaml",
+        "frontmatter",
+        "parsing",
+        "json-schema",
+        "config-validation",
+        "encoding",
+        "mojibake"
+      ],
+      "title": "Kilo agent/skill parsing failures — JSON Schema validation bug + YAML/encoding issues",
+      "top_keywords": [
+        "description",
+        "config_validation",
+        "cg-learnings-researcher.md",
+        "â€\"",
+        "--",
+        "kilo",
+        "cg-project-scanner.md",
+        "cg-release-scanner.md",
+        "cg-roadmap-view.md",
+        "skill.md"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
+      "slug": "2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract",
+      "status": "",
+      "summary": "The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = ready, 2 = not ready, 3 = configuration error, 4 = API/network error (including \"malformed response\"). When `gh` returned **valid JSON with the wrong shape** — a payload that parses but has unexpected types — the validator crashed with a raw traceback and Python's exit code 1 instead of `ApiError` → exit 4. Confirmed symptoms: - `gh issue view` returning `\"number\": \"abc\"` → `ValueError` from `int(data.get(\"number\", ...))`, uncaught. - `gh repo view` returning a JSON array (`[1, 2]`) instead of an object → `AttributeError` on `.get(...)`. -...",
+      "tags": [
+        "gh-cli",
+        "exit-codes",
+        "json",
+        "error-handling",
+        "subprocess",
+        "api-error",
+        "malformed-response"
+      ],
+      "title": "Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash",
+      "top_keywords": [
+        "apierror",
+        "attributeerror",
+        "get_project_status",
+        "json",
+        "api-error",
+        "valueerror",
+        "typeerror",
+        "gh",
+        ".get(...)",
+        "exit"
       ]
     },
     {
@@ -14342,6 +14584,36 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
+      "slug": "2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing",
+      "status": "",
+      "summary": "The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to `FixtureClient`. The fixture's PR items were documented/structured with key `headRef`, but the `GhCliClient` — the real client whose output the fixture mimics — parses `headRefName` (the actual `gh pr list --json` key). Because `FixtureClient` used `pr.get(\"headRef\", \"\")`, a maintainer copying real `gh pr list` output into the fixture would silently get `head_ref=\"\"` — branch-name data lost with no test failing (the fixture has no PR items, so no test covers the path).",
+      "tags": [
+        "fixtures",
+        "gh-cli",
+        "json",
+        "schema-drift",
+        "offline-testing",
+        "headRefName",
+        "mocking"
+      ],
+      "title": "gh CLI fixture JSON keys must match what the client actually parses",
+      "top_keywords": [
+        "headrefname",
+        "fixtureclient",
+        "json",
+        "author",
+        "headref",
+        "ghcliclient",
+        "gh pr list",
+        "{ \"login\": ... }",
+        "docs/copilot-readiness.md",
+        "fixture"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -16588,6 +16860,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#artifact-html-opt-in-default",
+      "slug": "artifact-html-opt-in-default",
+      "status": "planned",
+      "summary": "Make automatic artifact HTML publication opt-in by default",
+      "tags": [],
+      "title": "Make automatic artifact HTML publication opt-in by default",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "automatic",
+        "artifact",
+        "html",
+        "publication",
+        "opt-in",
+        "default",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -17664,13 +17958,13 @@
       ]
     }
   ],
-  "entity_count": 618,
-  "generated": "2026-08-04",
+  "entity_count": 628,
+  "generated": "2026-08-10",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 435,
+      "entity_count": 441,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -17815,6 +18109,8 @@
         ".cg-docs/plans/2026-08-02-generic-markdown-reference-publishing-core.md",
         ".cg-docs/plans/2026-08-03-editorial-theme-publishing-workflow-evidence-v2.md",
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
+        ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+        ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -17991,6 +18287,9 @@
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
+        ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
+        ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
+        ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -18093,6 +18392,7 @@
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
         ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -18117,7 +18417,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 137,
+      "entity_count": 138,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -18207,6 +18507,7 @@
         "roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html",
         "roadmap.json#workflow-completion-report-and-html-dossier",
         "roadmap.json#automatic-post-pr-verification-handoff",
+        "roadmap.json#artifact-html-opt-in-default",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",

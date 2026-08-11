@@ -1,0 +1,12 @@
+{
+  "issue": {
+    "number": 9001,
+    "title": "Example implementation-ready issue (synthetic fixture)",
+    "state": "OPEN",
+    "assignees": [{"login": "example-maintainer"}],
+    "labels": [{"name": "cg:roadmap"}]
+  },
+  "projectStatus": "Ready",
+  "openClosingPRs": [],
+  "bodyFile": "ready_issue_body.md"
+}
