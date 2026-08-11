@@ -12,7 +12,10 @@ GH_TIMEOUT_SECONDS = 60
 
 # Word-boundary patterns for GitHub CLI stderr classification.
 # ``\b`` prevents ``auth`` from matching inside ``author``.
-_AUTH_PATTERN = re.compile(r"\b(?:auth(?:orizat|enticat)|oauth)\b", re.IGNORECASE)
+_AUTH_PATTERN = re.compile(
+    r"\b(?:auth(?:orized?|enticated?|orization|entication)?|oauth)\b",
+    re.IGNORECASE,
+)
 _SCOPE_PATTERN = re.compile(r"\bscope\b", re.IGNORECASE)
 _PERMISSION_PATTERN = re.compile(r"\bpermission\b", re.IGNORECASE)
 _NOT_FOUND_PATTERN = re.compile(

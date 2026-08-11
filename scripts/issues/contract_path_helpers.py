@@ -102,6 +102,10 @@ def _is_overbroad_allowed_path(entry: str) -> bool:
 def _section_nonempty(content_lines: Sequence[str]) -> bool:
     """Return whether a section has non-fenced, non-whitespace content.
 
+    Fence matching preserves both character (`````` ``` `````` or ``~~~``) and
+    opening delimiter length.  A closing fence must use the same character, be
+    at least as long as the opener, and contain no non-whitespace suffix.
+
     Args:
         content_lines: The raw lines belonging to one ``##`` section,
             including any fenced blocks within it.
@@ -114,18 +118,27 @@ def _section_nonempty(content_lines: Sequence[str]) -> bool:
         ``_section_nonempty(["", "  "])`` returns ``False``.
     """
     in_fence = False
-    fence: Optional[str] = None
+    fence_char: Optional[str] = None
+    fence_len = 0
     for line in content_lines:
         stripped = line.lstrip()
         if not in_fence:
             if stripped.startswith("```") or stripped.startswith("~~~"):
-                fence = "```" if stripped.startswith("```") else "~~~"
+                fence_char = stripped[0]
+                fence_len = len(stripped) - len(stripped.lstrip(fence_char))
                 in_fence = True
                 continue
-        elif fence is not None and stripped.startswith(fence):
-            in_fence = False
-            fence = None
-            continue
+        else:
+            body = stripped.rstrip()
+            if (
+                fence_char is not None
+                and len(body) >= fence_len
+                and all(ch == fence_char for ch in body)
+            ):
+                in_fence = False
+                fence_char = None
+                fence_len = 0
+                continue
         if not in_fence and line.strip():
             return True
     return False

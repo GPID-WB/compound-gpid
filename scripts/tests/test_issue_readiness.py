@@ -1761,3 +1761,109 @@ def test_project_status_pageinfo_false_returns_none() -> None:
     )
     client = GhCliClient(runner=runner)
     assert client.get_project_status(1) is None
+
+
+# ---------------------------------------------------------------------------
+# Fence-matching regression: four-backtick opener must not be closed by three
+# ---------------------------------------------------------------------------
+
+
+def test_four_backtick_fence_not_closed_by_three() -> None:
+    """A four-backtick opener must not be closed by three backticks."""
+    from issues.contract_path_helpers import _section_nonempty
+
+    # 3 opens, 3 closes: content after is outside fence
+    lines_3 = [
+        "```text",
+        "some content",
+        "```",
+        "## Outside",
+    ]
+    assert _section_nonempty(lines_3) is True
+
+    # 4 opens, 3 does NOT close: everything remains fenced
+    lines_4 = [
+        "````text",
+        "some content",
+        "```",
+        "## Still inside",
+        "more content",
+    ]
+    assert _section_nonempty(lines_4) is False
+
+    # 4 opens, 3 does NOT close, end of lines
+    lines_4_short = [
+        "````text",
+        "some content",
+        "```",
+    ]
+    assert _section_nonempty(lines_4_short) is False
+
+
+def test_four_backtick_fence_closed_by_four() -> None:
+    from issues.contract_path_helpers import _section_nonempty
+    lines = [
+        "````text",
+        "some content",
+        "````",
+    ]
+    assert _section_nonempty(lines) is False
+
+
+def test_four_backtick_fence_closed_by_five() -> None:
+    from issues.contract_path_helpers import _section_nonempty
+    lines = [
+        "````text",
+        "some content",
+        "`````",
+    ]
+    assert _section_nonempty(lines) is False
+
+
+def test_fence_with_suffix_not_closing() -> None:
+    """A closing fence with a non-whitespace suffix does NOT close the block."""
+    from issues.contract_path_helpers import _section_nonempty
+    lines = [
+        "```text",
+        "some content",
+        "``` extra text",
+        "## Still inside",
+    ]
+    assert _section_nonempty(lines) is False
+
+
+def test_required_section_hidden_by_four_backtick_fence() -> None:
+    """A required section heading inside a four-backtick fence must not satisfy R004."""
+    from issues.contract_path_helpers import _section_nonempty
+    lines = [
+        "```markdown",
+        "## Expected allowed paths",
+        "```",
+    ]
+    assert _section_nonempty(lines) is False
+
+
+# ---------------------------------------------------------------------------
+# _classify_gh_error auth-pattern regression
+# ---------------------------------------------------------------------------
+
+
+def test_auth_whole_word_terms() -> None:
+    """Complete authentication terms match; partials like 'author' do not."""
+    from issues.gh_process import _AUTH_PATTERN
+
+    for term in (
+        "auth",
+        "authorization",
+        "authentication",
+        "authorized",
+        "authenticated",
+        "oauth",
+    ):
+        assert _AUTH_PATTERN.search(term), f"pattern should match {term!r}"
+
+    assert _AUTH_PATTERN.search("GitHub requires authentication")
+    assert _AUTH_PATTERN.search("error: auth")
+    assert _AUTH_PATTERN.search("token: oauth")
+    assert not _AUTH_PATTERN.search("error: could not resolve author 'octocat'")
+    assert not _AUTH_PATTERN.search("no author found")
