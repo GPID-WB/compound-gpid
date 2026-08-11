@@ -236,11 +236,11 @@ kind:
 - it does not write to `roadmap.json`.
 
 Dispatch (assigning Copilot and moving the issue to `In progress`) is a
-separate, later stage (Stage 3) that is **not** implemented here. The
-dispatcher will re-run this validator immediately before assigning, and only
-assigns when the result is ready. A passing validator result is a necessary,
-not a sufficient, condition for dispatch — a human still reviews and approves
-the actual assignment.
+separate, later stage (Stage 3) implemented by the
+[Copilot issue dispatcher](copilot-dispatch.md). The dispatcher re-runs this
+validator immediately before assigning, and only assigns when the result is
+ready. A passing validator result is a necessary, not a sufficient, condition
+for dispatch — a human still reviews and approves the actual assignment.
 
 **A passing result does not assign Copilot or change Project status.**
 
