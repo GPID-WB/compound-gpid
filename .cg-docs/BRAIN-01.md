@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-08-10_
+_Generated 2026-08-11_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
 
@@ -330,7 +330,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
 - **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md)** · `plan` · _active_ · `2026-08-05`
   > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
-- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _active_ · `2026-08-05`
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _superseded_ · `2026-08-05`
   > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
@@ -794,6 +794,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash.…
 - **[Use git rev-parse for repo detection; guard against detached HEAD state](.cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md)** · `solution` · _—_ · `2026-05-18`
   > Two prompts (`/cg-brainstorm` and `/cg-plan`) used `git branch --show-current` as a proxy for detecting whether the w…
+- **[Merge strategy for generated Brain files and additive CI matrix conflicts](.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md)** · `solution` · _—_ · `2026-08-11`
+  > Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — …
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
   > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
 - **[Full model audit — classification methodology and results](.cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md)** · `solution` · _applied_ · `2026-04-07`
@@ -830,7 +832,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 - **[New prompt/agent addition checklist: 7 files that must be updated together](.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md)** · `solution` · _—_ · `2026-04-08`
   > Adding a new prompt (`/cg-*`) or agent (`@cg-*`) to compound-gpid requires touching at minimum 4 files. Missing any o…
-- **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
-  > VS Code crashed **multiple times in a single session** during a fix-triage cycle. The agent had been told tests were …
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

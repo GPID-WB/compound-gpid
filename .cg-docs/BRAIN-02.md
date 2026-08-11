@@ -1,11 +1,13 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-10_
+_Generated 2026-08-11_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 87 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 88 entities
 
+- **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
+  > VS Code crashed **multiple times in a single session** during a fix-triage cycle. The agent had been told tests were …
 - **[Dead-step-after-wait: prompt steps after a user-wait pause never execute](.cg-docs/solutions/testing-patterns/2026-04-13-dead-step-after-wait-prompt-session-terminator.md)** · `solution` · _—_ · `2026-04-13`
   > `cg-work.prompt.md` had a Step 5 ("Update Roadmap Status") placed **after** Step 4 ("Summary"), which ended with: > "…
 - **[Prompt interaction guards: all response branches must be explicitly handled](.cg-docs/solutions/testing-patterns/2026-04-13-prompt-interaction-branch-completeness.md)** · `solution` · _—_ · `2026-04-13`

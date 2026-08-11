@@ -1,5 +1,5 @@
 {
-  "edge_count": 302,
+  "edge_count": 304,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1313,6 +1313,18 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "target": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
       "target_missing": false
     },
     {
@@ -6601,7 +6613,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
       "slug": "2026-08-05-copilot-issue-implementation-pipeline",
-      "status": "active",
+      "status": "superseded",
       "summary": "> **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08-05-copilot-issue-implementation-pipeline-v2.md` (v2). > **Do not execute from this plan.** Use v2 for all execution, phase gates, and handoff.",
       "tags": [
         "github",
@@ -10225,6 +10237,50 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "status": "",
+      "summary": "This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review was CodeRabbit review `4899491383` on the Stage 2 implementation at reviewed HEAD `6fce720bf24a6e817b4f87cef274d16599915ab5`. It reported 12 actionable comments. The inline thread IDs were `3751952996`, `3751952998`, `3751953013`, `3751953015`, `3751953021`, `3751953029`, `3751953035`, `3751953040`, `3751953049`, `3751953060`, `3751953085`, and `3751953088`.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-review",
+      "top_keywords": [
+        "readiness",
+        "apierror",
+        "gate",
+        "node scripts/check-docs-site.js",
+        "readiness.py",
+        "review",
+        "evidence",
+        "implementation",
+        "phase",
+        "test"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
+      "slug": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "status": "",
+      "summary": "This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not review or claim results for the unrelated editorial-theme plan. The reviewed PR remains unmerged and Phase 5 was not started.",
+      "tags": [],
+      "title": "2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review",
+      "top_keywords": [
+        "verification",
+        "readiness",
+        "review",
+        "final",
+        "results",
+        "cg-render-artifact",
+        "stage",
+        "validator",
+        "corrections",
+        "scope"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -12229,6 +12285,36 @@
       ]
     },
     {
+      "date": "2026-08-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
+      "slug": "2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract",
+      "status": "",
+      "summary": "The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = ready, 2 = not ready, 3 = configuration error, 4 = API/network error (including \"malformed response\"). When `gh` returned **valid JSON with the wrong shape** — a payload that parses but has unexpected types — the validator crashed with a raw traceback and Python's exit code 1 instead of `ApiError` → exit 4. Confirmed symptoms: - `gh issue view` returning `\"number\": \"abc\"` → `ValueError` from `int(data.get(\"number\", ...))`, uncaught. - `gh repo view` returning a JSON array (`[1, 2]`) instead of an object → `AttributeError` on `.get(...)`. -...",
+      "tags": [
+        "gh-cli",
+        "exit-codes",
+        "json",
+        "error-handling",
+        "subprocess",
+        "api-error",
+        "malformed-response"
+      ],
+      "title": "Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash",
+      "top_keywords": [
+        "apierror",
+        "attributeerror",
+        "get_project_status",
+        "json",
+        "api-error",
+        "valueerror",
+        "typeerror",
+        "gh",
+        ".get(...)",
+        "exit"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -13252,6 +13338,36 @@
         "guard",
         "exit",
         "failure"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md",
+      "slug": "2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts",
+      "status": "",
+      "summary": "Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — both branches added different test entries to the same CI matrix list - 6 generated Brain/index files (`.cg-docs/BRAIN-01.md`, `BRAIN-02.md`, `BRAIN-log.md`, `BRAIN.md`, `active-state/current.json`, `brain-index.json`) — 28+ conflict regions from parallel knowledge accumulation Additionally, `create-release.ps1` failed with a GitHub API 422 error when creating a release before pushing the branch to the remote.",
+      "tags": [
+        "merge-conflict",
+        "generated-files",
+        "brain",
+        "ci",
+        "tests-yml",
+        "release",
+        "422"
+      ],
+      "title": "Merge strategy for generated Brain files and additive CI matrix conflicts",
+      "top_keywords": [
+        "create-release.ps1",
+        "brain",
+        "tests.yml",
+        "release",
+        "generated",
+        "brain-02.md",
+        "brain-log.md",
+        "brain.md",
+        "brain-index.json",
+        "matrix"
       ]
     },
     {
@@ -16491,6 +16607,36 @@
         "sha256",
         "exist",
         "require"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
+      "slug": "2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing",
+      "status": "",
+      "summary": "The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to `FixtureClient`. The fixture's PR items were documented/structured with key `headRef`, but the `GhCliClient` — the real client whose output the fixture mimics — parses `headRefName` (the actual `gh pr list --json` key). Because `FixtureClient` used `pr.get(\"headRef\", \"\")`, a maintainer copying real `gh pr list` output into the fixture would silently get `head_ref=\"\"` — branch-name data lost with no test failing (the fixture has no PR items, so no test covers the path).",
+      "tags": [
+        "fixtures",
+        "gh-cli",
+        "json",
+        "schema-drift",
+        "offline-testing",
+        "headRefName",
+        "mocking"
+      ],
+      "title": "gh CLI fixture JSON keys must match what the client actually parses",
+      "top_keywords": [
+        "headrefname",
+        "fixtureclient",
+        "json",
+        "author",
+        "headref",
+        "ghcliclient",
+        "gh pr list",
+        "{ \"login\": ... }",
+        "docs/copilot-readiness.md",
+        "fixture"
       ]
     },
     {
@@ -20102,13 +20248,13 @@
       ]
     }
   ],
-  "entity_count": 701,
-  "generated": "2026-08-10",
+  "entity_count": 706,
+  "generated": "2026-08-11",
   "schema_version": "0.2.0",
   "topic_count": 5,
   "topics": [
     {
-      "entity_count": 500,
+      "entity_count": 501,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -20504,6 +20650,7 @@
         ".cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md",
         ".cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md",
         ".cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md",
+        ".cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
         ".cg-docs/solutions/testing-patterns/2026-03-02-prompt-file-permission-guardrails.md",
