@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-11 · 488 artifacts (newest first) + 138 roadmap features_
+_Generated 2026-08-11 · 492 artifacts (newest first) + 138 roadmap features_
 
 ## undated
 
@@ -130,6 +130,17 @@ _Generated 2026-08-11 · 488 artifacts (newest first) + 138 roadmap features_
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
 
+## 2026-08-10
+
+- **[2026-08-05-copilot-issue-implementation-pipeline-v2-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md)** · `review` · _—_ · `2026-08-10`
+  > This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review w…
+- **[2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md)** · `review` · _—_ · `2026-08-10`
+  > This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not …
+- **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
+  > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
+- **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
+  > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
+
 ## 2026-08-06
 
 - **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
@@ -141,7 +152,7 @@ _Generated 2026-08-11 · 488 artifacts (newest first) + 138 roadmap features_
 
 - **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md)** · `plan` · _active_ · `2026-08-05`
   > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
-- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _active_ · `2026-08-05`
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _superseded_ · `2026-08-05`
   > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
 - **[Kilo platform missing markdown_source permission for symlinked commands](.cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md)** · `solution` · _—_ · `2026-08-05`
   > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …

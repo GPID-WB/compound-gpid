@@ -102,6 +102,7 @@ the fixture matched the real validator contract.
 ## Related
 
 - `.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md`
+- `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`
 - `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review.md`
 - `scripts/validate_wb_writing_skill.py`
 - `scripts/tests/test_validate_wb_writing_skill.py`

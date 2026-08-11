@@ -336,7 +336,7 @@
       "path": ".claude/instructions/python.instructions.md",
       "source": ".github/instructions/python.instructions.md",
       "kind": "instruction",
-      "sha256": "53f3c773ef04d394b726e7ada5a680d45d4b4eaf0ef369c5f2905cb0fbf1f32c",
+      "sha256": "4bcb147fc750c1b66b012c24b53cc8b1418c5d68bd61f5a7db510ecd9bd3092a",
       "executable": false
     },
     {
