@@ -1,5 +1,5 @@
 {
-  "edge_count": 268,
+  "edge_count": 270,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1133,6 +1133,18 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md",
+      "target": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md",
       "target_missing": false
     },
     {
@@ -5834,9 +5846,9 @@
         "section",
         "stage",
         "workflow_dispatch",
+        "project status",
         "phase",
         "features[].github",
-        "project status",
         "test scenarios",
         "project",
         "cg-issues"
@@ -9018,6 +9030,50 @@
         "validator",
         "corrections",
         "scope"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md",
+      "slug": "2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review",
+      "status": "",
+      "summary": "Full-depth review (`/cg-review full`) of the Phase 5 implementation at working HEAD on branch `issue-implementation-phase5`, 2026-08-11. Ten agents dispatched: `@cg-code-quality`, `@cg-testing`, `@cg-documentation`, `@cg-version-control`, `@cg-reproducibility`, `@cg-performance`, `@cg-architecture`, `@cg-data-quality`, `@cg-learnings-researcher`, `@cg-adversarial`. Changed files: `.github/workflows/copilot-dispatch.yml`, `scripts/issues/dispatch.py`, `scripts/issues/dispatch_client.py`, `scripts/issue_dispatch.py`, `scripts/tests/test_issue_dispatch.py`, `.github/workflows/tests.yml`, `docs/copilot-dispatch.md`, `docs/copilot-readiness.md`, `docs/navigation.json`, plus `.cg-docs/` plan metadata.",
+      "tags": [],
+      "title": "2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review",
+      "top_keywords": [
+        "dispatch_client.py",
+        "dispatch.py",
+        "run_dispatch",
+        "test_issue_dispatch.py",
+        "apierror",
+        "scripts/tests/test_issue_dispatch.py",
+        "cli.py",
+        "_resolve_item_id",
+        "_repo()",
+        "copilot-dispatch.yml"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review.md",
+      "slug": "2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review",
+      "status": "",
+      "summary": "`/cg-review mode:verify` run after `/cg-fix-triage` on the Phase 5 dispatcher. Prior review: `.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md` (32 findings fixed, 3 skipped). Verify agents: `@cg-code-quality`, `@cg-testing`. Depth forced to `light`.",
+      "tags": [],
+      "title": "2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review",
+      "top_keywords": [
+        "dispatch_client.py",
+        "dispatch.py",
+        "dispatch_contract.py",
+        "dispatch_project.py",
+        "dispatch_util.py",
+        "dispatch_cli.py",
+        "dispatch_render.py",
+        "scripts/issues/dispatch_client.py",
+        "verification",
+        "copilot_assign_login"
       ]
     },
     {
@@ -14614,6 +14670,37 @@
       ]
     },
     {
+      "date": "2026-08-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md",
+      "slug": "2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations",
+      "status": "",
+      "summary": "Phase 5 of the Copilot issue-implementation pipeline introduced a `workflow_dispatch`-only dispatcher (`copilot-dispatch.yml` + `scripts/issues/dispatch.py`) whose live path assigns the Copilot coding agent and moves Project Status to `In progress`. Two fail-open bugs were found by the `full`-depth adversarial review: 1. The workflow selected the mode with `if [ \"${DRY_RUN}\" = \"true\" ]; then --dry-run; else --no-dry-run; fi`. GitHub's API does not strictly validate boolean inputs: any value other than the exact lowercase `\"true\"` (a typo `True`/`yes`/`1`, a missing/empty value, or a future serialization change) silently selected the **live** assignment path — inverting the documented \"live requires explicit opt-in\" safety invariant....",
+      "tags": [
+        "github-actions",
+        "workflow-dispatch",
+        "dry-run",
+        "fail-closed",
+        "gh-cli",
+        "mutation-verification",
+        "security",
+        "controlled-dispatch"
+      ],
+      "title": "GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes",
+      "top_keywords": [
+        "verify",
+        "project status",
+        "mutation",
+        "workflow_dispatch",
+        "dispatch.py",
+        "apierror",
+        "live",
+        "dispatch",
+        "errors",
+        "dispatch_cli"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -17958,8 +18045,8 @@
       ]
     }
   ],
-  "entity_count": 628,
-  "generated": "2026-08-10",
+  "entity_count": 631,
+  "generated": "2026-08-11",
   "schema_version": "0.2.0",
   "topic_count": 4,
   "topics": [

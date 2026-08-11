@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-10 · 490 artifacts (newest first) + 138 roadmap features_
+_Generated 2026-08-11 · 493 artifacts (newest first) + 138 roadmap features_
 
 ## undated
 
@@ -122,6 +122,15 @@ _Generated 2026-08-10 · 490 artifacts (newest first) + 138 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-08-11
+
+- **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md)** · `review` · _—_ · `2026-08-11`
+  > Full-depth review (`/cg-review full`) of the Phase 5 implementation at working HEAD on branch `issue-implementation-p…
+- **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review.md)** · `review` · _—_ · `2026-08-11`
+  > `/cg-review mode:verify` run after `/cg-fix-triage` on the Phase 5 dispatcher. Prior review: `.cg-docs/reviews/2026-0…
+- **[GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes](.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md)** · `solution` · _—_ · `2026-08-11`
+  > Phase 5 of the Copilot issue-implementation pipeline introduced a `workflow_dispatch`-only dispatcher (`copilot-dispa…
 
 ## 2026-08-10
 
