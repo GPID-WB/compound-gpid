@@ -1,5 +1,5 @@
 ---
-description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
+description: 'Structured bug-fix workflow: reproduce, diagnose, fix, verify, document.'
 ---
 
 # Fix Bug

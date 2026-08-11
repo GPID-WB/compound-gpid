@@ -81,6 +81,9 @@ pr-result.txt
 # Generated artifact indexes are runtime-only; generated command/skill/agent trees stay tracked.
 .agents/model-mapping.codex.json
 
+# Generator recovery files (secure-write backup, not committed)
+*.previous
+
 # Local skill prototyping area should not be committed.
 .agents/skills/skill-creator/
 

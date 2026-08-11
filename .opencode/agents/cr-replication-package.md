@@ -1,5 +1,5 @@
 ---
-description: "Audits replication package completeness for journal submission: archive structure (AEA convention), README required sections, dependency lockfiles, seed registry against manifest.json, data documentation (codebook + PII checklist), path portability (no absolute paths), sensitive-data handling, and file inventory. Loaded by /cr-review for Reproducibility tasks."
+description: 'Audits replication package completeness for journal submission: archive structure (AEA convention), README required sections, dependency lockfiles, seed registry against manifest.json, data documentation (codebook + PII checklist), path portability (no absolute paths), sensitive-data handling, and file inventory. Loaded by /cr-review for Reproducibility tasks.'
 mode: subagent
 ---
 
@@ -102,10 +102,17 @@ run `renv::snapshot()` to update."
 
 **This is P0 — missing seeds produce non-reproducible results.**
 
+**Step 1 — Seed declarations (allowlist):**
+Recognize these as seed-setting calls (not stochastic operations):
+- R: `set.seed(`
+- Python: `np.random.seed(`, `np.random.default_rng(`
+- Stata: `set seed`
+
+**Step 2 — Stochastic operations (flag if unseeded):**
 Scan all code files for random operations:
-- R: `sample(`, `runif(`, `rnorm(`, `rbinom(`, `boot(`, `set.seed(`
-- Python: `random.`, `np.random.`, `train_test_split(`, `bootstrap`
-- Stata: `sample`, `bootstrap`, `simulate`, `drawnorm`, `set seed`
+- R: `sample(`, `runif(`, `rnorm(`, `rbinom(`, `boot(`
+- Python: `random.`, `np.random.uniform(`, `np.random.normal(`, `np.random.choice(`, `train_test_split(`, `bootstrap`
+- Stata: `sample`, `bootstrap`, `simulate`, `drawnorm`
 
 For each random operation found:
 1. Verify a seed-setting call appears **before** it in the same script

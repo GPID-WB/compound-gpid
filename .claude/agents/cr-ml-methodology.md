@@ -1,5 +1,5 @@
 ---
-description: "Audits ML methodology in economics research: train/test/validation split correctness, regularization rationale, hyperparameter search transparency, cross-validation done right (panel-aware, time-series-aware), data leakage detection, and economic interpretation of ML output. Loaded by /cr-review for ML/Prediction tasks."
+description: 'Audits ML methodology in economics research: train/test/validation split correctness, regularization rationale, hyperparameter search transparency, cross-validation done right (panel-aware, time-series-aware), data leakage detection, and economic interpretation of ML output. Loaded by /cr-review for ML/Prediction tasks.'
 ---
 
 # ML Methodology Agent
@@ -30,7 +30,7 @@ Before beginning: if the code file is zero-byte or contains only whitespace or
 comments (no executable code), report: "`[file]` is empty — ML methodology
 review skipped for this file." Do not run Checks 1–8 against empty files.
 
-For each file under review, perform all 7 checks below in sequence.
+For each file under review, perform all 8 checks below in sequence.
 
 ---
 

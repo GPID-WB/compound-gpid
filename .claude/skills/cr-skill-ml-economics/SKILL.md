@@ -243,16 +243,19 @@ df$x[is.na(df$x)] <- median(df$x, na.rm = TRUE)  # median fill for the value
 **When to use**: Non-linear relationships, interactions, heterogeneous
 treatment effects, robust prediction. Not for causal inference directly.
 
-**Key patterns**:
+**Key patterns** (generic, non-GPID examples without survey weights — for GPID
+survey data, add survey weights per Sections 2a and 2b):
 
 ```r
 # R — random forest (ranger, faster than randomForest)
+# [generic example — for GPID surveys, add: case.weights = df$survey_weight]
 library(ranger)
 set.seed(42)
 rf <- ranger(y ~ ., data = train_df, num.trees = 500,
              importance = "permutation", seed = 42)
 
 # Gradient boosting — xgboost
+# [generic example — for GPID surveys, add: weight = df_train$survey_weight to xgb.DMatrix]
 library(xgboost)
 set.seed(42)
 dtrain <- xgb.DMatrix(data = x_train, label = y_train)
@@ -261,6 +264,7 @@ cv_res  <- xgb.cv(params, dtrain, nrounds = 500, nfold = 5,
                   early_stopping_rounds = 20, seed = 42)
 
 # Causal forest — heterogeneous treatment effects
+# [generic example — for GPID surveys, see Section 2a for weight patterns]
 library(grf)
 set.seed(42)
 cf <- causal_forest(X, Y, W, seed = 42)
@@ -268,15 +272,17 @@ tau_hat <- predict(cf)$predictions
 ```
 
 ```python
-# Python
+# Python (generic, non-GPID examples without survey weights)
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 import xgboost as xgb
 import numpy as np
 
 rng = np.random.default_rng(42)
+# [generic example — for GPID surveys, add: sample_weight=df_train['survey_weight']]
 rf = RandomForestRegressor(n_estimators=500, random_state=42)
 rf.fit(X_train, y_train)
 
+# [generic example — for GPID surveys, add: sample_weight=df_train['survey_weight']]
 xgb_model = xgb.XGBRegressor(n_estimators=500, learning_rate=0.1,
                                random_state=42)
 xgb_model.fit(X_train, y_train, eval_set=[(X_val, y_val)],

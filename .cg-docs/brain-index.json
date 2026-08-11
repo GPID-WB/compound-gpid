@@ -13825,7 +13825,7 @@
         "safe",
         "invoke-pester tests/ -passthru",
         "copilot-instructions.md",
-        "quiet\ninvoke",
+        "quiet invoke",
         "invoke-pester"
       ]
     },
@@ -16979,7 +16979,7 @@
       "tags": [],
       "title": "CR evidence and provenance spine with repo-local corpus default",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "evidence",
         "provenance",
@@ -17001,7 +17001,7 @@
       "tags": [],
       "title": "CR Measurement/Classification research archetype",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "research",
         "measurement",
@@ -17023,7 +17023,7 @@
       "tags": [],
       "title": "P0 comparability controls for measurement and indicator work",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "measurement",
         "comparability",
@@ -17045,7 +17045,7 @@
       "tags": [],
       "title": "Research scoping and normative-decision gates",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "research",
         "scoping",
@@ -17067,7 +17067,7 @@
       "tags": [],
       "title": "Responsible lifecycle and method-pack retrofit",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "responsible",
         "lifecycle",
@@ -17089,7 +17089,7 @@
       "tags": [],
       "title": "Validate the Measurement archetype with a second use case",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "measurement",
         "validate",
@@ -17111,7 +17111,7 @@
       "tags": [],
       "title": "Team-level evidence library",
       "top_keywords": [
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "expand compound research",
         "team-level",
         "evidence",
@@ -17134,7 +17134,7 @@
       "title": "@cg-fix-problems agent (auto-dispatched by /cg-work)",
       "top_keywords": [
         "cg-work",
-        "quality loop\nobjective",
+        "quality loop objective",
         "cg-fix-problems",
         "agent",
         "auto-dispatched",
@@ -17156,7 +17156,7 @@
       "title": "/cg-fix-problems user-facing prompt",
       "top_keywords": [
         "cg-fix-problems",
-        "quality loop\nobjective",
+        "quality loop objective",
         "user-facing",
         "prompt",
         "feature",
@@ -17177,7 +17177,7 @@
       "tags": [],
       "title": "Testing skill for R (testthat/mockery)",
       "top_keywords": [
-        "quality loop\nobjective",
+        "quality loop objective",
         "testing",
         "skill",
         "testthat",
@@ -17200,7 +17200,7 @@
       "title": "Per-step test enforcement in /cg-work",
       "top_keywords": [
         "cg-work",
-        "quality loop\nobjective",
+        "quality loop objective",
         "per-step",
         "test",
         "enforcement",
@@ -17221,7 +17221,7 @@
       "tags": [],
       "title": "Per-finding status tracking in review files",
       "top_keywords": [
-        "quality loop\nobjective",
+        "quality loop objective",
         "per-finding",
         "status",
         "tracking",
@@ -17245,7 +17245,7 @@
       "top_keywords": [
         "cg-brainstorm",
         "cg-strategy",
-        "quality loop\nobjective",
+        "quality loop objective",
         "honest",
         "pushback",
         "mode",
@@ -17265,7 +17265,7 @@
       "tags": [],
       "title": "Side-idea capture during brainstorming (save to roadmap)",
       "top_keywords": [
-        "quality loop\nobjective",
+        "quality loop objective",
         "side-idea",
         "capture",
         "brainstorming",
@@ -17288,7 +17288,7 @@
       "title": "Plan review agent and prompt (@cg-plan-critic + /cg-plan-review)",
       "top_keywords": [
         "cg-plan-review",
-        "quality loop\nobjective",
+        "quality loop objective",
         "review",
         "agent",
         "prompt",
@@ -17310,7 +17310,7 @@
       "title": "Schema bypass for compound-gpid repo in /cg-resume",
       "top_keywords": [
         "cg-resume",
-        "quality loop\nobjective",
+        "quality loop objective",
         "schema",
         "bypass",
         "compound-gpid",
@@ -17331,7 +17331,7 @@
       "tags": [],
       "title": "CE-inspired improvements integration (P0 severity, new prompts, smart workflows)",
       "top_keywords": [
-        "quality loop\nobjective",
+        "quality loop objective",
         "ce-inspired",
         "improvements",
         "integration",
@@ -17354,7 +17354,7 @@
       "title": "/cg-fix-triage --migrate mode (backfills findings: frontmatter on legacy review files)",
       "top_keywords": [
         "cg-fix-triage",
-        "quality loop\nobjective",
+        "quality loop objective",
         "migrate",
         "mode",
         "backfills",
@@ -17376,7 +17376,7 @@
       "title": "Review convergence: mode:verify for /cg-review",
       "top_keywords": [
         "cg-review",
-        "quality loop\nobjective",
+        "quality loop objective",
         "review",
         "convergence",
         "mode",
@@ -17397,7 +17397,7 @@
       "tags": [],
       "title": "Full model audit across prompts and agents",
       "top_keywords": [
-        "performance\nobjective",
+        "performance objective",
         "model",
         "cg-release",
         "audit",
@@ -17420,7 +17420,7 @@
       "title": "/cg-release scan scope limited to last 60 days",
       "top_keywords": [
         "cg-release",
-        "performance\nobjective",
+        "performance objective",
         "scan",
         "scope",
         "limited",
@@ -17442,7 +17442,7 @@
       "title": "Split /cg-release into Haiku scan + Sonnet drafting",
       "top_keywords": [
         "cg-release",
-        "performance\nobjective",
+        "performance objective",
         "split",
         "haiku",
         "scan",
@@ -17463,7 +17463,7 @@
       "tags": [],
       "title": "Reduce token cost via prompt prose compression and Step 0 dedup",
       "top_keywords": [
-        "performance\nobjective",
+        "performance objective",
         "reduce",
         "cost",
         "prompt",
@@ -17485,7 +17485,7 @@
       "tags": [],
       "title": "Structural prevention of agent-caused Pester crashes (JSON artifact + prompt hardening)",
       "top_keywords": [
-        "performance\nobjective",
+        "performance objective",
         "prompt",
         "cg-release",
         "structural",
@@ -17507,7 +17507,7 @@
       "tags": [],
       "title": "R dialect skills architecture (collapse, data.table, tidyverse)",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "skills",
         "dialect",
         "architecture",
@@ -17529,7 +17529,7 @@
       "tags": [],
       "title": "tidymodels addition to cg-skill-r-analytical",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "tidymodels",
         "addition",
         "cg-skill-r-analytical",
@@ -17551,7 +17551,7 @@
       "tags": [],
       "title": "Skill discovery metadata and trigger-quality audit",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "skill",
         "discovery",
         "metadata",
@@ -17573,7 +17573,7 @@
       "tags": [],
       "title": "Testing skill for Python (pytest/parametrize/monkeypatch)",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "testing",
         "skill",
         "python",
@@ -17595,7 +17595,7 @@
       "tags": [],
       "title": "Testing skill for Stata (assert-based/reprun)",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "testing",
         "skill",
         "stata",
@@ -17618,7 +17618,7 @@
       "title": "World Bank institutional report-writing skill",
       "top_keywords": [
         "world bank",
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "world",
         "bank",
         "institutional",
@@ -17639,7 +17639,7 @@
       "tags": [],
       "title": "SkillOpt-based improvement of existing skills",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "skills",
         "skillopt-based",
         "improvement",
@@ -17661,7 +17661,7 @@
       "tags": [],
       "title": "Shared sensitive-data and output-hygiene contract",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "shared",
         "sensitive-data",
         "output-hygiene",
@@ -17683,7 +17683,7 @@
       "tags": [],
       "title": "Reusable report source provenance and verification",
       "top_keywords": [
-        "skills enhancement\nobjective",
+        "skills enhancement objective",
         "reusable",
         "report",
         "source",
@@ -17707,7 +17707,7 @@
       "top_keywords": [
         "cg-setup",
         "copilot-instructions.md",
-        "context layer\nobjective",
+        "context layer objective",
         "slim",
         "project-specific",
         "copilot-instructions",
@@ -17728,7 +17728,7 @@
       "title": "compound-gpid.context.md file and Step 0 integration in all prompts",
       "top_keywords": [
         "compound-gpid.context.md",
-        "context layer\nobjective",
+        "context layer objective",
         "context",
         "compound-gpid",
         "integration",
@@ -17750,7 +17750,7 @@
       "title": "/cg-compound proposes context.md additions after completed tasks",
       "top_keywords": [
         "cg-compound",
-        "context layer\nobjective",
+        "context layer objective",
         "context",
         "proposes",
         "additions",
@@ -17772,7 +17772,7 @@
       "title": "Multi-folder workspace awareness in copilot-instructions.md and prompts",
       "top_keywords": [
         "copilot-instructions.md",
-        "context layer\nobjective",
+        "context layer objective",
         "multi-folder",
         "copilot-instructions",
         "workspace",
@@ -17796,7 +17796,7 @@
         "cg-work",
         "cg-resume",
         "current focus",
-        "context layer\nobjective",
+        "context layer objective",
         "milestone",
         "auto-update",
         "current",
@@ -17815,7 +17815,7 @@
       "tags": [],
       "title": "Model-split pattern for other prompts (Haiku scan + Sonnet draft)",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "model-split",
         "pattern",
         "prompts",
@@ -17837,8 +17837,8 @@
       "tags": [],
       "title": "Study OpenAI Codex plugin for Claude Code",
       "top_keywords": [
-        "claude code\nmilestone",
-        "architecture research\nobjective",
+        "claude code milestone",
+        "architecture research objective",
         "codex",
         "study",
         "openai",
@@ -17859,7 +17859,7 @@
       "tags": [],
       "title": "Evaluate GitHub Copilot hooks for compound-gpid",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "evaluate",
         "copilot",
         "hooks",
@@ -17881,7 +17881,7 @@
       "tags": [],
       "title": "copilot-instructions.md restructuring (blocked on hooks evaluation)",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "hooks",
         "copilot-instructions",
         "restructuring",
@@ -17903,7 +17903,7 @@
       "tags": [],
       "title": "Adding hooks to streamline process",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "hooks",
         "adding",
         "streamline",
@@ -17925,7 +17925,7 @@
       "tags": [],
       "title": "Include /ce:ideate-style prompt from compound-engineering-plugin",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "include",
         "ideate-style",
         "prompt",
@@ -17947,7 +17947,7 @@
       "tags": [],
       "title": "Study GSD-2 and Superpowers workflow patterns",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "gsd-2",
         "superpowers",
         "workflow",
@@ -17970,7 +17970,7 @@
       "title": "Stage control knobs for workflow prompts (blocked on external workflow research)",
       "top_keywords": [
         "workflow",
-        "architecture research\nobjective",
+        "architecture research objective",
         "stage",
         "control",
         "knobs",
@@ -17992,7 +17992,7 @@
       "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
       "top_keywords": [
         "cg-autopilot",
-        "architecture research\nobjective",
+        "architecture research objective",
         "autonomous",
         "pipeline",
         "workflow",
@@ -18013,7 +18013,7 @@
       "tags": [],
       "title": "Copilot CLI execution with worktrees (Model C)",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "copilot",
         "execution",
         "cli",
@@ -18035,7 +18035,7 @@
       "tags": [],
       "title": "Verification commands — configurable post-task checks",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "verification",
         "commands",
         "configurable",
@@ -18057,7 +18057,7 @@
       "tags": [],
       "title": "Auto-triggered skills via expanded applyTo hook patterns [from SP]",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "patterns",
         "auto-triggered",
         "skills",
@@ -18079,7 +18079,7 @@
       "tags": [],
       "title": "Add mattpocock/skills to competitive review sources",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "mattpocock",
         "skills",
         "competitive",
@@ -18101,7 +18101,7 @@
       "tags": [],
       "title": "Cross-model review — adversarial model diversity",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "cross-model",
         "review",
         "adversarial",
@@ -18124,7 +18124,7 @@
       "title": "Tiered model escalation — super-advanced model dispatch",
       "top_keywords": [
         "model",
-        "architecture research\nobjective",
+        "architecture research objective",
         "tiered",
         "escalation",
         "super-advanced",
@@ -18145,8 +18145,8 @@
       "tags": [],
       "title": "Canonical-to-Native Packaging Foundation",
       "top_keywords": [
-        "native packaging foundation\nmilestone",
-        "architecture research\nobjective",
+        "native packaging foundation milestone",
+        "architecture research objective",
         "canonical-to-native",
         "packaging",
         "foundation",
@@ -18167,7 +18167,7 @@
       "tags": [],
       "title": "External asset provenance and controlled intake",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "external",
         "asset",
         "provenance",
@@ -18189,7 +18189,7 @@
       "tags": [],
       "title": "GitHub Actions hardening external-skill pilot",
       "top_keywords": [
-        "architecture research\nobjective",
+        "architecture research objective",
         "github",
         "actions",
         "hardening",
@@ -18212,7 +18212,7 @@
       "title": "Modular Compound GPID architecture for technical and research suites",
       "top_keywords": [
         "modular compound",
-        "architecture research\nobjective",
+        "architecture research objective",
         "architecture",
         "research",
         "modular",
@@ -18233,7 +18233,7 @@
       "tags": [],
       "title": "End-to-end ID traceability from brainstorm requirements (R-IDs) to plan tasks (U-IDs) [from CE]",
       "top_keywords": [
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "traceability",
         "end-to-end",
         "brainstorm",
@@ -18257,7 +18257,7 @@
       "top_keywords": [
         "cg-brainstorm",
         "cg-plan",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "inline",
         "self-review",
         "checklist",
@@ -18278,7 +18278,7 @@
       "title": "Verification-before-completion enforcement in /cg-work tasks [from SP]",
       "top_keywords": [
         "cg-work",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "verification-before-completion",
         "enforcement",
         "tasks",
@@ -18299,7 +18299,7 @@
       "tags": [],
       "title": "Append-only DECISIONS.md register for methodology and architecture choices [from GSD]",
       "top_keywords": [
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "append-only",
         "decisions",
         "register",
@@ -18323,7 +18323,7 @@
       "top_keywords": [
         "cg-brainstorm",
         "cg-plan",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "review",
         "hitl",
         "review-loop",
@@ -18344,7 +18344,7 @@
       "title": "Systematic 4-phase debugging methodology in /cg-fixbug (reproduce → isolate → root-cause → fix) [from SP]",
       "top_keywords": [
         "cg-fixbug",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "debugging",
         "systematic",
         "phase",
@@ -18367,7 +18367,7 @@
       "top_keywords": [
         "cg-work",
         "cg-compound",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "knowledge",
         "prompt",
         "capture",
@@ -18387,7 +18387,7 @@
       "tags": [],
       "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
       "top_keywords": [
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "brainstorm",
         "depth",
         "overhaul",
@@ -18410,7 +18410,7 @@
       "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
       "top_keywords": [
         "cg-confidence",
-        "competitive prompt enhancements\nobjective",
+        "competitive prompt enhancements objective",
         "honest",
         "confidence",
         "assumptions",
@@ -18431,7 +18431,7 @@
       "tags": [],
       "title": "roadmap.json schema validation after @cg-roadmap writes",
       "top_keywords": [
-        "evals\nobjective",
+        "evals objective",
         "roadmap",
         "json",
         "schema",
@@ -18454,7 +18454,7 @@
       "title": "Required frontmatter field checks from /cg-plan output",
       "top_keywords": [
         "cg-plan",
-        "evals\nobjective",
+        "evals objective",
         "required",
         "frontmatter",
         "field",
@@ -18476,7 +18476,7 @@
       "title": "status:completed verification from /cg-work output",
       "top_keywords": [
         "cg-work",
-        "evals\nobjective",
+        "evals objective",
         "status",
         "completed",
         "verification",
@@ -18497,7 +18497,7 @@
       "tags": [],
       "title": ".cg-docs/evals/ scaffold with probe-and-check pairs",
       "top_keywords": [
-        "evals\nobjective",
+        "evals objective",
         "evals",
         "cg-docs",
         "scaffold",
@@ -18520,7 +18520,7 @@
       "title": "Project scanner agent for deep project analysis",
       "top_keywords": [
         "project",
-        "setup\nobjective",
+        "setup objective",
         "scanner",
         "agent",
         "deep",
@@ -18542,7 +18542,7 @@
       "title": "Smart /cg-setup for existing projects (scan → draft → targeted questions → approve)",
       "top_keywords": [
         "cg-setup",
-        "setup\nobjective",
+        "setup objective",
         "existing",
         "projects",
         "scan",
@@ -18563,7 +18563,7 @@
       "tags": [],
       "title": "Skip high-confidence setup questions based on scanner results",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "setup",
         "scanner",
         "skip",
@@ -18585,7 +18585,7 @@
       "tags": [],
       "title": "First-run welcome and health check after cg-link",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "first-run",
         "welcome",
         "health",
@@ -18607,7 +18607,7 @@
       "tags": [],
       "title": "Migration path from vanilla Copilot (detect and merge existing instructions)",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "existing",
         "migration",
         "vanilla",
@@ -18629,7 +18629,7 @@
       "tags": [],
       "title": "Charter quality gate (validate no placeholders, all fields populated)",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "charter",
         "quality",
         "gate",
@@ -18652,7 +18652,7 @@
       "title": "Roadmap bootstrap from charter (seed initial milestone from Current Focus)",
       "top_keywords": [
         "current focus",
-        "setup\nobjective",
+        "setup objective",
         "charter",
         "milestone",
         "roadmap",
@@ -18674,7 +18674,7 @@
       "title": "/cg-setup --refresh mode for non-destructive re-configuration",
       "top_keywords": [
         "cg-setup",
-        "setup\nobjective",
+        "setup objective",
         "refresh",
         "mode",
         "non-destructive",
@@ -18696,7 +18696,7 @@
       "title": "Onboarding tour prompt /cg-tour (guided workflow walkthrough)",
       "top_keywords": [
         "cg-tour",
-        "setup\nobjective",
+        "setup objective",
         "onboarding",
         "tour",
         "prompt",
@@ -18718,7 +18718,7 @@
       "title": "/cg-help — comprehensive interactive help system",
       "top_keywords": [
         "cg-help",
-        "setup\nobjective",
+        "setup objective",
         "comprehensive",
         "interactive",
         "help",
@@ -18739,7 +18739,7 @@
       "tags": [],
       "title": "Project scanner evidence, unknowns, and intent-versus-reality gaps",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "scanner",
         "project",
         "evidence",
@@ -18761,7 +18761,7 @@
       "tags": [],
       "title": "GitHub Pages website publishing for project wikis",
       "top_keywords": [
-        "setup\nobjective",
+        "setup objective",
         "github",
         "pages",
         "website",
@@ -18784,7 +18784,7 @@
       "title": "Branch creation from /cg-plan",
       "top_keywords": [
         "cg-plan",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "branch",
         "creation",
         "feature",
@@ -18806,7 +18806,7 @@
       "title": "Phased plan structure in /cg-plan",
       "top_keywords": [
         "cg-plan",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "phased",
         "structure",
         "feature",
@@ -18828,7 +18828,7 @@
       "title": "Phased execution in /cg-work",
       "top_keywords": [
         "cg-work",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "phased",
         "execution",
         "feature",
@@ -18850,7 +18850,7 @@
       "title": "Roadmap visualization agent + /cg-roadmap-view prompt",
       "top_keywords": [
         "cg-roadmap-view",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "roadmap",
         "visualization",
         "agent",
@@ -18872,7 +18872,7 @@
       "title": "/cg-fixbug test-correctness assessment",
       "top_keywords": [
         "cg-fixbug",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "test-correctness",
         "assessment",
         "feature",
@@ -18893,7 +18893,7 @@
       "tags": [],
       "title": "GitHub Issues integration (optional, via gh CLI)",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "optional",
         "github",
         "issues",
@@ -18915,7 +18915,7 @@
       "tags": [],
       "title": "PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "verification",
         "pipeline",
         "e2e",
@@ -18938,7 +18938,7 @@
       "title": "/cg-commit-push-pr — logical commit splitting, push, and PR creation",
       "top_keywords": [
         "cg-commit-push-pr",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "logical",
         "commit",
         "splitting",
@@ -18960,7 +18960,7 @@
       "title": "/cg-verify-pr — CI check verification and auto-fix dispatch",
       "top_keywords": [
         "cg-verify-pr",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "verification",
         "auto-fix",
         "dispatch",
@@ -18981,7 +18981,7 @@
       "tags": [],
       "title": "Goal-driven execution — plan-as-completion-contract with integrated validation",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "execution",
         "goal-driven",
         "plan-as-completion-contract",
@@ -19004,7 +19004,7 @@
       "title": "Explicit plan-path selection for /cg-work",
       "top_keywords": [
         "cg-work",
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "explicit",
         "plan-path",
         "selection",
@@ -19025,7 +19025,7 @@
       "tags": [],
       "title": "Dual-audience Brainstorm and Plan artifacts with human-readable HTML",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "dual-audience",
         "brainstorm",
         "artifacts",
@@ -19047,7 +19047,7 @@
       "tags": [],
       "title": "Workflow completion report and human-readable HTML dossier",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "workflow",
         "completion",
         "report",
@@ -19069,7 +19069,7 @@
       "tags": [],
       "title": "Automatic post-PR CI verification and universal PR targeting",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "automatic",
         "post-pr",
         "verification",
@@ -19091,7 +19091,7 @@
       "tags": [],
       "title": "Make automatic artifact HTML publication opt-in by default",
       "top_keywords": [
-        "workflow maturity\nobjective",
+        "workflow maturity objective",
         "automatic",
         "artifact",
         "html",
@@ -19113,7 +19113,7 @@
       "tags": [],
       "title": "Full-scope indexer (all .cg-docs/ + roadmap features)",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "cg-docs",
         "full-scope",
         "indexer",
@@ -19135,7 +19135,7 @@
       "tags": [],
       "title": "Topic/theme extraction (auto-cluster artifacts into concepts)",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "artifacts",
         "topic",
         "theme",
@@ -19158,7 +19158,7 @@
       "title": "Relationship/edge detection (full typed edge set)",
       "top_keywords": [
         "edge",
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "typed",
         "relationship",
         "detection",
@@ -19179,7 +19179,7 @@
       "tags": [],
       "title": "BRAIN.md generation (topic index + entity catalog + edges)",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "generation",
         "topic",
@@ -19202,7 +19202,7 @@
       "title": "/cg-brain-rebuild explicit rebuild command",
       "top_keywords": [
         "cg-brain-rebuild",
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "explicit",
         "rebuild",
         "command",
@@ -19224,7 +19224,7 @@
       "title": "Auto-trigger brain rebuild on /cg-compound",
       "top_keywords": [
         "cg-compound",
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "auto-trigger",
         "rebuild",
@@ -19246,7 +19246,7 @@
       "title": "Prompt integration — Consult Brain in Step 0",
       "top_keywords": [
         "consult brain",
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "prompt",
         "integration",
@@ -19267,7 +19267,7 @@
       "tags": [],
       "title": "cg-skill-brain-query (agent brain search patterns)",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "cg-skill-brain-query",
         "agent",
@@ -19289,7 +19289,7 @@
       "tags": [],
       "title": "Team brain — central repo schema design",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "team",
         "central",
@@ -19311,7 +19311,7 @@
       "tags": [],
       "title": "Team brain — push solutions + distilled patterns",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "team",
         "push",
@@ -19333,7 +19333,7 @@
       "tags": [],
       "title": "Team brain — pull relevant entries during Step 0",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "team",
         "pull",
@@ -19355,7 +19355,7 @@
       "tags": [],
       "title": "Team brain — conflict/dedup resolution",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "team",
         "conflict",
@@ -19377,7 +19377,7 @@
       "tags": [],
       "title": "Team brain — privacy filter before push",
       "top_keywords": [
-        "knowledge brain\nobjective",
+        "knowledge brain objective",
         "brain",
         "team",
         "privacy",
@@ -19399,7 +19399,7 @@
       "tags": [],
       "title": "Command default behaviors (auto-branch, phases, autofix, context enrichment)",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "command",
         "default",
         "behaviors",
@@ -19422,7 +19422,7 @@
       "title": "Outcome criteria in plans (verifiable acceptance criteria)",
       "top_keywords": [
         "criteria",
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "outcome",
         "verifiable",
         "acceptance",
@@ -19443,7 +19443,7 @@
       "tags": [],
       "title": "Conversation audit trail across workflow stages",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "conversation",
         "audit",
         "trail",
@@ -19466,7 +19466,7 @@
       "title": "/cg-strategy --add <idea> quick-add mode for roadmap ideas",
       "top_keywords": [
         "cg-strategy",
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "ideas",
         "idea",
         "quick-add",
@@ -19489,7 +19489,7 @@
       "top_keywords": [
         "cg-setup",
         "cg-compound",
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "auto-generated",
         "project",
         "wiki",
@@ -19509,7 +19509,7 @@
       "tags": [],
       "title": "Planning-stage test strategy + human review facilitation",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "planning-stage",
         "test",
         "strategy",
@@ -19531,7 +19531,7 @@
       "tags": [],
       "title": "Agent-verified outcome definitions with acceptance evals",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "agent-verified",
         "outcome",
         "definitions",
@@ -19553,7 +19553,7 @@
       "tags": [],
       "title": "User-selected execution with advisory model and effort routing",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "user-selected",
         "execution",
         "advisory",
@@ -19575,7 +19575,7 @@
       "tags": [],
       "title": "Runtime model-catalog introspection across platforms",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "runtime",
         "model-catalog",
         "introspection",
@@ -19597,7 +19597,7 @@
       "tags": [],
       "title": "Historical HTML backfill for existing Compound GPID artifacts",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "existing",
         "historical",
         "html",
@@ -19620,7 +19620,7 @@
       "title": "Generic Markdown publishing skill and deterministic HTML views",
       "top_keywords": [
         "generic markdown",
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "generic",
         "markdown",
         "publishing",
@@ -19641,7 +19641,7 @@
       "tags": [],
       "title": "CR asset classification mapping",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "asset",
         "classification",
         "mapping",
@@ -19663,7 +19663,7 @@
       "tags": [],
       "title": "Context-budget enforcement design",
       "top_keywords": [
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "context-budget",
         "enforcement",
         "design",
@@ -19686,7 +19686,7 @@
       "title": "Token Efficiency vs modular priority resolution",
       "top_keywords": [
         "token efficiency",
-        "ongoing ideas\nobjective",
+        "ongoing ideas objective",
         "token",
         "efficiency",
         "modular",
@@ -19708,7 +19708,7 @@
       "title": "Audit current context and model usage",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "context",
         "model",
         "usage",
@@ -19730,7 +19730,7 @@
       "title": "Define model tiers and escalation rules",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "model",
         "tiers",
         "escalation",
@@ -19752,7 +19752,7 @@
       "title": "Add model-policy tests",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "model-policy",
         "tests",
         "context",
@@ -19774,7 +19774,7 @@
       "title": "Update prompt frontmatter model and agent choices",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "model",
         "prompt",
         "frontmatter",
@@ -19796,7 +19796,7 @@
       "title": "Update custom agents for model and tool governance",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "model",
         "governance",
         "custom",
@@ -19818,7 +19818,7 @@
       "title": "Shrink always-on context",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "context",
         "always-on",
         "shrink",
@@ -19840,7 +19840,7 @@
       "title": "Split large prompts into thin entrypoints and on-demand skills",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "large",
         "prompts",
         "thin",
@@ -19862,7 +19862,7 @@
       "title": "Add stage-specific context contracts",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "context",
         "stage-specific",
         "contracts",
@@ -19884,7 +19884,7 @@
       "title": "Make review cheaper with deterministic checks first",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "review",
         "cheaper",
         "deterministic",
@@ -19906,7 +19906,7 @@
       "title": "Benchmark before and after",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "benchmark",
         "context",
         "token",
@@ -19928,7 +19928,7 @@
       "title": "Capture the learning",
       "top_keywords": [
         "token optimization",
-        "model governance\nobjective",
+        "model governance objective",
         "capture",
         "learning",
         "context",
@@ -19949,7 +19949,7 @@
       "tags": [],
       "title": "Workflow suitability criteria and non-goals",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "workflow",
         "suitability",
         "criteria",
@@ -19971,7 +19971,7 @@
       "tags": [],
       "title": "Project scanner workflow-evidence analysis",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "project",
         "scanner",
         "workflow-evidence",
@@ -19993,7 +19993,7 @@
       "tags": [],
       "title": "Compound workflow contract and .cg-docs/workflows/ schema",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "workflow",
         "workflows",
         "compound",
@@ -20016,7 +20016,7 @@
       "title": "/cg-workflow-builder guided discovery and inferred workflow proposal",
       "top_keywords": [
         "cg-workflow-builder",
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "workflow",
         "guided",
         "discovery",
@@ -20037,7 +20037,7 @@
       "tags": [],
       "title": "Workflow scaffolding with stage inputs, processes, outputs, checkpoints, and validation",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "workflow",
         "scaffolding",
         "stage",
@@ -20059,7 +20059,7 @@
       "tags": [],
       "title": "Existing-workflow lifecycle with create, extend, and revise modes",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "existing-workflow",
         "lifecycle",
         "extend",
@@ -20081,7 +20081,7 @@
       "tags": [],
       "title": "Deterministic workflow structure and reference validation",
       "top_keywords": [
-        "adaptive workflow foundation\nobjective",
+        "adaptive workflow foundation objective",
         "workflow",
         "deterministic",
         "structure",
@@ -20105,7 +20105,7 @@
       "top_keywords": [
         "cg-setup",
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "workflow-suitability",
         "assessment",
         "workflow",
@@ -20128,7 +20128,7 @@
         "cg-setup",
         "cg-workflow-builder",
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "consent-based",
         "handoff",
         "workflow",
@@ -20148,7 +20148,7 @@
       "title": "Lightweight workflow runner with stage entry and completion guidance",
       "top_keywords": [
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "workflow",
         "lightweight",
         "runner",
@@ -20170,7 +20170,7 @@
       "title": "Workflow status and resume from filesystem artifacts",
       "top_keywords": [
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "workflow",
         "resume",
         "status",
@@ -20192,7 +20192,7 @@
       "title": "Context-budget checks for workflow stage contracts",
       "top_keywords": [
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "workflow",
         "context-budget",
         "stage",
@@ -20214,7 +20214,7 @@
       "title": "Representative analytical and technical workflow pilots",
       "top_keywords": [
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "workflow",
         "representative",
         "analytical",
@@ -20236,7 +20236,7 @@
       "title": "Pilot evaluation gate before broader default exposure",
       "top_keywords": [
         "workflow setup",
-        "operation\nobjective",
+        "operation objective",
         "pilot",
         "evaluation",
         "gate",
@@ -20913,11 +20913,11 @@
         "roadmap.json#workflow-pilot-evaluation-gate"
       ],
       "keywords": [
-        "architecture research\nobjective",
-        "workflow maturity\nobjective",
-        "ongoing ideas\nobjective"
+        "architecture research objective",
+        "workflow maturity objective",
+        "ongoing ideas objective"
       ],
-      "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Ongoing Ideas\nObjective",
+      "label": "Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective",
       "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
     },
     {
@@ -20933,10 +20933,10 @@
       ],
       "keywords": [
         "expand compound research",
-        "responsible research partner\nobjective",
+        "responsible research partner objective",
         "measurement"
       ],
-      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
+      "label": "Expand Compound Research / Responsible Research Partner Objective / Measurement",
       "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
     },
     {

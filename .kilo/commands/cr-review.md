@@ -1,5 +1,5 @@
 ---
-description: "Research review — multi-agent code and methodology review. Orchestrates cg-* agents (code quality, testing, reproducibility) and cr-* agents (research integrity, mathematical verification, identification audit, econometric reasoning). Produces prioritized P0/P1/P2/P3 findings."
+description: 'Research review — multi-agent code and methodology review. Orchestrates cg-* agents (code quality, testing, reproducibility) and cr-* agents (research integrity, mathematical verification, identification audit, econometric reasoning). Produces prioritized P0/P1/P2/P3 findings.'
 ---
 
 # Research Review

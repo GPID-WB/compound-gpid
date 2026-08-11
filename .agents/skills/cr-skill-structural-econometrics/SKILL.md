@@ -87,13 +87,15 @@ choices affect future states (job search, investment, health behavior, retiremen
 # NFXP: solve fixed-point V = T(V) for each parameter guess θ
 
 # R — use nloptr or optim as outer loop; solve Bellman as inner loop
-bellman_iter <- function(V, params, beta = 0.9, tol = 1e-8) {
-  repeat {
+bellman_iter <- function(V, params, beta = 0.9, tol = 1e-8, max_iter = 10000) {
+  stopifnot("beta must satisfy 0 < beta < 1" = beta > 0 && beta < 1)
+  for (i in seq_len(max_iter)) {
     V_new <- apply(utility_matrix(params) + beta * transition %*% V, 1, max)
-    if (max(abs(V_new - V)) < tol) break
+    if (max(abs(V_new - V)) < tol) return(V)
     V <- V_new
   }
-  V
+  stop("Bellman iteration did not converge after ", max_iter, " iterations — ",
+       "check beta < 1, transition matrix rows sum to 1, and grid resolution.")
 }
 ```
 
@@ -145,11 +147,12 @@ models with high-dimensional integration.
 # Simulate moments: draw ε_s, compute model moments m_s(θ), minimize
 # || (1/S) Σ_s m_s(θ) - m_data ||²_W
 
-msm_objective <- function(theta, data, n_sims = 1000, W = diag(length(moments))) {
+msm_objective <- function(theta, data, n_sims = 1000, W = NULL) {
   set.seed(12345)  # ALWAYS seed before simulation
   sims <- replicate(n_sims, simulate_model(theta))
   m_sim  <- rowMeans(sims)
   m_data <- compute_data_moments(data)
+  if (is.null(W)) W <- diag(length(m_data))
   t(m_sim - m_data) %*% W %*% (m_sim - m_data)
 }
 ```

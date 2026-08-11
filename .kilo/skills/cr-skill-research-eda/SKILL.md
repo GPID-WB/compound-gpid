@@ -72,10 +72,16 @@ qsu(df$log_wage, w = df$weight)  # collapse: weighted N, mean, sd, min, p25, p50
 
 **For discrete variables**:
 ```r
-# Frequency table with proportions
+# Frequency table with proportions (NA handling: NAs excluded from both
+# numerator and denominator so proportions sum to 1 over observed values)
 tabulate_var <- function(x, w = NULL) {
-  if (is.null(w)) table(x) / length(x)
-  else             wtd.table(x, weights = w) / sum(w)  # see Hmisc::wtd.table
+  x_obs <- x[!is.na(x)]          # drop NAs before tabulation
+  if (is.null(w)) {
+    table(x_obs) / length(x_obs)  # denominator = observed count
+  } else {
+    w <- w[!is.na(x)]             # align weights to observed values
+    wtd.table(x_obs, weights = w) / sum(w)  # see Hmisc::wtd.table
+  }
 }
 ```
 
@@ -221,13 +227,18 @@ Do not drop outliers silently — document each decision.
 
 ```r
 # Leverage and Cook's distance (OLS)
-fit <- lm(log_wage ~ education + age + female, data = df)
+# Use na.action = na.exclude so residuals align with original rows
+# (including rows with NA in response that were excluded from fitting)
+fit <- lm(log_wage ~ education + age + female, data = df,
+          na.action = na.exclude)
 plot(fit, which = c(4, 5))  # Cook's distance + leverage-residual plot
 
 # Standardized residuals (flag > 3 or < -3)
+# na.exclude pads residuals for dropped rows, keeping row alignment with df
 df[, std_resid := rstandard(fit)]
-outliers <- df[abs(std_resid) > 3]
-message(nrow(outliers), " observations with |std_resid| > 3")
+outliers <- df[abs(std_resid) > 3, .SD, nomatch = 0L]
+message(nrow(df[!is.na(std_resid) & abs(std_resid) > 3]),
+        " observations with |std_resid| > 3")
 
 # Welfare non-negativity guard (required before any FGT/Gini calculation)
 # Zero or negative welfare silently inflates FGT indices beyond [0,1]
@@ -238,7 +249,16 @@ stopifnot("Welfare variable contains NA values" = !anyNA(df$welfare))
 stopifnot("Welfare variable contains zero or negative values" = all(df$welfare > 0))
 
 # Weighted boxplot of key variables
-boxplot(df$log_wage, weights = df$weight, main = "Log Wage — Outliers")
+# Base boxplot ignores weights; compute weighted quartiles explicitly
+wq <- fnth(df$log_wage, n = c(0.25, 0.50, 0.75), w = df$weight)
+iqr_w <- wq[3] - wq[1]
+lower_fence <- wq[1] - 1.5 * iqr_w
+upper_fence <- wq[3] + 1.5 * iqr_w
+outlier_idx <- which(df$log_wage < lower_fence | df$log_wage > upper_fence)
+message(length(outlier_idx), " weighted-boxplot outliers (fences: [",
+        round(lower_fence, 2), ", ", round(upper_fence, 2), "])")
+boxplot(df$log_wage, main = "Log Wage — Outliers",
+        outline = !seq_len(nrow(df)) %in% outlier_idx)
 
 # Rule: document all outliers considered; state whether dropped, capped, or retained
 # If dropped: sensitivity check with full sample in appendix

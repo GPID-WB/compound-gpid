@@ -1,5 +1,5 @@
 ---
-description: "Reviews code for style consistency, linting issues, DRY violations, and naming conventions. Trilingual R/Python/Stata."
+description: 'Reviews code for style consistency, linting issues, DRY violations, and naming conventions. Trilingual R/Python/Stata.'
 mode: subagent
 ---
 

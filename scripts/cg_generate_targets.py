@@ -955,6 +955,8 @@ def _yaml_scalar(value: Any) -> str:
         "null", "true", "false", "yes", "no", "on", "off",
     }:
         return text
+    if re.fullmatch(r"[^\x00-\x1f\"'\\]*", text):
+        return "'" + text.replace("'", "''") + "'"
     return json.dumps(text, ensure_ascii=False)
 
 

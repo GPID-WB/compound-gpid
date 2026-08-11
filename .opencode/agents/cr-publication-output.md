@@ -1,5 +1,5 @@
 ---
-description: "Reviews publication-quality output code: regression table correctness (modelsummary/etable), LaTeX table patterns (kableExtra), figure output (ggplot2+wbplot), font/size compliance, caption discipline, table-note discipline, and deterministic output. Loaded by /cr-review for Tables/Figures tasks."
+description: 'Reviews publication-quality output code: regression table correctness (modelsummary/etable), LaTeX table patterns (kableExtra), figure output (ggplot2+wbplot), font/size compliance, caption discipline, table-note discipline, and deterministic output. Loaded by /cr-review for Tables/Figures tasks.'
 mode: subagent
 ---
 

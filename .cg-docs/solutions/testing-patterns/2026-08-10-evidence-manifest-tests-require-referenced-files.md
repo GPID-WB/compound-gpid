@@ -26,8 +26,9 @@ if (fs.existsSync(sourcePath)) {
 When a manifest referenced a **missing** source, view, or print-preview PDF, the
 guard made the hash assertion a no-op and the test passed. The symptom was a
 manifest that "looked valid" while its referenced evidence artifacts were
-absent — so corrupted or partial evidence could pass validation. A capture
-failure could therefore emit (or accept) a manifest that appeared green.
+absent — so corrupted or partial evidence could pass validation. The test could
+accept an existing manifest whose referenced artifacts were absent, masking the
+capture failure.
 
 A secondary symptom: the guard was dead code after the sibling hash test was
 hardened, and a test named "manifest exists (SKIP if not yet captured)" was

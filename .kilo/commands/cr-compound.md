@@ -1,5 +1,5 @@
 ---
-description: "\"Research compound — capture a solved research problem for future"
+description: 'Research compound — capture a solved research problem for future reuse. Extends /cg-compound with research-specific categories: identification, specification, derivation, ml-methodology, reproducibility.'
 ---
 
 # Research Compound

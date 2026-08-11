@@ -141,7 +141,7 @@ Locked design decisions (from the brainstorm) that this plan must honor:
            external_flag: false
            ingested_on: 2026-07-30
        ```
-    4. **Claim-evidence matrix schema (R1, R6)** — YAML at
+     4. **Claim-evidence matrix schema (R1, R6)** — YAML at
        `.cg-docs/research/evidence/claim-evidence-matrix.yaml`:
        ```yaml
        claims:
@@ -151,27 +151,32 @@ Locked design decisions (from the brainstorm) that this plan must honor:
            status: verified             # verified | unverified | flagged | abstained
            evidence:
              - source_id: S003
-               locator: "Table 2, p. 14"
-               quote: "..."             # verbatim from converted markdown
+               locator: "Table 2, p. 14"  # must resolve in original_path
+               quote: "..."             # verbatim from original document
                supports: true
            verified_by: cr-provenance-audit
            verified_on: 2026-07-30
        ```
        Note `type: methodological` is how R6 (evidence for method choices) is
        represented.
-    5. **Ingestion pattern (R3)** — original document is authority; conversion
+     5. **Ingestion pattern (R3)** — original document is authority; conversion
        to Markdown (default tool: Microsoft `markitdown`, documented as
        **optional**, not a required plugin dependency) produces a page-aware
        index under `converted/`; record `sha256` of the original and the
-       `conversion_tool`.
-    6. **Anti-hallucination rules (R4)** — never invent a source, DOI, quote,
+       `conversion_tool`. `converted_path` is an indexing aid only — it does
+       not establish evidence authority.
+     6. **Anti-hallucination rules (R4)** — never invent a source, DOI, quote,
        page, or locator; if a claim cannot be tied to a verified source, mark it
        `unverified`/`abstained` and flag it — never emit a plausible completion;
-       quotes must be verbatim from `converted_path`.
-    7. **Verification depth by tier (R7)** — light: schema/well-formedness +
+       quotes must be verbatim from the original document at `original_path`,
+       using the `locator` to find the passage. `converted_path` Markdown is
+       an indexing aid, not the verification target.
+     7. **Verification depth by tier (R7)** — light: schema/well-formedness +
        spot-check; standard: every substantive claim has ≥1 verified source with
-       a resolvable locator; thorough: also verify quote-verbatim + locator
-       resolves to the cited page.
+       a resolvable locator against `original_path`; thorough: also verify
+       quote-verbatim + locator resolves to the cited page in the original
+       document. If the original document is inaccessible or the locator cannot
+       be resolved, mark the claim `unverified` and block release.
 - **Test Scenarios:** file exists; `module: research`; contains both schema
   blocks; contains repo-local default; contains anti-hallucination rules;
   contains tier-proportional verification.

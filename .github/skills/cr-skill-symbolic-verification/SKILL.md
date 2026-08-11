@@ -81,11 +81,16 @@ errors matches the second derivative of the objective.
 H = sp.hessian(log_lik, [beta, sigma2])
 print("Hessian =", sp.simplify(H))
 
-# Verify negative-definiteness at a specific parameter value
+# Verify negative-definiteness by summing over observations
+# (single-observation Hessian is not necessarily negative-definite)
 H_numerical = sp.lambdify([beta, sigma2, y, x], H)
-H_at_mle = H_numerical(b=1.2, s=0.8, y=2.0, x=1.0)
 
-eigenvalues = np.linalg.eigvalsh(H_at_mle)
+# Evaluate at multiple data points and sum
+obs = [(2.0, 1.0), (3.0, 1.5), (0.5, 0.8), (1.0, 0.5)]
+H_sample = sum(H_numerical(beta=1.2, sigma2=0.8, y=yi, x=xi)
+               for yi, xi in obs)
+
+eigenvalues = np.linalg.eigvalsh(H_sample)
 assert all(eigenvalues < 0), "Hessian not negative-definite at MLE — check SOC"
 ```
 
@@ -221,14 +226,14 @@ verify_mle_implementation <- function(estimation_fn, n = 1000,
   # 2. Run MLE implementation under test
   result <- estimation_fn(y, X)
 
-  # 3. Compare to analytical OLS (true for normal linear model)
+  # 3. Compare to analytical MLE (true for normal linear model)
   beta_ols <- solve(t(X) %*% X) %*% t(X) %*% y
-  sigma_ols <- sqrt(sum((y - X %*% beta_ols)^2) / (n - 2))
+  sigma_mle <- sqrt(sum((y - X %*% beta_ols)^2) / n)  # MLE uses n, not n-2
 
   # 4. Assert results match within tolerance
   stopifnot(
     "Beta estimate mismatch" = max(abs(result$beta - beta_ols)) < tol,
-    "Sigma estimate mismatch" = abs(result$sigma - sigma_ols) < tol
+    "Sigma estimate mismatch" = abs(result$sigma - sigma_mle) < tol
   )
 
   message("Verification PASSED: MLE matches OLS benchmark")
