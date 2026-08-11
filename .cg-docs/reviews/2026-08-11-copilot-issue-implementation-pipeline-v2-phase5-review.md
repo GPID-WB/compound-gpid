@@ -277,9 +277,5 @@ accepted advisories as `skipped`:
   scope follows the workflow input; branch naming matches the repo's established
   phase-branch scheme).
 
-Validation after fix-triage: dispatcher suite 55 passed; readiness 194 passed;
-full native-targets gate 621 passed / 11 skipped; docs-site passed.
-
-Remaining open for `/cg-fix-triage`: P1.3, P2.1, P2.2, P2.4, P2.10, P3.2,
-P3.6, P3.12, P3.13, P3.14, P3.15, P3.16, P3.17, P3.18, P3.19, P3.20, P3.21,
-P3.22.
+Validation after fix-triage: dispatcher suite 76 passed; readiness 194 passed;
+docs-site passed.

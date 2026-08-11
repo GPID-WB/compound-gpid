@@ -9,15 +9,23 @@ import tempfile
 from .contract import ApiError, ConfigError
 from .gh_process import _default_run_gh
 
+SOURCE_CREDENTIAL_ENVS = ("COPILOT_ASSIGN_TOKEN", "PROJECT_SYNC_TOKEN")
+
 
 def _default_mutation_runner(
     args: list, token: str
 ) -> subprocess.CompletedProcess:
-    """Run ``gh`` with a dedicated token via a fresh environment.
+    """Run ``gh`` with a dedicated token via a clean environment.
 
-    This reuses the shared ``gh_process._default_run_gh`` subprocess boundaries
-    (single timeout, classification of OSError/Timeout/Unicode) while injecting
-    the credential as ``GH_TOKEN`` for the child process.
+    The child process receives only ``GH_TOKEN`` set to the supplied
+    ``token``.  Both source credentials (``COPILOT_ASSIGN_TOKEN`` and
+    ``PROJECT_SYNC_TOKEN``) are explicitly removed from the inherited
+    environment so that a subprocess can never silently use a credential
+    it was not given.
+
+    This reuses the shared ``gh_process._default_run_gh`` subprocess
+    boundaries (single timeout, classification of OSError/Timeout/Unicode)
+    while injecting the credential as ``GH_TOKEN`` for the child process.
 
     Args:
         args: Argument list after the ``gh`` program name.
@@ -30,7 +38,10 @@ def _default_mutation_runner(
         ConfigError: When ``gh`` is not installed or cannot execute.
         ApiError: On timeout or undecodable output.
     """
-    return _default_run_gh(args, env={"GH_TOKEN": token})
+    clean_env = {k: v for k, v in os.environ.items()
+                 if k not in SOURCE_CREDENTIAL_ENVS}
+    clean_env["GH_TOKEN"] = token
+    return _default_run_gh(args, env=clean_env)
 
 
 def _write_temp_file(text: str, suffix: str) -> Path:

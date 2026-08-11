@@ -113,10 +113,28 @@ The workflow always passes `--json`, so the dispatcher emits one object:
 The `mutations` array is the ordered audit log every path must populate (a
 `comment:failed` entry records a failed audit-comment write).
 
+## Protected environment
+
+The dispatcher job is bound to a **protected environment** named `copilot-dispatch`.
+Before any job receives secrets, a repository administrator must:
+
+1. Create the `copilot-dispatch` environment in **Settings → Environments**.
+2. Add `COPILOT_ASSIGN_TOKEN` and `PROJECT_SYNC_TOKEN` as **environment
+   secrets** (not ordinary repository secrets).
+3. Enable **required reviewers** (or another approval mechanism) so that every
+   job run requires explicit human approval before it receives the secrets.
+4. Ensure that **no** `pull_request` or `pull_request_target` workflow
+   references this environment or either of its secrets.
+
+The workflow also sets `persist-credentials: false` on the trusted checkout step
+so that the default `GITHUB_TOKEN` credential is not retained in the git
+config after checkout.
+
 ## Credentials and isolation
 
-The workflow uses **two separate least-privilege credentials** (created in
-repository settings, never by the workflow, never combined into one token):
+The workflow uses **two separate least-privilege credentials**, both stored as
+**environment secrets** on the `copilot-dispatch` protected environment (never
+ordinary repository secrets, never combined into one token):
 
 | Environment variable | Used for | Required access |
 |---|---|---|

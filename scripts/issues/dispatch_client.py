@@ -31,6 +31,9 @@ from .contract import ApiError, ConfigError
 from .dispatch_contract import COPILOT_ASSIGN_LOGIN, IN_PROGRESS_STATUS
 from .dispatch_project import (
     PROJECT_TOKEN_ENV,
+    _MAX_PROJECT_PAGES,
+    _get_next_cursor,
+    _parse_project_item_page,
     item_query_args,
     mutation_args,
     option_id_for,
@@ -39,6 +42,7 @@ from .dispatch_project import (
     verify_mutation_success,
 )
 from .dispatch_util import _default_mutation_runner, _unlink_best_effort, _write_temp_file
+from .gh_client import PROJECT_TITLE
 from .gh_process import _classify_gh_error
 
 ASSIGN_TOKEN_ENV = "COPILOT_ASSIGN_TOKEN"
@@ -64,6 +68,7 @@ class GhDispatchMutator:
         self._owner = owner
         self._name = name
         self._base_branch = "main"
+        self._branch_resolved = False
 
     def _token(self, env_name: str) -> str:
         """Return a required credential value or fail closed when missing.
@@ -93,8 +98,35 @@ class GhDispatchMutator:
         return completed
 
     def _repo(self) -> tuple[str, str]:
-        """Resolve the current repository owner and name."""
+        """Resolve the current repository owner and name.
+
+        When ``owner`` and ``name`` were provided at construction time,
+        those values are used directly.  Otherwise the repository is
+        resolved from ``gh repo view``.  In both cases the actual default
+        branch is resolved and cached so the assignment body always
+        carries the correct base branch.
+        """
         if self._owner and self._name:
+            if self._base_branch == "main" and not getattr(
+                self, "_branch_resolved", False
+            ):
+                out = self._run(
+                    ["repo", "view", "--json", "defaultBranchRef"],
+                    ASSIGN_TOKEN_ENV,
+                )
+                try:
+                    data = json.loads(out.stdout)
+                except (json.JSONDecodeError, RecursionError) as error:
+                    raise ApiError(
+                        f"malformed repo response from gh: {error}"
+                    ) from error
+                data = expect_mapping(data, "repo response", ApiError)
+                branch_ref = data.get("defaultBranchRef")
+                if isinstance(branch_ref, Mapping):
+                    resolved = branch_ref.get("name")
+                    if isinstance(resolved, str) and resolved:
+                        self._base_branch = resolved
+                self._branch_resolved = True
             return self._owner, self._name
         out = self._run(
             ["repo", "view", "--json", "nameWithOwner,defaultBranchRef"],
@@ -119,6 +151,7 @@ class GhDispatchMutator:
         if isinstance(branch_ref, Mapping):
             self._base_branch = branch_ref.get("name") or "main"
         self._owner, self._name = owner, name
+        self._branch_resolved = True
         return owner, name
 
     def assign(self, issue_number: int, login: str) -> None:
@@ -205,6 +238,11 @@ class GhDispatchMutator:
     def _resolve_item_id(self, issue_number: int) -> str:
         """Resolve the issue's Project item node id via the project node.
 
+        Uses cursor-based pagination to search through all project items.
+        Resolving through the project node means a least-privilege
+        ``PROJECT_SYNC_TOKEN`` (project read/write) never requires repository
+        or issue read access.
+
         Args:
             issue_number: Issue number to look up.
 
@@ -212,14 +250,42 @@ class GhDispatchMutator:
             The Project item node id.
 
         Raises:
-            ApiError: On a malformed or failed response, or a truncated scan.
-            ConfigError: When the issue is not on the target project.
+            ApiError: On a malformed or failed response, a truncated scan,
+                a non-progressing cursor, or exceeding the page limit.
+            ConfigError: When the issue is not on the target project after
+                complete pagination.
         """
-        out = self._run(item_query_args(issue_number), PROJECT_TOKEN_ENV)
-        return resolve_item_id(out.stdout, issue_number)
+        cursor: str | None = None
+        seen_cursors: set = set()
+        for _ in range(_MAX_PROJECT_PAGES):
+            out = self._run(
+                item_query_args(issue_number, after=cursor), PROJECT_TOKEN_ENV
+            )
+            result = _parse_project_item_page(out.stdout, issue_number)
+            if result is not None:
+                return result
+            next_cursor = _get_next_cursor(out.stdout)
+            if next_cursor is None:
+                raise ConfigError(
+                    f"issue #{issue_number} is not on the {PROJECT_TITLE} project"
+                )
+            if next_cursor in seen_cursors:
+                raise ApiError(
+                    f"pagination cursor did not advance: {next_cursor!r}"
+                )
+            seen_cursors.add(next_cursor)
+            cursor = next_cursor
+        raise ApiError(
+            f"exceeded {_MAX_PROJECT_PAGES} pages scanning project items "
+            f"for issue #{issue_number}"
+        )
 
     def comment(self, issue_number: int, body: str) -> None:
         """Post an audit comment to the issue using the Copilot credential.
+
+        The comment is always posted to the explicitly resolved repository
+        (``--repo owner/name``) so that assignment and audit comments
+        target the same repository regardless of the ``gh`` default.
 
         Args:
             issue_number: Issue number to comment on.
@@ -229,10 +295,15 @@ class GhDispatchMutator:
             ApiError: On a failed response or temp-file write failure.
             ConfigError: When the assignment credential is not configured.
         """
+        owner, name = self._repo()
         tmp = _write_temp_file(body, ".md")
         try:
             self._run(
-                ["issue", "comment", str(issue_number), "--body-file", str(tmp)],
+                [
+                    "issue", "comment", str(issue_number),
+                    "--repo", f"{owner}/{name}",
+                    "--body-file", str(tmp),
+                ],
                 ASSIGN_TOKEN_ENV,
             )
         finally:

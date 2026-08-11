@@ -41,10 +41,10 @@ _MUTATION_QUERY = """mutation SetProjectStatus($projectId: ID!, $itemId: ID!, $f
   }
 }"""
 
-_ITEM_QUERY = """query DispatchItem($projectId: ID!, $number: Int!) {
+_ITEM_QUERY = """query DispatchItem($projectId: ID!, $after: String) {
   node(id: $projectId) {
     ... on ProjectV2 {
-      items(first: 50) {
+      items(first: 50, after: $after) {
         nodes {
           id
           content {
@@ -53,11 +53,14 @@ _ITEM_QUERY = """query DispatchItem($projectId: ID!, $number: Int!) {
         }
         pageInfo {
           hasNextPage
+          endCursor
         }
       }
     }
   }
 }"""
+
+_MAX_PROJECT_PAGES = 100
 
 
 def mutation_args(item_id: str, option_id: str) -> list:
@@ -80,21 +83,25 @@ def mutation_args(item_id: str, option_id: str) -> list:
     ]
 
 
-def item_query_args(issue_number: int) -> list:
+def item_query_args(issue_number: int, after: str | None = None) -> list:
     """Return the project-item resolution query arguments after "graphql".
 
     Args:
-        issue_number: Issue number to look up.
+        issue_number: Issue number to look up (for documentation; the actual
+            filtering is done client-side in :func:`resolve_item_id`).
+        after: Optional cursor for pagination.
 
     Returns:
         The ``gh api graphql`` argument list for the item query.
     """
-    return [
+    args = [
         "api", "graphql",
         "-f", f"query={_ITEM_QUERY}",
         "-F", f"projectId={_PROJECT_NODE_ID}",
-        "-F", f"number={issue_number}",
     ]
+    if after is not None:
+        args.extend(["-F", f"after={after}"])
+    return args
 
 
 def supported_status(status: str) -> bool:
@@ -177,23 +184,18 @@ def parse_mutation_result(stdout: str) -> str:
     return data["data"]["updateProjectV2ItemFieldValue"]["projectV2Item"]["id"]
 
 
-def resolve_item_id(stdout: str, issue_number: int) -> str:
-    """Resolve the issue's Project item node id from the item-query response.
-
-    Resolving through the project node means a least-privilege
-    ``PROJECT_SYNC_TOKEN`` (project read/write) never requires repository or
-    issue read access.
+def _parse_project_item_page(stdout: str, issue_number: int) -> str | None:
+    """Parse one page of project items looking for the target issue.
 
     Args:
         stdout: The ``gh api graphql`` stdout for the item query.
-        issue_number: Issue number that must match the item content.
+        issue_number: Issue number to match.
 
     Returns:
-        The Project item node id.
+        The item node id if found, or ``None`` if not on this page.
 
     Raises:
-        ApiError: On a malformed or failed response, or a truncated scan.
-        ConfigError: When the issue is not on the target project.
+        ApiError: On malformed responses, GraphQL errors, or non-mapping nodes.
     """
     try:
         data = json.loads(stdout)
@@ -211,10 +213,6 @@ def resolve_item_id(stdout: str, issue_number: int) -> str:
     nodes = item_connection.get("nodes")
     if not isinstance(nodes, list):
         raise ApiError("malformed graphql response from gh: nodes not a list")
-    page_info = item_connection.get("pageInfo")
-    has_next = (
-        isinstance(page_info, Mapping) and page_info.get("hasNextPage") is True
-    )
     for node in nodes:
         if isinstance(node, Mapping):
             content = node.get("content")
@@ -229,6 +227,73 @@ def resolve_item_id(stdout: str, issue_number: int) -> str:
                 "malformed graphql response from gh: project item node is "
                 "not an object"
             )
-    if has_next:
-        raise ApiError("project item scan truncated; refusing to resolve item id")
+    return None
+
+
+def _get_next_cursor(stdout: str) -> str | None:
+    """Extract the next page cursor from a project items response.
+
+    Args:
+        stdout: The ``gh api graphql`` stdout for the item query.
+
+    Returns:
+        The end cursor string if ``hasNextPage`` is true, or ``None`` if
+        there are no more pages.
+
+    Raises:
+        ApiError: On malformed pagination metadata.
+    """
+    try:
+        data = json.loads(stdout)
+    except (json.JSONDecodeError, RecursionError) as error:
+        raise ApiError(f"malformed graphql response from gh: {error}") from error
+    data = expect_mapping(data, "graphql response", ApiError)
+    try:
+        item_connection = data["data"]["node"]["items"]
+    except (KeyError, TypeError):
+        raise ApiError(
+            "malformed graphql response from gh: missing project items"
+        )
+    item_connection = expect_mapping(item_connection, "project items", ApiError)
+    page_info = item_connection.get("pageInfo")
+    if page_info is None:
+        return None
+    page_info = expect_mapping(page_info, "pageInfo", ApiError)
+    has_next = page_info.get("hasNextPage")
+    if not isinstance(has_next, bool):
+        raise ApiError(
+            f"malformed pageInfo.hasNextPage: expected bool, "
+            f"got {type(has_next).__name__}"
+        )
+    if not has_next:
+        return None
+    end_cursor = page_info.get("endCursor")
+    if not isinstance(end_cursor, str) or not end_cursor:
+        raise ApiError(
+            "hasNextPage is true but endCursor is missing or not a string"
+        )
+    return end_cursor
+
+
+def resolve_item_id(stdout: str, issue_number: int) -> str:
+    """Resolve the issue's Project item node id from a single-page response.
+
+    This is a single-page convenience wrapper used by the legacy call path.
+    For paginated resolution, use
+    :meth:`GhDispatchMutator._resolve_item_id` which handles multiple pages.
+
+    Args:
+        stdout: The ``gh api graphql`` stdout for the item query.
+        issue_number: Issue number that must match the item content.
+
+    Returns:
+        The Project item node id.
+
+    Raises:
+        ApiError: On a malformed or failed response, or a truncated scan.
+        ConfigError: When the issue is not on the target project.
+    """
+    result = _parse_project_item_page(stdout, issue_number)
+    if result is not None:
+        return result
     raise ConfigError(f"issue #{issue_number} is not on the {PROJECT_TITLE} project")

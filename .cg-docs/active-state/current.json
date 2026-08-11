@@ -47,7 +47,7 @@
     {"kind": "dispatcher-module", "path": "scripts/issues/dispatch.py", "status": "implemented"},
     {"kind": "dispatcher-client", "path": "scripts/issues/dispatch_client.py", "status": "implemented"},
     {"kind": "dispatcher-cli", "path": "scripts/issue_dispatch.py", "status": "implemented"},
-    {"kind": "dispatcher-tests", "path": "scripts/tests/test_issue_dispatch.py", "status": "41-passed"},
+    {"kind": "dispatcher-tests", "path": "scripts/tests/test_issue_dispatch.py", "status": "76-passed"},
     {"kind": "dispatcher-docs", "path": "docs/copilot-dispatch.md", "status": "published-registered"},
     {"kind": "readiness-docs", "path": "docs/copilot-readiness.md", "status": "published-cross-ref-updated"},
     {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "closed-completed-Done-not-dispatched-in-phase5"},

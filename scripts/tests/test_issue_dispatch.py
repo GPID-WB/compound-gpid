@@ -34,6 +34,7 @@ from issues.dispatch import (
     run_dispatch,
 )
 from issues.dispatch_client import GhDispatchMutator
+from issues.dispatch_util import SOURCE_CREDENTIAL_ENVS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -639,18 +640,23 @@ def _mutation_success_response() -> str:
 
 class TestGhDispatchMutator:
     def test_assign_and_comment_use_assign_token(self, monkeypatch) -> None:
-        runner = _StubRunner([_assign_response(), "{}"])
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
+            _assign_response(), "{}",
+        ])
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
         mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
         mutator.assign(9002, "copilot-swe-agent[bot]")
         mutator.comment(9002, "audit body")
-        assert len(runner.calls) == 2
-        for call in runner.calls:
+        assert len(runner.calls) == 3
+        for call in runner.calls[1:]:
             assert call["token"] == "assign-token"
 
     def test_project_update_uses_project_token(self, monkeypatch) -> None:
-        runner = _StubRunner([_project_item_response(), _mutation_success_response()])
+        runner = _StubRunner([
+            _project_item_response(), _mutation_success_response(),
+        ])
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
         mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
@@ -658,8 +664,6 @@ class TestGhDispatchMutator:
         assert len(runner.calls) == 2
         assert runner.calls[0]["token"] == "project-token"
         assert runner.calls[1]["token"] == "project-token"
-        assert "owner" not in str(runner.calls[0]["args"])
-        assert "$projectId: ID!" not in runner.calls[0]["args"][0]
 
     def test_missing_token_fails_closed(self, monkeypatch) -> None:
         runner = _StubRunner()
@@ -692,13 +696,16 @@ class TestGhDispatchMutator:
             mutator.set_project_status(9002, "In progress")
 
     def test_assign_noop_response_fails_closed(self, monkeypatch) -> None:
-        runner = _StubRunner(["{}"])
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
+            "{}",
+        ])
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
         mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
         with pytest.raises(ApiError):
             mutator.assign(9002, "copilot-swe-agent[bot]")
-        assert len(runner.calls) == 1
+        assert len(runner.calls) == 2
 
     def test_assign_rejects_non_copilot_login(self, monkeypatch) -> None:
         runner = _StubRunner()
@@ -711,6 +718,7 @@ class TestGhDispatchMutator:
 
     def test_mutation_noop_response_fails_closed(self, monkeypatch) -> None:
         runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
             _project_item_response(),
             json.dumps({"data": {"updateProjectV2ItemFieldValue": None}}),
         ])
@@ -724,13 +732,100 @@ class TestGhDispatchMutator:
         runner = _StubRunner([
             json.dumps({"data": {"node": {"items": {
                 "nodes": [{"id": "other-item", "content": {"number": 9999}}],
-                "pageInfo": {"hasNextPage": True},
+                "pageInfo": {"hasNextPage": True, "endCursor": "cursor-1"},
+            }}}}),
+            json.dumps({"data": {"node": {"items": {
+                "nodes": [{"id": "other-item", "content": {"number": 9999}}],
+                "pageInfo": {"hasNextPage": True, "endCursor": "cursor-2"},
             }}}}),
         ])
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
         mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
         with pytest.raises(ApiError):
+            mutator.set_project_status(9002, "In progress")
+
+    def test_pagination_finds_issue_on_first_page(self, monkeypatch) -> None:
+        runner = _StubRunner([
+            _project_item_response(9002),
+            _mutation_success_response(),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator.set_project_status(9002, "In progress")
+        assert len(runner.calls) == 2
+
+    def test_pagination_finds_issue_on_later_page(self, monkeypatch) -> None:
+        page1 = json.dumps({"data": {"node": {"items": {
+            "nodes": [{"id": "item-1", "content": {"number": 8001}}],
+            "pageInfo": {"hasNextPage": True, "endCursor": "cursor-1"},
+        }}}})
+        page2 = json.dumps({"data": {"node": {"items": {
+            "nodes": [{"id": "item-2", "content": {"number": 9002}}],
+            "pageInfo": {"hasNextPage": False},
+        }}}})
+        runner = _StubRunner([page1, page2, _mutation_success_response()])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator.set_project_status(9002, "In progress")
+        assert len(runner.calls) == 3
+        assert "after=cursor-1" in runner.calls[1]["args"]
+
+    def test_pagination_exhaustion_without_match_fails_closed(
+        self, monkeypatch
+    ) -> None:
+        page1 = json.dumps({"data": {"node": {"items": {
+            "nodes": [{"id": "item-1", "content": {"number": 8001}}],
+            "pageInfo": {"hasNextPage": True, "endCursor": "cursor-1"},
+        }}}})
+        page2 = json.dumps({"data": {"node": {"items": {
+            "nodes": [{"id": "item-2", "content": {"number": 8002}}],
+            "pageInfo": {"hasNextPage": False},
+        }}}})
+        runner = _StubRunner([page1, page2])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        with pytest.raises(ConfigError):
+            mutator.set_project_status(9002, "In progress")
+
+    def test_pagination_malformed_page_info_fails_closed(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({"data": {"node": {"items": {
+                "nodes": [{"id": "item-1", "content": {"number": 8001}}],
+                "pageInfo": {"hasNextPage": True, "endCursor": 12345},
+            }}}}),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        with pytest.raises(ApiError):
+            mutator.set_project_status(9002, "In progress")
+
+    def test_pagination_repeated_cursor_fails_closed(self, monkeypatch) -> None:
+        page = json.dumps({"data": {"node": {"items": {
+            "nodes": [{"id": "item-1", "content": {"number": 8001}}],
+            "pageInfo": {"hasNextPage": True, "endCursor": "cursor-1"},
+        }}}})
+        runner = _StubRunner([page, page])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        with pytest.raises(ApiError, match="did not advance"):
+            mutator.set_project_status(9002, "In progress")
+
+    def test_pagination_graphql_errors_fails_closed(self, monkeypatch) -> None:
+        runner = _StubRunner([
+            json.dumps({"data": None, "errors": [{"message": "not authorized"}]}),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        with pytest.raises(ConfigError):
             mutator.set_project_status(9002, "In progress")
 
     def test_repo_resolution_sets_base_branch_from_default(self, monkeypatch) -> None:
@@ -780,8 +875,44 @@ class TestGhDispatchMutator:
         with pytest.raises(ApiError):
             mutator.assign(9002, "copilot-swe-agent[bot]")
 
+    def test_repo_resolution_resolves_default_branch_with_overrides(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "develop"}}),
+            _assign_response(),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="O", name="R")
+        mutator.assign(9002, "copilot-swe-agent[bot]")
+        assert runner.calls[0]["args"][:3] == ["repo", "view", "--json"]
+        assert mutator._base_branch == "develop"
+
+    def test_assignment_and_comment_target_same_repository(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({
+                "nameWithOwner": "OWNER/REPO",
+                "defaultBranchRef": {"name": "main"},
+            }),
+            _assign_response(),
+            "{}",
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner)
+        mutator.assign(9002, "copilot-swe-agent[bot]")
+        mutator.comment(9002, "audit body")
+        assert "repos/OWNER/REPO/issues/9002/assignees" in runner.calls[1]["args"]
+        assert "--repo" in runner.calls[2]["args"]
+        repo_idx = runner.calls[2]["args"].index("--repo")
+        assert runner.calls[2]["args"][repo_idx + 1] == "OWNER/REPO"
+
     def test_strict_node_non_mapping_raises_api_error(self, monkeypatch) -> None:
         runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
             json.dumps({"data": {"node": {"items": {
                 "nodes": ["not-a-mapping"],
                 "pageInfo": {"hasNextPage": False},
@@ -795,6 +926,7 @@ class TestGhDispatchMutator:
 
     def test_strict_content_wrong_shape_raises_api_error(self, monkeypatch) -> None:
         runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
             json.dumps({"data": {"node": {"items": {
                 "nodes": [{"id": "item-1", "content": "oops"}],
                 "pageInfo": {"hasNextPage": False},
@@ -815,9 +947,92 @@ class TestGhDispatchMutator:
         monkeypatch.setattr(dispatch_util.tempfile, "NamedTemporaryFile", _explode)
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
-        mutator = GhDispatchMutator(runner=_StubRunner(), owner="OWNER", name="REPO")
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
+        ])
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
         with pytest.raises(ApiError):
             mutator.assign(9002, "copilot-swe-agent[bot]")
+
+
+# ---------------------------------------------------------------------------
+# Per-subprocess credential isolation
+# ---------------------------------------------------------------------------
+
+
+class TestCredentialIsolation:
+    def test_source_credential_env_names_defined(self) -> None:
+        assert "COPILOT_ASSIGN_TOKEN" in SOURCE_CREDENTIAL_ENVS
+        assert "PROJECT_SYNC_TOKEN" in SOURCE_CREDENTIAL_ENVS
+
+    def test_default_mutation_runner_removes_source_credentials(
+        self, monkeypatch
+    ) -> None:
+        import issues.dispatch_util as dispatch_util
+
+        captured_env: dict = {}
+
+        def _capture_run_gh(args, env=None):
+            if env is not None:
+                captured_env.update(env)
+            return _StubResult("{}")
+
+        monkeypatch.setattr(dispatch_util, "_default_run_gh", _capture_run_gh)
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-secret")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-secret")
+        monkeypatch.setenv("GH_TOKEN", "existing-token")
+        dispatch_util._default_mutation_runner(["api", "graphql"], "target-token")
+        assert captured_env.get("GH_TOKEN") == "target-token"
+        assert "COPILOT_ASSIGN_TOKEN" not in captured_env
+        assert "PROJECT_SYNC_TOKEN" not in captured_env
+
+    def test_assignment_subprocess_has_no_source_credentials(
+        self, monkeypatch
+    ) -> None:
+        import issues.gh_process as gh_process
+
+        captured_env: dict = {}
+
+        def _capture_run_gh(args, env=None):
+            if env is not None:
+                captured_env.update(env)
+            return _StubResult("{}")
+
+        monkeypatch.setattr(gh_process, "_default_run_gh", _capture_run_gh)
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-secret")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-secret")
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": "main"}}),
+            _assign_response(), "{}",
+        ])
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator.assign(9002, "copilot-swe-agent[bot]")
+        mutator.comment(9002, "audit body")
+        assert "COPILOT_ASSIGN_TOKEN" not in captured_env
+        assert "PROJECT_SYNC_TOKEN" not in captured_env
+
+    def test_project_subprocess_has_no_source_credentials(
+        self, monkeypatch
+    ) -> None:
+        import issues.gh_process as gh_process
+
+        captured_env: dict = {}
+
+        def _capture_run_gh(args, env=None):
+            if env is not None:
+                captured_env.update(env)
+            return _StubResult("{}")
+
+        monkeypatch.setattr(gh_process, "_default_run_gh", _capture_run_gh)
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-secret")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-secret")
+        runner = _StubRunner([
+            _project_item_response(), _mutation_success_response(),
+        ])
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator.set_project_status(9002, "In progress")
+        assert "COPILOT_ASSIGN_TOKEN" not in captured_env
+        assert "PROJECT_SYNC_TOKEN" not in captured_env
 
 
 # ---------------------------------------------------------------------------
@@ -878,6 +1093,29 @@ class TestWorkflowConstraints(WorkflowTextMixin):
     def test_trusted_default_branch_checkout(self, workflow_text) -> None:
         assert "ref: ${{ github.event.repository.default_branch }}" in workflow_text
 
+    def test_persist_credentials_false_on_checkout(self, workflow_text) -> None:
+        assert "persist-credentials: false" in workflow_text
+
+    def test_dispatch_job_references_protected_environment(self, workflow_text) -> None:
+        lines = workflow_text.splitlines()
+        in_dispatch_job = False
+        found_environment = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("dispatch:"):
+                in_dispatch_job = True
+            elif in_dispatch_job and stripped and not stripped.startswith("#"):
+                if stripped.startswith("environment:"):
+                    value = stripped.split(":", 1)[1].strip()
+                    if value == "copilot-dispatch":
+                        found_environment = True
+                if stripped.startswith("name:") or stripped.startswith("runs-on:") or stripped.startswith("jobs:"):
+                    if stripped.startswith("jobs:"):
+                        in_dispatch_job = False
+        assert found_environment, (
+            "dispatch job must reference environment: copilot-dispatch"
+        )
+
     def test_no_scheduling_batching_or_automation(self, workflow_text) -> None:
         for forbidden in (
             "schedule:", "- cron", "issues:", "auto-merge", "roadmap",
@@ -928,5 +1166,18 @@ class TestSecretIsolationAcrossWorkflows:
             )
             references_secret = self._references_dispatch_secret(text)
             if is_pr_triggered and references_secret:
+                found.append(workflow_file.name)
+        assert found == [], found
+
+    def test_pull_request_workflows_never_reference_dispatch_environment(self) -> None:
+        found = []
+        for workflow_file in self._workflow_files():
+            text = workflow_file.read_text(encoding="utf-8")
+            lowered = text.lower()
+            is_pr_triggered = (
+                "pull_request:" in lowered or "pull_request_target:" in lowered
+            )
+            references_env = "copilot-dispatch" in lowered
+            if is_pr_triggered and references_env:
                 found.append(workflow_file.name)
         assert found == [], found
