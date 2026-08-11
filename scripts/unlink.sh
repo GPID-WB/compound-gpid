@@ -79,15 +79,23 @@ def sha256(path):
     return h.hexdigest()
 
 removed_any = False
+target_real = os.path.realpath(target)
 for rel, recorded in data["files"].items():
     if rel.startswith("/") or rel.startswith("..") or rel == ".." or rel == "." or "\\" in rel or ":" in rel:
         continue
     file_path = os.path.join(target, rel)
-    if os.path.isfile(file_path) and sha256(file_path) == recorded:
-        os.unlink(file_path)
+    # The marker is a plain editable file, so never delete anything that does
+    # not resolve strictly inside the managed directory (guards keys such as
+    # docs/../../victim.txt).
+    real = os.path.realpath(file_path)
+    if real != target_real and not real.startswith(target_real + os.sep):
+        print("WARN %s/%s has an unsafe managed-copy path; leaving it in place" % (target_rel, rel))
+        continue
+    if os.path.isfile(real) and sha256(real) == recorded:
+        os.unlink(real)
         print("  %s/%s - managed copy removed" % (target_rel, rel))
         removed_any = True
-    elif os.path.exists(file_path):
+    elif os.path.exists(real):
         print("WARN %s/%s was modified by the user; leaving it in place" % (target_rel, rel))
 
 try:

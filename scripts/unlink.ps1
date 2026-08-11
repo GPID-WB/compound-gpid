@@ -68,22 +68,45 @@ function Remove-CgCopiedDirectoryUnit {
         Write-Warning "  $TargetRel has an invalid managed-copy marker; leaving it in place."
         return $false
     }
-    if ($null -eq $data -or -not ($data -is [System.Management.Automation.PSCustomObject]) -or $data.schemaVersion -ne 1 -or $null -eq $data.files) {
+    # Copy properties into a hashtable before any field access. Under
+    # Set-StrictMode -Version Latest, reading a missing property on a parsed
+    # JSON object (e.g. a `{}` marker) throws PropertyNotFoundException and
+    # would abort the whole unlink run instead of skipping the unit.
+    $props = @{}
+    if ($data -is [System.Management.Automation.PSCustomObject]) {
+        foreach ($property in @($data.PSObject.Properties)) { $props[$property.Name] = $property.Value }
+    }
+    $filesRaw = $props['files']
+    if ($props.Count -eq 0 -or $props['schemaVersion'] -ne 1 -or
+        -not ($filesRaw -is [System.Management.Automation.PSCustomObject])) {
         Write-Warning "  $TargetRel has an invalid managed-copy marker; leaving it in place."
         return $false
     }
 
+    $targetFull = [System.IO.Path]::GetFullPath($target).TrimEnd([char[]]@('\', '/'))
     $removedAny = $false
-    foreach ($property in @($data.files.PSObject.Properties)) {
+    foreach ($property in @($filesRaw.PSObject.Properties)) {
         $relative = [string]$property.Name
-        # Defensive: only accept safe relative paths (no drive, no traversal).
-        if ([System.IO.Path]::IsPathRooted($relative) -or $relative -match '^[A-Za-z]:' -or
-            $relative -match '(^|/)\.\.(/|$)' -or $relative -match '\.\.$') { continue }
         $filePath = Join-Path $target $relative
-        if (-not (Test-Path -LiteralPath $filePath -PathType Leaf)) { continue }
-        $current = Get-CgFileSha256 -Path $filePath
+        # Defensive containment: the marker is a plain editable file, so a
+        # traversal key must never be able to delete a file outside the
+        # managed directory. Reject rooted/drive/traversal keys (both `/` and
+        # `\` separators) and confirm the canonical path stays under $target.
+        $escaped = $true
+        if (-not ([System.IO.Path]::IsPathRooted($relative) -or $relative -match '^[A-Za-z]:' -or
+            $relative -match '(^|[\\/])\.\.([\\/]|$)' -or $relative -match '\.\.$')) {
+            $resolved = [System.IO.Path]::GetFullPath($filePath)
+            $prefix = $targetFull + [System.IO.Path]::DirectorySeparatorChar
+            if ($resolved.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) { $escaped = $false }
+        }
+        if ($escaped) {
+            Write-Warning "  $TargetRel/$relative has an unsafe managed-copy path; leaving it in place."
+            continue
+        }
+        if (-not (Test-Path -LiteralPath $resolved -PathType Leaf)) { continue }
+        $current = Get-CgFileSha256 -Path $resolved
         if ($current -eq [string]$property.Value) {
-            Remove-Item -LiteralPath $filePath -Force
+            Remove-Item -LiteralPath $resolved -Force
             Write-Host "  $TargetRel/$relative - managed copy removed" -ForegroundColor DarkGray
             $removedAny = $true
         } else {
