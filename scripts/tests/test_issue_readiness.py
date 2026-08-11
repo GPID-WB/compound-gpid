@@ -1867,3 +1867,37 @@ def test_auth_whole_word_terms() -> None:
     assert _AUTH_PATTERN.search("token: oauth")
     assert not _AUTH_PATTERN.search("error: could not resolve author 'octocat'")
     assert not _AUTH_PATTERN.search("no author found")
+
+
+# ---------------------------------------------------------------------------
+# Pathspec-magic rejection
+# ---------------------------------------------------------------------------
+
+
+def test_validate_path_entry_rejects_colon_prefix() -> None:
+    from issues.contract_path_helpers import validate_path_entry
+    assert validate_path_entry(":(glob)**") == "pathspec magic prefix ':'"
+    assert validate_path_entry(":Foo") == "pathspec magic prefix ':'"
+
+
+def test_is_overbroad_rejects_colon_prefix() -> None:
+    from issues.contract_path_helpers import _is_overbroad_allowed_path
+    assert _is_overbroad_allowed_path(":(glob)**") is True
+    assert _is_overbroad_allowed_path(":Foo") is True
+
+
+def test_pathspec_magic_fails_r012() -> None:
+    body = GOOD_BODY.replace(
+        "- `scripts/example.py`",
+        "- `:(glob)**`",
+    )
+    result = validate_contract(body)
+    by_id = {rule.id: rule for rule in result}
+    assert by_id["R012"].passed is False
+    assert "unsafe" in by_id["R012"].detail
+
+
+def test_normal_glob_paths_still_pass_r012() -> None:
+    result = validate_contract(GOOD_BODY)
+    by_id = {rule.id: rule for rule in result}
+    assert by_id["R012"].passed is True

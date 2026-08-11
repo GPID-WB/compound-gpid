@@ -25,6 +25,8 @@ def validate_path_entry(entry: str) -> Optional[str]:
     """
     if not entry:
         return "empty path entry"
+    if entry.startswith(":"):
+        return "pathspec magic prefix ':'"
     if entry != entry.strip():
         return "path entry has surrounding whitespace"
     if re.search(r"[\x00-\x1f\x7f]", entry):
@@ -90,7 +92,7 @@ def _is_overbroad_allowed_path(entry: str) -> bool:
         ``_is_overbroad_allowed_path("**")`` returns ``True``.
         ``_is_overbroad_allowed_path("docs/foo.md")`` returns ``False``.
     """
-    if entry in ("", ".", ".."):
+    if entry in ("", ".", "..") or entry.startswith(":"):
         return True
     for part in entry.split("/"):
         literal = re.sub(r"[*?\[\]]", "", part)
