@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
+_Generated 2026-08-11 · 488 artifacts (newest first) + 138 roadmap features_
 
 ## undated
 
@@ -122,6 +122,29 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-08-11
+
+- **[2026-08-11-kilo-agent-parsing-linker-copy-directory-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md)** · `review` · _—_ · `2026-08-11`
+  > **Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_m…
+- **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
+  > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
+
+## 2026-08-06
+
+- **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
+  > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Kilo agent/skill parsing failures — JSON Schema validation bug + YAML/encoding issues](.cg-docs/solutions/bugs/2026-08-06-kilo-agent-skill-parsing-failures.md)** · `solution` · _—_ · `2026-08-06`
+  > Both VS Code and Positron report parsing failures for all agent and skill files: - **VS Code** (v7.4.20, Windows): "F…
+
+## 2026-08-05
+
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md)** · `plan` · _active_ · `2026-08-05`
+  > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
+- **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _active_ · `2026-08-05`
+  > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
+- **[Kilo platform missing markdown_source permission for symlinked commands](.cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md)** · `solution` · _—_ · `2026-08-05`
+  > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
 
 ## 2026-08-04
 
@@ -1227,6 +1250,8 @@ _Generated 2026-08-04 · 481 artifacts (newest first) + 137 roadmap features_
   > Update custom agents for model and tool governance
 - **[Agent-verified outcome definitions with acceptance evals](roadmap.json#agent-verified-outcome-evals)** · `feature` · _idea_ · `—`
   > Agent-verified outcome definitions with acceptance evals
+- **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
+  > Make automatic artifact HTML publication opt-in by default
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
 - **[Automatic knowledge extraction prompt at end of /cg-work \(enhances /cg-compound capture rate\) \[from GSD\]](roadmap.json#auto-knowledge-extraction-after-work)** · `feature` · _idea_ · `—`
