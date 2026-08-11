@@ -10,6 +10,16 @@ from .contract import ApiError, ConfigError
 
 GH_TIMEOUT_SECONDS = 60
 
+# Word-boundary patterns for GitHub CLI stderr classification.
+# ``\b`` prevents ``auth`` from matching inside ``author``.
+_AUTH_PATTERN = re.compile(r"\b(?:auth(?:orizat|enticat)|oauth)\b", re.IGNORECASE)
+_SCOPE_PATTERN = re.compile(r"\bscope\b", re.IGNORECASE)
+_PERMISSION_PATTERN = re.compile(r"\bpermission\b", re.IGNORECASE)
+_NOT_FOUND_PATTERN = re.compile(
+    r"(?:\bnot\s+found\b|\bcould\s+not\s+find\b|\bdoes\s+not\s+exist\b)",
+    re.IGNORECASE,
+)
+
 
 def _default_run_gh(args: list[str]) -> subprocess.CompletedProcess:
     """Run ``gh`` with argv-safe subprocess arguments and a fixed timeout.
@@ -67,9 +77,9 @@ def _classify_gh_error(completed: subprocess.CompletedProcess, args: list[str]) 
         raise ApiError(f"GitHub rate limited: {stderr}")
     if "timeout" in lower or "timed out" in lower:
         raise ApiError(f"gh command timed out: {stderr}")
-    if status == "404" or "not found" in lower or "could not find" in lower or "does not exist" in lower:
+    if status == "404" or _NOT_FOUND_PATTERN.search(stderr):
         raise ConfigError(f"GitHub resource not found: {stderr}")
-    if status in ("401", "403") or "auth" in lower or "scope" in lower or "permission" in lower:
+    if status in ("401", "403") or _AUTH_PATTERN.search(stderr) or _SCOPE_PATTERN.search(stderr) or _PERMISSION_PATTERN.search(stderr):
         raise ConfigError(f"GitHub authorization/scope error: {stderr}")
     if "graphql" in args:
         raise ConfigError(f"GitHub GraphQL query/schema error: {stderr}")
@@ -81,19 +91,32 @@ def _classify_gh_error(completed: subprocess.CompletedProcess, args: list[str]) 
 def _classify_graphql_errors(errors: list | str | None) -> None:
     """Classify GraphQL error payloads into ApiError or ConfigError.
 
-    Rate-limit, timeout, transient, and server-side errors are classified as
-    ``ApiError`` (exit code 4).  Configuration, schema, authentication, scope,
-    and permission errors are classified as ``ConfigError`` (exit code 3).
+    ``None`` and empty lists are treated as successful responses (no error).
+    Non-list, non-string, empty-string, and mapping payloads are treated as
+    malformed transient failures (``ApiError``).  Non-empty error lists are
+    classified by inspecting their string representation for rate-limit,
+    timeout, transient, and server-side keywords.
 
     Args:
-        errors: The ``errors`` array from a GraphQL response.
+        errors: The ``errors`` field from a GraphQL response.
 
     Raises:
-        ApiError: For rate-limit, timeout, transient, or server-side errors.
-        ConfigError: For client configuration, schema, auth, or permission errors.
+        ApiError: For rate-limit, timeout, transient, server-side, or
+            malformed error payloads.
+        ConfigError: For client configuration, schema, auth, or permission
+            errors in well-formed error arrays.
     """
-    if errors is None:
+    if errors is None or (isinstance(errors, list) and len(errors) == 0):
         return
+    if isinstance(errors, str) and errors.strip() == "":
+        raise ApiError(
+            f"malformed GraphQL errors from gh: empty string"
+        )
+    if not isinstance(errors, (list, str)):
+        raise ApiError(
+            f"malformed GraphQL errors from gh: expected list or null, "
+            f"got {type(errors).__name__}"
+        )
     text = str(errors).lower()
     if any(kw in text for kw in ("rate limit", "secondary rate limit", "timeout", "timed out")):
         raise ApiError(f"GitHub GraphQL transient error: {errors}")

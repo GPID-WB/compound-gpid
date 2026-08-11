@@ -164,16 +164,29 @@ class GhCliClient:
             if not isinstance(field_value["name"], str):
                 raise ApiError("malformed graphql response from gh: status name is not a string")
             return field_value["name"]
-        page_info = project_items.get("pageInfo")
-        has_next_page = (
-            isinstance(page_info, Mapping)
-            and page_info.get("hasNextPage", False)
-        )
-        if has_next_page and not found_target:
-            raise ApiError(
-                "projectItems page is full and CompoundGPID-progress was not found; "
-                "refusing a potentially truncated project-status scan"
-            )
+        if not found_target:
+            page_info = project_items.get("pageInfo")
+            if page_info is None:
+                raise ApiError(
+                    "projectItems missing pageInfo and CompoundGPID-progress "
+                    "was not found; refusing a potentially truncated scan"
+                )
+            if not isinstance(page_info, Mapping):
+                raise ApiError(
+                    "malformed projectItems.pageInfo from gh: "
+                    f"expected object, got {type(page_info).__name__}"
+                )
+            has_next = page_info.get("hasNextPage")
+            if not isinstance(has_next, bool):
+                raise ApiError(
+                    "malformed projectItems.pageInfo.hasNextPage from gh: "
+                    f"expected boolean, got {type(has_next).__name__}"
+                )
+            if has_next:
+                raise ApiError(
+                    "projectItems page is full and CompoundGPID-progress "
+                    "was not found; refusing a potentially truncated scan"
+                )
         return None
 
     def _repo_owner_name(self) -> tuple[str, str]:

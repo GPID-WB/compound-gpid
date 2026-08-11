@@ -4,6 +4,14 @@ from __future__ import annotations
 import re
 from typing import Optional, Sequence
 
+from .contract_path_helpers import (  # noqa: F401 -- public re-exports
+    _brackets_unbalanced,
+    _is_overbroad_allowed_path,
+    _section_detail,
+    _section_nonempty,
+    validate_path_entry,
+)
+
 
 MARKER_RE = re.compile(
     r"<!--\s*compound-gpid-tracked:\s*([A-Za-z0-9][A-Za-z0-9-]*)\s*-->"
@@ -165,78 +173,6 @@ def find_feature_id(body: str) -> tuple[Optional[str], int]:
             if found is None:
                 found = match.group(1).strip()
     return found, count
-
-
-def _section_nonempty(content_lines: Sequence[str]) -> bool:
-    """Return whether a section has non-fenced, non-whitespace content."""
-    return any(line.strip() for line in _non_fence_lines(content_lines))
-
-
-def _section_detail(content_lines: Sequence[str] | None) -> str:
-    """Describe a section as absent, empty, or non-empty."""
-    if content_lines is None:
-        return "section absent"
-    return "empty" if not _section_nonempty(content_lines) else "non-empty"
-
-
-def validate_path_entry(entry: str) -> Optional[str]:
-    """Return an unsafe-path error, or ``None`` for a valid git pathspec.
-
-    Args:
-        entry: Repository-relative path or glob from the issue contract.
-
-    Returns:
-        A short validation error, or ``None`` when ``entry`` is safe.
-
-    Example:
-        ``validate_path_entry("docs/guide.md")`` returns ``None``.
-    """
-    if not entry:
-        return "empty path entry"
-    if entry != entry.strip():
-        return "path entry has surrounding whitespace"
-    if re.search(r"[\x00-\x1f\x7f]", entry):
-        return "control character in path entry"
-    if entry.startswith("//") or entry.startswith("\\\\"):
-        return "UNC path"
-    if entry.startswith("/"):
-        return "absolute path"
-    if re.match(r"^[A-Za-z]:", entry):
-        return "Windows drive path"
-    if "\\" in entry:
-        return "backslash not allowed in git pathspec"
-    for part in entry.split("/"):
-        if not part:
-            return "empty path segment (consecutive or trailing slash)"
-        if part == "..":
-            return "traversal segment '..'"
-        if _brackets_unbalanced(part):
-            return f"malformed glob (unbalanced brackets) in {part!r}"
-    return None
-
-
-def _brackets_unbalanced(segment: str) -> bool:
-    """Return whether a path segment has unbalanced glob brackets."""
-    depth = 0
-    for char in segment:
-        if char == "[":
-            depth += 1
-        elif char == "]":
-            if depth == 0:
-                return True
-            depth -= 1
-    return depth != 0
-
-
-def _is_overbroad_allowed_path(entry: str) -> bool:
-    """Return whether an allowed path has no literal scope component."""
-    if entry in ("", ".", ".."):
-        return True
-    for part in entry.split("/"):
-        literal = re.sub(r"[*?\[\]]", "", part)
-        if literal and literal not in (".", ".."):
-            return False
-    return True
 
 
 def pr_closes_issue(pr_body: str, issue_number: int) -> bool:

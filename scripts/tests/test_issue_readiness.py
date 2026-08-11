@@ -1050,7 +1050,10 @@ def test_gh_project_status_none_when_not_in_any_project() -> None:
         issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
                     "assignees": [], "labels": []},
         pr_json=[],
-        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": []}}}}},
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [],
+            "pageInfo": {"hasNextPage": False},
+        }}}}},
         repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
     )
     client = GhCliClient(runner=runner)
@@ -1117,9 +1120,10 @@ def test_gh_project_status_absent_project_value_returns_none() -> None:
         issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
                     "assignees": [], "labels": []},
         pr_json=[],
-        graphql_json={"data": {"repository": {"issue": {"projectItems": {"nodes": [
-            {"project": None},
-        ]}}}}},
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": None}],
+            "pageInfo": {"hasNextPage": False},
+        }}}}},
         repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
     )
     client = GhCliClient(runner=runner)
@@ -1619,3 +1623,141 @@ def test_result_to_dict_has_stable_keys() -> None:
     assert {rule["id"] for rule in payload["rules"]} == {
         f"R{n:03d}" for n in range(1, 22)
     }
+
+
+# ---------------------------------------------------------------------------
+# _classify_graphql_errors edge cases
+# ---------------------------------------------------------------------------
+
+
+def test_graphql_empty_list_is_noop() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    _classify_graphql_errors([])
+
+
+def test_graphql_empty_string_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="malformed"):
+        _classify_graphql_errors("")
+
+
+def test_graphql_dict_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="malformed"):
+        _classify_graphql_errors({"message": "oops"})
+
+
+def test_graphql_int_raises_api() -> None:
+    from issues.gh_process import _classify_graphql_errors
+    with pytest.raises(ApiError, match="malformed"):
+        _classify_graphql_errors(42)
+
+
+# ---------------------------------------------------------------------------
+# _classify_gh_error word-boundary tests
+# ---------------------------------------------------------------------------
+
+
+def test_author_not_matched_as_auth() -> None:
+    """Ensure ``author`` does not falsely match the ``auth`` pattern."""
+    def _completed(stderr: str, returncode: int = 1) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(args=["gh"], returncode=returncode, stdout="", stderr=stderr)
+
+    with pytest.raises(ApiError):
+        _classify_gh_error(
+            _completed("error: could not resolve author 'octocat'", returncode=2),
+            ["pr", "view", "1"],
+        )
+
+
+def test_genuine_auth_failure_is_config() -> None:
+    def _completed(stderr: str, returncode: int = 1) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(args=["gh"], returncode=returncode, stdout="", stderr=stderr)
+
+    with pytest.raises(ConfigError):
+        _classify_gh_error(
+            _completed("HTTP 401: Unauthorized", returncode=1),
+            ["issue", "view", "9"],
+        )
+    with pytest.raises(ConfigError):
+        _classify_gh_error(
+            _completed("HTTP 403: Forbidden (authorization)", returncode=1),
+            ["api", "graphql"],
+        )
+    with pytest.raises(ConfigError):
+        _classify_gh_error(
+            _completed("error: requires scope 'repo'", returncode=1),
+            ["issue", "view", "9"],
+        )
+    with pytest.raises(ConfigError):
+        _classify_gh_error(
+            _completed("error: permission denied", returncode=1),
+            ["pr", "list"],
+        )
+
+
+# ---------------------------------------------------------------------------
+# pageInfo hardening tests
+# ---------------------------------------------------------------------------
+
+
+def test_project_status_missing_pageinfo_raises_api() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": {"title": "Other"}, "fieldValueByName": {"name": "x"}}],
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    with pytest.raises(ApiError, match="missing pageInfo"):
+        client.get_project_status(1)
+
+
+def test_project_status_malformed_pageinfo_raises_api() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": {"title": "Other"}, "fieldValueByName": {"name": "x"}}],
+            "pageInfo": "not-a-mapping",
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    with pytest.raises(ApiError, match="expected object"):
+        client.get_project_status(1)
+
+
+def test_project_status_nonboolean_hasnextpage_raises_api() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": {"title": "Other"}, "fieldValueByName": {"name": "x"}}],
+            "pageInfo": {"hasNextPage": "yes"},
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    with pytest.raises(ApiError, match="expected boolean"):
+        client.get_project_status(1)
+
+
+def test_project_status_pageinfo_false_returns_none() -> None:
+    runner = RecordingRunner(
+        issue_json={"number": 1, "title": "t", "body": "", "state": "OPEN",
+                    "assignees": [], "labels": []},
+        pr_json=[],
+        graphql_json={"data": {"repository": {"issue": {"projectItems": {
+            "nodes": [{"project": {"title": "Other"}, "fieldValueByName": {"name": "x"}}],
+            "pageInfo": {"hasNextPage": False},
+        }}}}},
+        repo_json={"nameWithOwner": "GPID-WB/compound-gpid"},
+    )
+    client = GhCliClient(runner=runner)
+    assert client.get_project_status(1) is None
