@@ -257,6 +257,66 @@ Describe "unlink.ps1 - copy-directory managed removal" {
         Test-Path -LiteralPath $markerPath | Should -Be $false
         (Get-Content -LiteralPath $userFile -Raw).Trim() | Should -Be "user bytes"
     }
+
+    It "preserves a malformed (empty) managed-copy marker without crashing the unlink" {
+        # Regression (Critical): a marker of {} must not throw
+        # PropertyNotFoundException (StrictMode) and abort the whole unlink.
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $project = Join-Path $TestDrive "unlink-malformed-marker-project"
+        $agents = Join-Path $project ".kilo\agents"
+        $heldFile = Join-Path $agents "cg-held.md"
+        $markerPath = Join-Path $agents ".compound-gpid-managed-copy.json"
+        New-Item -ItemType Directory -Path $agents -Force | Out-Null
+        Set-Content -LiteralPath $heldFile -Value "user content"
+        Set-Content -LiteralPath $markerPath -Value "{}"
+
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes")
+        } finally {
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+
+        # Skipped untouched: file and malformed marker preserved, nothing deleted.
+        (Get-Content -LiteralPath $heldFile -Raw).Trim() | Should -Be "user content"
+        (Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8).Trim() | Should -Be "{}"
+    }
+
+    It "does not delete a file outside the managed directory via a traversal marker key" {
+        # Regression (Major): marker keys are attacker-influenceable; a
+        # backslash `..` key must not resolve/delete outside the managed dir.
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $project = Join-Path $TestDrive "unlink-traversal-project"
+        $agents = Join-Path $project ".kilo\agents"
+        $victim = Join-Path $project "victim.txt"
+        $markerPath = Join-Path $agents ".compound-gpid-managed-copy.json"
+        New-Item -ItemType Directory -Path $agents -Force | Out-Null
+        Set-Content -LiteralPath $victim -Value "must survive"
+        $victimHash = (Get-FileHash -LiteralPath $victim -Algorithm SHA256).Hash.ToLowerInvariant()
+        $marker = @{
+            schemaVersion = 1
+            source = ".kilo/agents"
+            files = @{ "..\victim.txt" = $victimHash }
+        }
+        $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllText($markerPath, (($marker | ConvertTo-Json -Depth 4) + "`n"), $utf8NoBom)
+
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes")
+        } finally {
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+
+        # The outside file is untouched even though its checksum matched.
+        (Get-Content -LiteralPath $victim -Raw).Trim() | Should -Be "must survive"
+    }
 }
 
 # ---------------------------------------------------------------------------

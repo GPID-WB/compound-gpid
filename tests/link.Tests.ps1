@@ -240,12 +240,12 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
     It "migrates Kilo agents behaviorally and preserves managed user edits" {
         $project = Join-Path $TestDrive "kilo-copy-project"
-        $profile = Join-Path $TestDrive "kilo-copy-profile"
+        $profileDir = Join-Path $TestDrive "kilo-copy-profile"
         $kiloRoot = Join-Path $project ".kilo"
         $sourceAgents = Join-Path $repoRoot ".kilo\agents"
         $targetAgents = Join-Path $kiloRoot "agents"
         $targetCommands = Join-Path $kiloRoot "commands"
-        New-Item -ItemType Directory -Path $project, $profile, $kiloRoot, $targetCommands -Force | Out-Null
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetCommands -Force | Out-Null
         Set-Content -LiteralPath (Join-Path $targetCommands "user-command.md") -Value "user-owned"
         $script:KiloCopyTestAgentJunction = $targetAgents
         New-Item -ItemType Junction -Path $targetAgents -Value $sourceAgents | Out-Null
@@ -256,7 +256,7 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         $oldSkipUpdate = $env:CG_SKIP_UPDATE
         Push-Location $project
         try {
-            $env:USERPROFILE = $profile
+            $env:USERPROFILE = $profileDir
             $env:CG_SKIP_UPDATE = "1"
             & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "kilo", "--yes")
         } finally {
@@ -280,7 +280,7 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         Set-Content -LiteralPath $targetWiki -Value "user customization"
         Push-Location $project
         try {
-            $env:USERPROFILE = $profile
+            $env:USERPROFILE = $profileDir
             $env:CG_SKIP_UPDATE = "1"
             & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
         } finally {
@@ -302,7 +302,7 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
         Push-Location $project
         try {
-            $env:USERPROFILE = $profile
+            $env:USERPROFILE = $profileDir
             $env:CG_SKIP_UPDATE = "1"
             & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "kilo", "--yes")
         } finally {
@@ -318,12 +318,12 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         # cause the unit to be preserved and skipped, NOT a terminating
         # PropertyNotFoundException that aborts the whole link.
         $project = Join-Path $TestDrive "kilo-malformed-marker-project"
-        $profile = Join-Path $TestDrive "kilo-malformed-marker-profile"
+        $profileDir = Join-Path $TestDrive "kilo-malformed-marker-profile"
         $kiloRoot = Join-Path $project ".kilo"
         $targetAgents = Join-Path $kiloRoot "agents"
         $heldFile = Join-Path $targetAgents "cg-held.md"
         $markerPath = Join-Path $targetAgents ".compound-gpid-managed-copy.json"
-        New-Item -ItemType Directory -Path $project, $profile, $kiloRoot, $targetAgents -Force | Out-Null
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetAgents -Force | Out-Null
         Set-Content -LiteralPath $heldFile -Value "user content"
         Set-Content -LiteralPath $markerPath -Value '{}'
 
@@ -331,7 +331,7 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         $oldSkipUpdate = $env:CG_SKIP_UPDATE
         Push-Location $project
         try {
-            $env:USERPROFILE = $profile
+            $env:USERPROFILE = $profileDir
             $env:CG_SKIP_UPDATE = "1"
             & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
         } finally {
@@ -357,18 +357,18 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         # user-owned file must NOT be stuck-skipped. Baseline sync copies the CG
         # files, preserves the user file, and writes a fresh marker.
         $project = Join-Path $TestDrive "kilo-baseline-adopt-project"
-        $profile = Join-Path $TestDrive "kilo-baseline-adopt-profile"
+        $profileDir = Join-Path $TestDrive "kilo-baseline-adopt-profile"
         $kiloRoot = Join-Path $project ".kilo"
         $targetAgents = Join-Path $kiloRoot "agents"
         $userFile = Join-Path $targetAgents "my-own-agent.md"
-        New-Item -ItemType Directory -Path $project, $profile, $kiloRoot, $targetAgents -Force | Out-Null
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetAgents -Force | Out-Null
         Set-Content -LiteralPath $userFile -Value "my custom agent"
 
         $oldProfile = $env:USERPROFILE
         $oldSkipUpdate = $env:CG_SKIP_UPDATE
         Push-Location $project
         try {
-            $env:USERPROFILE = $profile
+            $env:USERPROFILE = $profileDir
             $env:CG_SKIP_UPDATE = "1"
             & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
         } finally {
