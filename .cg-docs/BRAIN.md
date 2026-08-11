@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-10 · 628 entities · 4 topics · 268 edges_
+_Generated 2026-08-11 · 630 entities · 4 topics · 268 edges_
 
 ## How to Use
 
@@ -13,7 +13,7 @@ _Generated 2026-08-10 · 628 entities · 4 topics · 268 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 441 | BRAIN-01.md |
+| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 443 | BRAIN-01.md |
 | 2 | [Architecture Research Objective / Workflow Maturity Objective / Knowledge Brain Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective) | 138 | BRAIN-02.md |
 | 3 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
 | 4 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
@@ -25,8 +25,8 @@ _Generated 2026-08-10 · 628 entities · 4 topics · 268 edges_
 | brainstorm | 49 |
 | feature | 138 |
 | plan | 98 |
-| review | 145 |
-| solution | 184 |
+| review | 146 |
+| solution | 185 |
 | strategy | 14 |
 
 _42 entities not assigned to any topic_

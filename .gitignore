@@ -83,3 +83,8 @@ pr-result.txt
 # Local skill prototyping area should not be committed.
 .agents/skills/skill-creator/
 
+# Runtime managed-copy marker written into each copy-directory unit by
+# scripts/link.ps1 (and its transient .tmp-* / .bak-* siblings). These are
+# per-machine state, not generated-tree content, and must never be committed.
+**/.compound-gpid-managed-copy.json*
+
