@@ -770,6 +770,12 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
         $content | Should -Not -Match 'param\(\[object\[\]\]\$Args\)'
     }
 
+    It "tolerates a zero-argument invocation (link.ps1 with no flags) [regression guard]" {
+        # CI E2E runs `link.ps1` with no flags; ValueFromRemainingArguments then
+        # yields $null, and .Count on $null throws under Set-StrictMode.
+        $content | Should -Match 'if \(\$null -eq \$Arguments\) \{ \$Arguments = @\(\) \}'
+    }
+
     It "Relink prompt is guarded by -not `$Force [regression guard]" {
         # The junction-conflict branch Read-Host must be inside if (-not $Force).
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |

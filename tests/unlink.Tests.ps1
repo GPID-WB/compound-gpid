@@ -309,6 +309,10 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         $content | Should -Not -Match 'param\(\[object\[\]\]\$Args\)'
     }
 
+    It "tolerates a zero-argument invocation (unlink.ps1 with no flags) [regression guard]" {
+        $content | Should -Match 'if \(\$null -eq \$Arguments\) \{ \$Arguments = @\(\) \}'
+    }
+
     It "confirmation path is guarded by -not `$Force [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
             Should -Be 1

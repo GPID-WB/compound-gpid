@@ -33,6 +33,9 @@ $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 
 function Resolve-CgUnlinkArguments {
     param([object[]]$Arguments)
+    # Zero-arg invocation yields $null here via ValueFromRemainingArguments;
+    # foreach over $null is a silent no-op, but guard explicitly for symmetry.
+    if ($null -eq $Arguments) { $Arguments = @() }
     $force = $false
     foreach ($argObj in $Arguments) {
         $arg = [string]$argObj
@@ -105,13 +108,28 @@ function Remove-CgCopiedDirectoryUnit {
     return $removedAny
 }
 
+function Remove-CgJunction {
+    param([string]$Path)
+
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+    if (-not $item -or $item.LinkType -ne "Junction") {
+        throw "Refusing to remove non-junction path: $Path"
+    }
+
+    # Remove-Item prompts for -Recurse on populated junctions in Windows
+    # PowerShell 5.1 (and fails in non-interactive mode). Directory.Delete
+    # without recursion removes only the reparse point and never traverses
+    # into the shared source directory.
+    [System.IO.Directory]::Delete($item.FullName)
+}
+
 function Remove-CgDirectoryUnit {
     param([string]$TargetRel)
     $target = Join-Path $ProjectRoot $TargetRel
     $item = Get-Item -Path $target -ErrorAction SilentlyContinue
     if (-not $item) { return $false }
     if (Test-CgOwnedJunction $item) {
-        Remove-Item -Path $target -Force
+        Remove-CgJunction -Path $target
         Write-Host "  $TargetRel - junction removed" -ForegroundColor DarkGray
         return $true
     }
@@ -227,7 +245,7 @@ foreach ($rootName in @(".github", ".claude", ".agents", ".opencode", ".kilo")) 
     $rootPath = Join-Path $ProjectRoot $rootName
     $item = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
     if (Test-CgOwnedJunction $item) {
-        Remove-Item -Path $rootPath -Force
+        Remove-CgJunction -Path $rootPath
         Write-Host "  $rootName/ - legacy whole-root junction removed" -ForegroundColor DarkGray
         $removedAny = $true
     }

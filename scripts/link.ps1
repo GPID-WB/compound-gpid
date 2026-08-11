@@ -32,6 +32,10 @@ $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 
 function Resolve-CgLinkArguments {
     param([object[]]$Arguments)
+    # Zero-arg invocation (e.g. CI E2E: `link.ps1` with no flags) yields
+    # $null here via ValueFromRemainingArguments; .Count on $null throws under
+    # Set-StrictMode -Version Latest.
+    if ($null -eq $Arguments) { $Arguments = @() }
     $result = @{ Force = $false; Platforms = $null }
     for ($i = 0; $i -lt $Arguments.Count; $i++) {
         $arg = [string]$Arguments[$i]
