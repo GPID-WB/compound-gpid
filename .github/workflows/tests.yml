@@ -69,6 +69,7 @@ jobs:
           scripts/tests/test_config_migration.py
           scripts/tests/test_cg_characterization.py
           scripts/tests/test_cr_baseline.py
+          scripts/tests/test_issue_readiness.py
           -q
 
       - name: Run module registry and cross-suite gate
