@@ -217,6 +217,48 @@ Describe "unlink.ps1 - idempotency" {
     }
 }
 
+Describe "unlink.ps1 - copy-directory managed removal" {
+    It "removes checksum-verified managed copies but preserves user files" {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $project = Join-Path $TestDrive "unlink-copy-dir-project"
+        $agents = Join-Path $project ".kilo\agents"
+        New-Item -ItemType Directory -Path $agents -Force | Out-Null
+
+        $managedFile = Join-Path $agents "cg-wiki.md"
+        $userFile = Join-Path $agents "my-own-agent.md"
+        Set-Content -LiteralPath $managedFile -Value "managed bytes"
+        Set-Content -LiteralPath $userFile -Value "user bytes"
+        $markerPath = Join-Path $agents ".compound-gpid-managed-copy.json"
+        $managedHash = (Get-FileHash -LiteralPath $managedFile -Algorithm SHA256).Hash.ToLowerInvariant()
+        $marker = @{
+            schemaVersion = 1
+            source = ".kilo/agents"
+            files = @{ "cg-wiki.md" = $managedHash }
+        }
+        $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllText($markerPath, (($marker | ConvertTo-Json -Depth 4) + "`n"), $utf8NoBom)
+
+        # Also exercise the regex the unlink gitignore cleanup relies on, then
+        # run the real unlink.ps1 against this project.
+        $oldProfile = $env:USERPROFILE
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+
+        # Managed file and marker removed; user file preserved.
+        Test-Path -LiteralPath $managedFile | Should -Be $false
+        Test-Path -LiteralPath $markerPath | Should -Be $false
+        (Get-Content -LiteralPath $userFile -Raw).Trim() | Should -Be "user bytes"
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Regression guard: -Force parameter for non-interactive / CI use
 # ---------------------------------------------------------------------------
@@ -259,6 +301,12 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'Resolve-CgUnlinkArguments'
         $content | Should -Match '--yes'
         $content | Should -Match '-Force'
+    }
+
+    It "does not collide with PowerShell's automatic args variable" {
+        $content | Should -Match 'param\(\[object\[\]\]\$Arguments\)'
+        $content | Should -Match 'Resolve-CgUnlinkArguments -Arguments \$RawArgs'
+        $content | Should -Not -Match 'param\(\[object\[\]\]\$Args\)'
     }
 
     It "confirmation path is guarded by -not `$Force [regression guard]" {
