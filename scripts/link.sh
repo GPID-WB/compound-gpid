@@ -250,6 +250,10 @@ install_directory_unit() {
     parent="$(dirname "$target_path")"
     mkdir -p "$parent"
     if [ "$strategy" = "copy-directory" ]; then
+        # copy-directory semantics: POSIX uses a wholesale overwrite (cp -R).
+        # The Windows link.ps1 counterpart preserves user edits and removes
+        # stale managed files via a per-directory checksum manifest; that
+        # divergence is intentional and asserted in tests/parity.Tests.ps1.
         cp -R "$source_path/." "$target_path/"
         print_gray "$target_rel - copied"
     else

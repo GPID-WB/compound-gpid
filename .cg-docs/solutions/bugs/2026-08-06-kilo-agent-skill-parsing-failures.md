@@ -190,3 +190,4 @@ independent failures in Positron and other strict parsers.
 - [Kilo Issue #12076](https://github.com/Kilo-Org/kilocode/issues/12076) — Surface visible warnings when agent `.md` frontmatter fails to parse (documents the silent-skip behavior)
 - [Kilo Issue #12391](https://github.com/Kilo-Org/kilocode/issues/12391) — Regression: project agents stored through external directory symlinks no longer load (different root cause but same error message pattern)
 - [Kilo PR #12846](https://github.com/Kilo-Org/kilocode/pull/12846) — Fix for #12391
+- **Superseding fix**: `.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md` — the Windows `link.ps1` copy-directory mechanism that prevents the recurring junction-based parse cascade (this entry's YAML hardening was necessary but the recurring Windows cause was the external-path junction)

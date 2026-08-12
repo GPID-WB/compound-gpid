@@ -119,6 +119,16 @@ class TestTargetMappingSchema:
         assert "manualSnippet" in config_units[0]
         assert kilo["capabilities"]["supportsMultiVendorModels"] is True
 
+    def test_kilo_directory_units_are_project_local_copies(self) -> None:
+        data = gen.load_target_mapping(REPO_ROOT)
+        kilo = next(t for t in data["targets"] if t["id"] == "kilo")
+        directory_units = [
+            unit for unit in kilo["installUnits"] if unit["type"] == "directory"
+        ]
+
+        assert len(directory_units) == 5
+        assert {unit["strategy"] for unit in directory_units} == {"copy-directory"}
+
 
 class TestTargetMappingValidation:
     def test_missing_schema_version_fails(self) -> None:
