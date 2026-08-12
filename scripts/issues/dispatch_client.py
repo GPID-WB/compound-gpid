@@ -107,11 +107,13 @@ class GhDispatchMutator:
         carries the correct base branch.
         """
         if self._owner and self._name:
-            if self._base_branch == "main" and not getattr(
-                self, "_branch_resolved", False
-            ):
+            if not self._branch_resolved:
                 out = self._run(
-                    ["repo", "view", "--json", "defaultBranchRef"],
+                    [
+                        "repo", "view",
+                        "--repo", f"{self._owner}/{self._name}",
+                        "--json", "defaultBranchRef",
+                    ],
                     ASSIGN_TOKEN_ENV,
                 )
                 try:
@@ -122,10 +124,18 @@ class GhDispatchMutator:
                     ) from error
                 data = expect_mapping(data, "repo response", ApiError)
                 branch_ref = data.get("defaultBranchRef")
-                if isinstance(branch_ref, Mapping):
-                    resolved = branch_ref.get("name")
-                    if isinstance(resolved, str) and resolved:
-                        self._base_branch = resolved
+                if not isinstance(branch_ref, Mapping):
+                    raise ConfigError(
+                        f"defaultBranchRef missing or malformed for "
+                        f"{self._owner}/{self._name}"
+                    )
+                resolved = branch_ref.get("name")
+                if not isinstance(resolved, str) or not resolved:
+                    raise ConfigError(
+                        f"defaultBranchRef.name missing or empty for "
+                        f"{self._owner}/{self._name}"
+                    )
+                self._base_branch = resolved
                 self._branch_resolved = True
             return self._owner, self._name
         out = self._run(
@@ -148,8 +158,16 @@ class GhDispatchMutator:
                 f"could not determine repository from gh: {name_with_owner!r}"
             )
         branch_ref = data.get("defaultBranchRef")
-        if isinstance(branch_ref, Mapping):
-            self._base_branch = branch_ref.get("name") or "main"
+        if not isinstance(branch_ref, Mapping):
+            raise ConfigError(
+                f"defaultBranchRef missing or malformed for {name_with_owner}"
+            )
+        resolved = branch_ref.get("name")
+        if not isinstance(resolved, str) or not resolved:
+            raise ConfigError(
+                f"defaultBranchRef.name missing or empty for {name_with_owner}"
+            )
+        self._base_branch = resolved
         self._owner, self._name = owner, name
         self._branch_resolved = True
         return owner, name

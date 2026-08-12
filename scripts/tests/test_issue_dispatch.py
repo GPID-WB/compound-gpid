@@ -650,6 +650,9 @@ class TestGhDispatchMutator:
         mutator.assign(9002, "copilot-swe-agent[bot]")
         mutator.comment(9002, "audit body")
         assert len(runner.calls) == 3
+        assert "--repo" in runner.calls[0]["args"]
+        repo_idx = runner.calls[0]["args"].index("--repo")
+        assert runner.calls[0]["args"][repo_idx + 1] == "OWNER/REPO"
         for call in runner.calls[1:]:
             assert call["token"] == "assign-token"
 
@@ -906,8 +909,48 @@ class TestGhDispatchMutator:
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
         mutator = GhDispatchMutator(runner=runner, owner="O", name="R")
         mutator.assign(9002, "copilot-swe-agent[bot]")
-        assert runner.calls[0]["args"][:3] == ["repo", "view", "--json"]
+        assert "repo" in runner.calls[0]["args"]
+        assert "view" in runner.calls[0]["args"]
+        assert "--repo" in runner.calls[0]["args"]
+        repo_idx = runner.calls[0]["args"].index("--repo")
+        assert runner.calls[0]["args"][repo_idx + 1] == "O/R"
         assert mutator._base_branch == "develop"
+
+    def test_override_missing_default_branch_is_config_error(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": None}),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="O", name="R")
+        with pytest.raises(ConfigError, match="defaultBranchRef"):
+            mutator.assign(9002, "copilot-swe-agent[bot]")
+
+    def test_override_empty_default_branch_name_is_config_error(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({"defaultBranchRef": {"name": ""}}),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="O", name="R")
+        with pytest.raises(ConfigError, match="defaultBranchRef"):
+            mutator.assign(9002, "copilot-swe-agent[bot]")
+
+    def test_auto_resolve_missing_default_branch_is_config_error(
+        self, monkeypatch
+    ) -> None:
+        runner = _StubRunner([
+            json.dumps({"nameWithOwner": "OWNER/REPO", "defaultBranchRef": None}),
+        ])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner)
+        with pytest.raises(ConfigError, match="defaultBranchRef"):
+            mutator.assign(9002, "copilot-swe-agent[bot]")
 
     def test_assignment_and_comment_target_same_repository(
         self, monkeypatch
@@ -1225,3 +1268,47 @@ class TestSecretIsolationAcrossWorkflows:
             if is_pr_triggered and references_env:
                 found.append(workflow_file.name)
         assert found == [], found
+
+
+# ---------------------------------------------------------------------------
+# Active-state integrity
+# ---------------------------------------------------------------------------
+
+
+ACTIVE_STATE = REPO_ROOT / ".cg-docs" / "active-state" / "current.json"
+
+
+class TestActiveStateIntegrity:
+    def test_current_json_has_no_duplicate_keys(self) -> None:
+        raw = ACTIVE_STATE.read_text(encoding="utf-8-sig")
+        duplicates: list[str] = []
+
+        def _collect_dupes(pairs):
+            seen: dict = {}
+            for key, value in pairs:
+                if key in seen:
+                    duplicates.append(key)
+                seen[key] = value
+            return seen
+
+        json.loads(raw, object_pairs_hook=_collect_dupes)
+        assert duplicates == [], (
+            f"current.json contains duplicate keys: {duplicates}"
+        )
+
+    def test_current_json_preserves_blocking_decisions(self) -> None:
+        data = json.loads(ACTIVE_STATE.read_text(encoding="utf-8-sig"))
+        decisions = data.get("unresolvedDecisions", [])
+        ids = [d["id"] for d in decisions]
+        assert "D4" in ids
+        assert "D5" in ids
+        assert "D7" in ids
+        d7 = next(d for d in decisions if d["id"] == "D7")
+        assert d7["blocking"] is True
+
+    def test_handoff_targets_dev_branch(self) -> None:
+        text = ACTIVE_STATE.read_text(encoding="utf-8-sig")
+        next_cmd = json.loads(text).get("nextCommand", "")
+        assert "main" not in next_cmd.lower() or "dev" in next_cmd.lower(), (
+            "nextCommand must reference dev, not main"
+        )
