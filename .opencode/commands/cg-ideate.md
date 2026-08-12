@@ -1,5 +1,5 @@
 ---
-description: 'Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next.'
+description: "Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next."
 ---
 
 # Ideate

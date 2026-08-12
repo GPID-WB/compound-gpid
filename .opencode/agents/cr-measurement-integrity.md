@@ -1,5 +1,5 @@
 ---
-description: 'Audits measurement and classification integrity for composite indicators, clustering, thresholding, and cross-vintage comparability. Flags undisclosed weighting, unstable rankings, comparability breaks, and unsupported cluster claims.'
+description: "Audits measurement and classification integrity for composite indicators, clustering, thresholding, and cross-vintage comparability. Flags undisclosed weighting, unstable rankings, comparability breaks, and unsupported cluster claims."
 mode: subagent
 ---
 

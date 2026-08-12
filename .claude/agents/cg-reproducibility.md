@@ -1,5 +1,5 @@
 ---
-description: 'Reviews reproducibility: environment lockfiles, relative paths, random seeds, deterministic outputs. Trilingual R/Python/Stata.'
+description: "Reviews reproducibility: environment lockfiles, relative paths, random seeds, deterministic outputs. Trilingual R/Python/Stata."
 ---
 
 You are a reproducibility reviewer for R, Python, and Stata data science projects.

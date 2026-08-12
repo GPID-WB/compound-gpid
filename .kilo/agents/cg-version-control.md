@@ -1,5 +1,5 @@
 ---
-description: 'Reviews version control practices: commit hygiene, branching, .gitignore, sensitive data exposure. Trilingual R/Python/Stata.'
+description: "Reviews version control practices: commit hygiene, branching, .gitignore, sensitive data exposure. Trilingual R/Python/Stata."
 mode: subagent
 ---
 

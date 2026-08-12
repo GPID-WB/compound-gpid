@@ -1,5 +1,5 @@
 ---
-description: 'Bridges theory and data: formulates testable implications of theoretical assumptions, audits specification choice documentation, detects specification searching patterns, and checks that theory-data dialogue is documented in .cg-docs/research/specifications/. Loaded by /cr-review for Specification Analysis tasks.'
+description: "Bridges theory and data: formulates testable implications of theoretical assumptions, audits specification choice documentation, detects specification searching patterns, and checks that theory-data dialogue is documented in .cg-docs/research/specifications/. Loaded by /cr-review for Specification Analysis tasks."
 mode: subagent
 ---
 

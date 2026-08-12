@@ -1,5 +1,5 @@
 ---
-description: 'Manage the project wiki: rebuild pages, restructure sections, check status, or convert to GitHub Wiki format.'
+description: "Manage the project wiki: rebuild pages, restructure sections, check status, or convert to GitHub Wiki format."
 ---
 
 # Wiki

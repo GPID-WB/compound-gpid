@@ -1,5 +1,5 @@
 ---
-description: 'Reviews academic writing quality in economics research: journal style compliance, section structure, argument flow, equation exposition, notation consistency, and citation completeness. Loaded by /cr-review for Writing tasks.'
+description: "Reviews academic writing quality in economics research: journal style compliance, section structure, argument flow, equation exposition, notation consistency, and citation completeness. Loaded by /cr-review for Writing tasks."
 mode: subagent
 ---
 

@@ -14,7 +14,7 @@
       "path": ".agents/commands/cg-brain-rebuild.md",
       "source": ".github/prompts/cg-brain-rebuild.prompt.md",
       "kind": "command",
-      "sha256": "0303a1ab056900f71ef50390d16d6bc843f8876a82e371ee3b637f705deedb4b",
+      "sha256": "6d0d70dc1eb541f6806149130bc2de61598dbcd33cdf9dc5549a7fc1bd31f9f8",
       "executable": false
     },
     {
@@ -28,14 +28,14 @@
       "path": ".agents/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "9be7291b8a0823aba2abd090d410217ccfca29da3db71095317cfef80539e569",
+      "sha256": "bb5985b44032b5242e7e541d0a0bdab835599eed195830242e73c4851ba358d2",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-compound-refresh.md",
       "source": ".github/prompts/cg-compound-refresh.prompt.md",
       "kind": "command",
-      "sha256": "9cf1626aad98133eb347e636e6e279f7e011a8cc744bf52a44acfd81f7f2c032",
+      "sha256": "889b20ed52fe8b208dc1c2921873db019d0b9b6f6e8f72f7da21f658582b01be",
       "executable": false
     },
     {
@@ -49,21 +49,21 @@
       "path": ".agents/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "32674276bf5e3daead1d17159817039e305787b23ce9c47d4caad4f8875cefe3",
+      "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-diagnose.md",
       "source": ".github/prompts/cg-diagnose.prompt.md",
       "kind": "command",
-      "sha256": "de58405382b4d880ff20e58d49c27dec4b4fa43e7bf09d8968d5ddc001057099",
+      "sha256": "288e7699ea64362ff79d6d40cf378ae0706188596aedab4b003b14a3a4902ba3",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-fix-problems.md",
       "source": ".github/prompts/cg-fix-problems.prompt.md",
       "kind": "command",
-      "sha256": "325e4196183b1fc0856b0179535cf1aa3e924e658117f0276e6edb4452a548c3",
+      "sha256": "fbb5eeaf6e98935d79f4964c34a1f382c603b446f67eb1b7d30f925620565cd7",
       "executable": false
     },
     {
@@ -77,28 +77,28 @@
       "path": ".agents/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "941569a1cc95f74d61cb651ec0a78931398f5b8af50bbc456ba67dc3a4c67e10",
+      "sha256": "a20bd64b6abde106d1d2769ce29d0b943815fc814b3067a40b3aba4fc7f1f3c9",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-ideate.md",
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",
-      "sha256": "2af0d0f85ee7829e1e78168ae5b7aee3ce1f1640653ad556d8952ba3aac3b442",
+      "sha256": "11e24e1e65444f929413d534732bd5f36ab4cbdd9baf17414ebf17c8c8512960",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-issues.md",
       "source": ".github/prompts/cg-issues.prompt.md",
       "kind": "command",
-      "sha256": "5f1287043be57641bea4a1018b4f532318f663c7dcf4d277395242faadda6d65",
+      "sha256": "a291301a46ba3b6cc5f53609c3c75afd9d4640bb69a9e5a65b36e9a0de037e3f",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-plan-review.md",
       "source": ".github/prompts/cg-plan-review.prompt.md",
       "kind": "command",
-      "sha256": "33ed4b6e6ebf84b8d134c34581ddd9d237bf6b42830bf672bf68c9ce9a1f35f9",
+      "sha256": "2dd2d431b214697699d5ba919c96a291934df54ca2827bb0d2aece134d88eb99",
       "executable": false
     },
     {
@@ -112,14 +112,14 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "680a83898df00fd79e623b6acdfa779a36cc06fc69b28b72317c4329fcf599fa",
+      "sha256": "11321d0812f31ec9545d9fe0b92e371bce3c03b6b5d9bd93ebdea22bf69eb486",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-render-doc.md",
       "source": ".github/prompts/cg-render-doc.prompt.md",
       "kind": "command",
-      "sha256": "70288b2759516678d6c7fd9170874b4bc55d21b4f9267a3e229020dc584aa016",
+      "sha256": "3f4e493790bc785c45dc1d05f30a65cd8e30d47ca51cadfeb0d3ce5f782510f1",
       "executable": false
     },
     {
@@ -147,7 +147,7 @@
       "path": ".agents/commands/cg-roadmap-view.md",
       "source": ".github/prompts/cg-roadmap-view.prompt.md",
       "kind": "command",
-      "sha256": "314fa3a08a666842edb5b1bc9953df3668750b2c33bade8d6a04c04d4b249f4b",
+      "sha256": "c064e5707de6463e9d2e50d1ae67d5c5287b3fdfa9278fe7b493e441dfa27b15",
       "executable": false
     },
     {
@@ -161,7 +161,7 @@
       "path": ".agents/commands/cg-strategy.md",
       "source": ".github/prompts/cg-strategy.prompt.md",
       "kind": "command",
-      "sha256": "57de59a8483e0d66422414fe125c53a07f0f7661a25dc497922bf34155cf8389",
+      "sha256": "fcdc54cf304074acae494922f55b43fbbe63402da3fdee854f15e33df566e325",
       "executable": false
     },
     {
@@ -175,56 +175,56 @@
       "path": ".agents/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "6bc49171078095584626b55d37b525d90833f67fc738be64a779a38699dbe401",
+      "sha256": "12331c79f8ed4882297bd00bc422a345a1d07f5eec3290722f45723a4feb9b8c",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-wiki.md",
       "source": ".github/prompts/cg-wiki.prompt.md",
       "kind": "command",
-      "sha256": "a92b277ce456b51e073025fb8eaa02f4cad0a2bb8c0e790552eeff936676c0d9",
+      "sha256": "1aaf7037442171d9eed4eb53aa913348d8a9e474baed927d91c1360f1f0cc729",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "6d2886aa694fb37752ef4ebe2dea04dd2b3505d6ddb05148ed04b058de98837a",
+      "sha256": "46d9fd25707e91c66dd5e50329a0d0820322c700985b43e82292f1fbfaffa85e",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "c9e12a32877a8cde94a84673d905e6d2cac70ce391cb0cd660720009433485f3",
+      "sha256": "b801d1902eb79522806aa23e98fd69f0af7043595e4c29d5e0133764a6b79417",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-compound.md",
       "source": ".github/prompts/cr-compound.prompt.md",
       "kind": "command",
-      "sha256": "1509a27e98c42984991b51ca255e8b3ed5e8bc691cb203e7074aec07a4125b5a",
+      "sha256": "c37a01f28b92b5ce26a3d091516de6e778c137de55c4e23f57d711b9befa9c05",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "8b3307f85a3a521e6d4445514435267c32c68619416d2ee9fb0d0ba37489cc58",
+      "sha256": "a23c3440732aeb4ce3d52b3f4e79a8937e08d2778a1cf66152637b7fb5b8eefa",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "1afefa013987840b18297625228fa17a37903402f540a3dc2309a50e7c336fa6",
+      "sha256": "69e1454fe13e221bca985c40f902d86a892ea4afe790385a867052d7629273e1",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "a4d9bf97c0b8ac22265b4feadc56dfdbaf1bdcefc5a06b72cae25561579e575d",
+      "sha256": "36141d1540c48f8df58edb8aa2ab36f12f54d73b0f8f96aa54cc7735253e6bef",
       "executable": false
     },
     {

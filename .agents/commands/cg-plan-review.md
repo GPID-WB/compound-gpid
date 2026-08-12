@@ -1,5 +1,5 @@
 ---
-description: 'Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan.'
+description: "Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan."
 ---
 
 <!-- Agents dispatched: cg-plan-critic (plan review), cg-roadmap (side-idea capture). Note: 'agents:' frontmatter is non-functional in .prompt.md files. -->

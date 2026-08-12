@@ -1,5 +1,5 @@
 ---
-description: 'Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps.'
+description: "Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps."
 ---
 
 # Diagnose Crash
