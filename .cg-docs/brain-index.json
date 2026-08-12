@@ -9077,6 +9077,28 @@
       ]
     },
     {
+      "date": "2026-08-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
+      "slug": "2026-08-11-kilo-agent-parsing-linker-copy-directory-review",
+      "status": "",
+      "summary": "**Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_mapping.py`) **Findings**: 14 (P1: 1, P2: 10, P3: 3)",
+      "tags": [],
+      "title": "2026-08-11-kilo-agent-parsing-linker-copy-directory-review",
+      "top_keywords": [
+        "link.ps1",
+        "$null",
+        ".gitignore",
+        "copy-directory",
+        "fix",
+        "sync",
+        "scripts/link.ps1",
+        ".kilo/",
+        "link.sh",
+        "review"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -10987,6 +11009,41 @@
         "gh",
         ".get(...)",
         "exit"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
+      "slug": "2026-08-11-windows-link-kilo-copy-directory-parse-failure",
+      "status": "",
+      "summary": "Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error for **all 17 agent files** in `.kilo/agents/`: The agent YAML itself was valid: frontmatter validation (description quoted, `mode: subagent`, no BOM) passed for every file. The files were also not stale generated copies — the error persisted across IDE restarts and reloads.",
+      "tags": [
+        "kilo",
+        "agents",
+        "link",
+        "windows",
+        "junction",
+        "symlink",
+        "copy-directory",
+        "checksum",
+        "manifest",
+        "parsing",
+        "posix",
+        "pester"
+      ],
+      "title": "Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions",
+      "top_keywords": [
+        "copy-directory",
+        "link.ps1",
+        "link.sh",
+        "$args",
+        "kilo",
+        "windows",
+        "resolve-cglinkarguments",
+        "--platforms kilo --yes",
+        ".gitignore",
+        "remove-item -recurse"
       ]
     },
     {
@@ -18051,7 +18108,7 @@
   "topic_count": 4,
   "topics": [
     {
-      "entity_count": 441,
+      "entity_count": 443,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -18330,6 +18387,7 @@
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md",
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
+        ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -18377,6 +18435,7 @@
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
         ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
         ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
+        ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",

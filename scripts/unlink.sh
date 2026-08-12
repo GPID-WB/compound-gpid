@@ -51,6 +51,75 @@ all_unit_targets() {
         '.kilo/commands|directory' '.kilo/skills|directory' '.kilo/agents|directory' '.kilo/instructions|directory' '.kilo/shared|directory' '.kilo/AGENTS.md|file' '.kilo/kilo.json|file'
 }
 
+remove_copy_directory_unit() {
+    local target_rel="$1" target_path="$PROJECT_ROOT/$1"
+    "$PYTHON_CMD" - "$target_path" "$target_rel" <<'PYEOF'
+import hashlib
+import json
+import os
+import sys
+
+target, target_rel = sys.argv[1:3]
+marker = os.path.join(target, ".compound-gpid-managed-copy.json")
+if not os.path.isfile(marker):
+    sys.exit(1)
+try:
+    with open(marker, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+except (OSError, ValueError):
+    sys.exit(1)
+if data.get("schemaVersion") != 1 or not isinstance(data.get("files"), dict):
+    sys.exit(1)
+
+def sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+removed_any = False
+target_real = os.path.realpath(target)
+for rel, recorded in data["files"].items():
+    if rel.startswith("/") or rel.startswith("..") or rel == ".." or rel == "." or "\\" in rel or ":" in rel:
+        continue
+    file_path = os.path.join(target, rel)
+    # The marker is a plain editable file, so never delete anything that does
+    # not resolve strictly inside the managed directory (guards keys such as
+    # docs/../../victim.txt).
+    real = os.path.realpath(file_path)
+    if real != target_real and not real.startswith(target_real + os.sep):
+        print("WARN %s/%s has an unsafe managed-copy path; leaving it in place" % (target_rel, rel))
+        continue
+    if os.path.isfile(real) and sha256(real) == recorded:
+        os.unlink(real)
+        print("  %s/%s - managed copy removed" % (target_rel, rel))
+        removed_any = True
+    elif os.path.exists(real):
+        print("WARN %s/%s was modified by the user; leaving it in place" % (target_rel, rel))
+
+try:
+    os.unlink(marker)
+    print("  %s - managed-copy marker removed" % target_rel)
+    removed_any = True
+except OSError:
+    pass
+
+# Prune empty subdirectories bottom-up, never following or removing symlinks.
+for root, dirs, _files in os.walk(target, topdown=False):
+    for d in dirs:
+        candidate = os.path.join(root, d)
+        if os.path.islink(candidate):
+            continue
+        try:
+            os.rmdir(candidate)
+        except OSError:
+            pass
+
+sys.exit(0 if removed_any else 1)
+PYEOF
+}
+
 remove_directory_unit() {
     local target_rel="$1" target_path link_target
     target_path="$PROJECT_ROOT/$target_rel"
@@ -64,6 +133,11 @@ remove_directory_unit() {
         fi
         print_yellow "  $target_rel - non-Compound symlink, skipping"
         return 1
+    fi
+    if [ -d "$target_path" ]; then
+        # Real directory: remove only if it is a managed copy-directory
+        # (marker present); otherwise treat as user-owned and skip.
+        if remove_copy_directory_unit "$target_rel"; then return 0; fi
     fi
     print_yellow "  $target_rel - user-owned path, skipping"
     return 1

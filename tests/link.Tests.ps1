@@ -175,6 +175,218 @@ Describe "link.ps1 - per-subdirectory junction creation" {
     }
 }
 
+Describe "link.ps1 - Kilo copy-directory strategy" {
+    BeforeAll {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $linkContent = Get-Content (Join-Path $repoRoot "scripts\link.ps1") -Raw -Encoding UTF8
+        $mapping = Get-Content (Join-Path $repoRoot ".github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $kilo = @($mapping.targets | Where-Object { $_.id -eq "kilo" })[0]
+    }
+
+    AfterEach {
+        if ($script:KiloCopyTestAgentJunction) {
+            $remainingLink = Get-Item -LiteralPath $script:KiloCopyTestAgentJunction -Force -ErrorAction SilentlyContinue
+            if ($remainingLink -and $remainingLink.LinkType -eq "Junction") {
+                [System.IO.Directory]::Delete($remainingLink.FullName)
+            }
+            $script:KiloCopyTestAgentJunction = $null
+        }
+    }
+
+    It "maps every Kilo directory unit to copy-directory" {
+        $directoryUnits = @($kilo.installUnits | Where-Object { $_.type -eq "directory" })
+        $directoryUnits.Count | Should -Be 5
+        @($directoryUnits | Where-Object { $_.strategy -ne "copy-directory" }).Count | Should -Be 0
+    }
+
+    It "passes each mapped directory strategy into Install-CgDirectoryUnit" {
+        $linkContent | Should -Match 'Install-CgDirectoryUnit[^\r\n]+-Strategy \(\[string\]\$unit\.strategy\)'
+    }
+
+    It "migrates a Compound-owned junction when copy-directory is selected" {
+        $linkContent | Should -Match '\$Strategy -eq "copy-directory"'
+        $linkContent | Should -Match 'migrating legacy junction to copy-directory'
+        $linkContent | Should -Match 'Remove-CgJunction -Path \$target'
+    }
+
+    It "requires exact expected-target ownership for junction migration" {
+        $linkContent | Should -Match 'Test-CgOwnedJunction -Item \$existing -ExpectedTarget \$source'
+        $linkContent | Should -Match 'OrdinalIgnoreCase'
+        $linkContent | Should -Not -Match '\*compound-gpid\*'
+    }
+
+    It "removes populated junctions without recursive traversal" {
+        $linkContent | Should -Match '\[System\.IO\.Directory\]::Delete\(\$item\.FullName\)'
+        $linkContent | Should -Match 'Refusing to remove non-junction path'
+    }
+
+    It "syncs managed files by checksum and rejects a linked result" {
+        $linkContent | Should -Match 'Sync-CgCopiedDirectory -Source \$source'
+        $linkContent | Should -Match 'Resolve-CgContainedCopyPath -Base \$Target'
+        $linkContent | Should -Match 'Test-CgCopyPathHasReparsePoint -Base \$Target'
+        $linkContent | Should -Match 'Get-CgFileSha256 -Path \$destination'
+        $linkContent | Should -Match 'removed stale managed file'
+        $linkContent | Should -Match 'was modified or is user-owned; preserving it'
+        $linkContent | Should -Match 'copy-directory invariant failed'
+    }
+
+    It "manages copied directories via checksum manifests and baseline sync" {
+        $linkContent | Should -Match '\.compound-gpid-managed-copy\.json'
+        $linkContent | Should -Match 'performing a baseline sync \(user files preserved\)'
+        $linkContent | Should -Not -Match 'Adopt-CgCopiedDirectoryIfExact'
+        $linkContent | Should -Match 'Refusing to write a managed-copy marker through a reparse point'
+        $linkContent | Should -Match 'System\.IO\.File\]::Replace\(\$temporaryPath, \$markerPath, \$backupPath\)'
+    }
+
+    It "migrates Kilo agents behaviorally and preserves managed user edits" {
+        $project = Join-Path $TestDrive "kilo-copy-project"
+        $profileDir = Join-Path $TestDrive "kilo-copy-profile"
+        $kiloRoot = Join-Path $project ".kilo"
+        $sourceAgents = Join-Path $repoRoot ".kilo\agents"
+        $targetAgents = Join-Path $kiloRoot "agents"
+        $targetCommands = Join-Path $kiloRoot "commands"
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetCommands -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $targetCommands "user-command.md") -Value "user-owned"
+        $script:KiloCopyTestAgentJunction = $targetAgents
+        New-Item -ItemType Junction -Path $targetAgents -Value $sourceAgents | Out-Null
+        $sourceWiki = Join-Path $sourceAgents "cg-wiki.md"
+        $sourceHashBefore = (Get-FileHash -LiteralPath $sourceWiki -Algorithm SHA256).Hash
+
+        $oldProfile = $env:USERPROFILE
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:USERPROFILE = $profileDir
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "kilo", "--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            $remainingAgentLink = Get-Item -LiteralPath $targetAgents -Force -ErrorAction SilentlyContinue
+            if ($remainingAgentLink -and $remainingAgentLink.LinkType -eq "Junction") {
+                [System.IO.Directory]::Delete($remainingAgentLink.FullName)
+            }
+        }
+
+        (Get-Item -LiteralPath $targetAgents -Force).LinkType | Should -BeNullOrEmpty
+        Test-Path -LiteralPath (Join-Path $targetAgents "cg-wiki.md") | Should -Be $true
+        Test-Path -LiteralPath (Join-Path $targetAgents ".compound-gpid-managed-copy.json") | Should -Be $true
+        (Get-Content -LiteralPath (Join-Path $targetCommands "user-command.md") -Raw).Trim() | Should -Be "user-owned"
+        Test-Path -LiteralPath (Join-Path $project ".github") | Should -Be $false
+        (Get-FileHash -LiteralPath $sourceWiki -Algorithm SHA256).Hash | Should -Be $sourceHashBefore
+
+        $targetWiki = Join-Path $targetAgents "cg-wiki.md"
+        Set-Content -LiteralPath $targetWiki -Value "user customization"
+        Push-Location $project
+        try {
+            $env:USERPROFILE = $profileDir
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+        (Get-Content -LiteralPath $targetWiki -Raw).Trim() | Should -Be "user customization"
+        Test-Path -LiteralPath (Join-Path $project ".github") | Should -Be $false
+
+        $victim = Join-Path $project "victim.txt"
+        Set-Content -LiteralPath $victim -Value "must survive"
+        $victimHash = (Get-FileHash -LiteralPath $victim -Algorithm SHA256).Hash.ToLowerInvariant()
+        $markerPath = Join-Path $targetAgents ".compound-gpid-managed-copy.json"
+        $marker = Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $marker.files | Add-Member -NotePropertyName "../../victim.txt" -NotePropertyValue $victimHash
+        $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllText($markerPath, (($marker | ConvertTo-Json -Depth 4) + "`n"), $utf8NoBom)
+
+        Push-Location $project
+        try {
+            $env:USERPROFILE = $profileDir
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "kilo", "--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+        (Get-Content -LiteralPath $victim -Raw).Trim() | Should -Be "must survive"
+    }
+
+    It "preserves a malformed copy-directory marker without crashing the link" {
+        # Regression (P1.1): a parseable-but-malformed marker such as {} must
+        # cause the unit to be preserved and skipped, NOT a terminating
+        # PropertyNotFoundException that aborts the whole link.
+        $project = Join-Path $TestDrive "kilo-malformed-marker-project"
+        $profileDir = Join-Path $TestDrive "kilo-malformed-marker-profile"
+        $kiloRoot = Join-Path $project ".kilo"
+        $targetAgents = Join-Path $kiloRoot "agents"
+        $heldFile = Join-Path $targetAgents "cg-held.md"
+        $markerPath = Join-Path $targetAgents ".compound-gpid-managed-copy.json"
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetAgents -Force | Out-Null
+        Set-Content -LiteralPath $heldFile -Value "user content"
+        Set-Content -LiteralPath $markerPath -Value '{}'
+
+        $oldProfile = $env:USERPROFILE
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:USERPROFILE = $profileDir
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+
+        # The link did not crash (P1.1): the user-held file is preserved, and
+        # the malformed marker is recovered by a baseline sync (P2.10) instead
+        # of leaving the unit unmanaged/stuck.
+        (Get-Content -LiteralPath $heldFile -Raw).Trim() | Should -Be "user content"
+        $recovered = Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $recovered.schemaVersion | Should -Be 1
+        $recovered.source | Should -Be ".kilo/agents"
+        Test-Path -LiteralPath (Join-Path $targetAgents "cg-wiki.md") | Should -Be $true
+        # ...and the other Kilo units still get copied (link did not abort).
+        Test-Path -LiteralPath (Join-Path $kiloRoot "commands\cg-plan.md") | Should -Be $true
+    }
+
+    It "adopts a real directory with a user-owned file via baseline sync" {
+        # Regression (P2.6/P2.10): a real target directory that already holds a
+        # user-owned file must NOT be stuck-skipped. Baseline sync copies the CG
+        # files, preserves the user file, and writes a fresh marker.
+        $project = Join-Path $TestDrive "kilo-baseline-adopt-project"
+        $profileDir = Join-Path $TestDrive "kilo-baseline-adopt-profile"
+        $kiloRoot = Join-Path $project ".kilo"
+        $targetAgents = Join-Path $kiloRoot "agents"
+        $userFile = Join-Path $targetAgents "my-own-agent.md"
+        New-Item -ItemType Directory -Path $project, $profileDir, $kiloRoot, $targetAgents -Force | Out-Null
+        Set-Content -LiteralPath $userFile -Value "my custom agent"
+
+        $oldProfile = $env:USERPROFILE
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:USERPROFILE = $profileDir
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=kilo", "--yes")
+        } finally {
+            Pop-Location
+            $env:USERPROFILE = $oldProfile
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+
+        # CG agents were installed, the user file survived, and the unit is now
+        # a managed copy (marker present) rather than silently skipped.
+        Test-Path -LiteralPath (Join-Path $targetAgents "cg-wiki.md") | Should -Be $true
+        (Get-Content -LiteralPath $userFile -Raw).Trim() | Should -Be "my custom agent"
+        $markerPath = Join-Path $targetAgents ".compound-gpid-managed-copy.json"
+        Test-Path -LiteralPath $markerPath | Should -Be $true
+        (Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json).schemaVersion | Should -Be 1
+    }
+}
+
 Describe "link.ps1 - copilot-instructions.md management" {
     Context "when the file is non-existent (first-time generation)" {
         It "creates the file with the management marker as the first line" {
@@ -341,11 +553,17 @@ Describe "link.ps1 - .gitignore management (per-item entries)" {
             ($lines | Where-Object { $_ -eq ".github/copilot-instructions.md" } | Measure-Object).Count | Should -Be 1
         }
 
-        It "preserves existing managed entries during partial relinks [regression guard]" {
-            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'Get-CgInstalledGitignoreEntries'
-            $content | Should -Match 'Update-CgGitignoreBlock -Entries \(@\(\$installedEntries\) \+ \(Get-CgInstalledGitignoreEntries'
-        }
+    It "preserves existing managed entries during partial relinks [regression guard]" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Get-CgInstalledGitignoreEntries'
+        $content | Should -Match 'Update-CgGitignoreBlock -Entries \(@\(\$installedEntries\) \+ \(Get-CgInstalledGitignoreEntries'
+    }
+
+    It "writes the managed block as UTF-8 without a BOM" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'System\.Text\.UTF8Encoding -ArgumentList \$false'
+        $content | Should -Match 'System\.IO\.File\]::WriteAllText\(\$gitignorePath'
+    }
 
         It "preserves user content preceding the CG block (regex safety)" {
             # Regression guard: the remove-then-rewrite regex must not affect
@@ -544,6 +762,18 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'Resolve-CgLinkArguments'
         $content | Should -Match '--yes'
         $content | Should -Match '-Force'
+    }
+
+    It "does not collide with PowerShell's automatic args variable" {
+        $content | Should -Match 'param\(\[object\[\]\]\$Arguments\)'
+        $content | Should -Match 'Resolve-CgLinkArguments -Arguments \$RawArgs'
+        $content | Should -Not -Match 'param\(\[object\[\]\]\$Args\)'
+    }
+
+    It "tolerates a zero-argument invocation (link.ps1 with no flags) [regression guard]" {
+        # CI E2E runs `link.ps1` with no flags; ValueFromRemainingArguments then
+        # yields $null, and .Count on $null throws under Set-StrictMode.
+        $content | Should -Match 'if \(\$null -eq \$Arguments\) \{ \$Arguments = @\(\) \}'
     }
 
     It "Relink prompt is guarded by -not `$Force [regression guard]" {

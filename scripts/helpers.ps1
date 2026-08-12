@@ -355,8 +355,10 @@ function Resolve-PythonCommand {
 
 function Get-CgFileSha256 {
     param([Parameter(Mandatory)][string]$Path)
-    if (-not (Test-Path $Path)) { return $null }
-    return (Get-FileHash -Path $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    # -LiteralPath (not -Path) so file names containing wildcard characters
+    # ([, ], *, ?) hash correctly instead of resolving to nothing.
+    if (-not (Test-Path -LiteralPath $Path)) { return $null }
+    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
 function Read-CgManagedFilesManifest {

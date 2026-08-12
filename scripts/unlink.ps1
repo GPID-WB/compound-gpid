@@ -27,13 +27,17 @@ $TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.j
 $ManifestPath = Join-Path $ProjectRoot ".compound-gpid/managed-files.json"
 $gitignorePath = Join-Path $ProjectRoot ".gitignore"
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
+$CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
 function Resolve-CgUnlinkArguments {
-    param([object[]]$Args)
+    param([object[]]$Arguments)
+    # Zero-arg invocation yields $null here via ValueFromRemainingArguments;
+    # foreach over $null is a silent no-op, but guard explicitly for symmetry.
+    if ($null -eq $Arguments) { $Arguments = @() }
     $force = $false
-    foreach ($argObj in $Args) {
+    foreach ($argObj in $Arguments) {
         $arg = [string]$argObj
         if ($arg -in @("--yes", "-y", "-Force", "--force")) { $force = $true }
         elseif ($arg) { Write-Warning "Unrecognized argument '$arg' - ignoring." }
@@ -47,21 +51,121 @@ function Test-CgOwnedJunction {
     return ($Item.LinkType -eq "Junction" -and (($Item.Target -join '') -like "*compound-gpid*"))
 }
 
+function Remove-CgCopiedDirectoryUnit {
+    param([string]$TargetRel)
+    $target = Join-Path $ProjectRoot $TargetRel
+    $markerPath = Join-Path $target $CopiedDirectoryMarkerName
+    if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) { return $false }
+
+    # Only a directory bearing a valid managed-copy marker is Compound-owned.
+    # We delete files whose current checksum still equals the recorded one and
+    # preserve anything modified by the user (the same safety contract as
+    # Remove-CgManagedFile).
+    $data = $null
+    try {
+        $data = Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        Write-Warning "  $TargetRel has an invalid managed-copy marker; leaving it in place."
+        return $false
+    }
+    # Copy properties into a hashtable before any field access. Under
+    # Set-StrictMode -Version Latest, reading a missing property on a parsed
+    # JSON object (e.g. a `{}` marker) throws PropertyNotFoundException and
+    # would abort the whole unlink run instead of skipping the unit.
+    $props = @{}
+    if ($data -is [System.Management.Automation.PSCustomObject]) {
+        foreach ($property in @($data.PSObject.Properties)) { $props[$property.Name] = $property.Value }
+    }
+    $filesRaw = $props['files']
+    if ($props.Count -eq 0 -or $props['schemaVersion'] -ne 1 -or
+        -not ($filesRaw -is [System.Management.Automation.PSCustomObject])) {
+        Write-Warning "  $TargetRel has an invalid managed-copy marker; leaving it in place."
+        return $false
+    }
+
+    $targetFull = [System.IO.Path]::GetFullPath($target).TrimEnd([char[]]@('\', '/'))
+    $removedAny = $false
+    foreach ($property in @($filesRaw.PSObject.Properties)) {
+        $relative = [string]$property.Name
+        $filePath = Join-Path $target $relative
+        # Defensive containment: the marker is a plain editable file, so a
+        # traversal key must never be able to delete a file outside the
+        # managed directory. Reject rooted/drive/traversal keys (both `/` and
+        # `\` separators) and confirm the canonical path stays under $target.
+        $escaped = $true
+        if (-not ([System.IO.Path]::IsPathRooted($relative) -or $relative -match '^[A-Za-z]:' -or
+            $relative -match '(^|[\\/])\.\.([\\/]|$)' -or $relative -match '\.\.$')) {
+            $resolved = [System.IO.Path]::GetFullPath($filePath)
+            $prefix = $targetFull + [System.IO.Path]::DirectorySeparatorChar
+            if ($resolved.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) { $escaped = $false }
+        }
+        if ($escaped) {
+            Write-Warning "  $TargetRel/$relative has an unsafe managed-copy path; leaving it in place."
+            continue
+        }
+        if (-not (Test-Path -LiteralPath $resolved -PathType Leaf)) { continue }
+        $current = Get-CgFileSha256 -Path $resolved
+        if ($current -eq [string]$property.Value) {
+            Remove-Item -LiteralPath $resolved -Force
+            Write-Host "  $TargetRel/$relative - managed copy removed" -ForegroundColor DarkGray
+            $removedAny = $true
+        } else {
+            Write-Warning "  $TargetRel/$relative was modified by the user; leaving it in place."
+        }
+    }
+
+    Remove-Item -LiteralPath $markerPath -Force
+    Write-Host "  $TargetRel - managed-copy marker removed" -ForegroundColor DarkGray
+    $removedAny = $true
+
+    # Prune empty subdirectories bottom-up, never following or removing
+    # junctions (a junction is user-owned even when "empty").
+    $subdirs = @(Get-ChildItem -LiteralPath $target -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+        Sort-Object { $_.FullName.Length } -Descending)
+    foreach ($subdir in $subdirs) {
+        if ($subdir.LinkType) { continue }
+        if (-not (Get-ChildItem -LiteralPath $subdir.FullName -Force -ErrorAction SilentlyContinue)) {
+            Remove-Item -LiteralPath $subdir.FullName -Force
+        }
+    }
+    return $removedAny
+}
+
+function Remove-CgJunction {
+    param([string]$Path)
+
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+    if (-not $item -or $item.LinkType -ne "Junction") {
+        throw "Refusing to remove non-junction path: $Path"
+    }
+
+    # Remove-Item prompts for -Recurse on populated junctions in Windows
+    # PowerShell 5.1 (and fails in non-interactive mode). Directory.Delete
+    # without recursion removes only the reparse point and never traverses
+    # into the shared source directory.
+    [System.IO.Directory]::Delete($item.FullName)
+}
+
 function Remove-CgDirectoryUnit {
     param([string]$TargetRel)
     $target = Join-Path $ProjectRoot $TargetRel
     $item = Get-Item -Path $target -ErrorAction SilentlyContinue
     if (-not $item) { return $false }
     if (Test-CgOwnedJunction $item) {
-        Remove-Item -Path $target -Force
+        Remove-CgJunction -Path $target
         Write-Host "  $TargetRel - junction removed" -ForegroundColor DarkGray
         return $true
     }
     if ($item.LinkType -eq "Junction") {
         Write-Host "  $TargetRel - non-Compound junction, skipping" -ForegroundColor Yellow
-    } else {
-        Write-Host "  $TargetRel - user-owned path, skipping" -ForegroundColor Yellow
+        return $false
     }
+    if ($item.PSIsContainer) {
+        # Real directory: remove only if it is a managed copy-directory
+        # (marker present); otherwise treat as user-owned and skip.
+        return Remove-CgCopiedDirectoryUnit -TargetRel $TargetRel
+    }
+    Write-Host "  $TargetRel - user-owned path, skipping" -ForegroundColor Yellow
     return $false
 }
 
@@ -139,7 +243,7 @@ function Remove-CgEmptyRoot {
 # command loading for any other still-linked project. The permission is therefore
 # intentionally left in place on unlink; a stale allow entry is harmless.
 
-$Force = Resolve-CgUnlinkArguments -Args $RawArgs
+$Force = Resolve-CgUnlinkArguments -Arguments $RawArgs
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 
 Write-Host ""
@@ -164,7 +268,7 @@ foreach ($rootName in @(".github", ".claude", ".agents", ".opencode", ".kilo")) 
     $rootPath = Join-Path $ProjectRoot $rootName
     $item = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
     if (Test-CgOwnedJunction $item) {
-        Remove-Item -Path $rootPath -Force
+        Remove-CgJunction -Path $rootPath
         Write-Host "  $rootName/ - legacy whole-root junction removed" -ForegroundColor DarkGray
         $removedAny = $true
     }

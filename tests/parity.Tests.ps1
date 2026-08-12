@@ -219,6 +219,22 @@ Describe "link.sh <-> unlink.sh parity (bash pair)" {
 }
 
 # ---------------------------------------------------------------------------
+# link.ps1 <-> link.sh copy-directory semantics divergence note
+# ---------------------------------------------------------------------------
+Describe "link copy-directory semantics parity note" {
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
+
+    It "both scripts document the copy-directory semantic divergence" {
+        # Windows link.ps1 preserves user edits + removes stale managed files;
+        # POSIX link.sh uses a wholesale overwrite. Each script must carry the
+        # matching side of the divergence note so the contract stays visible.
+        $linkPs1 | Should -Match 'copy-directory semantics: Windows preserves user edits'
+        $linkSh  | Should -Match 'copy-directory semantics: POSIX uses a wholesale overwrite'
+    }
+}
+
+# ---------------------------------------------------------------------------
 # cg-brain-init and cg-token-audit registration parity
 # ---------------------------------------------------------------------------
 Describe "cg-brain-init registration parity" {
