@@ -250,10 +250,10 @@ def _get_next_cursor(stdout: str) -> str | None:
     data = expect_mapping(data, "graphql response", ApiError)
     try:
         item_connection = data["data"]["node"]["items"]
-    except (KeyError, TypeError):
+    except (KeyError, TypeError) as error:
         raise ApiError(
             "malformed graphql response from gh: missing project items"
-        )
+        ) from error
     item_connection = expect_mapping(item_connection, "project items", ApiError)
     page_info = item_connection.get("pageInfo")
     if page_info is None:

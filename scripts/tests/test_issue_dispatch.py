@@ -818,6 +818,26 @@ class TestGhDispatchMutator:
         with pytest.raises(ApiError, match="did not advance"):
             mutator.set_project_status(9002, "In progress")
 
+    def test_pagination_page_limit_exceeded_fails_closed(
+        self, monkeypatch
+    ) -> None:
+        import issues.dispatch_client as dc
+
+        monkeypatch.setattr(dc, "_MAX_PROJECT_PAGES", 2)
+
+        def _page(cursor):
+            return json.dumps({"data": {"node": {"items": {
+                "nodes": [{"id": "x", "content": {"number": 8001}}],
+                "pageInfo": {"hasNextPage": True, "endCursor": cursor},
+            }}}})
+
+        runner = _StubRunner([_page("a"), _page("b"), _page("c")])
+        monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-token")
+        monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-token")
+        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        with pytest.raises(ApiError, match="exceeded"):
+            mutator.set_project_status(9002, "In progress")
+
     def test_pagination_graphql_errors_fails_closed(self, monkeypatch) -> None:
         runner = _StubRunner([
             json.dumps({"data": None, "errors": [{"message": "not authorized"}]}),
@@ -989,50 +1009,74 @@ class TestCredentialIsolation:
     def test_assignment_subprocess_has_no_source_credentials(
         self, monkeypatch
     ) -> None:
-        import issues.gh_process as gh_process
+        import issues.dispatch_util as dispatch_util
 
-        captured_env: dict = {}
+        captured_envs: list = []
 
         def _capture_run_gh(args, env=None):
             if env is not None:
-                captured_env.update(env)
-            return _StubResult("{}")
+                captured_envs.append(dict(env))
+            text = "{}"
+            if "repo" in args and "view" in args:
+                text = json.dumps({
+                    "nameWithOwner": "OWNER/REPO",
+                    "defaultBranchRef": {"name": "main"},
+                })
+            elif "assignees" in str(args):
+                text = _assign_response()
+            return _StubResult(text)
 
-        monkeypatch.setattr(gh_process, "_default_run_gh", _capture_run_gh)
+        monkeypatch.setattr(dispatch_util, "_default_run_gh", _capture_run_gh)
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-secret")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-secret")
-        runner = _StubRunner([
-            json.dumps({"defaultBranchRef": {"name": "main"}}),
-            _assign_response(), "{}",
-        ])
-        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator = GhDispatchMutator(owner="OWNER", name="REPO")
         mutator.assign(9002, "copilot-swe-agent[bot]")
         mutator.comment(9002, "audit body")
-        assert "COPILOT_ASSIGN_TOKEN" not in captured_env
-        assert "PROJECT_SYNC_TOKEN" not in captured_env
+        assert len(captured_envs) >= 2, (
+            f"expected at least 2 subprocess calls, got {len(captured_envs)}"
+        )
+        for env in captured_envs:
+            assert "COPILOT_ASSIGN_TOKEN" not in env, (
+                "assignment subprocess must not receive COPILOT_ASSIGN_TOKEN"
+            )
+            assert "PROJECT_SYNC_TOKEN" not in env, (
+                "assignment subprocess must not receive PROJECT_SYNC_TOKEN"
+            )
 
     def test_project_subprocess_has_no_source_credentials(
         self, monkeypatch
     ) -> None:
-        import issues.gh_process as gh_process
+        import issues.dispatch_util as dispatch_util
 
-        captured_env: dict = {}
+        captured_envs: list = []
 
         def _capture_run_gh(args, env=None):
             if env is not None:
-                captured_env.update(env)
-            return _StubResult("{}")
+                captured_envs.append(dict(env))
+            text = "{}"
+            if "graphql" in args:
+                query_text = str(args)
+                if "SetProjectStatus" in query_text:
+                    text = _mutation_success_response()
+                else:
+                    text = _project_item_response()
+            return _StubResult(text)
 
-        monkeypatch.setattr(gh_process, "_default_run_gh", _capture_run_gh)
+        monkeypatch.setattr(dispatch_util, "_default_run_gh", _capture_run_gh)
         monkeypatch.setenv("COPILOT_ASSIGN_TOKEN", "assign-secret")
         monkeypatch.setenv("PROJECT_SYNC_TOKEN", "project-secret")
-        runner = _StubRunner([
-            _project_item_response(), _mutation_success_response(),
-        ])
-        mutator = GhDispatchMutator(runner=runner, owner="OWNER", name="REPO")
+        mutator = GhDispatchMutator(owner="OWNER", name="REPO")
         mutator.set_project_status(9002, "In progress")
-        assert "COPILOT_ASSIGN_TOKEN" not in captured_env
-        assert "PROJECT_SYNC_TOKEN" not in captured_env
+        assert len(captured_envs) >= 2, (
+            f"expected at least 2 subprocess calls, got {len(captured_envs)}"
+        )
+        for env in captured_envs:
+            assert "COPILOT_ASSIGN_TOKEN" not in env, (
+                "project subprocess must not receive COPILOT_ASSIGN_TOKEN"
+            )
+            assert "PROJECT_SYNC_TOKEN" not in env, (
+                "project subprocess must not receive PROJECT_SYNC_TOKEN"
+            )
 
 
 # ---------------------------------------------------------------------------

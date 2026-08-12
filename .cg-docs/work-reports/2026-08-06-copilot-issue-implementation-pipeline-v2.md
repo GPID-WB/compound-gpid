@@ -458,21 +458,21 @@ run: 1
   - `.github/workflows/copilot-dispatch.yml` — `workflow_dispatch`-only
     dispatcher workflow (`issue_number` + `dry_run` default true, concurrency 1,
     least privilege, trusted default-branch checkout, two separate secrets).
-   - `scripts/issues/dispatch.py` — dispatcher orchestration (`run_dispatch`),
-     result type, exit codes (0/2/3/4/5/6/7), CLI.
-   - `scripts/issues/dispatch_client.py` — `GhDispatchMutator` (assign / Project
-     Status / comment) with separated credentials and temp-file argv-safe bodies;
-     `DispatchMutator` protocol.
-   - `scripts/issues/dispatch_contract.py` — shared contract types and constants.
-   - `scripts/issues/dispatch_render.py` — JSON and human-readable result renderers.
-   - `scripts/issues/dispatch_cli.py` — CLI parser and main entry point.
-   - `scripts/issues/dispatch_util.py` — process and temp-file helpers with
-     credential isolation (source credentials removed from child environment).
-   - `scripts/issues/dispatch_project.py` — Project-v2 GraphQL queries with
-     cursor-based pagination and mutation verification.
-   - `scripts/issue_dispatch.py` — thin CLI shim mirroring
-     `scripts/issue_readiness.py`.
-   - `scripts/tests/test_issue_dispatch.py` — 76 deterministic mocked tests:
+  - `scripts/issues/dispatch.py` — dispatcher orchestration (`run_dispatch`),
+    result type, exit codes (0/2/3/4/5/6/7), CLI.
+  - `scripts/issues/dispatch_client.py` — `GhDispatchMutator` (assign / Project
+    Status / comment) with separated credentials and temp-file argv-safe bodies;
+    `DispatchMutator` protocol.
+  - `scripts/issues/dispatch_contract.py` — shared contract types and constants.
+  - `scripts/issues/dispatch_render.py` — JSON and human-readable result renderers.
+  - `scripts/issues/dispatch_cli.py` — CLI parser and main entry point.
+  - `scripts/issues/dispatch_util.py` — process and temp-file helpers with
+    credential isolation (source credentials removed from child environment).
+  - `scripts/issues/dispatch_project.py` — Project-v2 GraphQL queries with
+    cursor-based pagination and mutation verification.
+  - `scripts/issue_dispatch.py` — thin CLI shim mirroring
+    `scripts/issue_readiness.py`.
+  - `scripts/tests/test_issue_dispatch.py` — 77 deterministic mocked tests:
     dry-run zero mutations; initial readiness failure (not-ready/config/api);
     idempotent no-op for already-assigned and existing open PR (live + dry-run);
     readiness changing before the second validation fails closed; assignment
@@ -496,7 +496,7 @@ run: 1
   created or repository settings changed.
 - **Validation results** (executed checks):
   - Focused dispatcher suite: `python -m pytest scripts/tests/test_issue_dispatch.py -q`
-    → **76 passed**, exit 0.
+    → **77 passed**, exit 0.
   - Focused readiness suite (regression guard): → **194 passed**, exit 0.
   - Exact native-targets CI pytest list (17 files incl. the new dispatcher
     test): **607 passed, 11 skipped**, exit 0.

@@ -92,10 +92,7 @@ def _try_comment(
         log: Ordered mutation log to append ``comment:<label>`` or
             ``comment:failed``.
         messages: Human-readable messages to extend on failure.
-
-    Raises:
-        ApiError: When the comment fails with an API/network error.
-        ConfigError: When the comment fails due to a configuration error.
+        label: Label for the mutation log entry.
     """
     try:
         mutator.comment(issue_number, body)

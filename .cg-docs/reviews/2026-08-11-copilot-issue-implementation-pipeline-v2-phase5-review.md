@@ -277,5 +277,5 @@ accepted advisories as `skipped`:
   scope follows the workflow input; branch naming matches the repo's established
   phase-branch scheme).
 
-Validation after fix-triage: dispatcher suite 76 passed; readiness 194 passed;
+Validation after fix-triage: dispatcher suite 77 passed; readiness 194 passed;
 docs-site passed.

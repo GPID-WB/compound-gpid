@@ -1,4 +1,4 @@
-"""Shared dispatch contract types and constants (leaf module, no imports)."""
+"""Shared dispatch contract types and constants."""
 from __future__ import annotations
 
 from dataclasses import dataclass

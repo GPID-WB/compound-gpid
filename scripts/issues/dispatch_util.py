@@ -65,6 +65,9 @@ def _write_temp_file(text: str, suffix: str) -> Path:
         try:
             handle.write(text)
             return Path(handle.name)
+        except OSError:
+            _unlink_best_effort(Path(handle.name))
+            raise
         finally:
             handle.close()
     except OSError as error:
