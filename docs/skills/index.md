@@ -12,11 +12,16 @@ release contains generated copies for several agent platforms.
 | Build technical systems, test code, manage versions, or support platform tooling | [Development and Testing](development.md) |
 | Clarify requirements, retain knowledge, write institutional documents, or maintain a wiki | [Institutional Knowledge](institutional.md) |
 
-The catalog currently contains 22 canonical skills:
+The catalog currently contains canonical skills across both suites:
 
-- 8 analysis and economics skills.
-- 8 development, testing, reproducibility, and platform skills.
-- 6 institutional knowledge and documentation skills.
+- Analysis and economics skills (including the R family `cg-skill-r-*`).
+- Development, testing, reproducibility, and platform skills.
+- Institutional knowledge and documentation skills.
+- Research suite skills (`cr-skill-*`): identification, measurement,
+  econometrics, provenance, replication, publication output, and more.
+
+Counts are derived from the canonical `.github/skills/` directory set, not the
+generated mirrors.
 
 ## Availability labels
 
@@ -36,6 +41,7 @@ Canonical skill identity and purpose come from:
 
 ```text
 .github/skills/cg-skill-*/SKILL.md
+.github/skills/cr-skill-*/SKILL.md
 ```
 
 The `.claude/skills/`, `.agents/skills/`, `.opencode/skills/`, and `.kilo/skills/` trees are generated mirrors and must not be counted as additional skills. Edit canonical content only, regenerate target trees, and run drift checks before release.
@@ -54,6 +60,7 @@ supporting files; this known packaging gap is recorded in the
 
 ## Related pages
 
+- [Modular Guide](../modular-guide.md)
 - [Commands](../reference/commands.md)
 - [Agents](../reference/agents.md)
 - [Configuration](../configuration/index.md)

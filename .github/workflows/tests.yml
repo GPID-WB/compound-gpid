@@ -2,9 +2,9 @@ name: Pester tests
 
 on:
   push:
-    branches: [ main, 'feat/**', 'fix/**', 'chore/**' ]
+    branches: [ main, dev, 'feat/**', 'fix/**', 'chore/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 jobs:
   browser-evidence:
@@ -64,9 +64,20 @@ jobs:
           scripts/tests/test_target_documentation.py
           scripts/tests/test_model_advisory.py
           scripts/tests/test_audit_context.py
+          scripts/tests/test_module_registry.py
+          scripts/tests/test_context_budget.py
+          scripts/tests/test_config_migration.py
+          scripts/tests/test_cg_characterization.py
+          scripts/tests/test_cr_baseline.py
           scripts/tests/test_issue_readiness.py
           scripts/tests/test_issue_dispatch.py
           -q
+
+      - name: Run module registry and cross-suite gate
+        run: >-
+          python scripts/cg_validate_modules.py --check-dependencies
+          && python scripts/cg_validate_modules.py --check-cross-suite
+          && python scripts/cg_validate_modules.py --check-ownership
 
       - name: Run generic publisher and security Python gate
         run: >-

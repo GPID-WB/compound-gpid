@@ -7,6 +7,7 @@ native trees for Claude Code, Codex, OpenCode, and Kilo.
 
 Usage:
     python3 scripts/cg_generate_targets.py [--root <path>] [--target <platform>] [--all] [--dry-run]
+    python3 scripts/cg_generate_targets.py [--root <path>] --all [--active-suites <comma-separated-suite-names>]
 
 Exit codes:
     0  Success.
@@ -61,7 +62,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -472,11 +473,94 @@ def _validate_output_namespace(
 # Canonical asset scanning
 # ---------------------------------------------------------------------------
 
-def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
+def _load_module_registry(root: Path) -> Optional[dict]:
+    """Return parsed module-registry.json, or None when absent or unreadable."""
+    path = root / ".github/shared/module-registry.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
+    """Return skill directory names owned by a registered module.
+
+    Returns None when the module registry is absent (caller falls back to the
+    legacy ``cg-skill-*`` glob). When the registry is present, every existing
+    skill directory under ``.github/skills/`` is matched against registry
+    ``ownedAssets`` patterns; only directories owned by a declared module are
+    returned.
+    """
+    registry = _load_module_registry(root)
+    if registry is None:
+        return None
+    try:
+        import cg_validate_modules as module_validator
+    except ImportError:
+        return None
+    skills_dir = root / ".github/skills"
+    names: set[str] = set()
+    if not skills_dir.is_dir():
+        return names
+    for entry in sorted(skills_dir.iterdir()):
+        if not entry.is_dir() or entry.is_symlink():
+            continue
+        candidate = f".github/skills/{entry.name}/SKILL.md"
+        if any(
+            isinstance(pattern, str)
+            and module_validator._glob_match(pattern, candidate)
+            for module in registry.get("modules", [])
+            if isinstance(module, dict)
+            for pattern in module.get("ownedAssets", [])
+        ):
+            names.add(entry.name)
+    return names
+
+
+def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str]]) -> Optional[set[str]]:
+    """Return owned-asset glob patterns loadable under the active suites.
+
+    When ``active_suites`` is None (no context-budget filtering requested),
+    returns None so the generator scans all registry-owned assets. Otherwise
+    derives the loadable module set via cg_context_budget and returns the
+    union of their owned-asset globs. A missing registry or unknown suite name
+    with filtering requested raises so the operator cannot silently produce an
+    unenforced or empty tree.
+    """
+    if active_suites is None:
+        return None
+    try:
+        import cg_context_budget as context
+    except ImportError as exc:
+        raise ValueError(
+            "cg_context_budget.py is required when --active-suites is used"
+        ) from exc
+    registry = _load_module_registry(root)
+    if registry is None:
+        raise ValueError(
+            "--active-suites requires module-registry.json at .github/shared; "
+            "refusing to generate an unfiltered or empty tree"
+        )
+    loadable = context.loadable_modules(registry, list(active_suites))
+    ids = {module["id"] for module in loadable}
+    return set(context.loadable_asset_globs(registry, ids))
+
+
+def scan_canonical_assets(
+    root: Path,
+    active_suites: Optional[Sequence[str]] = None,
+) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
     Returns dict with keys: prompts, agents, skills, instructions.
     Each value is a list of dicts with: path, relative_path, frontmatter, body.
+
+    When ``active_suites`` is provided, only assets owned by loadable modules
+    (active suites + their transitive dependencies + kernel) are returned; all
+    other assets are excluded from the scan (context-budget enforcement).
     """
     assets: dict[str, list[dict[str, Any]]] = {
         "prompts": [],
@@ -486,6 +570,20 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         "prompt_support": [],
         "shared": [],
     }
+
+    loadable_globs = _loadable_owned_asset_globs(root, active_suites)
+
+    def _is_loadable(rel_path: str) -> bool:
+        if loadable_globs is None:
+            return True
+        try:
+            import cg_validate_modules as module_validator
+        except ImportError:
+            return True
+        return any(
+            module_validator._glob_match(pattern, rel_path)  # pylint: disable=protected-access
+            for pattern in loadable_globs
+        )
 
     required_roots = {
         "prompts": root / ".github/prompts",
@@ -511,6 +609,12 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 continue
             if category == "shared" and path.name.startswith("."):
                 continue
+            if category == "shared" and path.name == "module-registry.json":
+                # The module registry is canonical-source tooling data whose
+                # body contains glob patterns (e.g. ".github/skills/cg-skill-r-*/")
+                # that the runtime-dependency rewriter would misread. It is not a
+                # per-platform runtime shared asset.
+                continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
@@ -531,6 +635,8 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                             fm["description"] = raw_description[1:-1].replace("''", "'")
                         break
             rel = str(path.relative_to(root)).replace("\\", "/")
+            if not _is_loadable(rel):
+                continue
             assets[category].append({
                 "path": str(path),
                 "relative_path": rel,
@@ -539,7 +645,31 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
                 "filename": path.name,
             })
 
-    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+    owned_skill_names = _registry_owned_skill_dir_names(root)
+    if owned_skill_names is None:
+        print(
+            "[deprecation] module-registry.json not found; falling back to "
+            "cg-skill-* glob-based skill discovery",
+            file=sys.stderr,
+        )
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name.startswith("cg-skill-")
+        ]
+        canonical_skill_roots = tuple(sorted(
+            (root / ".github/skills").glob("cg-skill-*")
+        ))
+    else:
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name in owned_skill_names
+        ]
+        canonical_skill_roots = tuple(sorted(
+            root / ".github/skills" / name
+            for name in sorted(owned_skill_names)
+            if _is_loadable(f".github/skills/{name}/SKILL.md")
+        ))
+
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -560,7 +690,7 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         _validate_bundle_markdown_references(skill["bundle_files"])
 
     for category in required_roots:
-        if not assets[category]:
+        if not assets[category] and active_suites is None:
             raise ValueError(f"Required canonical {category} inventory is empty")
 
     return assets
@@ -826,18 +956,6 @@ def _yaml_scalar(value: Any) -> str:
     }:
         return text
     return json.dumps(text, ensure_ascii=False)
-
-
-def _with_opencode_arguments(body: str) -> str:
-    """Append OpenCode slash-command arguments to a command template body."""
-    return (
-        f"{body.rstrip()}\n\n"
-        "## OpenCode Invocation Arguments\n\n"
-        "User-provided slash-command arguments:\n\n"
-        "```text\n"
-        "$ARGUMENTS\n"
-        "```\n"
-    )
 
 
 def _with_arguments_block(body: str, target_id: str) -> str:
@@ -1374,7 +1492,7 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
 
 
 def _emit_config(target: dict[str, Any]) -> str:
@@ -1422,6 +1540,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode, kilo)")
     parser.add_argument("--all", action="store_true", help="Generate all non-copilot targets")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be written without writing")
+    parser.add_argument("--active-suites", default=None, metavar="SUITES",
+                        help="Comma-separated active suite names (e.g. 'cg' or 'cg,cr') to enforce the context budget; "
+                             "omitted means no context-budget filtering")
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
@@ -1449,8 +1570,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("Error: must specify --target <platform> or --all", file=sys.stderr)
         return 1
 
+    active_suites: Optional[list[str]] = None
+    if args.active_suites:
+        active_suites = [item.strip() for item in args.active_suites.split(",") if item.strip()]
+
     try:
-        assets = scan_canonical_assets(root)
+        assets = scan_canonical_assets(root, active_suites=active_suites)
         generation_plan = build_generation_plan(root, target_mapping, assets)
     except (ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)

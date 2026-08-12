@@ -9,6 +9,7 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import shutil
@@ -40,9 +41,10 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
         pytest.fail(f"Generator failed while building structured plan: {exc}")
 
 
-def _expected_paths(root: Path) -> set[str]:
+@functools.lru_cache(maxsize=8)
+def _expected_paths(root: Path) -> frozenset[str]:
     plan = _build_structured_plan(root)
-    return {entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS
+    return frozenset({entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS)
 
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
@@ -163,7 +165,7 @@ class TestNoDrift:
         """Every generated skill bundle must have the complete canonical file set."""
         canonical_root = REPO_ROOT / ".github/skills"
         mismatches: list[str] = []
-        for canonical in sorted(canonical_root.glob("cg-skill-*")):
+        for canonical in sorted(canonical_root.glob("*")):
             canonical_files = {
                 path.relative_to(canonical).as_posix()
                 for path in canonical.rglob("*")
@@ -267,7 +269,7 @@ class TestNoDrift:
         """Generator must not modify .github/ canonical assets."""
         fixture = tmp_path / "fixture"
 
-        # Copy only .github/ and scripts/ needed to run the generator — not the
+        # Copy only .github/ and scripts/ needed to run the generator â€” not the
         # entire repo (which would include .git, .cg-docs, docs, etc. and be slow).
         for item in [".github", "scripts"]:
             src = REPO_ROOT / item
@@ -286,3 +288,99 @@ class TestNoDrift:
 
         prompt_after = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assert prompt_before == prompt_after, "Generator modified .github/ canonical assets"
+
+
+class TestCrCgParity:
+    """CG/CR generated-target parity across all 5 platforms (R5).
+
+    Uses synthetic cr-* fixtures in tmp_path (never committed) to prove the
+    discovery + parity pipeline before real CR content is imported in Phase 3.
+    Generation runs once per module so the drill-time stays within release-gate
+    subprocess limits.
+    """
+
+    TARGET_SKILL_ROOTS = (".claude/skills", ".agents/skills", ".opencode/skills", ".kilo/skills")
+    TARGET_COMMAND_ROOTS = (".claude/commands", ".agents/commands", ".opencode/commands", ".kilo/commands")
+    TARGET_AGENT_ROOTS = (".claude/agents", ".agents/subagents", ".opencode/agents", ".kilo/agents")
+    TARGET_INSTRUCTION_ROOTS = (".claude/instructions", ".agents/instructions", ".opencode/instructions", ".kilo/instructions")
+
+    @pytest.fixture(scope="class")
+    def fixture_root(self, tmp_path_factory: pytest.TempPathFactory) -> Path:
+        fixture = tmp_path_factory.mktemp("cr-parity") / "fixture"
+        for item in [".github", "scripts"]:
+            src = REPO_ROOT / item
+            dst = fixture / item
+            if src.exists():
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+        # Synthetic CR assets (never committed).
+        (fixture / ".github/prompts/cr-work.prompt.md").parent.mkdir(parents=True, exist_ok=True)
+        (fixture / ".github/prompts/cr-work.prompt.md").write_text(
+            "---\ndescription: cr work\n---\n\n# CR Work\n", encoding="utf-8"
+        )
+        (fixture / ".github/agents/cr-analysis.agent.md").parent.mkdir(parents=True, exist_ok=True)
+        (fixture / ".github/agents/cr-analysis.agent.md").write_text(
+            "---\ndescription: cr analysis\ntools: [read]\n---\n\n# CR Analysis\n", encoding="utf-8"
+        )
+        skill = fixture / ".github/skills/cr-skill-identification/SKILL.md"
+        skill.parent.mkdir(parents=True, exist_ok=True)
+        skill.write_text("---\ndescription: identification\n---\n\n# Identification\n", encoding="utf-8")
+        (fixture / ".github/instructions/latex.instructions.md").write_text(
+            "# LaTeX\n", encoding="utf-8"
+        )
+        # Register CR assets in the module registry so discovery includes them.
+        registry_path = fixture / ".github/shared/module-registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        existing = {m.get("id") for m in registry["modules"]}
+        if "suite-cr" not in existing:
+            registry["modules"].append({
+                "id": "suite-cr",
+                "layer": "suite",
+                "displayName": "Research suite",
+                "description": "cr-* orchestration",
+                "dependsOn": ["kernel", "cap-language-r"],
+                "ownedAssets": [
+                    ".github/prompts/cr-*.prompt.md",
+                    ".github/agents/cr-*.agent.md",
+                    ".github/skills/cr-skill-identification/",
+                    ".github/instructions/latex.instructions.md",
+                ],
+                "ambiguous": [],
+            })
+        else:
+            # Real registry already owns suite-cr; ensure the synthetic skill is
+            # discoverable for the isolated parity proof.
+            suite_cr = next(m for m in registry["modules"] if m.get("id") == "suite-cr")
+            if ".github/skills/cr-skill-identification/" not in suite_cr.get("ownedAssets", []):
+                suite_cr["ownedAssets"].append(".github/skills/cr-skill-identification/")
+        registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+        assets = gen.scan_canonical_assets(fixture)
+        mapping = gen.load_target_mapping(fixture)
+        for target in mapping["targets"]:
+            if target.get("generatedTreePath") is None:
+                continue
+            gen.emit_for_target(fixture, target, assets, dry_run=False)
+        return fixture
+
+    def test_cr_skill_reaches_every_platform_tree(self, fixture_root: Path) -> None:
+        for root_name in self.TARGET_SKILL_ROOTS:
+            assert (fixture_root / root_name / "cr-skill-identification" / "SKILL.md").exists(), root_name
+
+    def test_cr_prompt_reaches_every_platform_tree(self, fixture_root: Path) -> None:
+        for root_name in self.TARGET_COMMAND_ROOTS:
+            assert (fixture_root / root_name / "cr-work.md").exists(), root_name
+
+    def test_cr_agent_reaches_every_platform_tree(self, fixture_root: Path) -> None:
+        for root_name in self.TARGET_AGENT_ROOTS:
+            agent_dir = fixture_root / root_name
+            found = list(agent_dir.glob("cr-analysis.*"))
+            assert found, f"No cr-analysis agent in {root_name}: {sorted(p.name for p in agent_dir.glob('*'))}"
+
+    def test_cr_instruction_reaches_every_platform_tree(self, fixture_root: Path) -> None:
+        for root_name in self.TARGET_INSTRUCTION_ROOTS:
+            assert (fixture_root / root_name / "latex.instructions.md").exists(), root_name
+
+    def test_cr_assets_owned_and_dependency_closure_valid(self, fixture_root: Path) -> None:
+        """Cross-suite gate stays green for the synthetic CR import (R4)."""
+        import cg_validate_modules as module_validator
+        errors = module_validator.check_dependencies(fixture_root)
+        assert errors == [], f"Unexpected dependency errors: {errors}"

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-31T10:58:19-04:00@c80f66e6828f",
+  "generated": "2026-08-07T19:20:40-04:00@d716ce703e14",
   "generated_kind": "volatile",
   "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
   "schema_version": 1,
@@ -28,13 +28,14 @@
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 235,
+          "line": 244,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "- Verify with a targeted `roadmap.json` read; confirm the feature was added."
         }
       ],
       "file_references": [
         ".cg-docs/brainstorms/",
+        ".github/shared/artifact-view.contract.md",
         ".github/shared/context-loading.contract.md",
         "compound-gpid.context.md",
         "compound-gpid.local.md",
@@ -105,7 +106,7 @@
         {
           "artifact": "roadmap.json",
           "level": "justified",
-          "line": 228,
+          "line": 237,
           "reason": "explicit expansion rationale",
           "snippet": "1. Context expansion: reading `roadmap.json` feature and milestone fields because plan registration needs matching candidates. Parse only IDs, titles, statuses, milestone titles, and `plan` links needed for matching."
         },
@@ -140,7 +141,7 @@
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 229,
+          "line": 238,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "2. If matched, ask whether to link the plan. If yes, dispatch `@cg-roadmap`: \"Link plan `.cg-docs/plans/<filename>` to feature `<feature-id>` in milestone `<milestone-id>`. Set status to planned.\" Verify with a targeted "
         }
@@ -150,6 +151,7 @@
         ".cg-docs/plans/",
         ".cg-docs/plans/YYYY-MM-DD-",
         ".cg-docs/solutions/",
+        ".github/shared/artifact-view.contract.md",
         ".github/shared/context-loading.contract.md",
         ".github/shared/goal-execution.contract.md",
         ".github/shared/model-advisory.contract.md",
@@ -232,7 +234,7 @@
         {
           "artifact": "roadmap.json",
           "level": "justified",
-          "line": 203,
+          "line": 212,
           "reason": "explicit expansion rationale",
           "snippet": "1. Context expansion: reading `roadmap.json` feature status fields because completed work must be matched back to its roadmap feature. Find features whose `plan` path matches this plan (workspace-relative, forward slashe"
         },
@@ -253,21 +255,21 @@
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 90,
+          "line": 99,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "If `roadmap.json` exists, find the feature whose `plan` path matches this plan. If status is `planned`, dispatch `@cg-roadmap`: \"Update feature with plan path `<plan-path>` to status active.\" Skip `active`/`done`. Run on"
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 206,
+          "line": 215,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "4. Verify with a targeted `roadmap.json` status read; if unchanged, tell the user they can run `@cg-roadmap` directly."
         },
         {
           "artifact": "roadmap.json",
           "level": "targeted",
-          "line": 210,
+          "line": 219,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "For each milestone in the loaded `roadmap.json` containing a feature just marked `done`: if all features are `done`, dispatch `@cg-roadmap`: \"Update milestone `<milestone-id>` to status done.\" Then notify: \"Milestone **'"
         }
@@ -277,6 +279,7 @@
         ".cg-docs/plans/YYYY-MM-DD-",
         ".cg-docs/work-reports/YYYY-MM-DD-",
         ".github/shared/active-state.contract.md",
+        ".github/shared/artifact-view.contract.md",
         ".github/shared/context-loading.contract.md",
         ".github/shared/goal-execution.contract.md",
         ".github/shared/model-advisory.contract.md",
@@ -296,6 +299,7 @@
         ".cg-docs/plans/YYYY-MM-DD-",
         ".cg-docs/work-reports/YYYY-MM-DD-",
         ".github/shared/active-state.contract.md",
+        ".github/shared/artifact-view.contract.md",
         ".github/shared/context-loading.contract.md",
         ".github/shared/goal-execution.contract.md",
         ".github/shared/model-advisory.contract.md",
@@ -382,7 +386,7 @@
         {
           "artifact": ".cg-docs/",
           "level": "targeted",
-          "line": 81,
+          "line": 86,
           "reason": "targeted or guarded context-loading instruction",
           "snippet": "1. Scan `.cg-docs/reviews/` for the most recent file whose name ends in `-review.md` but NOT in `-verify-review.md` (by `date:` frontmatter, then alphabetically last filename — lexicographically greater wins), where the "
         }

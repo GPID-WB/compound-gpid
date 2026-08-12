@@ -53,6 +53,12 @@ For each file under review:
 - Overly complex test setup that obscures what's being tested
 - **Mock target drift**: `patch("module.fn")` is valid but no longer at the boundary — a refactor introduced a new function that reaches the network/filesystem before `fn` is called. Detection: test passes lint checks (mock is present, no import error) but fails at runtime with HTTP 4xx or `ConnectionError` after a refactor. Flag any test that mocks an internal function (not the outermost I/O boundary) and verify the mocked symbol still sits between the test and the external system. See `.cg-docs/solutions/testing-patterns/2026-05-26-mock-target-drift-after-api-refactoring.md`.
 
+### 7. Research Testing Patterns
+- Check whether stochastic estimation code has deterministic tests (fixed seeds) and does not rely on unstable random draws.
+- For simulation-heavy methods (bootstrap, Monte Carlo, resampling), verify tests assert distributional or tolerance-based properties, not brittle exact values.
+- For structural or optimization models, check for parameter-recovery or moment-consistency tests that detect silent calibration drift.
+- For identification-heavy workflows, check that diagnostics are asserted in tests when the methodology requires them.
+
 ## Output Format
 
 For each finding:

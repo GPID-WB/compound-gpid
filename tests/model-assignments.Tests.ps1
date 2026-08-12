@@ -9,8 +9,8 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 Describe "Canonical prompt execution metadata" {
     $promptFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File)
 
-    It "contains exactly 26 prompt files - update this sentinel when adding a new prompt" {
-        $promptFiles.Count | Should -Be 26
+    It "contains exactly 31 prompt files - update this sentinel when adding a new prompt" {
+        $promptFiles.Count | Should -Be 31
     }
 
     foreach ($file in $promptFiles) {
@@ -31,8 +31,8 @@ Describe "Canonical prompt execution metadata" {
 Describe "Canonical agent execution metadata" {
     $agentFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\agents") -Filter "*.agent.md" -File)
 
-    It "contains exactly 17 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should -Be 17
+    It "contains exactly 28 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should -Be 28
     }
 
     foreach ($file in $agentFiles) {

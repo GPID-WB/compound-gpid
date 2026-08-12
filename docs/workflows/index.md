@@ -6,6 +6,12 @@ commands rather than invoked directly.
 
 ## Choose by situation
 
+First choose the suite that owns the task. Use `/cg-*` for technical delivery,
+infrastructure, and code-review workflows. Use `/cr-*` for research scoping,
+identification, measurement, econometrics, replication, writing, and
+publication output. The research suite composes shared implementation
+capabilities without depending on the technical command suite.
+
 | Situation | Start with | Continue with |
 |---|---|---|
 | Project direction is unclear | `/cg-strategy` | `/cg-ideate`, then `/cg-brainstorm` |
@@ -18,6 +24,8 @@ commands rather than invoked directly.
 | A solved problem should be reusable | `/cg-compound` | `/cg-brain-rebuild` when the Brain needs refreshing |
 | CI is failing on a pull request | `/cg-verify-pr` | Apply confirmed fixes and rerun checks |
 | VS Code or Positron crashed | `/cg-diagnose` | Follow the bounded recovery path |
+| A research question or method is unclear | `/cr-brainstorm` | `/cr-plan` |
+| A research plan is ready | `/cr-work` | `/cr-review`, then `/cr-compound` |
 
 ## The standard loop
 
@@ -41,6 +49,7 @@ evidence.
 - [Review and Assure](assure.md): review routes, findings, CI, diagnostics, and verification.
 - [Knowledge and Coordination](knowledge.md): solutions, Brain, roadmap, issues, and wiki.
 - [Detailed Workflow Manual](../workflow.md): complete step behavior, scenarios, and edge cases.
+- [Modular Guide](../modular-guide.md): suite selection, shared capabilities, and extension rules.
 
 ## Related pages
 

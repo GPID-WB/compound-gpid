@@ -61,6 +61,12 @@ You are a performance specialist for R, Python, and Stata data science projects,
 - Are database queries pulling only needed columns and rows?
 - Is caching used for expensive computations?
 
+### 7. Research Performance Patterns
+- For high-dimensional estimation and large-$p$ workflows, check whether feature engineering, transforms, and selection stages avoid repeated full-materialization.
+- For bootstrap and resampling pipelines, check whether repeated model fits are batched, cached, or parallelized with reproducibility-safe controls.
+- For panel and survey workflows, verify grouped statistics use efficient primitives and avoid repeated expensive joins.
+- Flag scaling risks where asymptotic complexity or repeated estimation loops will dominate runtime at production sample sizes.
+
 ## Output Format
 
 For each finding:

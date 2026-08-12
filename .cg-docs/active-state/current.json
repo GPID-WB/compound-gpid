@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": "compound-gpid-active-state-v1",
   "updatedAt": "2026-08-11T17:49:00Z",
   "workflow": "/cg-work",
@@ -36,6 +36,7 @@
     {"id": "D5", "summary": "Human: confirm exact configuration of the 'approve Copilot-initiated workflow runs' toggle in the settings pane (operator UI; no API surface)", "blocking": false},
     {"id": "D7", "summary": "Human: review and merge the Phase 5 dispatcher PR, then create COPILOT_ASSIGN_TOKEN and PROJECT_SYNC_TOKEN environment-protected secrets + the protected environment before ANY live dispatch; run dry-run on a throwaway issue first, then a supervised live dispatch. Phase 5 live validation remains outstanding and must NOT be marked complete until it passes.", "blocking": true}
   ],
+  "unresolvedDecisions": [],
   "artifactRefs": [
     {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active-completed-phases-1-2-3-4"},
     {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-5-stage-3-dispatcher-implemented"},

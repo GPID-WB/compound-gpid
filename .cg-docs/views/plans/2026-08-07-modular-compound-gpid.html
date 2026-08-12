@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; frame-src 'none'; media-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="artifact-source" content=".cg-docs/plans/2026-08-07-modular-compound-gpid.md">
+<meta name="artifact-source-sha256" content="bfd32678a13d190f56300d3724f9d6d51afc3c8799a1ea2727fdb014f88aa088">
+<meta name="publication-provenance-schema" content="2">
+<meta name="publication-output" content=".cg-docs/views/plans/2026-08-07-modular-compound-gpid.html">
+<meta name="publication-theme" content="reference">
+<meta name="artifact-renderer-version" content="0.1.0">
+<title>Modular Compound GPID architecture for technical and research suites · Compound GPID</title>
+<style>:root {
+  color-scheme: light;
+  --paper: #f6f5f0;
+  --surface: #ffffff;
+  --ink: #17212b;
+  --muted: #59636d;
+  --line: #c8cdd1;
+  --accent: #006b5f;
+  --accent-strong: #004d45;
+  --signal: #a63d21;
+  --code: #eef1f3;
+  --focus: #d43f00;
+  --measure: 78rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; min-width: 20rem; }
+a { color: var(--accent-strong); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: .75rem; top: -5rem; z-index: 10; background: var(--ink); color: white; padding: .6rem .8rem; }
+.skip-link:focus { top: .75rem; }
+.masthead { border-bottom: 1px solid var(--line); background: var(--surface); }
+.masthead-inner { max-width: var(--measure); margin: 0 auto; padding: 1.6rem clamp(1rem, 4vw, 3rem); }
+.eyebrow { margin: 0 0 .45rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; text-transform: uppercase; }
+h1, h2, h3, h4, h5, h6 { font-family: "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.16; margin: 1.5em 0 .55em; overflow-wrap: anywhere; }
+h1 { margin: 0; font-size: 3.4rem; }
+.deck { max-width: 58rem; margin: .75rem 0 0; color: var(--muted); }
+.layout { max-width: var(--measure); margin: 0 auto; display: grid; grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+.sidebar { align-self: start; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.sidebar h2 { font-family: inherit; font-size: .82rem; text-transform: uppercase; margin: 0 0 .7rem; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; }
+.sidebar li + li { margin-top: .45rem; }
+main { min-width: 0; }
+.derived-panel { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1rem 0; margin: 0 0 1.5rem; }
+.derived-panel h2 { font-size: 1.3rem; margin: 0 0 .65rem; }
+.phase-list, .coverage-list { display: grid; gap: .55rem; padding-left: 1.25rem; }
+.source-block { min-width: 0; }
+.source-block > :first-child { margin-top: 0; }
+.source-heading { scroll-margin-top: 1rem; }
+p, li, td, th, code { overflow-wrap: anywhere; }
+pre { max-width: 100%; overflow: auto; padding: 1rem; background: var(--code); border-left: 4px solid var(--accent); white-space: pre; }
+code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .88em; }
+:not(pre) > code { background: var(--code); padding: .08em .3em; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin: 1rem 0 1.5rem; }
+th, td { border: 1px solid var(--line); padding: .55rem .7rem; text-align: left; vertical-align: top; min-width: 8rem; }
+th { background: #e6ece9; }
+blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 4px solid var(--signal); color: var(--muted); }
+.raw-source { border: 1px solid var(--line); margin: 1rem 0; }
+.raw-source figcaption { padding: .45rem .7rem; background: #f0e9e5; font-weight: 700; }
+.raw-source pre { margin: 0; border: 0; }
+.provenance { border-top: 1px solid var(--line); background: var(--surface); }
+.provenance-inner { max-width: var(--measure); margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 3rem); }
+.provenance dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.provenance dt { font-weight: 700; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; max-height: none; border-left: 0; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+  h1 { font-size: 2.15rem; }
+  .provenance dl { grid-template-columns: 1fr; }
+  .provenance dd + dt { margin-top: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media print {
+  :root { --paper: #fff; --surface: #fff; --ink: #000; --muted: #222; }
+  @page { margin: 15mm; }
+  .skip-link, .sidebar { display: none; }
+  .layout { display: block; max-width: none; padding: 0; }
+  .masthead-inner, .provenance-inner { max-width: none; padding: 0; }
+  .masthead { border: 0; margin-bottom: 1rem; }
+  a { color: #000; text-decoration: underline; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: .8em; }
+  pre, table, blockquote, .raw-source { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h1, h2, h3, h4 { break-after: avoid; }
+  .provenance { margin-top: 1rem; }
+}</style>
+<script id="artifact-provenance" type="application/json">{"documentType":"plan","generatedAt":"2026-08-08T02:10:13Z","outputPath":".cg-docs/views/plans/2026-08-07-modular-compound-gpid.html","provenanceSchemaVersion":2,"rendererVersion":"0.1.0","sourcePath":".cg-docs/plans/2026-08-07-modular-compound-gpid.md","sourceSha256":"bfd32678a13d190f56300d3724f9d6d51afc3c8799a1ea2727fdb014f88aa088","themeName":"reference","themeVersion":1}</script>
+</head>
+<body data-artifact-kind="plan">
+<a class="skip-link" href="#main-content">Skip to artifact content</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Execution contract</p>
+    <h1>Modular Compound GPID architecture for technical and research suites</h1>
+    <p class="deck">A complete human view of the canonical Plan, including phases, requirements, verification, risks, and boundaries. <a href="../../plans/2026-08-07-modular-compound-gpid.md">Open canonical Markdown</a>.</p>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Artifact sections" data-derived="navigation">
+    <h2>On this page</h2>
+    <ul><li><a href="#objective">Outcome</a></li><li><a href="#phase-map">Phase map</a></li><li><a href="#implementation-steps">Steps</a></li><li><a href="#requirement-coverage">Requirement coverage</a></li><li><a href="#verification-surface">Verification</a></li><li><a href="#risks-mitigations">Risks</a></li><li><a href="#out-of-scope">Boundaries</a></li><li><a href="#provenance-heading">Provenance</a></li></ul>
+  </nav>
+  <main id="main-content" tabindex="-1">
+    <section class="derived-panel" data-derived="phase-map" aria-labelledby="phase-map"><h2 id="phase-map">Phase map</h2><ol class="phase-list"><li><strong>Phase 1</strong> · Registry foundation &amp; asset inventory</li><li><strong>Phase 2</strong> · Dependency validation &amp; characterization</li><li><strong>Phase 3</strong> · Research suite migration</li><li><strong>Phase 4</strong> · Integration proof &amp; compatibility</li><li><strong>Phase 5</strong> · Documentation &amp; charter</li></ol></section><section class="derived-panel" data-derived="requirement-coverage" aria-labelledby="requirement-coverage"><h2 id="requirement-coverage">Requirement coverage</h2><ul class="coverage-list"><li><strong>R1</strong> → steps 1, 2, 7</li><li><strong>R2</strong> → steps 1, 7</li><li><strong>R3</strong> → steps 3</li><li><strong>R4</strong> → steps 1, 4</li><li><strong>R5</strong> → steps 6</li><li><strong>R6</strong> → steps 5</li><li><strong>R7</strong> → steps 8</li><li><strong>R8</strong> → steps 9</li><li><strong>R9</strong> → steps 10</li><li><strong>R10</strong> → steps 11</li><li><strong>R11</strong> → steps 13</li><li><strong>R12</strong> → steps 12</li><li><strong>R13</strong> → steps 14</li></ul></section>
+    <article aria-label="Canonical artifact content">
+      <div class="source-block source-heading" id="render-owner-0002" data-source-block="block-0002" data-source-lines="18-18"><h1 id="plan-modular-compound-gpid-architecture-for-technical-and-research-suites">Plan: Modular Compound GPID Architecture for Technical and Research Suites</h1></div>
+<div class="source-block source-heading" id="render-owner-0004" data-source-block="block-0004" data-source-lines="20-20"><h2 id="objective">Objective</h2></div>
+<div class="source-block" id="render-owner-0006" data-source-block="block-0006" data-source-lines="22-28"><p>Introduce a validated three-layer module registry (kernel, capability packs, suites) over the existing canonical <code>.github/</code> tree so that every canonical asset has one declared owner, the dependency graph is acyclic and cross-suite-safe, and the research suite (<code>cr-*</code>) is imported by capability without direct technical-suite coupling — all while preserving generated-target parity across Copilot, Claude Code, Codex, OpenCode, and Kilo and the stable <code>/cg-*</code> user surface.</p></div>
+<div class="source-block source-heading" id="render-owner-0008" data-source-block="block-0008" data-source-lines="30-30"><h2 id="context">Context</h2></div>
+<div class="source-block" id="render-owner-0010" data-source-block="block-0010" data-source-lines="32-34"><p>This plan implements the decision in <code>.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md</code>: <strong>Approach 1 — Layered Registry Over the Canonical Tree</strong>.</p></div>
+<div class="source-block" id="render-owner-0012" data-source-block="block-0012" data-source-lines="36-44"><p>Compound GPID currently combines product infrastructure, reusable technical knowledge, and user-facing technical workflows under the <code>cg-*</code> namespace. The <code>origin/feat/compound-research-v2</code> branch adds a research suite under <code>cr-*</code> (5 prompts, 11 agents, 15 skills, 2 new instruction domains — 305 files changed vs main). The branch demonstrates valuable research behavior but exposes incomplete architectural boundaries: the canonical target generator discovers skills through a hard-coded <code>.github/skills/cg-skill-*</code> glob (<code>scripts/cg_generate_targets.py:64</code>, <code>:542</code>) even though the branch contains generated <code>cr-skill-*</code> trees.</p></div>
+<div class="source-block" id="render-owner-0014" data-source-block="block-0014" data-source-lines="46-50"><p>The revamp&#x27;s primary goal is <strong>maintainability</strong>: core maintainers must be able to improve a shared capability or one suite without silently breaking another. The three failure modes to prevent most aggressively are (1) a shared change silently breaks a suite, (2) additional modules inflate routine context load, and (3) users cannot tell which suite should own a task.</p></div>
+<div class="source-block" id="render-owner-0016" data-source-block="block-0016" data-source-lines="52-54"><p>The plan extends the recently hardened canonical-native packaging foundation (generator + per-target ownership manifests + drift tests) rather than replacing it.</p></div>
+<div class="source-block" id="render-owner-0018" data-source-block="block-0018" data-source-lines="56-66"><p><strong>Deliberate prioritization change</strong>: The charter&#x27;s Current Focus is &quot;Token Efficiency Core System.&quot; The 2026-07-31 brainstorm (Next Step #10) decided to pursue the modular architecture first because (a) the research branch (<code>feat/compound-research-v2</code>) has 305 unmerged files that create mounting merge debt, (b) the hard-coded <code>cg-skill-*</code> glob blocks any multi-namespace work, and (c) token efficiency optimizations would need rework if applied before namespace boundaries are established. This plan represents a deliberate, documented pivot from the charter&#x27;s stated priority. The charter update (Step 14) is deferred to Phase 5 so the modular foundation is verified before the charter reflects it. The Token Efficiency roadmap milestone is unaffected and can resume after Phase 4 is verified.</p></div>
+<div class="source-block source-heading" id="render-owner-0020" data-source-block="block-0020" data-source-lines="68-68"><h3 id="brain-findings-incorporated">Brain findings incorporated</h3></div>
+<div class="source-block" id="render-owner-0022" data-source-block="block-0022" data-source-lines="70-82"><ol><li>Canonical-native packaging foundation established the generator, ownership manifests, and drift tests — the registry extends this, not replaces it. — source: <code>.cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md</code></li><li>&quot;Capability flags, not schema forks&quot;: new platforms/modules fit as data in <code>target-mapping.json</code>, not code branches. The registry follows this data-driven principle. — source: <code>.cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md</code></li><li>Mock-target drift gotcha: refactoring the generator API breaks mock drift tests — update mocks alongside the refactor. — source: <code>.cg-docs/solutions/testing-patterns/2026-05-26-mock-target-drift-after-api-refactoring.md</code></li><li>Skill-consolidation checklist: established safe pattern for migrating/consolidating skills. — source: <code>.cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md</code></li></ol></div>
+<div class="source-block source-heading" id="render-owner-0024" data-source-block="block-0024" data-source-lines="84-84"><h2 id="requirements">Requirements</h2></div>
+<div class="source-block" id="render-owner-0026" data-source-block="block-0026" data-source-lines="86-100"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Source</th></tr></thead><tbody><tr><td>R1</td><td>Three-layer module model (kernel, capability packs, suites); one declared owner per canonical asset</td><td>Brainstorm: Architecture &amp; Safety; Target Dependency Rules 5</td></tr><tr><td>R2</td><td>Central module-registry plus per-asset frontmatter ownership, validated for consistency</td><td>Open Q1; Approach 1 (validated registry)</td></tr><tr><td>R3</td><td>Namespace-agnostic canonical discovery (no hard-coded <code>cg-skill-*</code> prefix branch)</td><td>Brainstorm; <code>cg_generate_targets.py:64,542</code></td></tr><tr><td>R4</td><td>Acyclic dependency graph; suites never depend on suites; capabilities never depend on suites</td><td>Target Dependency Rules 1-4</td></tr><tr><td>R5</td><td>Generated-target parity across all 5 platforms for both CG and CR</td><td>Brainstorm Next Step 5</td></tr><tr><td>R6</td><td>Characterization tests baseline CG workflows + selected CR behavior before refactoring</td><td>Brainstorm Next Step 4</td></tr><tr><td>R7</td><td>CR assets imported by suite/capability, not wholesale merge; direct CG deps → capability-pack deps</td><td>Brainstorm Next Step 6; Compatibility Position</td></tr><tr><td>R8</td><td>One mixed <code>/cr-work</code> path proves no direct technical-suite dependency</td><td>Brainstorm Next Step 7</td></tr><tr><td>R9</td><td>Compatibility matrix covering CG-only, CR-only, mixed, legacy config, drift, context budget</td><td>Brainstorm Next Step 8</td></tr><tr><td>R10</td><td>Context-budget enforcement: inactive suites&#x27; instructions/skills not loaded into routine sessions by default</td><td>Brainstorm: Architecture &amp; Safety</td></tr><tr><td>R11</td><td>Task-oriented manual: suite selection, composition, preferences, extension rules, migration</td><td>Brainstorm Next Step 9</td></tr><tr><td>R12</td><td>Automated, idempotent, backward-compatible project config migration</td><td>Brainstorm: Product &amp; Governance</td></tr><tr><td>R13</td><td>Charter updated only after modular work is approved</td><td>Brainstorm Next Step 10</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0028" data-source-block="block-0028" data-source-lines="102-102"><h2 id="implementation-steps">Implementation Steps</h2></div>
+<div class="source-block source-heading" id="render-owner-0030" data-source-block="block-0030" data-source-lines="104-104"><h2 id="phase-1-registry-foundation-asset-inventory">Phase 1: Registry foundation &amp; asset inventory</h2></div>
+<div class="source-block source-heading" id="render-owner-0032" data-source-block="block-0032" data-source-lines="106-106"><h3 id="1-define-module-registry-schema-and-validator">1. Define module-registry schema and validator</h3></div>
+<div class="source-block" id="render-owner-0034" data-source-block="block-0034" data-source-lines="108-137"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 108–137</figcaption><pre><code>- **Requirements**: R1, R2, R4
+- **Files**: `.github/shared/module-registry.json` (new), `scripts/cg_validate_modules.py` (new), `scripts/tests/test_module_registry.py` (new), `.github/shared/target-mapping.json` (reference only)
+- **Details**: Define a central registry that declares modules across three
+  layers. A **module** is one of: `kernel`, a `capability` pack, or a `suite`.
+  Each module declares: `id`, `layer`, `displayName`, `description`, optional
+  `dependsOn` (module ids in lower layers only), and `ownedAssets` (glob
+  patterns under `.github/`). The registry schema version is `1`. Build a
+  stdlib-only validator (`cg_validate_modules.py`) that checks: schema
+  conformance, unique module ids, every declared asset exists, every canonical
+  asset has exactly one owning module, dependency edges respect layer rules
+  (kernel depends on nothing; capabilities depend on kernel or capabilities;
+  suites depend on kernel or capabilities; never suite→suite or
+  capability→suite), and the dependency graph is acyclic (topological sort).
+  Resolve the open question &quot;centralized vs distributed vs combination&quot; by
+  choosing a **central registry with per-asset frontmatter cross-validation**:
+  the registry is the source of truth for ownership and dependencies, and each
+  canonical asset&#x27;s frontmatter may optionally carry an `owner:` field the
+  validator confirms against the registry. This combination catches drift in
+  both directions without requiring maintainers to edit every file.
+- **Test Scenarios**:
+  - happy path: valid registry with kernel + 1 capability + 1 suite passes
+  - edge case: asset owned by two modules → validation error
+  - edge case: unowned canonical asset → validation error
+  - edge case: suite→suite dependency → validation error
+  - edge case: cycle in capability dependencies → validation error
+  - error path: malformed JSON → clear error, nonzero exit
+- **Tests**: `pytest scripts/tests/test_module_registry.py`
+- **Acceptance criteria**: `cg_validate_modules.py` exits 0 on a valid seed
+  registry and nonzero with a precise message on each violation class; unit
+  tests cover all five edge cases.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0036" data-source-block="block-0036" data-source-lines="139-139"><h3 id="2-inventory-and-classify-all-canonical-assets">2. Inventory and classify all canonical assets</h3></div>
+<div class="source-block" id="render-owner-0038" data-source-block="block-0038" data-source-lines="141-172"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 141–172</figcaption><pre><code>- **Requirements**: R1
+- **Files**: `.github/shared/module-registry.json` (extend from Step 1), `scripts/cg_validate_modules.py` (ownership-report mode)
+- **Details**: Produce the initial real registry by classifying every canonical
+  asset under `.github/prompts/`, `.github/agents/`, `.github/skills/`,
+  `.github/instructions/`, and `.github/shared/` into one of: kernel,
+  capability pack, technical suite (`cg-*`), or research suite (`cr-*`). Kernel
+  owns lifecycle contracts, context loading, active state, Brain/roadmap
+  integration, model/review routing, canonical generation, installation,
+  release, and architecture validation. Capability packs own reusable
+  implementation knowledge: language support (r, python, stata, powershell),
+  testing, reproducibility, data quality, visualization, publication-output
+  primitives, git workflow, pester safety. The technical suite owns `cg-*`
+  command orchestration; the research suite owns `cr-*` and its domain-specific
+  integrity/identification/measurement/econometric/academic-writing behavior.
+  **Record ambiguous ownership explicitly** in the registry as
+  `&quot;ownership&quot;: &quot;ambiguous&quot;` with a resolution note rather than defaulting to a
+  shared bucket. Emit an ownership report (`cg_validate_modules.py --report`)
+  listing every asset and its assigned module for review. Resolve the open
+  question &quot;which `cg-*` skills are genuinely technical-suite assets vs neutral
+  capabilities&quot; here: e.g., `cg-skill-r-*`, `cg-skill-python-*`,
+  `cg-skill-stata-*`, `cg-skill-pester-safety`, `cg-skill-git-workflow`,
+  `cg-skill-reproducibility`, `cg-skill-render-doc` are neutral capabilities;
+  `cg-skill-wb-report-writing` is a capability shared by both suites; workflow
+  prompts (`cg-work`, `cg-plan`, `cg-brainstorm`, etc.) are technical-suite
+  orchestration.
+- **Test Scenarios**:
+  - happy path: every `.github/` asset appears in exactly one module
+  - edge case: ambiguous asset is flagged, not silently bucketed
+  - edge case: empty module (no owned assets) → warning
+- **Tests**: `python scripts/cg_validate_modules.py --report` (human review) + ownership-closure assertion in `test_module_registry.py`
+- **Acceptance criteria**: ownership report shows 0 unowned assets and 0
+  double-owned assets; every ambiguous entry has a resolution note.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0040" data-source-block="block-0040" data-source-lines="174-174"><h3 id="3-make-canonical-generation-namespace-agnostic">3. Make canonical generation namespace-agnostic</h3></div>
+<div class="source-block" id="render-owner-0042" data-source-block="block-0042" data-source-lines="176-227"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 176–227</figcaption><pre><code>- **Requirements**: R3
+- **Files**: `scripts/cg_generate_targets.py` (modify glob logic at lines 64, 542,
+  1377), `scripts/cg_audit_context.py` (update `SKILL_REF_RE` at line 115 and
+  hard-coded `cg-skill-brain-query` paths at lines 1306, 1318, 1426, 1553,
+  1563), `scripts/tests/test_cg_generate_targets.py` (extend),
+  `scripts/tests/test_target_drift.py` (update `cg-skill-*` glob at line 166),
+  `scripts/tests/test_target_claude.py` (update glob at line 51),
+  `scripts/tests/test_target_kilo.py` (update glob at line 84),
+  `scripts/tests/test_target_opencode.py` (update glob at line 85),
+  `scripts/tests/test_target_packaging.py` (update glob at line 103),
+  `scripts/tests/test_agent_adapters.py` (update `REQUIRED_CONTRACT_PHRASES`
+  at line 25), `scripts/tests/test_audit_context.py` (update test fixtures),
+  `scripts/validate_wb_writing_skill.py` (update `SKILL_ROOT` at line 25),
+  `scripts/tests/test_target_closure.py` (update test fixtures),
+  `scripts/tests/test_target_ownership.py` (update test fixtures),
+  `scripts/tests/test_validate_wb_writing_skill.py` (update test paths),
+  `.github/shared/target-mapping.json` (reference)
+- **Details**: Replace all hard-coded `cg-skill-*` references with
+  namespace-agnostic discovery. The primary changes are:
+  1. Replace `CANONICAL_SKILLS_GLOB = &quot;.github/skills/cg-skill-*/SKILL.md&quot;`
+     (line 64) with `.github/skills/*/SKILL.md` filtered by registry ownership.
+  2. Replace the `cg-skill-*` glob at line 542 with registry-driven discovery:
+     iterate every skill directory under `.github/skills/` whose owning module
+     is declared in the registry, regardless of prefix.
+  3. Update the adapter template at line 1377 to emit a namespace-agnostic
+     skill path pattern (e.g., `{paths[&#x27;skills&#x27;]}/*/SKILL.md`).
+  4. Update `cg_audit_context.py`&#x27;s `SKILL_REF_RE` regex to match any
+     registered skill prefix, not just `cg-skill-`.
+  5. Update all test files listed above: replace `cg-skill-*` globs with
+     namespace-agnostic patterns and update fixture paths from
+     `cg-skill-*` to generic registered-skill patterns.
+  6. Update mock drift tests in lockstep (Brain finding 3).
+  **Registry fallback**: If `module-registry.json` does not exist (e.g., in a
+  downstream project that hasn&#x27;t adopted the modular model), fall back to the
+  current `cg-skill-*` glob-based discovery. This preserves backward
+  compatibility for standalone generator use. Log a deprecation warning when
+  falling back. Do NOT change the generated output format or paths — this step
+  is purely about discovery.
+- **Test Scenarios**:
+  - happy path: with only `cg-skill-*` present and registry, generator output is byte-identical to pre-change
+  - happy path: without registry, generator falls back to `cg-skill-*` glob with deprecation warning
+  - edge case: add a synthetic `cr-skill-test/SKILL.md` (using `tmp_path`, not committed) → discovered and emitted to all 5 platform trees
+  - edge case: skill directory with no registry owner → skipped with warning (or error, per registry strictness)
+  - edge case: `test_target_drift.py` bundle check covers both `cg-skill-*` and `cr-skill-*` after glob update
+  - error path: symlink in skills tree → existing ValueError preserved
+- **Tests**: `pytest scripts/tests/test_cg_generate_targets.py -k namespace`, `pytest scripts/tests/test_target_drift.py`, `pytest scripts/tests/test_target_claude.py`, `pytest scripts/tests/test_target_kilo.py`, `pytest scripts/tests/test_target_opencode.py`, `pytest scripts/tests/test_target_packaging.py`, `pytest scripts/tests/test_agent_adapters.py`
+- **Acceptance criteria**: generator discovers skills by registry ownership not
+  prefix; generator falls back gracefully without registry; drift tests stay
+  green for CG; drift test bundle check covers both `cg-skill-*` and
+  `cr-skill-*` patterns; a synthetic cr-skill (in `tmp_path`) is emitted to all
+  generated trees; all 15+ test files with hard-coded `cg-skill-*` references
+  are updated.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0044" data-source-block="block-0044" data-source-lines="229-229"><h2 id="phase-2-dependency-validation-characterization">Phase 2: Dependency validation &amp; characterization</h2></div>
+<div class="source-block source-heading" id="render-owner-0046" data-source-block="block-0046" data-source-lines="231-231"><h3 id="4-add-dependency-closure-and-cross-suite-validation-ci-gates">4. Add dependency-closure and cross-suite validation CI gates</h3></div>
+<div class="source-block" id="render-owner-0048" data-source-block="block-0048" data-source-lines="233-267"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 233–267</figcaption><pre><code>- **Requirements**: R4
+- **Files**: `scripts/cg_validate_modules.py` (extend), `.github/workflows/tests.yml` (add gate), `scripts/tests/test_module_registry.py` (extend)
+- **Details**: Wire `cg_validate_modules.py --check-dependencies` into the CI
+  test workflow as a release gate alongside the existing
+  `test_target_drift.py` and `test_release_gate_targets.py`. The gate fails on:
+  any unresolved runtime dependency (a canonical path referenced by an asset
+  not in the referencing module&#x27;s transitive dependency closure), any
+  cross-suite reference (a `cr-*` asset referencing a `cg-*` asset owned by the
+  technical suite, or vice versa, except through a shared capability pack), and
+  any cycle. **New infrastructure required** (this is not a simple reuse of
+  existing code):
+  1. **Reference scanner**: Reuse the generator&#x27;s `CANONICAL_RUNTIME_PATH_PATTERN`
+     (line 68-71) to find all `.github/...` path references in every canonical
+     asset body. The regex finds references but does not resolve ownership.
+  2. **Asset→module resolver**: New function that maps a canonical path
+     (e.g., `.github/skills/cg-skill-r-analytical/SKILL.md`) to its owning
+     module by scanning the registry&#x27;s `ownedAssets` globs.
+  3. **Transitive closure algorithm**: New function that computes the full
+     dependency closure for a module (its `dependsOn` plus their `dependsOn`,
+     recursively) and detects cycles via topological sort.
+  4. **Cross-suite checker**: New function that verifies no asset in one suite
+     references an asset owned by another suite (except through shared
+     capability packs).
+  The existing `CANONICAL_RUNTIME_PATH_PATTERN` is the input to step 1; steps
+  2-4 are entirely new.
+- **Test Scenarios**:
+  - happy path: valid closure passes
+  - edge case: cr-agent references a cg-skill owned by technical suite → gate fails
+  - edge case: cr-agent references a capability pack it depends on → passes
+  - edge case: capability references a suite → gate fails
+  - error path: broken reference path → clear error
+- **Tests**: `pytest scripts/tests/test_module_registry.py -k dependency`, CI gate run
+- **Acceptance criteria**: CI gate runs on every PR touching `.github/` and
+  fails on the three violation classes above; no false positives on the real
+  registry.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0050" data-source-block="block-0050" data-source-lines="269-269"><h3 id="5-add-characterization-tests-for-cg-workflows-and-cr-baseline">5. Add characterization tests for CG workflows and CR baseline</h3></div>
+<div class="source-block" id="render-owner-0052" data-source-block="block-0052" data-source-lines="271-294"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 271–294</figcaption><pre><code>- **Requirements**: R6
+- **Files**: `scripts/tests/test_cg_characterization.py` (new), `scripts/tests/test_cr_baseline.py` (new)
+- **Details**: Before refactoring orchestration or importing CR content,
+  capture behavioral baselines. For CG: snapshot the current generated-target
+  manifest (per-platform file list + sha256) as the CG characterization baseline
+  and assert the generator reproduces it exactly; snapshot key `/cg-work`,
+  `/cg-plan`, `/cg-brainstorm` prompt bodies&#x27; structural elements (required
+  section headings). For CR: extract content from the remote research branch
+  using `git show origin/feat/compound-research-v2:&lt;path&gt;` for each asset
+  (do NOT checkout or cherry-pick the branch into the worktree). Extract a
+  minimal behavioral baseline — the 5 cr-prompts&#x27; required sections, the 11
+  cr-agents&#x27; frontmatter schema, and the 14 cr-skills&#x27; SKILL.md frontmatter +
+   bundle closure — as fixtures and assert ported versions preserve them. Verify
+   the actual asset counts on the branch before committing fixtures. These are
+   **characterization tests** (pin current behavior), not specification tests;
+  they are allowed to change only when a step explicitly updates behavior.
+- **Test Scenarios**:
+  - happy path: CG baseline matches current generator output
+  - edge case: generator output changes → characterization fails loudly (intended)
+  - edge case: CR baseline fixture ported with structural drift → fails
+- **Tests**: `pytest scripts/tests/test_cg_characterization.py`, `pytest scripts/tests/test_cr_baseline.py`
+- **Acceptance criteria**: both suites green against current main (CG) and
+  extracted CR fixtures; baselines committed as fixtures for regression
+  detection.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0054" data-source-block="block-0054" data-source-lines="296-296"><h3 id="6-prove-cg-cr-generated-target-parity-across-all-platforms">6. Prove CG/CR generated-target parity across all platforms</h3></div>
+<div class="source-block" id="render-owner-0056" data-source-block="block-0056" data-source-lines="298-315"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 298–315</figcaption><pre><code>- **Requirements**: R5
+- **Files**: `scripts/tests/test_target_drift.py` (extend), `scripts/tests/test_release_gate_targets.py` (reference)
+- **Details**: Extend the drift test to assert that, once `cr-*` assets are
+  discovered by the generator (Step 3), all 5 platform trees (copilot,
+  claude-code, codex, opencode, kilo) receive complete and parity-correct CR
+  output alongside CG output. Assert: every cr-prompt, cr-agent, cr-skill, and
+  cr-instruction appears in every generated tree; ownership manifests list
+  them; runtime dependency rewriting resolves cr-* references correctly; no
+  orphaned or stale files. This is the &quot;prove complete CG/CR parity&quot; gate from
+  brainstorm Next Step 5. Run before importing real CR content (synthetic
+  fixtures suffice) to prove the pipeline; re-run after real import in Phase 3.
+- **Test Scenarios**:
+  - happy path: 5-platform parity for CG+CR with synthetic fixtures
+  - edge case: one platform missing a cr-skill → drift fails
+  - edge case: cr-agent runtime reference unresolved → fails
+- **Tests**: `pytest scripts/tests/test_target_drift.py`
+- **Acceptance criteria**: drift test green across the full 5-platform matrix
+  for both namespaces.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0058" data-source-block="block-0058" data-source-lines="317-317"><h2 id="phase-3-research-suite-migration">Phase 3: Research suite migration</h2></div>
+<div class="source-block source-heading" id="render-owner-0060" data-source-block="block-0060" data-source-lines="319-319"><h3 id="7-migrate-main-s-assets-to-declared-module-ownership">7. Migrate main&#x27;s assets to declared module ownership</h3></div>
+<div class="source-block" id="render-owner-0062" data-source-block="block-0062" data-source-lines="321-341"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 321–341</figcaption><pre><code>- **Requirements**: R1, R2
+- **Files**: `.github/shared/module-registry.json` (finalize from Step 2), all `.github/` canonical assets (frontmatter `owner:` optional cross-validation)
+- **Details**: Finalize the registry so that every existing main asset is owned
+  by exactly one module. This is mostly completing Step 2&#x27;s classification, but
+  this step commits the registry as the enforced source of truth and removes
+  all `&quot;ownership&quot;: &quot;ambiguous&quot;` entries by resolving them. If neutral
+  capability identifiers are introduced (e.g., a capability pack id that is not
+  a `cg-*` prefix), add **compatibility aliases** so existing `cg-skill-*`
+  identifiers keep resolving (Brainstorm Compatibility Position: &quot;Existing
+  shared `cg-skill-*` identifiers may require compatibility aliases&quot;). Keep all
+  user-facing `cg-*` command names stable — aliases are registry-internal.
+  Run the generator and confirm main&#x27;s generated trees are unchanged (the
+  ownership layer is metadata; output bytes should not drift unless a real
+  content change is made).
+- **Test Scenarios**:
+  - happy path: registry validates, generator drift green, no ambiguous entries remain
+  - edge case: an asset&#x27;s `owner:` frontmatter disagrees with registry → validator catches
+  - edge case: alias points to a renamed capability → resolves correctly
+- **Tests**: `python scripts/cg_validate_modules.py`, `pytest scripts/tests/test_target_drift.py`, `pytest scripts/tests/test_cg_characterization.py`
+- **Acceptance criteria**: 0 ambiguous ownership entries; CG characterization
+  baseline unchanged; drift green.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0064" data-source-block="block-0064" data-source-lines="343-343"><h3 id="8-import-cr-intellectual-content-by-suite-and-capability">8. Import CR intellectual content by suite and capability</h3></div>
+<div class="source-block" id="render-owner-0066" data-source-block="block-0066" data-source-lines="345-351"><ul><li><strong>Requirements</strong>: R7</li><li><strong>Files</strong>: <code>.github/prompts/cr-*.prompt.md</code> (new, from research branch), <code>.github/agents/cr-*.agent.md</code> (new), <code>.github/skills/cr-skill-*/</code> (new), <code>.github/instructions/latex.instructions.md</code>, <code>.github/instructions/math.instructions.md</code> (new), <code>.github/shared/module-registry.json</code> (add research suite + its capability deps), <code>scripts/cg_validate_modules.py</code></li><li><strong>Details</strong>: Import the research branch&#x27;s intellectual content capability-by-capability and suite-by-suite, <strong>never as a wholesale merge</strong> (Brainstorm NS6; Constraint C4). Classify each CR asset before import using the preliminary mapping below (verify against actual branch content in Step 5 before execution):</li></ul></div>
+<div class="source-block" id="render-owner-0068" data-source-block="block-0068" data-source-lines="353-360"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">Cr Asset Type</th><th scope="col">Examples (Preliminary)</th><th scope="col">Target Module</th><th scope="col">Rationale</th></tr></thead><tbody><tr><td>cr-prompts (5)</td><td>cr-brainstorm, cr-plan, cr-work, cr-review, cr-compound</td><td>Research suite</td><td>Command orchestration is suite-specific</td></tr><tr><td>cr-agents: domain-specific (est.)</td><td>identification, measurement, econometric reasoning</td><td>Research suite</td><td>Domain-specific reasoning</td></tr><tr><td>cr-agents: generic (est.)</td><td>code-quality, testing, reproducibility (if duplicated)</td><td>Capability packs</td><td>Reusable across suites</td></tr><tr><td>cr-skills: domain-specific (est.)</td><td>academic-writing, identification, measurement, econometric-reasoning</td><td>Research suite</td><td>Domain knowledge</td></tr><tr><td>cr-skills: generic (est.)</td><td>publication-output, replication, research-eda</td><td>Capability packs</td><td>Reusable implementation knowledge</td></tr><tr><td>cr-instructions (2)</td><td>latex, math</td><td>Capability packs</td><td>Language support, not suite-specific</td></tr></tbody></table></div></div>
+<div class="source-block" id="render-owner-0070" data-source-block="block-0070" data-source-lines="362-369"><p>Replace any direct CG-owned dependency with a capability-pack dependency   (Brainstorm Compatibility Position: &quot;CR behavior is preserved while its direct   dependencies on CG-owned behavior are replaced with capability-pack   dependencies&quot;). Add each imported asset to the registry with correct ownership   and dependencies, then run the cross-suite validation gate (Step 4) after each   batch to catch coupling early. Use the skill-consolidation checklist (Brain   finding 4) for the skill imports. **Resolve all <code>&quot;ownership&quot;: &quot;ambiguous&quot;</code>   entries** from the classification table before completing this step.</p></div>
+<div class="source-block" id="render-owner-0071" data-source-block="block-0071" data-source-lines="370-378"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 370–378</figcaption><pre><code>- **Test Scenarios**:
+  - happy path: a cr-skill imports cleanly, validates, generates to 5 platforms
+  - edge case: cr-agent references a cg-skill directly → cross-suite gate fails (fix by routing through capability)
+  - edge case: cr-skill bundle reference unresolved → generator fails loudly
+  - error path: wholesale merge attempted → rejected by process (git diff --stat shows selective files only)
+- **Tests**: `python scripts/cg_validate_modules.py --check-cross-suite`, `pytest scripts/tests/test_target_drift.py`, `pytest scripts/tests/test_cr_baseline.py`
+- **Acceptance criteria**: all CR assets imported and owned; cross-suite gate
+  green (no direct technical-suite dependency); CR baseline tests pass; 5
+  platform drift green.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0073" data-source-block="block-0073" data-source-lines="380-380"><h2 id="phase-4-integration-proof-compatibility">Phase 4: Integration proof &amp; compatibility</h2></div>
+<div class="source-block source-heading" id="render-owner-0075" data-source-block="block-0075" data-source-lines="382-382"><h3 id="9-prove-one-mixed-cr-work-end-to-end-path">9. Prove one mixed <code>/cr-work</code> end-to-end path</h3></div>
+<div class="source-block" id="render-owner-0077" data-source-block="block-0077" data-source-lines="384-401"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 384–401</figcaption><pre><code>- **Requirements**: R8
+- **Files**: integration test artifact in `.cg-docs/work-reports/`, `.github/prompts/cr-work.prompt.md` (reference), `.github/agents/cr-*.agent.md` (reference)
+- **Details**: Demonstrate one complete mixed `/cr-work` path that uses
+  research reasoning (a cr-agent), R or Python implementation (a capability
+  pack skill), testing (a capability pack), reproducibility (a capability
+  pack), and publication output (a capability pack) — with **no direct
+  dependency on the technical suite** (Brainstorm NS7). Document the path&#x27;s
+  dependency resolution through the registry to prove every reference resolves
+  via kernel or a capability pack, never the technical suite. This is the
+  architectural proof that the modular boundaries hold under real use. Record
+  the run as a work-report artifact serving as V10 evidence.
+- **Test Scenarios**:
+  - happy path: mixed cr-work path completes using only kernel + capabilities
+  - edge case: path touches a technical-suite asset → flagged as boundary violation
+- **Tests**: integration-test work-report artifact + `python scripts/cg_validate_modules.py --check-cross-suite` on the path&#x27;s resolved dependencies
+- **Acceptance criteria**: documented end-to-end path resolves entirely
+  through kernel and capability packs; cross-suite gate confirms no
+  technical-suite dependency.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0079" data-source-block="block-0079" data-source-lines="403-403"><h3 id="10-document-compatibility-matrix">10. Document compatibility matrix</h3></div>
+<div class="source-block" id="render-owner-0081" data-source-block="block-0081" data-source-lines="405-418"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 405–418</figcaption><pre><code>- **Requirements**: R9
+- **Files**: `.cg-docs/compatibility-matrix.md` (new)
+- **Details**: Document and verify the six compatibility combinations:
+  CG-only projects, CR-only projects, mixed projects, legacy (pre-modular)
+  configuration, generated-target drift scenarios, and context-budget limits.
+  For each, specify expected installed assets, loaded context, and any migration
+  steps. This is the documentation counterpart to the automated tests in Steps
+  11 and 12.
+- **Test Scenarios**:
+  - happy path: matrix covers all six combinations with expected outcomes
+  - edge case: legacy config without `suites:` maps to CG-only behavior
+- **Tests**: documentation completeness check (all six combinations present)
+- **Acceptance criteria**: compatibility matrix documented and covers all six
+  combinations.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0083" data-source-block="block-0083" data-source-lines="420-420"><h3 id="11-design-and-implement-context-budget-enforcement">11. Design and implement context-budget enforcement</h3></div>
+<div class="source-block" id="render-owner-0085" data-source-block="block-0085" data-source-lines="422-462"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 422–462</figcaption><pre><code>- **Requirements**: R10
+- **Files**: `scripts/tests/test_context_budget.py` (new),
+  `scripts/cg_context_budget.py` (new),
+  `.kilo/shared/context-loading.contract.md` (extend),
+  `compound-gpid.local.md` (schema extension)
+- **Details**: Context-budget enforcement operates at **two levels**:
+  1. **Generator-level (code-enforced)**: The generator filters which
+     platform-tree files are emitted based on the active suites declared in
+     `compound-gpid.local.md`. A CG-only project&#x27;s generated trees omit CR
+     instructions and CR skill adapters entirely. This is verifiable by
+     automated tests.
+  2. **Instruction-level (AI-agent compliance)**: The context-loading contract
+     (`.kilo/shared/context-loading.contract.md`) is extended with a new stage
+     rule: &quot;Before loading a skill or instruction file, check whether its
+     owning module&#x27;s suite is declared active in `compound-gpid.local.md`&#x27;s
+     `suites:` field. If not active, skip it.&quot; This is a Markdown instruction
+     for AI agents — it is **not programmatically enforceable** and cannot be
+     verified by automated tests. Document this limitation explicitly.
+  **Schema extension**: Add `suites:` field to `compound-gpid.local.md`
+  frontmatter schema. Allowed values: list of suite ids (e.g., `[cg]`,
+  `[cg, cr]`). Default when absent: `[cg]` (backward-compatible with existing
+  configs). Example:
+  ```yaml
+  suites: [cg, cr]
+  ```
+  **Implementation**: `cg_context_budget.py` reads the registry and the active
+  suites list, computes the set of loadable modules (active suites + their
+  transitive dependencies + kernel), and produces a filtered asset manifest.
+  The generator uses this manifest to emit only loadable assets to platform
+  trees. Measure baseline context size for CG-only and assert it does not
+  increase post-modularization (Constraint C5).
+- **Test Scenarios**:
+  - happy path: CG-only session loads only cg + kernel + shared capabilities (context budget unchanged)
+  - edge case: mixed project loads both suites&#x27; assets
+  - edge case: CR-only project loads cr + kernel + shared capabilities
+  - edge case: asset owned by a capability pack used by both suites → loaded regardless of suite selection
+  - edge case: asset owned by inactive suite → excluded from generated tree
+- **Tests**: `pytest scripts/tests/test_context_budget.py`
+- **Acceptance criteria**: context-budget test confirms CG-only load is
+  unchanged or smaller; generator-level filtering is automated and verified;
+  instruction-level limitation is documented.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0087" data-source-block="block-0087" data-source-lines="464-464"><h3 id="12-implement-config-migration">12. Implement config migration</h3></div>
+<div class="source-block" id="render-owner-0089" data-source-block="block-0089" data-source-lines="466-482"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 466–482</figcaption><pre><code>- **Requirements**: R12
+- **Files**: `scripts/tests/test_config_migration.py` (new),
+  `scripts/cg_migrate_config.py` (new), `compound-gpid.local.md` (reference)
+- **Details**: Provide `cg_migrate_config.py` that upgrades a project&#x27;s
+  `compound-gpid.local.md` to the modular schema (adds `suites:` field with
+  `[cg]` default) idempotently and backward-compatibly: an old config without
+  `suites:` is read as `cg`-only and migrated non-destructively. Re-running
+  the migration is a no-op. The script must be stdlib-only and must not
+  overwrite existing frontmatter fields.
+- **Test Scenarios**:
+  - happy path: legacy config without `suites:` → migrated to `[cg]`, backward compatible
+  - edge case: re-running migration → no-op
+  - edge case: config already has `suites:` → no change
+  - edge case: config has other frontmatter fields → preserved
+- **Tests**: `pytest scripts/tests/test_config_migration.py`
+- **Acceptance criteria**: migration is idempotent and backward-compatible
+  across all matrix combinations.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0091" data-source-block="block-0091" data-source-lines="484-484"><h2 id="phase-5-documentation-charter">Phase 5: Documentation &amp; charter</h2></div>
+<div class="source-block source-heading" id="render-owner-0093" data-source-block="block-0093" data-source-lines="486-486"><h3 id="13-write-task-oriented-modular-manual">13. Write task-oriented modular manual</h3></div>
+<div class="source-block" id="render-owner-0095" data-source-block="block-0095" data-source-lines="488-506"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 488–506</figcaption><pre><code>- **Requirements**: R11
+- **Files**: `docs/modular-guide.md` (new), `docs/reference.md` (cross-link), `docs/skills/index.md` (cross-link)
+- **Details**: Write a task-oriented manual (Brainstorm NS9) explaining: how to
+  choose between the technical (`/cg-*`) and research (`/cr-*`) suites with
+  concise help and examples; how suites compose reusable capabilities
+  automatically (users should not need dependency names); module preferences
+  (technical-only, technical-plus-research) and how they shape setup, help,
+  and defaults; extension rules for maintainers (how to add a capability pack
+  or a future suite via the registry); and migration from the current
+  single-suite package. Keep it task-oriented (start from &quot;I want to do X&quot;),
+  not architecture-internal. Cross-link from the existing `docs/reference.md`
+  and `docs/skills/index.md`. This addresses failure mode #3 (users cannot tell
+  which suite should own a task).
+- **Test Scenarios**:
+  - happy path: a new user follows the guide to run a research task via `/cr-work`
+  - edge case: a maintainer follows extension rules to add a capability and it validates
+- **Tests**: documentation presence + cross-link check in `test_target_documentation.py` (extend)
+- **Acceptance criteria**: `docs/modular-guide.md` exists, covers all five
+  topics, and is linked from the reference docs.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0097" data-source-block="block-0097" data-source-lines="508-508"><h3 id="14-update-project-charter-deferred-post-approval">14. Update project charter (deferred, post-approval)</h3></div>
+<div class="source-block" id="render-owner-0099" data-source-block="block-0099" data-source-lines="510-525"><figure class="raw-source"><figcaption>Raw source · unordered_list · lines 510–525</figcaption><pre><code>- **Requirements**: R13
+- **Files**: `compound-gpid.md` (modify, deferred until Phases 1-4 approved)
+- **Details**: Only after the modular foundation is approved and verified
+  (Brainstorm NS10), update `compound-gpid.md` Key Deliverables to include the
+  modular layer model, capability packs, and the research suite, and update
+  Current Focus to reflect the modular architecture as an active workstream
+  alongside or succeeding token efficiency. This is deliberately the last step:
+  the charter reflects approved, verified direction, not in-flight
+  experiments. Because this modifies an existing protected file, it requires
+  explicit user approval at execution time under deviation-policy `ask`.
+- **Test Scenarios**:
+  - happy path: charter Key Deliverables + Current Focus updated and consistent with verified registry
+  - edge case: attempted before Phase 1-4 verification → blocked-stop
+- **Tests**: charter consistency check (manual + `Invoke-Pester tests/local-config.Tests.ps1 -Quiet` if schema-relevant)
+- **Acceptance criteria**: charter reflects the modular architecture and is
+  consistent with the verified registry and compatibility matrix.</code></pre></figure></div>
+<div class="source-block source-heading" id="render-owner-0101" data-source-block="block-0101" data-source-lines="527-527"><h2 id="testing-strategy">Testing Strategy</h2></div>
+<div class="source-block" id="render-owner-0103" data-source-block="block-0103" data-source-lines="529-543"><ul><li><strong>Unit tests</strong>: module-registry validator, config migration, context-budget loader — all stdlib-only Python (<code>pytest</code>).</li><li><strong>Characterization tests</strong>: CG generator-output baseline + CR structural baseline, committed as fixtures, run before and after refactoring.</li><li><strong>Drift tests</strong>: extend <code>test_target_drift.py</code> to cover CG+CR across 5 platforms; release gate wraps it.</li><li><strong>Cross-suite gate</strong>: <code>cg_validate_modules.py --check-cross-suite</code> as a CI gate on every <code>.github/</code> change.</li><li><strong>Integration proof</strong>: one documented mixed <code>/cr-work</code> path as a work-report artifact with dependency-resolution evidence.</li><li><strong>Pester parity</strong>: <code>tests/prompt-tools.Tests.ps1</code>, <code>tests/install.Tests.ps1</code> (single-file, <code>-Quiet</code>, per Pester safety skill) to confirm <code>/cg-*</code> dispatch and install behavior unchanged.</li><li><strong>No new third-party dependencies</strong>: all new scripts are stdlib-only, consistent with the existing generator.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0105" data-source-block="block-0105" data-source-lines="545-545"><h2 id="documentation-checklist">Documentation Checklist</h2></div>
+<div class="source-block" id="render-owner-0107" data-source-block="block-0107" data-source-lines="547-552"><ul><li><input type="checkbox" disabled checked> <code>docs/modular-guide.md</code> — task-oriented suite selection, composition, preferences, extension, migration (Step 13)</li><li><input type="checkbox" disabled checked> <code>.cg-docs/compatibility-matrix.md</code> — CG-only/CR-only/mixed/legacy/drift/context-budget matrix (Step 10)</li><li><input type="checkbox" disabled checked> <code>docs/reference.md</code> — cross-link to modular guide</li><li><input type="checkbox" disabled checked> <code>docs/skills/index.md</code> — cross-link to modular guide</li><li><input type="checkbox" disabled checked> <code>.github/shared/module-registry.json</code> — documented schema (in-file description)</li><li><input type="checkbox" disabled checked> <code>compound-gpid.md</code> — Key Deliverables + Current Focus (Step 14, completed)</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0109" data-source-block="block-0109" data-source-lines="554-554"><h2 id="risks-mitigations">Risks &amp; Mitigations</h2></div>
+<div class="source-block" id="render-owner-0111" data-source-block="block-0111" data-source-lines="556-567"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Risk</th><th scope="col">Likelihood</th><th scope="col">Impact</th><th scope="col">Mitigation</th></tr></thead><tbody><tr><td>RK1</td><td>Registry granularity too fine → dependency graph harder to maintain than current shared layer</td><td>Medium</td><td>High</td><td>Start coarse (few capability packs); split only when a real cross-suite dependency demands it (Iteration Policy 4)</td></tr><tr><td>RK2</td><td>Namespace-agnostic generator change breaks existing target parity</td><td>Medium</td><td>High</td><td>Characterization tests (Step 5) pin CG output; drift tests gate every step; update mocks in lockstep (Brain finding 3)</td></tr><tr><td>RK3</td><td>CR import introduces unresolvable cross-suite coupling</td><td>Medium</td><td>High</td><td>Import capability-by-capability; run cross-suite gate (Step 4) after each batch; route through capability packs, not direct refs</td></tr><tr><td>RK4</td><td>Context inflation for CG-only sessions</td><td>Medium</td><td>High</td><td>Context-budget test (Step 11) asserts CG-only load unchanged/smaller; registry drives loading, not eager import</td></tr><tr><td>RK5</td><td>Ambiguous asset ownership defaulted to shared, recreating Approach 3&#x27;s weak bucket</td><td>Medium</td><td>Medium</td><td>Registry requires explicit resolution; <code>&quot;ambiguous&quot;</code> is a flagged state with a note, never silent (Step 2)</td></tr><tr><td>RK6</td><td>Config migration breaks existing projects</td><td>Low</td><td>High</td><td>Migration is idempotent, backward-compatible, non-destructive; legacy config reads as <code>[cg]</code> (Step 12)</td></tr><tr><td>RK7</td><td>Wholesale research-branch merge slips in</td><td>Low</td><td>High</td><td>Process constraint C4 + git diff review; import is selective file-by-file per Brain finding 4 checklist</td></tr><tr><td>RK8</td><td>Charter updated prematurely before verification</td><td>Low</td><td>Medium</td><td>Step 14 is last and blocked until Phases 1-4 verified; deviation-policy <code>ask</code> requires explicit approval</td></tr><tr><td>RK9</td><td>Instruction-level context-budget enforcement is not programmatically verifiable</td><td>Medium</td><td>Medium</td><td>Generator-level filtering is code-enforced and testable; instruction-level rules are documented as AI-agent compliance (not automated); test coverage focuses on generator-level enforcement (Step 11)</td></tr><tr><td>RK10</td><td>Registry fallback allows drift in downstream projects without registry</td><td>Low</td><td>Medium</td><td>Fallback logs deprecation warning; CI gate requires registry; fallback is for standalone generator use only (Step 3)</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0113" data-source-block="block-0113" data-source-lines="569-569"><h2 id="out-of-scope">Out of Scope</h2></div>
+<div class="source-block" id="render-owner-0115" data-source-block="block-0115" data-source-lines="571-581"><ul><li>Physical package relocation to <code>packages/kernel/</code>, <code>packages/suites/</code>, etc. (Approach 2) — <code>.github/</code> remains the canonical runtime source.</li><li>Public third-party plugin API or marketplace.</li><li>Future suites beyond technical and research (writing, presentation, dashboard, application) — designed for in the registry, not implemented.</li><li>Wholesale merge of the <code>feat/compound-research-v2</code> branch — import is selective, capability-by-capability.</li><li>Renaming existing user-facing <code>cg-*</code> command or skill identifiers — registry aliases preserve stability.</li><li>Runtime model-selection changes — the registry is ownership/dependency metadata, not a model-routing layer.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0117" data-source-block="block-0117" data-source-lines="583-583"><h2 id="completion-contract">Completion Contract</h2></div>
+<div class="source-block source-heading" id="render-owner-0119" data-source-block="block-0119" data-source-lines="585-585"><h3 id="outcome">Outcome</h3></div>
+<div class="source-block" id="render-owner-0121" data-source-block="block-0121" data-source-lines="587-592"><p>Compound GPID runs on a validated three-layer module registry (kernel / capability packs / suites) where every canonical asset has one declared owner, the dependency graph is acyclic and cross-suite-safe, the research suite (<code>cr-*</code>) is imported by capability without direct technical-suite coupling, and a mixed <code>/cr-work</code> path is proven end-to-end — all with generated-target parity across Copilot, Claude Code, Codex, OpenCode, and Kilo.</p></div>
+<div class="source-block source-heading" id="render-owner-0123" data-source-block="block-0123" data-source-lines="594-594"><h3 id="verification-surface">Verification Surface</h3></div>
+<div class="source-block" id="render-owner-0125" data-source-block="block-0125" data-source-lines="596-611"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Evidence Required</th><th scope="col">Command/Artifact</th><th scope="col">Required</th></tr></thead><tbody><tr><td>V1</td><td>1</td><td>Module-registry schema validates; validator unit tests pass</td><td><code>pytest scripts/tests/test_module_registry.py</code></td><td>yes</td></tr><tr><td>V2</td><td>1</td><td>Every canonical asset has a valid declared owner</td><td><code>python scripts/cg_validate_modules.py --check-ownership</code></td><td>yes</td></tr><tr><td>V3</td><td>1</td><td>Generator discovers all skills namespace-agnostically</td><td><code>pytest scripts/tests/test_cg_generate_targets.py -k namespace</code></td><td>yes</td></tr><tr><td>V4</td><td>2</td><td>Dependency graph acyclic; no cross-suite dependencies</td><td><code>python scripts/cg_validate_modules.py --check-dependencies</code></td><td>yes</td></tr><tr><td>V5</td><td>2</td><td>CG characterization tests pass (no behavior regression)</td><td><code>pytest scripts/tests/test_cg_characterization.py</code></td><td>yes</td></tr><tr><td>V6</td><td>2</td><td>CR baseline tests pass (selected behavior preserved)</td><td><code>pytest scripts/tests/test_cr_baseline.py</code></td><td>yes</td></tr><tr><td>V7</td><td>2</td><td>Generated-target parity across 5 platforms for CG+CR</td><td><code>pytest scripts/tests/test_target_drift.py</code></td><td>yes</td></tr><tr><td>V8</td><td>3</td><td>Main assets migrated to declared ownership; drift green</td><td><code>pytest scripts/tests/test_target_drift.py</code></td><td>yes</td></tr><tr><td>V9</td><td>3</td><td>CR assets imported by capability; no direct CG dependency</td><td><code>python scripts/cg_validate_modules.py --check-cross-suite</code></td><td>yes</td></tr><tr><td>V10</td><td>4</td><td>Mixed <code>/cr-work</code> path runs without technical-suite dependency</td><td>integration-test artifact in <code>.cg-docs/work-reports/</code></td><td>yes</td></tr><tr><td>V11</td><td>4</td><td>Compatibility matrix documented and verified</td><td><code>.cg-docs/compatibility-matrix.md</code></td><td>yes</td></tr><tr><td>V12</td><td>4</td><td>Context-budget enforcement: generator-level filtering verified; instruction-level limitation documented</td><td><code>pytest scripts/tests/test_context_budget.py</code></td><td>yes</td></tr><tr><td>V13</td><td>4</td><td>Config migration idempotent + backward-compatible</td><td><code>pytest scripts/tests/test_config_migration.py</code></td><td>yes</td></tr><tr><td>V14</td><td>final</td><td>Task-oriented modular manual published</td><td><code>docs/modular-guide.md</code></td><td>yes</td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0127" data-source-block="block-0127" data-source-lines="613-613"><h3 id="constraints">Constraints</h3></div>
+<div class="source-block" id="render-owner-0129" data-source-block="block-0129" data-source-lines="615-623"><div class="table-scroll" role="region" aria-label="Source table" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">Phase</th><th scope="col">Constraint</th><th scope="col">Check</th></tr></thead><tbody><tr><td>C1</td><td>1</td><td>Existing <code>/cg-*</code> commands remain usable</td><td><code>Invoke-Pester tests/prompt-tools.Tests.ps1 -Quiet</code></td></tr><tr><td>C2</td><td>1</td><td><code>.github/</code> remains canonical runtime source (no physical relocation)</td><td>registry validator: no <code>packages/</code> source tree</td></tr><tr><td>C3</td><td>2</td><td>Generated-target drift tests remain green</td><td><code>pytest scripts/tests/test_target_drift.py</code></td></tr><tr><td>C4</td><td>3</td><td>No wholesale research-branch merge</td><td><code>git diff --stat</code> confirms selective import</td></tr><tr><td>C5</td><td>4</td><td>Context size does not increase for CG-only sessions</td><td>context-budget test baseline comparison</td></tr><tr><td>C6</td><td>4</td><td>Instruction-level context-budget limitation documented</td><td>Step 11 acceptance criteria</td></tr><tr><td>C7</td><td>final</td><td>Single repo, single install path, one release train</td><td><code>Invoke-Pester tests/install.Tests.ps1 -Quiet</code></td></tr></tbody></table></div></div>
+<div class="source-block source-heading" id="render-owner-0131" data-source-block="block-0131" data-source-lines="625-625"><h3 id="boundaries">Boundaries</h3></div>
+<div class="source-block" id="render-owner-0133" data-source-block="block-0133" data-source-lines="627-634"><ul><li>Allowed: logical module registry over the existing <code>.github/</code> tree; per-asset frontmatter ownership cross-validation; compatibility aliases for <code>cg-*</code> identifiers; data-driven suite/capability declarations; incremental CR import capability-by-capability.</li><li>Out of scope: physical package relocation (Approach 2); public third-party plugin API/marketplace; future suites (writing/presentation/dashboard/ application — designed for, not implemented); wholesale research-branch merge; renaming existing <code>cg-*</code> user-facing identifiers.</li></ul></div>
+<div class="source-block source-heading" id="render-owner-0135" data-source-block="block-0135" data-source-lines="636-636"><h3 id="iteration-policy">Iteration Policy</h3></div>
+<div class="source-block" id="render-owner-0137" data-source-block="block-0137" data-source-lines="638-647"><ol><li><strong>deviation-policy: ask</strong> — pause before any deviation; record the decision in the execution report.</li><li>Import CR content capability-by-capability; run characterization tests after each import to catch coupling early.</li><li>Keep <code>cg-*</code> user-facing identifiers stable; use registry aliases, not renames.</li><li>Registry granularity starts coarse; split a capability only when a real cross-suite dependency demands it.</li><li>Defer the charter update (Step 14) until the modular foundation is approved and verified.</li></ol></div>
+<div class="source-block source-heading" id="render-owner-0139" data-source-block="block-0139" data-source-lines="649-649"><h3 id="blocked-stop-conditions">Blocked-Stop Conditions</h3></div>
+<div class="source-block" id="render-owner-0141" data-source-block="block-0141" data-source-lines="651-662"><ul><li>The registry validator cannot be made to pass for the real asset inventory.</li><li>The generator namespace change breaks target parity and cannot be resolved without physical relocation.</li><li>CR import introduces an unresolvable cross-suite dependency.</li><li>Context-budget regression for CG-only sessions cannot be reversed.</li><li>Config migration cannot be made backward-compatible.</li><li>Defaults from <code>.kilo/shared/goal-execution.contract.md</code> also apply (required verification cannot run through the safe runner; required evidence fails after allowed recovery; a required deviation under <code>ask</code> without user approval; a required deviation under <code>strict</code>; a protected boundary must be crossed; execution report cannot be created; plan lacks a completion contract; completion claimed from static inspection alone).</li></ul></div>
+    </article>
+  </main>
+</div>
+<footer class="provenance" aria-labelledby="provenance-heading">
+  <div class="provenance-inner">
+    <h2 id="provenance-heading">Derived view provenance</h2>
+    <p>This HTML is regenerable. Canonical Markdown remains authoritative.</p>
+    <dl>
+      <dt>Source</dt><dd>.cg-docs/plans/2026-08-07-modular-compound-gpid.md</dd>
+      <dt>Source SHA-256</dt><dd><code>bfd32678a13d190f56300d3724f9d6d51afc3c8799a1ea2727fdb014f88aa088</code></dd>
+      <dt>Output</dt><dd>.cg-docs/views/plans/2026-08-07-modular-compound-gpid.html</dd>
+      <dt>Document type</dt><dd>plan</dd>
+      <dt>Renderer</dt><dd>0.1.0</dd>
+      <dt>Theme</dt><dd>reference v1</dd>
+      <dt>Generated UTC</dt><dd>2026-08-08T02:10:13Z</dd>
+    </dl>
+  </div>
+</footer>
+</body>
+</html>

@@ -54,6 +54,12 @@ You are a reproducibility reviewer for R, Python, and Stata data science project
 - **Stata**: Does every do-file start with `version 17` (or appropriate version)? Is `set more off` present?
 - Are system-level dependencies documented (e.g., GDAL, Java)?
 
+### 7. Research Reproducibility Checks
+- For simulation, bootstrap, Monte Carlo, or randomized split code, verify explicit seed control is documented and applied before random operations.
+- Check that research runs append or update `.cg-docs/research/results/manifest.json` where the workflow requires specification logging.
+- For replication-oriented work, verify archive structure and environment lock artifacts are sufficient for an independent rerun.
+- Flag missing replication scaffolding or undocumented stochastic choices as reproducibility risks.
+
 ## Output Format
 
 For each finding:

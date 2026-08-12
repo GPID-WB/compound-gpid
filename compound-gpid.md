@@ -1,22 +1,24 @@
 ---
 project-name: "Compound GPID"
 created: "2026-03-26"
-last-reviewed: "2026-06-22"
+last-reviewed: "2026-08-07"
 ---
 
 # Compound GPID
 
 ## Objective
 
-Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty statistics team a structured workflow for AI-assisted development — brainstorm, plan, code, review, extract lessons — so that every coding session produces both working code and reusable institutional knowledge. It's built for a mixed team of senior economists migrating from Stata to R and junior developers building data infrastructure, all of whom produce high-stakes official statistics where errors carry real institutional consequences.
+Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty statistics team a structured workflow for AI-assisted development and research — brainstorm, plan, code, review, extract lessons — so that every coding or research session produces both working code and reusable institutional knowledge. It's built for a mixed team of senior economists migrating from Stata to R, junior developers building data infrastructure, and researchers conducting policy-relevant economic and development analysis, all of whom produce high-stakes official statistics or evidence where errors carry real institutional consequences.
 
 ## Key Deliverables
 
 - The plugin itself — a set of files in `.github/` (prompts, agents, skills, instructions) distributed via directory junctions, plus PowerShell scripts (cg-link, cg-unlink, cg-update, install.ps1, create-release.ps1)
-- Workflow prompts: /cg-setup, /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound, /cg-release, /cg-resume, /cg-fixbug
+- **Modular architecture** — a validated three-layer module registry (kernel, capability packs, suites) in `.github/shared/module-registry.json` where every canonical asset has one declared owner, the dependency graph is acyclic and cross-suite-safe, and selected suites compose shared capabilities automatically
+- **Two user-facing suites** — the technical suite (`/cg-*`: setup, brainstorm, plan, work, review, fix-triage, compound, release, resume, fixbug) and the research suite (`/cr-*`: brainstorm, plan, work, review, compound), plus shared capability packs (language support, research output, report writing, rendering, testing, git workflow)
+- Workflow prompts: /cg-setup, /cg-brainstorm, /cg-plan, /cg-work, /cg-review, /cg-fix-triage, /cg-compound, /cg-release, /cg-resume, /cg-fixbug, plus /cr-* (brainstorm, plan, work, review, compound)
 - Knowledge artifacts in `.cg-docs/` — brainstorms, implementation plans, and captured lessons organized by category (bugs, build-errors, performance-issues, testing-patterns, data-quality, environment-issues, git-workflows)
 - Review reports from specialized agents (code quality, testing, architecture, etc.) at light/standard/thorough tiers
-- R skills reference files (cg-skill-r-analytical for economists, cg-skill-r-technical for developers)
+- R skills reference files (cg-skill-r-analytical for economists, cg-skill-r-technical for developers) and research skills (cr-skill-*) for identification, measurement, econometrics, provenance, replication, and publication output
 - GitHub Releases with automatic release notes generated from `.cg-docs/` entries
 
 ## Constraints
@@ -32,4 +34,4 @@ Compound GPID is a GitHub Copilot plugin that gives the World Bank's poverty sta
 
 ## Current Focus
 
-Token Efficiency Core System — making Compound GPID measurably more token-efficient across its core workflow using native audits, budgeted Knowledge Brain retrieval, compact command summaries, progressive-disclosure skills, handoff compaction, and regression checks before evaluating optional retrieval backends or cross-agent packaging expansion.
+Modular Compound GPID — the validated three-layer module registry (kernel, capability packs, suites) with the research suite (`cr-*`) imported by capability, namespace-agnostic generated-target parity across Copilot, Claude Code, Codex, OpenCode, and Kilo, context-budget enforcement, and a proven mixed `/cr-work` path. Token Efficiency remains an active milestone and resumes against the modular foundation.

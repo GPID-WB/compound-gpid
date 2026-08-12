@@ -5,7 +5,7 @@ and file structure. Use the focused [Commands](reference/commands.md),
 [Agents](reference/agents.md), [Skills](skills/index.md), and
 [Files and Artifacts](reference/files.md) pages for quicker navigation.
 
-> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
+> See [Workflow](workflow.md) for a full explanation of each prompt step. See [Modular Guide](modular-guide.md) for choosing between the technical (`/cg-*`) and research (`/cr-*`) suites, capability packs, module preferences, and extension rules. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
 Compound GPID generates native platform trees for Claude Code, Codex, OpenCode, and Kilo from the canonical `.github/` source. The trees are committed,
 release-validated, and distributed through merge-safe per-platform install units.
@@ -190,6 +190,25 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-devtag` | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
 | `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
 
+### Research Suite Commands
+
+These commands are owned by `suite-cr` and are available when `suites:` in
+`compound-gpid.local.md` includes `cr`. The research suite composes shared
+language, review, knowledge, and publication capabilities without depending on
+the technical command suite.
+
+| Prompt | Purpose |
+|--------|---------|
+| `/cr-brainstorm` | Scope a research question, classify the task, inventory evidence, and surface normative decisions for human approval. |
+| `/cr-plan` | Create a phased research plan with integrity, provenance, method, verification, and communication gates. |
+| `/cr-work [phaseX]` | Execute a research plan while maintaining evidence, specification, seed, derivation, and implementation records. |
+| `/cr-review` | Classify the research task and conditionally dispatch research integrity, provenance, method, measurement, writing, output, and replication reviewers. |
+| `/cr-compound` | Capture a verified research lesson and rebuild the project Brain without treating generated views as authority. |
+
+The research lifecycle is `Scope -> Evidence -> Theory -> Method -> Execute ->
+Verify -> Communicate -> Maintain`. Use `/cr-review`, not `/cg-review`, for
+research-domain agent routing.
+
 ### `cg-index --brain` — Diagnostic Warnings
 
 `cg-index --brain` writes scan-pass warnings to stderr during execution:
@@ -356,6 +375,25 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 | `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) |
 
 > Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
+
+### Research Review Agents
+
+Research agents are owned by `suite-cr` and dispatched conditionally by
+`/cr-review`. They are not imported into `/cg-review`.
+
+| Agent | Focus |
+|-------|-------|
+| `cr-research-integrity` | P0 silent research errors and integrity gates |
+| `cr-provenance-audit` | Claim-evidence traceability and citation provenance |
+| `cr-mathematical-verification` | Derivation-to-code consistency |
+| `cr-identification-audit` | Identification strategy and required diagnostics |
+| `cr-econometric-reasoning` | Structural and econometric model logic |
+| `cr-ml-methodology` | Validation design, leakage, inference, and interpretation |
+| `cr-specification-analysis` | Theory-data implications and specification discipline |
+| `cr-measurement-integrity` | Indicator, threshold, clustering, and comparability integrity |
+| `cr-academic-writing` | Economics-paper structure, notation, and citations |
+| `cr-publication-output` | Publication tables, figures, notes, and deterministic output |
+| `cr-replication-package` | Replication archive completeness, safety, and portability |
 
 > ℹ️ For stage capability guidance and user-controlled effort selection, see [Model Guide](model-guide.md).
 
@@ -553,6 +591,7 @@ All fields are stored as YAML frontmatter in `compound-gpid.local.md`:
 | `r-syntax` | `"data.table-collapse"` (default), `"tidyverse"` | R dialect for skill routing. Determines which R syntax skills are loaded for `.R` files. Use `"tidyverse"` for projects with external coauthors who only know dplyr. |
 | `project-type` | `"package"`, `"analysis"`, `"dashboard"`, `"api"`, `"tool"` | Project type |
 | `review-depth` | `"light"`, `"standard"`, `"thorough"` | Legacy depth default for `/cg-review`; `thorough` maps to the `full` route. Explicit routed modes can be passed at invocation time. |
+| `suites` | `[cg]` (default/absent), `[cr]`, `[cg, cr]` | Active suite configuration for the modular architecture. Selects which workflow prompts/skills are loaded into routine sessions; the generator context-budget filter and `cg_migrate_config.py` use this field. |
 | `artifact-html` | `true`, `false` | Explicit opt-in for automatic Brainstorm/Plan and generic Markdown HTML writes. Missing or invalid values default disabled (invalid values warn). Validation, explicit render, and `--check` remain available. |
 | `cg-schema-version` | date string | Auto-managed by `cg-update`. Do not edit manually. |
 
