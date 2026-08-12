@@ -2,9 +2,9 @@ name: Pester tests
 
 on:
   push:
-    branches: [ main, 'feat/**', 'fix/**', 'chore/**' ]
+    branches: [ main, dev, 'feat/**', 'fix/**', 'chore/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 jobs:
   browser-evidence:
