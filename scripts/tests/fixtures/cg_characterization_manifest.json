@@ -8,32 +8,32 @@
         {
             "kind": "agent",
             "path": ".claude/agents/cg-adversarial.md",
-            "sha256": "52969fb75b1d74b7f5d0490d4b194c93b4e0aeea2bf32071ac202d469dea0e19"
+            "sha256": "1c8079e477461d58457c650939e119500c49cde08eaa1d992ce327f8ed70af85"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-architecture.md",
-            "sha256": "ed995c9f48a98bfc84e2c515b14b9edde219aa72b787ec1549f431815bc4fdd8"
+            "sha256": "9c65abaf81e68d71e39a38a406981232e0febea672ed0821a1678bf43225c7c7"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-code-quality.md",
-            "sha256": "9d7ac5ef98c28e753072ef18204f5e08cd90014d57c83773a1a8c875709bddd0"
+            "sha256": "8f2e1082c3580a968de2afae2c553f5a73e85c5cd0d037f0f2db5be883f69df7"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-data-quality.md",
-            "sha256": "b964dd47671c20eecf2724872454bf231bf2efd07d3cf27dae95de4c28eea5a0"
+            "sha256": "cf67283e7488c6ffdaf0013874c02edfb610a1170921ffb6d53495018f16698a"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-documentation.md",
-            "sha256": "239ee104b94275371229f104734f22655b1749a98a04212380199d2943c3c8dd"
+            "sha256": "91835afaa31aef11128a1c80d1eedb105a1c7162236bc77e0319c2b4040c813a"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-fix-problems.md",
-            "sha256": "770645e5b3fd56f0f5bf0e95b9e1964504c3cfb868f1310b1110551adafbdc12"
+            "sha256": "d80083816a638befee99c622726dd621c901af5b87018a432a740de5cab608a9"
         },
         {
             "kind": "agent",
@@ -43,27 +43,27 @@
         {
             "kind": "agent",
             "path": ".claude/agents/cg-performance.md",
-            "sha256": "f8dad7a369fa92985e6061ed6b94f0f778e230cffb0f268b6e09930a783874a4"
+            "sha256": "2577a9b64c80612346be9b96711b2cc6d90635438604153c440cb72ebf911017"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-plan-critic.md",
-            "sha256": "1572a59b04e581ae0dfbb31fff76782d741b0817d0f9a8379e4edccace573c04"
+            "sha256": "0c3b07338a5375d7ecc503fd9be711a9ae198e04288d6e1f67ab48835600c59d"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-project-scanner.md",
-            "sha256": "fa39a5f2c6b9db7feab3d46af21185ecc232c79233b1d3e717fe170ca199507c"
+            "sha256": "9e5b13f0c9e1e18be0dae955803af75fae3ec5caf45dde3a973ac9d4b0f6e24f"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-release-scanner.md",
-            "sha256": "468320bfd69333f3b1b1b5e88226557d03990174563f79c4dcb9f2816a9fcaae"
+            "sha256": "943333dbbe4ea32e245b9fac9eaef85e4e24cd5552ff5cbac23556b94f15297f"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-reproducibility.md",
-            "sha256": "23e44eea9eaafa665c8dc6b4f8b753bdbc0667f17cfa6c493b4b8f8c59de359c"
+            "sha256": "edae0d94ea712acaff34deda5613da86a5bfdb7382abb408ecefc966fbd3421e"
         },
         {
             "kind": "agent",
@@ -73,52 +73,52 @@
         {
             "kind": "agent",
             "path": ".claude/agents/cg-roadmap.md",
-            "sha256": "0d69b06ae7990dd2fe30b059369d1411c89d6ee9e78503257f73103beea3783a"
+            "sha256": "b6f2ec97c67a4bd10b2a83a61275cd25c8d348850bad04c8240c817c2f9262b3"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-testing.md",
-            "sha256": "7f588f4a43ff183580b2dba470cdb7113e1df2ac5fe3adc6136b1453868f224c"
+            "sha256": "d899d760268638c3c90f13f8a0d015a833d48133934f25556f403c37d9f1b702"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-version-control.md",
-            "sha256": "2aa3ef925db16c07188353ea83697adf094953cb1f48fa9241d8f229a32d38f2"
+            "sha256": "f33572a1a718bde0ba523fe959e7661e6537e451fa3d350d9ccdcf75e6d00de2"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cg-wiki.md",
-            "sha256": "4f2ff21d9097e580d3b2f5228d11b7f480d2d637680e2513fe30601858acf5c1"
+            "sha256": "363ca215a8c84cc7fa8616f54bae18f5e67c7bab064ae4cf2664a1fbffe360d4"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-academic-writing.md",
-            "sha256": "b999cba897b1c08e3304b0b1250cbd6c42a47151fca271e061a53abc5803dce7"
+            "sha256": "c8934019d5899188e041351cba5be66c7f427ba5ee8bafffc3641a52bf3e88a7"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-econometric-reasoning.md",
-            "sha256": "76cbb3376faeb603fb113399173a2a444c08cdb6b44d1735bb80ccdaf1d40f66"
+            "sha256": "e89388fec7a10e3007184993f6f31fd1adea644d18587ec8a329a9d7fb1d48f5"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-identification-audit.md",
-            "sha256": "37afbe360633c895f822861cf452aa96929cd23abb5d467e702becf91740eb0b"
+            "sha256": "da3ef00fe40ac72e4c7bc35c17648681a6e9600220f75b5009df54c2aa19751e"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-mathematical-verification.md",
-            "sha256": "5bcbb47951e0004a836bc0307fb76492275898ddedb5f2f8973e8ecf1543572d"
+            "sha256": "65b6feb11ba23270f88283c5a67192b99e9dbf7aa6b9fee2ead7c204007c6b13"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-measurement-integrity.md",
-            "sha256": "93ded0b8549c183de7b0f0b415989d94f0c5cc785a1e88c74e535f85d5d9eeae"
+            "sha256": "5fc8f188dba59ebdbd5dee39dc65276fa906a963e5bf9daf14c9c5eca3480643"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-ml-methodology.md",
-            "sha256": "cf5f9d4a8ba117b61a55112d475cbf700f8012276fb20dcac9cde85bdad7b8ec"
+            "sha256": "a26a959e0bdbc166a4cba4ea8b508d2dfc55c17f629656d63da57aa4f45e0b6b"
         },
         {
             "kind": "agent",
@@ -128,27 +128,27 @@
         {
             "kind": "agent",
             "path": ".claude/agents/cr-publication-output.md",
-            "sha256": "dda88ef9f1f6944f0ccf8c7f611234f6d8eaf81f66f8b32e0d6587488843db27"
+            "sha256": "51f452d49bfea153687d1a83947310ef8ed16f6dcb40141aba2bc09d16b755fa"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-replication-package.md",
-            "sha256": "020361c4aef103ddda52916e083e9c93e4bb4c1b38701cc17503c4cb7c0614bf"
+            "sha256": "acfc079b8e2a2d3312b10d53d3a52894842d39e4e20ce06acbafd4daa874c73c"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-research-integrity.md",
-            "sha256": "269f812a431ac29218a63399f1ccd004f1f020603cd575769db41f6b49725aca"
+            "sha256": "ed38dadce067e929d4b96bfdafa5c269c6db3c51de2caa68bf0112200c4e6e03"
         },
         {
             "kind": "agent",
             "path": ".claude/agents/cr-specification-analysis.md",
-            "sha256": "1e31e118ba1f5a4641c927bb54743be6cf612e8b77b4cba561d16bcf6c272f23"
+            "sha256": "7e821c1d5e6c3f7c146125e83c635eabd72cb5e2d0ac0f0e65f321c18afcc5a2"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-brain-rebuild.md",
-            "sha256": "87203887aa09037ed2a4de711e9f4da11ecff7e651c3424d7d2e6238c23b4fb4"
+            "sha256": "4c2bcc4395bd232996f8ee591c7d113e8724708d9b823b218ce2e97a7addfcaa"
         },
         {
             "kind": "command",
@@ -158,12 +158,12 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-commit-push-pr.md",
-            "sha256": "1eaef3c0ed4875b55a1179dea8e4e3c8f6007100bf4adebc8e808438191f79c1"
+            "sha256": "0ed097c55d949402309fbc6027545398c20da91cdf421806e364476939994e32"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-compound-refresh.md",
-            "sha256": "9cf1626aad98133eb347e636e6e279f7e011a8cc744bf52a44acfd81f7f2c032"
+            "sha256": "889b20ed52fe8b208dc1c2921873db019d0b9b6f6e8f72f7da21f658582b01be"
         },
         {
             "kind": "command",
@@ -173,17 +173,17 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-devtag.md",
-            "sha256": "32674276bf5e3daead1d17159817039e305787b23ce9c47d4caad4f8875cefe3"
+            "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-diagnose.md",
-            "sha256": "fbaf8f2c50a061c1fe8d776e964becbce55a0973b879c3bbfdf5542798e3046c"
+            "sha256": "d91c27d9b6972ed24b389bfde2962a8e018595bfd375056cb285b99a3a65deea"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-fix-problems.md",
-            "sha256": "09c6135931af273bbb6d7419486d9233b5e5edb280de5a72e26c8f259bca8223"
+            "sha256": "da9cb7a434ed10ac5b168125554845227ae36d2632c73e6ece0ede52c4b944fe"
         },
         {
             "kind": "command",
@@ -193,22 +193,22 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-fixbug.md",
-            "sha256": "042140cc4df2d2356a7d4b0cb767c4f00730dc194706a72b8a313cc59549fd3d"
+            "sha256": "6409afbcfb7d54ecdc9ad296d577aba32b95b4413440e7f6985fa1e4002e6519"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-ideate.md",
-            "sha256": "3c8894edcb18e0ac69106d58fba25b6ec23a8c4bc3fbf8ebd30d05c668e17382"
+            "sha256": "6f68f68b25f9e66d832384fde4d6cc0a7938026038e9b93096b217c098516353"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-issues.md",
-            "sha256": "5f1287043be57641bea4a1018b4f532318f663c7dcf4d277395242faadda6d65"
+            "sha256": "a291301a46ba3b6cc5f53609c3c75afd9d4640bb69a9e5a65b36e9a0de037e3f"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-plan-review.md",
-            "sha256": "abf03f9c4903f4d487fdcfe68985da783621b2c4fae761e9bf88dbaa23308423"
+            "sha256": "a6abb085fe7a7e4a2b5f9ec0fcf30dd294680dbb31db1bfabc173c4445d609c9"
         },
         {
             "kind": "command",
@@ -218,12 +218,12 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-release.md",
-            "sha256": "680a83898df00fd79e623b6acdfa779a36cc06fc69b28b72317c4329fcf599fa"
+            "sha256": "11321d0812f31ec9545d9fe0b92e371bce3c03b6b5d9bd93ebdea22bf69eb486"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-render-doc.md",
-            "sha256": "70288b2759516678d6c7fd9170874b4bc55d21b4f9267a3e229020dc584aa016"
+            "sha256": "3f4e493790bc785c45dc1d05f30a65cd8e30d47ca51cadfeb0d3ce5f782510f1"
         },
         {
             "kind": "command",
@@ -243,7 +243,7 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-roadmap-view.md",
-            "sha256": "314fa3a08a666842edb5b1bc9953df3668750b2c33bade8d6a04c04d4b249f4b"
+            "sha256": "c064e5707de6463e9d2e50d1ae67d5c5287b3fdfa9278fe7b493e441dfa27b15"
         },
         {
             "kind": "command",
@@ -253,7 +253,7 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-strategy.md",
-            "sha256": "57de59a8483e0d66422414fe125c53a07f0f7661a25dc497922bf34155cf8389"
+            "sha256": "fcdc54cf304074acae494922f55b43fbbe63402da3fdee854f15e33df566e325"
         },
         {
             "kind": "command",
@@ -263,42 +263,42 @@
         {
             "kind": "command",
             "path": ".claude/commands/cg-verify-pr.md",
-            "sha256": "6bc49171078095584626b55d37b525d90833f67fc738be64a779a38699dbe401"
+            "sha256": "12331c79f8ed4882297bd00bc422a345a1d07f5eec3290722f45723a4feb9b8c"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-wiki.md",
-            "sha256": "a92b277ce456b51e073025fb8eaa02f4cad0a2bb8c0e790552eeff936676c0d9"
+            "sha256": "1aaf7037442171d9eed4eb53aa913348d8a9e474baed927d91c1360f1f0cc729"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cg-work.md",
-            "sha256": "541ecee67bdf075840ee00c1834510322566979ac284b41b34f50f0f90d42945"
+            "sha256": "af9c3527dd3ddf4d09be8b0d5c11732ec08fa8807834d011247e163eea48026f"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cr-brainstorm.md",
-            "sha256": "177245abf1b758925544c86007e26ab69d8319f93413cb2dac99121646d480ad"
+            "sha256": "db8dad1f63acef29d759ad10fe2550e4bd46fb5fa885605b7500149e323b8704"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cr-compound.md",
-            "sha256": "5910fbfd27e92c6bbfb57e2037b251b63a4358a40605b7645e0f8b910cfb7d6d"
+            "sha256": "576b867ecf5388dc4c1ad37d129d17da058109f599cf1294e769b657b88c57e5"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cr-plan.md",
-            "sha256": "4e8be710d7e4c6489db80bae607e7802c88ce2fe0ae62c11b56ffd3dda17075d"
+            "sha256": "8427b9c1fac268df68c70c7a60473886673c75030e0fafe1e876b9bfd2f00d0c"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cr-review.md",
-            "sha256": "c512d300650777e08a43e6a15c3eeb175ca0e7143d656d2cebc3e6017c1f189e"
+            "sha256": "5bec88a0c3ebc07950f8188aec043149ed53e0ccf67b6537ae41736ac69bdc35"
         },
         {
             "kind": "command",
             "path": ".claude/commands/cr-work.md",
-            "sha256": "3705041ef4321a5740bdff77dd27e6f4ccc12b40375dbf2a0930910fc9b3ea1c"
+            "sha256": "cfdbad15f493a28568109af89c13cce4d2516f0cb7759baf90fdd9fb51482ba6"
         },
         {
             "kind": "prompt-support",
@@ -1500,7 +1500,7 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-brain-rebuild.md",
-            "sha256": "0303a1ab056900f71ef50390d16d6bc843f8876a82e371ee3b637f705deedb4b"
+            "sha256": "6d0d70dc1eb541f6806149130bc2de61598dbcd33cdf9dc5549a7fc1bd31f9f8"
         },
         {
             "kind": "command",
@@ -1510,12 +1510,12 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-commit-push-pr.md",
-            "sha256": "9be7291b8a0823aba2abd090d410217ccfca29da3db71095317cfef80539e569"
+            "sha256": "bb5985b44032b5242e7e541d0a0bdab835599eed195830242e73c4851ba358d2"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-compound-refresh.md",
-            "sha256": "9cf1626aad98133eb347e636e6e279f7e011a8cc744bf52a44acfd81f7f2c032"
+            "sha256": "889b20ed52fe8b208dc1c2921873db019d0b9b6f6e8f72f7da21f658582b01be"
         },
         {
             "kind": "command",
@@ -1525,17 +1525,17 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-devtag.md",
-            "sha256": "32674276bf5e3daead1d17159817039e305787b23ce9c47d4caad4f8875cefe3"
+            "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-diagnose.md",
-            "sha256": "de58405382b4d880ff20e58d49c27dec4b4fa43e7bf09d8968d5ddc001057099"
+            "sha256": "288e7699ea64362ff79d6d40cf378ae0706188596aedab4b003b14a3a4902ba3"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-fix-problems.md",
-            "sha256": "325e4196183b1fc0856b0179535cf1aa3e924e658117f0276e6edb4452a548c3"
+            "sha256": "fbb5eeaf6e98935d79f4964c34a1f382c603b446f67eb1b7d30f925620565cd7"
         },
         {
             "kind": "command",
@@ -1545,22 +1545,22 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-fixbug.md",
-            "sha256": "941569a1cc95f74d61cb651ec0a78931398f5b8af50bbc456ba67dc3a4c67e10"
+            "sha256": "a20bd64b6abde106d1d2769ce29d0b943815fc814b3067a40b3aba4fc7f1f3c9"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-ideate.md",
-            "sha256": "2af0d0f85ee7829e1e78168ae5b7aee3ce1f1640653ad556d8952ba3aac3b442"
+            "sha256": "11e24e1e65444f929413d534732bd5f36ab4cbdd9baf17414ebf17c8c8512960"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-issues.md",
-            "sha256": "5f1287043be57641bea4a1018b4f532318f663c7dcf4d277395242faadda6d65"
+            "sha256": "a291301a46ba3b6cc5f53609c3c75afd9d4640bb69a9e5a65b36e9a0de037e3f"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-plan-review.md",
-            "sha256": "33ed4b6e6ebf84b8d134c34581ddd9d237bf6b42830bf672bf68c9ce9a1f35f9"
+            "sha256": "2dd2d431b214697699d5ba919c96a291934df54ca2827bb0d2aece134d88eb99"
         },
         {
             "kind": "command",
@@ -1570,12 +1570,12 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-release.md",
-            "sha256": "680a83898df00fd79e623b6acdfa779a36cc06fc69b28b72317c4329fcf599fa"
+            "sha256": "11321d0812f31ec9545d9fe0b92e371bce3c03b6b5d9bd93ebdea22bf69eb486"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-render-doc.md",
-            "sha256": "70288b2759516678d6c7fd9170874b4bc55d21b4f9267a3e229020dc584aa016"
+            "sha256": "3f4e493790bc785c45dc1d05f30a65cd8e30d47ca51cadfeb0d3ce5f782510f1"
         },
         {
             "kind": "command",
@@ -1595,7 +1595,7 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-roadmap-view.md",
-            "sha256": "314fa3a08a666842edb5b1bc9953df3668750b2c33bade8d6a04c04d4b249f4b"
+            "sha256": "c064e5707de6463e9d2e50d1ae67d5c5287b3fdfa9278fe7b493e441dfa27b15"
         },
         {
             "kind": "command",
@@ -1605,7 +1605,7 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-strategy.md",
-            "sha256": "57de59a8483e0d66422414fe125c53a07f0f7661a25dc497922bf34155cf8389"
+            "sha256": "fcdc54cf304074acae494922f55b43fbbe63402da3fdee854f15e33df566e325"
         },
         {
             "kind": "command",
@@ -1615,42 +1615,42 @@
         {
             "kind": "command",
             "path": ".agents/commands/cg-verify-pr.md",
-            "sha256": "6bc49171078095584626b55d37b525d90833f67fc738be64a779a38699dbe401"
+            "sha256": "12331c79f8ed4882297bd00bc422a345a1d07f5eec3290722f45723a4feb9b8c"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-wiki.md",
-            "sha256": "a92b277ce456b51e073025fb8eaa02f4cad0a2bb8c0e790552eeff936676c0d9"
+            "sha256": "1aaf7037442171d9eed4eb53aa913348d8a9e474baed927d91c1360f1f0cc729"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cg-work.md",
-            "sha256": "6d2886aa694fb37752ef4ebe2dea04dd2b3505d6ddb05148ed04b058de98837a"
+            "sha256": "46d9fd25707e91c66dd5e50329a0d0820322c700985b43e82292f1fbfaffa85e"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cr-brainstorm.md",
-            "sha256": "c9e12a32877a8cde94a84673d905e6d2cac70ce391cb0cd660720009433485f3"
+            "sha256": "b801d1902eb79522806aa23e98fd69f0af7043595e4c29d5e0133764a6b79417"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cr-compound.md",
-            "sha256": "1509a27e98c42984991b51ca255e8b3ed5e8bc691cb203e7074aec07a4125b5a"
+            "sha256": "c37a01f28b92b5ce26a3d091516de6e778c137de55c4e23f57d711b9befa9c05"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cr-plan.md",
-            "sha256": "8b3307f85a3a521e6d4445514435267c32c68619416d2ee9fb0d0ba37489cc58"
+            "sha256": "a23c3440732aeb4ce3d52b3f4e79a8937e08d2778a1cf66152637b7fb5b8eefa"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cr-review.md",
-            "sha256": "1afefa013987840b18297625228fa17a37903402f540a3dc2309a50e7c336fa6"
+            "sha256": "69e1454fe13e221bca985c40f902d86a892ea4afe790385a867052d7629273e1"
         },
         {
             "kind": "command",
             "path": ".agents/commands/cr-work.md",
-            "sha256": "a4d9bf97c0b8ac22265b4feadc56dfdbaf1bdcefc5a06b72cae25561579e575d"
+            "sha256": "36141d1540c48f8df58edb8aa2ab36f12f54d73b0f8f96aa54cc7735253e6bef"
         },
         {
             "kind": "prompt-support",
@@ -3132,32 +3132,32 @@
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-adversarial.md",
-            "sha256": "402cb155c6896866413c6fff2bee70b676e8a9e573377461bc684c7e3b436635"
+            "sha256": "68512ed01bb998d62ec7e8ae842d100e869926ecdc10b61cc24df6c7aec07d1b"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-architecture.md",
-            "sha256": "aa6fe82b49cb4ba0473dd740f4abe90d2e343e3bddc1c18b19e873070e66fe0b"
+            "sha256": "73617effd68bbf5af001302addaeff0ab1fb0b06838beca5b6c5c0c0f1f74ab7"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-code-quality.md",
-            "sha256": "44c954c4f1703ce3adbb56236ba34d0869b9229f2a24b4fdd80063bd55b02a09"
+            "sha256": "d0aee94db4768d665a4173b1e9e9ab4be3882306c86ca27448926821b75a0d9d"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-data-quality.md",
-            "sha256": "f9c7d3cc56e6d930bf64070acfb731be6231487ed74f4a27ed5f96a8490b97e8"
+            "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-documentation.md",
-            "sha256": "d6bca90ed568fadcd926f96d9aa40fdde2f22f02adabdcf60f662a0955ca6023"
+            "sha256": "c052709e85a661c6b9a48593e916b8edc36ea677389b19b3bc7a4ba534c8488d"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-fix-problems.md",
-            "sha256": "417da6af87f29670ef39da16e970b40f9b6a6d714adb88c4837d9dc689ea0150"
+            "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303"
         },
         {
             "kind": "agent",
@@ -3167,27 +3167,27 @@
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-performance.md",
-            "sha256": "6b5c8661b18fe7205a0aad51697aa50b3a520b87e995acbe7fff6514d54c4cb7"
+            "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-plan-critic.md",
-            "sha256": "42ba07a383d037c3b309cccf7e9cdf7685119208b6944d478a074a22729bcc73"
+            "sha256": "9e86cd3d985a0585022bd6f4117dc24d8710455aafd6fbf059dc4bd79367e19a"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-project-scanner.md",
-            "sha256": "c61065d0ddda5f02abe5a942515ce9f77c088723957b36c072c5357a4e9f1277"
+            "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-release-scanner.md",
-            "sha256": "b1bffbbd8c0f2b4edafcf2dfa2e4b2cfa6ffe6d97dad354356bcc51c9019e06b"
+            "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-reproducibility.md",
-            "sha256": "5023595bd47e31e85b8a617fdd391caad7bcc67978b2f8bf97b38fbe6d8f7d6c"
+            "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
         },
         {
             "kind": "agent",
@@ -3197,52 +3197,52 @@
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-roadmap.md",
-            "sha256": "ac5dffa018fab5f48f502c1c0db44f442f6c42afc5d53683435519c2254c568e"
+            "sha256": "eb04f62ce56f733a2119ebc36fa9fd4dca1105d67db27ede4b32850623493a81"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-testing.md",
-            "sha256": "8fe0c6311e43d651eb9732591eb1a25f6734e9311f2decabccac48fa9a7fb2cb"
+            "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-version-control.md",
-            "sha256": "4229f516f7aa973e0fed98b11355c9d1d0e4fb9584ef87a1f524ae08fb2e5a8c"
+            "sha256": "68966d1a45a5e39626c30143f432b5138d12be427f61569b1933abcf193b9cec"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cg-wiki.md",
-            "sha256": "c1e0a4dfc26398e721422243e2c3957294e9a0e5ce7e06ad9431d86c56fe04e7"
+            "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-academic-writing.md",
-            "sha256": "4e764b076192c74e3a821a5c785ab50ac97319908b39d2b4ce594b72721ccac5"
+            "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-econometric-reasoning.md",
-            "sha256": "98942202785127132c1c343f5a388c4cbec7aeadbf1da8a5f9c72c7796628d09"
+            "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-identification-audit.md",
-            "sha256": "83fb14bcb1d76c6d9250b77cb7c3c4675e6c198dacc1ab5610c837d38aaac5fb"
+            "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-mathematical-verification.md",
-            "sha256": "791c5e56a4676bcda179fd429fea7fb71cfc27666c9c6f9922ab4d229a7fa9a0"
+            "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-measurement-integrity.md",
-            "sha256": "73efdd37e76341734cd4dd2a40c8486a30918939e13baae1fc19d72e4d69e26e"
+            "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-ml-methodology.md",
-            "sha256": "995a9f89036b659178cc857344241a93235994d5601ba6261d1dfa9492e1613b"
+            "sha256": "787e70cb45b7bc3351187c679a38bc99bbec69c606c9c515c0737951d72f398e"
         },
         {
             "kind": "agent",
@@ -3252,27 +3252,27 @@
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-publication-output.md",
-            "sha256": "67a638b26ffb12f082c1f83cb9caa05f15cc56e314f2bf427fe2c9d3ed5ed5c4"
+            "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-replication-package.md",
-            "sha256": "0c90b9f3f401d2cdb26767e6f6d9050bbeed4b86700d709f359e2e0d5a35f61c"
+            "sha256": "b2d5092b3224099d3dff1be75970d95239cbab34c88f9a693a9883c5bcfa2789"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-research-integrity.md",
-            "sha256": "6d6b8938239dbd0056765f30f1ffc60fec4a4f461b6a61015fc3afbb3afdf144"
+            "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
         },
         {
             "kind": "agent",
             "path": ".kilo/agents/cr-specification-analysis.md",
-            "sha256": "8213c50195e1f35514c251e38a56fbfb86210222c3a422efd0616785692b6299"
+            "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-brain-rebuild.md",
-            "sha256": "a6e7266a7f1f168146b4b9a9cb79474b3eb8f315247fda00bbfc46890745ad82"
+            "sha256": "51bc446c36f570471c23ddd7e46f69704a4abfbd405f3999415f7c071d185992"
         },
         {
             "kind": "command",
@@ -3282,12 +3282,12 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-commit-push-pr.md",
-            "sha256": "eddece0660b0775fd2caa09c0a3b2eab375696e9e2f389a722c6f5a909f2a26e"
+            "sha256": "32153bd8eda3d77d8545a395a78a236b580d57bbd93eee24268ef4be267355dc"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-compound-refresh.md",
-            "sha256": "983bfeb48c260481877390ca92e419e5c8cb62491f6819ae3dac512c794189a5"
+            "sha256": "de5fd899ce408b60a9c00912bc2a96e36f7373a1ef3b705c0293e55edbd88c6b"
         },
         {
             "kind": "command",
@@ -3297,17 +3297,17 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-devtag.md",
-            "sha256": "4df3602925f71feebeb93cb274d9b616fd4b416cc50b561aeb486d69735815bf"
+            "sha256": "15c157042a844b879d3830039c652fbbb1dad0232f11834981ae43ffe0ab336b"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-diagnose.md",
-            "sha256": "3ccd92254ad8a4f6a5bd024591db1e34be51d1941ce3f51627aa64e3121c7bae"
+            "sha256": "103f970a9c890c10b07d12881e3722189fb8e0d4423bc9a17b0a4ffb705629bc"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-fix-problems.md",
-            "sha256": "78369e38ec5b65cf6df733eb76b26754ff6dc24e1de11739fe459a1b7b94aa2a"
+            "sha256": "12e673887aa16469f00d79a94a738daa63352142cefc597a7141ca89132d44f4"
         },
         {
             "kind": "command",
@@ -3317,22 +3317,22 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-fixbug.md",
-            "sha256": "a67b69542a51e2680f0386143bb06c6491345e8e4065be588f5144a9c883337f"
+            "sha256": "d00c646df6bd6c37a3a2d21b95e1ceeabcb77846e9bdbd9bbd584f64219fc67e"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-ideate.md",
-            "sha256": "4b5d4212c6216d77d9c9e9a12a0cbfe726a2f1962b5d340103885d43894f9cad"
+            "sha256": "6cfd77f6daa4afffe09aa604fe0509d9ae4fd5942ce598051915b65660580343"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-issues.md",
-            "sha256": "387d6e50c9121d1d2c65ed00d599880a49ab1429b758068a1acafacfae83bdbb"
+            "sha256": "b360d507a82ad085e671869c12afaa4a7098c7b539422b34c6876ba443735a1e"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-plan-review.md",
-            "sha256": "04861ce8123bdb8407ab456ca93bd4f2182aac2efe6a8cc0fc08872d86e7f09b"
+            "sha256": "655073c1c489b09e8f0a7d110acebbd3f3503367d6c6605e5d67a2fc226b745f"
         },
         {
             "kind": "command",
@@ -3342,12 +3342,12 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-release.md",
-            "sha256": "e5dd3e6142fe301319ee75eaa296b7a77e64531fd954307809605a34224b82e0"
+            "sha256": "0c1890b4e8283be36b9f62e071ed49519e82715cf3e9be22e844d609c2707eaf"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-render-doc.md",
-            "sha256": "85d06b5f15939889254fec6abfedfec555f6f95cfb700fa6423d926b69f4ab6d"
+            "sha256": "99bcd9c5da9791cd684cc75a64eff205625add4ed8602702b080fd9c32f50938"
         },
         {
             "kind": "command",
@@ -3367,7 +3367,7 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-roadmap-view.md",
-            "sha256": "7b3d5f69a0ea54d41bd801812b397f076dbfeb716ae491b1d1c15a9877d73890"
+            "sha256": "7dc8b748d61ad04b1693c636ea7e1f7fc1b4e565819585a9028e43fb4e6207ba"
         },
         {
             "kind": "command",
@@ -3377,7 +3377,7 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-strategy.md",
-            "sha256": "4c20f3c66f8412bef3f2e2cc9130fd60d2595aa34aecf4e3ccb8c3066fd6695c"
+            "sha256": "2817d14f27ed82754cc512c53c8bbdd57ec4b60c1e501df1611ca8d75c234e26"
         },
         {
             "kind": "command",
@@ -3387,42 +3387,42 @@
         {
             "kind": "command",
             "path": ".kilo/commands/cg-verify-pr.md",
-            "sha256": "fe1e050ad9aca9750a93ca1884f855a002152a0dbb64614ae2a8260a29e34f85"
+            "sha256": "094722ebd7387130ea84cb09682921447f23b0ae08c3c59a2e722f812cc97ee3"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-wiki.md",
-            "sha256": "84c189002b3310778fdb2f2eb6a20b694a14e59fdaea68a57978b0d5e36f72d0"
+            "sha256": "b6876ea96f4393ecdaa2fe59192a2a52e7bb06ef25bb2f0ea8dd692417da765a"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cg-work.md",
-            "sha256": "b2cc8a0bca202c6822d6cd957c4c29dc8c0e220980829cf113dbe72b778463b7"
+            "sha256": "ebfcc24cd37a09157fbf64aced171bfb79b321619b37dcec4fe07d7380ba5ed5"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cr-brainstorm.md",
-            "sha256": "ce7d1e97974556968e71843d409a42a7c86c87d39ddf88e5672d860a3c33e1de"
+            "sha256": "dcee2a61f4bc0ccb26d88f80f5d8010f08c337ec738b19cdb09d57cba1bd1858"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cr-compound.md",
-            "sha256": "8c032d57a489a37ef2cf646126d9d13467d00a4efea679711c01c7f8f4763e1e"
+            "sha256": "d3e517be320fe92ab3af6fb3e66cbe1c8f53e8b9a9a18d259e41df5b6d67eaa5"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cr-plan.md",
-            "sha256": "44d4adc373cad1f8cdd06a5d660d010319336742c115b6bb37b45daeef588ab6"
+            "sha256": "0d7271a293034cbd7a0e1cfc8cb4220f4cf71439a4b808255ddb813d97b20d1a"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cr-review.md",
-            "sha256": "8fe9fa40301ca97daa5963bc6d6b7bda747d027b965604ed1f83b4cc5635ed94"
+            "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45"
         },
         {
             "kind": "command",
             "path": ".kilo/commands/cr-work.md",
-            "sha256": "c16eb3e97551bbd7834866b7f89c7ee4f310b25ef451f32b71c0a694278b0c13"
+            "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553"
         },
         {
             "kind": "prompt-support",
@@ -4629,32 +4629,32 @@
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-adversarial.md",
-            "sha256": "402cb155c6896866413c6fff2bee70b676e8a9e573377461bc684c7e3b436635"
+            "sha256": "68512ed01bb998d62ec7e8ae842d100e869926ecdc10b61cc24df6c7aec07d1b"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-architecture.md",
-            "sha256": "aa6fe82b49cb4ba0473dd740f4abe90d2e343e3bddc1c18b19e873070e66fe0b"
+            "sha256": "73617effd68bbf5af001302addaeff0ab1fb0b06838beca5b6c5c0c0f1f74ab7"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-code-quality.md",
-            "sha256": "44c954c4f1703ce3adbb56236ba34d0869b9229f2a24b4fdd80063bd55b02a09"
+            "sha256": "d0aee94db4768d665a4173b1e9e9ab4be3882306c86ca27448926821b75a0d9d"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-data-quality.md",
-            "sha256": "f9c7d3cc56e6d930bf64070acfb731be6231487ed74f4a27ed5f96a8490b97e8"
+            "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-documentation.md",
-            "sha256": "d6bca90ed568fadcd926f96d9aa40fdde2f22f02adabdcf60f662a0955ca6023"
+            "sha256": "c052709e85a661c6b9a48593e916b8edc36ea677389b19b3bc7a4ba534c8488d"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-fix-problems.md",
-            "sha256": "417da6af87f29670ef39da16e970b40f9b6a6d714adb88c4837d9dc689ea0150"
+            "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303"
         },
         {
             "kind": "agent",
@@ -4664,27 +4664,27 @@
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-performance.md",
-            "sha256": "6b5c8661b18fe7205a0aad51697aa50b3a520b87e995acbe7fff6514d54c4cb7"
+            "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-plan-critic.md",
-            "sha256": "42ba07a383d037c3b309cccf7e9cdf7685119208b6944d478a074a22729bcc73"
+            "sha256": "9e86cd3d985a0585022bd6f4117dc24d8710455aafd6fbf059dc4bd79367e19a"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-project-scanner.md",
-            "sha256": "c61065d0ddda5f02abe5a942515ce9f77c088723957b36c072c5357a4e9f1277"
+            "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-release-scanner.md",
-            "sha256": "b1bffbbd8c0f2b4edafcf2dfa2e4b2cfa6ffe6d97dad354356bcc51c9019e06b"
+            "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-reproducibility.md",
-            "sha256": "5023595bd47e31e85b8a617fdd391caad7bcc67978b2f8bf97b38fbe6d8f7d6c"
+            "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
         },
         {
             "kind": "agent",
@@ -4694,52 +4694,52 @@
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-roadmap.md",
-            "sha256": "ac5dffa018fab5f48f502c1c0db44f442f6c42afc5d53683435519c2254c568e"
+            "sha256": "eb04f62ce56f733a2119ebc36fa9fd4dca1105d67db27ede4b32850623493a81"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-testing.md",
-            "sha256": "8fe0c6311e43d651eb9732591eb1a25f6734e9311f2decabccac48fa9a7fb2cb"
+            "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-version-control.md",
-            "sha256": "4229f516f7aa973e0fed98b11355c9d1d0e4fb9584ef87a1f524ae08fb2e5a8c"
+            "sha256": "68966d1a45a5e39626c30143f432b5138d12be427f61569b1933abcf193b9cec"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cg-wiki.md",
-            "sha256": "c650a7e4b2fd60e153c6237a6ee4d582ddeef2d48e0bb3b73f6a7752ecb01af6"
+            "sha256": "ed3d893d778fee47f8bd4a84f499d4554c0311498a4d876c777e46e0d17b94d9"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-academic-writing.md",
-            "sha256": "4e764b076192c74e3a821a5c785ab50ac97319908b39d2b4ce594b72721ccac5"
+            "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-econometric-reasoning.md",
-            "sha256": "98942202785127132c1c343f5a388c4cbec7aeadbf1da8a5f9c72c7796628d09"
+            "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-identification-audit.md",
-            "sha256": "83fb14bcb1d76c6d9250b77cb7c3c4675e6c198dacc1ab5610c837d38aaac5fb"
+            "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-mathematical-verification.md",
-            "sha256": "791c5e56a4676bcda179fd429fea7fb71cfc27666c9c6f9922ab4d229a7fa9a0"
+            "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-measurement-integrity.md",
-            "sha256": "73efdd37e76341734cd4dd2a40c8486a30918939e13baae1fc19d72e4d69e26e"
+            "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-ml-methodology.md",
-            "sha256": "995a9f89036b659178cc857344241a93235994d5601ba6261d1dfa9492e1613b"
+            "sha256": "787e70cb45b7bc3351187c679a38bc99bbec69c606c9c515c0737951d72f398e"
         },
         {
             "kind": "agent",
@@ -4749,27 +4749,27 @@
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-publication-output.md",
-            "sha256": "67a638b26ffb12f082c1f83cb9caa05f15cc56e314f2bf427fe2c9d3ed5ed5c4"
+            "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-replication-package.md",
-            "sha256": "0c90b9f3f401d2cdb26767e6f6d9050bbeed4b86700d709f359e2e0d5a35f61c"
+            "sha256": "b2d5092b3224099d3dff1be75970d95239cbab34c88f9a693a9883c5bcfa2789"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-research-integrity.md",
-            "sha256": "6d6b8938239dbd0056765f30f1ffc60fec4a4f461b6a61015fc3afbb3afdf144"
+            "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
         },
         {
             "kind": "agent",
             "path": ".opencode/agents/cr-specification-analysis.md",
-            "sha256": "8213c50195e1f35514c251e38a56fbfb86210222c3a422efd0616785692b6299"
+            "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-brain-rebuild.md",
-            "sha256": "a9d84691f679aa264e808afc5397f3c9b668faa17d117759634e13e7059fbf6a"
+            "sha256": "5d5b837834236ed114c46603721c64af6255f863bcc0aaa959c31357175a87b5"
         },
         {
             "kind": "command",
@@ -4779,12 +4779,12 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-commit-push-pr.md",
-            "sha256": "31a906c98993efbf0e435c26a609c3a82c4664f7deecd6cf8ad555a7628c7bf4"
+            "sha256": "3a98aa770f2697e7c198d58c179b939fbd82efec6fe935018417b47e0a09191b"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-compound-refresh.md",
-            "sha256": "ca404f3da4dd9e81ed0ba178eb482d311e697747725599ffd14f5e6f3eb84f7d"
+            "sha256": "fbc0981152293ca9cec230ac0791cd6f8b87a011c59e25725453974f8dc9d26b"
         },
         {
             "kind": "command",
@@ -4794,17 +4794,17 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-devtag.md",
-            "sha256": "34a136d65fbdbcc6f644194881142e9ba2f614abd6197656d68fb6a8142c1e77"
+            "sha256": "9897da4ddc56f95dfbbf2b6f041e3ad0c5aeb37eae1507bd398e259c703ffbfb"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-diagnose.md",
-            "sha256": "83f2aba63ecb0a79991c83b415c7ab4d0696f8cc322e9bdf325178209eac60c2"
+            "sha256": "2b126eeb079898aadfb84439637708b25ed08cb992746371f63f08cb9e987e8c"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-fix-problems.md",
-            "sha256": "9b1ab1916ef93932e1f77ee1dc83d31a6e3f2bc1a5b1625c171dc593ecb9a82e"
+            "sha256": "69d5b5fe9b5e58a8922e59adee924a56de51b38715a6da3b561b2fea16d1c877"
         },
         {
             "kind": "command",
@@ -4814,22 +4814,22 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-fixbug.md",
-            "sha256": "68a6a346b2282b527c7df69efcfc5dda013c2d4b39d770f98f3d9b638391dbfa"
+            "sha256": "b22348883373006b141e8cb1077298b4dddddfc02d5e1a1462d6af16ba141c5b"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-ideate.md",
-            "sha256": "6794ef576d70b11e0df3e33b0481e85b44845a66c1d0465ed91a0a59dfd96510"
+            "sha256": "e51dab038b973c9144122887abc2e52e0ae64412dd3fce55d799317e274bb3a1"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-issues.md",
-            "sha256": "b656da4e36cb9dcd87cbf7e8def8a0ea4347eed5e30c62b223901ac1ca26c7a4"
+            "sha256": "ef01e89853c4066821b6337942316b5eb311c6ab9c3643a35b329b1ef2926998"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-plan-review.md",
-            "sha256": "74c15b415d4d86654c9954c3ddefcc653bff8633726e66bb0464de2d0d2ff0db"
+            "sha256": "885df06927bd1eec8d5218db182e86ab1303d8b5f7b96c1e13860690a0f94fd1"
         },
         {
             "kind": "command",
@@ -4839,12 +4839,12 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-release.md",
-            "sha256": "449d5245c2bc5b6cb98c1dc7425ffb56e2d765b2f1e7bcdae69eb8a4ab941513"
+            "sha256": "0747f6db66c1a650a3bf94b02a051a27090e65c6302ba537a22c4e280543b005"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-render-doc.md",
-            "sha256": "3722717f6415d7fb36411fd5e4c006717650db928cf0cffa8b40f36891d96309"
+            "sha256": "4072236aa55b3f70fc1d99462e97e969a03bd28d7a90b5e1dc1d933899fd1deb"
         },
         {
             "kind": "command",
@@ -4864,7 +4864,7 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-roadmap-view.md",
-            "sha256": "0c4ebe960c22d201ace192e0f6bcd0cf1a447554d0cb9948ca996ad69d8aeb2a"
+            "sha256": "2f1f9fc5ac1eb09934234da6acd733faf059291164d6f8cac465bd38fc8da225"
         },
         {
             "kind": "command",
@@ -4874,7 +4874,7 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-strategy.md",
-            "sha256": "050e5b142aa3a41af3f0fb6f5e90a71de8fa24246de176263903a89e4372778d"
+            "sha256": "40b2bdac453e9b6d5443f2f6241781878aa06a9c28292fb7b36ad2c57e495738"
         },
         {
             "kind": "command",
@@ -4884,42 +4884,42 @@
         {
             "kind": "command",
             "path": ".opencode/commands/cg-verify-pr.md",
-            "sha256": "489dbdd76ba7390f86d3aa4ca4340e7a437d72acdccdeb8ebc67b301ae0557dc"
+            "sha256": "56b690d0b2c6157c90bcdc7528313cea4d142bf90046117d0bb49fc7df94623b"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-wiki.md",
-            "sha256": "850207304379a92848ed08113d44475880496f02b5cb147c9444fe4a8daef12d"
+            "sha256": "990c54e5e6bf8810a6752816d346a64519d3099582db6a97b1200b2f9b1fd6eb"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cg-work.md",
-            "sha256": "06310271c69145e1cbe3ab4824d914a28ba38f13e93c10d521f3956994c036aa"
+            "sha256": "1bbeced79823736e174d9e1e30b65417d7aad129d95d655daf58d2f0ea6a7b6c"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cr-brainstorm.md",
-            "sha256": "54d4eb1698d3fd5e7067b9fdcce6ee3c9461339f2ce217e1ea0fbf8cf61f76c9"
+            "sha256": "afe4367010877af979706d051a8002c92dc3f8feaed7fcec1e0077042b4de525"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cr-compound.md",
-            "sha256": "6c2bc047080ab5a4adcd275c9d425cecae42bf98f1ad8440ba8cfd6c444c322f"
+            "sha256": "91b4aaf6b9c5c754943ab0c1db3dbcf956eddfedf07122b291262e5b256879fa"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cr-plan.md",
-            "sha256": "7e77769bd9cc220987432fc1bf070275ce9b20c10943b9eeca85145983cf5ba3"
+            "sha256": "4a674981f18e3c6c12071d6f1a0e80a4dfbb4a9f1ca3285c61d9f5c2d2f25e7d"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cr-review.md",
-            "sha256": "e28c87590a5917c32b746df13c4e792bd54cd55c2c659c49d28ea9bcabe02b4c"
+            "sha256": "a4e985cdcd3d586b73c52fd48b7c6120865593e4dea92821d8851442bfb7c150"
         },
         {
             "kind": "command",
             "path": ".opencode/commands/cr-work.md",
-            "sha256": "66e127589250084ffc25d735f0ebaab22f064e95346fb33f51d2bb3550efdd61"
+            "sha256": "6dc81546d3580f293901a17aa46dfa8a91615856ae5460301fb06079ebad96a9"
         },
         {
             "kind": "prompt-support",
