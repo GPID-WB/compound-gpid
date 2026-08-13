@@ -98,11 +98,17 @@ class LocalEvidenceWorkbench:
         self.recovery: list[RecoveryResult] = self.store.recover()
         self.index = LexicalIndex(settings.evidence_root / "index" / "lexical.sqlite")
 
-    def scan_markdown(self, relative_path: str) -> ParsedMarkdownResource:
+    def scan_markdown(
+        self,
+        relative_path: str,
+        *,
+        expected_revision: int | None = None,
+    ) -> ParsedMarkdownResource:
         """Ingest one Markdown resource and update canonical source records/index.
 
         Args:
             relative_path: Resource path relative to the configured resources root.
+            expected_revision: Optional aggregate revision read by the caller.
 
         Returns:
             Parsed resource bundle containing source units for search and review.
@@ -139,7 +145,11 @@ class LocalEvidenceWorkbench:
             "source_unit_id",
         )
         with self.store.transaction(
-            expected_revision=self.store.current_revision(),
+            expected_revision=(
+                self.store.current_revision()
+                if expected_revision is None
+                else expected_revision
+            ),
             actor="researcher",
             action="scan-markdown",
         ) as transaction:

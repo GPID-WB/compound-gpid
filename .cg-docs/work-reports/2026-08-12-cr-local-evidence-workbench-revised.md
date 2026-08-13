@@ -168,3 +168,53 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 ### Phase 3 Status
 
 `active` -- Phase 3 complete; ready for Phase 4.
+
+## Phase 4 Run/Resume (2026-08-13)
+
+- Resumed explicitly with `/cg-work phase4` on branch `cr-lit-review`.
+- Artifact preflight passed: `cg-render-artifact --validate-only`.
+- Active deviation policy: `autonomous` (no runtime override).
+- Steps 11-13 completed on 2026-08-13; Phase 1-3 evidence remains unchanged.
+- FastAPI/httpx/uvicorn were added to the locked environment and inventory with
+  runtime-network-disabled caveats.
+
+### Phase 4 Evidence
+
+| ID | Step | Evidence | Status | Artifact |
+|----|------|----------|--------|----------|
+| V8 | 11 | Original-authority verification and confidence transitions cover exact, stale, typed-review, and abstained outcomes | passed | 7 verifier/confidence tests; full package regression passed |
+| V9 | 12-13 | Loopback API and browser review flow preserve canonical YAML, transactions, history, and no-network behavior | passed | 5 API + 2 browser tests; full package regression passed |
+
+### Completed Phase 4 Steps
+
+- Step 11: complete (2026-08-13) -- context-aware verification now checks source
+	identity/version/hash, exact normalized quotes, cross-unit and fuzzy diagnostics,
+	typed review-required units, stale sources, inaccessible originals, and legacy
+	locators. Only unchanged exact prose can reach high confidence automatically.
+- Step 12: complete (2026-08-13) -- loopback-only FastAPI routes cover health,
+	scan, search, source context, candidate evidence, review actions, history,
+	recovery, run status, deterministic conflicts, and canonical transaction writes.
+- Step 13: complete (2026-08-13) -- derived responsive HTML review flow covers
+	inventory, search, candidate evidence, review queue/history, run status, and
+	dependency caveats using same-origin API calls only.
+
+### Phase 4 Constraints Check
+
+| ID | Constraint | Status | Evidence |
+|----|------------|--------|----------|
+| C2 | Legacy external records remain quarantined and read-only | passed | Full package compatibility regression |
+| C4 | Canonical writes are journaled, locked, revisioned, and recoverable | passed | API mutation/history/conflict tests plus transaction regression |
+| C5 | Normal processing remains loopback-only and offline | passed | App bind rejection, no external UI URLs, OCR/profile network gates |
+| C6 | Included components have complete inventory records and caveats | passed | 12-entry validated inventory |
+| C8 | New Python code has required docstrings | passed | Documentation AST gate |
+| C9 | Browser/API state remains derived and canonical files remain path-safe | passed | API/YAML mutation and browser smoke tests |
+
+### Phase 4 Remaining Uncertainty
+
+- Starlette emits a deprecation warning that its TestClient/httpx integration will
+	change; tests remain green, but a future dependency update should revisit the
+	local API test client choice.
+
+### Phase 4 Status
+
+`active` -- Phase 4 complete; ready for Phase 5.

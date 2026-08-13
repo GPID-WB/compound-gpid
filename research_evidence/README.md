@@ -43,6 +43,16 @@ latency/memory budgets, and explicit activation before execution. No model
 weights are selected or acquired by the default profile; lexical retrieval stays
 the baseline.
 
+## API and browser boundary
+
+Phase 4 provides a loopback-only FastAPI service and derived browser review page.
+The service exposes resource scan, source search/context, candidate evidence,
+review actions, history, recovery, and run status. All mutations use the
+journaled canonical YAML transaction path. The browser page uses same-origin
+API calls and is never canonical; original files, YAML records, and append-only
+history remain authoritative. FastAPI/httpx/uvicorn are inventory-controlled and
+runtime network access remains disabled.
+
 ## Dependency inventory
 
 Every package, parser, executable, model, and weight distribution is recorded in

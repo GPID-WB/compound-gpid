@@ -145,3 +145,51 @@ entries:
     caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
     activation_status: candidate
     activation_acknowledged: false
+  - id: fastapi
+    kind: package
+    distribution_source: https://pypi.org/project/fastapi/0.141.1/
+    exact_version_or_revision: 0.141.1
+    sha256: bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Typed local HTTP boundary for canonical evidence state.
+    caveat_disclaimer: Binds to loopback only in this project; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: httpx
+    kind: package
+    distribution_source: https://pypi.org/project/httpx/0.28.1/
+    exact_version_or_revision: 0.28.1
+    sha256: d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad
+    license_or_access_terms: BSD-3-Clause
+    restriction: Development/test client only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Test client is local; no runtime telemetry is enabled by this project.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Local API integration testing without external requests.
+    caveat_disclaimer: Development/test dependency; it does not authorize external network calls.
+    activation_status: enabled-with-caveat
+    activation_acknowledged: true
+  - id: uvicorn
+    kind: package
+    distribution_source: https://pypi.org/project/uvicorn/0.52.2/
+    exact_version_or_revision: 0.52.2
+    sha256: 0b916d247cf5500b320638ea11abf0fed7f348e8e1c7fde53a0e6b6319803512
+    license_or_access_terms: BSD-3-Clause
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Optional local loopback ASGI server runner.
+    caveat_disclaimer: Server must be launched with a loopback bind; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false

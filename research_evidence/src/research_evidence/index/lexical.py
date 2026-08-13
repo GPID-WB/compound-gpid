@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import sqlite3
+import threading
 from typing import Optional
 
 from ..schemas import SourceUnit, TypedLocator
@@ -43,7 +44,8 @@ class LexicalIndex:
         """
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.connection = sqlite3.connect(self.path)
+        self._lock = threading.RLock()
+        self.connection = sqlite3.connect(self.path, check_same_thread=False)
         self.connection.execute("PRAGMA journal_mode=WAL")
         self._ensure_schema()
 

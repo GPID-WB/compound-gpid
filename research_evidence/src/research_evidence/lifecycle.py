@@ -347,6 +347,7 @@ def reverify_stale_evidence(
             "source_unit_id": replacement_unit.source_unit_id,
             "source_version_id": replacement_unit.source_version_id,
             "locator": replacement_unit.locator,
+            "stale": False,
         }
     )
     verified, result = verify_evidence(candidate, replacement_unit, original_authority=original_authority)
