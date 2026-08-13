@@ -84,7 +84,7 @@
       "path": ".opencode/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1",
+      "sha256": "2f4953bdad39b9a05d3dd4651d4cedbdd3f4f6079a2a13163320fc55f6901ce4",
       "executable": false
     },
     {
@@ -238,7 +238,7 @@
       "path": ".opencode/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "9943fa0f0210cfe49f632de487465165913f7252826321161aa1b6e144638c72",
+      "sha256": "453ffff1eb54ae9212f8e766e8454eace954e39ea163c425ab83ca27c617f782",
       "executable": false
     },
     {
@@ -273,7 +273,7 @@
       "path": ".opencode/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "b22348883373006b141e8cb1077298b4dddddfc02d5e1a1462d6af16ba141c5b",
+      "sha256": "fb05a253278df0b067a70f35d49c67a059a25d3e14f1750cf2b09e48cc2c9710",
       "executable": false
     },
     {
@@ -308,7 +308,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "0747f6db66c1a650a3bf94b02a051a27090e65c6302ba537a22c4e280543b005",
+      "sha256": "e048e0e9de53194df6ee21e57212e02ce656d172a548c054ffbd1bebbaa87ee8",
       "executable": false
     },
     {
@@ -378,14 +378,14 @@
       "path": ".opencode/commands/cg-wiki.md",
       "source": ".github/prompts/cg-wiki.prompt.md",
       "kind": "command",
-      "sha256": "990c54e5e6bf8810a6752816d346a64519d3099582db6a97b1200b2f9b1fd6eb",
+      "sha256": "426796d23ec25003baed7b670827cf101d03c3544a80f20fc6d4b3640cdf21b1",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "1bbeced79823736e174d9e1e30b65417d7aad129d95d655daf58d2f0ea6a7b6c",
+      "sha256": "580c1ee042818afaf65e1d4b4de4772a3f137c80f3aac44f261ca92cc194b88b",
       "executable": false
     },
     {

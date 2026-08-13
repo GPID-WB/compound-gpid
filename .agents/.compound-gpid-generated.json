@@ -42,7 +42,7 @@
       "path": ".agents/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "345e89e737b78fc3bec7051f658ea45623e6e4707491415a9e5513b3f8ef207a",
+      "sha256": "30515991c597de3e2b6016cad653f1705187fde10d48ccd3a75827882b0ac934",
       "executable": false
     },
     {
@@ -77,7 +77,7 @@
       "path": ".agents/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "a20bd64b6abde106d1d2769ce29d0b943815fc814b3067a40b3aba4fc7f1f3c9",
+      "sha256": "27349c30be2e6e0b2270dcd5daa265f933d1963c2bf066d5a50414ba4d5356bc",
       "executable": false
     },
     {
@@ -112,7 +112,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "11321d0812f31ec9545d9fe0b92e371bce3c03b6b5d9bd93ebdea22bf69eb486",
+      "sha256": "50251e414d528593cf9d67fb85fdbe746a995f227895e981fcc8bace97d79bf4",
       "executable": false
     },
     {
@@ -182,14 +182,14 @@
       "path": ".agents/commands/cg-wiki.md",
       "source": ".github/prompts/cg-wiki.prompt.md",
       "kind": "command",
-      "sha256": "1aaf7037442171d9eed4eb53aa913348d8a9e474baed927d91c1360f1f0cc729",
+      "sha256": "46815556cbe701ceb23850faaafea398197b77e1982a1c03e89b65dbadb0bca2",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "46d9fd25707e91c66dd5e50329a0d0820322c700985b43e82292f1fbfaffa85e",
+      "sha256": "febd185c85cca01cfce922ff671e324b928f8187fd317e1e9bcedccaf035dbb1",
       "executable": false
     },
     {
@@ -427,7 +427,7 @@
       "path": ".agents/skills/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "fallback-agent",
-      "sha256": "356fd0acc3518c04f055b0fda65150c9f452044627c1219cf96d19cd880d52b4",
+      "sha256": "4f05ab2765448bad52eb3180332038c6cfbeb67d7de453f9d3ecd45d12c549aa",
       "executable": false
     },
     {
@@ -2163,7 +2163,7 @@
       "path": ".agents/subagents/cg-release-scanner.toml",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "d7d478c7ab7406ec2bf0e4721ad4cef871f640bfa719404d611316e8369cb2af",
+      "sha256": "832f47c7135b3a30581b7928085c45696741c317c6a4e9fe641ad4eb0415305a",
       "executable": false
     },
     {

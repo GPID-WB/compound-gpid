@@ -84,7 +84,7 @@
       "path": ".kilo/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1",
+      "sha256": "2f4953bdad39b9a05d3dd4651d4cedbdd3f4f6079a2a13163320fc55f6901ce4",
       "executable": false
     },
     {
@@ -238,7 +238,7 @@
       "path": ".kilo/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "de5dcac72dcab461484d5aad553f5b80341dcb575ef22328cfd51c422f420bd1",
+      "sha256": "fa2e978166d7440037e8e4a9f18227b4c4ace94c662742dbe3a2ad8e13792ca0",
       "executable": false
     },
     {
@@ -273,7 +273,7 @@
       "path": ".kilo/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "d00c646df6bd6c37a3a2d21b95e1ceeabcb77846e9bdbd9bbd584f64219fc67e",
+      "sha256": "95ab661373aed93367f32079fecc4391a19621d0773544cfd5b2d4ea1e50bb71",
       "executable": false
     },
     {
@@ -308,7 +308,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "0c1890b4e8283be36b9f62e071ed49519e82715cf3e9be22e844d609c2707eaf",
+      "sha256": "9cb6c55524ecd465ee9332df1850f4bc273f659bf1706f658e7564126c507afb",
       "executable": false
     },
     {
@@ -378,14 +378,14 @@
       "path": ".kilo/commands/cg-wiki.md",
       "source": ".github/prompts/cg-wiki.prompt.md",
       "kind": "command",
-      "sha256": "b6876ea96f4393ecdaa2fe59192a2a52e7bb06ef25bb2f0ea8dd692417da765a",
+      "sha256": "51779e4b2cf68b33ee9736ca4109858af5fa199427647333150bb5e730cf9daa",
       "executable": false
     },
     {
       "path": ".kilo/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "ebfcc24cd37a09157fbf64aced171bfb79b321619b37dcec4fe07d7380ba5ed5",
+      "sha256": "9895db3939580ba317cab306fedd3a934544f9149ed860db02dff1d1c2042d7f",
       "executable": false
     },
     {
