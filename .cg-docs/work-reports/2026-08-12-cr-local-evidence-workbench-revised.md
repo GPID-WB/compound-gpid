@@ -185,6 +185,67 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 | V8 | 11 | Original-authority verification and confidence transitions cover exact, stale, typed-review, and abstained outcomes | passed | 7 verifier/confidence tests; full package regression passed |
 | V9 | 12-13 | Loopback API and browser review flow preserve canonical YAML, transactions, history, and no-network behavior | passed | 5 API + 2 browser tests; full package regression passed |
 
+## Phase 5 Run/Resume Results (2026-08-13)
+
+### Phase 5 Evidence
+
+| ID | Step | Evidence | Status | Artifact |
+|----|------|----------|--------|----------|
+| V10 | 14 | CR workflow preserves P0 enforcement, quarantines legacy external rows, and leaves CG-only projects unaffected | passed | 4 CR integration tests; 169 CR/module/target tests; regenerated native targets |
+| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | passed | 5 executable security tests; 101-test package suite; browser no-external-request checks |
+| V12 | 16 | Fixed-corpus performance and reproducibility thresholds are met or visible candidate-profile failures are recorded | passed | Existing small/medium benchmark report plus `reproducibility-2026-08-13.json`; lockfile hash and transaction recovery match |
+| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | passed | 101 Python tests; 185 target/module/drift tests including 2 isolated committed-fixture drift checks; module validator; canonical Pester runner passed with 0 failures and no filtered files |
+
+### Completed Phase 5 Steps
+
+- Step 14: complete (2026-08-13) -- CR evidence/provenance and lifecycle skills,
+	`/cr-work`, and `/cr-review` document the local workbench boundary. Existing
+	`/cr-work` remains the launcher; no `/cr-evidence` command was added.
+- Step 15: complete (2026-08-13) -- executable security tests cover remote URL/
+	browser targets, proxy/socket boundaries, model-loader download flags,
+	forbidden subprocesses, safe YAML handling, injected source text, and browser
+	external-request absence.
+- Step 16: complete (2026-08-13) -- final reproducibility manifest records lockfile
+	hash, repeated source IDs/rankings, canonical YAML hash, and transaction
+	recovery without raw corpus text. Existing fixed small/medium lexical thresholds
+	remain passed.
+- Step 17: complete (2026-08-13) -- reference documentation, package README,
+	inventory, CR canonical assets, generated native targets, module validation,
+	docs contracts, and final test gates are synchronized.
+
+### Phase 5 Constraints Check
+
+| ID | Constraint | Status | Evidence |
+|----|------------|--------|----------|
+| C2 | Legacy external records remain quarantined and read-only | passed | CR integration contract and compatibility regression |
+| C4 | Canonical writes are journaled, locked, revisioned, and recoverable | passed | API/lifecycle/transaction recovery tests |
+| C5 | Normal processing remains loopback-only and offline | passed | Security harness, API bind gate, browser same-origin checks |
+| C6 | Included components have complete inventory records and caveats | passed | 12-entry validated inventory |
+| C7 | Performance/reproducibility claims use fixed inputs and explicit metadata | passed | Benchmark and reproducibility artifacts |
+| C8 | New Python code has required docstrings | passed | Documentation AST gate in full package suite |
+| C9 | Canonical/derived state and generated targets remain path-safe | passed | Target path/ownership/drift checks and API/browser tests |
+| C10 | Required checks are executed rather than inferred | passed | V10-V13 command evidence above |
+| C11 | Pester uses only the safe runner | passed | Canonical runner: passed, 0 failures, filteredFiles null |
+
+### Final Remaining Uncertainty
+
+- Starlette emits a deprecation warning that its TestClient/httpx integration will
+	change; tests remain green and the warning is documented for future dependency
+	maintenance.
+
+### Final Status
+
+`completed`
+
+## Completion Handoff (2026-08-13)
+
+- Plan marked `completed` with `completed-date: 2026-08-13`.
+- Matched roadmap feature `cr-local-evidence-workbench-for-verifiable-research-claims` marked `done` through `@cg-roadmap`.
+- Milestone `responsible-research-partner` remains in progress because other
+	features are not complete.
+- Recommended follow-up: `/cr-review` for research-integrity/provenance review;
+	engineering routing is high-risk `full` if `/cg-review` is also requested.
+
 ### Completed Phase 4 Steps
 
 - Step 11: complete (2026-08-13) -- context-aware verification now checks source
@@ -218,3 +279,21 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 ### Phase 4 Status
 
 `active` -- Phase 4 complete; ready for Phase 5.
+
+## Phase 5 Run/Resume (2026-08-13)
+
+- Resumed explicitly with `/cg-work phase5` on branch `cr-lit-review`.
+- Artifact preflight passed: `cg-render-artifact --validate-only`.
+- Active deviation policy: `autonomous` (no runtime override).
+- Steps 14-17 are in progress; Phase 1-4 evidence remains unchanged.
+- Existing `/cr-work` is sufficient as the workbench launcher; no new
+	`/cr-evidence` prompt is being added.
+
+### Phase 5 Evidence
+
+| ID | Step | Evidence | Status | Artifact |
+|----|------|----------|--------|----------|
+| V10 | 14 | CR workflow preserves P0 enforcement, quarantines legacy external rows, and leaves CG-only projects unaffected | pending | prompt/skill/module tests and generated-target checks |
+| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | pending | network-boundary/path-safety report |
+| V12 | 16 | Fixed-corpus performance and reproducibility thresholds are met or visible candidate-profile failures are recorded | pending | final benchmark/reproducibility manifests |
+| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | pending | validation outputs and execution report |

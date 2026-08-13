@@ -264,6 +264,21 @@ Entry template:
 
 Created by `/cg-setup` when `modules:` includes `research`.
 
+## Local Evidence Workbench Boundary
+
+For repository-local evidence tasks, the dedicated `research_evidence/` Python
+workbench is the executable implementation of the shared Evidence and Verify
+surfaces. Use the existing `/cr-work [phaseX]` launcher to start or resume it;
+do not add a parallel `/cr-evidence` command in v1.
+
+The boundary remains local-only and offline: no internet search, URL fetching,
+external API model execution, hidden downloads, or external fallback. Original
+resources and canonical YAML remain authoritative. Converted/OCR text, indexes,
+API responses, and browser views are derived. Legacy `external-opt-in` rows stay
+read-only in `external-quarantine.yaml`; local retrieval/model output remains
+candidate data until independent source-version, typed-locator, quote, and
+original-authority checks succeed.
+
 ---
 
 ## Reasoning Trail Documentation

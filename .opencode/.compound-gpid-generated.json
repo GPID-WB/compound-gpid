@@ -413,14 +413,14 @@
       "path": ".opencode/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "a4e985cdcd3d586b73c52fd48b7c6120865593e4dea92821d8851442bfb7c150",
+      "sha256": "1ac7bfabd79a489ba48382744040b30f34f9ed5b9393ea56d96386be017685c3",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "6dc81546d3580f293901a17aa46dfa8a91615856ae5460301fb06079ebad96a9",
+      "sha256": "07bfeac8665cc5f9402352d9cf432cbe5441ee135cbddd402bf873231d98d167",
       "executable": false
     },
     {
@@ -2002,7 +2002,7 @@
       "path": ".opencode/skills/cr-skill-evidence-provenance/SKILL.md",
       "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
       "kind": "skill",
-      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "sha256": "3ac1ee467181cf5c0084f448b8107a2d6fb0f1b6349f51199709363842e18f97",
       "executable": false
     },
     {
@@ -2072,7 +2072,7 @@
       "path": ".opencode/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "sha256": "c92e07f2d4f20c2e3da57339f9e494c525b7ee20822c752d3186b917bf32bac1",
       "executable": false
     },
     {

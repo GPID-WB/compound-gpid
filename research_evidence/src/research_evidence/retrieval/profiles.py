@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..inventory import ActivationStatus, EnterpriseReviewStatus
+from ..security import validate_model_loader_kwargs
 
 
 class ProfileUnavailableError(RuntimeError):
@@ -266,12 +267,15 @@ def load_local_profile(
     """
     profile = registry.selectable(profile_id, project_root)
     cache = (Path(project_root).resolve() / profile.model_cache_path).resolve()
-    return loader(
-        model_id=profile.model_id,
-        revision=profile.model_revision,
-        cache_dir=str(cache),
-        local_files_only=True,
+    loader_kwargs = validate_model_loader_kwargs(
+        {
+            "model_id": profile.model_id,
+            "revision": profile.model_revision,
+            "cache_dir": str(cache),
+            "local_files_only": True,
+        }
     )
+    return loader(**loader_kwargs)
 
 
 def evaluate_profile_budget(

@@ -413,14 +413,14 @@
       "path": ".claude/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "5bec88a0c3ebc07950f8188aec043149ed53e0ccf67b6537ae41736ac69bdc35",
+      "sha256": "64d727fbd6f84d6669f1f1fdf4ed3e29769cdde22c6b623cf150c219f1e3f2c2",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "cfdbad15f493a28568109af89c13cce4d2516f0cb7759baf90fdd9fb51482ba6",
+      "sha256": "95ada52233dc940953cc7b11b5dd0f5dcc0a3e08b31c56c73ccc374e2e541635",
       "executable": false
     },
     {
@@ -1995,7 +1995,7 @@
       "path": ".claude/skills/cr-skill-evidence-provenance/SKILL.md",
       "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
       "kind": "skill",
-      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "sha256": "3ac1ee467181cf5c0084f448b8107a2d6fb0f1b6349f51199709363842e18f97",
       "executable": false
     },
     {
@@ -2065,7 +2065,7 @@
       "path": ".claude/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "sha256": "c92e07f2d4f20c2e3da57339f9e494c525b7ee20822c752d3186b917bf32bac1",
       "executable": false
     },
     {

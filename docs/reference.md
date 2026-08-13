@@ -685,3 +685,65 @@ Phased plans (created with `/cg-plan` when the user requests phases) carry addit
 | `phases` | integer | `/cg-plan` Step 3.5 | (not read at runtime — informational only for human readers) | **Convenience hint** — may become stale if phases are restructured. The authoritative phase count is always derived by counting `## Phase` headers in the document body. Never use this field as the source of truth for validation. |
 | `completed-phases` | YAML flow sequence of unquoted integers, e.g. `[1, 2]` | `/cg-work` Step 2.5 | `/cg-work` Step 1.2, `/cg-resume` Step 2a | **Authoritative completion record.** Written first at phase boundary (before `current-phase`). A plan with a non-empty list and `status: active` is "paused between phases" — this is the normal cross-session state. |
 | `current-phase` | integer | `/cg-work` Step 2.5 | (informational only) | Written after `completed-phases`. Set to N+1 after completing phase N; removed when the final phase completes. |
+
+## Local Research Evidence Workbench
+
+The research suite uses the dedicated `research_evidence/` Python subproject as
+the executable evidence/provenance spine. Start or resume it through the
+existing `/cr-work [phaseX]` launcher; v1 does not add a separate
+`/cr-evidence` command.
+
+```text
+resource -> source version/unit -> local retrieval -> candidate claim/evidence
+-> original-authority verification -> approved claim/evidence matrix
+```
+
+### Setup and runtime
+
+From the repository root:
+
+```text
+uv sync --project research_evidence
+uv run --project research_evidence research-evidence --help
+uv run --project research_evidence pytest research_evidence/tests -q
+```
+
+The supported Python range is `>=3.11,<3.14`, and `research_evidence/uv.lock`
+is committed. Normal processing is local-only, loopback-only, and offline. It
+does not perform internet search, URL fetching, external API model execution,
+hidden downloads, telemetry, or external fallback. Model/OCR acquisition is a
+separate setup decision; normal loaders use verified local caches only.
+
+### Canonical state and review
+
+Original files remain authoritative. Canonical YAML under
+`.cg-docs/research/evidence/` stores provenance, source versions, source units,
+claims, evidence, analysis links, review history, dependency inventory, and
+transaction journals. SQLite indexes, converted/OCR text, API responses, and
+browser views are derived and rebuildable. Mutations use revisions, locks,
+prepare/commit/abort markers, conflict records, and recovery.
+
+High confidence requires a matching source hash/version, resolvable typed
+locator, exact normalized quote, successful original-authority verification,
+and researcher approval. Stale, ambiguous, fuzzy-only, inaccessible,
+OCR-derived, table/equation, conflicting, and legacy cases stay flagged or
+abstained. Candidate local retrieval/model proposals never approve themselves.
+
+Legacy `origin: external-opt-in` records are preserved read-only in
+`external-quarantine.yaml`; they are not fetched, indexed, or eligible for
+approval. A copied local original requires a new local source-version record and
+verification event.
+
+The Phase 4 FastAPI service and responsive browser page are derived local
+management surfaces. They expose scan/search/context, candidate evidence,
+review actions, history, recovery, run status, and dependency caveats. Browser
+state is never canonical, and rendered source content contains no external
+links or requests.
+
+### Supported formats and v1 non-goals
+
+PDF, DOCX, Markdown, LaTeX, and HTML produce typed deterministic source units.
+Scanned PDFs use an explicit local OCR capability with capped confidence and
+original-page verification. Internet research, literature prose generation,
+external APIs, hosted deployment, multi-user collaboration, citation-manager
+integration, and automatic conflict resolution remain out of scope for v1.

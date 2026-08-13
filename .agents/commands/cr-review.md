@@ -233,3 +233,25 @@ If no P0 errors are open AND the task type is Theory/Modeling or Implementation:
 > 1. **`/cg-fix-triage`** — Apply review findings by ID
 > 2. **`/cr-compound`** — Capture a methodology lesson from this review
 > 3. **Continue working** — Return to `/cr-work` with the findings in context
+
+## Local Evidence Workbench Review Surface
+
+When `research_evidence/` or `.cg-docs/research/evidence/` is in scope, audit
+the workbench boundary explicitly:
+
+- Confirm the configured corpus is repository-local and that no internet search,
+  URL retrieval, external API model execution, hidden download, or external
+  fallback path exists.
+- Confirm every substantive claim carries source identity, source version,
+  typed locator, verbatim quote, verification method/reason, confidence, and
+  review state. A candidate is not an approved claim.
+- Confirm original files remain authoritative and that converted/OCR text,
+  indexes, API responses, and browser views are derived. Check source hash and
+  stale invalidation before accepting a claim.
+- Confirm legacy `external-opt-in` rows remain read-only in
+  `external-quarantine.yaml`; they are not fetched, indexed, or approved.
+- Confirm tables, equations, OCR, ambiguous mappings, inaccessible originals,
+  fuzzy-only matches, and conflicting evidence stay flagged or abstained.
+- Confirm API mutations use journaled YAML transactions with revisions,
+  conflicts, recovery, and append-only history. Browser state must never be
+  treated as canonical.

@@ -249,6 +249,36 @@ Provide a summary following the `/cg-work` format, then:
 > 3. **`/cr-plan`** — Plan the next research phase
 > 4. **`/cg-review`** — Engineering-only review (skip methodology)
 
+## Local Evidence Workbench Boundary
+
+When a research plan uses repository-local sources, use this existing `/cr-work`
+launcher to start or resume the dedicated `research_evidence/` workbench. Do
+not create a second `/cr-evidence` launcher in v1.
+
+Before substantive claims or downstream analysis are produced:
+
+1. Run the local workbench phase command recorded in
+  `.cg-docs/active-state/current.json` and keep `pyproject.toml`/`uv.lock`
+  current.
+2. Read only configured project-local resources. Internet search, URL fetching,
+  external API model execution, hidden downloads, and external fallbacks are
+  out of scope.
+3. No external API execution is permitted in v1. Treat original source files as authoritative. Preserve source hash, source
+  version, typed locator, quote, parser/OCR metadata, verification reason,
+  confidence, and review history.
+4. Preserve legacy `external-opt-in` records read-only in
+  `external-quarantine.yaml`; never fetch, index, or approve them. A local copy
+  needs a new local source-version record and verification event.
+5. Keep local retrieval or model proposals as `candidate`. Reject fabricated
+  source IDs, non-atomic statements, missing verbatim quotes, ambiguous
+  locators, and paraphrases that cannot be independently verified.
+6. Import downstream claims only after original-authority quote/locator
+  verification and researcher approval. Stale, OCR, table/equation,
+  inaccessible, and conflicting evidence remains flagged or abstained.
+
+The workbench API/browser is a derived local management surface. Canonical YAML,
+append-only history, journals, and original resources remain authoritative.
+
 ## Invocation Arguments
 
 User-provided slash-command arguments:

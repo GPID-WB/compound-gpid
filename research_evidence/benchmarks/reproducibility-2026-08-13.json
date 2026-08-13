@@ -1,0 +1,18 @@
+{
+  "canonical_yaml_match": true,
+  "canonical_yaml_sha256": "25e56e6ad742a095f030e966013cc023eead34141cfa5a00f03b8a779373712b",
+  "corpus": {
+    "source_units": 30
+  },
+  "created": "2026-08-13",
+  "lockfile_sha256": "26de1e6a1b7223b6d391ce866baed0b7b9e011dd507a05d2aeb0f802b643d939",
+  "passed": true,
+  "profile": "lexical-baseline",
+  "rankings_hash": "936d11744dbc41bd1739ee4ad69b45b098bf298e42ca084f8e443085104df3df",
+  "rankings_match": true,
+  "raw_text": false,
+  "schema_version": "research-evidence-reproducibility-v1",
+  "source_ids_hash": "01ee67ca0385b614e6d8ca67e8edf0a7427b9817b45eb06d215c60c68ad0234d",
+  "source_ids_match": true,
+  "transaction_recovery_checked": true
+}

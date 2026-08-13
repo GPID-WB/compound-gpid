@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import socket
 from typing import Callable, Mapping, Optional, Sequence, TypeVar
+from urllib.parse import urlsplit
 
 from .errors import NetworkAccessDenied
 
@@ -68,6 +69,71 @@ def validate_offline_environment(
             "Offline processing rejects configured proxy variables: "
             + ", ".join(configured)
         )
+
+
+def validate_http_target(target: str) -> str:
+    """Reject remote HTTP targets before an HTTP client can issue a request.
+
+    Args:
+        target: URL or local target string supplied by an untrusted caller.
+
+    Returns:
+        The validated target when it is not a remote URL.
+
+    Raises:
+        NetworkAccessDenied: If the target is a non-loopback HTTP(S) URL.
+
+    Example:
+        ``validate_http_target("/sources/search")`` returns the local path.
+    """
+    parsed = urlsplit(target)
+    if parsed.scheme in {"http", "https"} and parsed.hostname:
+        if not _is_loopback_host(parsed.hostname):
+            raise NetworkAccessDenied("remote HTTP targets are disabled in offline mode")
+    elif parsed.scheme or parsed.netloc:
+        raise NetworkAccessDenied("remote URL targets are disabled in offline mode")
+    return target
+
+
+def validate_browser_target(target: str) -> str:
+    """Apply the same-origin browser target policy to a rendered link/request.
+
+    Args:
+        target: Browser URL or same-origin path.
+
+    Returns:
+        The validated same-origin target.
+
+    Raises:
+        NetworkAccessDenied: If the target points to a remote host or scheme.
+
+    Example:
+        ``validate_browser_target("/review/history")`` remains local.
+    """
+    return validate_http_target(target)
+
+
+def validate_model_loader_kwargs(kwargs: Mapping[str, object]) -> dict[str, object]:
+    """Require local-cache-only model loading and reject hidden downloads.
+
+    Args:
+        kwargs: Adapter keyword arguments supplied to a local model loader.
+
+    Returns:
+        A copied validated mapping.
+
+    Raises:
+        NetworkAccessDenied: If downloads or remote cache loading are enabled.
+
+    Example:
+        ``validate_model_loader_kwargs({"local_files_only": True})`` passes.
+    """
+    validated = dict(kwargs)
+    if validated.get("local_files_only") is not True:
+        raise NetworkAccessDenied("model loading requires local_files_only=True")
+    if validated.get("download") is True or validated.get("allow_download") is True:
+        raise NetworkAccessDenied("model downloads are disabled during processing")
+    return validated
 
 
 def validate_subprocess_command(

@@ -413,14 +413,14 @@
       "path": ".kilo/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45",
+      "sha256": "37ed3591aac285926a8c22fde5688b3a3bf7be28a72aec4f0b308663d456d179",
       "executable": false
     },
     {
       "path": ".kilo/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553",
+      "sha256": "04ffe98b15353641573a8bc1e1047e99507bf1cdf018a39ab6e50c14c8608517",
       "executable": false
     },
     {
@@ -2002,7 +2002,7 @@
       "path": ".kilo/skills/cr-skill-evidence-provenance/SKILL.md",
       "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
       "kind": "skill",
-      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "sha256": "3ac1ee467181cf5c0084f448b8107a2d6fb0f1b6349f51199709363842e18f97",
       "executable": false
     },
     {
@@ -2072,7 +2072,7 @@
       "path": ".kilo/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "sha256": "c92e07f2d4f20c2e3da57339f9e494c525b7ee20822c752d3186b917bf32bac1",
       "executable": false
     },
     {

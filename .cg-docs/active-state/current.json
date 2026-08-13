@@ -1,8 +1,8 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-13T13:40:58Z",
+  "updatedAt": "2026-08-13T15:35:54Z",
   "workflow": "/cg-work",
-  "status": "active",
+  "status": "completed",
   "branch": "cr-lit-review",
   "plan": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
   "executionReport": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md",
@@ -16,12 +16,17 @@
     {"id": "V6", "status": "passed", "artifact": "V6 resource/lifecycle gate: 16 passed; recovery included"},
     {"id": "V7", "status": "passed", "artifact": "V7 focused gate: 15 passed; full package: 81 passed; benchmarks passed"},
     {"id": "V8", "status": "passed", "artifact": "V8 verifier/confidence gate: 7 passed"},
-    {"id": "V9", "status": "passed", "artifact": "V9 API/browser gate: 7 passed; full package: 95 passed"}
+    {"id": "V9", "status": "passed", "artifact": "V9 API/browser gate: 7 passed; full package: 95 passed"},
+    {"id": "V10", "status": "passed", "artifact": "4 CR integration tests; 169 CR/module/target tests; native targets regenerated"},
+    {"id": "V11", "status": "passed", "artifact": "5 security tests; 101 Python tests; browser no-external-request checks"},
+    {"id": "V12", "status": "passed", "artifact": "benchmark and reproducibility manifests passed with lockfile hash"},
+    {"id": "V13", "status": "passed", "artifact": "101 Python; 169 target/module; Pester passed with 0 failures and no filtered files"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "completed"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "completed"},
+    {"kind": "roadmap", "path": "roadmap.json", "status": "done"}
   ],
-  "nextCommand": "/cg-work phase5"
+  "nextCommand": "/cr-review"
 }
