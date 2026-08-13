@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "compound-gpid-docs-navigation-v1",
+  "groups": [
+    {
+      "title": "Start",
+      "pages": [
+        { "id": "whats-new", "title": "What's New", "file": "whats-new.md", "description": "Release history." },
+        { "id": "whats-new", "title": "Duplicate", "file": "duplicate.md", "description": "Duplicate id." }
+      ]
+    }
+  ]
+}

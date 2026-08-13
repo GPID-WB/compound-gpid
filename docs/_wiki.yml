@@ -3,74 +3,82 @@
 schemaVersion: "compound-gpid-wiki-v1"
 folder: "docs"
 pages:
+  - id: "whats-new"
+    file: "whats-new.md"
+    title: "What's New"
+    ownership: "auto"
+    order: 1
+    sections:
+      - id: "release-notes"
+        managed: true
   - id: "installation"
     file: "installation.md"
     title: "Installation"
     ownership: "manual"
-    order: 1
+    order: 2
   - id: "workflow"
     file: "workflow.md"
     title: "Workflow"
     ownership: "manual"
-    order: 2
+    order: 3
   - id: "modular-guide"
     file: "modular-guide.md"
     title: "Modular Guide"
     ownership: "manual"
-    order: 3
+    order: 4
   - id: "reference"
     file: "reference.md"
     title: "Reference"
     ownership: "auto"
-    order: 4
+    order: 5
     sections:
-      - id: "shell-commands"
-        managed: true
       - id: "commands"
+        managed: true
+      - id: "research-commands"
         managed: true
   - id: "context-files"
     file: "context-files.md"
     title: "Context Files"
     ownership: "manual"
-    order: 5
+    order: 6
   - id: "model-guide"
     file: "model-guide.md"
     title: "Model Guide"
     ownership: "manual"
-    order: 6
+    order: 7
   - id: "team-brain-schema"
     file: "team-brain-schema.md"
     title: "Team Brain Schema"
     ownership: "manual"
-    order: 7
+    order: 8
   - id: "retrieval-backends"
     file: "retrieval-backends.md"
     title: "Retrieval Backends"
     ownership: "manual"
-    order: 8
+    order: 9
   - id: "snapshot-external-research"
     file: "snapshot-external-research.md"
     title: "Snapshot and External Research"
     ownership: "manual"
-    order: 9
+    order: 10
   - id: "versioning"
     file: "versioning.md"
     title: "Versioning"
     ownership: "manual"
-    order: 10
+    order: 11
   - id: "troubleshooting"
     file: "troubleshooting.md"
     title: "Troubleshooting"
     ownership: "manual"
-    order: 11
+    order: 12
   - id: "manual"
     file: "manual.md"
     title: "Manual"
     ownership: "manual"
-    order: 12
+    order: 13
   - id: "competitive-reviews"
     file: "competitive-reviews.md"
     title: "Competitive Reviews"
     ownership: "manual"
-    order: 13
-lastUpdated: "2026-08-10"
+    order: 14
+lastUpdated: "2026-08-13"

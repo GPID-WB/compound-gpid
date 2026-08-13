@@ -701,11 +701,10 @@ Describe "docs/_wiki.yml - reference.md is auto-ownership for command-reference 
         ($ymlContent -match 'managed:\s*true') | Should -Be $true
     }
 
-    It "reference.md entry registers shell-commands as a managed section" {
-        # The shell command table contains exact CLI names such as
-        # cg-token-audit. Keeping it outside markers makes wiki updates skip
-        # even when the detailed command section is managed.
-        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}shell-commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+    It "reference.md entry registers isolated technical and research command sections" {
+        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}research-commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+        ($ymlContent -match 'shell-commands') | Should -Be $false
     }
 }
 
@@ -723,8 +722,27 @@ Describe "docs/reference.md - contains cg:auto section markers for plugin-manage
         ($content -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
     }
 
-    It "docs/reference.md wraps the shell command table in a managed section" {
-        ($content -match '(?s)<!--\s*cg:auto:shell-commands\s*-->.*cg-token-audit.*<!--\s*cg:auto:end\s*-->') | Should -Be $true
+    It "docs/reference.md has non-overlapping technical and research command markers" {
+        ($content -match '<!--\s*cg:auto:commands\s*-->') | Should -Be $true
+        ($content -match '<!--\s*cg:auto:research-commands\s*-->') | Should -Be $true
+        ($content -match 'cg:auto:shell-commands') | Should -Be $false
+    }
+}
+
+Describe "docs/whats-new.md - generated release ownership" {
+    $manifestFile = Join-Path $repoRoot "docs\_wiki.yml"
+    $pageFile = Join-Path $repoRoot "docs\whats-new.md"
+    $manifest = if (Test-Path $manifestFile) { Get-Content $manifestFile -Raw -Encoding UTF8 } else { "" }
+    $page = if (Test-Path $pageFile) { Get-Content $pageFile -Raw -Encoding UTF8 } else { "" }
+
+    It "registers What's New as an auto-owned release-notes page" {
+        ($manifest -match '(?s)id:\s*[''"]{0,1}whats-new[''"]{0,1}.*?ownership:\s*[''"]{0,1}auto[''"]{0,1}.*?release-notes') | Should -Be $true
+    }
+
+    It "contains the generated release marker pair and deterministic empty state" {
+        ($page -match '<!--\s*cg:auto:release-notes\s*-->') | Should -Be $true
+        ($page -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
+        ($page -match 'No releases published yet') | Should -Be $true
     }
 }
 

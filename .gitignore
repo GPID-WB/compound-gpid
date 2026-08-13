@@ -77,6 +77,7 @@ tests/*.txt
 RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
+.docs-build-metadata.json
 
 # Generated artifact indexes are runtime-only; generated command/skill/agent trees stay tracked.
 .agents/model-mapping.codex.json
