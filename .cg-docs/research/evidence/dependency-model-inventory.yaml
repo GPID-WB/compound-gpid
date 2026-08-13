@@ -1,0 +1,67 @@
+# Created 2026-08-12.
+schema_version: research-evidence-inventory-v1
+entries:
+  - id: loguru
+    kind: package
+    distribution_source: https://pypi.org/project/loguru/0.7.3/
+    exact_version_or_revision: 0.7.3
+    sha256: 31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220b
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Structured local diagnostics without the standard logging module.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pydantic
+    kind: package
+    distribution_source: https://pypi.org/project/pydantic/2.13.4/
+    exact_version_or_revision: 2.13.4
+    sha256: 45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Strict typed schemas at the canonical state boundary.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pyyaml
+    kind: package
+    distribution_source: https://pypi.org/project/PyYAML/6.0.3/
+    exact_version_or_revision: 6.0.3
+    sha256: 652cb6edd41e718550aad172851962662ff2681490a8a711af6a4d288dd96824
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Readable deterministic YAML canonical artifacts.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pytest
+    kind: package
+    distribution_source: https://pypi.org/project/pytest/9.1.1/
+    exact_version_or_revision: 9.1.1
+    sha256: 37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Test-runner behavior is local; no runtime telemetry is enabled by this project.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Required development and verification test runner.
+    caveat_disclaimer: Development-only dependency; local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false

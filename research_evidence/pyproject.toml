@@ -1,0 +1,35 @@
+# Created 2026-08-12.
+[project]
+name = "compound-research-evidence"
+version = "0.1.0"
+description = "Local-first evidence and claim verification workbench for Compound Research"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "loguru>=0.7,<1.0",
+    "pydantic>=2.10,<3.0",
+    "PyYAML>=6.0,<7.0",
+]
+
+[project.scripts]
+research-evidence = "research_evidence.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0,<10.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27,<2.0"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/research_evidence"]

@@ -1,35 +1,22 @@
-﻿{
+{
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-07T20:55:00Z",
+  "updatedAt": "2026-08-12T00:00:00Z",
   "workflow": "/cg-work",
-  "status": "completed",
-  "branch": "refactor-modular-plugin",
-  "plan": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-07-modular-compound-gpid.md",
-  "currentPhase": 6,
+  "status": "active",
+  "branch": "cr-lit-review",
+  "plan": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md",
+  "currentPhase": 2,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "pytest scripts/tests/test_module_registry.py"},
-    {"id": "V2", "status": "passed", "artifact": "cg_validate_modules --check-ownership (exit 0)"},
-    {"id": "V3", "status": "passed", "artifact": "pytest -k namespace"},
-    {"id": "V4", "status": "passed", "artifact": "cg_validate_modules --check-dependencies"},
-    {"id": "V5", "status": "passed", "artifact": "pytest test_cg_characterization.py"},
-    {"id": "V6", "status": "passed", "artifact": "pytest test_cr_baseline.py"},
-    {"id": "V7", "status": "passed", "artifact": "pytest test_target_drift.py (16 passed)"},
-    {"id": "V8", "status": "passed", "artifact": "drift + characterization green"},
-    {"id": "V9", "status": "passed", "artifact": "cg_validate_modules --check-cross-suite"},
-    {"id": "V10", "status": "passed", "artifact": "work-reports/2026-08-07-mixed-cr-work-path-proof.md"},
-    {"id": "V11", "status": "passed", "artifact": "compatibility-matrix.md"},
-    {"id": "V12", "status": "passed", "artifact": "pytest test_context_budget.py"},
-    {"id": "V13", "status": "passed", "artifact": "pytest test_config_migration.py"},
-    {"id": "V14", "status": "passed", "artifact": "docs/modular-guide.md + test_target_documentation.py"}
+    {"id": "V1", "status": "passed", "artifact": "uv lock --project research_evidence --check; 14 focused pytest tests"},
+    {"id": "V2", "status": "passed", "artifact": "pytest test_thin_loop.py -q: 3 passed; stale-original rejection"},
+    {"id": "V3", "status": "passed", "artifact": "pytest schema/identity/compatibility fixtures -q: 10 passed"},
+    {"id": "V4", "status": "passed", "artifact": "pytest test_transactions.py -q: 4 passed; secure_fs publication"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md", "status": "completed"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-07-modular-compound-gpid.md", "status": "completed"},
-    {"kind": "cr-work-proof", "path": ".cg-docs/work-reports/2026-08-07-mixed-cr-work-path-proof.md", "status": "completed"},
-    {"kind": "compatibility-matrix", "path": ".cg-docs/compatibility-matrix.md", "status": "completed"},
-    {"kind": "modular-guide", "path": "docs/modular-guide.md", "status": "completed"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"}
   ],
-  "nextCommand": "/cg-review architecture"
+  "nextCommand": "/cg-work phase2"
 }

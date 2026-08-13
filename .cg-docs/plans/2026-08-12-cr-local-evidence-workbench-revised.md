@@ -9,9 +9,12 @@ predecessor-plan: ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md"
 language: "Python/Markdown"
 estimated-effort: large
 deviation-policy: autonomous
+execution-report: ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md"
 artifact-schema-version: 1
 revision: 2
 phases: 5
+completed-phases: [1]
+current-phase: 2
 tags: [compound-research, evidence, provenance, claims, document-ingestion, retrieval, verification, local-first, browser-ui, research-integrity, offline-runtime, dependency-governance]
 ---
 <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
