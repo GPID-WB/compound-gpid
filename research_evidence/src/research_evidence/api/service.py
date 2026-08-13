@@ -19,6 +19,7 @@ from ..schemas import (
     VerificationStatus,
 )
 from ..transactions import RevisionConflictError
+from ..security import OfflineNetworkGuard
 from ..verification.basic import verify_evidence_context
 from ..workbench import LocalEvidenceWorkbench
 
@@ -181,8 +182,9 @@ class EvidenceAPIService:
             "evidence-records.yaml",
             {"schema_version": "research-evidence-records-v1", "records": []},
         )
+        claim_matrix_name = self.workbench._claim_matrix_name()
         claim_payload = self._read_yaml(
-            "claim-evidence-matrix.yaml",
+            claim_matrix_name,
             {"schema_version": "research-evidence-matrix-v1", "claims": []},
         )
         history_payload = self._read_yaml(
@@ -219,7 +221,7 @@ class EvidenceAPIService:
                 event.model_dump(mode="json", exclude_none=True),
             ]
             transaction.stage_yaml("evidence-records.yaml", evidence_payload)
-            transaction.stage_yaml("claim-evidence-matrix.yaml", claim_payload)
+            transaction.stage_yaml(claim_matrix_name, claim_payload)
             transaction.stage_yaml("review-history.yaml", history_payload)
             result = transaction.commit()
         return {
@@ -252,7 +254,8 @@ class EvidenceAPIService:
             ``service.review_evidence("evidence-1", ReviewActionRequest(action="flag"))``.
         """
         evidence_payload = self._read_yaml("evidence-records.yaml", {"records": []})
-        claim_payload = self._read_yaml("claim-evidence-matrix.yaml", {"claims": []})
+        claim_matrix_name = self.workbench._claim_matrix_name()
+        claim_payload = self._read_yaml(claim_matrix_name, {"claims": []})
         history_payload = self._read_yaml(
             "review-history.yaml",
             {"schema_version": "research-evidence-history-v1", "events": []},
@@ -336,7 +339,7 @@ class EvidenceAPIService:
                 event.model_dump(mode="json", exclude_none=True),
             ]
             transaction.stage_yaml("evidence-records.yaml", evidence_payload)
-            transaction.stage_yaml("claim-evidence-matrix.yaml", claim_payload)
+            transaction.stage_yaml(claim_matrix_name, claim_payload)
             transaction.stage_yaml("review-history.yaml", history_payload)
             result = transaction.commit()
         return {
@@ -414,6 +417,23 @@ def create_app(settings: RuntimeSettings, *, bind_host: str = "127.0.0.1") -> Fa
         openapi_url=None,
     )
     app.state.service = service
+
+    @app.middleware("http")
+    async def offline_network_boundary(request: Request, call_next):
+        """Enforce the local-only socket/proxy boundary around each request.
+
+        Args:
+            request: Incoming local HTTP request.
+            call_next: FastAPI next-handler callable.
+
+        Returns:
+            The downstream response produced inside the offline guard.
+
+        Example:
+            Every ``/sources/search`` request executes inside this boundary.
+        """
+        with OfflineNetworkGuard():
+            return await call_next(request)
 
     @app.exception_handler(HTTPException)
     async def structured_http_error(_request: Request, exc: HTTPException) -> JSONResponse:

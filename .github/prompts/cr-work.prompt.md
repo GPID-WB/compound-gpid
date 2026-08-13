@@ -259,9 +259,10 @@ not create a second `/cr-evidence` launcher in v1.
 
 Before substantive claims or downstream analysis are produced:
 
-1. Run the local workbench phase command recorded in
-  `.cg-docs/active-state/current.json` and keep `pyproject.toml`/`uv.lock`
-  current.
+1. Use the `nextCommand` value in `.cg-docs/active-state/current.json` only to
+  resume the workflow (for example, `/cr-work phase5`). Run Python package
+  operations separately with `uv run --project research_evidence ...`, and
+  keep `pyproject.toml`/`uv.lock` current.
 2. Read only configured project-local resources. Internet search, URL fetching,
   external API model execution, hidden downloads, and external fallbacks are
   out of scope.

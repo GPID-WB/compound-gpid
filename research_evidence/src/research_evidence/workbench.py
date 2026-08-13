@@ -129,6 +129,12 @@ class LocalEvidenceWorkbench:
                 "source_units": [],
             },
         )
+        previous_version_ids = {
+            item.get("source_version_id")
+            for item in source_records.get("source_versions", [])
+            if item.get("resource_id") == parsed.resource.resource_id
+            and item.get("source_version_id") != parsed.source_version.source_version_id
+        }
         source_records["resources"] = self._merge_by_id(
             source_records.get("resources", []),
             [parsed.resource.model_dump(mode="json", exclude_none=True)],
@@ -144,6 +150,40 @@ class LocalEvidenceWorkbench:
             [unit.model_dump(mode="json", exclude_none=True) for unit in parsed.units],
             "source_unit_id",
         )
+        evidence_payload = self._read_yaml(
+            "evidence-records.yaml",
+            {"schema_version": "research-evidence-records-v1", "records": []},
+        )
+        claim_matrix_name = self._claim_matrix_name()
+        claim_payload = self._read_yaml(
+            claim_matrix_name,
+            {"schema_version": "research-evidence-matrix-v1", "claims": []},
+        )
+        analysis_payload = self._read_yaml(
+            "analysis-links.yaml",
+            {"schema_version": "research-evidence-analysis-links-v1", "analysis_links": []},
+        )
+        stale_evidence_ids: set[str] = set()
+        if previous_version_ids:
+            for record in evidence_payload.get("records", []):
+                if record.get("source_version_id") in previous_version_ids:
+                    record.update(
+                        {
+                            "stale": True,
+                            "review_state": "stale",
+                            "verification_status": "stale",
+                            "original_authority_verified": False,
+                        }
+                    )
+                    stale_evidence_ids.add(str(record.get("evidence_id")))
+            stale_claim_ids: set[str] = set()
+            for claim in claim_payload.get("claims", []):
+                if stale_evidence_ids.intersection(claim.get("evidence_ids", [])):
+                    claim.update({"stale": True, "review_state": "stale"})
+                    stale_claim_ids.add(str(claim.get("claim_id")))
+            for link in analysis_payload.get("analysis_links", []):
+                if link.get("claim_id") in stale_claim_ids:
+                    link["active"] = False
         with self.store.transaction(
             expected_revision=(
                 self.store.current_revision()
@@ -154,6 +194,14 @@ class LocalEvidenceWorkbench:
             action="scan-markdown",
         ) as transaction:
             transaction.stage_yaml("source-records.yaml", source_records)
+            if stale_evidence_ids:
+                transaction.stage_yaml("evidence-records.yaml", evidence_payload)
+                transaction.stage_yaml(claim_matrix_name, claim_payload)
+                transaction.stage_yaml("analysis-links.yaml", analysis_payload)
+                transaction.mark_derived_stale(
+                    "index/lexical.sqlite",
+                    "source rescan invalidated downstream evidence",
+                )
             transaction.commit()
         self.index.upsert(parsed.units)
         return parsed
@@ -219,8 +267,9 @@ class LocalEvidenceWorkbench:
             "evidence-records.yaml",
             {"schema_version": "research-evidence-records-v1", "records": []},
         )
+        claim_matrix_name = self._claim_matrix_name()
         claim_payload = self._read_yaml(
-            "claim-evidence-matrix.yaml",
+            claim_matrix_name,
             {"schema_version": "research-evidence-matrix-v1", "claims": []},
         )
         history_payload = self._read_yaml(
@@ -258,7 +307,7 @@ class LocalEvidenceWorkbench:
                 event.model_dump(mode="json", exclude_none=True),
             ]
             transaction.stage_yaml("evidence-records.yaml", evidence_payload)
-            transaction.stage_yaml("claim-evidence-matrix.yaml", claim_payload)
+            transaction.stage_yaml(claim_matrix_name, claim_payload)
             transaction.stage_yaml("review-history.yaml", history_payload)
             result = transaction.commit()
         return DecisionResult(claim, evidence, result.operation_id, result.revision)
@@ -276,7 +325,7 @@ class LocalEvidenceWorkbench:
             ``workbench.load_approved_decisions()`` supports restart recovery.
         """
         evidence_payload = self._read_yaml("evidence-records.yaml", {"records": []})
-        claim_payload = self._read_yaml("claim-evidence-matrix.yaml", {"claims": []})
+        claim_payload = self._read_yaml(self._claim_matrix_name(), {"claims": []})
         evidence_records = {
             record.evidence_id: record
             for record in (
@@ -309,6 +358,33 @@ class LocalEvidenceWorkbench:
             ``workbench.close()`` ends a local session cleanly.
         """
         self.index.close()
+
+    def _claim_matrix_name(self) -> str:
+        """Choose a separate workbench matrix when an existing CR matrix is present.
+
+        Args:
+            None.
+
+        Returns:
+            The canonical workbench matrix filename.
+
+        Example:
+            ``workbench._claim_matrix_name()`` preserves legacy CR rows.
+        """
+        standard = "claim-evidence-matrix.yaml"
+        path = self.settings.evidence_root / standard
+        if not path.exists():
+            return standard
+        payload = self._read_yaml(standard, {})
+        claims = payload.get("claims", [])
+        if any(
+            isinstance(claim, dict)
+            and "claim_id" not in claim
+            and ("id" in claim or "status" in claim or "evidence" in claim)
+            for claim in claims
+        ):
+            return "workbench-claim-evidence-matrix.yaml"
+        return standard
 
     def _load_authoritative_unit(self, indexed_unit: Any) -> Any:
         """Re-read the original resource and reject stale indexed source text.

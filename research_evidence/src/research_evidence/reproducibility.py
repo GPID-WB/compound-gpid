@@ -2,9 +2,16 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import importlib.metadata
 import json
 from pathlib import Path
+import platform
+import sqlite3
+import sys
+from tempfile import TemporaryDirectory
 from typing import Any
+
+import yaml
 
 from .identity import sha256_file
 from .retrieval.lexical import LexicalIndex
@@ -24,13 +31,15 @@ def _run_index(
 ) -> tuple[list[str], dict[str, list[str]]]:
     """Build one derived index and capture IDs/rankings without raw text."""
     index = LexicalIndex(path)
-    index.rebuild(units)
-    source_ids = [unit.source_unit_id for unit in units]
-    rankings = {
-        query: [unit.source_unit_id for unit in index.search(query)]
-        for query in queries
-    }
-    index.close()
+    try:
+        index.rebuild(units)
+        source_ids = [unit.source_unit_id for unit in units]
+        rankings = {
+            query: [unit.source_unit_id for unit in index.search(query, limit=len(units))]
+            for query in queries
+        }
+    finally:
+        index.close()
     return source_ids, rankings
 
 
@@ -76,19 +85,52 @@ def build_reproducibility_manifest(
     if not lockfile.is_file():
         raise ValueError(f"Lockfile is missing: {lockfile}")
     output_dir.mkdir(parents=True, exist_ok=True)
-    source_ids_a, rankings_a = _run_index(units, queries, output_dir / "run-a.sqlite")
-    source_ids_b, rankings_b = _run_index(units, queries, output_dir / "run-b.sqlite")
-    yaml_a = canonical_yaml([unit.model_dump(mode="json", exclude_none=True) for unit in units])
-    yaml_b = canonical_yaml([unit.model_dump(mode="json", exclude_none=True) for unit in units])
+    yaml_a = canonical_yaml(
+        [unit.model_dump(mode="json", exclude_none=True) for unit in units]
+    )
+    round_tripped = [
+        SourceUnit.model_validate(item)
+        for item in (yaml.safe_load(yaml_a) or [])
+    ]
+    yaml_b = canonical_yaml(
+        [unit.model_dump(mode="json", exclude_none=True) for unit in round_tripped]
+    )
+    with TemporaryDirectory(dir=output_dir) as run_dir:
+        run_root = Path(run_dir)
+        source_ids_a, rankings_a = _run_index(
+            units, queries, run_root / "run-a.sqlite"
+        )
+        source_ids_b, rankings_b = _run_index(
+            round_tripped, queries, run_root / "run-b.sqlite"
+        )
+        transaction_recovery_checked = _check_transaction_recovery(run_root)
     source_ids_match = source_ids_a == source_ids_b
     rankings_match = rankings_a == rankings_b
     canonical_yaml_match = yaml_a == yaml_b
-    transaction_recovery_checked = _check_transaction_recovery(output_dir)
+    input_hash = _hash_bytes(yaml_a.encode("utf-8"))
+    query_hash = _hash_bytes(
+        json.dumps(queries, ensure_ascii=True, sort_keys=True).encode("utf-8")
+    )
+    pyproject = lockfile.parent / "pyproject.toml"
+    try:
+        package_version = importlib.metadata.version("compound-research-evidence")
+    except importlib.metadata.PackageNotFoundError:
+        package_version = "editable-unknown"
     return {
         "schema_version": "research-evidence-reproducibility-v1",
         "profile": "lexical-baseline",
         "corpus": {"source_units": len(units)},
         "lockfile_sha256": sha256_file(lockfile),
+        "pyproject_sha256": sha256_file(pyproject) if pyproject.is_file() else None,
+        "input_hash": input_hash,
+        "query_hash": query_hash,
+        "query_count": len(queries),
+        "environment": {
+            "python": sys.version.split()[0],
+            "os": platform.platform(),
+            "sqlite": sqlite3.sqlite_version,
+            "package_version": package_version,
+        },
         "source_ids_hash": _hash_bytes(json.dumps(source_ids_a, sort_keys=True).encode("utf-8")),
         "rankings_hash": _hash_bytes(json.dumps(rankings_a, sort_keys=True).encode("utf-8")),
         "canonical_yaml_sha256": _hash_bytes(yaml_a.encode("utf-8")),

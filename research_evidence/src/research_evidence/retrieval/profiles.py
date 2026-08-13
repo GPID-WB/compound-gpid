@@ -2,14 +2,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 from typing import Callable, Literal, Mapping, Optional
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from ..inventory import ActivationStatus, EnterpriseReviewStatus
-from ..security import validate_model_loader_kwargs
+from ..errors import InventoryValidationError
+from ..inventory import (
+    ActivationStatus,
+    DependencyKind,
+    DependencyModelInventory,
+    EnterpriseReviewStatus,
+    load_inventory,
+)
+from ..security import OfflineNetworkGuard, validate_model_loader_kwargs
 
 
 class ProfileUnavailableError(RuntimeError):
@@ -33,6 +41,7 @@ class RetrievalProfile(BaseModel):
         id: Stable profile identifier.
         kind: Dense, sparse, or reranker profile kind.
         model_id: Model identifier supplied to a local adapter.
+        inventory_entry_id: Canonical model inventory entry used for activation.
         model_revision: Exact model revision or commit.
         package_version: Exact local runtime package version.
         distribution_source: Setup-time source, never a runtime endpoint.
@@ -66,10 +75,12 @@ class RetrievalProfile(BaseModel):
     id: str = Field(min_length=1)
     kind: Literal["dense", "sparse", "reranker"]
     model_id: str = Field(min_length=1)
+    inventory_entry_id: str = Field(min_length=1)
     model_revision: str = Field(min_length=1)
     package_version: str = Field(min_length=1)
     distribution_source: str = Field(min_length=1)
     model_cache_path: Optional[str] = None
+    cache_manifest_name: str = "model-manifest.json"
     sha256: Optional[str] = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     license_or_access_terms: str = Field(min_length=1)
     restriction: str = ""
@@ -109,6 +120,13 @@ class RetrievalProfile(BaseModel):
             parsed = urlsplit(self.model_cache_path)
             if parsed.scheme or parsed.netloc:
                 raise ValueError("retrieval model cache must be a local path")
+        manifest_path = Path(self.cache_manifest_name)
+        if (
+            manifest_path.is_absolute()
+            or len(manifest_path.parts) != 1
+            or "\\" in self.cache_manifest_name
+        ):
+            raise ValueError("retrieval cache manifest must be a local filename")
         restricted = bool(self.restriction.strip()) or self.enterprise_review_status in {
             EnterpriseReviewStatus.RESTRICTED,
             EnterpriseReviewStatus.BLOCKED,
@@ -162,12 +180,19 @@ class RetrievalProfileRegistry(BaseModel):
             raise ValueError("Retrieval profile IDs must be unique")
         return self
 
-    def selectable(self, profile_id: str, project_root: Path) -> RetrievalProfile:
+    def selectable(
+        self,
+        profile_id: str,
+        project_root: Path,
+        inventory: DependencyModelInventory | None = None,
+    ) -> RetrievalProfile:
         """Return an active profile with an existing project-local model cache.
 
         Args:
             profile_id: Stable profile identifier.
             project_root: Project root containing the verified model cache.
+            inventory: Optional validated inventory; the canonical project inventory
+                is loaded when omitted.
 
         Returns:
             An enabled local or caveated profile.
@@ -192,11 +217,60 @@ class RetrievalProfileRegistry(BaseModel):
         if not profile.model_cache_path:
             raise ProfileUnavailableError(f"retrieval profile {profile_id!r} has no model cache")
         root = Path(project_root).resolve()
+        if inventory is None:
+            inventory_path = root / ".cg-docs" / "research" / "evidence" / "dependency-model-inventory.yaml"
+            try:
+                inventory = load_inventory(inventory_path)
+            except (InventoryValidationError, OSError) as error:
+                raise ProfileUnavailableError(
+                    f"retrieval profile {profile_id!r} canonical inventory is unavailable"
+                ) from error
+        try:
+            inventory_entry = inventory.selectable(profile.inventory_entry_id)
+        except InventoryValidationError as error:
+            raise ProfileUnavailableError(
+                f"retrieval profile {profile_id!r} inventory entry is not selectable"
+            ) from error
+        if inventory_entry.kind != DependencyKind.MODEL:
+            raise ProfileUnavailableError(
+                f"retrieval profile {profile_id!r} inventory entry is not a model"
+            )
+        if (
+            inventory_entry.distribution_source != profile.distribution_source
+            or inventory_entry.exact_version_or_revision != profile.model_revision
+            or inventory_entry.sha256 is None
+            or profile.sha256 is None
+            or inventory_entry.sha256 != profile.sha256
+        ):
+            raise ProfileUnavailableError(
+                f"retrieval profile {profile_id!r} does not match its inventory entry"
+            )
         cache = (root / profile.model_cache_path).resolve()
         if not cache.is_relative_to(root) or not cache.is_dir():
             raise ProfileUnavailableError(
                 f"retrieval profile {profile_id!r} local model cache is unavailable"
             )
+        if profile.sha256:
+            manifest_path = cache / profile.cache_manifest_name
+            if not manifest_path.is_file():
+                raise ProfileUnavailableError(
+                    f"retrieval profile {profile_id!r} cache manifest is unavailable"
+                )
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as error:
+                raise ProfileUnavailableError(
+                    f"retrieval profile {profile_id!r} cache manifest is invalid"
+                ) from error
+            if (
+                manifest.get("inventory_entry_id") != profile.inventory_entry_id
+                or manifest.get("model_id") != profile.model_id
+                or manifest.get("revision") != profile.model_revision
+                or manifest.get("sha256") != profile.sha256
+            ):
+                raise ProfileUnavailableError(
+                    f"retrieval profile {profile_id!r} cache manifest does not match"
+                )
         return profile
 
 
@@ -247,6 +321,7 @@ def load_local_profile(
     profile_id: str,
     project_root: Path,
     loader: Callable[..., object],
+    inventory: DependencyModelInventory | None = None,
 ) -> object:
     """Load an enabled model through a strictly local-cache-only adapter.
 
@@ -255,6 +330,7 @@ def load_local_profile(
         profile_id: Profile to load.
         project_root: Project root containing the verified cache.
         loader: Injected local adapter callable.
+        inventory: Optional validated inventory used for activation checks.
 
     Returns:
         Adapter-loaded model object.
@@ -265,7 +341,7 @@ def load_local_profile(
     Example:
         ``load_local_profile(registry, "dense", root, loader)``.
     """
-    profile = registry.selectable(profile_id, project_root)
+    profile = registry.selectable(profile_id, project_root, inventory)
     cache = (Path(project_root).resolve() / profile.model_cache_path).resolve()
     loader_kwargs = validate_model_loader_kwargs(
         {
@@ -275,7 +351,8 @@ def load_local_profile(
             "local_files_only": True,
         }
     )
-    return loader(**loader_kwargs)
+    with OfflineNetworkGuard():
+        return loader(**loader_kwargs)
 
 
 def evaluate_profile_budget(

@@ -1,6 +1,5 @@
 {
   "created": "2026-08-13",
-  "schema_version": "research-evidence-benchmark-report-v1",
   "profile": "lexical-baseline",
   "raw_text": false,
   "results": [
@@ -10,20 +9,24 @@
         "source_units": 2500
       },
       "environment": {
-        "cpu": "arm",
+        "cpu": "unknown",
         "cpu_count": 18,
-        "memory_peak_bytes": 46235648,
-        "os": "macOS-26.6.1-arm64-arm-64bit",
+        "memory_peak_bytes": 46071808,
+        "os": "macOS-26.6.1-arm64-64bit",
         "package_version": "0.1.0",
         "python": "3.11.15"
       },
       "metrics": {
-        "incremental_update_seconds": 0.0005639580049319193,
-        "p95_query_ms": 2.189040998928249,
-        "peak_memory_bytes": 76213,
-        "rebuild_seconds": 0.49022604199126363
+        "incremental_update_seconds": 0.00047266698675230145,
+        "p95_query_ms": 1.6997920029098168,
+        "peak_memory_bytes": 76754,
+        "rebuild_seconds": 0.3359604169963859,
+        "rss_peak_bytes": 46039040
       },
       "passed": true,
+      "profile": "lexical-baseline",
+      "raw_text": false,
+      "schema_version": "research-evidence-benchmark-v1",
       "thresholds": {
         "incremental_update_seconds": 10.0,
         "memory_bytes": 1000000000,
@@ -37,20 +40,24 @@
         "source_units": 20000
       },
       "environment": {
-        "cpu": "arm",
+        "cpu": "unknown",
         "cpu_count": 18,
-        "memory_peak_bytes": 90177536,
-        "os": "macOS-26.6.1-arm64-arm-64bit",
+        "memory_peak_bytes": 90128384,
+        "os": "macOS-26.6.1-arm64-64bit",
         "package_version": "0.1.0",
         "python": "3.11.15"
       },
       "metrics": {
-        "incremental_update_seconds": 0.0032015000033425167,
-        "p95_query_ms": 15.238167005009018,
-        "peak_memory_bytes": 65962,
-        "rebuild_seconds": 25.523924042005092
+        "incremental_update_seconds": 0.002544125003623776,
+        "p95_query_ms": 10.460459001478739,
+        "peak_memory_bytes": 66215,
+        "rebuild_seconds": 17.30992754100589,
+        "rss_peak_bytes": 90128384
       },
       "passed": true,
+      "profile": "lexical-baseline",
+      "raw_text": false,
+      "schema_version": "research-evidence-benchmark-v1",
       "thresholds": {
         "incremental_update_seconds": 10.0,
         "memory_bytes": 1000000000,
@@ -58,5 +65,6 @@
         "rebuild_seconds": 60.0
       }
     }
-  ]
+  ],
+  "schema_version": "research-evidence-benchmark-report-v1"
 }

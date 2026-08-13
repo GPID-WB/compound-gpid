@@ -224,7 +224,7 @@
       "path": ".agents/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "8144b11537fe2b1497780fc48e03e01e7095a1babadbb2577b2785d8a90aaaa4",
+      "sha256": "a9c634ba6116e3e17f9ae89df6b84fecbe2476077191e5788c23c0e112487ff5",
       "executable": false
     },
     {

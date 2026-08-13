@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import socket
 
 import pytest
 
 from research_evidence.api.service import create_app
 from research_evidence.config import RuntimeSettings
+from research_evidence.errors import NetworkAccessDenied
 
 
 def _client(tmp_path: Path):
@@ -110,3 +112,20 @@ def test_recovery_endpoint_is_explicit(tmp_path: Path) -> None:
     recovered = client.post("/recovery")
     assert recovered.status_code == 200
     assert recovered.json()["recovered"] == []
+
+
+def test_api_middleware_enforces_offline_socket_boundary(tmp_path: Path) -> None:
+    """Exercise the production request boundary with a remote socket probe."""
+    client = _client(tmp_path)
+
+    @client.app.get("/security-probe")
+    def security_probe() -> dict[str, bool]:
+        """Attempt a remote connection inside the application middleware."""
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                probe.connect(("203.0.113.1", 9))
+        except NetworkAccessDenied:
+            return {"blocked": True}
+        return {"blocked": False}
+
+    assert client.get("/security-probe").json() == {"blocked": True}

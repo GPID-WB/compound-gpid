@@ -420,7 +420,7 @@
       "path": ".claude/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "95ada52233dc940953cc7b11b5dd0f5dcc0a3e08b31c56c73ccc374e2e541635",
+      "sha256": "5f43c2e19ab30e7450f738a4458282620e70aea8dd4f9d200b45828e6de393c6",
       "executable": false
     },
     {

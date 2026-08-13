@@ -78,6 +78,14 @@ def decide_confidence(
             True,
             False,
         )
+    if source_hash_matches is not True:
+        return ConfidenceDecision(
+            VerificationStatus.FLAGGED_MEDIUM,
+            "medium",
+            "source-hash-unavailable",
+            True,
+            False,
+        )
     if legacy_locator:
         return ConfidenceDecision(
             VerificationStatus.REJECTED,

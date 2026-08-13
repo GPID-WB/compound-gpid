@@ -2,9 +2,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+import socket
 
 import pytest
 
+from research_evidence.errors import NetworkAccessDenied
+from research_evidence.inventory import DependencyInventoryEntry, DependencyModelInventory
 from research_evidence.retrieval.dense import rank_dense
 from research_evidence.retrieval.profiles import (
     ProfileUnavailableError,
@@ -25,6 +29,7 @@ def _profile(**overrides: object) -> RetrievalProfile:
         "id": "local-dense-candidate",
         "kind": "dense",
         "model_id": "local/example-model",
+        "inventory_entry_id": "optional-dense-retrieval-candidate",
         "model_revision": "rev-1",
         "package_version": "mock-runtime-1.0",
         "distribution_source": "https://example.org/model",
@@ -48,6 +53,31 @@ def _profile(**overrides: object) -> RetrievalProfile:
     }
     values.update(overrides)
     return RetrievalProfile.model_validate(values)
+
+
+def _inventory() -> DependencyModelInventory:
+    """Build an enabled model inventory fixture for activation tests."""
+    return DependencyModelInventory(
+        entries=[
+            DependencyInventoryEntry(
+                id="optional-dense-retrieval-candidate",
+                kind="model",
+                distribution_source="https://example.org/model",
+                exact_version_or_revision="rev-1",
+                sha256="a" * 64,
+                license_or_access_terms="Apache-2.0",
+                setup_network_required=True,
+                runtime_network_required=False,
+                telemetry_notes="No telemetry known.",
+                platform_support=["macos"],
+                enterprise_review_status="unreviewed",
+                selection_rationale="Test-only local model.",
+                caveat_disclaimer="Test-only activation.",
+                activation_status="enabled-local",
+                activation_acknowledged=True,
+            )
+        ]
+    )
 
 
 def _units() -> list[SourceUnit]:
@@ -74,18 +104,35 @@ def test_candidate_profile_is_not_selectable() -> None:
         registry.selectable("local-dense-candidate", Path("."))
 
 
+def test_cache_manifest_name_cannot_escape_cache() -> None:
+    """Reject profile metadata that could read a manifest outside its cache."""
+    with pytest.raises(ValueError, match="manifest"):
+        _profile(cache_manifest_name="../manifest.json")
+
+
 def test_enabled_profile_requires_existing_local_cache(tmp_path: Path) -> None:
     """Fail clearly when a selected local model cache is absent."""
     profile = _profile(activation_status="enabled-local")
     registry = RetrievalProfileRegistry(entries=[profile])
     with pytest.raises(ProfileUnavailableError, match="cache"):
-        registry.selectable("local-dense-candidate", tmp_path)
+        registry.selectable("local-dense-candidate", tmp_path, _inventory())
 
 
 def test_local_loader_forces_cache_only_and_never_downloads(tmp_path: Path) -> None:
     """Pass local cache settings to an adapter without exposing network fallback."""
     cache = tmp_path / "models" / "example"
     cache.mkdir(parents=True)
+    (cache / "model-manifest.json").write_text(
+        json.dumps(
+            {
+                "inventory_entry_id": "optional-dense-retrieval-candidate",
+                "model_id": "local/example-model",
+                "revision": "rev-1",
+                "sha256": "a" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
     profile = _profile(activation_status="enabled-local")
     registry = RetrievalProfileRegistry(entries=[profile])
     calls: list[dict[str, object]] = []
@@ -95,12 +142,76 @@ def test_local_loader_forces_cache_only_and_never_downloads(tmp_path: Path) -> N
         calls.append(kwargs)
         return object()
 
-    loaded = load_local_profile(registry, "local-dense-candidate", tmp_path, loader)
+    loaded = load_local_profile(
+        registry,
+        "local-dense-candidate",
+        tmp_path,
+        loader,
+        _inventory(),
+    )
 
     assert loaded is not None
     assert calls[0]["local_files_only"] is True
     assert calls[0]["revision"] == "rev-1"
     assert "download" not in calls[0]
+
+
+def test_cache_manifest_identity_is_required(tmp_path: Path) -> None:
+    """Reject a cache whose declared model identity differs from the profile."""
+    cache = tmp_path / "models" / "example"
+    cache.mkdir(parents=True)
+    (cache / "model-manifest.json").write_text(
+        json.dumps(
+            {
+                "inventory_entry_id": "optional-dense-retrieval-candidate",
+                "model_id": "wrong/model",
+                "revision": "rev-1",
+                "sha256": "a" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
+    registry = RetrievalProfileRegistry(
+        entries=[_profile(activation_status="enabled-local")]
+    )
+    with pytest.raises(ProfileUnavailableError, match="manifest"):
+        registry.selectable("local-dense-candidate", tmp_path, _inventory())
+
+
+def test_local_loader_adapter_runs_inside_offline_guard(tmp_path: Path) -> None:
+    """Block a loader adapter that attempts a remote socket connection."""
+    cache = tmp_path / "models" / "example"
+    cache.mkdir(parents=True)
+    (cache / "model-manifest.json").write_text(
+        json.dumps(
+            {
+                "inventory_entry_id": "optional-dense-retrieval-candidate",
+                "model_id": "local/example-model",
+                "revision": "rev-1",
+                "sha256": "a" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
+    registry = RetrievalProfileRegistry(
+        entries=[_profile(activation_status="enabled-local")]
+    )
+
+    def loader(**kwargs: object) -> object:
+        """Attempt a connection to prove the production guard is active."""
+        del kwargs
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+            probe.connect(("203.0.113.1", 9))
+        return object()
+
+    with pytest.raises(NetworkAccessDenied):
+        load_local_profile(
+            registry,
+            "local-dense-candidate",
+            tmp_path,
+            loader,
+            _inventory(),
+        )
 
 
 def test_profile_budget_failure_keeps_profile_candidate() -> None:

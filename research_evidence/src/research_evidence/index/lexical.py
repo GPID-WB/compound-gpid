@@ -83,10 +83,11 @@ class LexicalIndex:
         Example:
             ``index.rebuild(parsed.units)`` creates a clean lexical baseline.
         """
-        self.connection.execute("DELETE FROM source_units")
-        self.connection.execute("DELETE FROM source_units_fts")
-        self._insert_units(units)
-        self.connection.commit()
+        with self._lock:
+            self.connection.execute("DELETE FROM source_units")
+            self.connection.execute("DELETE FROM source_units_fts")
+            self._insert_units(units)
+            self.connection.commit()
 
     def upsert(self, units: list[SourceUnit]) -> None:
         """Insert or replace only the supplied source units.
@@ -100,8 +101,9 @@ class LexicalIndex:
         Example:
             ``index.upsert(changed_units)`` updates an incremental slice.
         """
-        self._insert_units(units)
-        self.connection.commit()
+        with self._lock:
+            self._insert_units(units)
+            self.connection.commit()
 
     def replace_units(self, old_source_unit_ids: list[str], units: list[SourceUnit]) -> None:
         """Remove affected derived units and insert their replacements atomically.
@@ -116,9 +118,10 @@ class LexicalIndex:
         Example:
             ``index.replace_units([old_id], [new_unit])`` updates one resource.
         """
-        self._remove_ids(old_source_unit_ids)
-        self._insert_units(units)
-        self.connection.commit()
+        with self._lock:
+            self._remove_ids(old_source_unit_ids)
+            self._insert_units(units)
+            self.connection.commit()
 
     def remove(self, source_unit_ids: list[str]) -> None:
         """Remove deleted or stale source units from the derived index.
@@ -132,8 +135,9 @@ class LexicalIndex:
         Example:
             ``index.remove([deleted_unit_id])`` removes one deleted unit.
         """
-        self._remove_ids(source_unit_ids)
-        self.connection.commit()
+        with self._lock:
+            self._remove_ids(source_unit_ids)
+            self.connection.commit()
 
     def search(self, query: str, limit: int = 20) -> list[SourceUnit]:
         """Search text, headings, and typed metadata with stable tie-breaking.
@@ -151,27 +155,28 @@ class LexicalIndex:
         Example:
             ``index.search("weighted poverty")`` returns matching units.
         """
-        if limit <= 0:
-            raise ValueError("Search limit must be positive.")
-        tokens = _TOKEN_PATTERN.findall(query)
-        if not tokens:
-            return []
-        match_query = " AND ".join('"' + token.replace('"', '""') + '"' for token in tokens)
-        rows = self.connection.execute(
-            """
-            SELECT source_unit_id
-            FROM source_units_fts
-            WHERE source_units_fts MATCH ?
-            ORDER BY bm25(source_units_fts) ASC, source_unit_id ASC
-            LIMIT ?
-            """,
-            (match_query, limit),
-        ).fetchall()
-        return [
-            unit
-            for (source_unit_id,) in rows
-            if (unit := self.get(source_unit_id)) is not None
-        ]
+        with self._lock:
+            if limit <= 0:
+                raise ValueError("Search limit must be positive.")
+            tokens = _TOKEN_PATTERN.findall(query)
+            if not tokens:
+                return []
+            match_query = " AND ".join('"' + token.replace('"', '""') + '"' for token in tokens)
+            rows = self.connection.execute(
+                """
+                SELECT source_unit_id
+                FROM source_units_fts
+                WHERE source_units_fts MATCH ?
+                ORDER BY bm25(source_units_fts) ASC, source_unit_id ASC
+                LIMIT ?
+                """,
+                (match_query, limit),
+            ).fetchall()
+            return [
+                unit
+                for (source_unit_id,) in rows
+                if (unit := self.get(source_unit_id)) is not None
+            ]
 
     def get(self, source_unit_id: str) -> Optional[SourceUnit]:
         """Return one indexed source unit by ID.
@@ -185,14 +190,15 @@ class LexicalIndex:
         Example:
             ``index.get("source-unit:...")`` retrieves source context.
         """
-        row = self.connection.execute(
-            """
-            SELECT source_version_id, locator_json, text, heading_path,
-                   unit_type, review_required, parser_metadata_json
-            FROM source_units WHERE source_unit_id = ?
-            """,
-            (source_unit_id,),
-        ).fetchone()
+        with self._lock:
+            row = self.connection.execute(
+                """
+                SELECT source_version_id, locator_json, text, heading_path,
+                       unit_type, review_required, parser_metadata_json
+                FROM source_units WHERE source_unit_id = ?
+                """,
+                (source_unit_id,),
+            ).fetchone()
         if row is None:
             return None
         (
@@ -230,13 +236,14 @@ class LexicalIndex:
         Example:
             ``index.metadata(unit_id)["review_required"]`` gates review display.
         """
-        row = self.connection.execute(
-            """
-            SELECT source_version_id, unit_type, review_required, parser_metadata_json
-            FROM source_units WHERE source_unit_id = ?
-            """,
-            (source_unit_id,),
-        ).fetchone()
+        with self._lock:
+            row = self.connection.execute(
+                """
+                SELECT source_version_id, unit_type, review_required, parser_metadata_json
+                FROM source_units WHERE source_unit_id = ?
+                """,
+                (source_unit_id,),
+            ).fetchone()
         if row is None:
             raise KeyError(f"Source unit is not indexed: {source_unit_id}")
         return {
@@ -258,7 +265,8 @@ class LexicalIndex:
         Example:
             ``index.manifest()["raw_text_logging"]`` is always ``False``.
         """
-        count = self.connection.execute("SELECT COUNT(*) FROM source_units").fetchone()[0]
+        with self._lock:
+            count = self.connection.execute("SELECT COUNT(*) FROM source_units").fetchone()[0]
         return {
             "schema_version": _INDEX_SCHEMA,
             "profile": "lexical-baseline",
@@ -278,7 +286,8 @@ class LexicalIndex:
         Example:
             ``index.close()`` releases the file handle after a run.
         """
-        self.connection.close()
+        with self._lock:
+            self.connection.close()
 
     def _ensure_schema(self) -> None:
         """Create the current derived schema or migrate an older Phase 1 schema."""

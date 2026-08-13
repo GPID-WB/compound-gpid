@@ -1,7 +1,7 @@
 ---
 created: "2026-08-12"
 plan: ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md"
-status: active
+status: completed
 ---
 
 # Execution Report: CR Local Evidence Workbench (Phase 1)
@@ -58,9 +58,9 @@ None recorded.
 	and two unrelated existing release-fixture tests failed. The package-only
   Phase 1 suite passed 39/39 and is the applicable phase gate.
 
-## Final Status
+## Superseded Phase 1 Status
 
-`active` -- Phase 1 complete; ready for Phase 2.
+`superseded` -- Phase 1 complete; later phases are recorded below.
 
 ## Phase 2 Run/Resume (2026-08-12)
 
@@ -117,9 +117,9 @@ None recorded.
 | C8 | New Python code has required docstrings | passed | Documentation AST gate |
 | C9 | Generated state is path-safe and uncommitted by default | passed | Resource path/symlink tests and package ignore rules |
 
-### Phase 2 Status
+### Superseded Phase 2 Status
 
-`active` -- Phase 2 complete; ready for Phase 3.
+`superseded` -- Phase 2 complete; later phases are recorded below.
 
 ## Phase 3 Run/Resume (2026-08-12)
 
@@ -149,11 +149,11 @@ None recorded.
 
 | Corpus | Documents | Source Units | Rebuild | Query p95 | Status |
 |--------|-----------|--------------|---------|-----------|--------|
-| small | 25 | 2,500 | 0.49 s | 2.19 ms | passed |
-| medium | 100 | 20,000 | 25.52 s | 15.24 ms | passed |
+| small | 25 | 2,500 | 0.34 s | 1.70 ms | passed |
+| medium | 100 | 20,000 | 17.31 s | 10.46 ms | passed |
 
 Benchmark artifact: `research_evidence/benchmarks/lexical-baseline-2026-08-13.json`.
-It records environment, thresholds, update/memory metrics, and `raw_text: false`.
+It records environment, thresholds, update/RSS/memory metrics, and `raw_text: false`.
 
 ### Phase 3 Constraints Check
 
@@ -165,9 +165,9 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 | C8 | New Python code has required docstrings | passed | Documentation AST gate |
 | C9 | Derived indexes remain rebuildable and path-safe | passed | Corrupt-index/replacement tests |
 
-### Phase 3 Status
+### Superseded Phase 3 Status
 
-`active` -- Phase 3 complete; ready for Phase 4.
+`superseded` -- Phase 3 complete; later phases are recorded below.
 
 ## Phase 4 Run/Resume (2026-08-13)
 
@@ -192,9 +192,9 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 | ID | Step | Evidence | Status | Artifact |
 |----|------|----------|--------|----------|
 | V10 | 14 | CR workflow preserves P0 enforcement, quarantines legacy external rows, and leaves CG-only projects unaffected | passed | 4 CR integration tests; 169 CR/module/target tests; regenerated native targets |
-| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | passed | 5 executable security tests; 101-test package suite; browser no-external-request checks |
+| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | passed | 6 executable security tests; 112-test package suite; browser no-external-request checks |
 | V12 | 16 | Fixed-corpus performance and reproducibility thresholds are met or visible candidate-profile failures are recorded | passed | Existing small/medium benchmark report plus `reproducibility-2026-08-13.json`; lockfile hash and transaction recovery match |
-| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | passed | 101 Python tests; 185 target/module/drift tests including 2 isolated committed-fixture drift checks; module validator; canonical Pester runner passed with 0 failures and no filtered files |
+| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | passed | 112 package Python tests; clean target/module/drift checks; module validator; canonical Pester runner passed with 0 failures and no filtered files; two unrelated release-fixture assertions documented below |
 
 ### Completed Phase 5 Steps
 
@@ -232,6 +232,11 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 - Starlette emits a deprecation warning that its TestClient/httpx integration will
 	change; tests remain green and the warning is documented for future dependency
 	maintenance.
+- The broader repository Python suite retains two pre-existing release-fixture
+	assertion failures in `scripts/tests/test_release_gate_targets.py`; no release
+	files were changed by this work.
+- The artifact-view evidence validator reports a pre-existing stale brainstorm-view
+	SHA-256 in `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json`.
 
 ### Final Status
 
@@ -246,7 +251,7 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 - Recommended follow-up: `/cr-review` for research-integrity/provenance review;
 	engineering routing is high-risk `full` if `/cg-review` is also requested.
 
-### Completed Phase 4 Steps
+### Superseded Phase 4 Steps
 
 - Step 11: complete (2026-08-13) -- context-aware verification now checks source
 	identity/version/hash, exact normalized quotes, cross-unit and fuzzy diagnostics,
@@ -259,7 +264,7 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 	inventory, search, candidate evidence, review queue/history, run status, and
 	dependency caveats using same-origin API calls only.
 
-### Phase 4 Constraints Check
+### Superseded Phase 4 Constraints Check
 
 | ID | Constraint | Status | Evidence |
 |----|------------|--------|----------|
@@ -270,22 +275,22 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 | C8 | New Python code has required docstrings | passed | Documentation AST gate |
 | C9 | Browser/API state remains derived and canonical files remain path-safe | passed | API/YAML mutation and browser smoke tests |
 
-### Phase 4 Remaining Uncertainty
+### Superseded Phase 4 Remaining Uncertainty
 
 - Starlette emits a deprecation warning that its TestClient/httpx integration will
 	change; tests remain green, but a future dependency update should revisit the
 	local API test client choice.
 
-### Phase 4 Status
+### Superseded Phase 4 Status
 
-`active` -- Phase 4 complete; ready for Phase 5.
+`superseded` -- Phase 4 complete; Phase 5 is the terminal phase below.
 
-## Phase 5 Run/Resume (2026-08-13)
+## Superseded Phase 5 Initialization Snapshot (2026-08-13)
 
 - Resumed explicitly with `/cg-work phase5` on branch `cr-lit-review`.
 - Artifact preflight passed: `cg-render-artifact --validate-only`.
 - Active deviation policy: `autonomous` (no runtime override).
-- Steps 14-17 are in progress; Phase 1-4 evidence remains unchanged.
+- This initialization snapshot is superseded by the final Phase 5 results above.
 - Existing `/cr-work` is sufficient as the workbench launcher; no new
 	`/cr-evidence` prompt is being added.
 
@@ -293,7 +298,7 @@ It records environment, thresholds, update/memory metrics, and `raw_text: false`
 
 | ID | Step | Evidence | Status | Artifact |
 |----|------|----------|--------|----------|
-| V10 | 14 | CR workflow preserves P0 enforcement, quarantines legacy external rows, and leaves CG-only projects unaffected | pending | prompt/skill/module tests and generated-target checks |
-| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | pending | network-boundary/path-safety report |
-| V12 | 16 | Fixed-corpus performance and reproducibility thresholds are met or visible candidate-profile failures are recorded | pending | final benchmark/reproducibility manifests |
-| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | pending | validation outputs and execution report |
+| V10 | 14 | CR workflow preserves P0 enforcement, quarantines legacy external rows, and leaves CG-only projects unaffected | passed | See final Phase 5 results above |
+| V11 | 15 | Runtime rejects remote hosts/URLs, blocks outbound network and hidden downloads, loads models offline, and rejects forbidden subprocesses | passed | See final Phase 5 results above |
+| V12 | 16 | Fixed-corpus performance and reproducibility thresholds are met or visible candidate-profile failures are recorded | passed | See final Phase 5 results above |
+| V13 | 17 | Documentation, Python tests, affected target/parity tests, docs checks, and safe Pester validation pass where available | passed | See final Phase 5 results above |

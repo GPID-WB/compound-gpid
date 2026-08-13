@@ -3,8 +3,9 @@
 Created: 2026-08-12
 
 This package is the local-first implementation boundary for Compound Research's
-claim/evidence workflow. Phase 1 covers Markdown resources, deterministic local
-lexical search, exact quote verification, and journaled YAML persistence.
+claim/evidence workflow. Completed phases cover supported-format ingestion,
+lifecycle invalidation, deterministic retrieval, original-authority verification,
+journaled YAML persistence, a loopback API, and a derived browser review surface.
 
 ## Runtime
 
@@ -19,7 +20,7 @@ Set up the package with:
 ```text
 uv sync --project research_evidence
 uv run --project research_evidence research-evidence --help
-uv run --project research_evidence pytest -q
+uv run --project research_evidence pytest research_evidence/tests -q
 ```
 
 The configured resources root must be inside the project root. URL resources,
@@ -62,7 +63,7 @@ behavior, telemetry notes, platform support, enterprise-review status, rationale
 and caveats. `candidate` and `blocked` entries cannot run. A restricted component
 requires a visible caveat and explicit local activation acknowledgement.
 
-## Phase 1 layout
+## Canonical layout
 
 ```text
 research_evidence/
@@ -76,9 +77,12 @@ research_evidence/
 ├── source-records.yaml
 ├── evidence-records.yaml
 ├── claim-evidence-matrix.yaml
+├── external-quarantine.yaml
 ├── review-history.yaml
 └── runs/
 ```
 
-No browser UI, internet search, external citation retrieval, or external API
-model execution is part of v1.
+The browser UI and loopback API are included as derived local management
+surfaces. Internet search, external citation retrieval, hosted deployment,
+multi-user collaboration, and external API model execution remain out of scope
+for v1.

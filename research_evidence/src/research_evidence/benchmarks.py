@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import importlib.metadata
 import os
+from math import ceil
 from pathlib import Path
 import platform
 import sys
@@ -163,7 +164,7 @@ def _p95(values: list[float]) -> float:
     if not values:
         return 0.0
     ordered = sorted(values)
-    index = min(len(ordered) - 1, max(0, int(len(ordered) * 0.95) - 1))
+    index = min(len(ordered) - 1, max(0, ceil(len(ordered) * 0.95) - 1))
     return ordered[index] * 1000.0
 
 
@@ -186,6 +187,14 @@ def _environment() -> dict[str, object]:
         "package_version": package_version,
         "memory_peak_bytes": memory_peak,
     }
+
+
+def _process_rss_bytes() -> int:
+    """Return normalized process maximum RSS when the platform exposes it."""
+    if resource_module is None:
+        return 0
+    value = int(resource_module.getrusage(resource_module.RUSAGE_SELF).ru_maxrss)
+    return value if sys.platform == "darwin" else value * 1024
 
 
 def run_lexical_benchmark(
@@ -214,7 +223,14 @@ def run_lexical_benchmark(
     """
     if not units or not queries:
         raise ValueError("Lexical benchmark requires units and queries")
-    spec = FIXED_CORPORA["small"]
+    spec = next(
+        (
+            candidate
+            for candidate in FIXED_CORPORA.values()
+            if candidate.source_units == len(units)
+        ),
+        FIXED_CORPORA["small"],
+    )
     tracemalloc.start()
     index = LexicalIndex(index_path)
     rebuild_start = time.perf_counter()
@@ -230,12 +246,14 @@ def run_lexical_benchmark(
     incremental_seconds = time.perf_counter() - incremental_start
     _, peak_bytes = tracemalloc.get_traced_memory()
     tracemalloc.stop()
+    rss_peak_bytes = _process_rss_bytes()
     index.close()
     metrics: dict[str, float | int] = {
         "p95_query_ms": _p95(query_latencies),
         "rebuild_seconds": rebuild_seconds,
         "incremental_update_seconds": incremental_seconds,
         "peak_memory_bytes": peak_bytes,
+        "rss_peak_bytes": rss_peak_bytes,
     }
     thresholds: dict[str, float | int] = {
         "p95_query_ms": spec.query_p95_ms,
@@ -248,6 +266,7 @@ def run_lexical_benchmark(
         and metrics["rebuild_seconds"] <= thresholds["rebuild_seconds"]
         and metrics["incremental_update_seconds"] <= thresholds["incremental_update_seconds"]
         and metrics["peak_memory_bytes"] <= thresholds["memory_bytes"]
+        and metrics["rss_peak_bytes"] <= thresholds["memory_bytes"]
     )
     return BenchmarkResult(
         profile=profile,

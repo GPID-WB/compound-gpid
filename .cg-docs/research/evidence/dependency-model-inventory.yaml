@@ -99,7 +99,7 @@ entries:
     activation_acknowledged: false
   - id: optional-dense-retrieval-candidate
     kind: model
-    distribution_source: https://example.org/compound-research/dense-candidate
+    distribution_source: not-acquired
     exact_version_or_revision: not-acquired
     sha256: null
     license_or_access_terms: To be determined before selection
@@ -115,7 +115,7 @@ entries:
     activation_acknowledged: false
   - id: optional-sparse-retrieval-candidate
     kind: model
-    distribution_source: https://example.org/compound-research/sparse-candidate
+    distribution_source: not-acquired
     exact_version_or_revision: not-acquired
     sha256: null
     license_or_access_terms: To be determined before selection
@@ -131,7 +131,7 @@ entries:
     activation_acknowledged: false
   - id: optional-reranker-candidate
     kind: model
-    distribution_source: https://example.org/compound-research/reranker-candidate
+    distribution_source: not-acquired
     exact_version_or_revision: not-acquired
     sha256: null
     license_or_access_terms: To be determined before selection

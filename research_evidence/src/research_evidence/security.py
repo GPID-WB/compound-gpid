@@ -25,7 +25,7 @@ _FORBIDDEN_EXECUTABLES = {
     "wget",
     "zsh",
 }
-_PROXY_VARIABLES = ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY")
+_PROXY_VARIABLES = frozenset({"http_proxy", "https_proxy", "all_proxy"})
 
 
 def _address_host(address: object) -> str:
@@ -62,8 +62,12 @@ def validate_offline_environment(
     Example:
         ``validate_offline_environment({})`` passes the offline check.
     """
-    values = environment or os.environ
-    configured = [name for name in _PROXY_VARIABLES if values.get(name)]
+    values = os.environ if environment is None else environment
+    configured = [
+        name
+        for name, value in values.items()
+        if name.casefold() in _PROXY_VARIABLES and value
+    ]
     if configured:
         raise NetworkAccessDenied(
             "Offline processing rejects configured proxy variables: "
@@ -110,7 +114,13 @@ def validate_browser_target(target: str) -> str:
     Example:
         ``validate_browser_target("/review/history")`` remains local.
     """
-    return validate_http_target(target)
+    if not isinstance(target, str) or not target.startswith("/"):
+        raise NetworkAccessDenied("remote or non-relative browser targets are disabled")
+    if target.startswith("//") or "\\" in target or any(
+        ord(character) < 32 for character in target
+    ):
+        raise NetworkAccessDenied("unsafe browser target path")
+    return target
 
 
 def validate_model_loader_kwargs(kwargs: Mapping[str, object]) -> dict[str, object]:
@@ -128,11 +138,24 @@ def validate_model_loader_kwargs(kwargs: Mapping[str, object]) -> dict[str, obje
     Example:
         ``validate_model_loader_kwargs({"local_files_only": True})`` passes.
     """
+    allowed_keys = {"model_id", "revision", "cache_dir", "local_files_only"}
     validated = dict(kwargs)
-    if validated.get("local_files_only") is not True:
+    unsupported = set(validated) - allowed_keys
+    if unsupported:
+        raise NetworkAccessDenied(
+            "unsupported model loader option(s): " + ", ".join(sorted(unsupported))
+        )
+    if type(validated.get("local_files_only")) is not bool or validated.get(
+        "local_files_only"
+    ) is not True:
         raise NetworkAccessDenied("model loading requires local_files_only=True")
-    if validated.get("download") is True or validated.get("allow_download") is True:
-        raise NetworkAccessDenied("model downloads are disabled during processing")
+    cache_dir = validated.get("cache_dir")
+    if cache_dir is not None and (
+        not isinstance(cache_dir, str)
+        or urlsplit(cache_dir).scheme
+        or urlsplit(cache_dir).netloc
+    ):
+        raise NetworkAccessDenied("model cache must be a local path")
     return validated
 
 
@@ -159,7 +182,7 @@ def validate_subprocess_command(
         raise ValueError("Subprocess command cannot be empty.")
     executable = Path(command[0]).name.lower()
     if executable in _FORBIDDEN_EXECUTABLES:
-                raise ValueError(f"forbidden subprocess executable: {executable}.")
+        raise ValueError(f"forbidden subprocess executable: {executable}.")
     allowed = {item.lower() for item in (allowed_executables or set())}
     if executable not in allowed:
         raise ValueError(f"Subprocess executable is not in the local allowlist: {executable}.")
@@ -186,6 +209,8 @@ class OfflineNetworkGuard(AbstractContextManager["OfflineNetworkGuard"]):
         self._original_connect: Optional[Callable[..., object]] = None
         self._original_connect_ex: Optional[Callable[..., object]] = None
         self._original_create_connection: Optional[Callable[..., object]] = None
+        self._original_sendto: Optional[Callable[..., object]] = None
+        self._original_sendmsg: Optional[Callable[..., object]] = None
 
     def __enter__(self) -> "OfflineNetworkGuard":
         """Install process-level socket checks and return this guard.
@@ -205,9 +230,13 @@ class OfflineNetworkGuard(AbstractContextManager["OfflineNetworkGuard"]):
         self._original_connect = socket.socket.connect
         self._original_connect_ex = socket.socket.connect_ex
         self._original_create_connection = socket.create_connection
+        self._original_sendto = socket.socket.sendto
+        self._original_sendmsg = getattr(socket.socket, "sendmsg", None)
         original_connect = self._original_connect
         original_connect_ex = self._original_connect_ex
         original_create_connection = self._original_create_connection
+        original_sendto = self._original_sendto
+        original_sendmsg = self._original_sendmsg
 
         def _guarded_connect(sock: socket.socket, address: object) -> object:
             """Reject remote destinations before delegating to the socket."""
@@ -236,9 +265,43 @@ class OfflineNetworkGuard(AbstractContextManager["OfflineNetworkGuard"]):
                 raise NetworkAccessDenied("outbound network is disabled outside loopback.")
             return original_create_connection(*args, **kwargs)
 
+        def _guarded_sendto(sock: socket.socket, data: object, *args: object) -> object:
+            """Reject UDP sendto destinations outside loopback."""
+            if len(args) == 1:
+                flags = 0
+                address = args[0]
+            elif len(args) == 2:
+                flags, address = args
+                if not isinstance(flags, int):
+                    raise TypeError("sendto flags must be an integer")
+            else:
+                raise TypeError("sendto expects an address or flags and address")
+            if not _is_loopback_host(_address_host(address)):
+                raise NetworkAccessDenied("outbound network is disabled outside loopback.")
+            if flags:
+                return original_sendto(sock, data, flags, address)
+            return original_sendto(sock, data, address)
+
+        def _guarded_sendmsg(
+            sock: socket.socket,
+            buffers: object,
+            ancdata: object = (),
+            flags: int = 0,
+            address: object = None,
+        ) -> object:
+            """Reject UDP sendmsg destinations outside loopback."""
+            if address is not None and not _is_loopback_host(_address_host(address)):
+                raise NetworkAccessDenied("outbound network is disabled outside loopback.")
+            if original_sendmsg is None:
+                raise NetworkAccessDenied("sendmsg is unavailable in this runtime")
+            return original_sendmsg(sock, buffers, ancdata, flags, address)
+
         socket.socket.connect = _guarded_connect  # type: ignore[method-assign]
         socket.socket.connect_ex = _guarded_connect_ex  # type: ignore[method-assign]
         socket.create_connection = _guarded_create_connection  # type: ignore[assignment]
+        socket.socket.sendto = _guarded_sendto  # type: ignore[method-assign]
+        if self._original_sendmsg is not None:
+            socket.socket.sendmsg = _guarded_sendmsg  # type: ignore[method-assign]
         return self
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
@@ -261,7 +324,13 @@ class OfflineNetworkGuard(AbstractContextManager["OfflineNetworkGuard"]):
             socket.socket.connect_ex = self._original_connect_ex  # type: ignore[method-assign]
         if self._original_create_connection is not None:
             socket.create_connection = self._original_create_connection  # type: ignore[assignment]
+        if self._original_sendto is not None:
+            socket.socket.sendto = self._original_sendto  # type: ignore[method-assign]
+        if self._original_sendmsg is not None:
+            socket.socket.sendmsg = self._original_sendmsg  # type: ignore[method-assign]
         self._original_connect = None
         self._original_connect_ex = None
         self._original_create_connection = None
+        self._original_sendto = None
+        self._original_sendmsg = None
         return None

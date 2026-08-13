@@ -5,6 +5,7 @@ import argparse
 from typing import Optional, Sequence
 
 from .config import ensure_supported_runtime
+from .security import OfflineNetworkGuard
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -50,9 +51,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     Example:
         ``main(["--help"])`` returns zero after displaying help.
     """
-    ensure_supported_runtime()
-    parser = build_parser()
-    args = parser.parse_args(argv)
-    if args.command is None:
-        parser.print_help()
-    return 0
+    with OfflineNetworkGuard():
+        ensure_supported_runtime()
+        parser = build_parser()
+        args = parser.parse_args(argv)
+        if args.command is None:
+            parser.print_help()
+        return 0

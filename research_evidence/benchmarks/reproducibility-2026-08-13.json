@@ -5,10 +5,20 @@
     "source_units": 30
   },
   "created": "2026-08-13",
+  "environment": {
+    "os": "macOS-26.6.1-arm64-64bit",
+    "package_version": "0.1.0",
+    "python": "3.11.15",
+    "sqlite": "3.53.1"
+  },
+  "input_hash": "25e56e6ad742a095f030e966013cc023eead34141cfa5a00f03b8a779373712b",
   "lockfile_sha256": "26de1e6a1b7223b6d391ce866baed0b7b9e011dd507a05d2aeb0f802b643d939",
   "passed": true,
   "profile": "lexical-baseline",
-  "rankings_hash": "936d11744dbc41bd1739ee4ad69b45b098bf298e42ca084f8e443085104df3df",
+  "pyproject_sha256": "a9d5631dbe23821e3db83db8c222581effc79c08ff7d0cbf6a14c18ef2cfb93b",
+  "query_count": 2,
+  "query_hash": "7539dfe08bc4f39d597845da82857a08c557b53b5e2df0ad7f0d3d461b3b583c",
+  "rankings_hash": "79abadb917407fd6a51b4a60880d2ec3d5302a9de3a3488f2dfd1dce2d9c8100",
   "rankings_match": true,
   "raw_text": false,
   "schema_version": "research-evidence-reproducibility-v1",

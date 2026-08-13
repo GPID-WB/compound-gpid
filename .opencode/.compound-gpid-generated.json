@@ -420,7 +420,7 @@
       "path": ".opencode/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "07bfeac8665cc5f9402352d9cf432cbe5441ee135cbddd402bf873231d98d167",
+      "sha256": "4a53ec34614b54b350cddc118b8fc7b3e763de219ebc7b6faf5e0480ca5f7110",
       "executable": false
     },
     {

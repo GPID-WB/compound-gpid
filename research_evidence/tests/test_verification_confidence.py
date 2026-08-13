@@ -133,6 +133,20 @@ def test_source_mismatch_and_fabricated_locator_are_rejected() -> None:
     assert rejected.confidence == "low"
 
 
+def test_unknown_source_hash_stays_review_required() -> None:
+    """Require a confirmed hash before an exact quote can receive high confidence."""
+    unit = _unit("v1", "The finding.")
+    verified, result = verify_evidence_context(
+        _evidence(unit, unit.text),
+        [unit],
+        original_authority_available=True,
+        source_hash_matches=None,
+    )
+    assert result.status == VerificationStatus.FLAGGED_MEDIUM
+    assert result.reason == "source-hash-unavailable"
+    assert verified.confidence == "medium"
+
+
 def test_stale_hash_and_stale_record_cannot_verify() -> None:
     """Return stale status before quote matching when source bytes changed."""
     unit = _unit("v1", "The finding.")

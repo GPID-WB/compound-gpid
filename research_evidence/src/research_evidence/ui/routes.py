@@ -12,6 +12,7 @@ _REVIEW_PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline';">
 <title>Evidence Workbench</title>
 <style>
 :root { color-scheme: light; --ink: #19242b; --muted: #5e6c73; --paper: #f6f3ed; --panel: #fffdf8; --line: #d8d4ca; --accent: #0b6e69; --warn: #a65b24; }
@@ -52,11 +53,11 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: .5rem 0 0; }
 <script>
 const json = async (response) => { const body = await response.json(); if (!response.ok) throw body; return body; };
 const el = (id) => document.getElementById(id);
-const showResults = (payload) => { el('results').innerHTML = ''; for (const item of payload.results || []) { const node = document.createElement('article'); node.className = 'result'; node.innerHTML = `<strong>${item.text}</strong><div class="meta">${item.source_unit_id} · ${item.locator.kind} · ${item.source_version_id}</div>`; node.addEventListener('click', () => { el('source-unit').value = item.source_unit_id; el('statement').value = item.text; el('quote').value = item.text; }); el('results').appendChild(node); } };
+const showResults = (payload) => { const results = el('results'); results.replaceChildren(); for (const item of payload.results || []) { const node = document.createElement('article'); node.className = 'result'; const strong = document.createElement('strong'); strong.textContent = item.text; const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `${item.source_unit_id} · ${item.locator.kind} · ${item.source_version_id}`; node.append(strong, meta); node.addEventListener('click', () => { el('source-unit').value = item.source_unit_id; el('statement').value = item.text; el('quote').value = item.text; }); results.appendChild(node); } };
 el('search').addEventListener('click', async () => { try { showResults(await json(await fetch(`/sources/search?q=${encodeURIComponent(el('query').value)}`))); } catch (error) { el('results').textContent = error.error || 'Search failed'; } });
 el('scan').addEventListener('click', async () => { try { const data = await json(await fetch('/resources/scan', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({path: el('resource').value}) })); el('scan-status').textContent = `Scanned at revision ${data.revision}`; } catch (error) { el('scan-status').textContent = error.error || 'Scan failed'; } });
 el('candidate').addEventListener('click', async () => { try { const data = await json(await fetch('/evidence/candidates', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({source_unit_id: el('source-unit').value, statement: el('statement').value, quote: el('quote').value, relation: 'supports'}) })); el('candidate-status').textContent = `Candidate ${data.evidence.evidence_id} created at revision ${data.revision}`; } catch (error) { el('candidate-status').textContent = error.error || 'Candidate creation failed'; } });
-const refresh = async () => { try { const status = await json(await fetch('/run/status')); el('status').textContent = `Canonical revision ${status.revision}`; const history = await json(await fetch('/review/history')); el('history').innerHTML = ''; for (const event of history.events || []) { const node = document.createElement('div'); node.className = 'event'; node.textContent = `${event.action} · ${event.target_id} · revision ${event.revision}`; el('history').appendChild(node); } } catch (error) { el('status').textContent = error.error || 'Status unavailable'; } };
+const refresh = async () => { try { const status = await json(await fetch('/run/status')); el('status').textContent = `Canonical revision ${status.revision}`; const history = await json(await fetch('/review/history')); const historyNode = el('history'); historyNode.replaceChildren(); for (const event of history.events || []) { const node = document.createElement('div'); node.className = 'event'; node.textContent = `${event.action} · ${event.target_id} · revision ${event.revision}`; historyNode.appendChild(node); } } catch (error) { el('status').textContent = error.error || 'Status unavailable'; } };
 refresh();
 </script>
 </body>

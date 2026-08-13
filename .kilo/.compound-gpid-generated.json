@@ -420,7 +420,7 @@
       "path": ".kilo/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "04ffe98b15353641573a8bc1e1047e99507bf1cdf018a39ab6e50c14c8608517",
+      "sha256": "5b7361f144b8ac083db96335105ce44b2b5f99a003f81b0acc97a1c4741134d3",
       "executable": false
     },
     {

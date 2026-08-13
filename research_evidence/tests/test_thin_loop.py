@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from research_evidence.config import RuntimeSettings
 from research_evidence.schemas import ReviewState, VerificationStatus
 from research_evidence.workbench import LocalEvidenceWorkbench
@@ -78,3 +80,50 @@ def test_changed_original_is_stale_until_rescanned(tmp_path: Path) -> None:
         assert "stale" in str(error).lower()
     else:
         raise AssertionError("Changed original source was approved without rescan")
+
+
+def test_rescan_invalidates_prior_approval_before_restart(tmp_path: Path) -> None:
+    """Rescanning a revised source stales prior evidence and downstream approval."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    source_path = resources / "findings.md"
+    source_path.write_text("The original finding.", encoding="utf-8")
+    settings = RuntimeSettings.from_paths(tmp_path, resources)
+    workbench = LocalEvidenceWorkbench(settings)
+    unit = workbench.scan_markdown("findings.md").units[0]
+    decision = workbench.create_and_verify(unit.source_unit_id, unit.text, unit.text)
+    source_path.write_text("The revised finding.", encoding="utf-8")
+
+    workbench.scan_markdown("findings.md")
+    evidence = yaml.safe_load(
+        (settings.evidence_root / "evidence-records.yaml").read_text(encoding="utf-8")
+    )["records"][0]
+    assert evidence["evidence_id"] == decision.evidence.evidence_id
+    assert evidence["stale"] is True
+    assert LocalEvidenceWorkbench(settings).load_approved_decisions() == []
+
+
+def test_existing_cr_matrix_is_preserved_in_separate_workbench_file(tmp_path: Path) -> None:
+    """Never overwrite a predecessor CR matrix with the workbench schema."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    (resources / "findings.md").write_text("The finding.", encoding="utf-8")
+    settings = RuntimeSettings.from_paths(tmp_path, resources)
+    settings.evidence_root.mkdir(parents=True)
+    original = {"claims": [{"id": "CR-C1", "status": "verified", "evidence": []}]}
+    matrix_path = settings.evidence_root / "claim-evidence-matrix.yaml"
+    matrix_path.write_text(yaml.safe_dump(original), encoding="utf-8")
+    workbench = LocalEvidenceWorkbench(settings)
+    unit = workbench.scan_markdown("findings.md").units[0]
+
+    workbench.create_and_verify(unit.source_unit_id, unit.text, unit.text)
+
+    assert yaml.safe_load(matrix_path.read_text(encoding="utf-8")) == original
+    assert (settings.evidence_root / "workbench-claim-evidence-matrix.yaml").exists()
+    restarted = LocalEvidenceWorkbench(settings)
+    assert yaml.safe_load(matrix_path.read_text(encoding="utf-8")) == original
+    assert restarted.search("CR-C1") == []
+    assert all(
+        decision.claim.statement != "CR-C1"
+        for decision in restarted.load_approved_decisions()
+    )
