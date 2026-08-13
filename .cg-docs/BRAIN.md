@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
+_Generated 2026-08-13 · 714 entities · 5 topics · 309 edges_
 
 ## How to Use
 
@@ -13,9 +13,9 @@ _Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 503 | BRAIN-01.md |
+| 1 | [Roadmap.Json / Test Scenarios / Cg-Work](BRAIN-01.md#roadmap-json-test-scenarios-cg-work) | 508 | BRAIN-01.md |
 | 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 142 | BRAIN-02.md |
-| 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
+| 3 | [Expand Compound Research / Responsible Research Partner Objective / Research](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-research) | 8 | BRAIN-02.md |
 | 4 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
 | 5 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
 
@@ -23,11 +23,11 @@ _Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 54 |
-| feature | 149 |
-| plan | 113 |
-| review | 167 |
-| solution | 210 |
+| brainstorm | 55 |
+| feature | 150 |
+| plan | 115 |
+| review | 168 |
+| solution | 211 |
 | strategy | 15 |
 
 _49 entities not assigned to any topic_
@@ -36,8 +36,8 @@ _49 entities not assigned to any topic_
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 77 |
-| implements | 26 |
-| references | 57 |
-| reviews | 90 |
+| decided_from | 79 |
+| implements | 27 |
+| references | 58 |
+| reviews | 91 |
 | verifies | 54 |

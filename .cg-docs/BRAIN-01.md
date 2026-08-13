@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-08-12_
+_Generated 2026-08-13_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
+## Roadmap.Json / Test Scenarios / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 414 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -92,8 +92,6 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Default-All Platform Linking With Safe Install Units](.cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md)** · `brainstorm` · _decided_ · `2026-07-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[World Bank institutional report-writing skill](.cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md)** · `brainstorm` · _decided_ · `2026-07-23`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Canonical-to-Native Packaging Foundation](.cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md)** · `brainstorm` · _decided_ · `2026-07-27`
   > Compound GPID treats `.github/` as canonical and generates committed native trees for Claude Code, Codex, and OpenCod…
 - **[Compound Research module migration from v0.10 branch to v1.0 main](.cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md)** · `brainstorm` · _decided_ · `2026-07-29`
@@ -104,7 +102,11 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Modular Compound GPID architecture for technical and research suites](.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md)** · `brainstorm` · _decided_ · `2026-07-31`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Workflow completion dossier and curated artifact themes](.cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Use GPT-5.6 Luna for /cr-work](.cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
@@ -280,8 +282,6 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > Compound GPID generates committed native platform trees (`.claude/`, `.agents/`, `.opencode/`) from the canonical `.g…
 - **[Default-All Platform Linking With Safe Install Units](.cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md)** · `plan` · _active_ · `2026-07-05`
   > Make `cg-link` install Compound GPID assets for all supported platforms by default while preserving existing user-own…
-- **[World Bank institutional report-writing skill](.cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md)** · `plan` · _completed_ · `2026-07-23`
-  > Create `cg-skill-wb-report-writing`, a progressive-disclosure skill for drafting, expanding, revising, summarizing, a…
 - **[WB report writing: Country and regional narratives](.cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md)** · `plan` · _completed_ · `2026-07-23`
   > Add and evaluate a statistically precise, sensitivity-aware country/regional narrative pattern independently from oth…
 - **[WB report writing: Data blog posts](.cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md)** · `plan` · _completed_ · `2026-07-23`
@@ -332,6 +332,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
 - **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _superseded_ · `2026-08-05`
   > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
+- **[CR Local Evidence Workbench for Verifiable Research Claims \(Revised\)](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md)** · `plan` · _completed_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -736,6 +740,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
 - **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
   > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
+  > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
@@ -828,11 +834,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` direct…
 - **[AI agent repeats Pester crash pattern despite documented rules — documentation alone is insufficient](.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)** · `solution` · _—_ · `2026-04-06`
   > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
-- **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
-  > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
-- **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
-  > After adding a P0 severity tier to all 8 review agent output templates (`**[P0|P1|P2|P3]**`), the pipeline silently c…
-- **[Test instruction file applyTo frontmatter to prevent silent dialect routing failure](.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)** · `solution` · _—_ · `2026-04-08`
-  > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

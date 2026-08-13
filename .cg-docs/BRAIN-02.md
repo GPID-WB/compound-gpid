@@ -1,11 +1,17 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-12_
+_Generated 2026-08-13_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
+## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 94 entities
 
+- **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
+  > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
+- **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
+  > After adding a P0 severity tier to all 8 review agent output templates (`**[P0|P1|P2|P3]**`), the pipeline silently c…
+- **[Test instruction file applyTo frontmatter to prevent silent dialect routing failure](.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)** · `solution` · _—_ · `2026-04-08`
+  > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 - **[New prompt/agent addition checklist: 7 files that must be updated together](.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md)** · `solution` · _—_ · `2026-04-08`
   > Adding a new prompt (`/cg-*`) or agent (`@cg-*`) to compound-gpid requires touching at minimum 4 files. Missing any o…
 - **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
@@ -154,6 +160,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89
   > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 - **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
   > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
+- **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
+  > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
+- **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
+  > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -477,10 +487,10 @@ objective`_ · 142 entities
 - **[Pilot evaluation gate before broader default exposure](roadmap.json#workflow-pilot-evaluation-gate)** · `feature` · _idea_ · `—`
   > Pilot evaluation gate before broader default exposure
 
-## Expand Compound Research / Responsible Research Partner Objective / Measurement
+## Expand Compound Research / Responsible Research Partner Objective / Research
 
 _Keywords: `expand compound research` · `responsible research partner
-objective` · `measurement`_ · 7 entities
+objective` · `research`_ · 8 entities
 
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
@@ -496,6 +506,8 @@ objective` · `measurement`_ · 7 entities
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+- **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
+  > CR Local Evidence Workbench for Verifiable Research Claims
 
 ## Tests / Filesystem / Python
 

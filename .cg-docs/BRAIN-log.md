@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
+_Generated 2026-08-13 · 564 artifacts (newest first) + 150 roadmap features_
 
 ## undated
 
@@ -126,6 +126,22 @@ _Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-08-13
+
+- **[Final Local Evidence Workbench Review](.cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/…
+- **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
+  > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
+
+## 2026-08-12
+
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims \(Revised\)](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md)** · `plan` · _completed_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
 
 ## 2026-08-11
 
@@ -1488,6 +1504,8 @@ _Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
   > CR asset classification mapping
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
+- **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
+  > CR Local Evidence Workbench for Verifiable Research Claims
 - **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
   > CR Measurement/Classification research archetype
 - **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`

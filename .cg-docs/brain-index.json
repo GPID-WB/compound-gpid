@@ -1,5 +1,5 @@
 {
-  "edge_count": 304,
+  "edge_count": 309,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -461,6 +461,18 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
       "target": ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "target": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
       "target_missing": false
     },
     {
@@ -1328,6 +1340,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md",
+      "target": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1670,6 +1688,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1823,6 +1847,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target": "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target": "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
       "target_missing": false
     }
   ],
@@ -3370,6 +3400,40 @@
       ]
     },
     {
+      "date": "2026-08-12",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "literature-review",
+        "local-first",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "research-integrity",
+        "browser-ui"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "evidence",
+        "workbench",
+        "local",
+        "approach",
+        "research",
+        "claims",
+        "local evidence workbench",
+        "verifiable research claims",
+        "world bank",
+        "verification"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -4258,9 +4322,9 @@
         "cg-work.prompt.md",
         "test failure recovery",
         "get_errors",
-        "prompt-tools.tests.ps1",
         "test",
         "failure",
+        "prompt-tools.tests.ps1",
         "sub-step",
         "/cg-work"
       ]
@@ -4424,14 +4488,14 @@
       ],
       "title": "Competitive repo review system (/cg-review-repos prompt)",
       "top_keywords": [
-        "repos.json",
         "should not",
+        "repos.json",
         "should be",
         "cg-review-repos",
         "--full",
-        "cg-review-repos.prompt.md",
         "compound-gpid.md",
         "lastreviewedrelease",
+        "cg-review-repos.prompt.md",
         "fetch_webpage",
         "docs/reference.md"
       ]
@@ -4459,9 +4523,9 @@
         "light",
         "/cg-review",
         "test scenarios",
-        "cg-review.prompt.md",
         "parent-review:",
-        "verify-review.md"
+        "verify-review.md",
+        "/cg-review light"
       ]
     },
     {
@@ -4696,8 +4760,8 @@
         "copilot-instructions.md",
         "test scenarios",
         "install.sh",
-        "run-tests.ps1",
         "update.sh",
+        "run-tests.ps1",
         "scripts",
         "cg-unlink",
         "tests/run-tests.ps1"
@@ -4785,8 +4849,8 @@
         ".cg-docs/",
         "install.ps1",
         "python",
-        "cg-index.cmd",
-        "scripts/cg-index.py"
+        "scripts/cg-index.py",
+        "python3"
       ]
     },
     {
@@ -5898,11 +5962,11 @@
         ".qmd",
         "context-audit.json",
         "validate_wb_writing_skill.py",
-        "run-tests.ps1",
         "tests/last-run.json",
         "prompt-tools.tests.ps1",
         "skill",
-        "cg-token-audit.cmd"
+        "bin\\cg-token-audit.cmd",
+        "/cg-work"
       ]
     },
     {
@@ -6673,6 +6737,74 @@
       ]
     },
     {
+      "date": "2026-08-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench-revised",
+      "status": "completed",
+      "summary": "<!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "local-first",
+        "browser-ui",
+        "research-integrity",
+        "offline-runtime",
+        "dependency-governance"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims (Revised)",
+      "top_keywords": [
+        "test scenarios",
+        "evidence",
+        "candidate",
+        "pyproject.toml",
+        "uv.lock",
+        "phase",
+        "implement",
+        "local",
+        "verification",
+        "validation"
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench",
+      "status": "active",
+      "summary": "<!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "local-first",
+        "browser-ui",
+        "research-integrity"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "test scenarios",
+        "local",
+        "evidence",
+        "phase",
+        "implement",
+        "workbench",
+        "retrieval",
+        "verification",
+        "tests",
+        "browser"
+      ]
+    },
+    {
       "date": "",
       "entity_type": "plan",
       "path": ".cg-docs/plans/phase2-model-governance-cleanup.md",
@@ -6711,8 +6843,8 @@
         ".cg-docs/reviews/",
         "prompt-tools.tests.ps1",
         "should be",
-        "cg-resume.prompt.md",
         "/cg-fix-triage",
+        "cg-resume.prompt.md",
         "fix"
       ]
     },
@@ -6928,12 +7060,12 @@
         "tests/prompt-tools.tests.ps1",
         "prompt-tools.tests.ps1",
         "schema_version",
-        "reference.md",
         "r.instructions.md",
         "compound-gpid.local.md",
         "r-syntax",
         "fix",
-        "feat/r-dialect-skills"
+        "feat/r-dialect-skills",
+        "docs/reference.md"
       ]
     },
     {
@@ -7386,8 +7518,8 @@
       "tags": [],
       "title": "2026-04-17-structural-pester-crash-prevention-v2-review",
       "top_keywords": [
-        "run-tests.ps1",
         "tests/run-tests.ps1",
+        "run-tests.ps1",
         "last-run.json",
         "tests/run-tests-runner.tests.ps1",
         "copilot-instructions.md",
@@ -7433,12 +7565,12 @@
         "compound-gpid.context.md",
         "cg-review",
         "cg-fix-triage",
-        "last-run.json",
         "skill.md",
         "--migrate",
         "date:",
         "cg-work",
         "cg-plan",
+        "last-run.json",
         "prompt-tools.tests.ps1"
       ]
     },
@@ -7806,12 +7938,12 @@
       "top_keywords": [
         "should be",
         "stata.instructions.md",
-        "data-validation.md",
         "duplicates tag",
         "cg-skill-stata-testing",
         "8 testing-specific anti-patterns",
         "9 testing-specific anti-patterns",
         "$skillfm",
+        "data-validation.md",
         "anti-patterns.md",
         "copilot-instructions.md"
       ]
@@ -8099,7 +8231,7 @@
         "unlink.sh",
         "iswindows|windows_nt",
         "parity.tests.ps1",
-        "2026-05-13-pr-verification-pipeline-review.md"
+        "unlink\\.sh"
       ]
     },
     {
@@ -10303,6 +10435,28 @@
       ]
     },
     {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench-revised-review",
+      "status": "",
+      "summary": "- Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/API/dependency/concurrency/schema triggers resolved the review to `full`. - Reviewed commit: `84afe998b63dbd377a17981121ff6ad3ac712d76`. - Prior commit: `fff446598ba77e064ef1bfd0c7adabbc266238c0`. - The worktree was clean before review. - Protected artifacts were not recommended for deletion, replacement, renaming, or movement.",
+      "tags": [],
+      "title": "Final Local Evidence Workbench Review",
+      "top_keywords": [
+        "review",
+        "claim_id",
+        "not-acquired",
+        "nextcommand",
+        "fix/evidence-review-findings",
+        "final local evidence workbench review",
+        "evidence",
+        "workbench",
+        "local",
+        "final"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -10566,14 +10720,14 @@
       "top_keywords": [
         "else",
         "ast",
-        "update.ps1",
         "em-dash",
         "\"latest\"",
         "$versionmode",
         "0x94",
         ".ps1",
         "--",
-        "->"
+        "->",
+        "utf-8"
       ]
     },
     {
@@ -10593,10 +10747,10 @@
       ],
       "title": "cg-review missing 'write' tool disables file creation during review sessions",
       "top_keywords": [
-        "cg-review.prompt.md",
         "cg-review",
         "tools:",
         "'write'",
+        "cg-review.prompt.md",
         ".cg-docs/reviews/",
         "/cg-review",
         "tests/prompt-tools.tests.ps1",
@@ -11051,13 +11205,13 @@
         "\\\"",
         "multi_replace_string_in_file",
         "replace_string_in_file",
-        "result-verification.md",
         "oldstring",
         "powershell",
         "newstring",
         "disk",
         "wrong",
-        ".ps1"
+        ".ps1",
+        "result-verification.md"
       ]
     },
     {
@@ -11169,12 +11323,12 @@
       "title": "Read-Host empty string throws PSArgumentException in cg-link bootstrap prompt",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "write-host",
         "cg-link",
         "psargumentexception",
         "bootstrap",
         "-prompt",
+        "link.ps1",
         "empty",
         "prompt",
         "string"
@@ -11199,9 +11353,9 @@
       "title": "cg-link bootstrap index offer always fails on empty projects",
       "top_keywords": [
         "cg-link",
+        "/cg-setup",
         "link.ps1",
         "link.sh",
-        "/cg-setup",
         "bootstrap",
         "cg-setup",
         ".cg-docs/solutions/",
@@ -11232,13 +11386,13 @@
       "top_keywords": [
         "link.ps1",
         "link.sh",
-        "cg-setup.prompt.md",
         "link",
         "ps1",
         "pwsh",
         "macos",
         "guard",
         "scripts",
+        "prompts\\cg-setup.prompt.md",
         "separator"
       ]
     },
@@ -12060,7 +12214,7 @@
         "schema",
         "json",
         "validation",
-        "run-tests.ps1"
+        "title"
       ]
     },
     {
@@ -12084,12 +12238,12 @@
         "source",
         "install",
         "test",
-        "cg-index.cmd",
         "destination",
         "wrapper",
         "ps1",
         "self-copy",
-        "equals"
+        "equals",
+        "crash"
       ]
     },
     {
@@ -12179,8 +12333,8 @@
         "the windows",
         "generic",
         "publisher",
-        "cross-platform",
         "release",
+        "cross-platform",
         "gates",
         "points"
       ]
@@ -12967,15 +13121,15 @@
       "title": "Join-Path with embedded backslash path separator is Windows-only",
       "top_keywords": [
         "join-path",
-        "file.txt",
+        "subdir\\file.txt",
         "test-path",
         "windows-only",
         "macos",
         "cross-platform",
         "get-content",
         "cg-link",
-        "backslash",
-        "separator"
+        "file.txt",
+        "backslash"
       ]
     },
     {
@@ -13271,11 +13425,11 @@
         "windows",
         "teardown",
         "cmd /c rmdir /s /q",
-        "cg-setup.prompt.md",
         "junction",
         "2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         "2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
-        "2026-05-13-cross-script-parity-tests-ps1-sh.md"
+        "2026-05-13-cross-script-parity-tests-ps1-sh.md",
+        "structure"
       ]
     },
     {
@@ -13780,9 +13934,9 @@
       ],
       "title": "Do NOT delegate file-writing steps in AI workflow prompts",
       "top_keywords": [
-        "cg-review.prompt.md",
         "delegate",
         "file-writing",
+        "cg-review.prompt.md",
         "prompts",
         "workflow",
         "pester",
@@ -13819,8 +13973,8 @@
         "must",
         "contract",
         "pipeline",
-        "cg-fix-triage.prompt.md",
-        "downstream"
+        "downstream",
+        "location"
       ]
     },
     {
@@ -14037,8 +14191,8 @@
       "title": "New prompt/agent addition checklist: 7 files that must be updated together",
       "top_keywords": [
         "tests/prompt-tools.tests.ps1",
-        "prompt-tools.tests.ps1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "workflow entry points",
         "checklist",
         "cg-review.prompt.md",
@@ -14068,16 +14222,16 @@
       ],
       "title": "AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "failures",
         "2>&1 | select-string",
         "2>&1",
         "copilot-instructions.md",
+        "prompt-tools.tests.ps1",
         "select-string",
         "test",
+        "tests\\prompt-tools.tests.ps1",
         "crash",
-        "debugging",
-        "crashes"
+        "debugging"
       ]
     },
     {
@@ -14164,9 +14318,9 @@
         "failure",
         "guard",
         "fragile",
-        "cg-work.prompt.md",
         "tests",
         "step-ordering",
+        "cg-work.prompt.md",
         "wait",
         "phrase"
       ]
@@ -14254,8 +14408,8 @@
       ],
       "title": "Pester verbose output floods agent context window in long fix-triage sessions — crash even with safe PowerShell patterns",
       "top_keywords": [
-        "prompt-tools.tests.ps1",
         "-quiet",
+        "prompt-tools.tests.ps1",
         "pester",
         "execution_subagent",
         "quiet",
@@ -14351,14 +14505,14 @@
       "top_keywords": [
         "execution_subagent",
         "run-tests.ps1",
-        "last-run.json",
         "invoke-pester",
         "run_in_terminal",
         "agent",
         "json",
         "canonical",
+        "last-run.json",
         "run-tests",
-        "context"
+        "tests\\last-run.json"
       ]
     },
     {
@@ -14597,7 +14751,6 @@
       ],
       "title": "Anti-loop exclusion: output file types must be excluded from input scan in iterative review modes",
       "top_keywords": [
-        ".md",
         "verify-review.md",
         "fixed",
         "-verify-review.md",
@@ -14605,6 +14758,7 @@
         "anti-loop",
         ".cg-docs/reviews/",
         "-review.md",
+        "verify-review\\.md",
         "should be",
         "review"
       ]
@@ -15065,8 +15219,8 @@
       "title": "Source-scanning regression guard for PowerShell scripting anti-patterns",
       "top_keywords": [
         "read-host",
-        "link.ps1",
         "source-scanning",
+        "link.ps1",
         "read-host \"\"",
         "powershell",
         "guard",
@@ -15097,14 +15251,14 @@
       "top_keywords": [
         "--yes",
         "scripts",
-        "unlink.ps1",
         "unlink.sh",
         "link.ps1",
         "link.sh",
         "-force",
         "powershell",
         "read-host",
-        "pattern"
+        "pattern",
+        "unlink.ps1"
       ]
     },
     {
@@ -15431,13 +15585,13 @@
         "compound-gpid.context.md",
         "2026-05-15-common-word-regex-false-positive-in-security-assertions.md",
         "match",
-        "_wiki.yml",
         "regex",
         "groups[1].value",
         "[regex]::match(...).groups[1].value",
         "should -be",
         "\"\"",
-        "<!-- folder: docs -->"
+        "<!-- folder: docs -->",
+        "$dirs.count | should -begreaterthan 0"
       ]
     },
     {
@@ -16697,6 +16851,34 @@
       ]
     },
     {
+      "date": "2026-08-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md",
+      "slug": "2026-08-13-release-gate-fixtures-and-derived-evidence-hashes",
+      "status": "",
+      "summary": "The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected a tag mismatch, but the fake `git` executable did not implement `git -C <root> tag --list <tag>`. The release script therefore saw no matching tag and correctly skipped the mismatch comparison. - The failing-preflight test expected Python to receive paths from the source checkout, while the release script intentionally clones `HEAD` into an isolated temporary checkout before running the preflight. After those fixture failures were corrected, the artifact evidence validator found stale SHA-256 values for the brainstorm and plan HTML views in the committed design-evidence manifest.",
+      "tags": [
+        "release-gates",
+        "test-fixtures",
+        "generated-artifacts",
+        "sha256",
+        "provenance"
+      ],
+      "title": "Release-gate fixtures must mirror runtime commands and derived evidence hashes",
+      "top_keywords": [
+        "head",
+        "evidence",
+        "derived",
+        "hashes",
+        "mirror",
+        "commands",
+        "must",
+        "runtime",
+        "release-gate",
+        "fixtures"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -17178,6 +17360,28 @@
         "partner",
         "feature",
         "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+      "slug": "cr-local-evidence-workbench-for-verifiable-research-claims",
+      "status": "done",
+      "summary": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "tags": [],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "local evidence workbench",
+        "verifiable research claims\nmilestone",
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "local",
+        "evidence",
+        "workbench",
+        "verifiable",
+        "claims"
       ]
     },
     {
@@ -20305,13 +20509,13 @@
       ]
     }
   ],
-  "entity_count": 708,
-  "generated": "2026-08-12",
+  "entity_count": 714,
+  "generated": "2026-08-13",
   "schema_version": "0.2.0",
   "topic_count": 5,
   "topics": [
     {
-      "entity_count": 503,
+      "entity_count": 508,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -20356,13 +20560,14 @@
         ".cg-docs/brainstorms/2026-06-16-token-context-optimization-closure.md",
         ".cg-docs/brainstorms/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/brainstorms/2026-07-04-default-all-platform-linking-safe-install-units.md",
-        ".cg-docs/brainstorms/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md",
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
         ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+        ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
+        ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -20450,7 +20655,6 @@
         ".cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md",
         ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
         ".cg-docs/plans/2026-07-05-default-all-platform-linking-safe-install-units.md",
-        ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-country-regional.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-data-blog.md",
         ".cg-docs/plans/2026-07-23-wb-report-writing-executive-summary.md",
@@ -20476,6 +20680,8 @@
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+        ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+        ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -20678,6 +20884,7 @@
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
         ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
+        ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
         ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
@@ -20801,6 +21008,8 @@
         ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
         ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
         ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -20820,10 +21029,10 @@
       "keywords": [
         "roadmap.json",
         "test scenarios",
-        "prompt-tools.tests.ps1"
+        "cg-work"
       ],
-      "label": "Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1",
-      "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
+      "label": "Roadmap.Json / Test Scenarios / Cg-Work",
+      "slug": "roadmap-json-test-scenarios-cg-work"
     },
     {
       "entity_count": 142,
@@ -20980,7 +21189,7 @@
       "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
     },
     {
-      "entity_count": 7,
+      "entity_count": 8,
       "entity_paths": [
         "roadmap.json#cr-evidence-provenance-spine",
         "roadmap.json#cr-measurement-classification-archetype",
@@ -20988,15 +21197,16 @@
         "roadmap.json#cr-scoping-and-normative-gates",
         "roadmap.json#cr-responsible-lifecycle-method-packs",
         "roadmap.json#cr-second-measurement-use-case-validation",
-        "roadmap.json#cr-team-evidence-library"
+        "roadmap.json#cr-team-evidence-library",
+        "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims"
       ],
       "keywords": [
         "expand compound research",
         "responsible research partner\nobjective",
-        "measurement"
+        "research"
       ],
-      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
-      "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
+      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Research",
+      "slug": "expand-compound-research-responsible-research-partner-objective-research"
     },
     {
       "entity_count": 4,
