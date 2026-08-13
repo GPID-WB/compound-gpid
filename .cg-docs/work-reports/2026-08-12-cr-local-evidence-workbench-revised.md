@@ -232,11 +232,6 @@ It records environment, thresholds, update/RSS/memory metrics, and `raw_text: fa
 - Starlette emits a deprecation warning that its TestClient/httpx integration will
 	change; tests remain green and the warning is documented for future dependency
 	maintenance.
-- The broader repository Python suite retains two pre-existing release-fixture
-	assertion failures in `scripts/tests/test_release_gate_targets.py`; no release
-	files were changed by this work.
-- The artifact-view evidence validator reports a pre-existing stale brainstorm-view
-	SHA-256 in `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json`.
 
 ### Final Status
 

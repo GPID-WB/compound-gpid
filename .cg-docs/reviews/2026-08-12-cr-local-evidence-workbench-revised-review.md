@@ -24,7 +24,7 @@ findings:
   P2.3: fixed
   P2.4: fixed
   P2.5: fixed
-  P3.1: skipped
+  P3.1: fixed
 ---
 
 # Final Local Evidence Workbench Review
@@ -158,34 +158,29 @@ findings:
 
 ### P3 -- Advisory
 
-**[P3.1]** `cr-lit-review` -- Branch name does not follow the repository’s documented `type/short-description` convention.
+**[P3.1]** `fix/evidence-review-findings` -- Branch name now follows the repository’s documented `type/short-description` convention.
 
-**Why:** The branch lacks a `feat/`, `fix/`, or equivalent prefix.
+**Why:** The branch was renamed from the unprefixed review name.
 
-**Fix:** Rename before merge if the convention is enforced.
+**Fix:** Renamed the current branch to `fix/evidence-review-findings`.
 
 ## Fix Validation
 
 - 112 package Python tests passed, with one existing Starlette/httpx deprecation warning.
 - Security, browser, API, lifecycle, compatibility, retrieval-profile, and
   reproducibility regressions passed, including committed-manifest validation.
-- Characterization and semantic target-parity checks passed; the two clean-HEAD
-  assertions are expected to remain dirty until the review-fix commit is made.
+- Characterization and clean-HEAD target-drift checks passed.
+- The complete repository Python suite passed: 778 passed, 1 skipped, with two
+  non-failing warnings.
 - Canonical Pester runner passed with 2,443 passed, 0 failed, 3 skipped, and
   `filteredFiles: null`.
 - Module ownership/dependency/cross-suite validation passed.
+- Artifact-view evidence validation passed for 2 artifacts and 6 viewports.
 - Editor diagnostics were clean.
 
 ## Residuals
 
-- P3.1 is skipped because branch renaming was outside the requested review-fix
-  scope; `cr-lit-review` should be renamed before merge if the convention is
-  enforced.
-- The repository Python suite still reports two pre-existing release-fixture
-  assertion failures in `test_release_gate_targets.py`; no release files were
-  changed by this review fix.
-- The design-evidence validator reports a pre-existing stale brainstorm-view
-  SHA-256 in `.cg-docs/work-reports/2026-07-31-dual-audience-workflow-artifact-views.design-evidence.json`.
+None.
 
 ## Review Notes
 

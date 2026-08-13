@@ -41,6 +41,7 @@ def _run_release_fixture(
         "printf '%s\\n' \"$*\" >> \"$CG_GIT_LOG\"\n"
         "case \"$1 $3\" in\n"
         "  '-C rev-parse') case \"$5\" in HEAD*) printf '%s\\n' \"$CG_HEAD_COMMIT\" ;; *) printf '%s\\n' \"$CG_TAG_COMMIT\" ;; esac ;;\n"
+        "  '-C tag') printf '%s\\n' \"$CG_TAG_NAME\" ;;\n"
         "  '-C status') [ \"$CG_DIRTY\" = 1 ] && printf '%s\\n' ' M changed.txt' ;;\n"
         "  'credential fill') printf '%s\\n' 'password=fake-token' ;;\n"
         "esac\nexit 0\n",
@@ -69,6 +70,7 @@ def _run_release_fixture(
         "CG_GIT_LOG": str(git_log),
         "CG_PYTHON_LOG": str(python_log),
         "CG_TAG_COMMIT": tag_commit,
+        "CG_TAG_NAME": "v1.2.3",
         "CG_HEAD_COMMIT": head_commit,
         "CG_DIRTY": "1" if dirty else "0",
         "CG_PYTHON_EXIT": str(python_exit),
@@ -156,7 +158,8 @@ class TestReleaseGateTargets:
         assert f"-C {REPO_ROOT}" in git_log.read_text(encoding="utf-8")
         assert not api_log.exists()
         pytest_args = python_log.read_text(encoding="utf-8")
-        assert str(REPO_ROOT / "scripts/tests/test_target_mapping.py") in pytest_args
+        assert "compound-gpid-release-" in pytest_args
+        assert "scripts/tests/test_target_mapping.py" in pytest_args
 
     def test_release_prompt_requires_gate_before_execute(self) -> None:
         content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
