@@ -61,3 +61,62 @@ None recorded.
 ## Final Status
 
 `active` -- Phase 1 complete; ready for Phase 2.
+
+## Phase 2 Run/Resume (2026-08-12)
+
+- Resumed explicitly with `/cg-work phase2` on branch `cr-lit-review`.
+- Artifact preflight passed: `cg-render-artifact --validate-only`.
+- Active deviation policy: `autonomous` (no runtime override).
+- Steps 4-7 completed on 2026-08-12; Phase 1 evidence and decisions remain unchanged.
+
+### Completed Phase 2 Steps
+
+- Step 4: complete (2026-08-12) -- 10 hashing/discovery tests passed, including
+	hash-based unchanged/revised/moved/removed/duplicate events and symlink escape
+	rejection.
+- Step 5: complete (2026-08-12) -- 11 parser/source-record/identity tests passed
+	across PDF, DOCX, Markdown, LaTeX, and HTML, with typed review-required units
+	and locked pypdf provenance.
+- Step 6: complete (2026-08-12) -- 4 OCR capability tests passed, plus the
+	combined parser/OCR/documentation gate (13 passed); scanned-page output remains
+	low-confidence and original-page verification is mandatory.
+- Step 7: complete (2026-08-12) -- 6 lifecycle tests passed, including exact
+	fingerprint mapping, stale graph propagation, idempotence, re-verification,
+	and interrupted canonical invalidation recovery.
+
+### Phase 2 Evidence Update
+
+| ID | Status | Evidence |
+|----|--------|----------|
+| V5 | passed | Combined parser/OCR/documentation gate: 13 tests passed; pypdf and candidate Tesseract inventory records |
+| V6 | passed | Resource/hash/lifecycle gate: 16 tests passed, including interrupted invalidation recovery |
+
+### Phase 2 Evidence
+
+| ID | Step | Evidence | Status | Artifact |
+|----|------|----------|--------|----------|
+| V5 | 5-6 | PDF, DOCX, Markdown, LaTeX, HTML, and OCR paths produce deterministic records and explicit uncertainty | passed | V5 gate: 13 tests |
+| V6 | 7 | Resource lifecycle events map source versions/units and stale affected evidence, claims, and analysis links | passed | V6 gate: 16 tests |
+
+### Phase 2 Remaining Uncertainty
+
+- Parser and OCR dependencies must be inventoried with exact versions, licenses,
+  network behavior, platform support, and caveats before activation.
+- Tesseract remains a `candidate` capability until setup, enterprise review, and
+	a verified local engine version/hash are recorded.
+
+### Phase 2 Constraints Check
+
+| ID | Constraint | Status | Evidence |
+|----|------------|--------|----------|
+| C2 | Legacy external records remain quarantined and read-only | passed | Phase 1 compatibility tests remain green in 67-test package suite |
+| C3 | Typed source identity and locator versions prevent unsafe remapping | passed | Parser/version and lifecycle mapping tests |
+| C4 | Canonical writes are journaled, locked, revisioned, and recoverable | passed | Lifecycle persistence recovery test |
+| C5 | Normal processing is loopback-only and offline | passed | Phase 1 network tests plus OCR no-network contract |
+| C6 | Included parser/OCR components have inventory records and caveats | passed | pypdf and candidate Tesseract inventory entries |
+| C8 | New Python code has required docstrings | passed | Documentation AST gate |
+| C9 | Generated state is path-safe and uncommitted by default | passed | Resource path/symlink tests and package ignore rules |
+
+### Phase 2 Status
+
+`active` -- Phase 2 complete; ready for Phase 3.

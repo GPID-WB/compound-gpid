@@ -236,6 +236,7 @@ class SourceVersion(BaseModel):
         resource_id: Logical resource identifier.
         sha256: Original resource byte hash.
         parser_profile: Exact parser and configuration profile.
+        parser_version: Exact parser package or runtime version.
         locator_schema_version: Typed locator contract version.
         original_authority: Whether original bytes remain available.
 
@@ -252,6 +253,7 @@ class SourceVersion(BaseModel):
     resource_id: str = Field(min_length=1)
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     parser_profile: str = Field(min_length=1)
+    parser_version: str = "unknown"
     locator_schema_version: str = Field(min_length=1)
     original_authority: bool = True
 
@@ -265,6 +267,9 @@ class SourceUnit(BaseModel):
         locator: Typed locator for the unit.
         text: Extracted text used for review and indexing.
         heading_path: Heading context retained for inspection.
+        unit_type: Prose, table, equation, figure, or other semantic unit type.
+        review_required: Whether the unit requires special researcher review.
+        parser_metadata: Parser and format metadata retained for provenance.
 
     Returns:
         A validated source unit.
@@ -280,6 +285,18 @@ class SourceUnit(BaseModel):
     locator: TypedLocator
     text: str = Field(min_length=1)
     heading_path: list[str] = Field(default_factory=list)
+    unit_type: Literal[
+        "prose",
+        "table",
+        "figure",
+        "equation",
+        "caption",
+        "footnote",
+        "image",
+        "unknown",
+    ] = "prose"
+    review_required: bool = False
+    parser_metadata: dict[str, str] = Field(default_factory=dict)
 
 
 class EvidenceRecord(BaseModel):

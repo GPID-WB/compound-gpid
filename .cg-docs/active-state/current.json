@@ -1,22 +1,24 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-12T00:00:00Z",
+  "updatedAt": "2026-08-13T01:00:30Z",
   "workflow": "/cg-work",
   "status": "active",
   "branch": "cr-lit-review",
   "plan": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
   "executionReport": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md",
-  "currentPhase": 2,
+  "currentPhase": 3,
   "evidenceStatus": [
     {"id": "V1", "status": "passed", "artifact": "uv lock --project research_evidence --check; 14 focused pytest tests"},
     {"id": "V2", "status": "passed", "artifact": "pytest test_thin_loop.py -q: 3 passed; stale-original rejection"},
     {"id": "V3", "status": "passed", "artifact": "pytest schema/identity/compatibility fixtures -q: 10 passed"},
-    {"id": "V4", "status": "passed", "artifact": "pytest test_transactions.py -q: 4 passed; secure_fs publication"}
+    {"id": "V4", "status": "passed", "artifact": "pytest test_transactions.py -q: 4 passed; secure_fs publication"},
+    {"id": "V5", "status": "passed", "artifact": "V5 parser/OCR/documentation gate: 13 passed"},
+    {"id": "V6", "status": "passed", "artifact": "V6 resource/lifecycle gate: 16 passed; recovery included"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
     {"kind": "plan", "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"},
     {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-revised.md", "status": "active"}
   ],
-  "nextCommand": "/cg-work phase2"
+  "nextCommand": "/cg-work phase3"
 }

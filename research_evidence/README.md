@@ -27,6 +27,16 @@ remote hosts, hidden downloads, telemetry, and external model/API fallbacks are
 rejected. Original resources remain authoritative; YAML records and review
 history are canonical, while indexes and other runtime caches are derived.
 
+## Format and OCR boundary
+
+Phase 2 parses PDF, DOCX, Markdown, LaTeX, and HTML resources into typed source
+units. Page, paragraph, table-row, block, heading, anchor, equation, and other
+locators are retained. Tables and equations are marked review-required rather
+than treated as ordinary prose. Image-only PDFs expose an explicit OCR
+requirement; the OCR profile is local and inventory-controlled, and OCR output
+is always low-confidence until the original page is independently verified.
+No OCR engine is downloaded or contacted during normal processing.
+
 ## Dependency inventory
 
 Every package, parser, executable, model, and weight distribution is recorded in

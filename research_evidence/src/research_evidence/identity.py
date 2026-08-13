@@ -68,6 +68,7 @@ def make_source_version_id(
     source_hash: str,
     parser_profile: str,
     locator_schema_version: str,
+    parser_version: str = "",
 ) -> str:
     """Derive an immutable source-version ID from all compatibility inputs.
 
@@ -76,6 +77,8 @@ def make_source_version_id(
         source_hash: Lowercase SHA-256 of original bytes.
         parser_profile: Exact parser and configuration profile.
         locator_schema_version: Typed locator contract version.
+        parser_version: Optional exact parser version; omitted for Phase 1
+            compatibility with the original identity contract.
 
     Returns:
         A deterministic ``source-version:`` identifier.
@@ -83,7 +86,10 @@ def make_source_version_id(
     Example:
         ``make_source_version_id("r1", "a" * 64, "markdown-v1", "locator-v1")``.
     """
-    payload = "\x1f".join((resource_id, source_hash, parser_profile, locator_schema_version))
+    components = [resource_id, source_hash, parser_profile, locator_schema_version]
+    if parser_version:
+        components.append(parser_version)
+    payload = "\x1f".join(components)
     return "source-version:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 

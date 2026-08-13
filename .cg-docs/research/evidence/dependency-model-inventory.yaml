@@ -65,3 +65,35 @@ entries:
     caveat_disclaimer: Development-only dependency; local execution is not an enterprise approval.
     activation_status: enabled-local
     activation_acknowledged: false
+  - id: pypdf
+    kind: package
+    distribution_source: https://pypi.org/project/pypdf/6.15.0/
+    exact_version_or_revision: 6.15.0
+    sha256: 14e001d6504822cb1ca9c7ed9a69bccb320f59b320730f55af804361abe4d5ee
+    license_or_access_terms: BSD-3-Clause
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Maintained local PDF text extraction with page-aware parsing.
+    caveat_disclaimer: Text extraction does not replace original-page verification; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: tesseract-ocr
+    kind: executable
+    distribution_source: https://github.com/tesseract-ocr/tesseract
+    exact_version_or_revision: 5.3.4
+    sha256: null
+    license_or_access_terms: Apache-2.0
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known; runtime process is locally allowlisted.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Candidate local OCR engine for scanned PDF page images.
+    caveat_disclaimer: Candidate only; OCR output is retrieval assistance and requires original-page verification. Local execution is not enterprise approval.
+    activation_status: candidate
+    activation_acknowledged: false
