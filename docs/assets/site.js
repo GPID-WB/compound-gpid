@@ -194,21 +194,47 @@ function markdownToHtml(markdown) {
 }
 
 function buildNavigation(groups) {
-  const homeLink = '<a href="#home" data-route="home"><span>00</span> Overview</a>';
-  const sections = groups.map((group, groupIndex) => {
-    const links = group.pages.map((page, pageIndex) => {
-      const number = `${groupIndex + 1}.${pageIndex + 1}`;
-      return `<a href="#page=${page.id}" data-route="${page.id}"><span>${number}</span>${escapeHtml(page.title)}</a>`;
-    }).join("");
-    return `<section class="nav-group" aria-labelledby="nav-group-${groupIndex}"><h2 id="nav-group-${groupIndex}">${escapeHtml(group.title)}</h2>${links}</section>`;
-  }).join("");
-  navigation.innerHTML = homeLink + sections;
+  navigation.replaceChildren();
+  const appendLink = (parent, id, number, title) => {
+    const link = document.createElement("a");
+    link.href = id === "home" ? "#home" : `#page=${encodeURIComponent(id)}`;
+    link.dataset.route = id;
+    const label = document.createElement("span");
+    label.textContent = number;
+    link.append(label, ` ${title}`);
+    parent.append(link);
+  };
+  appendLink(navigation, "home", "00", "Overview");
+  groups.forEach((group, groupIndex) => {
+    const section = document.createElement("section");
+    section.className = "nav-group";
+    const heading = document.createElement("h2");
+    heading.id = `nav-group-${groupIndex}`;
+    heading.textContent = group.title;
+    section.setAttribute("aria-labelledby", heading.id);
+    section.append(heading);
+    group.pages.forEach((page, pageIndex) => appendLink(section, page.id, `${groupIndex + 1}.${pageIndex + 1}`, page.title));
+    navigation.append(section);
+  });
 }
 
 async function loadManifest() {
   const response = await fetch("navigation.json");
   if (!response.ok) throw new Error("Could not load documentation navigation.");
   const manifest = await response.json();
+  if (!Array.isArray(manifest.groups)) throw new Error("Documentation navigation is invalid.");
+  for (const group of manifest.groups) {
+    if (!group || typeof group.title !== "string" || !Array.isArray(group.pages)) {
+      throw new Error("Documentation navigation group is invalid.");
+    }
+    for (const page of group.pages) {
+      if (!page || !/^[a-z0-9-]+$/.test(page.id) || typeof page.title !== "string"
+        || typeof page.description !== "string" || typeof page.file !== "string"
+        || !/^[a-z0-9][a-z0-9./-]*\.md$/.test(page.file) || page.file.includes("..")) {
+        throw new Error("Documentation navigation page is invalid.");
+      }
+    }
+  }
   pages = manifest.groups.flatMap((group) => group.pages.map((page) => ({ ...page, group: group.title })));
   pageMap = new Map(pages.map((page) => [page.id, page]));
   fileMap = new Map(pages.map((page) => [normalizePath(page.file), page]));

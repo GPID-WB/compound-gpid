@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
+_Generated 2026-08-13 · 717 entities · 5 topics · 309 edges_
 
 ## How to Use
 
@@ -13,8 +13,8 @@ _Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 503 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 142 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 506 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 144 | BRAIN-02.md |
 | 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
 | 4 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
 | 5 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
@@ -23,21 +23,21 @@ _Generated 2026-08-12 · 708 entities · 5 topics · 304 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 54 |
-| feature | 149 |
-| plan | 113 |
-| review | 167 |
-| solution | 210 |
+| brainstorm | 55 |
+| feature | 151 |
+| plan | 114 |
+| review | 170 |
+| solution | 212 |
 | strategy | 15 |
 
-_49 entities not assigned to any topic_
+_53 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 77 |
+| decided_from | 78 |
 | implements | 26 |
-| references | 57 |
-| reviews | 90 |
-| verifies | 54 |
+| references | 58 |
+| reviews | 92 |
+| verifies | 55 |

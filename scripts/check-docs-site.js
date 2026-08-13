@@ -1,9 +1,12 @@
+"use strict";
 const { access, readFile, readdir } = require("node:fs/promises");
 const { constants } = require("node:fs");
 const path = require("node:path");
 
 const root = process.cwd();
-const docsRoot = path.join(root, "docs");
+const docsRoot = process.env.CG_DOCS_ROOT
+  ? path.resolve(process.env.CG_DOCS_ROOT)
+  : path.join(root, "docs");
 
 function slugify(value) {
   return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
@@ -80,12 +83,13 @@ async function validateSkillsCatalog() {
 
 (async () => {
   const requiredFiles = [
-    "docs/index.html", "docs/navigation.json", "docs/assets/site.css",
-    "docs/assets/site.js", "docs/.nojekyll"
+    path.join(docsRoot, "index.html"), path.join(docsRoot, "navigation.json"),
+    path.join(docsRoot, "assets", "site.css"), path.join(docsRoot, "assets", "site.js"),
+    path.join(docsRoot, ".nojekyll")
   ];
   for (const file of requiredFiles) await access(file, constants.R_OK);
 
-  const manifest = JSON.parse(await readFile("docs/navigation.json", "utf8"));
+  const manifest = JSON.parse(await readFile(path.join(docsRoot, "navigation.json"), "utf8"));
   if (manifest.schemaVersion !== "compound-gpid-docs-navigation-v1") {
     throw new Error("Unexpected documentation navigation schema version.");
   }
@@ -97,6 +101,12 @@ async function validateSkillsCatalog() {
   const pageFiles = pages.map((page) => page.file);
   if (new Set(ids).size !== ids.length) throw new Error("Documentation page IDs must be unique.");
   if (new Set(pageFiles).size !== pageFiles.length) throw new Error("Documentation files must appear only once in navigation.");
+  for (const page of pages) {
+    if (!/^[a-z0-9-]+$/.test(page.id)) throw new Error(`Documentation page ID is unsafe: ${page.id}`);
+    if (!/^[a-z0-9][a-z0-9./-]*\.md$/.test(page.file) || page.file.includes("..")) {
+      throw new Error(`Documentation page file is unsafe: ${page.file}`);
+    }
+  }
   const requiredRoutes = new Map([
     ["philosophy", "philosophy.md"], ["getting-started", "getting-started/index.md"], ["why-compound-gpid", "why-compound-gpid.md"],
     ["workflows", "workflows/index.md"], ["skills", "skills/index.md"],
@@ -122,14 +132,14 @@ async function validateSkillsCatalog() {
     if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
 
-  const html = await readFile("docs/index.html", "utf8");
+  const html = await readFile(path.join(docsRoot, "index.html"), "utf8");
   for (const semantic of ["<main", "<nav", "<dialog", "skip-link", "aria-controls=\"sidebar\""]) {
     if (!html.includes(semantic)) throw new Error(`Site shell is missing accessibility semantic: ${semantic}`);
   }
   const shellRoutes = [...html.matchAll(/#page=([a-z-]+)/g)].map((match) => match[1]);
   const unknownShellRoutes = shellRoutes.filter((id) => !ids.includes(id));
   if (unknownShellRoutes.length) throw new Error(`Site shell references unknown routes: ${unknownShellRoutes.join(", ")}.`);
-  const siteScript = await readFile("docs/assets/site.js", "utf8");
+  const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
   for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen", "#{1,6}"]) {
     if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
@@ -138,7 +148,81 @@ async function validateSkillsCatalog() {
   for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
     if (!workflow.includes(action)) throw new Error(`Pages workflow must use ${action}.`);
   }
-  if (!workflow.includes("path: docs")) throw new Error("Pages workflow must upload the docs directory.");
+  if (!workflow.includes("path: docs") || !workflow.includes("path: site-artifact/docs")) {
+    throw new Error("Pages workflow must upload direct and downloaded docs artifacts.");
+  }
+
+  // -------------------------------------------------------------------------
+  // What's New route, page, heading, and release marker pair.
+  // -------------------------------------------------------------------------
+  const whatsNewPage = pages.find((page) => page.id === "whats-new");
+  if (!whatsNewPage) throw new Error("Documentation must expose a what's-new route.");
+  if (whatsNewPage.file !== "whats-new.md") throw new Error("What's New route must target whats-new.md.");
+  const whatsNewContent = await readFile(path.join(docsRoot, whatsNewPage.file), "utf8");
+  if (!/^\uFEFF?#\s+What.s New/m.test(whatsNewContent)) {
+    throw new Error("docs/whats-new.md must have a level-one What's New heading.");
+  }
+  const releaseOpen = whatsNewContent.indexOf("<!-- cg:auto:release-notes -->");
+  const releaseClose = whatsNewContent.indexOf("<!-- cg:auto:end -->");
+  if (releaseOpen === -1 || releaseClose === -1 || releaseClose < releaseOpen) {
+    throw new Error("docs/whats-new.md must contain a paired release-notes marker.");
+  }
+
+  // -------------------------------------------------------------------------
+  // Split Technical/Research prompt markers in reference.md (marker migration).
+  // -------------------------------------------------------------------------
+  const referenceContent = await readFile(path.join(docsRoot, "reference.md"), "utf8");
+  const cmdOpen = (referenceContent.match(/<!-- cg:auto:commands -->/g) || []).length;
+  const cmdClose = (referenceContent.match(/<!-- cg:auto:end -->/g) || []).length;
+  const researchOpen = (referenceContent.match(/<!-- cg:auto:research-commands -->/g) || []).length;
+  if (cmdOpen !== 1 || cmdClose !== 2 || researchOpen !== 1) {
+    throw new Error("reference.md markers must be a single commands pair plus a research-commands pair.");
+  }
+  const commandsPos = referenceContent.indexOf("<!-- cg:auto:commands -->");
+  const researchPos = referenceContent.indexOf("<!-- cg:auto:research-commands -->");
+  const commandsClose = referenceContent.indexOf("<!-- cg:auto:end -->");
+  const researchClose = referenceContent.indexOf("<!-- cg:auto:end -->", commandsClose + 1);
+  if (!(commandsPos < commandsClose && commandsClose < researchPos && researchPos < researchClose)) {
+    throw new Error("commands and research-commands markers must be ordered and non-overlapping.");
+  }
+
+  // -------------------------------------------------------------------------
+  // Complete-build artifact handoff and freshness contract.
+  // -------------------------------------------------------------------------
+  const rebuildWorkflow = await readFile(".github/workflows/doc-rebuild.yml", "utf8");
+  const rebuildContract = [
+    "branches: [main]",
+    "contents: write",
+    "rebuild-docs.js --all",
+    "git diff --quiet -- docs/",
+    "git add -- docs/",
+    "docs-site",
+    ".docs-build-metadata.json",
+  ];
+  for (const token of rebuildContract) {
+    if (!rebuildWorkflow.includes(token)) throw new Error(`doc-rebuild.yml must reference ${token}.`);
+  }
+  if (!rebuildWorkflow.includes("include-hidden-files: true")) {
+    throw new Error("doc-rebuild.yml must include hidden artifact files.");
+  }
+  if (!/workflow_run\s*:/.test(workflow)) {
+    throw new Error("pages.yml must consume doc-rebuild via workflow_run.");
+  }
+  const pagesContract = [
+    "Rebuild documentation",
+    "actions/download-artifact",
+    "run-id:",
+    "--verify-artifact",
+    "--verify-fingerprint",
+    "site-artifact/docs",
+    "tags: [\"v*.*.*\"]",
+    "workflow_dispatch",
+    "rebuild-docs.js --all",
+    "resolve-immutable-ref",
+  ];
+  for (const token of pagesContract) {
+    if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
+  }
 
   await validateMarkdownLinks(markdownFiles);
   await validateSkillsCatalog();

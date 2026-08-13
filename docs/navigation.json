@@ -4,6 +4,7 @@
     {
       "title": "Start",
       "pages": [
+        { "id": "whats-new", "title": "What's New", "file": "whats-new.md", "description": "Release-backed history of Compound GPID changes, newest first, from validated release payloads." },
         { "id": "philosophy", "title": "Working with AI Responsibly", "file": "philosophy.md", "description": "The epistemic risks, principles, and human responsibilities behind the plugin." },
         { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, select suites, configure, and complete a first useful workflow." },
         { "id": "modular-guide", "title": "Modular Guide", "file": "modular-guide.md", "description": "Choose technical or research suites and understand capability composition." },

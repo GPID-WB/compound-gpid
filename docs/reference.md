@@ -106,7 +106,6 @@ evaluation-only: `local-workflow` remains the only active mode.
 
 > Core install commands are available from PowerShell on Windows and from bash/zsh on macOS. The `cg-*-summary` wrappers are bash wrappers in `bin/`; use them from bash/zsh or run `python scripts/cg_summary.py <kind>` directly on Windows.
 
-<!-- cg:auto:shell-commands -->
 | Command | Where to run | Purpose |
 |---------|-------------|---------|
 | `cg-link [--platforms <list>]` | Project root | Link all supported platforms by default: Copilot `.github/`, Claude Code `.claude/`, Codex `.agents/`, OpenCode `.opencode/`, and Kilo `.kilo/`. Use `--platforms copilot` or another comma-separated list to narrow the install. |
@@ -138,7 +137,6 @@ schema 2. Every destination has one source owner identified by `sourcePath`,
 `documentType`, and `outputPath`. Existing corrupt or differently owned output
 fails without mutation. Brainstorms and Plans retain strict validation and must
 use `cg-render-artifact`; generic publishing cannot act as a schema bypass.
-<!-- cg:auto:end -->
 
 ---
 
@@ -165,30 +163,33 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 <!-- cg:auto:commands -->
 | Prompt | Purpose |
 |--------|---------|
-| `/cg-setup` | Configure a new project or load context for a returning project. |
-| `/cg-strategy` | Structure or rethink the project vision and roadmap; dispatches roadmap writes. |
-| `/cg-ideate` | Generate, critique, and filter possible next work when the task is not yet selected. |
-| `/cg-brainstorm [--no-branch]` | Clarify fuzzy requirements, assess scope, check prior brainstorms, and challenge proposed approaches. |
-| `/cg-plan [--no-phases] [deviate:<policy>]` | Create a researched implementation plan with phases and a completion contract. |
-| `/cg-plan-review` | Review implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. |
-| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | Execute a plan against its completion contract, record evidence, and update roadmap state. |
-| `/cg-fixbug` | Structured bug-fix workflow: intake, expected-behavior source at Step 1.5, reproduce, test-gap classification at Step 2.5, diagnose, fix with red-green proof, verify, document. |
-| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
-| `/cg-fix-triage` | Apply review findings from saved reports by priority or finding ID. |
-| `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
-| `/cg-compound` | Capture a verified solved problem as reusable knowledge in `.cg-docs/solutions/`. Offers `.github/` instruction or skill update suggestions; the user applies those changes manually. |
-| `/cg-compound-refresh` | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
 | `/cg-brain-rebuild` | Rebuild the project knowledge brain (BRAIN.md + indexes). |
-| `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
-| `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
-| `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
-| `/cg-token-audit` | Analyze Compound GPID token/context usage and suggest capability- and effort-aware workflow choices. |
-| `/cg-wiki` | Manage the project wiki: status, init, rebuild, restructure, or convert. |
-| `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-brainstorm` | Brainstorm answers about what to build and how. Use when requirements are fuzzy. |
 | `/cg-commit-push-pr` | Stage changes into logical commits, push, and open a PR with plan-driven description. |
-| `/cg-verify-pr` | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
-| `/cg-devtag` | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
+| `/cg-compound-refresh` | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
+| `/cg-compound` | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. |
+| `/cg-devtag` | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
+| `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
+| `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
+| `/cg-fix-triage` | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. |
+| `/cg-fixbug` | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
+| `/cg-ideate` | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
+| `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
+| `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
+| `/cg-release` | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
+| `/cg-render-doc` | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
+| `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
+| `/cg-review` | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
+| `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
+| `/cg-setup` | Configure Compound GPID for this project and load context for returning projects. |
+| `/cg-strategy` | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. |
+| `/cg-token-audit` | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
+| `/cg-verify-pr` | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
+| `/cg-wiki` | Manage the project wiki: initialize, rebuild pages, restructure sections, check status, or convert to GitHub Wiki format. |
+| `/cg-work` | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |
+<!-- cg:auto:end -->
 
 ### Research Suite Commands
 
@@ -197,13 +198,15 @@ These commands are owned by `suite-cr` and are available when `suites:` in
 language, review, knowledge, and publication capabilities without depending on
 the technical command suite.
 
+<!-- cg:auto:research-commands -->
 | Prompt | Purpose |
 |--------|---------|
-| `/cr-brainstorm` | Scope a research question, classify the task, inventory evidence, and surface normative decisions for human approval. |
-| `/cr-plan` | Create a phased research plan with integrity, provenance, method, verification, and communication gates. |
-| `/cr-work [phaseX]` | Execute a research plan while maintaining evidence, specification, seed, derivation, and implementation records. |
-| `/cr-review` | Classify the research task and conditionally dispatch research integrity, provenance, method, measurement, writing, output, and replication reviewers. |
-| `/cr-compound` | Capture a verified research lesson and rebuild the project Brain without treating generated views as authority. |
+| `/cr-brainstorm` | Research brainstorm — clarify fuzzy research requirements. Classifies task type (theory, EDA, implementation, ML, writing, etc.) and guides methodology decisions. Use for economics and econometrics research tasks. |
+| `/cr-compound` | Research compound — capture a solved research problem for future reuse. Extends /cg-compound with research-specific categories: identification, specification, derivation, ml-methodology, reproducibility. |
+| `/cr-plan` | Research plan — structured implementation plan for research tasks. Use after /cr-brainstorm to create concrete steps. |
+| `/cr-review` | Research review — multi-agent code and methodology review. Orchestrates cg-* agents (code quality, testing, reproducibility) and cr-* agents (research integrity, mathematical verification, identification audit, econometric reasoning). Produces prioritized P0/P1/P2/P3 findings. |
+| `/cr-work` | Research work — implement a research plan step by step. Supports /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements. |
+<!-- cg:auto:end -->
 
 The research lifecycle is `Scope -> Evidence -> Theory -> Method -> Execute ->
 Verify -> Communicate -> Maintain`. Use `/cr-review`, not `/cg-review`, for
@@ -274,7 +277,6 @@ Workflow baseline artifacts:
 Model-advisory guardrails report executable model metadata, invalid advisory provenance or effort labels, missing user-control language, and stale stage coverage. Runtime-only quantities such as command-output size, picker availability, and summary size remain explicit observed/not_observed fields until instrumentation exists.
 
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
-<!-- cg:auto:end -->
 
 ### Active-State Handoff Records
 
