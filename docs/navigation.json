@@ -62,6 +62,7 @@
       "pages": [
         { "id": "development", "title": "Contribute and Develop", "file": "development/index.md", "description": "Repository development, tests, documentation, and releases." },
         { "id": "copilot-readiness", "title": "Copilot Issue Readiness", "file": "copilot-readiness.md", "description": "Canonical readiness contract and deterministic read-only validator for Copilot implementation issues." },
+        { "id": "copilot-dispatch", "title": "Copilot Issue Dispatch", "file": "copilot-dispatch.md", "description": "Manually triggered single-issue Copilot dispatcher: inputs, dry-run, permissions, mutation order, and recovery." },
         { "id": "competitive-reviews", "title": "Competitive Reviews", "file": "competitive-reviews.md", "description": "Maintainer-only external repository review workflow." },
         { "id": "documentation-audit", "title": "Documentation Migration", "file": "about/documentation-audit.md", "description": "Source inventory, preservation decisions, and future review items." }
       ]

@@ -391,3 +391,144 @@ run: 1
   present.
 - Deterministic fixture and injected-client dry runs verified exit codes 0, 2,
   3, and 4. Phase 5 was not started.
+
+---
+
+## Run 5 — Stage 3 (Phase 5): Single-issue manual dispatcher (2026-08-11)
+
+- Invocation: `phase5`; scope Phase 5 only — the bounded Stage 3 dispatcher.
+  Phase 6 and later were explicitly out of scope and not started.
+- **Precondition gate** (read-only verification, all passed):
+  - `main` contains merge commit `8881a2d083d0bf8360c89e7732ba187dea3638a0`
+    ("Merge pull request #135 from GPID-WB/issue-implementation-phase-4"); local
+    `main`, `origin/main`, and the working branch are all at this commit.
+  - Plan frontmatter records `completed-phases: [1, 2, 3, 4]` and
+    `current-phase: 5`.
+  - Stage 2 readiness validator and its tests are present on `main`
+    (`scripts/issues/readiness.py`, `scripts/issue_readiness.py`,
+    `scripts/tests/test_issue_readiness.py`).
+- **Artifact validation preflight** (run before any write):
+  `cg-render-artifact --validate-only
+  .cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md` →
+  `Validated ...`, exit 0.
+- **Active-state reconciliation (2026-08-11, no deviation)**: the pre-merge D6
+  blocker ("review, commit, push, and merge the Stage 2 implementation ... before
+  running /cg-work phase5") is now obsolete — PR #135 (Stage 2) is merged per the
+  precondition gate. The old branch reference (`issue-implementation-phase-4`)
+  and the obsolete `nextCommand` ("review and merge PR #135, then run /cg-work
+  phase5") were reconciled to the current branch `issue-implementation-phase5`
+  and the Phase 5 handoff. D6 was removed from `unresolvedDecisions`; D4 and D5
+  (non-blocking) are retained. The historical D6 record remains in this Run 5
+  section (and prior runs) — the stale entry in `current.json` was replaced, not
+  silently deleted.
+- **Fixed design decisions** (bounded Stage 3, per the invocation):
+  - A `workflow_dispatch`-only workflow; exactly one explicit `issue_number`
+    input and a `dry_run` input defaulting to `true`.
+  - Effective concurrency of one via `concurrency: group: copilot-dispatch,
+    cancel-in-progress: false`.
+  - No schedules, polling, batch selection, automatic merging, automatic
+    roadmap updates, or milestone progression.
+  - Runs only trusted code from the default branch (checkout pins
+    `github.event.repository.default_branch`); never checks out a PR head or
+    untrusted ref.
+  - Reuses the Stage 2 validator (`validate_readiness`) as the gate; no parsing
+    or validation rules were reproduced in the dispatcher.
+  - Dry-run is a true zero-mutation path.
+  - Before any non-dry-run mutation: validate readiness; perform all
+    duplicate/idempotency checks; revalidate readiness immediately before
+    assignment; fail closed if either validation fails or state changes.
+  - Non-dry-run mutation order: assign only `copilot-swe-agent[bot]`; only after
+    assignment succeeds set Project Status `In progress`; then add an audit
+    comment.
+  - Assignment-succeeds-but-Project-fails: no automatic unassign, no rollback
+    speculation, an observable audit/failure comment, non-zero exit, and the
+    manual recovery procedure documented (also in `docs/copilot-dispatch.md`).
+  - Repeat dispatch on an already-assigned issue or existing implementation PR
+    is an idempotent no-op (exit 0) with a clear explanation.
+  - Separate least-privilege credentials: `COPILOT_ASSIGN_TOKEN` (assignment +
+    audit comments) and `PROJECT_SYNC_TOKEN` (Project Status). No combined
+    token; no secrets/settings created by the workflow (documented as required
+    setup in the handoff).
+  - Neither credential is referenced by any `pull_request` or
+    `pull_request_target` workflow (verified statically by tests).
+  - Issue content is treated as untrusted input; argv-safe and path-safe
+    patterns preserved (temp-file bodies, `gh --input` / `--body-file`, never
+    shell interpolation).
+- **Implemented files**:
+  - `.github/workflows/copilot-dispatch.yml` — `workflow_dispatch`-only
+    dispatcher workflow (`issue_number` + `dry_run` default true, concurrency 1,
+    least privilege, trusted default-branch checkout, two separate secrets).
+  - `scripts/issues/dispatch.py` — dispatcher orchestration (`run_dispatch`),
+    result type, exit codes (0/2/3/4/5/6/7), CLI.
+  - `scripts/issues/dispatch_client.py` — `GhDispatchMutator` (assign / Project
+    Status / comment) with separated credentials and temp-file argv-safe bodies;
+    `DispatchMutator` protocol.
+  - `scripts/issues/dispatch_contract.py` — shared contract types and constants.
+  - `scripts/issues/dispatch_render.py` — JSON and human-readable result renderers.
+  - `scripts/issues/dispatch_cli.py` — CLI parser and main entry point.
+  - `scripts/issues/dispatch_util.py` — process and temp-file helpers with
+    credential isolation (source credentials removed from child environment).
+  - `scripts/issues/dispatch_project.py` — Project-v2 GraphQL queries with
+    cursor-based pagination and mutation verification.
+  - `scripts/issue_dispatch.py` — thin CLI shim mirroring
+    `scripts/issue_readiness.py`.
+  - `scripts/tests/test_issue_dispatch.py` — 77 deterministic mocked tests:
+    dry-run zero mutations; initial readiness failure (not-ready/config/api);
+    idempotent no-op for already-assigned and existing open PR (live + dry-run);
+    readiness changing before the second validation fails closed; assignment
+    failure leaves status untouched and comments; assignment-succeeds-Project-
+    fails keeps assignee and documents recovery; Project update never occurs
+    before assignment (ordering indexed check); audit-comment ordering and
+    partial-failure reporting; exact `copilot-swe-agent[bot]` bot identity;
+    CLI wiring and JSON schema; mutation-client units (per-token separation,
+    missing token fail-closed, unsupported status, issue-not-on-project);
+    workflow static constraints (trigger, inputs, concurrency, permissions,
+    trusted checkout, both secrets) and cross-workflow secret isolation.
+  - `.github/workflows/tests.yml` — `scripts/tests/test_issue_dispatch.py` added
+    to the required `native-targets` first pytest list (one line).
+  - `docs/copilot-dispatch.md` — dispatch inputs, dry-run, permissions,
+    mutation order, exit codes, credential isolation, manual recovery;
+    registered in `docs/navigation.json`; readiness page cross-ref updated.
+- **No live GitHub mutations**: issue #127 was NOT dispatched; no live issue was
+  dispatched or run through the new workflow, even in dry-run mode. All
+  validation used fixtures, fakes, and stub `gh` runners. No issue, Project,
+  PR, comment, label, or assignment mutation was performed. No credentials were
+  created or repository settings changed.
+- **Validation results** (executed checks):
+  - Focused dispatcher suite: `python -m pytest scripts/tests/test_issue_dispatch.py -q`
+    → **77 passed**, exit 0.
+  - Focused readiness suite (regression guard): → **194 passed**, exit 0.
+  - Exact native-targets CI pytest list (17 files incl. the new dispatcher
+    test): **607 passed, 11 skipped**, exit 0.
+  - `python -m py_compile` on all new modules → pass.
+  - `node scripts/check-docs-site.js` → passed (35 navigable Markdown pages,
+    6 groups).
+  - Workflow YAML parses (PyYAML note: `on:` becomes YAML 1.1 `true` under
+    PyYAML — this is a PyYAML quirk, not a GitHub issue; GitHub's parser and the
+    repo's other workflows use the same `on:` syntax).
+- **Phase 5 status**: **NOT completed** by this run, per the invocation. Live
+  workflow validation against a real issue remains outstanding and requires
+  explicit human authorization after review/merge, plus the required
+  credential/environment setup. `completed-phases` was NOT appended (stays
+  `[1, 2, 3, 4]`); `current-phase` stays `5`; `status` stays `active`. No
+  `failing-steps` were recorded.
+- **Deviation policy**: `ask` (plan value; no runtime override). No deviations
+  were taken; all work stayed within the bounded Stage 3 scope.
+- **Roadmap**: no feature in `roadmap.json` carries this plan's `plan` path, so
+  no roadmap active-status or done dispatch was performed (consistent with
+  Runs 1–4).
+- **Evidence gate**: Phase 5 has no phased Verification-Surface rows in the plan
+  (V1–V7 are Phase 1; V8/V9 are final) and no final phasing is being recorded
+  because the phase is intentionally left incomplete pending live validation.
+- **Handoff (next)**: review and merge the Phase 5 PR, then before ANY live
+  dispatch: create the `COPILOT_ASSIGN_TOKEN` and `PROJECT_SYNC_TOKEN`
+  environment-protected repository secrets, create the protected environment,
+  and run the workflow first in dry-run mode on a fixture/throwaway issue, then
+  a supervised live dispatch under `/cg-work phase5` continuation or `/cg-resume`.
+  Manual recovery steps for the partial-failure state are in
+  `docs/copilot-dispatch.md`.
+- **Final status (Run 5)**: **completed as an implementation+deterministic
+  validation run**; Phase 5 itself remains **not completed** (live validation
+  pending), paused for review/merge and supervised live validation.
+
+---
