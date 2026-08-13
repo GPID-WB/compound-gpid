@@ -1,4 +1,4 @@
-"""Created 2026-08-12. Derived SQLite FTS lexical index for source units."""
+"""Created 2026-08-13. Generalized derived SQLite FTS lexical baseline."""
 from __future__ import annotations
 
 import json
@@ -10,10 +10,11 @@ from typing import Optional
 from ..schemas import SourceUnit, TypedLocator
 
 _TOKEN_PATTERN = re.compile(r"[\w]+(?:[-'][\w]+)*", re.UNICODE)
+_INDEX_SCHEMA = "research-evidence-lexical-v2"
 
 
 class LexicalIndex:
-    """Maintain a deterministic local SQLite FTS5 index of source units.
+    """Maintain a deterministic local SQLite FTS5 index of typed source units.
 
     Args:
         path: Derived SQLite database path; canonical YAML remains authoritative.
@@ -26,13 +27,16 @@ class LexicalIndex:
     """
 
     def __init__(self, path: Path) -> None:
-        """Open or create the derived FTS database.
+        """Open or create the versioned derived FTS database.
 
         Args:
             path: SQLite database path.
 
         Returns:
             ``None``; the index is ready for rebuild or search.
+
+        Raises:
+            sqlite3.DatabaseError: If an existing database is corrupt.
 
         Example:
             ``LexicalIndex(tmp_path / "index.sqlite")``.
@@ -41,23 +45,29 @@ class LexicalIndex:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(self.path)
         self.connection.execute("PRAGMA journal_mode=WAL")
-        self.connection.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS source_units (
-                source_unit_id TEXT PRIMARY KEY,
-                source_version_id TEXT NOT NULL,
-                locator_json TEXT NOT NULL,
-                text TEXT NOT NULL,
-                heading_path TEXT NOT NULL
-            );
-            CREATE VIRTUAL TABLE IF NOT EXISTS source_units_fts USING fts5(
-                source_unit_id UNINDEXED,
-                text,
-                heading_path
-            );
-            """
-        )
-        self.connection.commit()
+        self._ensure_schema()
+
+    @classmethod
+    def open_or_rebuild(cls, path: Path, units: list[SourceUnit]) -> "LexicalIndex":
+        """Open a derived index or replace a corrupt one from source units.
+
+        Args:
+            path: Derived SQLite database path.
+            units: Canonical source units used for an explicit rebuild.
+
+        Returns:
+            An open rebuilt or existing index.
+
+        Example:
+            ``LexicalIndex.open_or_rebuild(path, parsed.units)``.
+        """
+        try:
+            index = cls(path)
+        except sqlite3.DatabaseError:
+            Path(path).unlink(missing_ok=True)
+            index = cls(path)
+        index.rebuild(units)
+        return index
 
     def rebuild(self, units: list[SourceUnit]) -> None:
         """Replace the complete derived index with deterministic source units.
@@ -91,8 +101,40 @@ class LexicalIndex:
         self._insert_units(units)
         self.connection.commit()
 
+    def replace_units(self, old_source_unit_ids: list[str], units: list[SourceUnit]) -> None:
+        """Remove affected derived units and insert their replacements atomically.
+
+        Args:
+            old_source_unit_ids: IDs no longer present after a source update.
+            units: Current replacement units.
+
+        Returns:
+            ``None`` after the derived update commits.
+
+        Example:
+            ``index.replace_units([old_id], [new_unit])`` updates one resource.
+        """
+        self._remove_ids(old_source_unit_ids)
+        self._insert_units(units)
+        self.connection.commit()
+
+    def remove(self, source_unit_ids: list[str]) -> None:
+        """Remove deleted or stale source units from the derived index.
+
+        Args:
+            source_unit_ids: Deterministic IDs to remove.
+
+        Returns:
+            ``None`` after the derived update commits.
+
+        Example:
+            ``index.remove([deleted_unit_id])`` removes one deleted unit.
+        """
+        self._remove_ids(source_unit_ids)
+        self.connection.commit()
+
     def search(self, query: str, limit: int = 20) -> list[SourceUnit]:
-        """Search source text and headings with deterministic score tie-breaking.
+        """Search text, headings, and typed metadata with stable tie-breaking.
 
         Args:
             query: User-entered lexical query.
@@ -123,7 +165,11 @@ class LexicalIndex:
             """,
             (match_query, limit),
         ).fetchall()
-        return [unit for (source_unit_id,) in rows if (unit := self.get(source_unit_id)) is not None]
+        return [
+            unit
+            for (source_unit_id,) in rows
+            if (unit := self.get(source_unit_id)) is not None
+        ]
 
     def get(self, source_unit_id: str) -> Optional[SourceUnit]:
         """Return one indexed source unit by ID.
@@ -138,19 +184,85 @@ class LexicalIndex:
             ``index.get("source-unit:...")`` retrieves source context.
         """
         row = self.connection.execute(
-            "SELECT source_version_id, locator_json, text, heading_path FROM source_units WHERE source_unit_id = ?",
+            """
+            SELECT source_version_id, locator_json, text, heading_path,
+                   unit_type, review_required, parser_metadata_json
+            FROM source_units WHERE source_unit_id = ?
+            """,
             (source_unit_id,),
         ).fetchone()
         if row is None:
             return None
-        source_version_id, locator_json, text, heading_path = row
+        (
+            source_version_id,
+            locator_json,
+            text,
+            heading_path,
+            unit_type,
+            review_required,
+            parser_metadata_json,
+        ) = row
         return SourceUnit(
             source_unit_id=source_unit_id,
             source_version_id=source_version_id,
             locator=TypedLocator.model_validate(json.loads(locator_json)),
             text=text,
             heading_path=json.loads(heading_path),
+            unit_type=unit_type,
+            review_required=bool(review_required),
+            parser_metadata=json.loads(parser_metadata_json),
         )
+
+    def metadata(self, source_unit_id: str) -> dict[str, object]:
+        """Return typed index metadata without exposing a raw-text side channel.
+
+        Args:
+            source_unit_id: Deterministic source-unit identifier.
+
+        Returns:
+            Unit type, review flag, source version, and parser metadata.
+
+        Raises:
+            KeyError: If the source unit is not indexed.
+
+        Example:
+            ``index.metadata(unit_id)["review_required"]`` gates review display.
+        """
+        row = self.connection.execute(
+            """
+            SELECT source_version_id, unit_type, review_required, parser_metadata_json
+            FROM source_units WHERE source_unit_id = ?
+            """,
+            (source_unit_id,),
+        ).fetchone()
+        if row is None:
+            raise KeyError(f"Source unit is not indexed: {source_unit_id}")
+        return {
+            "source_version_id": row[0],
+            "unit_type": row[1],
+            "review_required": bool(row[2]),
+            "parser_metadata": json.loads(row[3]),
+        }
+
+    def manifest(self) -> dict[str, object]:
+        """Return a rebuildable index manifest without raw corpus text.
+
+        Args:
+            None.
+
+        Returns:
+            Schema, profile, indexed-unit count, and raw-text logging policy.
+
+        Example:
+            ``index.manifest()["raw_text_logging"]`` is always ``False``.
+        """
+        count = self.connection.execute("SELECT COUNT(*) FROM source_units").fetchone()[0]
+        return {
+            "schema_version": _INDEX_SCHEMA,
+            "profile": "lexical-baseline",
+            "indexed_units": int(count),
+            "raw_text_logging": False,
+        }
 
     def close(self) -> None:
         """Close the local SQLite connection.
@@ -166,32 +278,99 @@ class LexicalIndex:
         """
         self.connection.close()
 
-    def _insert_units(self, units: list[SourceUnit]) -> None:
-        """Insert units into both the source table and FTS table."""
-        for unit in units:
+    def _ensure_schema(self) -> None:
+        """Create the current derived schema or migrate an older Phase 1 schema."""
+        expected_columns = {
+            "source_unit_id",
+            "source_version_id",
+            "locator_json",
+            "text",
+            "heading_path",
+            "unit_type",
+            "review_required",
+            "parser_metadata_json",
+            "source_order",
+        }
+        existing = {
+            row[1]
+            for row in self.connection.execute("PRAGMA table_info(source_units)").fetchall()
+        }
+        if existing and not expected_columns.issubset(existing):
+            self.connection.execute("DROP TABLE IF EXISTS source_units_fts")
+            self.connection.execute("DROP TABLE IF EXISTS source_units")
+        self.connection.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS source_units (
+                source_unit_id TEXT PRIMARY KEY,
+                source_version_id TEXT NOT NULL,
+                locator_json TEXT NOT NULL,
+                text TEXT NOT NULL,
+                heading_path TEXT NOT NULL,
+                unit_type TEXT NOT NULL,
+                review_required INTEGER NOT NULL,
+                parser_metadata_json TEXT NOT NULL,
+                source_order TEXT NOT NULL
+            );
+            CREATE VIRTUAL TABLE IF NOT EXISTS source_units_fts USING fts5(
+                source_unit_id UNINDEXED,
+                text,
+                heading_path,
+                metadata
+            );
+            """
+        )
+        self.connection.commit()
+
+    def _remove_ids(self, source_unit_ids: list[str]) -> None:
+        """Remove IDs from both the source table and FTS table."""
+        for source_unit_id in source_unit_ids:
             self.connection.execute(
                 "DELETE FROM source_units_fts WHERE source_unit_id = ?",
-                (unit.source_unit_id,),
+                (source_unit_id,),
             )
             self.connection.execute(
+                "DELETE FROM source_units WHERE source_unit_id = ?",
+                (source_unit_id,),
+            )
+
+    def _insert_units(self, units: list[SourceUnit]) -> None:
+        """Insert units into source and FTS tables with typed metadata."""
+        for unit in units:
+            locator_json = json.dumps(
+                unit.locator.model_dump(mode="json", exclude_none=True),
+                sort_keys=True,
+            )
+            parser_metadata_json = json.dumps(unit.parser_metadata, sort_keys=True)
+            metadata = " ".join(
+                [unit.unit_type, "review-required" if unit.review_required else ""]
+                + list(unit.parser_metadata.values())
+            )
+            source_order = locator_json
+            self._remove_ids([unit.source_unit_id])
+            self.connection.execute(
                 """
-                INSERT INTO source_units(source_unit_id, source_version_id, locator_json, text, heading_path)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(source_unit_id) DO UPDATE SET
-                    source_version_id = excluded.source_version_id,
-                    locator_json = excluded.locator_json,
-                    text = excluded.text,
-                    heading_path = excluded.heading_path
+                INSERT INTO source_units(
+                    source_unit_id, source_version_id, locator_json, text,
+                    heading_path, unit_type, review_required,
+                    parser_metadata_json, source_order
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     unit.source_unit_id,
                     unit.source_version_id,
-                    json.dumps(unit.locator.model_dump(mode="json", exclude_none=True), sort_keys=True),
+                    locator_json,
                     unit.text,
                     json.dumps(unit.heading_path, ensure_ascii=False),
+                    unit.unit_type,
+                    int(unit.review_required),
+                    parser_metadata_json,
+                    source_order,
                 ),
             )
             self.connection.execute(
-                "INSERT INTO source_units_fts(source_unit_id, text, heading_path) VALUES (?, ?, ?)",
-                (unit.source_unit_id, unit.text, " ".join(unit.heading_path)),
+                """
+                INSERT INTO source_units_fts(source_unit_id, text, heading_path, metadata)
+                VALUES (?, ?, ?, ?)
+                """,
+                (unit.source_unit_id, unit.text, " ".join(unit.heading_path), metadata),
             )

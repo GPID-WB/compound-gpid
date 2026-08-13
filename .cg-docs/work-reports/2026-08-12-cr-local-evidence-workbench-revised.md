@@ -120,3 +120,51 @@ None recorded.
 ### Phase 2 Status
 
 `active` -- Phase 2 complete; ready for Phase 3.
+
+## Phase 3 Run/Resume (2026-08-12)
+
+- Resumed explicitly with `/cg-work phase3` on branch `cr-lit-review`.
+- Artifact preflight passed: `cg-render-artifact --validate-only`.
+- Active deviation policy: `autonomous` (no runtime override).
+- Steps 8-10 completed on 2026-08-13; Phase 1 and Phase 2 evidence remain unchanged.
+
+### Phase 3 Evidence
+
+| ID | Step | Evidence | Status | Artifact |
+|----|------|----------|--------|----------|
+| V7 | 8-10 | Lexical baseline, optional local profiles, and candidate evidence/claim proposals satisfy deterministic offline gates | passed | 15 focused tests; 81-test package suite; fixed benchmark report |
+
+### Completed Phase 3 Steps
+
+- Step 8: complete (2026-08-13) -- generalized typed SQLite FTS retrieval with
+	replacement/removal and corrupt-index rebuild; fixed small/medium benchmarks
+	passed all thresholds.
+- Step 9: complete (2026-08-13) -- dense, sparse, and reranker adapters remain
+	candidate-only, cache-gated, budget-aware, and local-files-only.
+- Step 10: complete (2026-08-13) -- source-linked candidate proposals preserve
+	candidate/flagged-low status, reject fabricated IDs and non-atomic claims, and
+	reject duplicate proposal IDs.
+
+### Phase 3 Benchmark Evidence
+
+| Corpus | Documents | Source Units | Rebuild | Query p95 | Status |
+|--------|-----------|--------------|---------|-----------|--------|
+| small | 25 | 2,500 | 0.49 s | 2.19 ms | passed |
+| medium | 100 | 20,000 | 25.52 s | 15.24 ms | passed |
+
+Benchmark artifact: `research_evidence/benchmarks/lexical-baseline-2026-08-13.json`.
+It records environment, thresholds, update/memory metrics, and `raw_text: false`.
+
+### Phase 3 Constraints Check
+
+| ID | Constraint | Status | Evidence |
+|----|------------|--------|----------|
+| C5 | Normal processing remains offline with no external fallback | passed | Profile loader and candidate tests |
+| C6 | Included components have complete inventory records and caveats | passed | 9-entry validated inventory |
+| C7 | Performance claims use fixed corpora and explicit thresholds | passed | Small/medium benchmark artifact |
+| C8 | New Python code has required docstrings | passed | Documentation AST gate |
+| C9 | Derived indexes remain rebuildable and path-safe | passed | Corrupt-index/replacement tests |
+
+### Phase 3 Status
+
+`active` -- Phase 3 complete; ready for Phase 4.

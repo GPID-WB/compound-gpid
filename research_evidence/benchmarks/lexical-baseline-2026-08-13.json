@@ -1,0 +1,62 @@
+{
+  "created": "2026-08-13",
+  "schema_version": "research-evidence-benchmark-report-v1",
+  "profile": "lexical-baseline",
+  "raw_text": false,
+  "results": [
+    {
+      "corpus": {
+        "documents": 25,
+        "source_units": 2500
+      },
+      "environment": {
+        "cpu": "arm",
+        "cpu_count": 18,
+        "memory_peak_bytes": 46235648,
+        "os": "macOS-26.6.1-arm64-arm-64bit",
+        "package_version": "0.1.0",
+        "python": "3.11.15"
+      },
+      "metrics": {
+        "incremental_update_seconds": 0.0005639580049319193,
+        "p95_query_ms": 2.189040998928249,
+        "peak_memory_bytes": 76213,
+        "rebuild_seconds": 0.49022604199126363
+      },
+      "passed": true,
+      "thresholds": {
+        "incremental_update_seconds": 10.0,
+        "memory_bytes": 1000000000,
+        "p95_query_ms": 250.0,
+        "rebuild_seconds": 60.0
+      }
+    },
+    {
+      "corpus": {
+        "documents": 100,
+        "source_units": 20000
+      },
+      "environment": {
+        "cpu": "arm",
+        "cpu_count": 18,
+        "memory_peak_bytes": 90177536,
+        "os": "macOS-26.6.1-arm64-arm-64bit",
+        "package_version": "0.1.0",
+        "python": "3.11.15"
+      },
+      "metrics": {
+        "incremental_update_seconds": 0.0032015000033425167,
+        "p95_query_ms": 15.238167005009018,
+        "peak_memory_bytes": 65962,
+        "rebuild_seconds": 25.523924042005092
+      },
+      "passed": true,
+      "thresholds": {
+        "incremental_update_seconds": 10.0,
+        "memory_bytes": 1000000000,
+        "p95_query_ms": 250.0,
+        "rebuild_seconds": 60.0
+      }
+    }
+  ]
+}

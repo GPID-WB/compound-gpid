@@ -37,6 +37,12 @@ requirement; the OCR profile is local and inventory-controlled, and OCR output
 is always low-confidence until the original page is independently verified.
 No OCR engine is downloaded or contacted during normal processing.
 
+Optional dense, sparse, and reranking adapters are candidate-only in Phase 3.
+They require a complete inventory record, verified local cache, declared
+latency/memory budgets, and explicit activation before execution. No model
+weights are selected or acquired by the default profile; lexical retrieval stays
+the baseline.
+
 ## Dependency inventory
 
 Every package, parser, executable, model, and weight distribution is recorded in

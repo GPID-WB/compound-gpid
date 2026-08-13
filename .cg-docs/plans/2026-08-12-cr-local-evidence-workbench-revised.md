@@ -13,8 +13,8 @@ execution-report: ".cg-docs/work-reports/2026-08-12-cr-local-evidence-workbench-
 artifact-schema-version: 1
 revision: 2
 phases: 5
-completed-phases: [1, 2]
-current-phase: 3
+completed-phases: [1, 2, 3]
+current-phase: 4
 tags: [compound-research, evidence, provenance, claims, document-ingestion, retrieval, verification, local-first, browser-ui, research-integrity, offline-runtime, dependency-governance]
 ---
 <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->

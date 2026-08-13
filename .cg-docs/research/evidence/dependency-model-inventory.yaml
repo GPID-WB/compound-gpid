@@ -97,3 +97,51 @@ entries:
     caveat_disclaimer: Candidate only; OCR output is retrieval assistance and requires original-page verification. Local execution is not enterprise approval.
     activation_status: candidate
     activation_acknowledged: false
+  - id: optional-dense-retrieval-candidate
+    kind: model
+    distribution_source: https://example.org/compound-research/dense-candidate
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for local dense retrieval evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: optional-sparse-retrieval-candidate
+    kind: model
+    distribution_source: https://example.org/compound-research/sparse-candidate
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for local sparse retrieval evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: optional-reranker-candidate
+    kind: model
+    distribution_source: https://example.org/compound-research/reranker-candidate
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for independent local reranking evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
