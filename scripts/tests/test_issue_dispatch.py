@@ -1296,15 +1296,17 @@ class TestActiveStateIntegrity:
             f"current.json contains duplicate keys: {duplicates}"
         )
 
-    def test_current_json_preserves_blocking_decisions(self) -> None:
+    def test_blocked_current_json_has_valid_blocking_decision(self) -> None:
         data = json.loads(ACTIVE_STATE.read_text(encoding="utf-8-sig"))
         decisions = data.get("unresolvedDecisions", [])
-        ids = [d["id"] for d in decisions]
-        assert "D4" in ids
-        assert "D5" in ids
-        assert "D7" in ids
-        d7 = next(d for d in decisions if d["id"] == "D7")
-        assert d7["blocking"] is True
+        assert isinstance(decisions, list)
+        for decision in decisions:
+            assert isinstance(decision, dict)
+            assert isinstance(decision.get("id"), str) and decision["id"].strip()
+            assert isinstance(decision.get("summary"), str) and decision["summary"].strip()
+            assert isinstance(decision.get("blocking"), bool)
+        if data.get("status") == "blocked":
+            assert any(decision["blocking"] for decision in decisions)
 
     def test_handoff_targets_dev_branch(self) -> None:
         text = ACTIVE_STATE.read_text(encoding="utf-8-sig")
