@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
+_Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
 
 ## undated
 
@@ -127,16 +127,30 @@ _Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-13
+
+- **[2026-08-12-automated-documentation-deployment-review](.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/ag…
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
+
+## 2026-08-12
+
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
+  > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
+
 ## 2026-08-11
 
 - **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md)** · `review` · _—_ · `2026-08-11`
   > Full-depth review (`/cg-review full`) of the Phase 5 implementation at working HEAD on branch `issue-implementation-p…
 - **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review.md)** · `review` · _—_ · `2026-08-11`
   > `/cg-review mode:verify` run after `/cg-fix-triage` on the Phase 5 dispatcher. Prior review: `.cg-docs/reviews/2026-0…
-- **[GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes](.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md)** · `solution` · _—_ · `2026-08-11`
-  > Phase 5 of the Copilot issue-implementation pipeline introduced a `workflow_dispatch`-only dispatcher (`copilot-dispa…
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md)** · `review` · _—_ · `2026-08-11`
   > **Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_m…
+- **[GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes](.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md)** · `solution` · _—_ · `2026-08-11`
+  > Phase 5 of the Copilot issue-implementation pipeline introduced a `workflow_dispatch`-only dispatcher (`copilot-dispa…
 - **[Merge strategy for generated Brain files and additive CI matrix conflicts](.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md)** · `solution` · _—_ · `2026-08-11`
   > Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — …
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
@@ -1420,6 +1434,8 @@ _Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
 - **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
+- **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
+  > Automated Documentation Deployment and What's New Page
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
@@ -1512,6 +1528,8 @@ _Generated 2026-08-12 · 559 artifacts (newest first) + 149 roadmap features_
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
+- **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
+  > Dual-Deployment: Dev Branch Docs at /dev/
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`

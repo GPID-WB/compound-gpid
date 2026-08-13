@@ -1,11 +1,17 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-12_
+_Generated 2026-08-13_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 92 entities
 
+- **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
+  > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
+- **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
+  > After adding a P0 severity tier to all 8 review agent output templates (`**[P0|P1|P2|P3]**`), the pipeline silently c…
+- **[Test instruction file applyTo frontmatter to prevent silent dialect routing failure](.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)** · `solution` · _—_ · `2026-04-08`
+  > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 - **[New prompt/agent addition checklist: 7 files that must be updated together](.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md)** · `solution` · _—_ · `2026-04-08`
   > Adding a new prompt (`/cg-*`) or agent (`@cg-*`) to compound-gpid requires touching at minimum 4 files. Missing any o…
 - **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
@@ -190,7 +196,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89
 _Keywords: `architecture research
 objective` · `workflow maturity
 objective` · `ongoing ideas
-objective`_ · 142 entities
+objective`_ · 144 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -372,6 +378,10 @@ objective`_ · 142 entities
   > Automatic post-PR CI verification and universal PR targeting
 - **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
   > Make automatic artifact HTML publication opt-in by default
+- **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
+  > Automated Documentation Deployment and What's New Page
+- **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
+  > Dual-Deployment: Dev Branch Docs at /dev/
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
