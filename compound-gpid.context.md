@@ -310,6 +310,25 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Offline fixtures that mimic an external CLI must be verbatim mirrors of the CLI's wire format**: a fixture hand-crafting "nicer" keys (e.g., `headRef` instead of gh's `headRefName`) silently loses data when real CLI output is copied in, and an empty fixture array hides the drift (no test covers it). Document the convention in the fixture paragraph and align `FixtureClient` parsing with `GhCliClient` key-for-key, including author `{"login": ...}` normalization. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
 
+### Strict project config and capability selection (manifest-driven)
+
+- `compound-gpid.local.md` now uses a strict restricted grammar (UTF-8 no BOM,
+  ASCII keys, quoted/simple scalars, inline lists only). The only allowed
+  absent-field legacy default is `suites:` -> `[cg]`; malformed present values,
+  duplicate keys, anchors/tags/block scalars, and unknown keys fail with exact
+  line remediation. Authoritative reference: `docs/configuration.md` and
+  `scripts/parsing_utils.py::parse_strict_config`.
+- `scripts/cg_project_manifest.py` resolves the versioned module registry (v2
+  with `capabilities[]`) plus strict config into the committed
+  `.compound-gpid/active-manifest.json`. Capability selection is additive:
+  config selectors (e.g. `language: both` derives all language packs) extend the
+  suite closure; explicit `capabilities:` can add but never remove. Suite
+  eligibility compares user-facing names (`cg`/`cr`), and platform ids use the
+  canonical `claude-code` spelling from `target-mapping.json`.
+- `scripts/cg_projection_benchmark.py` records the before-state baseline matrix
+  (`.cg-docs/cost/skill-loading-baseline.json` / `.md`); unavailable required
+  host evidence is a blocking `unavailable`, never a zero.
+
 ## Wiki Configuration
 
 Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directives — preserve the `<!-- key: value -->` format exactly.

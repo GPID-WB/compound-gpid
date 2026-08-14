@@ -1,24 +1,32 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-13T21:58:32Z",
+  "updatedAt": "2026-08-14T18:55:00Z",
   "workflow": "/cg-work",
   "status": "handoff",
   "branch": "skill-marketplace",
   "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
   "executionReport": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md",
-  "currentPhase": 2,
+  "currentPhase": 3,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "kilo_coexistence_host.json + 8 pytest passes + repository preflight exit 0"},
-    {"id": "V2", "status": "passed", "artifact": "cg-kilo launchers + install/update/link Pester gates passed"}
+    {"id": "V1", "status": "passed", "artifact": "kilo_coexistence_host.json + pytest + preflight exit 0"},
+    {"id": "V2", "status": "passed", "artifact": "cg-kilo launchers + install/update/link Pester gates"},
+    {"id": "V3", "status": "passed", "artifact": ".cg-docs/cost/skill-loading-baseline.json + .md; 14 tests"},
+    {"id": "V4", "status": "passed", "artifact": "registry/context/migration/strict-config tests"},
+    {"id": "V5", "status": "passed", "artifact": "test_project_manifest (18); real-repo manifest resolves"}
   ],
   "unresolvedDecisions": [
     {"id": "D1", "summary": "Containment control verified for embedded Kilo 7.4.20/7.4.21; retain as tested control rather than permanent platform contract.", "blocking": false},
-    {"id": "D2", "summary": "Local Kilo logout confirmed: the `kilo` credential row reports `active=0`; server-side session revocation remains unverified.", "blocking": false}
+    {"id": "D2", "summary": "Local Kilo logout confirmed: `kilo` credential row is active=0; server-side revocation unverified.", "blocking": false},
+    {"id": "D3", "summary": "Pre-existing pytest failure test_issue_dispatch::test_current_json_preserves_blocking_decisions (expects D4 in current.json; committed file has D1/D2). Outside review findings; follow-up needed.", "blocking": false}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "active-phase-2"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-1-complete"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md", "status": "open-findings"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-2-complete"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-2-complete"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md", "status": "all-fixed"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md", "status": "phase-1-verify"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md", "status": "open-findings-phase-1"},
+    {"kind": "evidence", "path": ".cg-docs/cost/skill-loading-baseline.json", "status": "generated"},
+    {"kind": "solution", "path": ".cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md", "status": "captured"}
   ],
-  "nextCommand": "/cg-work phase2 review:auto .cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
+  "nextCommand": "/cg-work phase3 review:auto .cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
 }

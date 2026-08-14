@@ -107,3 +107,176 @@ scope: "Deep"
 `active`
 
 Next: `/cg-work phase2 review:auto .cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md`
+
+---
+
+## Run: 2026-08-14 (Phase 2)
+
+- Plan reference: `.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md`
+- Active deviation policy: `ask` (plan stored; no runtime override)
+- Review mode: `auto`
+- Scope: Phase 2 requested (`phase2`); steps 3, 4, 5 in scope.
+- Preflight: plan artifact validation `cg-render-artifact --validate-only` passed (exit 0); Phase 1 V1/V2 evidence confirmed in the 2026-08-13 run (cg-kilo containment evidence present), satisfying Iteration Policy #2 before Phase 2.
+- Brain: budgeted `cg-index query` (intent work) returned 3 artifacts; no actionable new constraints beyond plan-incorporated findings.
+- Roadmap: no feature currently links to this plan; Step 1.5 roadmap dispatch not applicable (no matching `plan` path).
+
+### Completed Steps And Phases
+- Phase 2, Step 3: added `cg_projection_benchmark.py`, extended `cg_audit_context.py`
+  (advertised-skill-metadata scan) and `cg_context_budget.py` (loadable ids,
+  inventory digest); committed `.cg-docs/cost/skill-loading-baseline.json` and
+  `.md` with four profile oracles all passing; host evidence marked available
+  only when registry inventory was executed.
+- Phase 2, Step 4: versioned the module registry to v2 with capability
+  eligibility/activation records; pruned blanket language dependencies from
+  suite declarations; added strict config grammar in `parsing_utils.py`
+  (`parse_strict_config`) with line/field remediation; versioned
+  `cg_migrate_config.py`; extended `cg_validate_modules.py` with v2 capability
+  schema validation; capability-aware resolution with config selectors and
+  additive explicit capabilities; closure checks use the full-config derived
+  capability closure (per-project selection enforced by the manifest).
+- Phase 2, Step 5: added `cg_project_manifest.py` resolving the committed
+  active manifest with immutable selection fields, platform eligibility,
+  compact catalog records, and desired-plan digest; separated mutable
+  projection ownership state; added `.gitignore` rules and `docs/configuration.md`.
+- Phase 2 completed on 2026-08-14 after the canonical V3/V4/V5 gates and the
+  full-suite gate passed.
+
+### Review Convergence (review:auto -> full, 2026-08-14)
+
+The `review:auto` routing resolved to `full` (registry schema change = security-risk;
+module boundary/dependency changes = architecture-risk; dedup to highest coverage).
+Dispatched the full agent set: code-quality, testing, documentation, version-control,
+reproducibility, performance, architecture, data-quality, learnings-researcher,
+and adversarial. All findings were review-only (no protected artifacts touched).
+
+Consolidated P1/P2 fixes applied and re-verified:
+- Capability activation: `_capability_eligible` now resolves suite eligibility on
+  user-facing names (empty-selector capabilities no longer dead code) and selector
+  capabilities must be suite-eligible; owningModule validation (missing owner or
+  undeclared module now fails loudly, no phantom ids).
+- Benchmark: `validate_payload` blocks an `unavailable` oracle (R2/R14); the
+  "no inactive skill body leak" oracle is a real assertion with a leak test;
+  `collect_profile_baseline` catches registry/inventory failures and emits a
+  blocking `unavailable` record end-to-end; profile-independent scans are hoisted
+  (was O(profiles x full-scan)); unknown profile ids raise.
+- Manifest: `source_revision` uses the deterministic `unknown-revision` sentinel;
+  `canonical_platform_ids` rejects missing/empty `targets`; unknown suites/
+  capabilities wrap into `ManifestResolutionError`; `validate_manifest` guards
+  non-dict input and adds field-type checks; `_platform_eligibility` guards
+  non-list `supportedPlatforms`; `ensure_managed_state` refuses to follow a
+  symlinked/non-directory `.compound-gpid` and never overwrites existing files.
+- Strict parser: line-anchored closing delimiter (no `---`-in-value truncation),
+  lowercase-only list identifiers, quoted scalars exempt from the anchor/tag
+  rejection, and migration rejects no-frontmatter/invalid-UTF-8 with clean errors.
+- Validator: selector fields cross-checked against the config allowlist and the
+  structural closure is computed per-module (suite-scoped) so cr-only research
+  packs remain blocked for suite-cg.
+- Docs: `claude` -> `claude-code`, review-depth values, migration wording, and
+  complete manifest field list updated.
+
+Re-verified after fixes: Phase 2 test batch 139 passed; full Python suite 935 passed /
+20 skipped / 1 failed (the same pre-existing D4 active-state test); V4 gate 74 passed;
+baseline regenerated with all four profiles passing; real-repo manifest validates.
+
+Carried P3/advisory (documented, non-blocking): `KNOWN_CONFIG_FIELDS` is a frozen
+allowlist decoupled from `docs/configuration.md` (single source migration is
+future work); remediation line numbers assume `---` on physical line 1; the
+audit `generated` stamp falls back to wall-clock only as an evidence marker.
+
+### Verify Pass + Fix-Triage Closure (2026-08-14)
+
+- `/cg-review mode:verify` found the prior review's fixed findings and forced a
+  light pass (`@cg-code-quality` + `@cg-testing`) with a suppression policy.
+  Result: 1xP1 + 4xP2 + 6xP3 new verification findings, zero P0; no cross-file
+  breakage. Saved as
+  `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md`
+  (the Phase 1 verify review with the same base name was preserved; the Phase 2
+  verify pass uses the workflow's `-2` counter naming).
+- `/cg-fix-triage` applied all 11 findings and marked them `fixed`:
+  - P1.1: registry `supportedPlatforms` `claude` -> `claude-code` (all 12
+    records) so `platformEligibility.allEligible` is true on the default manifest.
+  - P2.1: `str.removeprefix("suite-")` -> 3.8-safe slicing in
+    `cg_validate_modules._derived_capability_ids_for`.
+  - P2.2: guarded config read (OSError/UnicodeDecodeError -> clean exit) in
+    `cg_context_budget.main`.
+  - P2.3: `resolve_active_manifest` rejects a non-supported `config-schema-version`.
+  - P2.4: leak test now asserts presence-of-failure (not absence-of-success).
+  - P3.1-P3.6: dead branch removed, shared comment-strip import, dropped unused
+    `config` param, docstring alignment, `filtered_manifest` v2 contract note,
+    and physical-line offset computation in the strict parser.
+- Re-verified: Phase 2 test batch 139 passed; real-repo registry/manifest
+  validate; baseline regenerated (all four profiles passed/available); canonical
+  safe Pester full-suite gate 2520 passed / 0 failed (full run).
+
+### Knowledge Capture (`/cg-compound`, 2026-08-14)
+
+- Captured `.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md`
+  (category bugs, severity P1) — the dead suite-eligibility branch caused by
+  comparing module ids against user-facing names, plus the canonical
+  `claude-code` platform-id fix and the fail-closed validation discipline.
+- Knowledge brain rebuilt via `cg-index --brain` (exit 0; 724 entities, 6 topics,
+  310 edges).
+- Wiki updated by `@cg-wiki`: `docs/reference.md` gained `cg-project-manifest` and
+  `cg-projection-benchmark` rows; `docs/_wiki.yml` lastUpdated bumped. No manual
+  ownership or conflict notifications.
+- Cross-referenced with existing related solutions (back-links added).
+- `compound-gpid.context.md` enriched with the strict-config/selection facts.
+
+### Deviations
+- None. The plan's `ask` policy did not require any documented deviation; the
+  full-config derived capability closure in structural reference checks is a
+  direct implementation of the plan's selector-derivation requirement.
+
+### Accepted Exceptions
+- None.
+
+### Evidence
+| ID | Status | Artifact / Result |
+|----|--------|-------------------|
+| V1 | passed | Phase 1 (carried). |
+| V2 | passed | Phase 1 (carried). |
+| V3 | passed | `.cg-docs/cost/skill-loading-baseline.json` + `.md`; `python -m pytest scripts/tests/test_projection_benchmark.py` (14 passed); all four profiles `passed`/`available`. |
+| V4 | passed | `python -m pytest scripts/tests/test_module_registry.py scripts/tests/test_context_budget.py scripts/tests/test_config_migration.py` (71 passed) plus `test_strict_config.py` (24 passed). |
+| V5 | passed | `python -m pytest scripts/tests/test_project_manifest.py` (18 passed); real-repo manifest resolves and validates. |
+| V6 | pending | Phase 3 not reached. |
+| V7 | pending | Phase 3 not reached. |
+| V8 | pending | Phase 3 not reached. |
+| V9 | pending | Phase 4 not reached. |
+| V10 | pending | Phase 4 not reached. |
+| V11 | pending | Phase 5 not reached. |
+| V12 | pending | Phase 5 not reached. |
+| V13 | pending | Phase 6 not reached. |
+| V14 | pending | Phase 7 not reached. |
+| V15 | pending | Phase 5 not reached. |
+| V16 | pending | Whole-plan completion not reached. |
+
+### Constraints Check
+| ID | Status | Result |
+|----|--------|--------|
+| C1 | passed | Phase 1 (carried). |
+| C2 | passed | `.github/` remains the complete canonical source; manifest resolution is side-effect-free and projection tests inspect distinct source/project roots. |
+| C3 | passed | Only a genuinely absent `suites` field in a supported legacy schema defaults to `[cg]`; empty/scalar/duplicate/malformed values fail closed with exact lines (migration + strict-parser tests). |
+| C4 | pending | Phase 3 not reached. |
+| C5 | pending | Phase 3 not reached. |
+| C6 | pending | Phase 4 not reached. |
+| C7 | pending | Phase 5 not reached. |
+| C8 | pending | Phase 6 not reached. |
+| C9 | pending | Phase 7 not reached. |
+
+### Full-Suite Gate (2026-08-14)
+- Python: `python -m pytest scripts/tests` — 925 passed, 20 skipped, 1 failed.
+- Pester (safe runner `. tests\Run-Tests.ps1`): 2520 passed, 0 failed, 2 skipped,
+  full run (`filteredFiles` null), 2522 total.
+- The single pytest failure is `test_issue_dispatch.py::TestActiveStateIntegrity::test_current_json_preserves_blocking_decisions`, which asserts an `unresolvedDecisions` entry `D4` in `.cg-docs/active-state/current.json`. The committed `current.json` at HEAD contains only `D1`/`D2` (Phase 1 handoff), so this failure pre-dates Phase 2 and is unrelated to Phase 2 files. Recorded as a deferred pre-existing item for `/cg-fix-triage`.
+
+### Remaining Uncertainty
+- Capability eligibility and config-selector derivation are documented in
+  `docs/configuration.md`; the generator's no-`--active-suites` path remains
+  byte-identical, while explicit config restriction is enforced through the
+  active manifest and its staleness checks.
+- Projection ownership/journal records are schema-validated but their
+  publication lifecycle is implemented in Phase 3 (secure synchronizer).
+
+### Final Status
+
+`active` — Phase 2 complete; next `/cg-work phase3`.
