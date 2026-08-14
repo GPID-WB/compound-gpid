@@ -515,19 +515,6 @@ objective` · `measurement`_ · 7 entities
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
 
-## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
-
-_Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`_ · 4 entities
-
-- **[2026-06-12-goal-driven-execution-verify-review-6](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md)** · `review` · _—_ · `2026-07-05`
-  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
-- **[2026-06-12-goal-driven-execution-verify-review-7](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md)** · `review` · _—_ · `2026-07-05`
-  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
-- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
-  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
-- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
-  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
-
 ## Tests / Filesystem / Python
 
 _Keywords: `tests` · `filesystem` · `python`_ · 4 entities
@@ -540,6 +527,17 @@ _Keywords: `tests` · `filesystem` · `python`_ · 4 entities
   > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
 - **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
   > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
+
+## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / .Github
+
+_Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `.github`_ · 3 entities
+
+- **[2026-06-12-goal-driven-execution-verify-review-6](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-06-12-goal-driven-execution-verify-review-7](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
 
 ## Secure_Fs.Py / Validation / Parser.Py
 

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-14 · 567 artifacts (newest first) + 156 roadmap features_
+_Generated 2026-08-14 · 568 artifacts (newest first) + 156 roadmap features_
 
 ## undated
 
@@ -129,6 +129,10 @@ _Generated 2026-08-14 · 567 artifacts (newest first) + 156 roadmap features_
 
 ## 2026-08-14
 
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict c…
+- **[Capability suite-eligibility namespace mismatch makes activation dead code](.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md)** · `solution` · _—_ · `2026-08-14`
+  > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
 - **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
   > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
 
@@ -136,8 +140,6 @@ _Generated 2026-08-14 · 567 artifacts (newest first) + 156 roadmap features_
 
 - **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
-- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
-  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
 - **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
   > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`

@@ -1,5 +1,5 @@
 {
-  "edge_count": 311,
+  "edge_count": 310,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1348,12 +1348,6 @@
     {
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
-      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
-      "target_missing": false
-    },
-    {
-      "edge_type": "reviews",
-      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
       "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target_missing": false
     },
@@ -10475,25 +10469,25 @@
       ]
     },
     {
-      "date": "2026-08-13",
+      "date": "2026-08-14",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
       "slug": "2026-08-13-manifest-driven-skill-loading-verify-review",
       "status": "",
-      "summary": "**Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md` **Files reviewed**: current uncommitted Phase 1 implementation and test changes **Findings**: 19 (P0: 1, P1: 9, P2: 8, P3: 1)",
+      "summary": "**Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict config parser + manifest/baseline tooling + tests + docs) **Findings**: 11 (P0: 0, P1: 1, P2: 4, P3: 6)",
       "tags": [],
       "title": "2026-08-13-manifest-driven-skill-loading-verify-review",
       "top_keywords": [
-        "cg_kilo_preflight.py",
-        "scripts/link.ps1",
-        "scripts/cg_kilo_preflight.py",
-        "scripts/link.sh",
-        "scripts/update.ps1",
-        "scripts/update.sh",
-        "link.ps1",
-        "update.sh",
-        "link.sh",
-        "update.ps1"
+        "scripts/cg_context_budget.py",
+        "cg_context_budget.py",
+        "fixed",
+        "fix",
+        "config-schema-version",
+        "test_audit_context",
+        "scripts/cg_project_manifest.py",
+        "\"claude\"",
+        "docs/configuration.md",
+        "\"claude-code\""
       ]
     },
     {
@@ -12563,6 +12557,36 @@
         "--platforms kilo --yes",
         ".gitignore",
         "remove-item -recurse"
+      ]
+    },
+    {
+      "date": "2026-08-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md",
+      "slug": "2026-08-14-capability-eligibility-namespace-mismatch",
+      "status": "",
+      "summary": "The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) and two activation paths: selector-driven (`configSelectors` + config) and suite-eligible (empty `configSelectors`, activated when a supported suite is active). The suite-eligible branch was dead: `bool(supported & active)` was always `False`, so `pester`, `git-workflow`, `research-output`, etc. were never activated through the capability layer. This was masked because the owning modules also remained in each suite's `dependsOn`; after pruning blanket suite dependencies (Step 4 of the manifest-driven skill-loading plan) it would have silently dropped them. Symptom: `selection.derivedCapabilities` in the active manifest under-reported to `[]`, and a maintainer relying on...",
+      "tags": [
+        "capability-selection",
+        "module-registry",
+        "dead-code",
+        "silent-fallback",
+        "manifest",
+        "eligibility",
+        "namespaces"
+      ],
+      "title": "Capability suite-eligibility namespace mismatch makes activation dead code",
+      "top_keywords": [
+        "target-mapping.json",
+        "supportedsuites",
+        "configselectors",
+        "dependson",
+        "supportedplatforms",
+        "scripts/cg_context_budget.py",
+        "capability",
+        "namespace",
+        "mismatch",
+        "suite-eligibility"
       ]
     },
     {
@@ -20717,7 +20741,7 @@
       ]
     }
   ],
-  "entity_count": 723,
+  "entity_count": 724,
   "generated": "2026-08-14",
   "schema_version": "0.2.0",
   "topic_count": 6,
@@ -21422,22 +21446,6 @@
     {
       "entity_count": 4,
       "entity_paths": [
-        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
-        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
-        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
-        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md"
-      ],
-      "keywords": [
-        "scripts/cg_kilo_preflight.py",
-        "link.sh",
-        "cg_kilo_preflight.py"
-      ],
-      "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py",
-      "slug": "scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py"
-    },
-    {
-      "entity_count": 4,
-      "entity_paths": [
         ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
         ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
         ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
@@ -21450,6 +21458,21 @@
       ],
       "label": "Tests / Filesystem / Python",
       "slug": "tests-filesystem-python"
+    },
+    {
+      "entity_count": 3,
+      "entity_paths": [
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md"
+      ],
+      "keywords": [
+        "scripts/cg_kilo_preflight.py",
+        "link.sh",
+        ".github"
+      ],
+      "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / .Github",
+      "slug": "scripts-cg-kilo-preflight-py-link-sh-github"
     },
     {
       "entity_count": 3,
