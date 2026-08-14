@@ -367,6 +367,23 @@ Describe "update.ps1 - manifest-managed platform file refresh" {
     }
 }
 
+Describe "update.ps1 - Kilo coexistence preflight" {
+    It "runs the shared Kilo preflight helper for linked local skills" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgKiloPreflight'
+        $content | Should -Match 'RequireCoexistence'
+        $content | Should -Match 'LocalOnly'
+        $content | Should -Match 'cg-kilo'
+    }
+
+    It "does not mutate the caller environment for containment" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\cg_kilo_preflight.py") -Raw -Encoding UTF8
+        $content | Should -Match 'environment = os\.environ\.copy\(\)'
+        $content | Should -Match 'KILO_DISABLE_EXTERNAL_SKILLS'
+        $content | Should -Match 'subprocess\.run'
+    }
+}
+
 Describe "update.ps1 - executable generation failure boundary" {
     It "exits before managed-file refresh when target mapping is missing" {
         $installRoot = Join-Path $TestDrive "isolated-update-install"

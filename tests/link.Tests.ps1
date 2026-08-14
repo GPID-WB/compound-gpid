@@ -221,12 +221,8 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
     }
 
     It "syncs managed files by checksum and rejects a linked result" {
-        $linkContent | Should -Match 'Sync-CgCopiedDirectory -Source \$source'
-        $linkContent | Should -Match 'Resolve-CgContainedCopyPath -Base \$Target'
-        $linkContent | Should -Match 'Test-CgCopyPathHasReparsePoint -Base \$Target'
-        $linkContent | Should -Match 'Get-CgFileSha256 -Path \$destination'
-        $linkContent | Should -Match 'removed stale managed file'
-        $linkContent | Should -Match 'was modified or is user-owned; preserving it'
+        $linkContent | Should -Match 'cg_kilo_copy\.py'
+        $linkContent | Should -Match 'Shared Kilo copy worker failed'
         $linkContent | Should -Match 'copy-directory invariant failed'
     }
 

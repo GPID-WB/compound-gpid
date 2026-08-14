@@ -226,11 +226,12 @@ Describe "link copy-directory semantics parity note" {
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
     It "both scripts document the copy-directory semantic divergence" {
-        # Windows link.ps1 preserves user edits + removes stale managed files;
-        # POSIX link.sh uses a wholesale overwrite. Each script must carry the
-        # matching side of the divergence note so the contract stays visible.
+        # Both platforms now use the shared checksum-aware Kilo worker. Keep the
+        # Windows helper's ownership wording and require the POSIX script to
+        # reference the same worker rather than recursive cp.
         $linkPs1 | Should -Match 'copy-directory semantics: Windows preserves user edits'
-        $linkSh  | Should -Match 'copy-directory semantics: POSIX uses a wholesale overwrite'
+        $linkSh  | Should -Match 'cg_kilo_copy\.py'
+        $linkSh  | Should -Not -Match 'cp -R "\$source_path/\.'
     }
 }
 
@@ -288,5 +289,30 @@ Describe "cg-brain-init registration parity" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'cg-token-audit'
         $installSh | Should -Match 'cg_audit_context\.py'
+    }
+}
+
+Describe "Kilo coexistence launcher parity" {
+    It "registers the certified launcher on Windows and POSIX" {
+        $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+        $linkSh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw -Encoding UTF8
+        $updatePs1 = Get-Content (Join-Path $repoRoot "scripts/update.ps1") -Raw -Encoding UTF8
+        $updateSh = Get-Content (Join-Path $repoRoot "scripts/update.sh") -Raw -Encoding UTF8
+
+        $installPs1 | Should -Match 'cg-kilo'
+        $installSh | Should -Match 'cg-kilo'
+        $linkPs1 | Should -Match 'Invoke-CgKiloPreflight'
+        $linkSh | Should -Match 'run_kilo_preflight'
+        $updatePs1 | Should -Match 'Invoke-CgKiloPreflight'
+        $updateSh | Should -Match 'cg_kilo_preflight\.py'
+    }
+
+    It "uses the same process-scoped containment control" {
+        $worker = Get-Content (Join-Path $repoRoot "scripts/cg_kilo_preflight.py") -Raw -Encoding UTF8
+        $worker | Should -Match 'KILO_DISABLE_EXTERNAL_SKILLS'
+        $worker | Should -Match 'os\.environ\.copy\(\)'
+        $worker | Should -Match 'subprocess\.run'
     }
 }
