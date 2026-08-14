@@ -1,5 +1,5 @@
 {
-  "edge_count": 304,
+  "edge_count": 311,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -461,6 +461,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
       "target": ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "target": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
       "target_missing": false
     },
     {
@@ -1340,6 +1346,24 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
+      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1349,6 +1373,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
       "target": ".cg-docs/plans/2026-07-03-cross-agent-native-platform-targets.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md",
+      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target_missing": false
     },
     {
@@ -3379,6 +3409,39 @@
         "luna",
         "assignment",
         "role"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
+      "slug": "2026-08-13-skill-loading-architecture-context-efficiency",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "architecture",
+        "skills",
+        "context-efficiency",
+        "capabilities",
+        "manifests",
+        "platform-adapters",
+        "kilo",
+        "copilot",
+        "security",
+        "vendoring"
+      ],
+      "title": "Manifest-driven skill loading for context efficiency",
+      "top_keywords": [
+        "phase",
+        ".agents/skills",
+        "cg-link",
+        "cg-update",
+        ".kilo/skills",
+        "/cg-find-skill",
+        "approach",
+        "[cg]",
+        "skill",
+        "context"
       ]
     },
     {
@@ -6682,6 +6745,37 @@
         "cr-*",
         "/cr-work",
         "pytest scripts/tests/test_target_drift.py"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading",
+      "status": "active",
+      "summary": "Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically published project-local projection for each selected platform. The implementation must reduce routine skill metadata exposure while fail-closing invalid selection, stale state, unsafe filesystem conditions, and Kilo/Codex coexistence failures.",
+      "tags": [
+        "architecture",
+        "manifests",
+        "capabilities",
+        "platform-projections",
+        "kilo",
+        "context-efficiency",
+        "security",
+        "vendoring"
+      ],
+      "title": "Manifest-driven skill loading and project-local platform projections",
+      "top_keywords": [
+        "test scenarios",
+        "run-tests.ps1",
+        "cg-kilo",
+        "phase",
+        "cg-update",
+        "/cg-import-skill",
+        "@cg-roadmap",
+        "cg-import-skill",
+        "roadmap.json",
+        "projection"
       ]
     },
     {
@@ -10359,6 +10453,50 @@
       ]
     },
     {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-review",
+      "status": "",
+      "summary": "**Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation, tests, installers, and docs **Findings**: 26 (P0: 1, P1: 12, P2: 12, P3: 1)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-review",
+      "top_keywords": [
+        "scripts/cg_kilo_preflight.py",
+        "cg_kilo_preflight.py",
+        "scripts/link.sh",
+        "cg_kilo_copy.py",
+        "link.sh",
+        "scripts/link.ps1",
+        "scripts/update.sh",
+        "scripts/cg_kilo_copy.py",
+        "cg-kilo",
+        "review"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "status": "",
+      "summary": "**Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md` **Files reviewed**: current uncommitted Phase 1 implementation and test changes **Findings**: 19 (P0: 1, P1: 9, P2: 8, P3: 1)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "top_keywords": [
+        "cg_kilo_preflight.py",
+        "scripts/link.ps1",
+        "scripts/cg_kilo_preflight.py",
+        "scripts/link.sh",
+        "scripts/update.ps1",
+        "scripts/update.sh",
+        "link.ps1",
+        "update.sh",
+        "link.sh",
+        "update.ps1"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -13121,6 +13259,39 @@
         "bin/*.cmd",
         "/cg-commit-push-pr",
         "helpers.ps1"
+      ]
+    },
+    {
+      "date": "2026-08-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md",
+      "slug": "2026-08-14-kilo-contained-launch-and-no-follow-copy",
+      "status": "",
+      "summary": "When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-local `.kilo/skills` tree. External Markdown roots can cause inventory leakage or be reported as misleading parser failures. The Windows and POSIX Kilo copy-directory paths also had different ownership and link-following behavior.",
+      "tags": [
+        "kilo",
+        "codex",
+        "claude",
+        "coexistence",
+        "containment",
+        "preflight",
+        "copy-directory",
+        "no-follow",
+        "checksum",
+        "pester"
+      ],
+      "title": "Kilo coexistence requires a certified contained launch and no-follow local copies",
+      "top_keywords": [
+        "kilo",
+        "no-follow",
+        "coexistence",
+        "local",
+        "launch",
+        "certified",
+        "copies",
+        "requires",
+        "contained",
+        "cg-kilo.cmd"
       ]
     },
     {
@@ -18326,6 +18497,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#quarantined-external-skill-vendoring",
+      "slug": "quarantined-external-skill-vendoring",
+      "status": "idea",
+      "summary": "Quarantined external-skill vendoring workflow",
+      "tags": [],
+      "title": "Quarantined external-skill vendoring workflow",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "workflow",
+        "quarantined",
+        "external-skill",
+        "vendoring",
+        "feature",
+        "milestone",
+        "architecture",
+        "research",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#github-actions-supply-chain-hardening-pilot",
       "slug": "github-actions-supply-chain-hardening-pilot",
       "status": "idea",
@@ -19822,6 +20015,116 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#capability-profile-manifest-resolution",
+      "slug": "capability-profile-manifest-resolution",
+      "status": "planned",
+      "summary": "Capability profiles and active project-manifest resolution",
+      "tags": [],
+      "title": "Capability profiles and active project-manifest resolution",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "capability",
+        "profiles",
+        "active",
+        "project-manifest",
+        "resolution",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#mandatory-base-capabilities-generated-enforcement",
+      "slug": "mandatory-base-capabilities-generated-enforcement",
+      "status": "planned",
+      "summary": "Narrow mandatory base capabilities with generated enforcement",
+      "tags": [],
+      "title": "Narrow mandatory base capabilities with generated enforcement",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "narrow",
+        "mandatory",
+        "base",
+        "capabilities",
+        "generated",
+        "enforcement",
+        "milestone",
+        "ideas",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#manifest-integrity-fail-closed-validation",
+      "slug": "manifest-integrity-fail-closed-validation",
+      "status": "planned",
+      "summary": "Fail-closed manifest and skill-integrity validation",
+      "tags": [],
+      "title": "Fail-closed manifest and skill-integrity validation",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "fail-closed",
+        "manifest",
+        "skill-integrity",
+        "validation",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#active-manifest-platform-adapters",
+      "slug": "active-manifest-platform-adapters",
+      "status": "planned",
+      "summary": "Generate platform adapters from the active manifest",
+      "tags": [],
+      "title": "Generate platform adapters from the active manifest",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "generate",
+        "platform",
+        "adapters",
+        "active",
+        "manifest",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#active-manifest-install-update-parity-matrix",
+      "slug": "active-manifest-install-update-parity-matrix",
+      "status": "planned",
+      "summary": "Active-manifest install/update and cross-platform parity matrix",
+      "tags": [],
+      "title": "Active-manifest install/update and cross-platform parity matrix",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "active-manifest",
+        "install",
+        "cross-platform",
+        "parity",
+        "matrix",
+        "milestone",
+        "ideas",
+        "feature",
+        "ongoing"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#token-efficiency-vs-modular-priority-resolution",
       "slug": "token-efficiency-vs-modular-priority-resolution",
       "status": "planned",
@@ -20059,6 +20362,28 @@
         "milestone",
         "optimization",
         "governance"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#manifest-backed-skills-discovery-catalog",
+      "slug": "manifest-backed-skills-discovery-catalog",
+      "status": "idea",
+      "summary": "Manifest-backed skills discovery catalog and /cg-skills",
+      "tags": [],
+      "title": "Manifest-backed skills discovery catalog and /cg-skills",
+      "top_keywords": [
+        "cg-skills",
+        "token optimization",
+        "model governance\nobjective",
+        "manifest-backed",
+        "skills",
+        "discovery",
+        "catalog",
+        "context",
+        "token",
+        "model"
       ]
     },
     {
@@ -20392,13 +20717,13 @@
       ]
     }
   ],
-  "entity_count": 708,
-  "generated": "2026-08-12",
+  "entity_count": 723,
+  "generated": "2026-08-14",
   "schema_version": "0.2.0",
-  "topic_count": 5,
+  "topic_count": 6,
   "topics": [
     {
-      "entity_count": 503,
+      "entity_count": 505,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -20450,6 +20775,7 @@
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
         ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
+        ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -20563,6 +20889,7 @@
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+        ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -20913,7 +21240,7 @@
       "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 142,
+      "entity_count": 149,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -20963,6 +21290,7 @@
         "roadmap.json#tiered-model-escalation",
         "roadmap.json#canonical-to-native-packaging-foundation",
         "roadmap.json#attribution-documentation",
+        "roadmap.json#quarantined-external-skill-vendoring",
         "roadmap.json#github-actions-supply-chain-hardening-pilot",
         "roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites",
         "roadmap.json#brainstorm-plan-id-traceability",
@@ -21031,6 +21359,11 @@
         "roadmap.json#broader-artifact-publishing-formats-and-views",
         "roadmap.json#cr-asset-classification-mapping",
         "roadmap.json#context-budget-enforcement-design",
+        "roadmap.json#capability-profile-manifest-resolution",
+        "roadmap.json#mandatory-base-capabilities-generated-enforcement",
+        "roadmap.json#manifest-integrity-fail-closed-validation",
+        "roadmap.json#active-manifest-platform-adapters",
+        "roadmap.json#active-manifest-install-update-parity-matrix",
         "roadmap.json#token-efficiency-vs-modular-priority-resolution",
         "roadmap.json#token-audit-context-model",
         "roadmap.json#model-tier-definitions",
@@ -21042,6 +21375,7 @@
         "roadmap.json#stage-context-contracts",
         "roadmap.json#review-deterministic-first",
         "roadmap.json#token-benchmark-before-after",
+        "roadmap.json#manifest-backed-skills-discovery-catalog",
         "roadmap.json#token-optimization-compound",
         "roadmap.json#workflow-suitability-criteria",
         "roadmap.json#project-scanner-workflow-evidence",
@@ -21060,11 +21394,11 @@
       ],
       "keywords": [
         "architecture research\nobjective",
-        "workflow maturity\nobjective",
-        "ongoing ideas\nobjective"
+        "ongoing ideas\nobjective",
+        "workflow maturity\nobjective"
       ],
-      "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Ongoing Ideas\nObjective",
-      "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
+      "label": "Architecture Research\nObjective / Ongoing Ideas\nObjective / Workflow Maturity\nObjective",
+      "slug": "architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective"
     },
     {
       "entity_count": 7,
@@ -21084,6 +21418,22 @@
       ],
       "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
       "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
+    },
+    {
+      "entity_count": 4,
+      "entity_paths": [
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md"
+      ],
+      "keywords": [
+        "scripts/cg_kilo_preflight.py",
+        "link.sh",
+        "cg_kilo_preflight.py"
+      ],
+      "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py",
+      "slug": "scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py"
     },
     {
       "entity_count": 4,

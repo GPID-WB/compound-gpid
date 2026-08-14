@@ -1,11 +1,15 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-12_
+_Generated 2026-08-14_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 91 entities
 
+- **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
+  > After adding a P0 severity tier to all 8 review agent output templates (`**[P0|P1|P2|P3]**`), the pipeline silently c…
+- **[Test instruction file applyTo frontmatter to prevent silent dialect routing failure](.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)** · `solution` · _—_ · `2026-04-08`
+  > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 - **[New prompt/agent addition checklist: 7 files that must be updated together](.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md)** · `solution` · _—_ · `2026-04-08`
   > Adding a new prompt (`/cg-*`) or agent (`@cg-*`) to compound-gpid requires touching at minimum 4 files. Missing any o…
 - **[AI agent uses 2>&1 | Select-String when debugging test failures — crash trigger during failure investigation](.cg-docs/solutions/testing-patterns/2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)** · `solution` · _—_ · `2026-04-09`
@@ -185,12 +189,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 89
 - **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 
-## Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective
+## Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective
 
 _Keywords: `architecture research
-objective` · `workflow maturity
 objective` · `ongoing ideas
-objective`_ · 142 entities
+objective` · `workflow maturity
+objective`_ · 149 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -288,6 +292,8 @@ objective`_ · 142 entities
   > Canonical-to-Native Packaging Foundation
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _idea_ · `—`
+  > Quarantined external-skill vendoring workflow
 - **[GitHub Actions hardening external-skill pilot](roadmap.json#github-actions-supply-chain-hardening-pilot)** · `feature` · _idea_ · `—`
   > GitHub Actions hardening external-skill pilot
 - **[Modular Compound GPID architecture for technical and research suites](roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites)** · `feature` · _done_ · `—`
@@ -424,6 +430,16 @@ objective`_ · 142 entities
   > CR asset classification mapping
 - **[Context-budget enforcement design](roadmap.json#context-budget-enforcement-design)** · `feature` · _planned_ · `—`
   > Context-budget enforcement design
+- **[Capability profiles and active project-manifest resolution](roadmap.json#capability-profile-manifest-resolution)** · `feature` · _planned_ · `—`
+  > Capability profiles and active project-manifest resolution
+- **[Narrow mandatory base capabilities with generated enforcement](roadmap.json#mandatory-base-capabilities-generated-enforcement)** · `feature` · _planned_ · `—`
+  > Narrow mandatory base capabilities with generated enforcement
+- **[Fail-closed manifest and skill-integrity validation](roadmap.json#manifest-integrity-fail-closed-validation)** · `feature` · _planned_ · `—`
+  > Fail-closed manifest and skill-integrity validation
+- **[Generate platform adapters from the active manifest](roadmap.json#active-manifest-platform-adapters)** · `feature` · _planned_ · `—`
+  > Generate platform adapters from the active manifest
+- **[Active-manifest install/update and cross-platform parity matrix](roadmap.json#active-manifest-install-update-parity-matrix)** · `feature` · _planned_ · `—`
+  > Active-manifest install/update and cross-platform parity matrix
 - **[Token Efficiency vs modular priority resolution](roadmap.json#token-efficiency-vs-modular-priority-resolution)** · `feature` · _planned_ · `—`
   > Token Efficiency vs modular priority resolution
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
@@ -446,6 +462,8 @@ objective`_ · 142 entities
   > Make review cheaper with deterministic checks first
 - **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
   > Benchmark before and after
+- **[Manifest-backed skills discovery catalog and /cg-skills](roadmap.json#manifest-backed-skills-discovery-catalog)** · `feature` · _idea_ · `—`
+  > Manifest-backed skills discovery catalog and /cg-skills
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
 - **[Workflow suitability criteria and non-goals](roadmap.json#workflow-suitability-criteria)** · `feature` · _idea_ · `—`
@@ -496,6 +514,19 @@ objective` · `measurement`_ · 7 entities
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+
+## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
+
+_Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`_ · 4 entities
+
+- **[2026-06-12-goal-driven-execution-verify-review-6](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-06-12-goal-driven-execution-verify-review-7](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
 
 ## Tests / Filesystem / Python
 

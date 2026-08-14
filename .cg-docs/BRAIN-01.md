@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-08-12_
+_Generated 2026-08-14_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
 
@@ -105,6 +105,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
 - **[Modular Compound GPID architecture for technical and research suites](.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md)** · `brainstorm` · _decided_ · `2026-07-31`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Use GPT-5.6 Luna for /cr-work](.cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
@@ -332,6 +334,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > phases: 8  # convenience hint -- may be stale; always recount from ## Phase headers
 - **[Controlled GitHub Copilot issue-implementation pipeline](.cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md)** · `plan` · _superseded_ · `2026-08-05`
   > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
+- **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
+  > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -830,9 +834,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 41
   > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
 - **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
   > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
-- **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
-  > After adding a P0 severity tier to all 8 review agent output templates (`**[P0|P1|P2|P3]**`), the pipeline silently c…
-- **[Test instruction file applyTo frontmatter to prevent silent dialect routing failure](.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md)** · `solution` · _—_ · `2026-04-08`
-  > `.github/instructions/r.instructions.md` contains an `applyTo:` field in its YAML frontmatter that controls which fil…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_
