@@ -467,6 +467,45 @@ def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, in
     return files, by_category
 
 
+def scan_skill_metadata(root: Path) -> list[dict[str, Any]]:
+    """Return advertised skill metadata for every canonical skill SKILL.md.
+
+    Metadata is read from the skill directory name (stable id) and the parsed
+    frontmatter ``description`` only — never from the skill body. Used by the
+    projection benchmark to capture the "advertised skill metadata" baseline
+    without loading inactive skill bodies into ordinary context.
+
+    Args:
+        root: Repository root path.
+
+    Returns:
+        Sorted list of dicts with ``id``, ``path``, ``description``, and
+        ``chars`` (frontmatter + body length heuristic, kept minimal).
+    """
+    rows: list[dict[str, Any]] = []
+    skills_dir = root / ".github" / "skills"
+    if not skills_dir.is_dir():
+        return rows
+    for entry in sorted(skills_dir.iterdir()):
+        if not entry.is_dir() or entry.is_symlink():
+            continue
+        skill_file = entry / "SKILL.md"
+        if not skill_file.is_file():
+            continue
+        content = skill_file.read_text(encoding="utf-8-sig")
+        frontmatter = parse_frontmatter(content)
+        description = frontmatter.get("description", "")
+        if not isinstance(description, str):
+            description = ""
+        rows.append({
+            "id": entry.name,
+            "path": f".github/skills/{entry.name}/SKILL.md",
+            "description": description,
+            "chars": len(content),
+        })
+    return sorted(rows, key=lambda row: row["id"])
+
+
 def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     """Extract forbidden executable model metadata from prompts and agents."""
     declarations: list[dict[str, Any]] = []
