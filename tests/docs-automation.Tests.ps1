@@ -83,6 +83,22 @@ Describe "Pages exact-artifact deployment contracts" {
         $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
     }
 
+    It "accepts dev-series pre-release tags (v1.2.0.900x) in the immutable-ref resolver" {
+        $resolveBlock = [regex]::Match($pagesWorkflow, '(?s)resolve-immutable-ref:.*?(?=\n  [a-z].*?:|\z)').Value
+        $tagPattern = [regex]::Match($resolveBlock, '\$ref"\s*=\~\s*([^ ]+)').Groups[1].Value
+        $tagPattern | Should -Not -Be ''
+        $tagRegex = [regex]$tagPattern
+        $tagRegex.IsMatch('v1.2.0') | Should -Be $true
+        $tagRegex.IsMatch('v1.2.0.9004') | Should -Be $true
+        $tagRegex.IsMatch('v1.2') | Should -Be $false
+    }
+
+    It "requires dev-series pre-release tag commits to resolve on the dev lineage" {
+        $resolveBlock = [regex]::Match($pagesWorkflow, '(?s)resolve-immutable-ref:.*?(?=\n  [a-z].*?:|\z)').Value
+        $resolveBlock | Should -Match 'is-ancestor'
+        $resolveBlock | Should -Match 'origin/dev'
+    }
+
     It "never rebuilds or mutates the downloaded main artifact" {
         $artifactJob = [regex]::Match($pagesWorkflow, '(?s)deploy-rebuild-artifact:.*?(?=\n  [a-z].*?:|\z)').Value
         $artifactJob | Should -Match '--verify-artifact'

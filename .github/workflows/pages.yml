@@ -113,18 +113,20 @@ jobs:
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             ref="$INPUT_REF"
           fi
-          if [[ "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
             git fetch origin "refs/tags/$ref:refs/tags/$ref"
             sha="$(git rev-list -n 1 "$ref")"
           elif [[ "$ref" =~ ^[0-9a-f]{40}$ ]]; then
             sha="$ref"
           else
-            echo "Ref must be an official vX.Y.Z tag or a full commit SHA."
+            echo "Ref must be an official vX.Y.Z or dev-series pre-release (vX.Y.Z.<build>) tag, or a full commit SHA."
             exit 1
           fi
-          git fetch origin main
+          git fetch origin main dev
           git cat-file -e "$sha^{commit}"
-          git merge-base --is-ancestor "$sha" origin/main
+          git merge-base --is-ancestor "$sha" origin/main \
+            || git merge-base --is-ancestor "$sha" origin/dev \
+            || { echo "Ref commit must be an ancestor of origin/main or origin/dev."; exit 1; }
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
   build-and-deploy-immutable-ref:
