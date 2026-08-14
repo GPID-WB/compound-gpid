@@ -136,7 +136,7 @@ $env:PATH -split ';' | Select-String 'compound'
 **Verify the bin directory exists and contains the wrappers**:
 ```powershell
 Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
-# Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd, cg-index.cmd,
+# Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd, cg-kilo.cmd, cg-index.cmd,
 # cg-brain-init.cmd, cg-token-audit.cmd
 ```
 

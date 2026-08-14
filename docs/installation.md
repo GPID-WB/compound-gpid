@@ -65,7 +65,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms, pass `--platforms`:
 > ```powershell
@@ -75,6 +75,15 @@ This links Compound GPID install units for all supported platforms by default: G
 > ```
 > Default (`cg-link` with no flag) links all supported platforms. See [Context
 > Files](context-files.md) for details on generated native platform trees.
+
+> **Kilo + Codex/Claude coexistence**: when a project contains Kilo plus a
+> Codex or Claude skill root, direct Kilo editor/CLI launches are unsupported.
+> Run the certified launcher `cg-kilo` from the project root. It performs the
+> local projection and supported-host preflight, then sets
+> `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child Kilo process. It does not
+> modify global Kilo configuration or the caller's environment. If the host
+> version, local projection, or containment check is unsupported, `cg-link` and
+> `cg-update` fail with remediation rather than claiming coexistence support.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -122,6 +131,11 @@ and creates three config files:
 > packaging preserves their mode but never executes them. See
 > [Generated Native Platform Trees](context-files.md#generated-native-platform-trees).
 
+> **Kilo parser diagnostics**: malformed managed Kilo skill, agent, and `cg-*`
+> command frontmatter is reported as a local-content failure. Kilo's own
+> schema-validation failure is reported separately from external skill
+> discovery; one must not be used as evidence for the other.
+
 > **Suite selection**: `/cg-setup` records active suites in
 > `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
 > backward compatibility. The generator filters each native tree to the active
@@ -166,7 +180,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms:
 > ```bash
@@ -175,6 +189,11 @@ This links Compound GPID install units for all supported platforms by default: G
 > cg-link --platforms copilot,claude-code,codex,opencode,kilo
 > ```
 > Default (`cg-link` with no flag) links all supported platforms.
+
+> With Kilo and Codex/Claude roots present, launch Kilo only through
+> `cg-kilo`. The certified launcher is the supported containment boundary;
+> direct editor/CLI launches are intentionally unsupported by the coexistence
+> policy.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.

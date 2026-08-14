@@ -112,6 +112,7 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-link [--platforms <list>]` | Project root | Link all supported platforms by default: Copilot `.github/`, Claude Code `.claude/`, Codex `.agents/`, OpenCode `.opencode/`, and Kilo `.kilo/`. Use `--platforms copilot` or another comma-separated list to narrow the install. |
 | `cg-unlink` | Project root | Remove Compound GPID-managed install units and manifest-managed copied files while preserving user-owned platform content. |
 | `cg-update [<version>\|latest\|--list\|--fix]` | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. |
+| `cg-kilo [<kilo arguments>]` | Project root | Certified Kilo launch. For projects with Codex/Claude roots, validates containment and disables external skill discovery only in the child Kilo process; direct launches are unsupported. |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
 | `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |
 | `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |
