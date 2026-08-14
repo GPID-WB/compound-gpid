@@ -504,7 +504,15 @@ function Install-CgDirectoryUnit {
     $parent = Split-Path $target -Parent
     if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
     if ($Strategy -eq "copy-directory") {
-        Sync-CgCopiedDirectory -Source $source -SourceRel $SourceRel -Target $target -TargetRel $TargetRel -PreviousManifest $copyManifest
+        $python = Resolve-PythonCommand
+        if (-not $python) {
+            throw "Python 3.8+ is required for the shared Kilo copy worker."
+        }
+        $worker = Join-Path $PSScriptRoot "cg_kilo_copy.py"
+        & $python $worker --source $source --target $target --source-relative (ConvertTo-CgSlashPath $SourceRel)
+        if ($LASTEXITCODE -ne 0) {
+            throw "Shared Kilo copy worker failed for $TargetRel with exit code $LASTEXITCODE"
+        }
         $copied = Get-Item -LiteralPath $target -Force
         if ($copied.LinkType) {
             throw "copy-directory invariant failed for $TargetRel`: target is still a $($copied.LinkType)."
@@ -679,6 +687,24 @@ $argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
 $Force = [bool]$argsParsed.Force
 $selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
 
+# Check host containment before any update, copy, manifest, or global Kilo
+# permission mutation. The post-copy validation below remains necessary for
+# local projection/content ownership checks.
+$preflightKiloSelected = "kilo" -in $selectedPlatforms
+$preflightCompatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
+$preflightCompatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
+if ($preflightKiloSelected -and ($preflightCompatibilitySelected -or $preflightCompatibilityPresent)) {
+    try {
+        [void](Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence -HostOnly)
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Linking is blocked by Kilo host preflight: $_"
+        exit $preflightExitCode
+    }
+}
+
 Write-Host ""
 if ($env:CG_SKIP_UPDATE -eq "1") {
     Write-Host "Skipping Compound GPID update (CG_SKIP_UPDATE=1)." -ForegroundColor DarkGray
@@ -758,6 +784,33 @@ if ($manifest.files.Count -gt 0) {
 
 if ("kilo" -in $selectedPlatforms) {
     Update-CgKiloGlobalPermission -CompoundGpidDir $CompoundGpidDir | Out-Null
+}
+
+# Kilo can discover Codex/Claude skill roots from the same project. A combined
+# selection is supported only through the certified child-process launcher; a
+# Kilo-only project needs only local projection validation at link time.
+$kiloSelected = "kilo" -in $selectedPlatforms
+$compatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
+$compatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
+$kiloRootPresent = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo\skills")
+if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
+    try {
+        if ($compatibilitySelected -or $compatibilityPresent) {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence
+        } else {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly
+        }
+        Write-Host "  Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
+        if ($kiloPreflight.certified_launch_required) {
+            Write-Host "  Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
+        }
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Linking is blocked by Kilo coexistence preflight: $_"
+        exit $preflightExitCode
+    }
 }
 
 Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))

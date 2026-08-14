@@ -42,8 +42,11 @@ resolve_python() {
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
         case "$version" in
-            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+            Python\ [0-9]*) ;;
+            *) continue ;;
         esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -250,11 +253,8 @@ install_directory_unit() {
     parent="$(dirname "$target_path")"
     mkdir -p "$parent"
     if [ "$strategy" = "copy-directory" ]; then
-        # copy-directory semantics: POSIX uses a wholesale overwrite (cp -R).
-        # The Windows link.ps1 counterpart preserves user edits and removes
-        # stale managed files via a per-directory checksum manifest; that
-        # divergence is intentional and asserted in tests/parity.Tests.ps1.
-        cp -R "$source_path/." "$target_path/"
+        "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
+            --source "$source_path" --target "$target_path" --source-relative "$source_rel"
         print_gray "$target_rel - copied"
     else
         ln -s "$source_path" "$target_path"
@@ -451,6 +451,40 @@ if changed:
 PYEOF
 }
 
+run_kilo_preflight() {
+    local mode="$1"
+    local output status
+    local -a preflight_args=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$PROJECT_ROOT" --json)
+    if [ "$mode" = "host" ]; then
+        preflight_args+=(--require-coexistence --host-only)
+    elif [ "$mode" = "coexistence" ]; then
+        preflight_args+=(--require-coexistence)
+    else
+        preflight_args+=(--local-only)
+    fi
+    set +e
+    output="$($PYTHON_CMD "${preflight_args[@]}")"
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ]; then
+        print_error "Linking is blocked by Kilo coexistence preflight."
+        printf '%s\n' "$output" >&2
+        exit "$status"
+    fi
+    local result_status
+    result_status="$(printf '%s\n' "$output" | "$PYTHON_CMD" -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
+    print_gray "Kilo preflight ($mode): $result_status"
+    if [ "$mode" = "coexistence" ]; then
+        print_yellow "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)."
+    fi
+}
+
+if [[ ",$PLATFORMS," == *,kilo,* ]] &&
+   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ||
+      -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ]]; then
+    run_kilo_preflight host
+fi
+
 if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
 
@@ -575,6 +609,16 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
         esac
     fi
 done < "$units_file"
+
+if [[ ",$PLATFORMS," == *,kilo,* ]] &&
+   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ]]; then
+    run_kilo_preflight coexistence
+elif [[ -d "$PROJECT_ROOT/.kilo/skills" &&
+        ( -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ) ]]; then
+    run_kilo_preflight coexistence
+elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
+    run_kilo_preflight local
+fi
 
 collect_existing_managed_entries >> "$entries_file"
 update_gitignore_block "$entries_file"
