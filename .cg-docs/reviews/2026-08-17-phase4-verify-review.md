@@ -3,6 +3,8 @@ date: 2026-08-17
 mode: verify
 scope: Phase 4 (Steps 9-10) of manifest-driven skill loading plan
 resolved-mode: light
+findings:
+  F1: skipped
 ---
 
 # Verification Review: Phase 4 Skill Catalog and Capability Router
