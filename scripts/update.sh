@@ -550,6 +550,27 @@ if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] &&
 fi
 
 # ---------------------------------------------------------------------------
+# Manifest-driven projection recovery/verification (consumer projects)
+# ---------------------------------------------------------------------------
+UPDATE_IS_SOURCE="false"
+if [[ "$(pwd -P)" == "$(cd "$COMPOUND_GPID_DIR" && pwd -P)" ]]; then
+    UPDATE_IS_SOURCE="true"
+fi
+if [[ "${CG_INTERNAL_CALL:-}" != "1" && "$UPDATE_IS_SOURCE" != "true" &&
+      -f "$(pwd)/.compound-gpid/active-manifest.json" ]]; then
+    set +e
+    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$(pwd)" --source-root "$COMPOUND_GPID_DIR" --sync)"
+    PROJECTION_STATUS=$?
+    set -e
+    if [[ "$PROJECTION_STATUS" -ne 0 ]]; then
+        print_error "Update is blocked by manifest projection failure."
+        printf '%s\n' "$PROJECTION_OUTPUT" >&2
+        exit 1
+    fi
+    print_gray "Project projection synced and verified in current project."
+fi
+
+# ---------------------------------------------------------------------------
 # Refresh copilot-instructions.md in the current project (if linked)
 # ---------------------------------------------------------------------------
 # Skip when called internally by cg-link (it handles the refresh itself).

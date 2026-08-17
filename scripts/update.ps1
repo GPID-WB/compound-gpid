@@ -624,6 +624,25 @@ if (-not $env:CG_INTERNAL_CALL -and -not (Test-Path $cwdGithub)) {
     Write-Host "Tip: run cg-update from your project root to apply per-project migration notices." -ForegroundColor DarkGray
 }
 
+# --- Manifest-driven projection recovery/verification (consumer projects) ---
+# A consumer project with a committed active manifest has a journaled,
+# project-local projection. After the pull, recover any interrupted
+# publication and verify ownership; do not rewrite the immutable selection.
+$updateProjectRoot = (Get-Location).Path
+$updateManagedDir = Join-Path $updateProjectRoot ".compound-gpid"
+$updateIsSourceInstall = [System.IO.Path]::GetFullPath($updateProjectRoot).TrimEnd('\', '/') -ieq
+    [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
+if (-not $env:CG_INTERNAL_CALL -and -not $updateIsSourceInstall -and
+    (Test-Path -LiteralPath (Join-Path $updateManagedDir "active-manifest.json"))) {
+    try {
+        [void](Invoke-CgProjection -ProjectRoot $updateProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
+        Write-Host "Project projection synced and verified in current project." -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Update is blocked by manifest projection failure: $_"
+        exit 1
+    }
+}
+
 # --- Version status display ---
 # Show the current version state at the end of every successful update run.
 Write-Host ""

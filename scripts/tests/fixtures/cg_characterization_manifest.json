@@ -388,7 +388,7 @@
         {
             "kind": "shared",
             "path": ".claude/shared/target-mapping.json",
-            "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
+            "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec"
         },
         {
             "kind": "skill",
@@ -1740,7 +1740,7 @@
         {
             "kind": "shared",
             "path": ".agents/shared/target-mapping.json",
-            "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
+            "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec"
         },
         {
             "kind": "fallback-agent",
@@ -3123,1503 +3123,6 @@
             "sha256": "654da0c7d27237d7ea745f241a14e2871fd369fd25d659d8b0884bf100957ed1"
         }
     ],
-    "kilo": [
-        {
-            "kind": "root-adapter",
-            "path": ".kilo/AGENTS.md",
-            "sha256": "11a7a9fbee6397d56ffb6b74d582c6271a3f7ecda9e1fdd80882365a9508d208"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-adversarial.md",
-            "sha256": "68512ed01bb998d62ec7e8ae842d100e869926ecdc10b61cc24df6c7aec07d1b"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-architecture.md",
-            "sha256": "73617effd68bbf5af001302addaeff0ab1fb0b06838beca5b6c5c0c0f1f74ab7"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-code-quality.md",
-            "sha256": "d0aee94db4768d665a4173b1e9e9ab4be3882306c86ca27448926821b75a0d9d"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-data-quality.md",
-            "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-documentation.md",
-            "sha256": "c052709e85a661c6b9a48593e916b8edc36ea677389b19b3bc7a4ba534c8488d"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-fix-problems.md",
-            "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-learnings-researcher.md",
-            "sha256": "2e84f7c778766bd7e0e3aaa7af0238555c2ddc86e6d60373ff5232cd2149e053"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-performance.md",
-            "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-plan-critic.md",
-            "sha256": "9e86cd3d985a0585022bd6f4117dc24d8710455aafd6fbf059dc4bd79367e19a"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-project-scanner.md",
-            "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-release-scanner.md",
-            "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-reproducibility.md",
-            "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-roadmap-view.md",
-            "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-roadmap.md",
-            "sha256": "eb04f62ce56f733a2119ebc36fa9fd4dca1105d67db27ede4b32850623493a81"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-testing.md",
-            "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-version-control.md",
-            "sha256": "68966d1a45a5e39626c30143f432b5138d12be427f61569b1933abcf193b9cec"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cg-wiki.md",
-            "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-academic-writing.md",
-            "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-econometric-reasoning.md",
-            "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-identification-audit.md",
-            "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-mathematical-verification.md",
-            "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-measurement-integrity.md",
-            "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-ml-methodology.md",
-            "sha256": "787e70cb45b7bc3351187c679a38bc99bbec69c606c9c515c0737951d72f398e"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-provenance-audit.md",
-            "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-publication-output.md",
-            "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-replication-package.md",
-            "sha256": "b2d5092b3224099d3dff1be75970d95239cbab34c88f9a693a9883c5bcfa2789"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-research-integrity.md",
-            "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
-        },
-        {
-            "kind": "agent",
-            "path": ".kilo/agents/cr-specification-analysis.md",
-            "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-brain-rebuild.md",
-            "sha256": "51bc446c36f570471c23ddd7e46f69704a4abfbd405f3999415f7c071d185992"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-brainstorm.md",
-            "sha256": "8efee445e007934a079a7a4c621731571968605cdd4dc23db4312446156ad697"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-commit-push-pr.md",
-            "sha256": "32153bd8eda3d77d8545a395a78a236b580d57bbd93eee24268ef4be267355dc"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-compound-refresh.md",
-            "sha256": "de5fd899ce408b60a9c00912bc2a96e36f7373a1ef3b705c0293e55edbd88c6b"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-compound.md",
-            "sha256": "de5dcac72dcab461484d5aad553f5b80341dcb575ef22328cfd51c422f420bd1"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-devtag.md",
-            "sha256": "15c157042a844b879d3830039c652fbbb1dad0232f11834981ae43ffe0ab336b"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-diagnose.md",
-            "sha256": "103f970a9c890c10b07d12881e3722189fb8e0d4423bc9a17b0a4ffb705629bc"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-fix-problems.md",
-            "sha256": "12e673887aa16469f00d79a94a738daa63352142cefc597a7141ca89132d44f4"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-fix-triage.md",
-            "sha256": "9cb79f04055422f1ad6dae950d70f7a480421ae28cfa6a164b575c7efeac8aa6"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-fixbug.md",
-            "sha256": "d00c646df6bd6c37a3a2d21b95e1ceeabcb77846e9bdbd9bbd584f64219fc67e"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-ideate.md",
-            "sha256": "6cfd77f6daa4afffe09aa604fe0509d9ae4fd5942ce598051915b65660580343"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-issues.md",
-            "sha256": "b360d507a82ad085e671869c12afaa4a7098c7b539422b34c6876ba443735a1e"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-plan-review.md",
-            "sha256": "655073c1c489b09e8f0a7d110acebbd3f3503367d6c6605e5d67a2fc226b745f"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-plan.md",
-            "sha256": "9fd38e75d40149dc3a2fac43142314ac5c1d64c7617cbca891e995318b6727d6"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-release.md",
-            "sha256": "0c1890b4e8283be36b9f62e071ed49519e82715cf3e9be22e844d609c2707eaf"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-render-doc.md",
-            "sha256": "99bcd9c5da9791cd684cc75a64eff205625add4ed8602702b080fd9c32f50938"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-resume.md",
-            "sha256": "a9c88ef4f197daf596cfa34a062902bbde2394449399ae09229a788244a45efe"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-review-repos.md",
-            "sha256": "e3ba06da65695825ca0917acf2499e659506b460461af2c195fe1d431a51f1e6"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-review.md",
-            "sha256": "092c2ec47be80737b468d06b78b0a7238a0b8f85edc1198cdecad0e80f043431"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-roadmap-view.md",
-            "sha256": "7dc8b748d61ad04b1693c636ea7e1f7fc1b4e565819585a9028e43fb4e6207ba"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-setup.md",
-            "sha256": "2ad6f67d8babd0163578cd069bbd26b7167bdf512f9a501e36934a06eeff759c"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-strategy.md",
-            "sha256": "2817d14f27ed82754cc512c53c8bbdd57ec4b60c1e501df1611ca8d75c234e26"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-token-audit.md",
-            "sha256": "c16c22a060a51dcf0e9ae191a8e262e53ee49369a90da1273822c7b93c3badca"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-verify-pr.md",
-            "sha256": "094722ebd7387130ea84cb09682921447f23b0ae08c3c59a2e722f812cc97ee3"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-wiki.md",
-            "sha256": "b6876ea96f4393ecdaa2fe59192a2a52e7bb06ef25bb2f0ea8dd692417da765a"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cg-work.md",
-            "sha256": "ebfcc24cd37a09157fbf64aced171bfb79b321619b37dcec4fe07d7380ba5ed5"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cr-brainstorm.md",
-            "sha256": "dcee2a61f4bc0ccb26d88f80f5d8010f08c337ec738b19cdb09d57cba1bd1858"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cr-compound.md",
-            "sha256": "d3e517be320fe92ab3af6fb3e66cbe1c8f53e8b9a9a18d259e41df5b6d67eaa5"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cr-plan.md",
-            "sha256": "0d7271a293034cbd7a0e1cfc8cb4220f4cf71439a4b808255ddb813d97b20d1a"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cr-review.md",
-            "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45"
-        },
-        {
-            "kind": "command",
-            "path": ".kilo/commands/cr-work.md",
-            "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553"
-        },
-        {
-            "kind": "prompt-support",
-            "path": ".kilo/commands/resume-templates.md",
-            "sha256": "d1e723b3f3ef06f19920476280d5f4b84670c8b2cff9198568afaee71906b114"
-        },
-        {
-            "kind": "prompt-support",
-            "path": ".kilo/commands/setup-templates.md",
-            "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/latex.instructions.md",
-            "sha256": "79bbfbbd869590523666458d5a0f1571b172b8725026f99f38d190ff7f3f9e0a"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/math.instructions.md",
-            "sha256": "2efedd2da098e79daef7fc6cab0f6ede63fd8f83310d8f5df73c7715fb3ed5db"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/powershell.instructions.md",
-            "sha256": "2e6f63f7585e6af368d77876419d934b2abad2b95df079277616cf5911db0bfc"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/python.instructions.md",
-            "sha256": "4bcb147fc750c1b66b012c24b53cc8b1418c5d68bd61f5a7db510ecd9bd3092a"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/r.instructions.md",
-            "sha256": "f2722788ca70581828997daebbd024f2ea2924ebc66cfa789da66bc9db8e0d62"
-        },
-        {
-            "kind": "instruction",
-            "path": ".kilo/instructions/stata.instructions.md",
-            "sha256": "854e38351f1504b8354c8b5aacae9d0cacb41c536321efe0095fff5ca8a6d5ae"
-        },
-        {
-            "kind": "config",
-            "path": ".kilo/kilo.json",
-            "sha256": "0189f9556b15d3f64d5ff79fc2e318e7358fac19edf00a71105cd35d24ff000c"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/active-state.contract.md",
-            "sha256": "ca8559dcfdb690669e1688d82edb0d41eed6d912567e20ace9ddf4e4143297a1"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/artifact-view.contract.md",
-            "sha256": "c3452666eca6f6f9bc49bcfa5500478a59cd5337b86d1e6140c88fc178dd98f2"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/context-loading.contract.md",
-            "sha256": "2edf43adf36279f0401f91456fdedf26139ef93a1c98406f5a2822df100078c5"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/goal-execution.contract.md",
-            "sha256": "2be0c6735294c8621fbd99254947636d263bf09f2161883ffe999a27d2c96581"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/model-advisory-examples.json",
-            "sha256": "5eb6e2de19b8e1c69815f14f0b9dfc3659028c79bafce183184a756fa00c2b5a"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/model-advisory.contract.md",
-            "sha256": "1ebc3ace65f3d43ed360415227ec8b3420dd299564d32d04ec3c2eca556c4cca"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/retrieval-backends.json",
-            "sha256": "387655ef361c2f5b4b859b566172ff5e47ddcd10707c8b307dc8a3f1f37470b6"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/review-routing.contract.md",
-            "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/snapshot-research-modes.json",
-            "sha256": "300d5661936fd88a813d6a637e6fda371c974e463c9f26e73063ea9cad966d57"
-        },
-        {
-            "kind": "shared",
-            "path": ".kilo/shared/target-mapping.json",
-            "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-brain-query/SKILL.md",
-            "sha256": "a4a8c4b407e62523905794f19b193bc77f52ce32cefed0c1df59e5fed0cf0edd"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-brainstorming/SKILL.md",
-            "sha256": "66d6b7fbe4ec9ab8a0cd4bb40de4ce110b117155c2eb3370de997713e7973e90"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-brainstorming/references/decision-template.md",
-            "sha256": "e9adb7c89427786c20b098efc81984780c3351facdf534c42d3828a9a5b4ca53"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-brainstorming/workflows/approach-comparison.md",
-            "sha256": "3ec0ee4445a6066fb9103a77235d98cdb5369077f0320c5e81b1ac79ae9e0838"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-brainstorming/workflows/requirement-elicitation.md",
-            "sha256": "a4fbbd206fa062ffec49f1bad8d945e7ee9170faad4d99ed47fc3e02fea25a6d"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-compound-docs/SKILL.md",
-            "sha256": "db1063a78a1e6d5b0ebdd53af2c16d21b7ac89e969e3b4808d710fc6a6d44630"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-compound-docs/references/solution-schema.md",
-            "sha256": "cd1fa8f9fe4dc7b5405809441af7d75e01bf1cb34c19be6fc083b364ad3b74d4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-compound-docs/workflows/capture-solution.md",
-            "sha256": "a2429ae488a2c9a0688c481042d846705e06359e7567ec10c9cd5e4029a94129"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-compound-docs/workflows/search-solutions.md",
-            "sha256": "4f3caad1ad7e3e19f5acfa3518bd2c47c2a3829696193a2962879744b37feef5"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-fix-triage-migrate/SKILL.md",
-            "sha256": "af540dfc87cb657c540039725d94b91f919b0b8f4c00c849ccf8e3a0d00389c0"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-git-workflow/SKILL.md",
-            "sha256": "7b7273fabc111889860e94c1d6ec62354db3cb78ffb6bc1c93d02f62dc36a2af"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-git-workflow/references/gitignore-templates.md",
-            "sha256": "6d775c0a408019a090b62117cc8ab9b9407fea8f027e35686dd1ceaebf215789"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-git-workflow/workflows/branching-strategy.md",
-            "sha256": "f216b56d0cf83076a7c4c169b17ed8218f553cd894488a5c6a0e11827381c4cd"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-git-workflow/workflows/commit-conventions.md",
-            "sha256": "ceb87e22a042c98fe35aa4661ea3e6511dfbdac74dd6e8ae0eb8b240fa792679"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-git-workflow/workflows/pr-template.md",
-            "sha256": "eeaec451a5449f06e9e492cef1552ae102668d7303aae08913fecde132095321"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-pester-safety/SKILL.md",
-            "sha256": "c142e92c789932a56e178a51d4cf47180dc6bc28f89016c865cf2294617efa27"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-project-scanner/SKILL.md",
-            "sha256": "23e03173b59aefa8e57c567b47ecd86f942f8177642c68411998a4a57849ee34"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-python-best-practices/SKILL.md",
-            "sha256": "abfe8fc0fefb4274c5843fb6d7393ff4011495b263cc88baf6c30f147510bca3"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/references/package-decisions.md",
-            "sha256": "5d7dfd0d4209d5718fc44aac509c3e171319d0d813365ba6102685bb9f2d926b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/references/polars-reference.md",
-            "sha256": "6fb5aa63650f67666eaf79a0216b16002d419442cd25444941829336464a7331"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/references/python-anti-patterns.md",
-            "sha256": "431f7ccd30b9601ab13ae2d228b3bd4a2119a2ced176205c165b94de9d9f1549"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/api-patterns.md",
-            "sha256": "bfa54c0c6eafad1303e993d415888f34426d099ab5edf781bd439283d4249b5d"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/logging-and-errors.md",
-            "sha256": "ac591770917eb1ebbf6debad380c9199ee7dc5e699e6b33f27e08d5e0805f60e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/polars-patterns.md",
-            "sha256": "1598f6d315f8c60e20910db59951e89fc296a116a725a4310d90ef809a936d45"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/project-setup.md",
-            "sha256": "e7b88fab7757371802e7395dab67227085cc892f53c37c5d165635fcd9234b94"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/testing-pytest.md",
-            "sha256": "105bfd98518e17cd115f62fd280339d893d14bb32d13d08e2264b8047732ce5d"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-analytical/SKILL.md",
-            "sha256": "3d8aad2f67fa3bf58683ea1422142613d132ab7a99fa2c54dbe62fba2b6d6dd7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/references/quarto-research.md",
-            "sha256": "17b27ac7ca4c81f2c9293b3f3a86f5a2737cc54a721ac9a886df52ad1a5aaf61"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/references/r-analytical-anti-patterns.md",
-            "sha256": "f475543e2d7ced17122ade605819b0ff003ee35b0ab01fe82f3717bf5f929445"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/workflows/econometrics.md",
-            "sha256": "af3a55be86a4b5647642eae373a9bb778ca0e2e56462639de7d79c3260337955"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/workflows/stata-migration.md",
-            "sha256": "f0d394d9b76bf2bc2873b1410565e19af985c5b177ce6881052d0ffbc0ea481d"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/workflows/survey-analysis.md",
-            "sha256": "d33a36683569c7c52dd71d6e45da5dda6304cd33a80099c464b138738c63b7ca"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-analytical/workflows/welfare-patterns.md",
-            "sha256": "fe15b74cad4802eb8a89a59143398ed90e03aac5de94f080930b60a201562f85"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-collapse/SKILL.md",
-            "sha256": "f8f260c22c4bb7b57d7ba03e8fd2d0f35b5a0f949b9af1412dfbe48c14271adf"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-advanced.md",
-            "sha256": "d9cfdee12cab9ebe7dc8c5543faacb7d324d8896e7f7190838147610a0f83a56"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-anti-patterns.md",
-            "sha256": "74e5941136403dc059458331b4bc71a3aee899a058a0b1670509a04233c07e98"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-reference.md",
-            "sha256": "a6afc2e23770d1cd06e47b076c64fc68e69ba367fe1697a0496553b05b300909"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-datatable/SKILL.md",
-            "sha256": "797c2ae9c74c34b0ea198ddb1705de44cf8f271fbc78dce043cd05d147369982"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-datatable/references/datatable-anti-patterns.md",
-            "sha256": "cfce996c2ff9596224907c1f0405fd3c2456cb9c3ffa192ffdc3c72ea7b7e3d6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-datatable/references/datatable-reference.md",
-            "sha256": "b11f247046d7c70a3c460fe3a73d64369fd1bde35f79d6ff7f261cd2bf3e816a"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-shared/SKILL.md",
-            "sha256": "d053c19cb411030998ccb76194b37f58cec7fb1bc6b3b925ed67ba9fdb153484"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-technical/SKILL.md",
-            "sha256": "f3b54f499d743867cd1cfed11f7c0074078a3573bf7cb66a6ecb4302434976e6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/references/r-technical-anti-patterns.md",
-            "sha256": "7f34bc1b47545d53c9d744cd254e1cef995f69d0f97bcebf6c6906f9e6459f7e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/references/renv-reference.md",
-            "sha256": "41d42c6642af1277ca12fab83ef774f96916ba975e7cab60a0475948eec93830"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/references/testing-apis.md",
-            "sha256": "fbb18884884445788a39185c4387cbcc74a38504253eb49fe5da4127178e77a2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/references/testing-testthat.md",
-            "sha256": "66954dcef39575379b42262202431293f2067d20a345cdfa49f42e8cc94dda04"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/workflows/http-clients.md",
-            "sha256": "1139586a6aaf58892a4aac750a06a13bad5f94355db34c3f99db46810e8465d7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/workflows/package-development.md",
-            "sha256": "5f582d2ca25bc7327fc62d66457be5648c65a36c4be79bcff3f20e228c80e7cc"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/workflows/plumber-api.md",
-            "sha256": "cf8c1677d3ec164ec488ad23efbdc8d35442da0dc25717818d58a6382d79c7ae"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/workflows/shiny-apps.md",
-            "sha256": "76ef5abb602de271a7509bb1597ba8dad4e1faef449d7cb4e65afa2724547d54"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-technical/workflows/targets-pipelines.md",
-            "sha256": "7d9858db069e256219253dbf2705b2ecfa6d12c21ce9bbf078bf9755d14605b5"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-testing/SKILL.md",
-            "sha256": "a043b6d7e88c6a2c24dbd5ad2e07477c4f1dfb7b36e4175d6f677f7f3fdb9eb1"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/advanced.md",
-            "sha256": "1acc931173a844548361b4059eba8d8ed5915e403e55874e12e04d544aa0fce1"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/bdd.md",
-            "sha256": "5e28ade83f64110254895a803930319f21bf760e5fa9a71aea8517265a0f6db9"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/fixtures.md",
-            "sha256": "9c4cd38d08fca115e74c41de0708c78f79ada44579b0423e00a67e73124ae165"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/mocking.md",
-            "sha256": "dfd33d9cc59de77e25cd2e08f1700672ee5b486feb15384f8fb7faf750846b0e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/snapshots.md",
-            "sha256": "80403602750517175894e24799a51354812214d4d10d2aa73ed48268cf33b263"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-testing/references/test-integrity.md",
-            "sha256": "3cc43dbda2be9f9277ceef7dde588b8001bea0797c2189d217d8d616201a48f8"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-tidyverse/SKILL.md",
-            "sha256": "b4a9050c3d7145964916e73922dbebd50c72088da9f96a73c35d8222315066e8"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-anti-patterns.md",
-            "sha256": "02ed086f0e3ca493cb4b2a3dabbb83199e2463d9f28f8bba882e487b12340d75"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-migration.md",
-            "sha256": "2aeeff5dd8c6ecb24b0da94685daba6c0c78a3184a29a1be811c273c71d7c97c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-reference.md",
-            "sha256": "ecae9d61ca1fa71446e434ce91555c851c6c417336393d5f2f5562eb161f53f7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-style.md",
-            "sha256": "d185966d500a723f2837b4c3bb8b9c67659cdaa85b0feca1735b36943647f899"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-r-visualization/SKILL.md",
-            "sha256": "978575d05f6b03bffcf3c3d146f35d221464f59ac3e5f25ac9166faed31f1f68"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-r-visualization/references/ggplot2-reference.md",
-            "sha256": "9e7638bce9a0a733b207da1e5765a1f395d7126c0463aa2d64aaa4cbe26127ea"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-render-doc/SKILL.md",
-            "sha256": "d9e62cb6af9eaab4c1f06c84055d6d549f0091022b968de50771513b14ad70e7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-render-doc/references/cli-reference.md",
-            "sha256": "90d2b20b4ac3e7bb954ee3cc5a50e55865b797da855d91bf130d25d3ef185d79"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-render-doc/references/theme-reference.md",
-            "sha256": "fe877d14a1783a0678fb1605e6daea2ca8cec28e34048321606e80745b3573be"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-render-doc/workflows/check-freshness.md",
-            "sha256": "88abe6b8091fe702e2fc5f538c1ed169c08caf691586f40eececaff21e687103"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-render-doc/workflows/render-document.md",
-            "sha256": "640cdc212ef9ac3cfbad7bfa21f2c7b146f649a383528c81bc466bb742091b16"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-setup/SKILL.md",
-            "sha256": "b9460054c80cff28c70ff2989e5fb47439cbcea9ecdda31eee1e990c6a4841e6"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/SKILL.md",
-            "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/asdoc.md",
-            "sha256": "04a17e648f26393b155605954a8811547e7a1fd0bed24809b64fc835444da7da"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/binsreg.md",
-            "sha256": "bb03bfe2a552318746d31f8cdb262919f961029bd0862e467f616c21d8231c7e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/coefplot.md",
-            "sha256": "317ee8f616b61daf5ca1777e45d6c921a5560f56283fd032f1ecf20c203f638a"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/data-manipulation.md",
-            "sha256": "cd68af118b7d72e28e59e2c9b1b12c6ecab58d02cc0ab050e373a3d1d3a445b1"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/diagnostics.md",
-            "sha256": "c4417bdaf971cf6dea07f3c14f8dd328dfb8c146d50fb57f6157e8e6b86b0e40"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/did.md",
-            "sha256": "a1082bbdf4db17bb489163cff4c8e6bb6e232e6f3b95efcc7e98041a395f33af"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/estout.md",
-            "sha256": "add7bf4393cc4413014c51efb646dfda9bc89081514504ad2b44929437eee932"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/event-study.md",
-            "sha256": "34a4a0423163b3bd0877137a428498c64580ca7d271624dfe905eeda2fbc7bd3"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/graph-schemes.md",
-            "sha256": "241a93fe44cf48b2459bfd666c2cd1f4649940ce8c4ff24ed3e7bfd33b07efd5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/ivreg2.md",
-            "sha256": "b4611cb6976ece35c7cad5235d03e57cf270eb207059180fd9eda77628c022c0"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/nprobust.md",
-            "sha256": "d412f328d97fe712dba3e1715b553fe63c22c3fcf1c79d1f517eb0d8b4861031"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/outreg2.md",
-            "sha256": "c387bca1d66150112b8487e44fe8e5642c5e7fdd98612c0c22c1f38f718163ae"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/package-management.md",
-            "sha256": "e2caad178599ea2eec0237f8e896df82268d15774e0f32e49c8a2610b46fcd24"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/psmatch2.md",
-            "sha256": "0e4654d6613cba17eccedb0e140c19ea45b855faa264d713c47e10272c31fed3"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/rdrobust.md",
-            "sha256": "b88a9d442dd305ee4a7031ef6e90c6be39da367329251cd9eb6240a0381354c7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/reghdfe.md",
-            "sha256": "c39dfdbeeba89cb068d0d8c5928d29b9941c76c0d2936ed23b69660fe7dcca3e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/repkit.md",
-            "sha256": "9792bb7a89200efe6bb39c696c40582c99ead6bbd8c52a8443c8cf8a5cc8de7e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/synth.md",
-            "sha256": "a968ec78536ee40b3cde3b17e6952ce7ae54121869f5ed0ea8273e2c4ad28a55"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/tabout.md",
-            "sha256": "3a19512cadfe876e229de15e7c87e53f21a738938641b7534604543f5ad0d348"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/winsor.md",
-            "sha256": "05259df462dcf60bd8182efee84c9e2e335f5d7f4c90ec0820206013205bb444"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/xtabond2.md",
-            "sha256": "89875c39bb51970c52bfe99d217a24fdf64ae000780fa76fba7213d0af0dd5cc"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/advanced-programming.md",
-            "sha256": "7a6505f54d626b232a71dad7ef44f275673a806c8b0745eb8af393133bbcb50e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/basics-getting-started.md",
-            "sha256": "48ddffbb04a02624a203c996fe91d2ce3a5b6baa7575281404a9e445108e6847"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/bootstrap-simulation.md",
-            "sha256": "b47a392ffa2e52b7af86ec358daa0675c4f64b900454242d932f4e032f51ab4a"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/coding-principles.md",
-            "sha256": "5f279a34b045f82443a483294a0c919459e4dafcc78d379d08646ad5a508bd64"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/data-import-export.md",
-            "sha256": "e645c66889ed11d7674a54e4301f1f33e671c82135a63407aa913696960e7dd6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/data-management.md",
-            "sha256": "23b34744ac3cecee3dd54d5b0e32620312cf69e58c4553008dc72cfb16ca2b9d"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/date-time-functions.md",
-            "sha256": "c6ca72f674a1f075256697a2cd09dc16c77df5482cc4c759e4929d56510226f3"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/descriptive-statistics.md",
-            "sha256": "04e65af4f24e605df6dbef33166cdead577b5190014d2315733cfcd684c62e72"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/difference-in-differences.md",
-            "sha256": "cb3bbbff23ce10cb73ab4f7262ad0bc096a5ce1d49c70fc02eecc2da9b0dccc5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/external-tools-integration.md",
-            "sha256": "cc646d1b988e2db48ef128f818a49c69572cfdeaadeb58bf223924ed8b11cff2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/gmm-estimation.md",
-            "sha256": "fcec969f6864e54699277845ff2ac9c9ff8ea15b0b443020a26bdd3390cfa72a"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/graphics.md",
-            "sha256": "aa055d05da1b592c5fe4a8125c30c360ae6731a6abc32d5b103450ee5c43df8b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/limited-dependent-variables.md",
-            "sha256": "03a1cd00a59248e0feb71b9007c832372febcf52b90dba1e8fbb93a581f3dc2b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/linear-regression.md",
-            "sha256": "6d35faffdd2995ca20bdf65a109a1fed56d3e4ba0b37a624a0b28d9c0b413f38"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/machine-learning.md",
-            "sha256": "1dba1131687fea746cce9cd01ca2111e87139a62bb8a0eb85cc4e24d16cfc842"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-data-access.md",
-            "sha256": "efc27a607bc3c72afc56f038f4a420306b5085805a3714d1b79c2fb52c432a91"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-introduction.md",
-            "sha256": "5e6fe4140d8397a655ad145caeeb286c56691647a7e6f1204f509db73a38f847"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-matrix-operations.md",
-            "sha256": "ce15370f45262d23028bf4dce6ae0f580ac98af32a1bed5c7f4a0051912dbbda"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-programming.md",
-            "sha256": "e899e9bccc3524b487a19e58eb35436a709b018ebd4df86320e966377d8be42c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/matching-methods.md",
-            "sha256": "976a13b3ada12abb0c76d77ca8fb1ffc77a7684c01580b52bf1535e5d6691bce"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mathematical-functions.md",
-            "sha256": "e809df58638a1aad9784949830e87a755a2288ce990e972dd3dd023f27b5696b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/maximum-likelihood.md",
-            "sha256": "e119c83f5b632783236285275e36a7cce42f2110514ba375e757e0f851edde2c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/missing-data-handling.md",
-            "sha256": "b7c7a9bc2d4d7303ba68cbd720d25d5084f2f20cf5e1aefcd2bf581932357039"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/nonparametric-methods.md",
-            "sha256": "8055966cb1c829b2c91e7de4cf035bfc8a63774f148ffdebd429ab0eac624bc6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/panel-data.md",
-            "sha256": "859b2f0efa3246c085e8ae2d06d8dc3b1a6af0689450e9f831815b51d0ee71d4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/programming-basics.md",
-            "sha256": "860aecf7f791bbe4a7f983222c1374923b44589aa0b8247475ca67a4fe01d871"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/regression-discontinuity.md",
-            "sha256": "d99eb0d29a556d1c450cc3c660fae5fe7b8fe8b2a85b5c6f94284b30a0d3e1c5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/sample-selection.md",
-            "sha256": "0a2959dd2ecdfe89ae8fb6e0bcd2cdeae96d82f7df8f793379b30a799c5b9d12"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/sem-factor-analysis.md",
-            "sha256": "c30d3e4c560f6e730acb791c9b2641bbc055971085c4d5ea7f78ac66ff583616"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/spatial-analysis.md",
-            "sha256": "410ac69c6360c2f89bc0808ff518e9f42705fe17e46970c6cf658cb4316dd2c2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/string-functions.md",
-            "sha256": "cdaab4e091ecda2b8763420afcb67a53ee6ba51a016c6dac8a67f2b8cd152a3f"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/survey-data-analysis.md",
-            "sha256": "cf9c2bd54dbccaf48ecd584fc1867dc2fd28b04594ce926077c78c9a1e890d6f"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/survival-analysis.md",
-            "sha256": "f991e4bca54e5531f54231f99856010d12887b5b95c24466c3d227e42783a1ca"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/tables-reporting.md",
-            "sha256": "bb4554ecda297c552ee2f1b28c43c46cdb05bb704846a4b53f310a2bc35a8f99"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/time-series.md",
-            "sha256": "0dd82df983c9bf856e2a983353e6e630716130a86373dc3f21def5f98da77e14"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/treatment-effects.md",
-            "sha256": "2128bc27b936ccb0ce8408b678d59069cfab90bccde8f44968de8d716d57f22a"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/variables-operators.md",
-            "sha256": "a0026c014a00d591f5859076c8ef653554d9482ab7655b3d246a0fa964f1e3cf"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-best-practices/references/workflow-best-practices.md",
-            "sha256": "925a68fbaf8e02448a166a4763ece77ec9fec8ee0d6b4a4d16d802309db26d12"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-stata-testing/SKILL.md",
-            "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/anti-patterns.md",
-            "sha256": "ccb5ce17b0635f934e1aaeac88355fa7c3b395f30d21c9709b56ede0964472e4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/assertions-and-error-handling.md",
-            "sha256": "7cc49c78970b67b0a85539858ffd6559cad88c38768c2cece9b6e9635237c5d4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/data-validation.md",
-            "sha256": "1980961d8e9f0ef48b76faaec095196dca7b5666f3237e9ade5b53e66830564a"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/reproducibility-reprun.md",
-            "sha256": "a52a2b09f0d4b8fc69208d48675f7c0618a7cf8ac3ded5997788964956c9970e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/result-verification.md",
-            "sha256": "312e44a134083aafe25c81eede62c166293128c080ff769b9ac0c69f81028890"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/test-scaffolding.md",
-            "sha256": "72be800636ecb74f2764a0c0e8ad8d0aff0a7d6ccb272d58608e60c88e856923"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-stata-testing/references/workflow-examples.md",
-            "sha256": "9c4f3a03a8865d7b3a7b876d118350aa0c6213437ed9dd4efde9c09068981b5b"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/SKILL.md",
-            "sha256": "77d62836dc63518370aa30c332495ec92e08ca412a4f8f3941d7c3550d42865e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/.gitkeep",
-            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/country-analytical-narrative.benchmark.json",
-            "sha256": "5643163ceaf457232fa5b4954fbed946cfcd51a62441c859cabe13f1bf434ff0"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/data-blog-post.benchmark.json",
-            "sha256": "a26cd257145fd360dc14a20f94c7697038b7ab37933c5a6957334363916dce19"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/executive-summary.benchmark.json",
-            "sha256": "7231b84371cefd9f83a1a30af2e764542b2cab63b24d9f8b7d5d7b09ce7b2a11"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/flagship-report-section.benchmark.json",
-            "sha256": "a94e51d2698d22e0ae990c077d917169e1832ecc3abd421e5937be1d6934168c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/internal-memo.benchmark.json",
-            "sha256": "1a4b1db03cf0077c423aea19f97c53feea2ce3f568e11ee47d37ffcf1b5d6e61"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/policy-brief.benchmark.json",
-            "sha256": "d5fd596a17e585599923a1bf6875604a015c6954d922a29ca3d2ec4bf1d779e2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/policy-research-working-paper.benchmark.json",
-            "sha256": "318ee7f267ca37c10588b7e07747b16e42b4c341eb69bbe3329aada2f872fee7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/technical-methodology.benchmark.json",
-            "sha256": "921d40b8a30dc78f41e147596f28f20b2830d7c38ff2cd5aefb200e51b0a70c2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/.gitkeep",
-            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/country-analytical-narrative.feedback.json",
-            "sha256": "7f31085fdad5f72d9559a3bcbb975a6154243b66c7ee584fa672019ba92005d6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/data-blog-post.feedback.json",
-            "sha256": "c555eff7bda343852f1640946979b116faa4721a61700b62342adcf7bb8ce3c8"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/executive-summary.feedback.json",
-            "sha256": "400d1d59e21f203f596bbf3510ae6b86188d77d9b06e636439e85d68d1ea74ef"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/flagship-report-section.feedback.json",
-            "sha256": "c7c53cf6b1c0251c9b2f72be75947b52700156973310122fb1550c275cf64db8"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/internal-memo.feedback.json",
-            "sha256": "48cc013fbe0bfcc3a2ca4247ddafddb96894d886a57ec16b2c3b48ba91af347c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/policy-brief.feedback.json",
-            "sha256": "bb2446219114190f2a3b58b9321d4978496c1ce8a10be6ac549d8da6cdf3c9fa"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/policy-research-working-paper.feedback.json",
-            "sha256": "2b60a17ad98cc785e1b0e453dbebd710dd7e1c3a342609345a4042f421e8510e"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/technical-methodology.feedback.json",
-            "sha256": "5294d45c31a8f1e3d366871ce0db52e8a4ed07d8f3fc05b11b6847ee50df02e7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/.gitkeep",
-            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/country-analytical-narrative.grading.json",
-            "sha256": "1191aab66c2265eeb70e71e58e51d7c67a37471d5b853964b417ac923a2a676b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/data-blog-post.grading.json",
-            "sha256": "9282103571af16de7c5edd96a8eb0b6503a04fc8727bed0ffb61962abf4758c4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/executive-summary.grading.json",
-            "sha256": "ee82f94d444d9f107da18e2fa914b9b5af1b1b50048b12e2b77eefa913c889b6"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/flagship-report-section.grading.json",
-            "sha256": "e337cf6fcee581751b02eaa268091c74df7c9ae58189e7a930545a5ab4727bb9"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/internal-memo.grading.json",
-            "sha256": "1fb9283e3c3605bbc32f31798332c61c1081fa8d3cdafa98b8317c1ba6ad43a4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/policy-brief.grading.json",
-            "sha256": "f0e7885a976f9f79ab2ea33a9febbe909cc9d736bc565214ff9addcd316e0208"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/policy-research-working-paper.grading.json",
-            "sha256": "df19f755ae5f42b267d902b35cb55e08a2cce6d8086033bdf7bce8a2b26f20db"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/technical-methodology.grading.json",
-            "sha256": "ff19a8636ccbef33c878a7e508ec98fdc32b583a07a27dbc5a10fc3334d06de9"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/.gitkeep",
-            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/country-analytical-narrative.json",
-            "sha256": "c122f01102bfddd730854bdf39092e7c3f28625d8a85659c947e7e9ef53c6e33"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/data-blog-post.json",
-            "sha256": "87787d2d92776a07f432861fac385d78781b4e267dac1a29934f90714f6db27b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/executive-summary.json",
-            "sha256": "c98f15d5d88e31056c34dcfe847f296f293cf993a292191067af9bef574fafd1"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/flagship-report-section.json",
-            "sha256": "7b725ba4cc75ef6a83d0514db9fa702d63b4eb1484b1394fb3c6489550dec374"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/internal-memo.json",
-            "sha256": "dfd36af10107e545a4e9ddbc49434bf8039af33636d14b5fc78f744c966e5d9b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/policy-brief.json",
-            "sha256": "8e4ed4f09ee7fc48368b485f6e8bdc21ce15176e2a304d124c204844d07359d5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/policy-research-working-paper.json",
-            "sha256": "0c9deecb1faa0c109b22681db35c4a3e31ef091b08dd18b4c61cb8afd9dbd821"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/technical-methodology.json",
-            "sha256": "63fdb8319351afb78037f78183490091ed04e18e222fd4e00a15ea6cd7d5fb0c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/.gitkeep",
-            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/country-analytical-narrative.json",
-            "sha256": "0d89750340d21b797bb26bf417033929df7f358af772a2ba47ba83dc2dc40fda"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/data-blog-post.json",
-            "sha256": "73579841867e4d0693589c53a023f93cd517c84ba165fc1a6f6888333ee62305"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/executive-summary.json",
-            "sha256": "8ac5abeb23bb309ac3a7b9db62cbb05e12ced6f4612032bd08c28ba05a4a364b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/flagship-report-section.json",
-            "sha256": "0d7641864214e68abc7578ddbd5e793cc7904d243c526387a84602926b509cc4"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/internal-memo.json",
-            "sha256": "cb96edd75b81e1abca525a7ad9a0b1118c08dc588843df8d2c2b93b9b40306f2"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/policy-brief.json",
-            "sha256": "14474d4206640553ed531b77dba3c701eb9503bc3fe919348e5db6aa1bd37b16"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/policy-research-working-paper.json",
-            "sha256": "8d8666287db8dbc64898db7a89245a5de76fc0aab466c5031a50609a82c21d8c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/technical-methodology.json",
-            "sha256": "c914fdce3d4939de0202fd4298546db6bd5d75c7ccd0e8d35a1b9bfa37c232f9"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/quality-review-checklist.md",
-            "sha256": "d87f116b21748203c1ce2a070d5936b847373c4ceee95b1e6308d9eb58569eaf"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/safety-and-markers.md",
-            "sha256": "9ef0cd3223876471ec4292e5df5b2707e0083d21bede6041d65b18d4f8964754"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/.gitkeep",
-            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/country-analytical-narrative.json",
-            "sha256": "56c45233e5ea0b870207247af86f8420a5030ca63cbe40e5b2dc5ac71620768d"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/data-blog-post.json",
-            "sha256": "01138f12975693ead9570516e7763f1b814ddd8e5556579605f054d4a5a7274d"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/executive-summary.json",
-            "sha256": "faeba2f67318d74319b32ffe2124a5c1d20109ce9b1541d34890f977972633f5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/flagship-report-section.json",
-            "sha256": "64be5e4d6790a61ffa804d545b942bb3004e41e49c090e81510fdeb210b266ed"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/internal-memo.json",
-            "sha256": "676037921cf3831924ac09a7c3ee4197033a83cda412970542a6151c213f4499"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/policy-brief.json",
-            "sha256": "747c8327ac24ec9345f619850fd933f324bc5810a3aa2b1c2dd0ed7aaff2d0d5"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/policy-research-working-paper.json",
-            "sha256": "8c2d8b963ff633f97ed006b27df5c72d4a7f9152e2a6738b4d283d5c38998e5c"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/technical-methodology.json",
-            "sha256": "88f27330ef637d012ce3a4d5674999eb5091adfddc8a5eac93cc36475c7a167b"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/style-conventions.md",
-            "sha256": "5c8b50b9e3cef14798fb64d0dd4fb2bfada0c9c877763f010c7e16f8fc6c1074"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/terminology.md",
-            "sha256": "8fba485c72c03ac378a691e19294fb4803e829cfa5758766062220db4b44e144"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-wb-report-writing/references/workflows.md",
-            "sha256": "410f8eca05c1233aef052b5959a67ace821145d769c081312005cae25146b823"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-wiki/SKILL.md",
-            "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
-            "sha256": "6076ff1fa18a16adbd627d5e0faf4cc8b0e54643de1e01011ef07c5d8d1062f7"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
-            "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
-            "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
-            "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
-        },
-        {
-            "kind": "skill-resource",
-            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
-            "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-academic-writing/SKILL.md",
-            "sha256": "7bcfa4b7124aeb0870851c0c26078949f4a1dd70e2a324e76627fe698e03b03f"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-evidence-provenance/SKILL.md",
-            "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-identification-strategies/SKILL.md",
-            "sha256": "f3aeb59e9c4a6e16bcc7b687b330bf88091fb763b4b03f0dc2429213658968a3"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-mathematical-derivation/SKILL.md",
-            "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-measurement/SKILL.md",
-            "sha256": "5ba3928b963d4f57cdd95005c926a07875434557db84a391e848559a4a5611d0"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-ml-economics/SKILL.md",
-            "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-publication-output/SKILL.md",
-            "sha256": "09956e4b721ff09bed148ddffd99296b767134bde5ed2d1f205515aac26bf998"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-replication-standards/SKILL.md",
-            "sha256": "edee223327b9e0feed251ed8a99392e1b3fc94e419869459db2fa6d39aa367ad"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-research-eda/SKILL.md",
-            "sha256": "a71c45b7d18e8e6158811e33257cb3683e353bf9c9ae95c9193e79601c40d5b7"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-research-integrity/SKILL.md",
-            "sha256": "25d0b92ad3648b12623144ad13a82a3f66ed6e7a5b9c6f1ed1d9028c0589c9b5"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-research-scoping/SKILL.md",
-            "sha256": "ab18f52d19559c504e0624f245ece8ae7e513df9fcfd20f9db9db6a044add79c"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-research-workflow/SKILL.md",
-            "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-structural-econometrics/SKILL.md",
-            "sha256": "aa1f3f4272ee138fc385fab5b587d7d7e2a6cb5f4ca758db9f5d32a080fe0f31"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-symbolic-verification/SKILL.md",
-            "sha256": "2760940d0df74238d8afe7f8501b2baaaa262d0392ea142c6934fa8a11be7709"
-        },
-        {
-            "kind": "skill",
-            "path": ".kilo/skills/cr-skill-theory-data-dialogue/SKILL.md",
-            "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8"
-        }
-    ],
     "opencode": [
         {
             "kind": "root-adapter",
@@ -5014,7 +3517,7 @@
         {
             "kind": "shared",
             "path": ".opencode/shared/target-mapping.json",
-            "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4"
+            "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec"
         },
         {
             "kind": "skill",
@@ -6114,6 +4617,1503 @@
         {
             "kind": "skill",
             "path": ".opencode/skills/cr-skill-theory-data-dialogue/SKILL.md",
+            "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8"
+        }
+    ],
+    "kilo": [
+        {
+            "kind": "root-adapter",
+            "path": ".kilo/AGENTS.md",
+            "sha256": "11a7a9fbee6397d56ffb6b74d582c6271a3f7ecda9e1fdd80882365a9508d208"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-adversarial.md",
+            "sha256": "68512ed01bb998d62ec7e8ae842d100e869926ecdc10b61cc24df6c7aec07d1b"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-architecture.md",
+            "sha256": "73617effd68bbf5af001302addaeff0ab1fb0b06838beca5b6c5c0c0f1f74ab7"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-code-quality.md",
+            "sha256": "d0aee94db4768d665a4173b1e9e9ab4be3882306c86ca27448926821b75a0d9d"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-data-quality.md",
+            "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-documentation.md",
+            "sha256": "c052709e85a661c6b9a48593e916b8edc36ea677389b19b3bc7a4ba534c8488d"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-fix-problems.md",
+            "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-learnings-researcher.md",
+            "sha256": "2e84f7c778766bd7e0e3aaa7af0238555c2ddc86e6d60373ff5232cd2149e053"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-performance.md",
+            "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-plan-critic.md",
+            "sha256": "9e86cd3d985a0585022bd6f4117dc24d8710455aafd6fbf059dc4bd79367e19a"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-project-scanner.md",
+            "sha256": "396778400d7c84f1162dff832ec4fb3e92559ad07077ef21b57f86c36e8d08a6"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-release-scanner.md",
+            "sha256": "89487645c77e35bb1819afeab13d7faf9d0226a91034769687362393c78ac5f1"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-reproducibility.md",
+            "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-roadmap-view.md",
+            "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-roadmap.md",
+            "sha256": "eb04f62ce56f733a2119ebc36fa9fd4dca1105d67db27ede4b32850623493a81"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-testing.md",
+            "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-version-control.md",
+            "sha256": "68966d1a45a5e39626c30143f432b5138d12be427f61569b1933abcf193b9cec"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cg-wiki.md",
+            "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-academic-writing.md",
+            "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-econometric-reasoning.md",
+            "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-identification-audit.md",
+            "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-mathematical-verification.md",
+            "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-measurement-integrity.md",
+            "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-ml-methodology.md",
+            "sha256": "787e70cb45b7bc3351187c679a38bc99bbec69c606c9c515c0737951d72f398e"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-provenance-audit.md",
+            "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-publication-output.md",
+            "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-replication-package.md",
+            "sha256": "b2d5092b3224099d3dff1be75970d95239cbab34c88f9a693a9883c5bcfa2789"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-research-integrity.md",
+            "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683"
+        },
+        {
+            "kind": "agent",
+            "path": ".kilo/agents/cr-specification-analysis.md",
+            "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-brain-rebuild.md",
+            "sha256": "51bc446c36f570471c23ddd7e46f69704a4abfbd405f3999415f7c071d185992"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-brainstorm.md",
+            "sha256": "8efee445e007934a079a7a4c621731571968605cdd4dc23db4312446156ad697"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-commit-push-pr.md",
+            "sha256": "32153bd8eda3d77d8545a395a78a236b580d57bbd93eee24268ef4be267355dc"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-compound-refresh.md",
+            "sha256": "de5fd899ce408b60a9c00912bc2a96e36f7373a1ef3b705c0293e55edbd88c6b"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-compound.md",
+            "sha256": "de5dcac72dcab461484d5aad553f5b80341dcb575ef22328cfd51c422f420bd1"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-devtag.md",
+            "sha256": "15c157042a844b879d3830039c652fbbb1dad0232f11834981ae43ffe0ab336b"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-diagnose.md",
+            "sha256": "103f970a9c890c10b07d12881e3722189fb8e0d4423bc9a17b0a4ffb705629bc"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-fix-problems.md",
+            "sha256": "12e673887aa16469f00d79a94a738daa63352142cefc597a7141ca89132d44f4"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-fix-triage.md",
+            "sha256": "9cb79f04055422f1ad6dae950d70f7a480421ae28cfa6a164b575c7efeac8aa6"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-fixbug.md",
+            "sha256": "d00c646df6bd6c37a3a2d21b95e1ceeabcb77846e9bdbd9bbd584f64219fc67e"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-ideate.md",
+            "sha256": "6cfd77f6daa4afffe09aa604fe0509d9ae4fd5942ce598051915b65660580343"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-issues.md",
+            "sha256": "b360d507a82ad085e671869c12afaa4a7098c7b539422b34c6876ba443735a1e"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-plan-review.md",
+            "sha256": "655073c1c489b09e8f0a7d110acebbd3f3503367d6c6605e5d67a2fc226b745f"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-plan.md",
+            "sha256": "9fd38e75d40149dc3a2fac43142314ac5c1d64c7617cbca891e995318b6727d6"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-release.md",
+            "sha256": "0c1890b4e8283be36b9f62e071ed49519e82715cf3e9be22e844d609c2707eaf"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-render-doc.md",
+            "sha256": "99bcd9c5da9791cd684cc75a64eff205625add4ed8602702b080fd9c32f50938"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-resume.md",
+            "sha256": "a9c88ef4f197daf596cfa34a062902bbde2394449399ae09229a788244a45efe"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-review-repos.md",
+            "sha256": "e3ba06da65695825ca0917acf2499e659506b460461af2c195fe1d431a51f1e6"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-review.md",
+            "sha256": "092c2ec47be80737b468d06b78b0a7238a0b8f85edc1198cdecad0e80f043431"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-roadmap-view.md",
+            "sha256": "7dc8b748d61ad04b1693c636ea7e1f7fc1b4e565819585a9028e43fb4e6207ba"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-setup.md",
+            "sha256": "2ad6f67d8babd0163578cd069bbd26b7167bdf512f9a501e36934a06eeff759c"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-strategy.md",
+            "sha256": "2817d14f27ed82754cc512c53c8bbdd57ec4b60c1e501df1611ca8d75c234e26"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-token-audit.md",
+            "sha256": "c16c22a060a51dcf0e9ae191a8e262e53ee49369a90da1273822c7b93c3badca"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-verify-pr.md",
+            "sha256": "094722ebd7387130ea84cb09682921447f23b0ae08c3c59a2e722f812cc97ee3"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-wiki.md",
+            "sha256": "b6876ea96f4393ecdaa2fe59192a2a52e7bb06ef25bb2f0ea8dd692417da765a"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cg-work.md",
+            "sha256": "ebfcc24cd37a09157fbf64aced171bfb79b321619b37dcec4fe07d7380ba5ed5"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cr-brainstorm.md",
+            "sha256": "dcee2a61f4bc0ccb26d88f80f5d8010f08c337ec738b19cdb09d57cba1bd1858"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cr-compound.md",
+            "sha256": "d3e517be320fe92ab3af6fb3e66cbe1c8f53e8b9a9a18d259e41df5b6d67eaa5"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cr-plan.md",
+            "sha256": "0d7271a293034cbd7a0e1cfc8cb4220f4cf71439a4b808255ddb813d97b20d1a"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cr-review.md",
+            "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45"
+        },
+        {
+            "kind": "command",
+            "path": ".kilo/commands/cr-work.md",
+            "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553"
+        },
+        {
+            "kind": "prompt-support",
+            "path": ".kilo/commands/resume-templates.md",
+            "sha256": "d1e723b3f3ef06f19920476280d5f4b84670c8b2cff9198568afaee71906b114"
+        },
+        {
+            "kind": "prompt-support",
+            "path": ".kilo/commands/setup-templates.md",
+            "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/latex.instructions.md",
+            "sha256": "79bbfbbd869590523666458d5a0f1571b172b8725026f99f38d190ff7f3f9e0a"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/math.instructions.md",
+            "sha256": "2efedd2da098e79daef7fc6cab0f6ede63fd8f83310d8f5df73c7715fb3ed5db"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/powershell.instructions.md",
+            "sha256": "2e6f63f7585e6af368d77876419d934b2abad2b95df079277616cf5911db0bfc"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/python.instructions.md",
+            "sha256": "4bcb147fc750c1b66b012c24b53cc8b1418c5d68bd61f5a7db510ecd9bd3092a"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/r.instructions.md",
+            "sha256": "f2722788ca70581828997daebbd024f2ea2924ebc66cfa789da66bc9db8e0d62"
+        },
+        {
+            "kind": "instruction",
+            "path": ".kilo/instructions/stata.instructions.md",
+            "sha256": "854e38351f1504b8354c8b5aacae9d0cacb41c536321efe0095fff5ca8a6d5ae"
+        },
+        {
+            "kind": "config",
+            "path": ".kilo/kilo.json",
+            "sha256": "0189f9556b15d3f64d5ff79fc2e318e7358fac19edf00a71105cd35d24ff000c"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/active-state.contract.md",
+            "sha256": "ca8559dcfdb690669e1688d82edb0d41eed6d912567e20ace9ddf4e4143297a1"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/artifact-view.contract.md",
+            "sha256": "c3452666eca6f6f9bc49bcfa5500478a59cd5337b86d1e6140c88fc178dd98f2"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/context-loading.contract.md",
+            "sha256": "2edf43adf36279f0401f91456fdedf26139ef93a1c98406f5a2822df100078c5"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/goal-execution.contract.md",
+            "sha256": "2be0c6735294c8621fbd99254947636d263bf09f2161883ffe999a27d2c96581"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/model-advisory-examples.json",
+            "sha256": "5eb6e2de19b8e1c69815f14f0b9dfc3659028c79bafce183184a756fa00c2b5a"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/model-advisory.contract.md",
+            "sha256": "1ebc3ace65f3d43ed360415227ec8b3420dd299564d32d04ec3c2eca556c4cca"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/retrieval-backends.json",
+            "sha256": "387655ef361c2f5b4b859b566172ff5e47ddcd10707c8b307dc8a3f1f37470b6"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/review-routing.contract.md",
+            "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/snapshot-research-modes.json",
+            "sha256": "300d5661936fd88a813d6a637e6fda371c974e463c9f26e73063ea9cad966d57"
+        },
+        {
+            "kind": "shared",
+            "path": ".kilo/shared/target-mapping.json",
+            "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-brain-query/SKILL.md",
+            "sha256": "a4a8c4b407e62523905794f19b193bc77f52ce32cefed0c1df59e5fed0cf0edd"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-brainstorming/SKILL.md",
+            "sha256": "66d6b7fbe4ec9ab8a0cd4bb40de4ce110b117155c2eb3370de997713e7973e90"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-brainstorming/references/decision-template.md",
+            "sha256": "e9adb7c89427786c20b098efc81984780c3351facdf534c42d3828a9a5b4ca53"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-brainstorming/workflows/approach-comparison.md",
+            "sha256": "3ec0ee4445a6066fb9103a77235d98cdb5369077f0320c5e81b1ac79ae9e0838"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-brainstorming/workflows/requirement-elicitation.md",
+            "sha256": "a4fbbd206fa062ffec49f1bad8d945e7ee9170faad4d99ed47fc3e02fea25a6d"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-compound-docs/SKILL.md",
+            "sha256": "db1063a78a1e6d5b0ebdd53af2c16d21b7ac89e969e3b4808d710fc6a6d44630"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-compound-docs/references/solution-schema.md",
+            "sha256": "cd1fa8f9fe4dc7b5405809441af7d75e01bf1cb34c19be6fc083b364ad3b74d4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-compound-docs/workflows/capture-solution.md",
+            "sha256": "a2429ae488a2c9a0688c481042d846705e06359e7567ec10c9cd5e4029a94129"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-compound-docs/workflows/search-solutions.md",
+            "sha256": "4f3caad1ad7e3e19f5acfa3518bd2c47c2a3829696193a2962879744b37feef5"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-fix-triage-migrate/SKILL.md",
+            "sha256": "af540dfc87cb657c540039725d94b91f919b0b8f4c00c849ccf8e3a0d00389c0"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-git-workflow/SKILL.md",
+            "sha256": "7b7273fabc111889860e94c1d6ec62354db3cb78ffb6bc1c93d02f62dc36a2af"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-git-workflow/references/gitignore-templates.md",
+            "sha256": "6d775c0a408019a090b62117cc8ab9b9407fea8f027e35686dd1ceaebf215789"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-git-workflow/workflows/branching-strategy.md",
+            "sha256": "f216b56d0cf83076a7c4c169b17ed8218f553cd894488a5c6a0e11827381c4cd"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-git-workflow/workflows/commit-conventions.md",
+            "sha256": "ceb87e22a042c98fe35aa4661ea3e6511dfbdac74dd6e8ae0eb8b240fa792679"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-git-workflow/workflows/pr-template.md",
+            "sha256": "eeaec451a5449f06e9e492cef1552ae102668d7303aae08913fecde132095321"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-pester-safety/SKILL.md",
+            "sha256": "c142e92c789932a56e178a51d4cf47180dc6bc28f89016c865cf2294617efa27"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-project-scanner/SKILL.md",
+            "sha256": "23e03173b59aefa8e57c567b47ecd86f942f8177642c68411998a4a57849ee34"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-python-best-practices/SKILL.md",
+            "sha256": "abfe8fc0fefb4274c5843fb6d7393ff4011495b263cc88baf6c30f147510bca3"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/references/package-decisions.md",
+            "sha256": "5d7dfd0d4209d5718fc44aac509c3e171319d0d813365ba6102685bb9f2d926b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/references/polars-reference.md",
+            "sha256": "6fb5aa63650f67666eaf79a0216b16002d419442cd25444941829336464a7331"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/references/python-anti-patterns.md",
+            "sha256": "431f7ccd30b9601ab13ae2d228b3bd4a2119a2ced176205c165b94de9d9f1549"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/api-patterns.md",
+            "sha256": "bfa54c0c6eafad1303e993d415888f34426d099ab5edf781bd439283d4249b5d"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/logging-and-errors.md",
+            "sha256": "ac591770917eb1ebbf6debad380c9199ee7dc5e699e6b33f27e08d5e0805f60e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/polars-patterns.md",
+            "sha256": "1598f6d315f8c60e20910db59951e89fc296a116a725a4310d90ef809a936d45"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/project-setup.md",
+            "sha256": "e7b88fab7757371802e7395dab67227085cc892f53c37c5d165635fcd9234b94"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-python-best-practices/workflows/testing-pytest.md",
+            "sha256": "105bfd98518e17cd115f62fd280339d893d14bb32d13d08e2264b8047732ce5d"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-analytical/SKILL.md",
+            "sha256": "3d8aad2f67fa3bf58683ea1422142613d132ab7a99fa2c54dbe62fba2b6d6dd7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/references/quarto-research.md",
+            "sha256": "17b27ac7ca4c81f2c9293b3f3a86f5a2737cc54a721ac9a886df52ad1a5aaf61"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/references/r-analytical-anti-patterns.md",
+            "sha256": "f475543e2d7ced17122ade605819b0ff003ee35b0ab01fe82f3717bf5f929445"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/workflows/econometrics.md",
+            "sha256": "af3a55be86a4b5647642eae373a9bb778ca0e2e56462639de7d79c3260337955"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/workflows/stata-migration.md",
+            "sha256": "f0d394d9b76bf2bc2873b1410565e19af985c5b177ce6881052d0ffbc0ea481d"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/workflows/survey-analysis.md",
+            "sha256": "d33a36683569c7c52dd71d6e45da5dda6304cd33a80099c464b138738c63b7ca"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-analytical/workflows/welfare-patterns.md",
+            "sha256": "fe15b74cad4802eb8a89a59143398ed90e03aac5de94f080930b60a201562f85"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-collapse/SKILL.md",
+            "sha256": "f8f260c22c4bb7b57d7ba03e8fd2d0f35b5a0f949b9af1412dfbe48c14271adf"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-advanced.md",
+            "sha256": "d9cfdee12cab9ebe7dc8c5543faacb7d324d8896e7f7190838147610a0f83a56"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-anti-patterns.md",
+            "sha256": "74e5941136403dc059458331b4bc71a3aee899a058a0b1670509a04233c07e98"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-collapse/references/collapse-reference.md",
+            "sha256": "a6afc2e23770d1cd06e47b076c64fc68e69ba367fe1697a0496553b05b300909"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-datatable/SKILL.md",
+            "sha256": "797c2ae9c74c34b0ea198ddb1705de44cf8f271fbc78dce043cd05d147369982"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-datatable/references/datatable-anti-patterns.md",
+            "sha256": "cfce996c2ff9596224907c1f0405fd3c2456cb9c3ffa192ffdc3c72ea7b7e3d6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-datatable/references/datatable-reference.md",
+            "sha256": "b11f247046d7c70a3c460fe3a73d64369fd1bde35f79d6ff7f261cd2bf3e816a"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-shared/SKILL.md",
+            "sha256": "d053c19cb411030998ccb76194b37f58cec7fb1bc6b3b925ed67ba9fdb153484"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-technical/SKILL.md",
+            "sha256": "f3b54f499d743867cd1cfed11f7c0074078a3573bf7cb66a6ecb4302434976e6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/references/r-technical-anti-patterns.md",
+            "sha256": "7f34bc1b47545d53c9d744cd254e1cef995f69d0f97bcebf6c6906f9e6459f7e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/references/renv-reference.md",
+            "sha256": "41d42c6642af1277ca12fab83ef774f96916ba975e7cab60a0475948eec93830"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/references/testing-apis.md",
+            "sha256": "fbb18884884445788a39185c4387cbcc74a38504253eb49fe5da4127178e77a2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/references/testing-testthat.md",
+            "sha256": "66954dcef39575379b42262202431293f2067d20a345cdfa49f42e8cc94dda04"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/workflows/http-clients.md",
+            "sha256": "1139586a6aaf58892a4aac750a06a13bad5f94355db34c3f99db46810e8465d7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/workflows/package-development.md",
+            "sha256": "5f582d2ca25bc7327fc62d66457be5648c65a36c4be79bcff3f20e228c80e7cc"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/workflows/plumber-api.md",
+            "sha256": "cf8c1677d3ec164ec488ad23efbdc8d35442da0dc25717818d58a6382d79c7ae"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/workflows/shiny-apps.md",
+            "sha256": "76ef5abb602de271a7509bb1597ba8dad4e1faef449d7cb4e65afa2724547d54"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-technical/workflows/targets-pipelines.md",
+            "sha256": "7d9858db069e256219253dbf2705b2ecfa6d12c21ce9bbf078bf9755d14605b5"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-testing/SKILL.md",
+            "sha256": "a043b6d7e88c6a2c24dbd5ad2e07477c4f1dfb7b36e4175d6f677f7f3fdb9eb1"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/advanced.md",
+            "sha256": "1acc931173a844548361b4059eba8d8ed5915e403e55874e12e04d544aa0fce1"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/bdd.md",
+            "sha256": "5e28ade83f64110254895a803930319f21bf760e5fa9a71aea8517265a0f6db9"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/fixtures.md",
+            "sha256": "9c4cd38d08fca115e74c41de0708c78f79ada44579b0423e00a67e73124ae165"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/mocking.md",
+            "sha256": "dfd33d9cc59de77e25cd2e08f1700672ee5b486feb15384f8fb7faf750846b0e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/snapshots.md",
+            "sha256": "80403602750517175894e24799a51354812214d4d10d2aa73ed48268cf33b263"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-testing/references/test-integrity.md",
+            "sha256": "3cc43dbda2be9f9277ceef7dde588b8001bea0797c2189d217d8d616201a48f8"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-tidyverse/SKILL.md",
+            "sha256": "b4a9050c3d7145964916e73922dbebd50c72088da9f96a73c35d8222315066e8"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-anti-patterns.md",
+            "sha256": "02ed086f0e3ca493cb4b2a3dabbb83199e2463d9f28f8bba882e487b12340d75"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-migration.md",
+            "sha256": "2aeeff5dd8c6ecb24b0da94685daba6c0c78a3184a29a1be811c273c71d7c97c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-reference.md",
+            "sha256": "ecae9d61ca1fa71446e434ce91555c851c6c417336393d5f2f5562eb161f53f7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-tidyverse/references/tidyverse-style.md",
+            "sha256": "d185966d500a723f2837b4c3bb8b9c67659cdaa85b0feca1735b36943647f899"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-r-visualization/SKILL.md",
+            "sha256": "978575d05f6b03bffcf3c3d146f35d221464f59ac3e5f25ac9166faed31f1f68"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-r-visualization/references/ggplot2-reference.md",
+            "sha256": "9e7638bce9a0a733b207da1e5765a1f395d7126c0463aa2d64aaa4cbe26127ea"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-render-doc/SKILL.md",
+            "sha256": "d9e62cb6af9eaab4c1f06c84055d6d549f0091022b968de50771513b14ad70e7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-render-doc/references/cli-reference.md",
+            "sha256": "90d2b20b4ac3e7bb954ee3cc5a50e55865b797da855d91bf130d25d3ef185d79"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-render-doc/references/theme-reference.md",
+            "sha256": "fe877d14a1783a0678fb1605e6daea2ca8cec28e34048321606e80745b3573be"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-render-doc/workflows/check-freshness.md",
+            "sha256": "88abe6b8091fe702e2fc5f538c1ed169c08caf691586f40eececaff21e687103"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-render-doc/workflows/render-document.md",
+            "sha256": "640cdc212ef9ac3cfbad7bfa21f2c7b146f649a383528c81bc466bb742091b16"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-setup/SKILL.md",
+            "sha256": "b9460054c80cff28c70ff2989e5fb47439cbcea9ecdda31eee1e990c6a4841e6"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/SKILL.md",
+            "sha256": "3bab6f74054f3b9b592be46bf56b9334dc276041b1a8d8f4d1b7ae7f66f27591"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/asdoc.md",
+            "sha256": "04a17e648f26393b155605954a8811547e7a1fd0bed24809b64fc835444da7da"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/binsreg.md",
+            "sha256": "bb03bfe2a552318746d31f8cdb262919f961029bd0862e467f616c21d8231c7e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/coefplot.md",
+            "sha256": "317ee8f616b61daf5ca1777e45d6c921a5560f56283fd032f1ecf20c203f638a"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/data-manipulation.md",
+            "sha256": "cd68af118b7d72e28e59e2c9b1b12c6ecab58d02cc0ab050e373a3d1d3a445b1"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/diagnostics.md",
+            "sha256": "c4417bdaf971cf6dea07f3c14f8dd328dfb8c146d50fb57f6157e8e6b86b0e40"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/did.md",
+            "sha256": "a1082bbdf4db17bb489163cff4c8e6bb6e232e6f3b95efcc7e98041a395f33af"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/estout.md",
+            "sha256": "add7bf4393cc4413014c51efb646dfda9bc89081514504ad2b44929437eee932"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/event-study.md",
+            "sha256": "34a4a0423163b3bd0877137a428498c64580ca7d271624dfe905eeda2fbc7bd3"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/graph-schemes.md",
+            "sha256": "241a93fe44cf48b2459bfd666c2cd1f4649940ce8c4ff24ed3e7bfd33b07efd5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/ivreg2.md",
+            "sha256": "b4611cb6976ece35c7cad5235d03e57cf270eb207059180fd9eda77628c022c0"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/nprobust.md",
+            "sha256": "d412f328d97fe712dba3e1715b553fe63c22c3fcf1c79d1f517eb0d8b4861031"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/outreg2.md",
+            "sha256": "c387bca1d66150112b8487e44fe8e5642c5e7fdd98612c0c22c1f38f718163ae"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/package-management.md",
+            "sha256": "e2caad178599ea2eec0237f8e896df82268d15774e0f32e49c8a2610b46fcd24"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/psmatch2.md",
+            "sha256": "0e4654d6613cba17eccedb0e140c19ea45b855faa264d713c47e10272c31fed3"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/rdrobust.md",
+            "sha256": "b88a9d442dd305ee4a7031ef6e90c6be39da367329251cd9eb6240a0381354c7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/reghdfe.md",
+            "sha256": "c39dfdbeeba89cb068d0d8c5928d29b9941c76c0d2936ed23b69660fe7dcca3e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/repkit.md",
+            "sha256": "9792bb7a89200efe6bb39c696c40582c99ead6bbd8c52a8443c8cf8a5cc8de7e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/synth.md",
+            "sha256": "a968ec78536ee40b3cde3b17e6952ce7ae54121869f5ed0ea8273e2c4ad28a55"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/tabout.md",
+            "sha256": "3a19512cadfe876e229de15e7c87e53f21a738938641b7534604543f5ad0d348"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/winsor.md",
+            "sha256": "05259df462dcf60bd8182efee84c9e2e335f5d7f4c90ec0820206013205bb444"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/packages/xtabond2.md",
+            "sha256": "89875c39bb51970c52bfe99d217a24fdf64ae000780fa76fba7213d0af0dd5cc"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/advanced-programming.md",
+            "sha256": "7a6505f54d626b232a71dad7ef44f275673a806c8b0745eb8af393133bbcb50e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/basics-getting-started.md",
+            "sha256": "48ddffbb04a02624a203c996fe91d2ce3a5b6baa7575281404a9e445108e6847"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/bootstrap-simulation.md",
+            "sha256": "b47a392ffa2e52b7af86ec358daa0675c4f64b900454242d932f4e032f51ab4a"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/coding-principles.md",
+            "sha256": "5f279a34b045f82443a483294a0c919459e4dafcc78d379d08646ad5a508bd64"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/data-import-export.md",
+            "sha256": "e645c66889ed11d7674a54e4301f1f33e671c82135a63407aa913696960e7dd6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/data-management.md",
+            "sha256": "23b34744ac3cecee3dd54d5b0e32620312cf69e58c4553008dc72cfb16ca2b9d"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/date-time-functions.md",
+            "sha256": "c6ca72f674a1f075256697a2cd09dc16c77df5482cc4c759e4929d56510226f3"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/descriptive-statistics.md",
+            "sha256": "04e65af4f24e605df6dbef33166cdead577b5190014d2315733cfcd684c62e72"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/difference-in-differences.md",
+            "sha256": "cb3bbbff23ce10cb73ab4f7262ad0bc096a5ce1d49c70fc02eecc2da9b0dccc5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/external-tools-integration.md",
+            "sha256": "cc646d1b988e2db48ef128f818a49c69572cfdeaadeb58bf223924ed8b11cff2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/gmm-estimation.md",
+            "sha256": "fcec969f6864e54699277845ff2ac9c9ff8ea15b0b443020a26bdd3390cfa72a"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/graphics.md",
+            "sha256": "aa055d05da1b592c5fe4a8125c30c360ae6731a6abc32d5b103450ee5c43df8b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/limited-dependent-variables.md",
+            "sha256": "03a1cd00a59248e0feb71b9007c832372febcf52b90dba1e8fbb93a581f3dc2b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/linear-regression.md",
+            "sha256": "6d35faffdd2995ca20bdf65a109a1fed56d3e4ba0b37a624a0b28d9c0b413f38"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/machine-learning.md",
+            "sha256": "1dba1131687fea746cce9cd01ca2111e87139a62bb8a0eb85cc4e24d16cfc842"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-data-access.md",
+            "sha256": "efc27a607bc3c72afc56f038f4a420306b5085805a3714d1b79c2fb52c432a91"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-introduction.md",
+            "sha256": "5e6fe4140d8397a655ad145caeeb286c56691647a7e6f1204f509db73a38f847"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-matrix-operations.md",
+            "sha256": "ce15370f45262d23028bf4dce6ae0f580ac98af32a1bed5c7f4a0051912dbbda"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mata-programming.md",
+            "sha256": "e899e9bccc3524b487a19e58eb35436a709b018ebd4df86320e966377d8be42c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/matching-methods.md",
+            "sha256": "976a13b3ada12abb0c76d77ca8fb1ffc77a7684c01580b52bf1535e5d6691bce"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/mathematical-functions.md",
+            "sha256": "e809df58638a1aad9784949830e87a755a2288ce990e972dd3dd023f27b5696b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/maximum-likelihood.md",
+            "sha256": "e119c83f5b632783236285275e36a7cce42f2110514ba375e757e0f851edde2c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/missing-data-handling.md",
+            "sha256": "b7c7a9bc2d4d7303ba68cbd720d25d5084f2f20cf5e1aefcd2bf581932357039"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/nonparametric-methods.md",
+            "sha256": "8055966cb1c829b2c91e7de4cf035bfc8a63774f148ffdebd429ab0eac624bc6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/panel-data.md",
+            "sha256": "859b2f0efa3246c085e8ae2d06d8dc3b1a6af0689450e9f831815b51d0ee71d4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/programming-basics.md",
+            "sha256": "860aecf7f791bbe4a7f983222c1374923b44589aa0b8247475ca67a4fe01d871"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/regression-discontinuity.md",
+            "sha256": "d99eb0d29a556d1c450cc3c660fae5fe7b8fe8b2a85b5c6f94284b30a0d3e1c5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/sample-selection.md",
+            "sha256": "0a2959dd2ecdfe89ae8fb6e0bcd2cdeae96d82f7df8f793379b30a799c5b9d12"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/sem-factor-analysis.md",
+            "sha256": "c30d3e4c560f6e730acb791c9b2641bbc055971085c4d5ea7f78ac66ff583616"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/spatial-analysis.md",
+            "sha256": "410ac69c6360c2f89bc0808ff518e9f42705fe17e46970c6cf658cb4316dd2c2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/string-functions.md",
+            "sha256": "cdaab4e091ecda2b8763420afcb67a53ee6ba51a016c6dac8a67f2b8cd152a3f"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/survey-data-analysis.md",
+            "sha256": "cf9c2bd54dbccaf48ecd584fc1867dc2fd28b04594ce926077c78c9a1e890d6f"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/survival-analysis.md",
+            "sha256": "f991e4bca54e5531f54231f99856010d12887b5b95c24466c3d227e42783a1ca"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/tables-reporting.md",
+            "sha256": "bb4554ecda297c552ee2f1b28c43c46cdb05bb704846a4b53f310a2bc35a8f99"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/time-series.md",
+            "sha256": "0dd82df983c9bf856e2a983353e6e630716130a86373dc3f21def5f98da77e14"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/treatment-effects.md",
+            "sha256": "2128bc27b936ccb0ce8408b678d59069cfab90bccde8f44968de8d716d57f22a"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/variables-operators.md",
+            "sha256": "a0026c014a00d591f5859076c8ef653554d9482ab7655b3d246a0fa964f1e3cf"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-best-practices/references/workflow-best-practices.md",
+            "sha256": "925a68fbaf8e02448a166a4763ece77ec9fec8ee0d6b4a4d16d802309db26d12"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-stata-testing/SKILL.md",
+            "sha256": "d21f39289d3fae9ca592df736f9d1306f99a84d786d485defa0ccde3d149ad7f"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/anti-patterns.md",
+            "sha256": "ccb5ce17b0635f934e1aaeac88355fa7c3b395f30d21c9709b56ede0964472e4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/assertions-and-error-handling.md",
+            "sha256": "7cc49c78970b67b0a85539858ffd6559cad88c38768c2cece9b6e9635237c5d4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/data-validation.md",
+            "sha256": "1980961d8e9f0ef48b76faaec095196dca7b5666f3237e9ade5b53e66830564a"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/reproducibility-reprun.md",
+            "sha256": "a52a2b09f0d4b8fc69208d48675f7c0618a7cf8ac3ded5997788964956c9970e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/result-verification.md",
+            "sha256": "312e44a134083aafe25c81eede62c166293128c080ff769b9ac0c69f81028890"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/test-scaffolding.md",
+            "sha256": "72be800636ecb74f2764a0c0e8ad8d0aff0a7d6ccb272d58608e60c88e856923"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-stata-testing/references/workflow-examples.md",
+            "sha256": "9c4f3a03a8865d7b3a7b876d118350aa0c6213437ed9dd4efde9c09068981b5b"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/SKILL.md",
+            "sha256": "77d62836dc63518370aa30c332495ec92e08ca412a4f8f3941d7c3550d42865e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/.gitkeep",
+            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/country-analytical-narrative.benchmark.json",
+            "sha256": "5643163ceaf457232fa5b4954fbed946cfcd51a62441c859cabe13f1bf434ff0"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/data-blog-post.benchmark.json",
+            "sha256": "a26cd257145fd360dc14a20f94c7697038b7ab37933c5a6957334363916dce19"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/executive-summary.benchmark.json",
+            "sha256": "7231b84371cefd9f83a1a30af2e764542b2cab63b24d9f8b7d5d7b09ce7b2a11"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/flagship-report-section.benchmark.json",
+            "sha256": "a94e51d2698d22e0ae990c077d917169e1832ecc3abd421e5937be1d6934168c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/internal-memo.benchmark.json",
+            "sha256": "1a4b1db03cf0077c423aea19f97c53feea2ce3f568e11ee47d37ffcf1b5d6e61"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/policy-brief.benchmark.json",
+            "sha256": "d5fd596a17e585599923a1bf6875604a015c6954d922a29ca3d2ec4bf1d779e2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/policy-research-working-paper.benchmark.json",
+            "sha256": "318ee7f267ca37c10588b7e07747b16e42b4c341eb69bbe3329aada2f872fee7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/technical-methodology.benchmark.json",
+            "sha256": "921d40b8a30dc78f41e147596f28f20b2830d7c38ff2cd5aefb200e51b0a70c2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/.gitkeep",
+            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/country-analytical-narrative.feedback.json",
+            "sha256": "7f31085fdad5f72d9559a3bcbb975a6154243b66c7ee584fa672019ba92005d6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/data-blog-post.feedback.json",
+            "sha256": "c555eff7bda343852f1640946979b116faa4721a61700b62342adcf7bb8ce3c8"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/executive-summary.feedback.json",
+            "sha256": "400d1d59e21f203f596bbf3510ae6b86188d77d9b06e636439e85d68d1ea74ef"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/flagship-report-section.feedback.json",
+            "sha256": "c7c53cf6b1c0251c9b2f72be75947b52700156973310122fb1550c275cf64db8"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/internal-memo.feedback.json",
+            "sha256": "48cc013fbe0bfcc3a2ca4247ddafddb96894d886a57ec16b2c3b48ba91af347c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/policy-brief.feedback.json",
+            "sha256": "bb2446219114190f2a3b58b9321d4978496c1ce8a10be6ac549d8da6cdf3c9fa"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/policy-research-working-paper.feedback.json",
+            "sha256": "2b60a17ad98cc785e1b0e453dbebd710dd7e1c3a342609345a4042f421e8510e"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/feedback/technical-methodology.feedback.json",
+            "sha256": "5294d45c31a8f1e3d366871ce0db52e8a4ed07d8f3fc05b11b6847ee50df02e7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/.gitkeep",
+            "sha256": "4097889236a2af26c293033feb964c4cf118c0224e0d063fec0a89e9d0569ef2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/country-analytical-narrative.grading.json",
+            "sha256": "1191aab66c2265eeb70e71e58e51d7c67a37471d5b853964b417ac923a2a676b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/data-blog-post.grading.json",
+            "sha256": "9282103571af16de7c5edd96a8eb0b6503a04fc8727bed0ffb61962abf4758c4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/executive-summary.grading.json",
+            "sha256": "ee82f94d444d9f107da18e2fa914b9b5af1b1b50048b12e2b77eefa913c889b6"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/flagship-report-section.grading.json",
+            "sha256": "e337cf6fcee581751b02eaa268091c74df7c9ae58189e7a930545a5ab4727bb9"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/internal-memo.grading.json",
+            "sha256": "1fb9283e3c3605bbc32f31798332c61c1081fa8d3cdafa98b8317c1ba6ad43a4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/policy-brief.grading.json",
+            "sha256": "f0e7885a976f9f79ab2ea33a9febbe909cc9d736bc565214ff9addcd316e0208"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/policy-research-working-paper.grading.json",
+            "sha256": "df19f755ae5f42b267d902b35cb55e08a2cce6d8086033bdf7bce8a2b26f20db"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/grades/technical-methodology.grading.json",
+            "sha256": "ff19a8636ccbef33c878a7e508ec98fdc32b583a07a27dbc5a10fc3334d06de9"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/.gitkeep",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/country-analytical-narrative.json",
+            "sha256": "c122f01102bfddd730854bdf39092e7c3f28625d8a85659c947e7e9ef53c6e33"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/data-blog-post.json",
+            "sha256": "87787d2d92776a07f432861fac385d78781b4e267dac1a29934f90714f6db27b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/executive-summary.json",
+            "sha256": "c98f15d5d88e31056c34dcfe847f296f293cf993a292191067af9bef574fafd1"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/flagship-report-section.json",
+            "sha256": "7b725ba4cc75ef6a83d0514db9fa702d63b4eb1484b1394fb3c6489550dec374"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/internal-memo.json",
+            "sha256": "dfd36af10107e545a4e9ddbc49434bf8039af33636d14b5fc78f744c966e5d9b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/policy-brief.json",
+            "sha256": "8e4ed4f09ee7fc48368b485f6e8bdc21ce15176e2a304d124c204844d07359d5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/policy-research-working-paper.json",
+            "sha256": "0c9deecb1faa0c109b22681db35c4a3e31ef091b08dd18b4c61cb8afd9dbd821"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/results/technical-methodology.json",
+            "sha256": "63fdb8319351afb78037f78183490091ed04e18e222fd4e00a15ea6cd7d5fb0c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/.gitkeep",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/country-analytical-narrative.json",
+            "sha256": "0d89750340d21b797bb26bf417033929df7f358af772a2ba47ba83dc2dc40fda"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/data-blog-post.json",
+            "sha256": "73579841867e4d0693589c53a023f93cd517c84ba165fc1a6f6888333ee62305"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/executive-summary.json",
+            "sha256": "8ac5abeb23bb309ac3a7b9db62cbb05e12ced6f4612032bd08c28ba05a4a364b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/flagship-report-section.json",
+            "sha256": "0d7641864214e68abc7578ddbd5e793cc7904d243c526387a84602926b509cc4"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/internal-memo.json",
+            "sha256": "cb96edd75b81e1abca525a7ad9a0b1118c08dc588843df8d2c2b93b9b40306f2"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/policy-brief.json",
+            "sha256": "14474d4206640553ed531b77dba3c701eb9503bc3fe919348e5db6aa1bd37b16"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/policy-research-working-paper.json",
+            "sha256": "8d8666287db8dbc64898db7a89245a5de76fc0aab466c5031a50609a82c21d8c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/evals/types/technical-methodology.json",
+            "sha256": "c914fdce3d4939de0202fd4298546db6bd5d75c7ccd0e8d35a1b9bfa37c232f9"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/quality-review-checklist.md",
+            "sha256": "d87f116b21748203c1ce2a070d5936b847373c4ceee95b1e6308d9eb58569eaf"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/safety-and-markers.md",
+            "sha256": "9ef0cd3223876471ec4292e5df5b2707e0083d21bede6041d65b18d4f8964754"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/.gitkeep",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/country-analytical-narrative.json",
+            "sha256": "56c45233e5ea0b870207247af86f8420a5030ca63cbe40e5b2dc5ac71620768d"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/data-blog-post.json",
+            "sha256": "01138f12975693ead9570516e7763f1b814ddd8e5556579605f054d4a5a7274d"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/executive-summary.json",
+            "sha256": "faeba2f67318d74319b32ffe2124a5c1d20109ce9b1541d34890f977972633f5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/flagship-report-section.json",
+            "sha256": "64be5e4d6790a61ffa804d545b942bb3004e41e49c090e81510fdeb210b266ed"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/internal-memo.json",
+            "sha256": "676037921cf3831924ac09a7c3ee4197033a83cda412970542a6151c213f4499"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/policy-brief.json",
+            "sha256": "747c8327ac24ec9345f619850fd933f324bc5810a3aa2b1c2dd0ed7aaff2d0d5"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/policy-research-working-paper.json",
+            "sha256": "8c2d8b963ff633f97ed006b27df5c72d4a7f9152e2a6738b4d283d5c38998e5c"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/source-packs/technical-methodology.json",
+            "sha256": "88f27330ef637d012ce3a4d5674999eb5091adfddc8a5eac93cc36475c7a167b"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/style-conventions.md",
+            "sha256": "5c8b50b9e3cef14798fb64d0dd4fb2bfada0c9c877763f010c7e16f8fc6c1074"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/terminology.md",
+            "sha256": "8fba485c72c03ac378a691e19294fb4803e829cfa5758766062220db4b44e144"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-wb-report-writing/references/workflows.md",
+            "sha256": "410f8eca05c1233aef052b5959a67ace821145d769c081312005cae25146b823"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-wiki/SKILL.md",
+            "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
+            "sha256": "6076ff1fa18a16adbd627d5e0faf4cc8b0e54643de1e01011ef07c5d8d1062f7"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
+            "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.sh",
+            "sha256": "d177d02af3c4fbd7a23052a5aa4bcf3c7839d55504a35d40a25ebf13cd1fe081"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
+            "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386"
+        },
+        {
+            "kind": "skill-resource",
+            "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
+            "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-academic-writing/SKILL.md",
+            "sha256": "7bcfa4b7124aeb0870851c0c26078949f4a1dd70e2a324e76627fe698e03b03f"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-evidence-provenance/SKILL.md",
+            "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-identification-strategies/SKILL.md",
+            "sha256": "f3aeb59e9c4a6e16bcc7b687b330bf88091fb763b4b03f0dc2429213658968a3"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-mathematical-derivation/SKILL.md",
+            "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-measurement/SKILL.md",
+            "sha256": "5ba3928b963d4f57cdd95005c926a07875434557db84a391e848559a4a5611d0"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-ml-economics/SKILL.md",
+            "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-publication-output/SKILL.md",
+            "sha256": "09956e4b721ff09bed148ddffd99296b767134bde5ed2d1f205515aac26bf998"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-replication-standards/SKILL.md",
+            "sha256": "edee223327b9e0feed251ed8a99392e1b3fc94e419869459db2fa6d39aa367ad"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-research-eda/SKILL.md",
+            "sha256": "a71c45b7d18e8e6158811e33257cb3683e353bf9c9ae95c9193e79601c40d5b7"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-research-integrity/SKILL.md",
+            "sha256": "25d0b92ad3648b12623144ad13a82a3f66ed6e7a5b9c6f1ed1d9028c0589c9b5"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-research-scoping/SKILL.md",
+            "sha256": "ab18f52d19559c504e0624f245ece8ae7e513df9fcfd20f9db9db6a044add79c"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-research-workflow/SKILL.md",
+            "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-structural-econometrics/SKILL.md",
+            "sha256": "aa1f3f4272ee138fc385fab5b587d7d7e2a6cb5f4ca758db9f5d32a080fe0f31"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-symbolic-verification/SKILL.md",
+            "sha256": "2760940d0df74238d8afe7f8501b2baaaa262d0392ea142c6934fa8a11be7709"
+        },
+        {
+            "kind": "skill",
+            "path": ".kilo/skills/cr-skill-theory-data-dialogue/SKILL.md",
             "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8"
         }
     ]

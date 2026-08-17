@@ -856,3 +856,93 @@ function Update-CgKiloGlobalPermission {
     Write-Host "  Updated kilo.jsonc markdown_source permission for: $permissionKey" -ForegroundColor DarkGray
     return $true
 }
+
+function Invoke-CgProjection {
+    <#
+    .SYNOPSIS
+        Runs the manifest-driven project-local projection pipeline.
+    .DESCRIPTION
+        Invokes scripts/cg_project_projection.py for a consumer project. Modes:
+        sync (recover + plan + publish + verify), recover (finish/roll back an
+        interrupted publication), verify (ownership check), unlink (remove only
+        checksum-owned projection files). A nonzero worker exit becomes a
+        terminating error so link/update cannot claim success before publication
+        or verification completes.
+    .PARAMETER ProjectRoot
+        Consumer project root (the projection output root).
+    .PARAMETER SourceRoot
+        Canonical .github source root (defaults to ProjectRoot).
+    .PARAMETER Mode
+        One of sync | recover | verify | unlink.
+    .OUTPUTS
+        PSCustomObject with the worker's status line.
+    .EXAMPLE
+        Invoke-CgProjection -ProjectRoot (Get-Location).Path -Mode verify
+    #>
+    param(
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][ValidateSet("sync", "recover", "verify", "unlink")][string]$Mode,
+        [string]$SourceRoot = $ProjectRoot
+    )
+
+    $python = Resolve-PythonCommand
+    if (-not $python) {
+        throw "Project projection requires Python 3.8+ (checked: python3, python, py)."
+    }
+    $worker = Join-Path $PSScriptRoot "cg_project_projection.py"
+    if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
+        throw "Project projection worker not found at: $worker"
+    }
+    $projectionArgs = @("--project-root", $ProjectRoot, "--source-root", $SourceRoot, "--$Mode")
+    $output = & $python $worker @projectionArgs 2>&1
+    $exit = $LASTEXITCODE
+    if ($exit -ne 0) {
+        throw "Project projection ($Mode) failed with exit code ${exit}: $output"
+    }
+    return [pscustomobject]@{ Mode = $Mode; Output = ($output -join "`n") }
+}
+
+function Resolve-CgActiveManifest {
+    <#
+    .SYNOPSIS
+        Resolves (and writes) the committed active project manifest.
+    .DESCRIPTION
+        Invokes scripts/cg_project_manifest.py for a consumer project so the
+        selected platform set is persisted before projection. Migration of the
+        strict config runs first; resolution is side-effect-free except for the
+        committed manifest write plus idempotent managed-state creation. A
+        nonzero worker exit becomes a terminating error so link/update cannot
+        proceed on invalid selection.
+    .PARAMETER ProjectRoot
+        Consumer project root.
+    .PARAMETER PlatformIds
+        Comma-separated selected platform ids (default: all canonical).
+    .OUTPUTS
+        PSCustomObject with the worker's status line.
+    .EXAMPLE
+        Resolve-CgActiveManifest -ProjectRoot (Get-Location).Path -PlatformIds "kilo,opencode"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [string]$PlatformIds
+    )
+
+    $python = Resolve-PythonCommand
+    if (-not $python) {
+        throw "Active manifest resolution requires Python 3.8+ (checked: python3, python, py)."
+    }
+    $worker = Join-Path $PSScriptRoot "cg_project_manifest.py"
+    if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
+        throw "Active manifest worker not found at: $worker"
+    }
+    $manifestArgs = @("--root", $ProjectRoot, "--ensure-state")
+    if (-not [string]::IsNullOrWhiteSpace($PlatformIds)) {
+        $manifestArgs += @("--platforms", $PlatformIds)
+    }
+    $output = & $python $worker @manifestArgs 2>&1
+    $exit = $LASTEXITCODE
+    if ($exit -ne 0) {
+        throw "Active manifest resolution failed with exit code ${exit}: $output"
+    }
+    return [pscustomobject]@{ ManifestPath = (Join-Path $ProjectRoot ".compound-gpid/active-manifest.json"); Output = ($output -join "`n") }
+}

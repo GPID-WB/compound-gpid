@@ -1930,3 +1930,16 @@ function cg-update { & "C:\WBG\.compound-gpid\scripts\update.ps1" @other }
         }
     }
 }
+
+Describe "update.ps1 - manifest projection recovery" {
+    It "syncs and verifies the projection for consumer projects" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'Project projection synced and verified'
+    }
+
+    It "blocks update on projection failure" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'blocked by manifest projection failure'
+    }
+}

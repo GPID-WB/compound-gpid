@@ -759,12 +759,27 @@ $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList
 
+# Manifest-driven consumers materialize native generated-tree roots as real
+# project-local directories through the projection synchronizer. Their legacy
+# link-directory/copy-directory install units are therefore skipped: creating a
+# junction/copy first would make the no-follow synchronizer reject the root
+# (link/reparse destination). Copilot (canonical .github) and legacy
+# (non-manifest) consumers keep the legacy junction/copy path.
+$manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")
+
 foreach ($target in $targets) {
     Write-Host "Linking $($target.name)..." -ForegroundColor DarkGray
+    $nativeProjected = ($null -ne $target.generatedTreePath)
     foreach ($unit in @($target.installUnits)) {
         $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
         $rootName = Get-CgTargetRoot -RelativePath $targetRel
         if (-not (Ensure-CgRootDirectory -RootName $rootName)) { continue }
+
+        if ($manifestDriven -and $nativeProjected -and
+            ([string]$unit.type -eq "directory")) {
+            Write-Host "  $targetRel - projected by manifest (legacy install skipped)" -ForegroundColor DarkGray
+            continue
+        }
 
         $installed = $false
         if ([string]$unit.type -eq "directory") {
@@ -814,6 +829,37 @@ if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
 }
 
 Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))
+
+$compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
+if (Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")) {
+    # Persist the selected platform set in the committed active manifest so no
+    # separate resolution command is needed during later cg-update runs. A
+    # manifest-driven consumer with invalid strict config fails closed: linking
+    # must not silently fall through to the legacy unfiltered tree.
+    try {
+        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -PlatformIds ($selectedPlatforms -join ","))
+        Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by active manifest resolution failure: $_"
+        exit 1
+    }
+}
+
+# For a manifest-driven consumer project, verify the committed active manifest
+# and recover/publish the project-local projection through the journaled
+# synchronizer. Fresh junction/copy links without a .compound-gpid state are
+# left on the legacy path; a projection error blocks the link success banner.
+$managedStateDir = $compProjectionStateDir
+if ((Test-Path -LiteralPath $managedStateDir) -and
+    (Test-Path -LiteralPath (Join-Path $managedStateDir "active-manifest.json"))) {
+    try {
+        [void](Invoke-CgProjection -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
+        Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by manifest projection failure: $_"
+        exit 1
+    }
+}
 
 Write-Host ""
 Write-Host "Platform availability checks:" -ForegroundColor DarkGray

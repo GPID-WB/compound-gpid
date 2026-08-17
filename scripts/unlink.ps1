@@ -301,6 +301,21 @@ if ($manifest.files.Count -gt 0) {
 foreach ($root in @($roots)) { Remove-CgEmptyRoot -RootName $root }
 Remove-CgGitignoreBlock
 
+# Remove only checksum-owned manifest projection files; user-modified projected
+# files and user roots are preserved.
+$projectionOwnership = Join-Path $ProjectRoot ".compound-gpid/projection-ownership.json"
+if (Test-Path -LiteralPath $projectionOwnership) {
+    try {
+        $projectionResult = Invoke-CgProjection -ProjectRoot $ProjectRoot -Mode unlink
+        if ($projectionResult.Output -match "UNLINKED (\d+)") {
+            if ([int]$Matches[1] -gt 0) { $removedAny = $true }
+            Write-Host "  $($projectionResult.Output)" -ForegroundColor DarkGray
+        }
+    } catch {
+        Write-Warning "Could not remove manifest projection files: $_"
+    }
+}
+
 Write-Host ""
 if ($removedAny) {
     Write-Host "Unlinked." -ForegroundColor Green
