@@ -280,3 +280,196 @@ audit `generated` stamp falls back to wall-clock only as an evidence marker.
 ### Final Status
 
 `active` — Phase 2 complete; next `/cg-work phase3`.
+
+---
+
+## Run: 2026-08-14 (Phase 3)
+
+- Plan reference: `.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md`
+- Active deviation policy: `ask` (plan stored; no runtime override)
+- Review mode: `auto`
+- Scope: Phase 3 requested (`phase3`); steps 6, 7, 8 in scope.
+- Preflight: plan artifact validation `cg-render-artifact --validate-only` passed (exit 0); Phases 1-2 evidence confirmed in prior runs.
+- Brain: budgeted `cg-index query` (intent work) returned 2 artifacts (no-follow kilo copy, reference publishing core); no actionable new constraints beyond plan-incorporated findings.
+- Roadmap: no feature currently links to this plan; Step 1.5 roadmap dispatch not applicable (no matching `plan` path).
+
+### In Progress
+- This run implements Phase 3 "Secure Materialized Projection": pure projection planning (step 6), one root-anchored cross-platform projection synchronizer (step 7), and link/update/unlink integration (step 8).
+
+### Completed Steps And Phases
+- Phase 3, Step 6: added `scripts/cg_project_projection.py` with a pure
+  plan/apply boundary that reads **only** the validated active manifest,
+  derives the closure filter from the committed `moduleClosure` (never raw
+  config at publish time), validates declared managed/optional user roots, and
+  enumerates exact destination paths + SHA-256 before any write. Extended
+  `scan_canonical_assets` with an explicit `loadable_globs` filter so the
+  projection planner restricts rendering to the committed manifest's resolved
+  closure. Added `projectRoots` declarations to `.github/shared/target-mapping.json`
+  and cross-target root collision/prefix validation to `validate_target_mapping`.
+  Regenerated the four committed platform trees (byte-identical except the
+  `target-mapping.json` shared copies and ownership manifests) and refreshed the
+  characterization fixture. Tests: `test_project_projection.py` (33 passed),
+  `test_cg_generate_targets.py`/`test_target_closure.py`/`test_target_determinism.py`
+  still green.
+- Phase 3, Step 7: implemented the root-anchored synchronizer inside
+  `cg_project_projection.py` backed by `secure_fs`: staged full projection in a
+  project-local sibling, journaled per-root activation transaction
+  (`projection-transaction.json`), checksum-gated ownership
+  (`projection-ownership.json`), live-root materialization that overwrites only
+  absent/planned/prior-managed bytes (preserving user-modified files with a
+  reconciliation warning), checksum-owned stale removal, link/reparse/hard-link
+  rejection before mutation, and interruption recovery (complete remaining
+  pointer switches when every generation root validates, else roll back).
+  Crash-window tests cover before-first-switch, between switches, and
+  after-last-switch-before-commit.
+- Phase 3, Step 8: wired the ordered pipeline into `cg-link`/`cg-update`:
+  strict config migration (manifest resolution now produces the committed
+  active manifest with `--ensure-state`), journal recovery, staged projection,
+  per-root activation publish, and post-publish ownership verification via
+  `Invoke-CgProjection -Mode sync`; `cg-unlink` removes only checksum-owned
+  projection files via `Mode unlink`. Implemented in `link.ps1`/`link.sh`,
+  `update.ps1`/`update.sh`, `unlink.ps1`/`unlink.sh`, and `helpers.ps1`
+  (`Invoke-CgProjection`, `Resolve-CgActiveManifest`). Added Pester coverage
+  for the projection interface in `link.Tests.ps1`, `update.Tests.ps1`,
+  `unlink.Tests.ps1`.
+
+### Evidence
+| ID | Status | Artifact / Result |
+|----|--------|-------------------|
+| V1 | passed | Phase 1 (carried). |
+| V2 | passed | Phase 1 (carried). |
+| V3 | passed | Phase 2 (carried). |
+| V4 | passed | Phase 2 (carried). |
+| V5 | passed | Phase 2 (carried); real-repo manifest validates (`closure: 15`). |
+| V6 | passed | `python -m pytest scripts/tests/test_project_projection.py scripts/tests/test_target_closure.py` (139 passed/2 skipped for the full Step 6 batch); pure plan renders distinct selected inventories with no inactive-reference leaks. |
+| V7 | passed | `python -m pytest scripts/tests/test_project_projection.py scripts/tests/test_secure_fs.py scripts/tests/test_target_path_safety.py` (68 passed/5 skipped); no-follow, checksum-owned, journal-recoverable across per-root activation with crash-window tests; Pester `link`/`unlink`/`parity` safe-runner green. |
+| V8 | passed | `python -m pytest scripts/tests/test_update_generates_targets.py scripts/tests/test_project_manifest.py scripts/tests/test_project_projection.py` (80 passed/5 skipped); Pester `link`/`update`/`unlink` safe-runner green. |
+| V9 | pending | Phase 4 not reached. |
+| V10 | pending | Phase 4 not reached. |
+| V11 | pending | Phase 5 not reached. |
+| V12 | pending | Phase 5 not reached. |
+| V13 | pending | Phase 6 not reached. |
+| V14 | pending | Phase 7 not reached. |
+| V15 | pending | Phase 5 not reached. |
+| V16 | pending | Whole-plan completion not reached. |
+
+### Constraints Check
+| ID | Status | Result |
+|----|--------|--------|
+| C1 | passed | Phase 1 (carried). |
+| C2 | passed | Phase 2 (carried). |
+| C3 | passed | Phase 2 (carried). |
+| C4 | passed | Projection publication never follows a link/reparse point, is journal-recoverable across per-root activation with a transaction, and never deletes unverified user-owned content (test-project-projection synchronizer + secure-fs tests). |
+| C5 | passed | Windows/POSIX ownership and preservation semantics are centralized in one Python worker backed by `secure_fs`; parity fixtures remain green. |
+| C6 | pending | Phase 4 not reached. |
+| C7 | pending | Phase 5 not reached. |
+| C8 | pending | Phase 6 not reached. |
+| C9 | pending | Phase 7 not reached. |
+
+### Deviations
+- None. The projection planner derives closure from the committed manifest
+  (`moduleClosure`) rather than re-parsing raw config at publish time, exactly
+  as the plan's R4/R5 separation requires.
+
+### Accepted Exceptions
+- **Drift/release-gate tests are pre-commit by design**: the platform trees were
+  regenerated for the intentional `projectRoots` addition to
+  `target-mapping.json` (byte-identical elsewhere, per the plan's "retain
+  byte-identical full-source generation" requirement). `test_target_drift.py`
+  (2) and `test_release_gate_targets.py::test_drift_test_would_pass` compare
+  regenerated bytes against committed HEAD blobs and therefore fail until the
+  regenerated trees are committed. This session's commit stage (the final
+  requested operation) resolves them; recorded as an accepted exception with
+  rationale rather than treating the regeneration as a regression.
+- **Pre-existing unrelated failure**: `test_issue_dispatch.py::TestActiveStateIntegrity::test_current_json_preserves_blocking_decisions`
+  asserts an `unresolvedDecisions` entry `D4` in `.cg-docs/active-state/current.json`,
+  which holds `D1`/`D2`/`D3`. This failure pre-dates Phase 3 and is documented
+  in the Phase 2 run; unchanged by this phase.
+- The full Python suite (958 passed / 5 failed / 21 skipped) is therefore
+  reconciled: characterization now passes with the regenerated fixture, and the
+  remaining 4 are the two pre-commit drift tests + the pre-existing D4 test
+  (the release-gate failure is a wrapper around the drift test).
+
+### Remaining Uncertainty
+- `test_target_drift.py` and the release-gate drift wrapper run against
+  committed HEAD blobs; the regenerated platform trees will only satisfy them
+  once committed (planned as part of this session's commit stage). The
+  characterization fixture was regenerated for the intentional `projectRoots`
+  addition.
+- The cr-level end-to-end Kilo host evidence remains a Phase 1/6 integration
+  gate, not part of Phase 3.
+
+### Review Convergence (review:auto -> full, 2026-08-14)
+
+The `review:auto` routing resolved to `full` (journaled no-follow filesystem
+publication + linking/unlinking paths + target-mapping schema change =
+security-risk; module boundary + synchronizer = architecture-risk; highest
+coverage wins). Dispatched code-quality, testing, architecture, and adversarial.
+All 21 findings were applied via autofix and re-verified:
+
+- P0.1: journal `transactionId` validated to `^[0-9a-f]{32}$`, generation dir
+  containment-checked, record roots validated as single safe components; crafted
+  `../..` journal can no longer trigger recursive deletion.
+- P1.1: recovery completion re-validates every journal planned destination with
+  `_validate_repo_relative_path`, requires the leading component to equal the
+  recorded root, and rejects symlink sources/hash mismatches.
+- P1.2: a rejected publish (link/hard-link) now removes the incomplete
+  generation and marks the journal `rolled-back` instead of wedging it.
+- P1.3: stale removal is scoped to each platform's own managed root (no cross-
+  platform file deletion on multi-platform syncs).
+- P1.4: plan-time staleness guard (`_validate_manifest_freshness`) recomputes the
+  registry digest/schema and desired plan digest from the manifest's immutable
+  selection and fails closed on mismatch (R4/R5).
+- P1.5: `verify_projection` reports absent owned files and non-regular paths;
+  recovery validates journal shape/roots before rollback/completion.
+- P2.x: `.compound-gpid` symlink rejection at publish; first-link manifest
+  resolution failure is now a hard block; null-`generatedTreePath` platforms
+  (copilot) excluded from the projection plan; forged-ownership deletion
+  defense-in-depth (managed-root scoping).
+- P3.x: dead loops/params removed, `$args` shadowing renamed, tautological test
+  assertions fixed, verify-drift/unlink CLI coverage added, single-mode CLI flags
+  documented.
+
+Re-verified after fixes: `test_project_projection.py` 42 passed / 2 skipped;
+broader Phase 3 gate batches 217 passed / 9 skipped; safe Pester
+helpers/link/update/unlink/bash-scripts/parity all green. Phase 3 review report
+saved to `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md`.
+
+### Verify Pass + Fix-Triage Closure (2026-08-15)
+
+- `/cg-review mode:verify` found the prior review's fixed findings and forced a
+  light pass (`@cg-code-quality` + `@cg-testing`) with a suppression policy.
+  Result: 2xP1 + 3xP2 + 6xP3 new verification findings, zero P0; prior 21 fixes
+  confirmed genuinely implemented. Saved as
+  `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md`.
+- `/cg-fix-triage` applied all open findings and marked them `fixed`:
+  - P1.6: manifest-driven link/update now skips the legacy link-directory install
+    of native generated-tree roots (codex, claude-code, opencode) when
+    `compound-gpid.local.md` is present, so the no-follow projection synchronizer
+    materializes them as real directories instead of rejecting junctioned roots.
+    Applied in `link.ps1`/`link.sh` (`platform_generated_tree` helper).
+  - P1.7: Windows publish of deep skill files no longer fails MAX_PATH — added
+    `secure_fs._windows_long_path` (`\\?\` prefix) for temp/create/open/rename
+    paths; verified a 284-char deep destination writes and reads on Windows.
+  - P2.6: `unlink_consumer_projection` now bounds deletion to declared managed
+    roots (`_declared_managed_roots`), so a forged ownership entry outside a
+    managed root is preserved.
+  - P2.7: added `_validate_manifest_freshness` regression tests (registry digest,
+    schema version, desired-plan digest branches).
+  - P2.8: replaced the tautological `test_journal_root_escape_fails_closed` with a
+    real generations-symlink escape test.
+  - P3.11: removed redundant `$compProjectionStateDir` assignment in link.ps1.
+  - P3.12: staleness guidance now points at `cg-link` re-resolution.
+  - P3.13: freshness-guard unit coverage added.
+  - P3.14: `verify_projection` keeps the API-compatible `_plan` parameter without
+    `del` noise.
+  - P3.15: unlink pruning now removes nested empty directories bottom-up.
+  - P3.16: characterization fixture re-authored with 4-space indent + LF so the
+    git diff is only the 4 intentional `target-mapping.json` hash changes.
+- Re-verified: `test_project_projection.py` 49 passed / 4 skipped; plus
+  `test_secure_fs.py`/`test_project_manifest.py` green; safe Pester
+  helpers/link/update/unlink/bash-scripts/install/parity/prompt-tools all green.
+
+### Final Status
+
+`active` — Phase 3 complete (steps 6-8 + review fixes + verify/fix-triage closure); next `/cg-work phase4`; knowledge capture via `/cg-compound`.

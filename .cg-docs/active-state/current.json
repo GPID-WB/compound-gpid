@@ -1,32 +1,36 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-14T18:55:00Z",
-  "workflow": "/cg-work",
-  "status": "handoff",
+  "updatedAt": "2026-08-17T11:30:00-04:00",
+  "workflow": "/cg-compound",
+  "status": "complete",
   "branch": "skill-marketplace",
   "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
   "executionReport": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md",
-  "currentPhase": 3,
+  "currentPhase": 4,
   "evidenceStatus": [
     {"id": "V1", "status": "passed", "artifact": "kilo_coexistence_host.json + pytest + preflight exit 0"},
     {"id": "V2", "status": "passed", "artifact": "cg-kilo launchers + install/update/link Pester gates"},
     {"id": "V3", "status": "passed", "artifact": ".cg-docs/cost/skill-loading-baseline.json + .md; 14 tests"},
     {"id": "V4", "status": "passed", "artifact": "registry/context/migration/strict-config tests"},
-    {"id": "V5", "status": "passed", "artifact": "test_project_manifest (18); real-repo manifest resolves"}
+    {"id": "V5", "status": "passed", "artifact": "test_project_manifest; real-repo manifest resolves"},
+    {"id": "V6", "status": "passed", "artifact": "test_project_projection + target_closure (217 passed/9 skipped in Step 6 batch after fixes)"},
+    {"id": "V7", "status": "passed", "artifact": "projection/secure-fs/path-safety (42 passed/2 skipped) + Pester link/unlink/parity green"},
+    {"id": "V8", "status": "passed", "artifact": "update_generates/manifest/projection gate + Pester link/update/unlink green"}
   ],
   "unresolvedDecisions": [
     {"id": "D1", "summary": "Containment control verified for embedded Kilo 7.4.20/7.4.21; retain as tested control rather than permanent platform contract.", "blocking": false},
     {"id": "D2", "summary": "Local Kilo logout confirmed: `kilo` credential row is active=0; server-side revocation unverified.", "blocking": false},
-    {"id": "D3", "summary": "Pre-existing pytest failure test_issue_dispatch::test_current_json_preserves_blocking_decisions (expects D4 in current.json; committed file has D1/D2). Outside review findings; follow-up needed.", "blocking": false}
+    {"id": "D3", "summary": "Pre-existing pytest failure test_issue_dispatch::test_current_json_preserves_blocking_decisions (expects D4 in current.json; committed file has D1/D2). Outside review findings; follow-up needed.", "blocking": false},
+    {"id": "D4", "summary": "Drift/release-gate tests compare regenerated trees to committed HEAD; pass once regenerated trees are committed in this session's commit stage.", "blocking": false},
+    {"id": "D5", "summary": "Preserved user-modified files are dropped from projection ownership (parity gap vs PowerShell path); cross-platform reconciliation deferred to Phase 6 migration.", "blocking": false}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-2-complete"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-2-complete"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md", "status": "all-fixed"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md", "status": "phase-1-verify"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md", "status": "open-findings-phase-1"},
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-3-complete"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-3-complete"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md", "status": "all-fixed"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md", "status": "all-fixed"},
     {"kind": "evidence", "path": ".cg-docs/cost/skill-loading-baseline.json", "status": "generated"},
     {"kind": "solution", "path": ".cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md", "status": "captured"}
   ],
-  "nextCommand": "/cg-work phase3 review:auto .cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
+  "nextCommand": "/cg-commit-push-pr"
 }
