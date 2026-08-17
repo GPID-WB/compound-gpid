@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-14 · 568 artifacts (newest first) + 156 roadmap features_
+_Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
 
 ## undated
 
@@ -127,9 +127,25 @@ _Generated 2026-08-14 · 568 artifacts (newest first) + 156 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-17
+
+- **[Journal security hardening patterns for atomic file publication](.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md)** · `solution` · _—_ · `2026-08-17`
+  > The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records …
+- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
+  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[Windows long-path prefix required for staged file publication](.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md)** · `solution` · _—_ · `2026-08-17`
+  > The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid…
+
+## 2026-08-15
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md)** · `review` · _—_ · `2026-08-15`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-…
+
 ## 2026-08-14
 
-- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-14`
+- **[2026-08-13-manifest-driven-skill-loading-phase3-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed fil…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-2](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md)** · `review` · _—_ · `2026-08-14`
   > **Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict c…
 - **[Capability suite-eligibility namespace mismatch makes activation dead code](.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md)** · `solution` · _—_ · `2026-08-14`
   > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
@@ -140,6 +156,8 @@ _Generated 2026-08-14 · 568 artifacts (newest first) + 156 roadmap features_
 
 - **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
 - **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
   > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`

@@ -1,5 +1,5 @@
 {
-  "edge_count": 310,
+  "edge_count": 314,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1347,7 +1347,31 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
+      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
       "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target_missing": false
     },
@@ -10447,6 +10471,50 @@
       ]
     },
     {
+      "date": "2026-08-14",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-phase3-review",
+      "status": "",
+      "summary": "**Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed files (new `cg_project_projection.py`, `test_project_projection.py`, generator/helpers/link/update/unlink changes, `target-mapping.json`, regenerated platform trees) **Findings**: 21 (P0: 1, P1: 5, P2: 5, P3: 10)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-phase3-review",
+      "top_keywords": [
+        "test_project_projection.py",
+        "verify_projection",
+        "cg_project_projection.py",
+        "fix",
+        "transactionid",
+        "build_projection_plan",
+        "publish_projection",
+        "project_root",
+        "_staged_entries_from_generation",
+        "--recover"
+      ]
+    },
+    {
+      "date": "2026-08-15",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-phase3-verify-review",
+      "status": "",
+      "summary": "**Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md` **Files reviewed**: 24 changed files (projection module, generator, helpers, link/update/unlink ps+sh, target-mapping, regenerated trees, Pester tests, docs) **Findings**: 11 (P1: 2, P2: 3, P3: 6)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-phase3-verify-review",
+      "top_keywords": [
+        "cg_project_projection.py",
+        "fix",
+        "activeadapters",
+        "$args",
+        "\\\\?\\",
+        "_validate_manifest_freshness",
+        "link.ps1",
+        "target-mapping.json",
+        "projection-ownership.json",
+        "2026-08-13-manifest-driven-skill-loading-phase3-review.md"
+      ]
+    },
+    {
       "date": "2026-08-13",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
@@ -10471,23 +10539,45 @@
     {
       "date": "2026-08-14",
       "entity_type": "review",
-      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
-      "slug": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-verify-review-2",
       "status": "",
-      "summary": "**Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict config parser + manifest/baseline tooling + tests + docs) **Findings**: 11 (P0: 0, P1: 1, P2: 4, P3: 6)",
+      "summary": "**Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict config parser + manifest/baseline tooling + tests + docs) **Findings**: 11 (P0: 0, P1: 1, P2: 4, P3: 6) — all resolved by `/cg-fix-triage`. **Prior verify review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md` (Phase 1) — this Phase 2 verify supersedes the sub-matrix that overlaps it, so it is recorded under the `-2` name per workflow counter rules.",
       "tags": [],
-      "title": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "title": "2026-08-13-manifest-driven-skill-loading-verify-review-2",
       "top_keywords": [
         "scripts/cg_context_budget.py",
         "cg_context_budget.py",
-        "fixed",
         "fix",
-        "config-schema-version",
-        "test_audit_context",
+        "/cg-fix-triage",
         "scripts/cg_project_manifest.py",
         "\"claude\"",
-        "docs/configuration.md",
-        "\"claude-code\""
+        "\"claude-code\"",
+        "scripts/parsing_utils.py",
+        "cg-fix-triage",
+        "cg_project_manifest.py"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "status": "",
+      "summary": "**Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md` **Files reviewed**: current uncommitted Phase 1 implementation and test changes **Findings**: 19 (P0: 1, P1: 9, P2: 8, P3: 1)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-verify-review",
+      "top_keywords": [
+        "cg_kilo_preflight.py",
+        "scripts/link.ps1",
+        "scripts/cg_kilo_preflight.py",
+        "scripts/link.sh",
+        "scripts/update.ps1",
+        "scripts/update.sh",
+        "link.ps1",
+        "update.sh",
+        "link.sh",
+        "update.ps1"
       ]
     },
     {
@@ -12590,6 +12680,36 @@
       ]
     },
     {
+      "date": "2026-08-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md",
+      "slug": "2026-08-17-windows-long-path-staged-publication",
+      "status": "",
+      "summary": "The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid/staging/<32-hex-tx>/<root>/...` before atomic replacement. On Windows, deep canonical skill files (e.g. `cg-skill-wb-report-writing/evals/benchmarks/*.benchmark.json`) produce staged paths exceeding MAX_PATH 260. `CreateFileW` fails with `WinError 3` (`ERROR_PATH_NOT_FOUND`) when creating the atomic-replace temp sibling with a `.`+32-hex+`.tmp` suffix. This blocks every manifest-driven `link`/`update` on Windows. Pytest fixtures use short trees, so the issue is untested.",
+      "tags": [
+        "windows",
+        "long-path",
+        "MAX_PATH",
+        "secure_fs",
+        "CreateFileW",
+        "staging",
+        "atomic-replace"
+      ],
+      "title": "Windows long-path prefix required for staged file publication",
+      "top_keywords": [
+        "secure_fs.py",
+        "createfilew",
+        "windows",
+        "long-path",
+        "open",
+        "rename",
+        "\\\\?\\",
+        "_windows_long_path",
+        "prefix",
+        "staged"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -13316,6 +13436,36 @@
         "requires",
         "contained",
         "cg-kilo.cmd"
+      ]
+    },
+    {
+      "date": "2026-08-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md",
+      "slug": "2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts",
+      "status": "",
+      "summary": "`link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the projection `--sync` block runs. The projection synchronizer's `_reject_unsafe_destination` → `secure_fs.revalidate_destination_ancestors` rejects any destination whose ancestor is a link/reparse point, so the same-run projection of junctioned roots aborts publication with \"Linking is blocked by manifest projection failure\" (exit 1). This affects every manifest-driven consumer using `--platforms all` (the default profile) on all OSes. Kilo (copy-directory) and copilot (null `generatedTreePath`) escape the issue.",
+      "tags": [
+        "manifest",
+        "projection",
+        "junction",
+        "reparse-point",
+        "link",
+        "native-platforms",
+        "install-gate"
+      ],
+      "title": "Manifest-driven install gate prevents junction conflicts with projection synchronizer",
+      "top_keywords": [
+        "compound-gpid.local.md",
+        "link.ps1",
+        "manifest-driven",
+        "link",
+        "install",
+        "gate",
+        "junction",
+        "link.sh",
+        "platform_generated_tree",
+        "prevents"
       ]
     },
     {
@@ -16976,6 +17126,36 @@
         "dispatch",
         "errors",
         "dispatch_cli"
+      ]
+    },
+    {
+      "date": "2026-08-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md",
+      "slug": "2026-08-17-journal-security-hardening-patterns",
+      "status": "",
+      "summary": "The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records generation directories for crash recovery. Without validation: 1. A forged `transactionId` containing path separators could escape the `.compound-gpid/generations/` directory. 2. A generation directory symlink could point outside the project root. 3. Planned-destination roots in journal records could contain `..` traversal.",
+      "tags": [
+        "journal",
+        "security",
+        "path-traversal",
+        "transaction-id",
+        "containment",
+        "validation",
+        "atomic-replace"
+      ],
+      "title": "Journal security hardening patterns for atomic file publication",
+      "top_keywords": [
+        "validation",
+        "journal",
+        "transactionid",
+        "security",
+        "root",
+        "..",
+        "_declared_managed_roots",
+        "containment",
+        "patterns",
+        "hardening"
       ]
     },
     {
@@ -20741,13 +20921,13 @@
       ]
     }
   ],
-  "entity_count": 724,
-  "generated": "2026-08-14",
+  "entity_count": 730,
+  "generated": "2026-08-17",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 505,
+      "entity_count": 509,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -21066,6 +21246,9 @@
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -21137,6 +21320,7 @@
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
         ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
+        ".cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -21446,6 +21630,22 @@
     {
       "entity_count": 4,
       "entity_paths": [
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
+        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md"
+      ],
+      "keywords": [
+        "scripts/cg_kilo_preflight.py",
+        "link.sh",
+        "cg_kilo_preflight.py"
+      ],
+      "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py",
+      "slug": "scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py"
+    },
+    {
+      "entity_count": 4,
+      "entity_paths": [
         ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
         ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
         ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
@@ -21458,21 +21658,6 @@
       ],
       "label": "Tests / Filesystem / Python",
       "slug": "tests-filesystem-python"
-    },
-    {
-      "entity_count": 3,
-      "entity_paths": [
-        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md",
-        ".cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md",
-        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md"
-      ],
-      "keywords": [
-        "scripts/cg_kilo_preflight.py",
-        "link.sh",
-        ".github"
-      ],
-      "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / .Github",
-      "slug": "scripts-cg-kilo-preflight-py-link-sh-github"
     },
     {
       "entity_count": 3,
