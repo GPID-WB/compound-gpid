@@ -295,8 +295,8 @@ jobs:
           mkdir -p "$E2E_DIR"
           cd "$E2E_DIR"
 
-          # 1. Link
-          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          # 1. Link (exclude kilo — requires a certified host not available on CI)
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms "copilot,claude-code,codex,opencode"
 
           # 2. Assert symlink and file accessibility
           if [[ ! -L ".github/prompts" ]]; then
@@ -307,7 +307,7 @@ jobs:
           fi
 
           # 3. Idempotency: link a second time - must not error
-          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms "copilot,claude-code,codex,opencode"
 
           # 4. Unlink (--yes skips interactive confirmation in CI)
           bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
