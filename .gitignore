@@ -101,6 +101,7 @@ pr-result.txt
 .compound-gpid/projection-transaction.json
 .compound-gpid/staging/
 .compound-gpid/quarantine/
+.compound-gpid/vendor-reviews/
 .compound-gpid/*.tmp
 .compound-gpid/*.bak
 

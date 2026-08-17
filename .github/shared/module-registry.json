@@ -137,6 +137,7 @@
         ".github/shared/model-advisory-examples.json",
         ".github/shared/retrieval-backends.json",
         ".github/shared/snapshot-research-modes.json",
+        ".github/shared/vendor-policy.json",
         ".github/skills/cg-skill-brain-query/",
         ".github/agents/cg-roadmap.agent.md",
         ".github/agents/cg-roadmap-view.agent.md"

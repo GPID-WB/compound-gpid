@@ -396,9 +396,9 @@
         {
           "id": "quarantined-external-skill-vendoring",
           "title": "Quarantined external-skill vendoring workflow",
-          "description": "Extend, but do not duplicate, `attribution-documentation` after its controlled-intake and provenance controls are implemented. Add `/cg-skill-import <repo>@<sha> <path>` to stage only pinned external content in quarantine; perform static security, path, license, and provenance checks; require explicit human approval; and produce a review diff. Automation may make only mechanical namespace and path adaptations, then vendors an approved non-executable bundle into canonical `.github/skills/`. Define custom-skill collision handling through separate managed and user roots. Do not create a public marketplace, automatic installation from arbitrary GitHub repositories, or remote runtime fetches.",
-          "status": "idea",
-          "plan": null
+          "description": "Extend, but do not duplicate, `attribution-documentation` after its controlled-intake and provenance controls are implemented. Add `/cg-import-skill <repo>@<sha> <path>` to stage only pinned external content in quarantine; perform static security, path, license, and provenance checks; require explicit human approval; and produce a review diff. Automation may make only mechanical namespace and path adaptations, then vendors an approved non-executable bundle into canonical `.github/skills/`. Define custom-skill collision handling through separate managed and user roots. Do not create a public marketplace, automatic installation from arbitrary GitHub repositories, or remote runtime fetches.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
         },
         {
           "id": "github-actions-supply-chain-hardening-pilot",
