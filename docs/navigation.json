@@ -34,6 +34,7 @@
       "title": "Operate",
       "pages": [
         { "id": "configuration", "title": "Configuration", "file": "configuration/index.md", "description": "Project settings, context files, platforms, and managed content." },
+        { "id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation." },
         { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
         { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
         { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },
