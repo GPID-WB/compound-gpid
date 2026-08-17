@@ -184,8 +184,8 @@ jobs:
           Set-Location $e2eDir
           $env:CG_SKIP_UPDATE = "1"
 
-          # 1. Link
-          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+          # 1. Link (exclude kilo — requires a certified host not available on CI)
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
 
           # 2. Assert junction and file accessibility
           $junction = Get-Item ".github\prompts" -ErrorAction Stop
@@ -197,7 +197,7 @@ jobs:
           }
 
           # 3. Idempotency: link a second time - must not error
-          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
 
           # 4. Unlink (-Force skips interactive confirmation in CI)
           & "$env:GITHUB_WORKSPACE\scripts\unlink.ps1" -Force
