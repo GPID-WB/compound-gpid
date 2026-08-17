@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-17 · 730 entities · 6 topics · 314 edges_
+_Generated 2026-08-17 · 737 entities · 6 topics · 317 edges_
 
 ## How to Use
 
@@ -13,8 +13,8 @@ _Generated 2026-08-17 · 730 entities · 6 topics · 314 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 509 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 149 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 513 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 151 | BRAIN-02.md |
 | 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
 | 4 | [Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py](BRAIN-02.md#scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py) | 4 | BRAIN-02.md |
 | 5 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
@@ -24,21 +24,21 @@ _Generated 2026-08-17 · 730 entities · 6 topics · 314 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 55 |
-| feature | 156 |
-| plan | 114 |
-| review | 174 |
-| solution | 216 |
+| brainstorm | 56 |
+| feature | 158 |
+| plan | 115 |
+| review | 175 |
+| solution | 218 |
 | strategy | 15 |
 
-_54 entities not assigned to any topic_
+_55 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 78 |
+| decided_from | 79 |
 | implements | 26 |
-| references | 58 |
-| reviews | 94 |
+| references | 59 |
+| reviews | 95 |
 | verifies | 58 |

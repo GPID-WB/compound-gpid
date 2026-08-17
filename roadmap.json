@@ -707,6 +707,20 @@
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/127",
             "createdAt": "2026-08-06"
           }
+        },
+        {
+          "id": "automated-documentation-deployment-and-whats-new-page",
+          "title": "Automated Documentation Deployment and What's New Page",
+          "description": "Automated wiki rebuild on merge to main, bot-committed docs from canonical sources, and a What's New page generated from structured release payloads. Plan in .cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md"
+        },
+        {
+          "id": "dual-deployment-dev-branch-docs-at-dev",
+          "title": "Dual-Deployment: Dev Branch Docs at /dev/",
+          "description": "Composite Pages artifact with main docs at root and dev docs under /dev/ subdirectory. Pushes to both main and dev that touch docs/ trigger deployment with separate concurrency groups. Includes dev-mode banner for /dev/ visitors. Deferred from the automated-documentation brainstorm (2026-08-12).",
+          "status": "idea",
+          "plan": null
         }
       ]
     },

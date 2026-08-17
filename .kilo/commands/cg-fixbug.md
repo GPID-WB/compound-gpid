@@ -1,5 +1,5 @@
 ---
-description: "Structured bug-fix workflow: reproduce, diagnose, fix, verify, document."
+description: "Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof."
 ---
 
 # Fix Bug

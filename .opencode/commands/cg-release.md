@@ -40,6 +40,11 @@ Parse optional arguments from the user's invocation message before running any s
 - **Precedence rule**: `--since` sets the scan window *floor*. The effective window is always
   `max(--since value, tag age)` when a prior tag exists. This ensures release notes never omit
   work done since the last release.
+- `--resume <tag>`: Resume an interrupted release for an existing tag. The tag
+  must match `^v\d+\.\d+\.\d+$`; do not combine it with `--since`. Resume skips
+  the new-release scan, payload creation, commit, and tag creation steps. It
+  validates the committed immutable payload and exact tag, waits for that tag's
+  Pages deployment, then retries only the unfinished GitHub Release API call.
 
 ## Process
 
@@ -80,14 +85,17 @@ After computing `window-start`: if `window-start >= today`, warn the user:
 **1d. Collect the commit log:**
 
 ```powershell
-# If latest-tag exists:
-git log <latest-tag>..HEAD --since=<window-start> --format="%h %s%n%b"
+# If latest-tag exists (never apply --since to the tag range):
+git log <latest-tag>..HEAD --format="%H%x1f%s%x1f%b%x1e"
 
 # First release (no tag):
-git log --format="%h %s%n%b"
+git log --format="%H%x1f%s%x1f%b%x1e"
 ```
 
-Capture the full output as `<commit-log>` text. Each commit appears as `<sha> <subject>` on the first line followed by the commit body (if any) on subsequent lines; blank lines separate commits. The body is included so that `BREAKING CHANGE:` footers (placed there by the conventional commits spec) are visible to the scanner.
+Capture the full output as `<commit-log>` text. Each commit record ends with ASCII
+record separator `0x1e`; SHA, subject, and body use ASCII field separator `0x1f`.
+The body may contain blank paragraphs. The scanner must preserve it so
+`BREAKING CHANGE:` footers remain attributable to their exact commit.
 
 If the output exceeds 500 lines, warn the user before proceeding:
 > The commit log contains more than 500 lines — this is a large scan. Context truncation is possible. Proceed? (yes / no)
@@ -109,7 +117,8 @@ If the agent response is empty or does not contain `## Scan Summary`: halt and r
 > Scanner returned no output — verify agent tool availability before retrying.
 
 Receive the structured markdown response. It contains: Scan Summary, Suggested Semver Impact,
-New Features, Bug Fixes, Under the Hood, and SCHEMA_VERSION Signals sections.
+New Features, Bug Fixes, Under the Hood, SCHEMA_VERSION Signals, and a `## Release Payload`
+JSON block.
 
 **1f. Present semver suggestion and allow override:**
 
@@ -235,9 +244,142 @@ Wait for the user's explicit confirmation before proceeding to Step 5.
 If the user asks to adjust the tag or name, update accordingly and re-display the summary.
 If the user wants to edit the notes, pause — they will edit `RELEASE_NOTES.md` directly and then confirm.
 
-### Step 5: Execute
+### Step 5: Create and publish the durable release source
 
-On confirmation, run in the terminal:
+On explicit confirmation, do **not** call `create-release.ps1` yet. The durable
+release payload, its exact tag, and the tag documentation deployment must exist
+first.
+
+1. Require a clean, up-to-date `main` checkout before writing payloads:
+
+   ```powershell
+   git status --porcelain
+   git fetch origin main --tags
+   git branch --show-current
+   git rev-parse HEAD
+   git rev-parse origin/main
+   ```
+
+   Halt if status has tracked or untracked changes (other than ignored
+   `RELEASE_NOTES.md`), the branch is not `main`, or `HEAD` differs from
+   `origin/main`. Halt safely on a non-fast-forward main rather than creating a
+   release from a stale checkout.
+
+2. Extract exactly one fenced JSON object from the scanner's `## Release
+   Payload` section. Parse it before writing any payload. It must contain only a
+   non-empty `sections` array. Reject every `kind` other than `new`, `fixed`, or
+   `internal`, duplicate kinds, control characters, and any title or entry that
+   exceeds these bounds: name 200 characters, section title 120 characters,
+   entry 500 characters, and at most 50 entries per section. Do not derive kinds by scraping
+   `RELEASE_NOTES.md` or any other prose.
+
+3. Build the complete payload from the confirmed scanner block:
+
+   ```json
+   {
+     "schemaVersion": 1,
+     "tag": "<next-tag>",
+     "publishedAt": "<UTC preparation timestamp in YYYY-MM-DDTHH:mm:ssZ form>",
+     "releaseDate": "<today YYYY-MM-DD>",
+     "name": "<confirmed name>",
+     "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/<next-tag>",
+     "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/<next-tag>",
+     "sections": <scanner Release Payload sections>
+   }
+   ```
+
+   Serialize it deterministically once, then write the exact same UTF-8 bytes to
+   `releases/<next-tag>.json` and `releases/latest.json`. If the immutable
+   versioned file already exists, continue only when its bytes exactly match the
+   new payload; otherwise halt without overwriting it. `latest.json` may be
+   updated only as the byte-for-byte current payload copy.
+
+4. Validate both files before staging. The unknown-kind precheck in step 2 must
+   occur before either file write; these commands are the machine-checkable
+   schema guard before commit:
+
+   ```powershell
+   node scripts/generate-whats-new.js --validate-payload releases/<next-tag>.json
+   node scripts/generate-whats-new.js --validate-payload releases/latest.json
+   ```
+
+   Halt on either validation failure. Report whether either durable file was
+   written, but do not create a tag or call the GitHub API.
+
+5. Stage only the two payload files and commit only if this retry did not already
+   create the byte-identical source commit:
+
+   ```powershell
+   git add -- releases/<next-tag>.json releases/latest.json
+   git diff --cached --name-only
+   git commit -m "chore(release): prepare <next-tag> payload"
+   ```
+
+   Verify the staged-name list contains only those two paths. If it contains any
+   other path, unstage only that unrelated path and halt for maintainer review.
+   If no staged diff exists because both payload files are already byte-identical,
+   do not create an empty commit.
+
+6. Verify or create the exact tag on the clean payload commit, then push main and
+   the tag. Do not use an unconditional `git tag` command:
+
+   ```powershell
+   git status --porcelain
+   $head = (git rev-parse HEAD).Trim()
+   $existing = git rev-parse --verify <next-tag>^{commit} 2>$null
+   if ($LASTEXITCODE -eq 0) {
+     if ($existing.Trim() -ne $head) { throw "Existing tag <next-tag> points to another commit." }
+   } else {
+     git tag <next-tag>
+   }
+   git push origin main
+   git push origin <next-tag>
+   $remote = git ls-remote --tags origin refs/tags/<next-tag>
+   if ($remote -notmatch $head) { throw "Remote tag <next-tag> does not resolve to the payload commit." }
+   ```
+
+   If the tag already exists, it must resolve to the current clean `HEAD`; if it
+   resolves elsewhere, halt. If either push fails, halt and report the committed
+   payload/tag state so a maintainer can resume without overwriting a release
+   record.
+
+7. Wait for the Pages tag deployment triggered by `<next-tag>`. Identify the
+   `pages.yml` run for the exact tag commit (not merely the newest deployment),
+   then wait for a successful conclusion. A GitHub CLI implementation may use
+   `gh run list --workflow pages.yml --branch <next-tag> --event push --json
+   databaseId,headSha,status,conclusion` and `gh run watch <databaseId>
+   --exit-status`. Halt on a missing, failed, or mismatched tag-site deployment.
+   Do not invoke `/cg-wiki` or rebuild documentation from this prompt; the tag
+   workflow owns the immutable complete-build deployment.
+
+### Resume An Interrupted Release
+
+When invoked with `--resume <tag>`, require a clean, up-to-date `main` checkout
+and do not prepare a new scanner payload. Confirm all of the following before
+retrying any publication step:
+
+```powershell
+git status --porcelain
+git fetch origin main --tags
+git rev-parse HEAD
+git rev-parse origin/main
+git rev-parse <tag>^{commit}
+git ls-remote --tags origin refs/tags/<tag>
+node scripts/generate-whats-new.js --validate-payload releases/<tag>.json
+node scripts/generate-whats-new.js --validate-payload releases/latest.json
+```
+
+The local and remote `<tag>` must resolve to the clean `HEAD`; the immutable
+payload must be present and valid. Then wait for the exact tag-site deployment
+as in Step 5.7. If it failed, resume the deployment before the API record. If it
+succeeded but the API record is absent, recreate `RELEASE_NOTES.md` from the
+recorded scanner/release context and run Step 6 only. Never overwrite an
+immutable payload or create a new tag during resume.
+
+### Step 6: Publish the GitHub Release API record
+
+Only after Step 5 has committed/validated the payload, verified the exact pushed
+tag, and observed successful tag-site deployment, run:
 
 ```powershell
 .\create-release.ps1 -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
@@ -258,9 +400,11 @@ After the script completes, read `release-result.txt`:
 
 ## Rules
 
-- Never run `create-release.ps1` without explicit user confirmation in Step 4.
+- Never run `create-release.ps1` without explicit user confirmation in Step 4,
+  validated durable payloads, an exact pushed tag, and a successful tag-site deployment.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
-- `RELEASE_NOTES.md` is ephemeral and gitignored. The GitHub Release is the source of truth.
+- `RELEASE_NOTES.md` is ephemeral and gitignored. Release payload JSON is the
+  durable What's New source; the GitHub Release is the public release record.
 - If you are unsure whether a change is "structural" for SCHEMA_VERSION purposes, err on the side of warning the user.
 
 ## OpenCode Invocation Arguments

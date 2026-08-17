@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
+_Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
 
 ## undated
 
@@ -151,9 +151,13 @@ _Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
   > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
 - **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
   > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
+- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
+  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
 
 ## 2026-08-13
 
+- **[2026-08-12-automated-documentation-deployment-review](.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/ag…
 - **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
 - **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
@@ -162,6 +166,15 @@ _Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
   > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
+
+## 2026-08-12
+
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
+  > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
 
 ## 2026-08-11
 
@@ -1460,6 +1473,8 @@ _Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
 - **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
+- **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
+  > Automated Documentation Deployment and What's New Page
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
@@ -1554,6 +1569,8 @@ _Generated 2026-08-17 · 574 artifacts (newest first) + 156 roadmap features_
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
+- **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
+  > Dual-Deployment: Dev Branch Docs at /dev/
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`

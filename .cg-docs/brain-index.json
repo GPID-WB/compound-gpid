@@ -1,5 +1,5 @@
 {
-  "edge_count": 314,
+  "edge_count": 317,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -461,6 +461,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md",
       "target": ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
+      "target": ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
       "target_missing": false
     },
     {
@@ -1347,6 +1353,12 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md",
+      "target": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
       "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target_missing": false
@@ -1727,6 +1739,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
       "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
+      "target": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
       "target_missing": false
     },
     {
@@ -3427,6 +3445,35 @@
         "luna",
         "assignment",
         "role"
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
+      "slug": "2026-08-12-automated-documentation-deployment",
+      "status": "decided",
+      "summary": "The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `docs/` on pushes to `main`, but there is no automation that keeps documentation current when code changes. Today, `/cg-wiki rebuild` and manual edits to `docs/` Markdown files are the only way to update the site content. Features land in code, releases get tagged, and the docs lag behind.",
+      "tags": [
+        "documentation",
+        "ci-cd",
+        "github-actions",
+        "whats-new",
+        "wiki-rebuild",
+        "pages"
+      ],
+      "title": "Automated Documentation Deployment and What's New Page",
+      "top_keywords": [
+        "pages.yml",
+        "doc-rebuild.yml",
+        "_wiki.yml",
+        "compound-gpid.md",
+        "approach",
+        "docs/",
+        "/cg-release",
+        "scripts/rebuild-docs.js",
+        "scripts/generate-whats-new.js",
+        "check-docs-site.js"
       ]
     },
     {
@@ -6763,6 +6810,36 @@
         "cr-*",
         "/cr-work",
         "pytest scripts/tests/test_target_drift.py"
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
+      "slug": "2026-08-12-automated-documentation-deployment",
+      "status": "active",
+      "summary": "Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backed \"What's New\" page. Canonical source changes on `main` must rebuild only managed documentation sections, commit only real changes, and deploy the exact rebuilt artifact without relying on a bot push to trigger a second workflow.",
+      "tags": [
+        "documentation",
+        "ci-cd",
+        "github-actions",
+        "whats-new",
+        "wiki-rebuild",
+        "pages",
+        "release"
+      ],
+      "title": "Automated Documentation Deployment and What's New Page",
+      "top_keywords": [
+        "docs/",
+        "latest.json",
+        "test scenarios",
+        ".github/",
+        "documentation",
+        "cg-release",
+        "/cg-release",
+        "node scripts/check-docs-site.js",
+        "create-release.ps1",
+        "--check"
       ]
     },
     {
@@ -10471,6 +10548,28 @@
       ]
     },
     {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md",
+      "slug": "2026-08-12-automated-documentation-deployment-review",
+      "status": "",
+      "summary": "- Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/agent and regenerated native targets. - Node/Pester/Python coverage and local validation evidence.",
+      "tags": [],
+      "title": "2026-08-12-automated-documentation-deployment-review",
+      "top_keywords": [
+        "latest.json",
+        "cg-release",
+        "doc-rebuild.yml",
+        "cg-release.prompt.md",
+        "navigation.json",
+        "pages.yml",
+        "page",
+        "passed",
+        "documentation",
+        "deployment"
+      ]
+    },
+    {
       "date": "2026-08-14",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
@@ -12424,8 +12523,8 @@
         "fchmod()",
         "publication",
         "umask",
-        "must",
         "secure",
+        "must",
         "clobber",
         "changes"
       ]
@@ -12677,6 +12776,38 @@
         "namespace",
         "mismatch",
         "suite-eligibility"
+      ]
+    },
+    {
+      "date": "2026-08-14",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md",
+      "slug": "2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags",
+      "status": "",
+      "summary": "The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://github.com/GPID-WB/compound-gpid/actions/runs/31748306075) aborted in the `resolve-immutable-ref` job with:",
+      "tags": [
+        "pages",
+        "github-actions",
+        "workflow",
+        "immutable-ref",
+        "resolver",
+        "release-tags",
+        "pre-release",
+        "dev-series",
+        "ci"
+      ],
+      "title": "Pages immutable-ref gate rejects dev-series pre-release tags (v1.2.0.900x)",
+      "top_keywords": [
+        "dev",
+        "resolve-immutable-ref",
+        "v1.2.0.9004",
+        "origin/dev",
+        "vx.y.z",
+        "pages.yml",
+        "v1.2.0.900x",
+        "pages",
+        "pre-release",
+        "dev-series"
       ]
     },
     {
@@ -13826,6 +13957,36 @@
         "brain.md",
         "brain-index.json",
         "matrix"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md",
+      "slug": "2026-08-13-verified-pages-artifact-and-release-tag-gates",
+      "status": "",
+      "summary": "An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly the successful documentation build artifact, not regenerate or silently replace it. 2. Tag/manual release deployments must not execute repository code with Pages credentials from a mutable branch, dev tag, or arbitrary user input. Without both controls, an old or unreviewed ref can publish content, a mutable GitHub Action tag can run privileged code, or a missing metadata file can make artifact provenance unverifiable.",
+      "tags": [
+        "github-actions",
+        "github-pages",
+        "artifact-provenance",
+        "immutable-ref",
+        "release-tag",
+        "action-pinning",
+        "documentation"
+      ],
+      "title": "Verified Pages artifacts and immutable release-tag gates",
+      "top_keywords": [
+        "latest.json",
+        "docs/",
+        "release-tag",
+        "immutable",
+        "pages",
+        "verified",
+        "artifacts",
+        "gates",
+        "workflow_run",
+        "problem"
       ]
     },
     {
@@ -17153,9 +17314,9 @@
         "root",
         "..",
         "_declared_managed_roots",
-        "containment",
         "patterns",
-        "hardening"
+        "containment",
+        "atomic"
       ]
     },
     {
@@ -19647,6 +19808,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#automated-documentation-deployment-and-whats-new-page",
+      "slug": "automated-documentation-deployment-and-whats-new-page",
+      "status": "active",
+      "summary": "Automated Documentation Deployment and What's New Page",
+      "tags": [],
+      "title": "Automated Documentation Deployment and What's New Page",
+      "top_keywords": [
+        "automated documentation deployment",
+        "new page\nmilestone",
+        "workflow maturity\nobjective",
+        "automated",
+        "documentation",
+        "deployment",
+        "page",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#dual-deployment-dev-branch-docs-at-dev",
+      "slug": "dual-deployment-dev-branch-docs-at-dev",
+      "status": "idea",
+      "summary": "Dual-Deployment: Dev Branch Docs at /dev/",
+      "tags": [],
+      "title": "Dual-Deployment: Dev Branch Docs at /dev/",
+      "top_keywords": [
+        "dev",
+        "dev branch docs",
+        "workflow maturity\nobjective",
+        "branch",
+        "dual-deployment",
+        "feature",
+        "milestone",
+        "workflow",
+        "maturity",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -20921,13 +21126,13 @@
       ]
     }
   ],
-  "entity_count": 730,
+  "entity_count": 737,
   "generated": "2026-08-17",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 509,
+      "entity_count": 513,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -20979,6 +21184,7 @@
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
         ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
+        ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
@@ -21093,6 +21299,7 @@
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+        ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
@@ -21300,6 +21507,7 @@
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
         ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
         ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
+        ".cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -21332,6 +21540,7 @@
         ".cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md",
         ".cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md",
         ".cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md",
+        ".cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
         ".cg-docs/solutions/testing-patterns/2026-03-02-prompt-file-permission-guardrails.md",
@@ -21448,7 +21657,7 @@
       "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 149,
+      "entity_count": 151,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -21541,6 +21750,8 @@
         "roadmap.json#workflow-completion-report-and-html-dossier",
         "roadmap.json#automatic-post-pr-verification-handoff",
         "roadmap.json#artifact-html-opt-in-default",
+        "roadmap.json#automated-documentation-deployment-and-whats-new-page",
+        "roadmap.json#dual-deployment-dev-branch-docs-at-dev",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",

@@ -75,3 +75,83 @@ workflow also checks repository documentation.
 - [Documentation Migration](../about/documentation-audit.md)
 - [Complete Reference](../reference.md)
 - [Modular Guide](../modular-guide.md)
+
+## Documentation automation
+
+The public documentation site is kept current from reviewed canonical sources.
+Canonical prompt/skill/agent changes on `main` deterministically rebuild the
+managed `docs/` sections, commit only real changes, and deploy the exact rebuilt
+artifact through GitHub Pages. Manual text outside `cg:auto` markers remains
+user-owned.
+
+### Rebuild flow
+
+Canonical source merge → `scripts/rebuild-docs.js --all` constructs the complete
+tree → the `doc-rebuild` workflow commits only `docs/` when it changed, then
+uploads the validated complete `docs/` plus build metadata → the Pages
+`workflow_run` consumes that exact artifact after verifying the normalized
+canonical-input fingerprint is current.
+
+Local dry run (no write):
+
+```bash
+node scripts/rebuild-docs.js --check
+```
+
+### What's New page
+
+`docs/whats-new.md` is an auto-managed page whose `release-notes` section is
+generated from `releases/*.json` release payloads. Release payloads are the
+durable public-release source for the page; the GitHub Release remains the public
+release record. `RELEASE_NOTES.md` stays ephemeral and gitignored.
+
+### Release payload schema
+
+Immutable, tracked files named `releases/v<major>.<minor>.<patch>[.<dev>].json`;
+`releases/latest.json` is a byte-for-byte current-release convenience copy and is
+never rendered as a second release.
+
+| Field | Required | Value |
+|-------|----------|-------|
+| `schemaVersion` | yes | `1` |
+| `tag` | yes | valid semver tag (e.g. `v1.2.3`) |
+| `publishedAt` | yes | UTC ISO-8601 |
+| `name` | yes | release title |
+| `url` | yes | GitHub release URL shape |
+| `sourceUrl` | yes | exact pushed GitHub tag URL (`.../tree/<tag>`) |
+| `sections` | yes | non-empty array |
+
+Each section has a controlled `kind` (`new`, `fixed`, or `internal`), a bounded
+plain-text title, and bounded plain-text entries. Malformed tags, duplicate
+tags, malformed dates, unknown fields that alter rendering semantics, control
+characters, invalid GitHub release or source-tag URLs, and excessive record sizes are
+rejected before write. The page renders at most the 20 newest immutable
+payloads (newest first by `publishedAt` then tag) and links to GitHub Releases
+for older history.
+
+Local payload validation (the machine-checkable guard before any payload
+commit):
+
+```bash
+node scripts/generate-whats-new.js --validate-payload releases/v1.2.3.json
+```
+
+### Deployment behavior
+
+The Pages workflow deploys only the unmodified, complete, validated,
+digest-verified post-build artifact. Stale main-branch runs are skipped by the
+normalized canonical-input fingerprint check; immutable release tags and manual
+dispatches build complete trees directly. No workflow depends on a bot push
+triggering a second workflow.
+
+### Recovery behavior
+
+- No-op rebuild: `docs/` unchanged — no bot commit; the artifact is still
+  uploaded for Pages.
+- Validation failure: the rebuild fails loudly and never deploys.
+- Stale run: a rebuild that finished after a newer canonical `main` commit is
+  skipped by Pages rather than deployed.
+- Bot commit: only `docs/` is staged with a conventional message stating it is
+  a deterministic render from the approved canonical inputs.
+- Release API failure: the committed/tagged payload source state remains
+  recoverable; a maintainer can resume without overwriting a release record.
