@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI and the conditions for verifiable knowledge work. A 30-minute presentation about LLMs, evidence, provenance, AI-DQSS, and research interfaces.">
+  <meta name="presentation-source" content="../.cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md">
+  <meta name="presentation-derived" content="true">
+  <title>AI and the Conditions for Verifiable Knowledge Work</title>
+  <link rel="stylesheet" href="vendor/reveal.js/reveal.css">
+  <style>
+    :root {
+      --paper: #f5f0e7;
+      --paper-deep: #e9e0d2;
+      --ink: #182522;
+      --muted: #64706b;
+      --teal: #0b625f;
+      --teal-soft: #d8e8e2;
+      --coral: #cf654c;
+      --coral-soft: #f3d9ce;
+      --ochre: #c99338;
+      --line: rgba(24, 37, 34, 0.18);
+      --shadow: rgba(24, 37, 34, 0.08);
+      --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --body: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { background: var(--paper); }
+
+    body {
+      color: var(--ink);
+      font-family: var(--body);
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(24, 37, 34, 0.018) 0,
+        rgba(24, 37, 34, 0.018) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+    }
+
+    .reveal {
+      font-family: var(--body);
+      color: var(--ink);
+      font-size: 32px;
+    }
+
+    .reveal .slides { text-align: left; }
+
+    .reveal .slides section {
+      height: 100%;
+      padding: 62px 76px 54px;
+      overflow: hidden;
+    }
+
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 34px;
+      left: 76px;
+      width: 44px;
+      height: 4px;
+      background: var(--coral);
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal p,
+    .reveal ul,
+    .reveal ol { margin-top: 0; }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .display {
+      font-family: var(--display);
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .reveal h1 { font-size: 2.5em; line-height: 1.02; }
+    .reveal h2 { font-size: 1.65em; line-height: 1.08; }
+    .reveal h3 { font-size: 0.86em; line-height: 1.15; }
+    .reveal p, .reveal li { line-height: 1.34; }
+    .reveal strong { color: var(--teal); }
+    .reveal em { color: var(--coral); }
+
+    .eyebrow,
+    .slide-index,
+    .source-note,
+    .tag,
+    .label {
+      font-family: var(--body);
+      font-size: 0.39em;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { color: var(--coral); margin-bottom: 26px; }
+    .slide-index { color: var(--muted); position: absolute; right: 76px; top: 48px; }
+    .source-note { color: var(--muted); letter-spacing: 0.025em; text-transform: none; }
+    .source-note a { color: var(--teal); }
+    .tag { color: var(--teal); background: var(--teal-soft); padding: 7px 11px; border-radius: 999px; display: inline-block; }
+    .label { color: var(--muted); margin-bottom: 9px; }
+
+    .title-slide {
+      display: flex !important;
+      align-items: center;
+      background: linear-gradient(125deg, rgba(216, 232, 226, 0.5), transparent 58%);
+    }
+
+    .title-slide::after {
+      content: "";
+      position: absolute;
+      right: 7%;
+      bottom: 8%;
+      width: 23%;
+      height: 33%;
+      border: 1px solid rgba(11, 98, 95, 0.28);
+      border-radius: 50% 42% 54% 38%;
+      transform: rotate(-18deg);
+    }
+
+    .title-lockup { width: 72%; position: relative; z-index: 1; }
+    .title-lockup h1 { max-width: 920px; margin-bottom: 32px; }
+    .title-lockup .subtitle { max-width: 650px; color: var(--muted); font-size: 0.73em; line-height: 1.35; }
+    .title-lockup .rule { margin: 34px 0 18px; width: 210px; }
+
+    .rule { height: 1px; background: var(--line); margin: 24px 0; }
+    .rule.teal { background: var(--teal); height: 3px; }
+    .rule.coral { background: var(--coral); height: 3px; }
+
+    .lede { max-width: 1040px; color: var(--muted); font-size: 0.75em; }
+    .lede strong { color: var(--ink); }
+    .small { font-size: 0.55em; }
+    .tiny { font-size: 0.42em; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+    .two-col.wide-left { grid-template-columns: 1.2fr 0.8fr; }
+    .two-col.wide-right { grid-template-columns: 0.8fr 1.2fr; }
+    .stack { display: grid; gap: 18px; }
+
+    .workflow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 72px 0 34px;
+      flex-wrap: nowrap;
+    }
+    .workflow .step {
+      min-width: 132px;
+      padding: 18px 13px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.34);
+      text-align: center;
+      font-family: var(--display);
+      font-size: 0.63em;
+      line-height: 1.05;
+    }
+    .workflow .step:nth-child(3), .workflow .step:nth-child(6) { border-color: var(--teal); background: var(--teal-soft); }
+    .workflow .arrow { padding: 0 9px; color: var(--coral); font-size: 0.8em; }
+
+    .contrast {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 48px;
+      border-top: 3px solid var(--ink);
+    }
+    .contrast > div { padding: 26px 28px 20px; min-height: 290px; }
+    .contrast > div:first-child { background: rgba(255, 255, 255, 0.32); border-right: 1px solid var(--line); }
+    .contrast > div:last-child { background: var(--coral-soft); }
+    .contrast h3 { margin-bottom: 22px; }
+    .contrast p { font-size: 0.59em; margin-bottom: 16px; }
+
+    .threat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
+    .threat {
+      min-height: 190px;
+      padding: 22px 24px;
+      background: rgba(255, 255, 255, 0.36);
+      border-left: 5px solid var(--teal);
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+    .threat:nth-child(2) { border-color: var(--coral); }
+    .threat:nth-child(3) { border-color: var(--ochre); }
+    .threat:nth-child(4) { border-color: var(--ink); }
+    .threat h3 { margin-bottom: 12px; }
+    .threat p { font-size: 0.52em; color: var(--muted); margin-bottom: 0; }
+
+    .quote {
+      margin: 58px 0 28px;
+      max-width: 1080px;
+      padding: 28px 34px;
+      border-left: 5px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+      font-family: var(--display);
+      font-size: 0.91em;
+      line-height: 1.18;
+    }
+
+    .caveat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 28px; border-top: 3px solid var(--ink); }
+    .caveat-grid > div { padding: 22px 26px; min-height: 342px; }
+    .caveat-grid .can { background: var(--teal-soft); border-right: 1px solid rgba(11, 98, 95, 0.3); }
+    .caveat-grid .cannot { background: var(--coral-soft); }
+    .caveat-grid h3 { margin-bottom: 20px; }
+    .caveat-grid ul { padding-left: 23px; margin-bottom: 0; }
+    .caveat-grid li { font-size: 0.49em; margin-bottom: 11px; }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      align-items: stretch;
+      gap: 0;
+      margin: 52px 0 30px;
+    }
+    .pipeline .node {
+      position: relative;
+      min-height: 142px;
+      padding: 19px 14px;
+      background: rgba(255, 255, 255, 0.42);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--display);
+      font-size: 0.54em;
+      line-height: 1.1;
+    }
+    .pipeline .node:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      right: -16px;
+      top: 50%;
+      width: 29px;
+      height: 1px;
+      background: var(--coral);
+    }
+    .pipeline .node:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      right: -16px;
+      top: calc(50% - 4px);
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid var(--coral);
+      border-right: 2px solid var(--coral);
+      transform: rotate(45deg);
+    }
+    .pipeline .node:nth-child(1), .pipeline .node:nth-child(4) { background: var(--paper-deep); }
+    .pipeline .node:nth-child(2), .pipeline .node:nth-child(5) { background: var(--teal-soft); }
+    .pipeline .node:nth-child(3), .pipeline .node:nth-child(6) { background: var(--coral-soft); }
+
+    .lineage {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 44px;
+    }
+    .lineage-card { min-height: 286px; padding: 25px 24px 20px; background: rgba(255, 255, 255, 0.38); border-top: 5px solid var(--teal); }
+    .lineage-card:nth-child(2) { border-color: var(--coral); }
+    .lineage-card:nth-child(3) { border-color: var(--ochre); }
+    .lineage-card .date { color: var(--muted); font-size: 0.43em; letter-spacing: 0.05em; text-transform: uppercase; }
+    .lineage-card h3 { margin: 14px 0 16px; }
+    .lineage-card p { color: var(--muted); font-size: 0.48em; }
+
+    .stage-flow { display: flex; align-items: center; margin-top: 42px; }
+    .stage-flow .stage { flex: 1; min-height: 118px; padding: 18px 15px; background: rgba(255,255,255,0.42); border: 1px solid var(--line); font-size: 0.5em; text-align: center; display: flex; align-items: center; justify-content: center; }
+    .stage-flow .stage:nth-child(2), .stage-flow .stage:nth-child(5) { background: var(--teal-soft); }
+    .stage-flow .stage:nth-child(3), .stage-flow .stage:nth-child(6) { background: var(--coral-soft); }
+    .stage-flow .connector { width: 30px; height: 1px; background: var(--coral); position: relative; }
+    .stage-flow .connector::after { content: ""; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: 2px solid var(--coral); border-right: 2px solid var(--coral); transform: rotate(45deg); }
+
+    .control-list { display: grid; gap: 13px; margin-top: 28px; }
+    .control { display: grid; grid-template-columns: 34px 1fr; gap: 13px; align-items: start; }
+    .control .mark { width: 30px; height: 30px; border-radius: 50%; color: var(--paper); background: var(--teal); display: grid; place-items: center; font-size: 0.5em; font-weight: 700; }
+    .control:nth-child(2) .mark { background: var(--coral); }
+    .control:nth-child(3) .mark { background: var(--ochre); }
+    .control p { font-size: 0.55em; margin: 3px 0 0; color: var(--muted); }
+
+    .universe {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 34px;
+      align-items: center;
+      margin-top: 54px;
+    }
+    .universe .big-question { font-family: var(--display); font-size: 1.5em; line-height: 1.08; }
+    .universe .big-question span { color: var(--coral); }
+    .universe .split { border-left: 1px solid var(--line); padding-left: 30px; }
+    .universe .split p { font-size: 0.56em; color: var(--muted); }
+    .universe .split strong { font-size: 1.05em; }
+
+    .interface-map { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px; }
+    .interface-map .map-item { padding: 22px; min-height: 126px; background: rgba(255,255,255,0.4); border: 1px solid var(--line); font-size: 0.5em; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .interface-map .query { grid-column: 1 / 4; background: var(--teal-soft); border-color: var(--teal); font-family: var(--display); font-size: 0.72em; }
+    .interface-map .claim { background: var(--coral-soft); border-color: var(--coral); }
+    .interface-map .approved { background: var(--paper-deep); border-color: var(--ochre); }
+    .interface-map .history { color: var(--muted); }
+
+    .footer {
+      position: absolute;
+      bottom: 26px;
+      left: 76px;
+      right: 76px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      color: var(--muted);
+      font-size: 0.35em;
+      letter-spacing: 0.025em;
+    }
+    .footer .accent { color: var(--coral); font-weight: 700; }
+
+    .closing {
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(130deg, rgba(216, 232, 226, 0.55), rgba(243, 217, 206, 0.4));
+    }
+    .closing h2 { max-width: 870px; font-size: 2em; }
+    .closing .closing-line { max-width: 830px; color: var(--muted); font-size: 0.74em; }
+    .closing .question { max-width: 980px; margin-top: 42px; padding: 25px 30px; border-left: 5px solid var(--teal); background: rgba(255,255,255,0.45); font-family: var(--display); font-size: 0.82em; }
+
+    .notes-link { color: var(--teal); text-decoration: none; }
+
+    @media (max-width: 900px) {
+      .reveal { font-size: 26px; }
+      .reveal .slides section { padding: 48px 42px 45px; }
+      .reveal .slides section::before { left: 42px; top: 26px; }
+      .slide-index { right: 42px; top: 36px; }
+      .footer { left: 42px; right: 42px; bottom: 18px; }
+      .title-lockup { width: 100%; }
+      .title-slide::after { right: 4%; width: 32%; }
+      .workflow { margin-top: 48px; }
+      .workflow .step { min-width: 100px; font-size: 0.52em; }
+      .pipeline { grid-template-columns: repeat(3, 1fr); row-gap: 26px; }
+      .pipeline .node:nth-child(3)::after { display: none; }
+      .lineage { gap: 10px; }
+      .lineage-card { padding: 18px; min-height: 260px; }
+      .stage-flow .stage { font-size: 0.42em; }
+    }
+
+    @media (max-width: 700px) {
+      .reveal { font-size: 24px; }
+      .reveal .slides section { padding: 42px 24px 44px; }
+      .reveal .slides section::before { left: 24px; top: 24px; width: 34px; }
+      .slide-index { right: 24px; top: 32px; }
+      .footer { left: 24px; right: 24px; font-size: 0.31em; }
+      .reveal h1 { font-size: 2.05em; }
+      .reveal h2 { font-size: 1.45em; }
+      .lede { font-size: 0.66em; }
+      .two-col, .two-col.wide-left, .two-col.wide-right { display: block; }
+      .two-col > * + * { margin-top: 18px; }
+      .workflow { margin-top: 38px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .workflow .step { min-width: 0; padding: 13px 8px; font-size: 0.52em; }
+      .workflow .arrow { display: none; }
+      .threat-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
+      .threat { min-height: 0; padding: 13px 15px; }
+      .threat h3 { font-size: 0.72em; margin-bottom: 7px; }
+      .threat p { font-size: 0.43em; }
+      .contrast, .caveat-grid { grid-template-columns: 1fr; margin-top: 24px; }
+      .contrast > div, .caveat-grid > div { min-height: 0; padding: 17px 18px; }
+      .contrast > div:first-child, .caveat-grid .can { border-right: 0; border-bottom: 1px solid var(--line); }
+      .contrast p, .caveat-grid li { font-size: 0.44em; margin-bottom: 8px; }
+      .caveat-grid ul { padding-left: 18px; }
+      .quote { margin: 30px 0 20px; padding: 20px 21px; font-size: 0.75em; }
+      .pipeline { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 28px; }
+      .pipeline .node { min-height: 78px; padding: 12px 8px; font-size: 0.42em; }
+      .pipeline .node::before, .pipeline .node::after { display: none; }
+      .lineage { grid-template-columns: 1fr; gap: 10px; margin-top: 24px; }
+      .lineage-card { min-height: 0; padding: 15px 17px; }
+      .lineage-card h3 { margin: 8px 0; font-size: 0.86em; }
+      .lineage-card p { font-size: 0.43em; margin-bottom: 0; }
+      .stage-flow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 28px; }
+      .stage-flow .stage { min-height: 62px; padding: 12px 8px; font-size: 0.42em; }
+      .stage-flow .connector { display: none; }
+      .universe { display: block; margin-top: 28px; }
+      .universe .big-question { font-size: 1.15em; margin-bottom: 22px; }
+      .universe .split { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; }
+      .universe .split p { font-size: 0.46em; }
+      .interface-map { grid-template-columns: 1fr; gap: 8px; margin-top: 24px; }
+      .interface-map .map-item { min-height: 55px; padding: 12px; font-size: 0.43em; }
+      .interface-map .query { grid-column: 1; font-size: 0.62em; }
+      .closing h2 { font-size: 1.55em; }
+      .closing .closing-line { font-size: 0.57em; }
+      .closing .question { margin-top: 22px; padding: 17px 19px; font-size: 0.62em; }
+    }
+
+    @media print {
+      .reveal .slides section { page-break-after: always; }
+      .reveal .controls, .reveal .progress, .reveal .slide-number { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="reveal" aria-label="AI and the Conditions for Verifiable Knowledge Work presentation">
+    <div class="slides">
+      <section class="title-slide" data-background-color="#f5f0e7" aria-label="Title">
+        <span class="slide-index">01 / 12</span>
+        <div class="title-lockup">
+          <div class="eyebrow">AI for Data x Compound Research</div>
+          <h1>AI and the conditions for verifiable knowledge work</h1>
+          <p class="subtitle">From resource to claim to composition</p>
+          <div class="rule coral"></div>
+          <p class="source-note">A 30-minute research conversation for the AI for Data team and Development Research Group.</p>
+        </div>
+        <div class="footer"><span>Derived presentation surface</span><span class="accent">Markdown remains authoritative</span></div>
+        <aside class="notes">
+          Research has always involved a movement from sources to notes, from notes to claims, and from claims to a paper, report, or decision. LLMs change the cost and speed of every part of that process. They also change the risk: language can arrive before its source, its uncertainty, or its reasoning has been made visible.
+          <br><br>
+          The question today is not whether LLMs are useful. They clearly are. The question is what has to surround them if the output is going to become part of research or institutional knowledge.
+        </aside>
+      </section>
+
+      <section aria-label="The ordinary research workflow">
+        <span class="slide-index">02 / 12</span>
+        <div class="eyebrow">The problem</div>
+        <h2>The ordinary research workflow has a hidden control system</h2>
+        <div class="workflow" aria-label="Ordinary research workflow">
+          <div class="step">Question</div><div class="arrow">&rarr;</div>
+          <div class="step">Search</div><div class="arrow">&rarr;</div>
+          <div class="step">Read</div><div class="arrow">&rarr;</div>
+          <div class="step">Compare</div><div class="arrow">&rarr;</div>
+          <div class="step">Interpret</div><div class="arrow">&rarr;</div>
+          <div class="step">Write</div>
+        </div>
+        <div class="two-col wide-right">
+          <p class="lede"><strong>A literature review is not only a search for text.</strong> It is a series of judgments about relevance, context, support, disagreement, and what can responsibly be carried into composition.</p>
+          <div class="stack small"><span class="tag">memory</span><span class="tag">judgment</span><span class="tag">return to the source</span></div>
+        </div>
+        <div class="footer"><span>Source, note, interpretation, composition</span><span class="accent">The controls are mostly informal</span></div>
+        <aside class="notes">
+          A literature review is not only a search for text. It is a series of judgments. A researcher decides which sources matter, reads enough context to understand a passage, records what the passage supports, compares it with other sources, and then writes a composition that is supposed to remain answerable to the sources.
+          <br><br>
+          Much of this control system is informal. It lives in notes, habits, source folders, citation managers, and the researcher's ability to return to a page months later. It is imperfect, but the researcher can usually distinguish a source, a note, an interpretation, and a final sentence.
+          <br><br>
+          An answer-first LLM interface compresses these steps into one fluent response. That is useful for exploration. But if the compressed steps are not recovered and recorded, the output can look more settled than the underlying process was.
+        </aside>
+      </section>
+
+      <section aria-label="Answer first AI contrast">
+        <span class="slide-index">03 / 12</span>
+        <div class="eyebrow">The problem</div>
+        <h2>What changes when the answer arrives first?</h2>
+        <div class="contrast">
+          <div>
+            <div class="label">Ordinary workflow</div>
+            <h3>Source before claim</h3>
+            <p>Notes preserve some uncertainty.</p>
+            <p>Re-reading is part of the work.</p>
+            <p>Composition follows analysis.</p>
+          </div>
+          <div>
+            <div class="label">Answer-first AI workflow</div>
+            <h3>Claim may appear before source</h3>
+            <p>Fluency can hide uncertainty.</p>
+            <p>Source context may shrink to a snippet.</p>
+            <p>Analysis and composition can happen together.</p>
+          </div>
+        </div>
+        <p class="lede" style="margin-top: 30px;">The risk is not only a false statement. It is a changed <strong>order of operations</strong>.</p>
+        <div class="footer"><span>From "What can I responsibly say?"</span><span class="accent">to "Can I defend this answer?"</span></div>
+        <aside class="notes">
+          An LLM can make the final form of knowledge appear early. Before we have settled the source, the context, the comparison, or the uncertainty, we may already have a paragraph that sounds ready to use.
+          <br><br>
+          That reverses the normal burden of the research process. Instead of asking "What can I responsibly say from these sources?" we are tempted to ask "Can I find a source that makes this answer defensible?"
+          <br><br>
+          The framework proposed here is an attempt to restore the order of operations without giving up the speed of AI-assisted exploration.
+        </aside>
+      </section>
+
+      <section aria-label="Four epistemological threats">
+        <span class="slide-index">04 / 12</span>
+        <div class="eyebrow">The problem</div>
+        <h2>Four epistemological threats</h2>
+        <div class="threat-grid">
+          <div class="threat"><h3>01 &nbsp; Source detachment</h3><p>A claim may have no recoverable source, or the source may not support what the claim says.</p></div>
+          <div class="threat"><h3>02 &nbsp; Epistemic instability</h3><p>The same prompt and source context can yield different claims, omissions, or emphases across runs.</p></div>
+          <div class="threat"><h3>03 &nbsp; Selection opacity</h3><p>The system can choose one passage or interpretation from many plausible alternatives without showing the choice.</p></div>
+          <div class="threat"><h3>04 &nbsp; Amplified composition</h3><p>Once a plausible sentence enters a report, fluency can make it easier to repeat than to question.</p></div>
+        </div>
+        <p class="source-note" style="margin-top: 22px;">A seed and low temperature improve control; they do not guarantee identical output across providers, revisions, or serving environments.</p>
+        <div class="footer"><span>Randomness is one threat, not the whole problem</span><span class="accent">Fluency can acquire authority too early</span></div>
+        <aside class="notes">
+          First, source detachment. A fluent claim may have no recoverable source, or the cited source may not support what the claim says. This is the problem most people call hallucination, but the broader issue is loss of the source-to-claim connection.
+          <br><br>
+          Second, epistemic instability. LLMs commonly generate by sampling from a distribution of possible continuations. The same prompt and source context can therefore yield different claims, omissions, or emphases across runs. One sampled answer is an event in a generation process, not automatically a stable research object.
+          <br><br>
+          This is not a claim that randomness makes every output false. It changes the burden of proof. We need to know whether the variation matters, which parts of the output are stable, and which generation settings and model versions were used. AI-DQSS documents a seed setting that may be dropped when the provider does not support it.
+          <br><br>
+          Third, selection opacity. The system may choose one source passage, one interpretation, or one caveat from many plausible alternatives without making that choice visible. Retrieval is not neutral simply because it is automated.
+          <br><br>
+          Fourth, amplified composition. Once a plausible sentence enters a report, memo, or institutional workflow, its fluency makes it easier to repeat than to question.
+        </aside>
+      </section>
+
+      <section aria-label="The stable research object">
+        <span class="slide-index">05 / 12</span>
+        <div class="eyebrow">The framework</div>
+        <h2>The stable object is not the answer</h2>
+        <div class="quote">A generated answer is a proposal.<br><span style="color: var(--teal);">A verified claim/evidence record is a research object.</span></div>
+        <div class="two-col wide-left">
+          <p class="lede">The primary product should be a structured, inspectable record: a narrow claim, its source and version, a locator, evidence, the relationship between evidence and claim, a verification result, and a review decision.</p>
+          <div class="control-list">
+            <div class="control"><div class="mark">1</div><p>Generation can suggest.</p></div>
+            <div class="control"><div class="mark">2</div><p>Verification can check source linkage.</p></div>
+            <div class="control"><div class="mark">3</div><p>People decide what can be reused.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Generation remains useful</span><span class="accent">Authority is not automatic</span></div>
+        <aside class="notes">
+          The proposal is to stop treating the generated paragraph as the primary product. The primary product should be a structured, inspectable record: a claim stated narrowly enough to examine; the source and source version it refers to; the locator that takes us back to the passage; the verbatim quotation or other evidence; the relationship between evidence and claim; the verification result; and the review decision that determines whether the record can be reused.
+          <br><br>
+          Generation remains useful. It can suggest a claim, find a passage, propose a comparison, or help a researcher see a pattern. But it does not get to decide that the proposal has become knowledge.
+        </aside>
+      </section>
+
+      <section aria-label="Caveat checkpoint">
+        <span class="slide-index">06 / 12</span>
+        <div class="eyebrow">The framework</div>
+        <h2>What this framework can and cannot establish</h2>
+        <div class="caveat-grid">
+          <div class="can">
+            <h3>It can help establish</h3>
+            <ul><li>A claim has a recoverable source</li><li>A quotation matches a source unit</li><li>Source version and review state are visible</li><li>A proposal was generated under a recorded process</li><li>Unresolved or stale evidence remains visible</li></ul>
+          </div>
+          <div class="cannot">
+            <h3>It cannot establish by itself</h3>
+            <ul><li>The source is true or authoritative in every sense</li><li>The claim has causal validity</li><li>The interpretation is the only reasonable one</li><li>The model's output is fully reproducible</li><li>A normative judgment is justified</li></ul>
+          </div>
+        </div>
+        <p class="lede" style="margin-top: 22px;">This is a <strong>control system for provenance, review, and composition</strong> -- not a truth machine.</p>
+        <div class="footer"><span>Keep this boundary visible</span><span class="accent">Source linkage is not truth</span></div>
+        <aside class="notes">
+          This is the boundary that should remain visible throughout the presentation. Quote and locator verification can establish that a quotation is linked to a particular source. It cannot establish that the source is correct, that the research design identifies a causal effect, or that a policy judgment is normatively right.
+          <br><br>
+          Likewise, recording a seed, temperature, model, and prompt improves reproducibility. It does not turn a generative process into a proof. The framework is a control system for provenance, review, and composition. It is not a truth machine.
+        </aside>
+      </section>
+
+      <section aria-label="Resource to composition pipeline">
+        <span class="slide-index">07 / 12</span>
+        <div class="eyebrow">The framework</div>
+        <h2>From resource to atomic claim and back to composition</h2>
+        <div class="pipeline" aria-label="Evidence control loop">
+          <div class="node">Original<br>resource</div>
+          <div class="node">Parsed source<br>unit + locator</div>
+          <div class="node">Candidate evidence<br>+ atomic claim</div>
+          <div class="node">Quote / locator<br>verification</div>
+          <div class="node">Human review<br>+ approval</div>
+          <div class="node">Analysis<br>+ composition</div>
+        </div>
+        <div class="two-col">
+          <p class="lede"><strong>Original resources remain authoritative.</strong> Parsed text, OCR, indexes, embeddings, and browser views are aids to finding and inspecting them.</p>
+          <p class="lede"><strong>Generation may be probabilistic.</strong> Authority is earned through inspection, explicit state, and review.</p>
+        </div>
+        <div class="footer"><span>Analysis produces the evidence base</span><span class="accent">Composition comes after review</span></div>
+        <aside class="notes">
+          The process begins with the original resource. That resource remains the authority. Parsed text, OCR, indexes, embeddings, and browser views are aids to finding and inspecting it.
+          <br><br>
+          The resource is divided into source units with stable, explainable locators. From those units we can retrieve candidate passages and propose evidence. The claim is atomic: one statement that can be supported, contradicted, or left unresolved. If a sentence contains several independent assertions, it should be split rather than treated as one smooth block.
+          <br><br>
+          The system then checks the quote and locator against the original source and records the result. A researcher reviews the evidence and decides whether it is approved for downstream analysis or composition. Only then does the process return to writing.
+          <br><br>
+          This is an analysis/composition split. Analysis produces and verifies the claim/evidence base. Composition uses approved records. The point is not to remove interpretation. Interpretation is essential to research. The point is to make the move from evidence to interpretation visible.
+        </aside>
+      </section>
+
+      <section aria-label="Compound Research approach">
+        <span class="slide-index">08 / 12</span>
+        <div class="eyebrow">Technical lineage / 01</div>
+        <h2>The original Compound Research/plugin approach</h2>
+        <div class="stage-flow" aria-label="Compound Research workflow">
+          <div class="stage">Brainstorm</div><div class="connector"></div><div class="stage">Plan</div><div class="connector"></div><div class="stage">Work</div><div class="connector"></div><div class="stage">Review</div><div class="connector"></div><div class="stage">Compound</div>
+        </div>
+        <div class="two-col wide-left" style="margin-top: 46px;">
+          <p class="lede">The key move was not a particular model. It was to treat research reasoning as something that should leave an inspectable trail: why a model was chosen, what evidence informed a specification, which assumptions mattered, and what was learned for the next task.</p>
+          <div class="stack"><span class="tag">reasoning trail</span><span class="tag">reusable knowledge</span><span class="tag">evidence before composition</span></div>
+        </div>
+        <p class="source-note" style="margin-top: 30px;">The earliest recoverable Compound Research brainstorm is dated 2026-05-13. The provenance spine is dated 2026-07-30. `Suggestions-For-CR.md` remains unavailable.</p>
+        <div class="footer"><span>Workflow and reasoning foundation</span><span class="accent">Not a particular estimator</span></div>
+        <aside class="notes">
+          The first stage was the Compound GPID approach itself. The plugin began as a structured workflow for data science work: brainstorm the problem, plan the work, execute it, review it, and capture what was learned. Compound Research adapted that workflow to economics and econometrics research.
+          <br><br>
+          The key move was not a particular model. It was to treat research reasoning as something that should leave an inspectable trail: why a model was chosen, what evidence informed a specification, which assumptions mattered, and what was learned for the next task.
+          <br><br>
+          The evidence and provenance spine then made one part of that philosophy more explicit. It separated analysis from composition, kept the original document as the authority, made the local corpus the default, and treated an uncited or unverifiable substantive claim as a blocking research-integrity problem.
+          <br><br>
+          The exact origin of every idea is not fully recoverable. The referenced Suggestions-For-CR.md design note is not present in the current repository, so its contents are not represented here.
+        </aside>
+      </section>
+
+      <section aria-label="AI-DQSS approach">
+        <span class="slide-index">09 / 12</span>
+        <div class="eyebrow">Technical lineage / 02</div>
+        <h2>AI-DQSS: separate the stages, then verify the words</h2>
+        <div class="stage-flow" aria-label="AI-DQSS pipeline">
+          <div class="stage">Parse</div><div class="connector"></div><div class="stage">Index</div><div class="connector"></div><div class="stage">Retrieve</div><div class="connector"></div><div class="stage">Rerank</div><div class="connector"></div><div class="stage">Assess</div><div class="connector"></div><div class="stage">Verify</div>
+        </div>
+        <div class="two-col" style="margin-top: 44px;">
+          <div class="stack">
+            <span class="tag">WBG data quality self-assessment</span>
+            <p class="lede">AI-DQSS assesses data products, processes, and systems against 13 data quality principles and produces drafts for human review.</p>
+          </div>
+          <div class="stack small">
+            <p><strong>Stable citation IDs</strong><br><span style="color: var(--muted);">Every parsed text segment gets an address.</span></p>
+            <p><strong>Local filtering</strong><br><span style="color: var(--muted);">Retrieval and reranking narrow the evidence.</span></p>
+            <p><strong>Quotation verification</strong><br><span style="color: var(--muted);">The final words are checked against source documents.</span></p>
+          </div>
+        </div>
+        <div class="footer"><span>Procedural exemplar</span><span class="accent">Not a research-compliance template</span></div>
+        <aside class="notes">
+          AI-DQSS is a data quality self-assessment system developed by the AI for Data team. Its purpose is specific: assess data products, processes, and systems against the World Bank Group's 13 data quality principles and produce a draft assessment report for human review.
+          <br><br>
+          Its procedural lesson is broader than that domain. Documents are parsed and assigned stable citation IDs. Local dense and sparse retrieval narrows the corpus. A reranker selects stronger candidate passages. An LLM assesses the requirements and drafts narrative. A verification step checks quoted passages against the source before the report is exported.
+          <br><br>
+          The important design choice is separation. Finding a passage, ranking a passage, writing an assessment, and checking a quotation are different stages with different responsibilities.
+          <br><br>
+          The Compound Research work does not copy the 13-pillar assessment structure or turn research into a compliance report. It carries forward the useful pattern: source units with addresses, staged retrieval, structured evidence, and independent checking.
+        </aside>
+      </section>
+
+      <section aria-label="Current research evidence workbench">
+        <span class="slide-index">10 / 12</span>
+        <div class="eyebrow">Technical lineage / 03</div>
+        <h2>The current local-first research evidence workbench</h2>
+        <div class="lineage">
+          <div class="lineage-card"><div class="date">Boundary</div><h3>Original authority</h3><p>Original resources remain authoritative. Browser views and indexes are derived aids.</p></div>
+          <div class="lineage-card"><div class="date">State</div><h3>Candidate != approved</h3><p>Model proposals remain candidates until source-linked verification and researcher review succeed.</p></div>
+          <div class="lineage-card"><div class="date">Lifecycle</div><h3>Stale means re-verify</h3><p>Source changes invalidate affected records rather than silently preserving old approval.</p></div>
+        </div>
+        <div class="two-col" style="margin-top: 32px;">
+          <p class="lede">Local-first, project-contained, offline during normal processing, and loopback-only for the browser service.</p>
+          <p class="lede">Deterministic lexical retrieval is the baseline. Optional model profiles are explicit and candidate-only.</p>
+        </div>
+        <div class="footer"><span>AI-DQSS procedure + CR claim/evidence model</span><span class="accent">Uncertainty becomes visible state</span></div>
+        <aside class="notes">
+          The current research_evidence package is the executable boundary for this approach. It is local-first, project-contained, offline during normal processing, and loopback-only for its browser service.
+          <br><br>
+          It supports the resource lifecycle rather than assuming that a corpus never changes. Resources receive identities and hashes. Parsed units receive typed locators. When a source changes or disappears, affected evidence and claims become stale and must be re-verified before they can return to approved use.
+          <br><br>
+          The baseline retrieval path is deterministic lexical search. Optional dense, sparse, and reranking profiles are explicit, inventory-controlled, and candidate-only until they meet their activation and benchmark conditions. A model may propose a claim or evidence record, but that record remains a candidate.
+          <br><br>
+          Canonical state is written as readable, diffable YAML. The browser interface is a management surface, not the authority. The package combines AI-DQSS's staged evidence procedure with Compound Research's claim/evidence, review, and knowledge-compounding workflow.
+        </aside>
+      </section>
+
+      <section aria-label="Source universe">
+        <span class="slide-index">11 / 12</span>
+        <div class="eyebrow">The next questions</div>
+        <h2>The next bottleneck is the universe of sources</h2>
+        <div class="universe">
+          <div class="big-question">Known corpus:<br><span>can we verify</span><br>the claim?</div>
+          <div class="split"><p><strong>Source universe:</strong><br>did we find the right evidence at all?</p><p>The current workbench starts with a local corpus by design. Research usually begins before the corpus exists.</p><p>A credible discovery layer needs both search and a record of scope, coverage, exclusions, versions, and unresolved gaps.</p></div>
+        </div>
+        <div class="rule teal"></div>
+        <p class="lede">This is not simply a request for a bigger search box. Ranking changes what becomes visible.</p>
+        <div class="footer"><span>Verification is not coverage</span><span class="accent">Discovery has its own provenance problem</span></div>
+        <aside class="notes">
+          The current workbench starts with a repository-local corpus by design. That is a useful boundary for verification, privacy, and reproducibility. But research usually begins before the corpus exists.
+          <br><br>
+          The next problem is source discovery: finding the relevant literature and institutional material in a universe of sources, while recording what was searched, what was excluded, and why.
+          <br><br>
+          This is not simply a request for a bigger search box. A retrieval system can favor highly cited or familiar sources. It can miss work that uses different language. It can return relevant passages from sources that are not appropriate for the question. It can also make the researcher forget that the corpus was selected by a system with its own coverage and ranking behavior.
+        </aside>
+      </section>
+
+      <section class="closing" aria-label="Literature review as a research interface">
+        <span class="slide-index">12 / 12</span>
+        <div class="eyebrow">The next questions</div>
+        <h2>Literature review as a research interface</h2>
+        <div class="interface-map" aria-label="Proposed research interface">
+          <div class="map-item query">Question / claim</div>
+          <div class="map-item">Source candidates<br>and passages</div>
+          <div class="map-item claim">Supports / contradicts / unresolved</div>
+          <div class="map-item history">Search history<br>and exclusions</div>
+          <div class="map-item approved">Approved evidence<br>&rarr; composition</div>
+        </div>
+        <p class="closing-line">Avenues for exploration, not a finished product roadmap.</p>
+        <div class="question">How do we make AI-assisted research more useful without making its authority invisible?</div>
+        <div class="footer"><span>AI for Data x DRG research</span><span class="accent">From answer-first to evidence-first</span></div>
+        <aside class="notes">
+          Imagine a literature-review interface organized around the researcher's claims rather than around a blank document. The researcher could ask a question, inspect candidate sources, compare passages side by side, save atomic claims, record whether sources support or contradict one another, and keep unresolved items visible.
+          <br><br>
+          The interface could show a reading trail: which searches produced a source, which passages were selected, what was rejected, and which source versions were used. It could help a researcher move between a claim and its context without pretending that relevance is the same as truth.
+          <br><br>
+          This is an avenue for exploration rather than a finished product roadmap. The questions are how to discover sources without hiding selection effects, how to represent disagreement and uncertainty, how to measure retrieval quality for development research, and how to divide labor between researchers and models.
+          <br><br>
+          The opportunity is to explore the next interface together while keeping one principle fixed: AI can help produce proposals, but knowledge should remain traceable to sources and accountable to human judgment.
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <script src="vendor/reveal.js/reveal.js"></script>
+  <script src="vendor/reveal.js/notes.js"></script>
+  <script>
+    const narrowViewport = window.innerWidth < 700;
+    const deck = new Reveal({
+      controls: true,
+      controlsLayout: "edges",
+      progress: true,
+      center: false,
+      hash: true,
+      slideNumber: "c/t",
+      transition: "fade",
+      backgroundTransition: "fade",
+      width: narrowViewport ? 390 : 1600,
+      height: narrowViewport ? 844 : 900,
+      margin: narrowViewport ? 0.045 : 0.06,
+      minScale: 0.1,
+      maxScale: 2.0,
+      keyboard: true,
+      touch: true
+    });
+
+    deck.initialize({
+      plugins: [RevealNotes]
+    });
+  </script>
+</body>
+</html>

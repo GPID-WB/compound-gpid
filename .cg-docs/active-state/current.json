@@ -1,57 +1,27 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-12T16:15:00Z",
-  "workflow": "/cg-work",
+  "updatedAt": "2026-08-13T19:36:00Z",
+  "workflow": "/cr-work",
   "status": "handoff",
-  "branch": "fix/evidence-review-findings",
-  "plan": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md",
+  "branch": "research/ai-knowledge-work-presentation",
+  "plan": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-13-ai-knowledge-work-presentation-production.md",
   "currentPhase": 5,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "cg-render-artifact --validate-only exit 0 + plan sections (re-run 2026-08-11)"},
-    {"id": "V2", "status": "passed", "artifact": "plan section 1 classification; ruleset/check re-verified via API (Run 1)"},
-    {"id": "V3", "status": "passed", "artifact": "plan section 2 sources of truth"},
-    {"id": "V4", "status": "passed", "artifact": "plan section 4 stages 0A-6 boundaries"},
-    {"id": "V5", "status": "passed", "artifact": "plan section 5 pilot spec"},
-    {"id": "V6", "status": "passed", "artifact": "plan section 6 security matrix"},
-    {"id": "V7", "status": "passed", "artifact": "plan section 7 recovery/idempotency"},
-    {"id": "E1", "status": "passed", "artifact": "issue #127 closed completed + body snapshot (API, Run 3)"},
-    {"id": "E2", "status": "passed", "artifact": "assignee Copilot + randrescastaneda; model config operator-confirmed (Run 3)"},
-    {"id": "E3", "status": "passed", "artifact": "branch copilot/make-html-publication-opt-in-default (Run 3)"},
-    {"id": "E4", "status": "passed", "artifact": "PR #131 merged, 17 files (Run 3)"},
-    {"id": "E5", "status": "passed", "artifact": "statusCheckRollup; required green after title fix (Run 3)"},
-    {"id": "E6", "status": "passed", "artifact": "Actions approval gate inferred from run create->start gap (proxy, Run 3)"},
-    {"id": "E7", "status": "passed", "artifact": "Project Status timeline -> Done (Run 3)"},
-    {"id": "E8", "status": "passed", "artifact": "wall-clock assign->PR->merge (Run 3)"},
-    {"id": "E9", "status": "passed", "artifact": "CC lint title-only failures x3; fixed (Run 3)"},
-    {"id": "E10", "status": "passed", "artifact": "PR #131 NOT a separate Project item (GraphQL, Run 3)"},
-    {"id": "S2", "status": "passed", "artifact": "Stage 2 readiness validator + contract implemented; 158/194 focused tests pass (Runs 3-4)"},
-    {"id": "S3-impl", "status": "passed", "artifact": "Stage 3 dispatcher implemented: copilot-dispatch.yml + dispatch.py + dispatch_client.py + issue_dispatch.py; 83 deterministic mocked tests pass"},
-    {"id": "S3-live", "status": "pending", "artifact": "live workflow validation vs a real issue REQUIRES explicit human authorization after review/merge + credential/env setup (per invocation; never run live in this pass)"},
-    {"id": "V8", "status": "pending", "artifact": "final plan status completion (Step 3.5) - only at whole-plan final"},
-    {"id": "V9", "status": "superseded", "artifact": "Stage 0B approval gate (PR #128) and Stage 1 approval gate (PR #131) completed; superseded"}
+    {"id": "V1", "status": "passed", "artifact": "Executable YAML/source-tag/timing check: 10 sources, 17 claims, 16 verified, 1 abstained"},
+    {"id": "V2", "status": "passed", "artifact": "Executable heading/timing/content check: 12 slides, 30 minutes, sequence and caveat checkpoint passed"},
+    {"id": "V3", "status": "passed", "artifact": "Executable path/anchor scan: email portable, local links and targets resolve, labels present"},
+    {"id": "V4", "status": "passed", "artifact": "Diagnostics, plan artifact validation, exact quote/hash audit, timing/path/scope checks passed"},
+    {"id": "V5", "status": "pending", "artifact": "presentation-owner review"},
+    {"id": "V6", "status": "passed", "artifact": "Integrated Chromium plus local HTTP smoke: 12 slides, 12 notes, desktop/portrait bounds pass, 3 local resources, 0 remote resources"}
   ],
   "unresolvedDecisions": [
-    {"id": "D4", "summary": "Human: confirm whether to advance roadmap feature artifact-html-opt-in-default from `planned` (not auto-advanced)", "blocking": false},
-    {"id": "D5", "summary": "Human: confirm exact configuration of the 'approve Copilot-initiated workflow runs' toggle in the settings pane (operator UI; no API surface)", "blocking": false},
-    {"id": "D7", "summary": "Human: review and merge the Phase 5 dispatcher PR, then create COPILOT_ASSIGN_TOKEN and PROJECT_SYNC_TOKEN environment-protected secrets + the protected environment before ANY live dispatch; run dry-run on a throwaway issue first, then a supervised live dispatch. Phase 5 live validation remains outstanding and must NOT be marked complete until it passes.", "blocking": true}
+    {"id": "V5", "summary": "Presentation-owner review is required before final plan completion.", "blocking": true}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md", "status": "active-completed-phases-1-2-3-4"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-06-copilot-issue-implementation-pipeline-v2.md", "status": "run-5-stage-3-dispatcher-implemented"},
-    {"kind": "stage-1-evidence", "path": ".cg-docs/work-reports/2026-08-07-copilot-pilot-evidence.md", "status": "completed-GO"},
-    {"kind": "stage-0a-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0a-verification.md", "status": "completed"},
-    {"kind": "stage-0b-evidence", "path": ".cg-docs/work-reports/2026-08-06-stage-0b-evidence.md", "status": "completed"},
-    {"kind": "readiness-validator", "path": "scripts/issues/readiness.py", "status": "compatibility-facade-for-modular-read-only-validator"},
-    {"kind": "dispatcher-workflow", "path": ".github/workflows/copilot-dispatch.yml", "status": "implemented-workflow-dispatch-only"},
-    {"kind": "dispatcher-module", "path": "scripts/issues/dispatch.py", "status": "implemented"},
-    {"kind": "dispatcher-client", "path": "scripts/issues/dispatch_client.py", "status": "implemented"},
-    {"kind": "dispatcher-cli", "path": "scripts/issue_dispatch.py", "status": "implemented"},
-    {"kind": "dispatcher-tests", "path": "scripts/tests/test_issue_dispatch.py", "status": "83-passed"},
-    {"kind": "dispatcher-docs", "path": "docs/copilot-dispatch.md", "status": "published-registered"},
-    {"kind": "readiness-docs", "path": "docs/copilot-readiness.md", "status": "published-cross-ref-updated"},
-    {"kind": "github-issue", "path": "https://github.com/GPID-WB/compound-gpid/issues/127", "status": "closed-completed-Done-not-dispatched-in-phase5"},
-    {"kind": "github-pr", "path": "https://github.com/GPID-WB/compound-gpid/pull/131", "status": "merged-stage-1-pilot"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md", "status": "handoff-phases-1-5-complete"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-ai-knowledge-work-presentation-production.md", "status": "handoff"},
+    {"kind": "presentation", "path": "presentation/ai-knowledge-work-presentation.html", "status": "browser-verified-local-runtime"}
   ],
-  "nextCommand": "/cg-work phase5"
+  "nextCommand": "/cr-review"
 }
