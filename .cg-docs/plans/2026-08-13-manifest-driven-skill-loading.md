@@ -11,8 +11,8 @@ artifact-schema-version: 1
 execution-report: ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md"
 tags: [architecture, manifests, capabilities, platform-projections, kilo, context-efficiency, security, vendoring]
 phases: 7
-current-phase: 4
-completed-phases: [1, 2, 3]
+current-phase: 5
+completed-phases: [1, 2, 3, 4]
 roadmap-features: [token-audit-context-model, context-budget-enforcement-design, shrink-always-on-context, prompt-skill-split, stage-context-contracts, token-benchmark-before-after, attribution-documentation, quarantined-external-skill-vendoring, github-actions-supply-chain-hardening-pilot]
 ---
 

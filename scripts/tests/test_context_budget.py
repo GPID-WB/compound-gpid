@@ -314,3 +314,66 @@ class TestRealRepo:
         assets = gen.scan_canonical_assets(fixture, active_suites=["cg", "cr"])
         assert any(a["relative_path"].startswith(".github/prompts/cr-") for a in assets["prompts"])
         assert any(a["relative_path"].startswith(".github/skills/cr-skill-") for a in assets["skills"])
+
+
+# ---------------------------------------------------------------------------
+# Step 10: Inactive asset path exclusion and catalog routing integration
+# ---------------------------------------------------------------------------
+
+
+class TestInactiveAssetExclusion:
+    def test_inactive_module_assets_excluded_from_loadable_globs(self, tmp_path: Path) -> None:
+        """Assets owned by inactive modules must not appear in loadable globs."""
+        registry = budget.load_registry(tmp_path, _minimal_registry(CR_SUITE))
+        loadable = budget.loadable_module_ids(registry, ["cg"])
+        globs = budget.loadable_asset_globs(registry, loadable)
+        cr_glob = any("cr-" in g for g in globs)
+        assert not cr_glob
+
+    def test_catalog_router_inactive_capability_has_remedy(self, tmp_path: Path) -> None:
+        """The capability router returns actionable remedy for inactive capabilities."""
+        import cg_skill_catalog as catalog
+
+        registry = {
+            "schemaVersion": 2,
+            "description": "test",
+            "capabilities": [
+                {"id": "research-output", "owningModule": "cap-research-output",
+                 "supportedSuites": ["cr"], "supportedPlatforms": ["kilo"],
+                 "sourceProvenance": "canonical/.github", "activationCost": "high",
+                 "taskTriggers": [], "configSelectors": []},
+            ],
+            "modules": [
+                {"id": "kernel", "layer": "kernel", "displayName": "K", "description": "k",
+                 "dependsOn": [], "ownedAssets": []},
+                {"id": "cap-research-output", "layer": "capability", "displayName": "RO",
+                 "description": "ro", "dependsOn": ["kernel"], "ownedAssets": []},
+                {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
+                 "dependsOn": ["kernel"], "ownedAssets": []},
+            ],
+        }
+        manifest = {
+            "header": "compound-gpid-active-manifest-v1",
+            "schemaVersion": 1,
+            "generated": "test",
+            "selection": {
+                "configDigest": "a" * 64,
+                "configSchemaVersion": None,
+                "registryDigest": "b" * 64,
+                "registrySchemaVersion": 2,
+                "sourceRevision": "test",
+                "suites": ["cg"],
+                "capabilities": [],
+                "derivedCapabilities": [],
+                "moduleClosure": ["kernel", "suite-cg"],
+                "platforms": ["kilo"],
+                "desiredPlanDigest": "c" * 64,
+            },
+            "platformEligibility": {"platforms": ["kilo"], "capabilities": [], "allEligible": True},
+            "certifiedKiloLaunchRequired": False,
+            "catalogRecords": [],
+        }
+        result = catalog.route_capability(tmp_path, "research-output", manifest, registry)
+        assert not result.found
+        assert result.remedy is not None
+        assert "cg-update" in result.remedy or "suites" in result.remedy
