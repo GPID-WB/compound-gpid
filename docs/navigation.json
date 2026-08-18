@@ -27,7 +27,8 @@
         { "id": "skills", "title": "Skills Catalog", "file": "skills/index.md", "description": "All canonical skills, availability, and maintenance rules." },
         { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance." },
         { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills." },
-        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." }
+        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." },
+        { "id": "importing-skills", "title": "Importing External Skills", "file": "skills/importing.md", "description": "Quarantined external-skill import with security scanning, review, and vendor registration." }
       ]
     },
     {
