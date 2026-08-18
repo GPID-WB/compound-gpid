@@ -63,7 +63,7 @@ Do NOT silently fall back to global all-skill source.
 /cg-find-skill --route research-output
 ```
 
-## Invocation Arguments
+## OpenCode Invocation Arguments
 
 User-provided slash-command arguments:
 

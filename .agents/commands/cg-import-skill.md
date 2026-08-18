@@ -17,7 +17,7 @@ You are a security-aware skill importer for Compound GPID.
 ### Step 1: Validate Inputs
 
 1. Parse the import specification into repository URL, full 40-character SHA, and skill path.
-2. Validate the repository is on the allowlist in `.kilo/shared/vendor-policy.json`.
+2. Validate the repository is on the allowlist in `.agents/shared/vendor-policy.json`.
 3. Validate the skill path is a normalized descendant of an approved upstream skill root.
 4. Validate the SHA is a full 40-character hex string (not a short SHA or branch name).
 
@@ -79,11 +79,3 @@ If the import was vendored, clean up the quarantine directory.
 - Never auto-approve — vendor mode requires explicit maintainer action.
 - Redact all detected secret values in review output.
 - Reject executable files regardless of mode.
-
-## Invocation Arguments
-
-User-provided slash-command arguments:
-
-```text
-$ARGUMENTS
-```

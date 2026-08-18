@@ -62,11 +62,3 @@ Do NOT silently fall back to global all-skill source.
 # Check if a capability is active
 /cg-find-skill --route research-output
 ```
-
-## Invocation Arguments
-
-User-provided slash-command arguments:
-
-```text
-$ARGUMENTS
-```
