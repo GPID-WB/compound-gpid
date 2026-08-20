@@ -143,15 +143,20 @@ if (-not $defaultBranch) {
 }
 ```
 
-**Round detection** (enforce 2-round cap):
-```
-$mergeBase = (git merge-base HEAD <default-branch>) | Select-Object -First 1
-git log --oneline --first-parent --grep="^fix(ci):" $mergeBase..HEAD
-```
-Count lines. If ≥ 2 `fix(ci):` commits exist since the branch point:
-> "**2 fix rounds already attempted.** Remaining CI failures require manual intervention.
-> Review the logs: `gh run view <run-id> --log-failed`"
-Halt.
+**Round detection** (enforce a PR-scoped 2-round cap):
+
+1. Set `$mergeBase` to the first line of `git merge-base HEAD <default-branch>`.
+2. A CI-fix round is a single commit created by this workflow whose body contains
+   the exact trailer `CI-Fix-Round: <PR-number>/<round-number>`.
+3. Scan commit bodies in `$mergeBase..HEAD` for that trailer, retain only trailers
+   for the current PR number, and count unique round numbers. Do not count
+   historical `fix(ci):` subjects without this trailer: they may belong to an
+   earlier PR or to multiple logical commits from one previous fix round.
+4. If two unique current-PR round numbers exist:
+   > "**2 fix rounds already attempted.** Remaining CI failures require manual intervention.
+   > Review the logs: `gh run view <run-id> --log-failed`"
+   Halt.
+5. Otherwise, set `<next-round>` to the next unused round number (1 or 2).
 
 **Pre-push rebase check** (before applying fixes):
 1. `git fetch origin <default-branch>`
@@ -182,8 +187,10 @@ Before staging, run `git diff --stat HEAD` to enumerate exactly which files were
 git add <fixed-files>
 ```
 Verify exit code after `git add`. If non-zero: report the exact git error and halt — do not attempt `git commit`.
+Collapse all corrections from this verification pass into one commit so one CI
+run maps to one fix round:
 ```
-git commit -m "fix(ci): <brief description of what was fixed>"
+git commit -m "fix(ci): <brief description of what was fixed>" -m "CI-Fix-Round: <PR-number>/<next-round>"
 git push origin <branch>
 ```
 *(If a rebase was performed, use `git push --force-with-lease origin <branch>` — never plain `--force`. If `git push --force-with-lease` exits non-zero: report the exact error. Advise the user to `git fetch`, check for new remote commits on the branch, and re-invoke `/cg-verify-pr` to restart the fix round.)*

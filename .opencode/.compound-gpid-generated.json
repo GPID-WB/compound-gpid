@@ -224,7 +224,7 @@
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "3a98aa770f2697e7c198d58c179b939fbd82efec6fe935018417b47e0a09191b",
+      "sha256": "c6c39680376e1242c7faf5f779a2e453efefed3aba6aff939e5128d1d4354319",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "56b690d0b2c6157c90bcdc7528313cea4d142bf90046117d0bb49fc7df94623b",
+      "sha256": "27cb448acbaa5b935e2c64304df6afbd0679062ac594a8857ebd5e8651afb6d2",
       "executable": false
     },
     {
